@@ -1,14 +1,8 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
-// Imports
-// ---------------------------------------------------------------------------------------------------------------------
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace InfiniLore.Photino.NET;
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Code
-// ---------------------------------------------------------------------------------------------------------------------
-public static class PhotinoWindowFluentApiExtensions
+public static class PhotinoWindowEventFluentApiExtensions
 {
     /// <summary>
     ///     Registers user-defined handler methods to receive callbacks from the native window when its location changes.
