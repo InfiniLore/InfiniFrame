@@ -4,6 +4,8 @@ namespace InfiniLore.Photino.NET;
 
 public partial class PhotinoWindow
 {
+    private bool IsNotInitialized() => _nativeInstance == IntPtr.Zero;
+    
     private void ThrowIfNotInitialized()
     {
         if (_nativeInstance != IntPtr.Zero) return;
