@@ -2167,7 +2167,7 @@ public class PhotinoWindow : IPhotinoWindow
         if (IsWindowsPlatform)
             Invoke(() => PhotinoNative.ClearBrowserAutoFill(_nativeInstance));
         else
-            _logger.LogDebug("ClearBrowserAutoFill is only supported on the Windows platform");
+            _logger.LogWarning("ClearBrowserAutoFill is only supported on the Windows platform");
 
         return this;
     }
@@ -2201,7 +2201,7 @@ public class PhotinoWindow : IPhotinoWindow
         if (errors.Count == 0)
         {
             OnWindowCreating();
-            try//All C++ exceptions will bubble up to here.
+            try //All C++ exceptions will bubble up to here.
             {
                 _nativeType = NativeLibrary.GetMainProgramHandle();
 
