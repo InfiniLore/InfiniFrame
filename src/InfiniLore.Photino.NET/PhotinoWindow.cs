@@ -6,9 +6,22 @@ namespace InfiniLore.Photino.NET;
 
 public class PhotinoWindow : IPhotinoWindow
 {
-
+    public event EventHandler<Point>? WindowLocationChanged;
+    public event EventHandler<Size>? WindowSizeChanged;
+    public event EventHandler? WindowFocusIn;
+    public event EventHandler? WindowMaximized;
+    public event EventHandler? WindowRestored;
+    public event EventHandler? WindowFocusOut;
+    public event EventHandler? WindowMinimized;
+    public event EventHandler<string>? WebMessageReceived;
+    public event NetClosingDelegate? WindowClosing;
+    public event EventHandler? WindowCreating;
+    public event EventHandler? WindowCreated;
+    
     //Pointers to the type and instance.
     private static IntPtr _nativeType = IntPtr.Zero;
+    private IntPtr _nativeInstance;
+    private PhotinoNativeParameters _startupParameters = PhotinoNativeParameters.Default;
 
     //There can only be 1 message loop for all windows.
     private static bool _messageLoopIsStarted;
@@ -28,29 +41,13 @@ public class PhotinoWindow : IPhotinoWindow
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
     private int _minWidth;
-    private IntPtr _nativeInstance;
     
-    private PhotinoNativeParameters _startupParameters = PhotinoNativeParameters.Default;
+    private readonly Dictionary<string, NetCustomSchemeDelegate?> _customSchemes = [];
 
-    private readonly Dictionary<string, NetCustomSchemeDelegate?> _customSchemes = new Dictionary<string, NetCustomSchemeDelegate?>();
-    
-    private readonly ILogger<PhotinoWindow> _logger = LoggerFactory.Create(config => {
-        config.AddConsole().SetMinimumLevel(LogLevel.Debug);
-    }).CreateLogger<PhotinoWindow>();
-    
-    public event EventHandler<Point>? WindowLocationChanged;
-    public event EventHandler<Size>? WindowSizeChanged;
-    public event EventHandler? WindowFocusIn;
-    public event EventHandler? WindowMaximized;
-    public event EventHandler? WindowRestored;
-    public event EventHandler? WindowFocusOut;
-    public event EventHandler? WindowMinimized;
-    public event EventHandler<string>? WebMessageReceived;
-    public event NetClosingDelegate? WindowClosing;
-    public event EventHandler? WindowCreating;
-    public event EventHandler? WindowCreated;
+    private readonly ILogger<PhotinoWindow> _logger;
 
-    //CONSTRUCTOR
+
+    #region Constructors
     /// <summary>
     ///     Initializes a new instance of the PhotinoWindow class.
     /// </summary>
@@ -63,6 +60,10 @@ public class PhotinoWindow : IPhotinoWindow
     public PhotinoWindow(PhotinoWindow? parent = null, ILogger<PhotinoWindow>? logger = null)
     {
         if (logger is not null) _logger = logger;
+        else _logger = LoggerFactory.Create(config => {
+            config.AddConsole().SetMinimumLevel(LogLevel.Debug);
+        }).CreateLogger<PhotinoWindow>();
+        
         Parent = parent;
         _managedThreadId = Environment.CurrentManagedThreadId;
 
@@ -83,21 +84,16 @@ public class PhotinoWindow : IPhotinoWindow
         _startupParameters.WebMessageReceivedHandler = OnWebMessageReceived;
         _startupParameters.CustomSchemeHandler = OnCustomScheme;
     }
+    #endregion
 
-    //READ ONLY PROPERTIES
+    #region READ ONLY PROPERTIES
     /// <summary>
     ///     Indicates whether the current platform is Windows.
     /// </summary>
     /// <value>
     ///     <c>true</c> if the current platform is Windows; otherwise, <c>false</c>.
     /// </value>
-    public static bool IsWindowsPlatform
-    {
-        get
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        }
-    }
+    public static bool IsWindowsPlatform => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
     /// <summary>
     ///     Indicates whether the current platform is MacOS.
@@ -105,24 +101,12 @@ public class PhotinoWindow : IPhotinoWindow
     /// <value>
     ///     <c>true</c> if the current platform is MacOS; otherwise, <c>false</c>.
     /// </value>
-    public static bool IsMacOsPlatform
-    {
-        get
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-        }
-    }
-
+    public static bool IsMacOsPlatform => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    
     /// <summary>
     ///     Indicates the version of MacOS
     /// </summary>
-    public static Version? MacOsVersion
-    {
-        get
-        {
-            return IsMacOsPlatform ? Version.Parse(RuntimeInformation.OSDescription.Split(' ')[1]) : null;
-        }
-    }
+    public static Version? MacOsVersion => IsMacOsPlatform ? Version.Parse(RuntimeInformation.OSDescription.Split(' ')[1]) : null;
 
     /// <summary>
     ///     Indicates whether the current platform is Linux.
@@ -130,13 +114,7 @@ public class PhotinoWindow : IPhotinoWindow
     /// <value>
     ///     <c>true</c> if the current platform is Linux; otherwise, <c>false</c>.
     /// </value>
-    public static bool IsLinuxPlatform
-    {
-        get
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        }
-    }
+    public static bool IsLinuxPlatform => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
     /// <summary>
     ///     Represents a property that gets the handle of the native window on a Windows platform.
@@ -238,9 +216,10 @@ public class PhotinoWindow : IPhotinoWindow
     ///     Gets a unique GUID to identify the native window.
     /// </summary>
     /// <remarks>
-    ///     This property is not currently utilized by the Photino framework.
+    ///     This property is not currently used by the Photino framework.
     /// </remarks>
     public Guid Id { get; } = Guid.NewGuid();
+    #endregion
 
     //READ-WRITE PROPERTIES
     /// <summary>
@@ -350,13 +329,9 @@ public class PhotinoWindow : IPhotinoWindow
         }
         set
         {
-            if (ContextMenuEnabled != value)
-            {
-                if (_nativeInstance == IntPtr.Zero)
-                    _startupParameters.ContextMenuEnabled = value;
-                else
-                    Invoke(() => PhotinoNative.SetContextMenuEnabled(_nativeInstance, value));
-            }
+            if (ContextMenuEnabled == value) return;
+            if (_nativeInstance == IntPtr.Zero ) _startupParameters.ContextMenuEnabled = value;
+            else Invoke(() => PhotinoNative.SetContextMenuEnabled(_nativeInstance, value));
         }
     }
 
