@@ -1,9 +1,11 @@
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
 
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public partial class PhotinoWindow : IPhotinoWindow
 {
     public event EventHandler<Point>? WindowLocationChanged;
@@ -96,15 +98,15 @@ public partial class PhotinoWindow : IPhotinoWindow
     public static bool IsWindowsPlatform { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
     /// <summary>
-    ///     Indicates whether the current platform is MacOS.
+    ///     Indicates whether the current platform is macOS.
     /// </summary>
     /// <value>
-    ///     <c>true</c> if the current platform is MacOS; otherwise, <c>false</c>.
+    ///     <c>true</c> if the current platform is macOS; otherwise, <c>false</c>.
     /// </value>
     public static bool IsMacOsPlatform { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     
     /// <summary>
-    ///     Indicates the version of MacOS
+    ///     Indicates the version of macOS
     /// </summary>
     public static Version? MacOsVersion => IsMacOsPlatform ? Version.Parse(RuntimeInformation.OSDescription.Split(' ')[1]) : null;
 
@@ -143,8 +145,8 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Gets list of information for each monitor from the native window.
-    ///     This property represents a list of Monitor objects associated to each display monitor.
+    ///     Gets a list of information for each monitor from the native window.
+    ///     This property represents a list of Monitor objects associated with each display monitor.
     /// </summary>
     /// <remarks>
     ///     If called when the native instance of the window is not initialized, it will throw an ApplicationException.
@@ -222,7 +224,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     When true, the native window will appear centered on the screen. By default, this is set to false.
     /// </summary>
     /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set value after native window is initalized.
+    ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
     public bool Centered
     {
@@ -248,7 +250,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     By default, this is set to false.
     /// </summary>
     /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set value after native window is initalized.
+    ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
     /// <remarks>
     ///     The user has to supply titlebar, border, dragging and resizing manually.
@@ -271,13 +273,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     When true, the native window and browser control can be displayed with transparent background.
-    ///     Html document's body background must have alpha-based value.
+    ///     When true, the native window and browser control can be displayed with a transparent background.
+    ///     HTML document's body background must have alpha-based value.
     ///     WebView2 on Windows can only be fully transparent or fully opaque.
     ///     By default, this is set to false.
     /// </summary>
     /// <exception cref="ApplicationException">
-    ///     On Windows, thrown if trying to set value after native window is initalized.
+    ///     On Windows, thrown if trying to set a value after a native window is initialized.
     /// </exception>
     public bool Transparent
     {
@@ -599,7 +601,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
     /// <summary>
     ///     Gets or Sets whether the native browser control grants all requests for access to local resources
-    ///     such as the users camera and microphone. By default, this is set to true.
+    ///     such as the user's camera and microphone. By default, this is set to true.
     /// </summary>
     /// <remarks>
     ///     This only works on Windows.
@@ -630,7 +632,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// ///
     /// <summary>
     ///     Gets or Sets the Height property of the native window in pixels.
-    ///     Default value is 0.
+    ///     The default value is 0.
     /// </summary>
     /// <seealso cref="UseOsDefaultSize" />
     public int Height
@@ -685,7 +687,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
     /// <summary>
     ///     Gets or sets the native window Left (X) and Top coordinates (Y) in pixels.
-    ///     Default is 0,0 which means the window will be aligned to the top left edge of the screen.
+    ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
     /// </summary>
     /// <seealso cref="UseOsDefaultLocation" />
     public Point Location
@@ -716,7 +718,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <summary>
     ///     Gets or sets the native window Left (X) coordinate in pixels.
     ///     This represents the horizontal position of the window relative to the screen.
-    ///     Default value is 0 which means the window will be aligned to the left edge of the screen.
+    ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
     /// </summary>
     /// <seealso cref="UseOsDefaultLocation" />
     public int Left
@@ -891,13 +893,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Gets the reference to parent PhotinoWindow instance.
-    ///     This property can only be set in the constructor and it is optional.
+    ///     Gets the reference to the parent PhotinoWindow instance.
+    ///     This property can only be set in the constructor, and it is optional.
     /// </summary>
     public IPhotinoWindow? Parent { get; }
 
     /// <summary>
-    ///     Gets or sets whether the native window can be resized by the user.
+    ///     Gets or sets whether the user can resize the native window.
     ///     Default is true.
     /// </summary>
     public bool Resizable
@@ -956,7 +958,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Gets or sets platform specific initialization parameters for the native browser control on startup.
+    ///     Gets or sets platform-specific initialization parameters for the native browser control on startup.
     ///     Default is none.
     ///     WINDOWS: WebView2 specific string. Space separated.
     ///     https://peter.sh/experiments/chromium-command-line-switches/
@@ -996,7 +998,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// </remarks>
     /// <seealso cref="StartUrl" />
     /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set value after native window is initalized.
+    ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
     public string StartString
     {
@@ -1015,7 +1017,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Gets or sets an URL that the browser control will navigate to when initialized.
+    ///     Gets or sets a URL that the browser control will navigate to when initialized.
     ///     Default is none.
     /// </summary>
     /// <remarks>
@@ -1023,7 +1025,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// </remarks>
     /// <seealso cref="StartString" />
     /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set value after native window is initalized.
+    ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
     public string StartUrl
     {
@@ -1049,7 +1051,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Only available on Windows.
     /// </remarks>
     /// <exception cref="ApplicationException">
-    ///     Thrown if platform is not Windows.
+    ///     Thrown if a platform is not Windows.
     /// </exception>
     public string? TemporaryFilesPath
     {
@@ -1068,14 +1070,14 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Gets or sets the registration Id for doing toast notifications.
-    ///     Default is to use the window title.
+    ///     Gets or sets the registration id for doing toast notifications.
+    ///     The default is to use the window title.
     /// </summary>
     /// <remarks>
     ///     Only available on Windows.
     /// </remarks>
     /// <exception cref="ApplicationException">
-    ///     Thrown if platform is not Windows.
+    ///     Thrown if a platform is not Windows.
     /// </exception>
     public string NotificationRegistrationId
     {
@@ -1171,14 +1173,14 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     When true the native window starts up at the OS Default location.
+    ///     When true, the native window starts up at the OS Default location.
     ///     Default is true.
     /// </summary>
     /// <remarks>
     ///     Overrides Left (X) and Top (Y) properties.
     /// </remarks>
     /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set value after native window is initalized.
+    ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
     public bool UseOsDefaultLocation
     {
@@ -1195,14 +1197,14 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     When true the native window starts at the OS Default size.
+    ///     When true, the native window starts at the OS Default size.
     ///     Default is true.
     /// </summary>
     /// <remarks>
     ///     Overrides Height and Width properties.
     /// </remarks>
     /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set value after native window is initalized.
+    ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
     public bool UseOsDefaultSize
     {
@@ -1288,7 +1290,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
     //FLUENT METHODS FOR INITIALIZING STARTUP PARAMETERS FOR NEW WINDOWS
     //CAN ALSO BE CALLED AFTER INITIALIZATION TO SET VALUES
-    //ONE OF THESE 3 METHODS *MUST* BE CALLED PRIOR TO CALLING WAITFORCLOSE() OR CREATECHILDWINDOW()
+    //ONE OF THESE 3 METHODS *MUST* BE CALLED PRIOR TO CALLING WATERCOLORIST() OR CREATECHILDWINDOW()
 
     /// <summary>
     ///     Dispatches an Action to the UI thread if called from another thread.
@@ -1296,7 +1298,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="workItem">The delegate encapsulating a method / action to be executed in the UI thread.</param>
+    /// <param name="workItem"> The delegate encapsulating a method / action to be executed in the UI thread.</param>
     public IPhotinoWindow Invoke(Action workItem)
     {
         // If we're already on the UI thread, no need to dispatch
@@ -1308,13 +1310,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Loads a specified <see cref="Uri" /> into the browser control.
+    ///     Loads specified <see cref="Uri" /> into the browser control.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
     /// <remarks>
-    ///     Load() or LoadString() must be called before native window is initialized.
+    ///     Load() or LoadString() must be called before a native window is initialized.
     /// </remarks>
     /// <param name="uri">A Uri pointing to the file or the URL to load.</param>
     public IPhotinoWindow Load(Uri uri)
@@ -1353,7 +1355,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         // Open a file resource string path
         var absolutePath = Path.GetFullPath(path);
 
-        // For bundled app it can be necessary to consider
+        // For a bundled app it can be necessary to consider
         // the app context base directory. Check there too.
         if (File.Exists(absolutePath)) return Load(new Uri(absolutePath, UriKind.Absolute));
         absolutePath = $"{AppContext.BaseDirectory}/{path}";
@@ -1372,7 +1374,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// </returns>
     /// <remarks>
     ///     Used to load HTML into the browser control directly.
-    ///     Load() or LoadString() must be called before native window is initialized.
+    ///     Load() or LoadString() must be called before a native window is initialized.
     /// </remarks>
     /// <param name="content">Raw content (such as HTML)</param>
     public IPhotinoWindow LoadRawString(string content)
@@ -1415,9 +1417,9 @@ public partial class PhotinoWindow : IPhotinoWindow
         _logger.LogDebug("Current location: {Location}", Location);
         _logger.LogDebug("New location: {NewLocation}", location);
 
-        // If the window is outside of the work area,
+        // If the window is outside the work area,
         // recalculate the position and continue.
-        //When window isn't initialized yet, cannot determine screen size.
+        //When a window isn't initialized yet, cannot determine screen size.
         if (!allowOutsideWorkArea && _nativeInstance != IntPtr.Zero)
         {
             var horizontalWindowEdge = location.X + Width;
@@ -1440,17 +1442,17 @@ public partial class PhotinoWindow : IPhotinoWindow
         // Bug:
         // For some reason the vertical position is not handled correctly.
         // Whenever a positive value is set, the window appears at the
-        // very bottom of the screen and the only visible thing is the
+        // very bottom of the screen, and the only visible thing is the
         // application window title bar. As a workaround we make a
         // negative value out of the vertical position to "pull" the window up.
         // Note:
         // This behavior seems to be a macOS thing. In the Photino.Native
         // project files it is commented to be expected behavior for macOS.
-        // There is some code trying to mitigate this problem but it might
+        // There is some code trying to mitigate this problem, but it might
         // not work as expected. Further investigation is necessary.
         // Update:
         // This behavior seems to have changed with macOS Sonoma.
-        // Therefore we determine the version of macOS and only apply the
+        // Therefore, we determine the version of macOS and only apply the
         // workaround for older versions.
         if (IsMacOsPlatform && MacOsVersion?.Major < 23)
         {
@@ -1535,8 +1537,8 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     When true, the native window can be displayed with transparent background.
-    ///     Chromeless must be set to true. Html document's body background must have alpha-based value.
+    ///     When true, the native window can be displayed with a transparent background.
+    ///     Chromeless must be set to true. HTML document's body background must have alpha-based value.
     ///     By default, this is set to false.
     /// </summary>
     public IPhotinoWindow SetTransparent(bool enabled)
@@ -1593,7 +1595,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
     /// <summary>
     ///     When set to true, the native browser control grants all requests for access to local resources
-    ///     such as the users camera and microphone. By default, this is set to true.
+    ///     such as the users' camera and microphone. By default, this is set to true.
     /// </summary>
     /// <remarks>
     ///     This only works on Windows.
@@ -1658,7 +1660,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Defaults to window title if not specified.
     /// </remarks>
     /// <exception cref="ApplicationException">
-    ///     Thrown if platform is not Windows.
+    ///     Thrown if a platform is not Windows.
     /// </exception>
     /// <param name="notificationRegistrationId"></param>
     /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
@@ -1760,7 +1762,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Only available on Windows.
     /// </remarks>
     /// <exception cref="ApplicationException">
-    ///     Thrown if platform is not Windows.
+    ///     Thrown if a platform is not Windows.
     /// </exception>
     /// <param name="enable"></param>
     /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
@@ -1822,7 +1824,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Sets whether the native window can be resized by the user.
+    ///     Sets whether the user can resize the native window.
     ///     Default is true.
     /// </summary>
     /// <returns>
@@ -1874,7 +1876,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> coordinates (Y)
     ///     in pixels.
-    ///     Default is 0,0 which means the window will be aligned to the top left edge of the screen.
+    ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
     /// </summary>
     /// <seealso cref="UseOsDefaultLocation" />
     /// <returns>
@@ -1974,12 +1976,12 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Only available on Windows.
     /// </remarks>
     /// <exception cref="ApplicationException">
-    ///     Thrown if platform is not Windows.
+    ///     Thrown if a platform is not Windows.
     /// </exception>
     /// <returns>
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="tempFilesPath">Path to temp files directory.</param>
+    /// <param name="tempFilesPath">Path to temp files' directory.</param>
     public IPhotinoWindow SetTemporaryFilesPath(string tempFilesPath)
     {
         _logger.LogDebug(".SetTemporaryFilesPath({TempFilesPath})", tempFilesPath);
@@ -2066,7 +2068,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     When true the native window starts up at the OS Default location.
+    ///     When true, the native window starts up at the OS Default location.
     ///     Default is true.
     /// </summary>
     /// <remarks>
@@ -2084,7 +2086,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     When true the native window starts at the OS Default size.
+    ///     When true, the native window starts at the OS Default size.
     ///     Default is true.
     /// </summary>
     /// <remarks>
@@ -2102,7 +2104,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Set runtime path for WebView2 so that developers can use Photino on Windows using the "Fixed Version" deployment
+    ///     Set the runtime path for WebView2 so that developers can use Photino on Windows using the "Fixed Version" deployment
     ///     module of the WebView2 runtime.
     /// </summary>
     /// <remarks>
@@ -2124,7 +2126,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Clears the auto-fill data in the browser control.
+    ///     Clears the autofill data in the browser control.
     /// </summary>
     /// <remarks>
     ///     This method is only supported on the Windows platform.
@@ -2281,7 +2283,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Show an open file dialog native to the OS.
     /// </summary>
     /// <remarks>
-    ///     Filter names are not used on macOS. Use async version for InfiniLore.Photino.Blazor as syncronous version crashes.
+    ///     Filter names are not used on macOS. Use async version for InfiniLore.Photino.Blazor as the synchronous version crashes.
     /// </remarks>
     /// <exception cref="ApplicationException">
     ///     Thrown when the window is not initialized.
@@ -2300,7 +2302,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Async version is required for InfiniLore.Photino.Blazor
     /// </summary>
     /// <remarks>
-    ///     Filter names are not used on macOS. Use async version for InfiniLore.Photino.Blazor as syncronous version crashes.
+    ///     Filter names are not used on macOS. Use async version for InfiniLore.Photino.Blazor as the synchronous version crashes.
     /// </remarks>
     /// <exception cref="ApplicationException">
     ///     Thrown when the window is not initialized.
@@ -2346,7 +2348,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Show an save folder dialog native to the OS.
+    ///     Show a save folder dialog native to the OS.
     /// </summary>
     /// <remarks>
     ///     Filter names are not used on macOS.
@@ -2661,7 +2663,6 @@ public partial class PhotinoWindow : IPhotinoWindow
             numBytes = (int)ms.Position;
             var buffer = Marshal.AllocHGlobal(numBytes);
             Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
-            //_hGlobalToFree.Add(buffer);
             return buffer;
         }
     }
