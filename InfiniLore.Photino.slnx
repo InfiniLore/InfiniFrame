@@ -4,13 +4,13 @@
   </Folder>
   <Folder Name="/.dev-tools/github/" />
   <Folder Name="/example/">
-    <Project Path="examples\HelloWorld\HelloWorld.csproj" Type="Classic C#" />
-    <Project Path="examples\Photino.Blazor.MultiWindowSample\Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
-    <Project Path="examples\Photino.Blazor.NativeAOT\Photino.Blazor.NativeAOT.csproj" Type="Classic C#" />
-    <Project Path="examples\Photino.Blazor.Sample\Photino.Blazor.Sample.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.InfiniLore.Photino.Blazor.HelloWorld\Example.InfiniLore.Photino.Blazor.HelloWorld.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.InfiniLore.Photino.Blazor.MultiWindowSample\Example.InfiniLore.Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.InfiniLore.Photino.Blazor.NativeAOT\Example.InfiniLore.Photino.Blazor.NativeAOT.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.InfiniLore.Photino.Blazor.Sample\Example.InfiniLore.Photino.Blazor.Sample.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src\Photino.Blazor\Photino.Blazor.csproj" Type="Classic C#" />
-    <Project Path="src\Photino.NET\Photino.NET.csproj" />
+    <Project Path="src\InfiniLore.Photino.Blazor\InfiniLore.Photino.Blazor.csproj" Type="Classic C#" />
+    <Project Path="src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
   </Folder>
 </Solution>
