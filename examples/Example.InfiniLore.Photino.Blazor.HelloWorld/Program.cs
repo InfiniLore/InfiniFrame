@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Example.InfiniLore.Photino.Blazor.HelloWorld;
 
-class Program
+public static class Program
 {
     [STAThread] private static void Main(string[] args)
     {

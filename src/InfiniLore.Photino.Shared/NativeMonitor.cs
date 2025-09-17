@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino;
@@ -8,9 +9,10 @@ namespace InfiniLore.Photino;
 ///     unmanaged access to the underlying memory.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public struct NativeMonitor
 {
-    public NativeRect monitor;
-    public NativeRect work;
-    public double scale;
+    public NativeRect Monitor { get; set; }
+    public NativeRect Work { get; set; }
+    public double Scale { get; set; }
 }

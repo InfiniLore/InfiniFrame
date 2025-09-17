@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino;
@@ -6,8 +7,11 @@ namespace InfiniLore.Photino;
 ///     Represents a 2D rectangle in a native (integer-based) coordinate system.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public struct NativeRect
 {
-    public int x, y;
-    public int width, height;
+    public int X {get; set; }
+    public int Y {get; set; }
+    public int Width {get; set; }
+    public int Height {get; set; }
 }
