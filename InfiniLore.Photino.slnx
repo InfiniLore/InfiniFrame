@@ -1,0 +1,16 @@
+﻿<Solution>
+  <Folder Name="/.dev-tools/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/" />
+  <Folder Name="/example/">
+    <Project Path="examples\HelloWorld\HelloWorld.csproj" Type="Classic C#" />
+    <Project Path="examples\Photino.Blazor.MultiWindowSample\Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
+    <Project Path="examples\Photino.Blazor.NativeAOT\Photino.Blazor.NativeAOT.csproj" Type="Classic C#" />
+    <Project Path="examples\Photino.Blazor.Sample\Photino.Blazor.Sample.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src\Photino.Blazor\Photino.Blazor.csproj" Type="Classic C#" />
+    <Project Path="src\Photino.NET\Photino.NET.csproj" />
+  </Folder>
+</Solution>
