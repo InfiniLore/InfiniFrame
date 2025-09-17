@@ -2186,7 +2186,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 if (IsWindowsPlatform)
                     lastError = Marshal.GetLastWin32Error();
 
-                _logger.LogDebug("***\n{ExMessage}\n{ExStackTrace}\nError #{LastError}", ex.Message, ex.StackTrace, lastError);
+                _logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
                 throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
             }
             OnWindowCreated();
@@ -2204,7 +2204,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 if (IsWindowsPlatform)
                     lastError = Marshal.GetLastWin32Error();
 
-                _logger.LogDebug("***\n{ExMessage}\n{ExStackTrace}\nError #{LastError}", ex.Message, ex.StackTrace, lastError);
+                _logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
                 throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
             }
         }
