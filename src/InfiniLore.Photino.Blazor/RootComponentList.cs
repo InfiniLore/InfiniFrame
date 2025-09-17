@@ -24,7 +24,7 @@ public class RootComponentList : IEnumerable<(Type, string)>
 
     public void Add(Type componentType, string selector)
     {
-        if (!typeof(IComponent).IsAssignableFrom(componentType))
+        if (!componentType.IsAssignableTo(typeof(IComponent)))
         {
             throw new ArgumentException("The component type must implement IComponent interface.");
         }
