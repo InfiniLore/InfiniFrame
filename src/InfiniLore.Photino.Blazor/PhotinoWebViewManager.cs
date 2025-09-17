@@ -36,26 +36,26 @@ public class PhotinoWebViewManager : WebViewManager
         // Create a scheduler that uses one threads.
         var sts = new SynchronousTaskScheduler();
 
-        _window.WebMessageReceived += (sender, message) =>
+        _window.WebMessageReceived += (_, message) =>
         {
             // On some platforms, we need to move off the browser UI thread
-            Task.Factory.StartNew(message =>
+            Task.Factory.StartNew(m =>
             {
                 // TODO: Fix this. Photino should ideally tell us the URL that the message comes from so we
                 // know whether to trust it. Currently it's hardcoded to trust messages from any source, including
                 // if the webview is somehow navigated to an external URL.
                 var messageOriginUrl = new Uri(AppBaseUri);
-
-                MessageReceived(messageOriginUrl, (string)message!);
+                
+                MessageReceived(messageOriginUrl, (string)m!);
             }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, sts);
         };
 
         //Create channel and start reader
         _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
-        Task.Run(messagePump);
+        Task.Run(MessagePump);
     }
 
-    public Stream HandleWebRequest(object sender, string schema, string url, out string contentType)
+    public Stream? HandleWebRequest(object? sender, string? schema, string url, out string? contentType)
     {
         // It would be better if we were told whether or not this is a navigation request, but
         // since we're not, guess.
@@ -66,13 +66,13 @@ public class PhotinoWebViewManager : WebViewManager
         if (url.Contains('?')) url = url.Substring(0, url.IndexOf('?'));
 
         if (url.StartsWith(AppBaseUri, StringComparison.Ordinal)
-            && TryGetResponseContent(url, !hasFileExtension, out var statusCode, out var statusMessage,
+            && TryGetResponseContent(url, !hasFileExtension, out _, out _,
                                      out var content, out var headers))
         {
             headers.TryGetValue("Content-Type", out contentType);
             return content;
         }
-        contentType = default;
+        contentType = null;
         return null;
     }
 
@@ -87,7 +87,7 @@ public class PhotinoWebViewManager : WebViewManager
             Thread.Sleep(200);
     }
 
-    private async Task messagePump()
+    private async Task MessagePump()
     {
         var reader = _channel.Reader;
         try
@@ -95,7 +95,7 @@ public class PhotinoWebViewManager : WebViewManager
             while (true)
             {
                 var message = await reader.ReadAsync();
-                _window.SendWebMessage(message);
+                await _window.SendWebMessageAsync(message);
             }
         }
         catch (ChannelClosedException) {}
@@ -105,7 +105,10 @@ public class PhotinoWebViewManager : WebViewManager
     {
         //complete channel
         try { _channel.Writer.Complete(); }
-        catch {}
+        catch
+        {
+            // ignored
+        }
 
         //continue disposing
         return base.DisposeAsyncCore();

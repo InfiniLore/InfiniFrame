@@ -1,0 +1,34 @@
+using Microsoft.AspNetCore.Components;
+using System.Collections;
+
+namespace InfiniLore.Photino.Blazor;
+
+public class RootComponentList : IEnumerable<(Type, string)>
+{
+    private readonly List<(Type componentType, string domElementSelector)> _components = [];
+
+    public IEnumerator<(Type, string)> GetEnumerator()
+    {
+        return _components.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return _components.GetEnumerator();
+    }
+
+    public void Add<TComponent>(string selector) where TComponent : IComponent
+    {
+        _components.Add((typeof(TComponent), selector));
+    }
+
+    public void Add(Type componentType, string selector)
+    {
+        if (!typeof(IComponent).IsAssignableFrom(componentType))
+        {
+            throw new ArgumentException("The component type must implement IComponent interface.");
+        }
+
+        _components.Add((componentType, selector));
+    }
+}

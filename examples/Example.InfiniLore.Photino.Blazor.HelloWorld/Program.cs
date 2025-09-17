@@ -1,6 +1,5 @@
 ﻿using InfiniLore.Photino.Blazor;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Example.InfiniLore.Photino.Blazor.HelloWorld;
 
@@ -22,7 +21,7 @@ class Program
             .SetIconFile("favicon.ico")
             .SetTitle("Photino Hello World");
 
-        AppDomain.CurrentDomain.UnhandledException += (sender, error) =>
+        AppDomain.CurrentDomain.UnhandledException += (_, error) =>
         {
             app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         };

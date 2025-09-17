@@ -2,15 +2,13 @@
 using InfiniLore.Photino.Blazor;
 using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 
 namespace Example.InfiniLore.Photino.Blazor.MultiWindowSample;
 
 class Program
 {
 
-    private static readonly List<PhotinoWindow> _windows = new List<PhotinoWindow>();
+    private static readonly List<PhotinoWindow> Windows = new List<PhotinoWindow>();
 
     [STAThread]
     private static void Main(string[] args)
@@ -46,7 +44,7 @@ class Program
         var app = appBuilder.Build();
 
         // customize window
-        _windows.Add(
+        Windows.Add(
         app.MainWindow
             .SetTitle(windowCreationArgs.Title)
             .Load(windowCreationArgs.HtmlPath)
@@ -58,7 +56,7 @@ class Program
             })
         );
 
-        AppDomain.CurrentDomain.UnhandledException += (sender, error) =>
+        AppDomain.CurrentDomain.UnhandledException += (_, error) =>
         {
             app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         };
@@ -68,23 +66,16 @@ class Program
 
     private static void CloseAllWindows()
     {
-        foreach (var window in _windows)
+        foreach (var window in Windows)
         {
             window.Close();
         }
     }
 
-    private class WindowCreationArgs
+    private class WindowCreationArgs(Type rootComponentType, string title, Uri htmlPath)
     {
-
-        public WindowCreationArgs(Type rootComponentType, string title, Uri htmlPath)
-        {
-            RootComponentType = rootComponentType;
-            Title = title;
-            HtmlPath = htmlPath;
-        }
-        public Type RootComponentType { get; }
-        public string Title { get; }
-        public Uri HtmlPath { get; }
+        public Type RootComponentType { get; } = rootComponentType;
+        public string Title { get; } = title;
+        public Uri HtmlPath { get; } = htmlPath;
     }
 }

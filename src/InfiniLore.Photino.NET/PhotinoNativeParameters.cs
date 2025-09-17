@@ -32,7 +32,7 @@ struct PhotinoNativeParameters
 
     ///<summary>WINDOWS: OPTIONAL: Path to store temp files for browser control. Defaults is user's AppDataLocal folder.</summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string TemporaryFilesPath;
+    internal string? TemporaryFilesPath;
 
     ///<summary>OPTIONAL: Changes the user agent on the browser control at initialiation.</summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
@@ -94,6 +94,7 @@ struct PhotinoNativeParameters
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
     [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPStr, SizeConst = 16)]
+    // ReSharper disable once CollectionNeverQueried.Global
     internal string[] CustomSchemeNames;
 
 
@@ -236,6 +237,35 @@ struct PhotinoNativeParameters
     /// </summary>
     [MarshalAs(UnmanagedType.I4)] internal int Size;
 
+    /// <summary>
+    ///     Parameters sent to Photino.Native to start a new instance of a Photino.Native window.
+    /// </summary>
+    public static PhotinoNativeParameters Default => new PhotinoNativeParameters
+    {
+        Resizable = true,//These values can't be initialized within the struct itself. Set required defaults.
+        ContextMenuEnabled = true,
+        CustomSchemeNames = new string[16],
+        DevToolsEnabled = true,
+        GrantBrowserPermissions = true,
+        UserAgent = "Photino WebView",
+        MediaAutoplayEnabled = true,
+        FileSystemAccessEnabled = true,
+        WebSecurityEnabled = true,
+        JavascriptClipboardAccessEnabled = true,
+        MediaStreamEnabled = true,
+        SmoothScrollingEnabled = true,
+        IgnoreCertificateErrorsEnabled = false,
+        NotificationsEnabled = true,
+        TemporaryFilesPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Photino")
+            : null,
+        Title = "Photino",
+        UseOsDefaultLocation = true,
+        UseOsDefaultSize = true,
+        Zoom = 100,
+        MaxHeight = int.MaxValue,
+        MaxWidth = int.MaxValue
+    };
 
     /// <summary>
     ///     Checks the parameters to ensure they are valid before window creation. Called by PhotinoWindow prior to

@@ -8,38 +8,34 @@ namespace InfiniLore.Photino.Blazor;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddBlazorDesktop(this IServiceCollection services, IFileProvider fileProvider = null)
+    public static IServiceCollection AddBlazorDesktop(this IServiceCollection services, IFileProvider? fileProvider = null)
     {
-        services
-            .AddOptions<PhotinoBlazorAppConfiguration>()
-            .Configure(opts =>
-            {
-                opts.AppBaseUri = new Uri(PhotinoWebViewManager.AppBaseUri);
-                opts.HostPage = "index.html";
-            });
+        services.AddOptions<PhotinoBlazorAppConfiguration>();
+        // .Configure(opts =>
+        // {
+        //     opts.AppBaseUri = new Uri(PhotinoWebViewManager.AppBaseUri);
+        //     opts.HostPage = "index.html";
+        // });
 
         return services
             .AddScoped(sp =>
             {
-                var handler = sp.GetService<PhotinoHttpHandler>();
+                var handler = sp.GetRequiredService<PhotinoHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(PhotinoWebViewManager.AppBaseUri) };
             })
             .AddSingleton(sp =>
             {
-                var manager = sp.GetService<PhotinoWebViewManager>();
-                var store = sp.GetService<JSComponentConfigurationStore>();
+                var manager = sp.GetRequiredService<PhotinoWebViewManager>();
+                var store = sp.GetRequiredService<JSComponentConfigurationStore>();
 
                 return new BlazorWindowRootComponents(manager, store);
             })
             .AddSingleton<Dispatcher, PhotinoDispatcher>()
             .AddSingleton(_ =>
             {
-                if (fileProvider is null)
-                {
-                    var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
-                    return new PhysicalFileProvider(root);
-                }
-                return fileProvider;
+                if (fileProvider is not null) return fileProvider;
+                var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
+                return new PhysicalFileProvider(root);
             })
             .AddSingleton<JSComponentConfigurationStore>()
             .AddSingleton<PhotinoBlazorApp>()

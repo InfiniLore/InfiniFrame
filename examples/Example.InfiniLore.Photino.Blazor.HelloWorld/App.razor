@@ -1,23 +1,23 @@
 <div>
-    <h1>@message!</h1>
+    <h1>@_message!</h1>
 
-    <p>Current count: @currentCount</p>
+    <p>Current count: @_currentCount</p>
 
     <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 </div>
 
 @code
 {
-    string message;
-    private int currentCount;
+    private string? _message;
+    private int? _currentCount;
 
     protected override void OnInitialized()
     {
-        message = "Hello InfiniLore.Photino.Blazor!";
+        _message = "Hello InfiniLore.Photino.Blazor!";
     }
 
     void IncrementCount(object e)
     {
-        currentCount++;
+        _currentCount++;
     }
 }

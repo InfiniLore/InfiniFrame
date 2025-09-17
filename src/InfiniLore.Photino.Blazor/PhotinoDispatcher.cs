@@ -12,7 +12,7 @@ class PhotinoDispatcher : Dispatcher
     public PhotinoDispatcher(PhotinoSynchronizationContext context)
     {
         _context = context;
-        _context.UnhandledException += (sender, e) => OnUnhandledException(e);
+        _context.UnhandledException += (_, e) => OnUnhandledException(e);
     }
 
     public override bool CheckAccess()

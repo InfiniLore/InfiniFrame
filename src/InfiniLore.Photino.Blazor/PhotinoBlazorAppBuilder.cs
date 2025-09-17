@@ -1,28 +1,19 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using System.Collections;
 
 namespace InfiniLore.Photino.Blazor;
 
 public class PhotinoBlazorAppBuilder
 {
-    internal PhotinoBlazorAppBuilder()
-    {
-        RootComponents = new RootComponentList();
-        Services = new ServiceCollection();
-    }
+    public RootComponentList RootComponents { get; } = new RootComponentList();
+    public IServiceCollection Services { get; } = new ServiceCollection();
 
-    public RootComponentList RootComponents { get; }
-
-    public IServiceCollection Services { get; }
-
-    public static PhotinoBlazorAppBuilder CreateDefault(string[] args = default)
+    public static PhotinoBlazorAppBuilder CreateDefault(string[]? args = null)
     {
         return CreateDefault(null, args);
     }
 
-    public static PhotinoBlazorAppBuilder CreateDefault(IFileProvider fileProvider, string[] args = default)
+    public static PhotinoBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null)
     {
         // We don't use the args for anything right now, but we want to accept them
         // here so that it shows up this way in the project templates.
@@ -37,7 +28,7 @@ public class PhotinoBlazorAppBuilder
         return builder;
     }
 
-    public PhotinoBlazorApp Build(Action<IServiceProvider> serviceProviderOptions = null)
+    public PhotinoBlazorApp Build(Action<IServiceProvider>? serviceProviderOptions = null)
     {
         // register root components with DI container
         // Services.AddSingleton(RootComponents);
@@ -49,35 +40,5 @@ public class PhotinoBlazorAppBuilder
 
         app.Initialize(sp, RootComponents);
         return app;
-    }
-}
-
-public class RootComponentList : IEnumerable<(Type, string)>
-{
-    private readonly List<(Type componentType, string domElementSelector)> components = new List<(Type componentType, string domElementSelector)>();
-
-    public IEnumerator<(Type, string)> GetEnumerator()
-    {
-        return components.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return components.GetEnumerator();
-    }
-
-    public void Add<TComponent>(string selector) where TComponent : IComponent
-    {
-        components.Add((typeof(TComponent), selector));
-    }
-
-    public void Add(Type componentType, string selector)
-    {
-        if (!typeof(IComponent).IsAssignableFrom(componentType))
-        {
-            throw new ArgumentException("The component type must implement IComponent interface.");
-        }
-
-        components.Add((componentType, selector));
     }
 }

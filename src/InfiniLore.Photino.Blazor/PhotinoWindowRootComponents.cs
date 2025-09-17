@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace InfiniLore.Photino.Blazor;
 
+// ReSharper disable once InvalidXmlDocComment
 /// <summary>
 ///     Configures root components for a <see cref="BlazorWindow" />.
 /// </summary>
@@ -24,12 +25,12 @@ public sealed class BlazorWindowRootComponents : IJSComponentConfiguration
     /// <summary>
     ///     Adds a root component to the window.
     /// </summary>
-    /// <typeparam name="TComponent">The component type.</typeparam>
+    /// <param name="typeComponent">The component type.</param>
     /// <param name="selector">A CSS selector describing where the component should be added in the host page.</param>
     /// <param name="parameters">An optional dictionary of parameters to pass to the component.</param>
-    public void Add(Type typeComponent, string selector, IDictionary<string, object> parameters = null)
+    public void Add(Type typeComponent, string selector, IDictionary<string, object?>? parameters = null)
     {
-        var parameterView = parameters == null
+        var parameterView = parameters is null
             ? ParameterView.Empty
             : ParameterView.FromDictionary(parameters);
 
