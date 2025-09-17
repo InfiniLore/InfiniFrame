@@ -1,61 +1,16 @@
-## <span>NEXT PHOTINO FEATURES POLL</span>
+# InfiniLore.Photino 
+A rework of the [`Photino.Net`](https://github.com/tryphotino/photino.NET) and [`Photino.Blazor`](https://github.com/tryphotino/photino.Blazor) projects.
 
-Hello Photino Community! We have a new poll question, regarding where and how you use Photino:
+---
 
-[PHOTINO USAGE POLL](https://github.com/tryphotino/photino.NET/discussions/172)
+## Status
+This project is currently in a *very early stage of development*.
 
-# Build native, cross-platform desktop apps with Blazor
+---
 
-Photino is a lightweight open-source framework for building native,  
-cross-platform desktop applications with Web UI technology.
+## Repo history
+This repo was originally forked from [`Photino.NET`](https://github.com/tryphotino/photino.NET) and then the history of the [`Photino.Blazor`](https://github.com/tryphotino/photino.Blazor) repo was merged into this. 
+This means that GitHub will only show a reference to the original [`Photino.NET`](https://github.com/tryphotino/photino.NET), though the git history and thus proper attribution of both repos is preserved.
 
-Photino.Blazor builds on <span>Photino.</span>NET to add Blazor capabilities.
-
-Photino uses the OSs built-in WebKit-based browser control for Windows, macOS and Linux.
-Photino is the lightest cross-platform framework. Compared to Electron, a Photino app is up to 110 times smaller! And it uses far less system memory too!
-
-## Usage
-
-```C#
-[STAThread]
-static void Main(string[] args)
-{
-	var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
-
-	appBuilder.Services
-		.AddLogging();
-
-	// register root component and selector
-	appBuilder.RootComponents.Add<App>("app");
-
-	var app = appBuilder.Build();
-
-	// customize window
-	app.MainWindow
-	    .SetIconFile(favicon.ico)
-		.SetTitle("Photino Blazor Sample");
-
-	AppDomain.CurrentDomain.UnhandledException += (sender, error) =>
-	{
-		app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
-	};
-
-	app.Run();
-}
-```
-
-## Photino.Blazor
-
-This project represents Blazor functionality on top of <span>Photino.</span>NET (the .NET 5 wrapper for the Photino.Native project), which makes it available for all operating systems (Windows, macOS, Linux).
-This Blazor sample projects are contained in this repo and are not included withi the non-Blazor samples.
-
-If you made changes to the Photino.Native or <span>Photino.</span>NET projects, or added new features to them, you will likely need this repo to expose the new functionality to the Photino.Blazor wrapper.
-In all other cases, you can just grab the nuget package for your projects:
-https://www.nuget.org/packages/Photino.Blazor
-
-## How to build this repo
-
-If you want to build this library itself, you will need:
-
--   Windows 10, Mac 10.15+, or Linux (Tested with Ubuntu 18.04+)
--   Make sure the Photino.Native Nuget package is added and up to date.
+## License
+Unlike the other projects in the InfiniLore ecosystem, which all follow GPL or LGPL, this repo follows the same [ Apache-2.0 license file](LICENSE) from [`Photino.NET`](https://github.com/tryphotino/photino.NET) to adhere to the original licensing without the need for extra modifications to the license.
