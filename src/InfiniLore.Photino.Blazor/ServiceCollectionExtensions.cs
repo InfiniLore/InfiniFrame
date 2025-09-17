@@ -1,13 +1,10 @@
-namespace InfiniLore.Photino.Blazor;
-
-using global::Photino.NET;
+using InfiniLore.Photino.NET;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using System;
-using System.IO;
-using System.Net.Http;
+
+namespace InfiniLore.Photino.Blazor;
 
 public static class ServiceCollectionExtensions
 {

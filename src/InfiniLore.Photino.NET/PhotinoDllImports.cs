@@ -1,7 +1,7 @@
-namespace InfiniLore.Photino.NET;
-
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+
+namespace InfiniLore.Photino.NET;
 
 /// <summary>
 ///     The PhotinoWindow class represents a window in a Photino-based desktop application.

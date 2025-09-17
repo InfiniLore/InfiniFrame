@@ -1,10 +1,7 @@
-﻿namespace InfiniLore.Photino.Blazor;
-
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
+
+namespace InfiniLore.Photino.Blazor;
 
 public class PhotinoHttpHandler : DelegatingHandler
 {

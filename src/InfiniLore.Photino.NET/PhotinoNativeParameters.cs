@@ -1,6 +1,6 @@
-﻿namespace InfiniLore.Photino.NET;
+﻿using System.Runtime.InteropServices;
 
-using System.Runtime.InteropServices;
+namespace InfiniLore.Photino.NET;
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
 struct PhotinoNativeParameters

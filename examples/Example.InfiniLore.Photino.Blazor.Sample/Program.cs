@@ -1,8 +1,8 @@
-﻿namespace Example.InfiniLore.Photino.Blazor.Sample;
-
-using global::InfiniLore.Photino.Blazor;
+﻿using InfiniLore.Photino.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+
+namespace Example.InfiniLore.Photino.Blazor.Sample;
 
 class Program
 {

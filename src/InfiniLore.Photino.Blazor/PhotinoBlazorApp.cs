@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using InfiniLore.Photino.NET;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniLore.Photino.Blazor;
 

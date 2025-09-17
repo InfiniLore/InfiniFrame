@@ -1,11 +1,9 @@
-﻿namespace InfiniLore.Photino.Blazor;
-
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using System;
 using System.Collections;
-using System.Collections.Generic;
+
+namespace InfiniLore.Photino.Blazor;
 
 public class PhotinoBlazorAppBuilder
 {

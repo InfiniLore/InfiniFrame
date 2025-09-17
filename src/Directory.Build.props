@@ -6,12 +6,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>true</IsPackable>
-        
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DebugType>embedded</DebugType>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        
-<!--        <Version>0.1.0-preview.96</Version>-->
+
+        <!--        <Version>0.1.0-preview.96</Version>-->
         <Authors>TryPhotino, Anna Sas</Authors>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -20,14 +20,14 @@
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     </PropertyGroup>
 
-    
+
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../assets/photino.png" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../assets/photino.png" Pack="true" PackagePath="" Visible="false"/>
     </ItemGroup>
 
     <ItemGroup>
-        
+
     </ItemGroup>
 </Project>

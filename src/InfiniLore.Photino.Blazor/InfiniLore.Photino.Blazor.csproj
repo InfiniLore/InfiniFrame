@@ -2,14 +2,14 @@
     <PropertyGroup>
         <PackageId>InfiniLore.Photino.Blazor</PackageId>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView" Version="9.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
+        <ProjectReference Include="..\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj"/>
     </ItemGroup>
 
 </Project>

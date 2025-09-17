@@ -1,11 +1,11 @@
-﻿namespace Example.InfiniLore.Photino.Blazor.MultiWindowSample;
-
-using Components;
-using global::InfiniLore.Photino.Blazor;
-using global::Photino.NET;
+﻿using Example.InfiniLore.Photino.Blazor.MultiWindowSample.Components;
+using InfiniLore.Photino.Blazor;
+using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+
+namespace Example.InfiniLore.Photino.Blazor.MultiWindowSample;
 
 class Program
 {

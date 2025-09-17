@@ -1,12 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace InfiniLore.Photino.Blazor;
-
 using Microsoft.AspNetCore.Components;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+
+namespace InfiniLore.Photino.Blazor;
 
 class PhotinoDispatcher : Dispatcher
 {

@@ -1,7 +1,7 @@
-﻿namespace InfiniLore.Photino.NET;
-
-using System.Drawing;
+﻿using System.Drawing;
 using System.Runtime.InteropServices;
+
+namespace InfiniLore.Photino.NET;
 
 public partial class PhotinoWindow
 {
