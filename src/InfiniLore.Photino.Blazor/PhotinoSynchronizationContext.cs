@@ -67,7 +67,7 @@ class PhotinoSynchronizationContext : SynchronizationContext
             try
             {
                 completion.Callback();
-                completion.SetResult(null!); // TODO this feels wrong
+                completion.SetResult(null!); 
             }
             catch (OperationCanceledException)
             {
