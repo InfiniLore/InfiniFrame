@@ -32,7 +32,9 @@ public partial class PhotinoWindow
     
     private PhotinoNativeParameters _startupParameters = PhotinoNativeParameters.Default;
     
-    private readonly ILogger<PhotinoWindow> _logger = LoggerFactory.Create(config => config.AddConsole()).CreateLogger<PhotinoWindow>();
+    private readonly ILogger<PhotinoWindow> _logger = LoggerFactory.Create(config => {
+        config.AddConsole().SetMinimumLevel(LogLevel.Debug);
+    }).CreateLogger<PhotinoWindow>();
 
     //CONSTRUCTOR
     /// <summary>

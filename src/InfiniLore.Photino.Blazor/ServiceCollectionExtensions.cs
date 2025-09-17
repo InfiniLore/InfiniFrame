@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.Photino.Blazor;
 
@@ -42,7 +43,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<PhotinoHttpHandler>()
             .AddSingleton<PhotinoSynchronizationContext>()
             .AddSingleton<PhotinoWebViewManager>()
-            .AddSingleton(new PhotinoWindow())
+            .AddSingleton<PhotinoWindow>(provider => new PhotinoWindow(null, provider.GetService<ILogger<PhotinoWindow>>()))
             .AddBlazorWebView();
     }
 }

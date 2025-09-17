@@ -1,5 +1,7 @@
 ﻿using InfiniLore.Photino.Blazor;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Example.InfiniLore.Photino.Blazor.Sample;
 
@@ -9,8 +11,16 @@ class Program
     {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
 
-        appBuilder.Services
-            .AddLogging();
+        appBuilder.Services.AddLogging(config => {
+            config.ClearProviders();
+            config.AddSerilog();
+        });
+        
+        appBuilder.Services.AddSerilog(config =>
+        {
+            config.WriteTo.Console()
+                .MinimumLevel.Debug();
+        });
 
         // register root component and selector
         appBuilder.RootComponents.Add<App>("app");
