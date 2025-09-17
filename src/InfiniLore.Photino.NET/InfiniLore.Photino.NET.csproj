@@ -8,4 +8,8 @@
         <PackageReference Include="Photino.Native" Version="4.0.22"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\InfiniLore.Photino.Contracts\InfiniLore.Photino.Contracts.csproj" />
+    </ItemGroup>
+
 </Project>

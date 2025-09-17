@@ -16,8 +16,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageIcon>icon.png</PackageIcon>
-        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageIcon>photino.png</PackageIcon>
     </PropertyGroup>
 
 
