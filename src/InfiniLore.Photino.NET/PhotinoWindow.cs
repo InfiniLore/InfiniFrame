@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
 
-public class PhotinoWindow : IPhotinoWindow
+public partial class PhotinoWindow : IPhotinoWindow
 {
     public event EventHandler<Point>? WindowLocationChanged;
     public event EventHandler<Size>? WindowSizeChanged;
@@ -93,7 +93,7 @@ public class PhotinoWindow : IPhotinoWindow
     /// <value>
     ///     <c>true</c> if the current platform is Windows; otherwise, <c>false</c>.
     /// </value>
-    public static bool IsWindowsPlatform => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    public static bool IsWindowsPlatform { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
     /// <summary>
     ///     Indicates whether the current platform is MacOS.
@@ -101,7 +101,7 @@ public class PhotinoWindow : IPhotinoWindow
     /// <value>
     ///     <c>true</c> if the current platform is MacOS; otherwise, <c>false</c>.
     /// </value>
-    public static bool IsMacOsPlatform => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    public static bool IsMacOsPlatform { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     
     /// <summary>
     ///     Indicates the version of MacOS
@@ -114,7 +114,7 @@ public class PhotinoWindow : IPhotinoWindow
     /// <value>
     ///     <c>true</c> if the current platform is Linux; otherwise, <c>false</c>.
     /// </value>
-    public static bool IsLinuxPlatform => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+    public static bool IsLinuxPlatform { get; } =  RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
     /// <summary>
     ///     Represents a property that gets the handle of the native window on a Windows platform.
@@ -133,8 +133,8 @@ public class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (!IsWindowsPlatform) throw new PlatformNotSupportedException($"{nameof(WindowHandle)} is only supported on Windows.");
-            if (_nativeInstance == IntPtr.Zero) throw new ApplicationException("The Photino window is not initialized yet");
+            ThrowIfNotWindowsEnvironment();
+            ThrowIfNotInitialized();
 
             var handle = IntPtr.Zero;
             Invoke(() => handle = PhotinoNative.GetWindowHandlerWin32(_nativeInstance));
@@ -157,8 +157,7 @@ public class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (_nativeInstance == IntPtr.Zero)
-                throw new ApplicationException("The Photino window hasn't been initialized yet.");
+            ThrowIfNotInitialized();
 
             var monitors = new List<Monitor>();
 
@@ -186,9 +185,7 @@ public class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (_nativeInstance == IntPtr.Zero)
-                throw new ApplicationException("The Photino window hasn't been initialized yet.");
-
+            ThrowIfNotInitialized();
             return Monitors[0];
         }
     }
@@ -203,8 +200,7 @@ public class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (_nativeInstance == IntPtr.Zero)
-                throw new ApplicationException("The Photino window hasn't been initialized yet.");
+            ThrowIfNotInitialized();
 
             uint dpi = 0;
             Invoke(() => dpi = PhotinoNative.GetScreenDpi(_nativeInstance));
@@ -270,8 +266,7 @@ public class PhotinoWindow : IPhotinoWindow
                 if (_startupParameters is { Chromeless: true } != value)
                     _startupParameters.Chromeless = value;
             }
-            else
-                throw new ApplicationException("Chromeless can only be set before the native window is instantiated.");
+            else ThrowIfNotInitialized();
         }
     }
 
@@ -2198,30 +2193,26 @@ public class PhotinoWindow : IPhotinoWindow
             }
             OnWindowCreated();
 
-            if (!_messageLoopIsStarted)
+            if (_messageLoopIsStarted) return;
+            
+            _messageLoopIsStarted = true;
+            try
             {
-                _messageLoopIsStarted = true;
-                try
-                {
-                    Invoke(() => PhotinoNative.WaitForExit(_nativeInstance));//start the message loop. there can only be 1 message loop for all windows.
-                }
-                catch (Exception ex)
-                {
-                    var lastError = 0;
-                    if (IsWindowsPlatform)
-                        lastError = Marshal.GetLastWin32Error();
+                Invoke(() => PhotinoNative.WaitForExit(_nativeInstance));//start the message loop. there can only be 1 message loop for all windows.
+            }
+            catch (Exception ex)
+            {
+                var lastError = 0;
+                if (IsWindowsPlatform)
+                    lastError = Marshal.GetLastWin32Error();
 
-                    _logger.LogDebug("***\n{ExMessage}\n{ExStackTrace}\nError #{LastError}", ex.Message, ex.StackTrace, lastError);
-                    throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
-                }
+                _logger.LogDebug("***\n{ExMessage}\n{ExStackTrace}\nError #{LastError}", ex.Message, ex.StackTrace, lastError);
+                throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
             }
         }
         else
         {
-            var formattedErrors = "\n";
-            foreach (var error in errors)
-                formattedErrors += error + "\n";
-
+            var formattedErrors = errors.Aggregate("\n", (current, error) => current + error + "\n");
             throw new ArgumentException($"Startup Parameters Are Not Valid: {formattedErrors}");
         }
     }
