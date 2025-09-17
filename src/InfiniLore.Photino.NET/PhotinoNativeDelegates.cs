@@ -1,11 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
-
 //These are for the callbacks from C++ to C#.
 
 //These are wired up automatically in the PhotinoWindow (.NET) constructor.
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)] public delegate byte CppClosingDelegate();    //C++ uses 1 byte for bool, C# uses 4 bytes
+[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)] public delegate byte CppClosingDelegate();//C++ uses 1 byte for bool, C# uses 4 bytes
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)] public delegate void CppFocusInDelegate();
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)] public delegate void CppFocusOutDelegate();
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)] public delegate void CppResizedDelegate(int width, int height);
