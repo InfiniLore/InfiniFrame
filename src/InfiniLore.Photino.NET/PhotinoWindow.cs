@@ -217,6 +217,8 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     This property is not currently used by the Photino framework.
     /// </remarks>
     public Guid Id { get; } = Guid.NewGuid();
+
+    public int ManagedThreadId => _managedThreadId;
     #endregion
 
     //READ-WRITE PROPERTIES
@@ -1278,13 +1280,9 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
         set
         {
-            if (Zoom != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.Zoom = value;
-                else
-                    Invoke(() => PhotinoNative.SetZoom(_nativeInstance, value));
-            }
+            if (Zoom == value) return;
+            if (IsNotInitialized()) _startupParameters.Zoom = value;
+            else Invoke(() => PhotinoNative.SetZoom(_nativeInstance, value));
         }
     }
 
@@ -1430,8 +1428,8 @@ public partial class PhotinoWindow : IPhotinoWindow
             var isOutsideVerticalWorkArea = verticalWindowEdge > verticalWorkAreaEdge;
 
             var locationInsideWorkArea = new Point(
-            isOutsideHorizontalWorkArea ? horizontalWorkAreaEdge - Width : location.X,
-            isOutsideVerticalWorkArea ? verticalWorkAreaEdge - Height : location.Y
+                isOutsideHorizontalWorkArea ? horizontalWorkAreaEdge - Width : location.X,
+                isOutsideVerticalWorkArea ? verticalWorkAreaEdge - Height : location.Y
             );
 
             location = locationInsideWorkArea;

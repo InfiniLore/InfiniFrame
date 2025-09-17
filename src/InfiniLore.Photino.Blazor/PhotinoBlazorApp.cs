@@ -8,16 +8,16 @@ public class PhotinoBlazorApp(IServiceProvider services, IPhotinoWindow window, 
     /// <summary>
     ///     Gets configuration for the service provider.
     /// </summary>
-    public IServiceProvider Services { get; private set; } = services;
+    public IServiceProvider Services { get; } = services;
 
     /// <summary>
     ///     Gets configuration for the root components in the window.
     /// </summary>
-    public IPhotinoJSComponentConfiguration? RootComponents { get; private set; } = rootComponents;
+    public IPhotinoJSComponentConfiguration? RootComponents { get; } = rootComponents;
 
-    public IPhotinoWindow MainWindow { get; private set; } = window;
+    public IPhotinoWindow MainWindow { get; } = window;
 
-    public IPhotinoWebViewManager WindowManager { get; private set; } = manager;
+    public IPhotinoWebViewManager WindowManager { get; } = manager;
 
     internal void Initialize(RootComponentList rootComponents)
     {

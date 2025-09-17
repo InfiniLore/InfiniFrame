@@ -57,6 +57,7 @@ public interface IPhotinoWindow
     bool UseOsDefaultSize { get; }
     EventHandler<string>? WebMessageReceivedHandler { get; }
     int Width { get; }
+    int ManagedThreadId { get; }
 
     event EventHandler<Point>? WindowLocationChanged;
     event EventHandler<Size>? WindowSizeChanged;

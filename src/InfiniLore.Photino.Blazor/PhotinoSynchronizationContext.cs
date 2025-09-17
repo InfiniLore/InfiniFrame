@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using InfiniLore.Photino.NET;
-using System.Reflection;
 
 namespace InfiniLore.Photino.Blazor;
 
@@ -17,45 +16,22 @@ namespace InfiniLore.Photino.Blazor;
 // relying on that for single-threadedness. Maybe also in the future Photino could consider having its own
 // built-in SyncContext/Dispatcher like other UI platforms.
 
-class PhotinoSynchronizationContext : SynchronizationContext
+class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizationContext.State? state = null) : SynchronizationContext
 {
-    private static readonly ContextCallback ExecutionContextThunk = state =>
+    private readonly State _state = state ?? new State();
+
+    private static readonly ContextCallback ExecutionContextThunk = static state =>
     {
         if (state is not WorkItem item) return;
         item.SynchronizationContext?.ExecuteSynchronously(null, item.Callback, item.StateObject);
     };
 
-    private static readonly Action<Task, object?> BackgroundWorkThunk = (_, state) =>
+    private static readonly Action<Task, object?> BackgroundWorkThunk = static (_, state) =>
     {
         if (state is not WorkItem item) return;
         item.SynchronizationContext?.ExecuteBackground(item);
     };
-    private readonly MethodInfo _invokeMethodInfo;
-
-    private readonly State _state;
     
-    // ReSharper disable once NotAccessedField.Local
-    private readonly int _uiThreadId;
-
-    private readonly IPhotinoWindow _window;
-
-    public PhotinoSynchronizationContext(IPhotinoWindow window)
-        : this(window, new State())
-    {
-    }
-
-    private PhotinoSynchronizationContext(IPhotinoWindow window, State state)
-    {
-        _state = state;
-
-        _window = window ?? throw new ArgumentNullException(nameof(window));
-
-        _uiThreadId = (int)typeof(PhotinoWindow).GetField("_managedThreadId", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .GetValue(_window)!;
-
-        _invokeMethodInfo = typeof(PhotinoWindow).GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance)!;
-    }
-
     public event UnhandledExceptionEventHandler? UnhandledException;
 
     public Task InvokeAsync(Action action)
@@ -193,7 +169,7 @@ class PhotinoSynchronizationContext : SynchronizationContext
     {
         lock (_state.Lock)
         {
-            return new PhotinoSynchronizationContext(_window, _state);
+            return new PhotinoSynchronizationContext(window, _state);
         }
     }
 
@@ -254,9 +230,7 @@ class PhotinoSynchronizationContext : SynchronizationContext
     {
         // Anything run on the sync context should actually be dispatched as far as Photino
         // is concerned, so that it's safe to interact with the native window/WebView.
-        _invokeMethodInfo.Invoke(_window, new object?[]
-        {
-            () =>
+        window.Invoke(() =>
             {
                 var original = Current;
                 try
@@ -279,7 +253,7 @@ class PhotinoSynchronizationContext : SynchronizationContext
                     completion?.SetResult(null!);
                 }
             }
-        });
+        );
     }
 
     private void ExecuteBackground(WorkItem item)
@@ -315,7 +289,7 @@ class PhotinoSynchronizationContext : SynchronizationContext
         handler?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
     }
 
-    private class State
+    public class State
     {
         public readonly Lock Lock = new Lock();
         public bool IsBusy;// Just for debugging
