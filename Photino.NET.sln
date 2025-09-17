@@ -8,8 +8,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ADCF985E-349D-455E-A4DF-1748B27BA637}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		azure-pipelines-photino.net-dev.yml = azure-pipelines-photino.net-dev.yml
-		azure-pipelines-photino.net-prod.yml = azure-pipelines-photino.net-prod.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
