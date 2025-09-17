@@ -43,7 +43,6 @@ struct PhotinoNativeParameters
     ///     WINDOWS: WebView2 specific string.
     ///     https://peter.sh/experiments/chromium-command-line-switches/
     ///     https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49
-    ///     &viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
     ///     https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
     ///     LINUX: Webkit2Gtk specific string.
     ///     https://webkitgtk.org/reference/webkit2gtk/2.5.1/WebKitSettings.html
@@ -266,7 +265,7 @@ struct PhotinoNativeParameters
         if (isWindows && Chromeless && (UseOsDefaultLocation || UseOsDefaultSize))
             response.Add("Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize on Windows. Size and location must be specified.");
 
-        Size = Marshal.SizeOf(typeof(PhotinoNativeParameters));
+        Size = Marshal.SizeOf<PhotinoNativeParameters>();
 
         return response;
     }

@@ -15,7 +15,7 @@ public partial class PhotinoWindow
     internal Dictionary<string, NetCustomSchemeDelegate> CustomSchemes = new Dictionary<string, NetCustomSchemeDelegate>();
 
     //FLUENT EVENT HANDLER REGISTRATION
-    public event EventHandler<Point> WindowLocationChanged;
+    public event EventHandler<Point>? WindowLocationChanged;
 
     /// <summary>
     ///     Registers user-defined handler methods to receive callbacks from the native window when its location changes.
