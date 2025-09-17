@@ -21,16 +21,7 @@ public class PhotinoBlazorApp(IServiceProvider services, IPhotinoWindow window, 
 
     internal void Initialize(RootComponentList rootComponents)
     {
-        MainWindow
-            .SetTitle("InfiniLore.Photino.Blazor App")
-            .SetUseOsDefaultSize(false)
-            .SetUseOsDefaultLocation(false)
-            .SetWidth(1000)
-            .SetHeight(900)
-            .SetLeft(450)
-            .SetTop(100);
-
-        MainWindow.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest);
+       MainWindow.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest);
 
         if (RootComponents is null) return;
         foreach (var component in rootComponents) {
@@ -49,7 +40,7 @@ public class PhotinoBlazorApp(IServiceProvider services, IPhotinoWindow window, 
     public Stream? HandleWebRequest(object? sender, string? scheme, string? url, out string? contentType)
     {
         contentType = null;
-        return url is not null 
+        return !string.IsNullOrWhiteSpace(url) 
             ? WindowManager.HandleWebRequest(sender, scheme, url, out contentType) 
             : null;
     }
