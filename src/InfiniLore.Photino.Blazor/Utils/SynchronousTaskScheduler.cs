@@ -1,9 +1,5 @@
 ﻿namespace InfiniLore.Photino.Blazor.Utils;
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 class SynchronousTaskScheduler : TaskScheduler
 {
     public override int MaximumConcurrencyLevel

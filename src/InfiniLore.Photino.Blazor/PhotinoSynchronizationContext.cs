@@ -1,13 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace InfiniLore.Photino.Blazor;
-
-using global::Photino.NET;
-using System;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
+using InfiniLore.Photino.NET;
+
+namespace InfiniLore.Photino.Blazor;
 
 // Most UI platforms have a built-in SyncContext/Dispatcher, e.g., Windows Forms and WPF, which WebView
 // can normally use directly. However, Photino currently doesn't.

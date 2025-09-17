@@ -1,9 +1,7 @@
-namespace InfiniLore.Photino.Blazor;
-
-using global::Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.IO;
+using InfiniLore.Photino.NET;
+
+namespace InfiniLore.Photino.Blazor;
 
 public class PhotinoBlazorApp
 {
