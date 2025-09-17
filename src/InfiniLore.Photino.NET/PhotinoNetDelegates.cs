@@ -341,7 +341,7 @@ public partial class PhotinoWindow
         }
         else
         {
-            Photino_AddCustomSchemeName(_nativeInstance, scheme);
+            PhotinoNative.AddCustomSchemeName(_nativeInstance, scheme);
         }
 
         CustomSchemes[scheme] += handler;
