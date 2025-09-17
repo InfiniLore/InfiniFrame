@@ -1,5 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+using InfiniLore.Photino.Blazor.Contracts;
 using InfiniLore.Photino.Blazor.Utils;
 using InfiniLore.Photino.NET;
 using Microsoft.AspNetCore.Components;
@@ -12,7 +13,7 @@ using System.Threading.Channels;
 
 namespace InfiniLore.Photino.Blazor;
 
-public class PhotinoWebViewManager : WebViewManager
+public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager
 {
 
     // On Windows, we can't use a custom scheme to host the initial HTML,
@@ -25,9 +26,9 @@ public class PhotinoWebViewManager : WebViewManager
 
     public static readonly string AppBaseUri = $"{BlazorAppScheme}://localhost/";
     private readonly Channel<string> _channel;
-    private readonly PhotinoWindow _window;
+    private readonly IPhotinoWindow _window;
 
-    public PhotinoWebViewManager(PhotinoWindow window, IServiceProvider provider, Dispatcher dispatcher,
+    public PhotinoWebViewManager(IPhotinoWindow window, IServiceProvider provider, Dispatcher dispatcher,
         IFileProvider fileProvider, JSComponentConfigurationStore jsComponents, IOptions<PhotinoBlazorAppConfiguration> config)
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage)
     {

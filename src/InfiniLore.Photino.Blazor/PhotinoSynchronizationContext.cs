@@ -37,14 +37,14 @@ class PhotinoSynchronizationContext : SynchronizationContext
     // ReSharper disable once NotAccessedField.Local
     private readonly int _uiThreadId;
 
-    private readonly PhotinoWindow _window;
+    private readonly IPhotinoWindow _window;
 
-    public PhotinoSynchronizationContext(PhotinoWindow window)
+    public PhotinoSynchronizationContext(IPhotinoWindow window)
         : this(window, new State())
     {
     }
 
-    private PhotinoSynchronizationContext(PhotinoWindow window, State state)
+    private PhotinoSynchronizationContext(IPhotinoWindow window, State state)
     {
         _state = state;
 

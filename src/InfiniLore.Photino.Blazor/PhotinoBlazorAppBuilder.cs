@@ -38,7 +38,7 @@ public class PhotinoBlazorAppBuilder
 
         serviceProviderOptions?.Invoke(sp);
 
-        app.Initialize(sp, RootComponents);
+        app.Initialize(RootComponents);
         return app;
     }
 }

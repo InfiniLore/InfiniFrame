@@ -8,7 +8,7 @@ namespace Example.InfiniLore.Photino.Blazor.MultiWindowSample;
 class Program
 {
 
-    private static readonly List<PhotinoWindow> Windows = new List<PhotinoWindow>();
+    private static readonly List<IPhotinoWindow> Windows = new List<IPhotinoWindow>();
 
     [STAThread]
     private static void Main(string[] args)

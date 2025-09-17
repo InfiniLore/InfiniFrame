@@ -1,31 +1,26 @@
+using InfiniLore.Photino.Blazor.Contracts;
 using InfiniLore.Photino.NET;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniLore.Photino.Blazor;
 
-public class PhotinoBlazorApp
+public class PhotinoBlazorApp(IServiceProvider services, IPhotinoWindow window, IPhotinoWebViewManager manager, IPhotinoJSComponentConfiguration? rootComponents = null)
 {
     /// <summary>
     ///     Gets configuration for the service provider.
     /// </summary>
-    public IServiceProvider Services { get; private set; } = null!;
+    public IServiceProvider Services { get; private set; } = services;
 
     /// <summary>
     ///     Gets configuration for the root components in the window.
     /// </summary>
-    public BlazorWindowRootComponents? RootComponents { get; private set; }
+    public IPhotinoJSComponentConfiguration? RootComponents { get; private set; } = rootComponents;
 
-    public PhotinoWindow MainWindow { get; private set; } = null!;
+    public IPhotinoWindow MainWindow { get; private set; } = window;
 
-    public PhotinoWebViewManager WindowManager { get; private set; } = null!;
+    public IPhotinoWebViewManager WindowManager { get; private set; } = manager;
 
-    internal void Initialize(IServiceProvider services, RootComponentList rootComponents)
+    internal void Initialize(RootComponentList rootComponents)
     {
-        Services = services;
-        RootComponents = Services.GetService<BlazorWindowRootComponents>();
-        MainWindow = Services.GetRequiredService<PhotinoWindow>();
-        WindowManager = Services.GetRequiredService<PhotinoWebViewManager>();
-        
         MainWindow
             .SetTitle("InfiniLore.Photino.Blazor App")
             .SetUseOsDefaultSize(false)

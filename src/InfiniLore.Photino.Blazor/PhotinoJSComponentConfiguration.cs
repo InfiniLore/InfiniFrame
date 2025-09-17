@@ -1,26 +1,18 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using InfiniLore.Photino.Blazor.Contracts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace InfiniLore.Photino.Blazor;
 
-// ReSharper disable once InvalidXmlDocComment
 /// <summary>
-///     Configures root components for a <see cref="BlazorWindow" />.
+///     Configures root components for a <see cref="PhotinoJSComponentConfiguration" />.
 /// </summary>
-public sealed class BlazorWindowRootComponents : IJSComponentConfiguration
+public sealed class PhotinoJSComponentConfiguration(IPhotinoWebViewManager manager, JSComponentConfigurationStore jsComponents) : IPhotinoJSComponentConfiguration
 {
-    private readonly PhotinoWebViewManager _manager;
-
-    internal BlazorWindowRootComponents(PhotinoWebViewManager manager, JSComponentConfigurationStore jsComponents)
-    {
-        _manager = manager;
-        JSComponents = jsComponents;
-    }
-
-    public JSComponentConfigurationStore JSComponents { get; }
+    public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
 
     /// <summary>
     ///     Adds a root component to the window.
@@ -35,9 +27,9 @@ public sealed class BlazorWindowRootComponents : IJSComponentConfiguration
             : ParameterView.FromDictionary(parameters);
 
         // Dispatch because this is going to be async, and we want to catch any errors
-        _ = _manager.Dispatcher.InvokeAsync(async () =>
+        _ = manager.Dispatcher.InvokeAsync(async () =>
         {
-            await _manager.AddRootComponentAsync(typeComponent, selector, parameterView);
+            await manager.AddRootComponentAsync(typeComponent, selector, parameterView);
         });
     }
 }

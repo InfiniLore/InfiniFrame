@@ -1,3 +1,4 @@
+using InfiniLore.Photino.Blazor.Contracts;
 using InfiniLore.Photino.NET;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -12,38 +13,24 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBlazorDesktop(this IServiceCollection services, IFileProvider? fileProvider = null)
     {
         services.AddOptions<PhotinoBlazorAppConfiguration>();
-        // .Configure(opts =>
-        // {
-        //     opts.AppBaseUri = new Uri(PhotinoWebViewManager.AppBaseUri);
-        //     opts.HostPage = "index.html";
-        // });
-
+        
+        if (fileProvider is not null) services.AddSingleton(fileProvider);
+        else services.AddSingleton<IFileProvider>(static _ => new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot")));
+        
         return services
-            .AddScoped(sp =>
+            .AddScoped(static sp =>
             {
                 var handler = sp.GetRequiredService<PhotinoHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(PhotinoWebViewManager.AppBaseUri) };
             })
-            .AddSingleton(sp =>
-            {
-                var manager = sp.GetRequiredService<PhotinoWebViewManager>();
-                var store = sp.GetRequiredService<JSComponentConfigurationStore>();
-
-                return new BlazorWindowRootComponents(manager, store);
-            })
+            .AddSingleton<IPhotinoWebViewManager, PhotinoWebViewManager>()
+            .AddSingleton<IPhotinoJSComponentConfiguration, PhotinoJSComponentConfiguration>()
             .AddSingleton<Dispatcher, PhotinoDispatcher>()
-            .AddSingleton(_ =>
-            {
-                if (fileProvider is not null) return fileProvider;
-                var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
-                return new PhysicalFileProvider(root);
-            })
             .AddSingleton<JSComponentConfigurationStore>()
             .AddSingleton<PhotinoBlazorApp>()
             .AddSingleton<PhotinoHttpHandler>()
             .AddSingleton<PhotinoSynchronizationContext>()
-            .AddSingleton<PhotinoWebViewManager>()
-            .AddSingleton<PhotinoWindow>(provider => new PhotinoWindow(null, provider.GetService<ILogger<PhotinoWindow>>()))
+            .AddSingleton<IPhotinoWindow>(static provider => new PhotinoWindow(null, provider.GetService<ILogger<PhotinoWindow>>()))
             .AddBlazorWebView();
     }
 }
