@@ -9,7 +9,7 @@ namespace InfiniLore.Photino.NET;
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IPhotinoWindow
 {
-    public IntPtr WindowHandle { get; }
+    IntPtr WindowHandle { get; }
     IReadOnlyList<Monitor> Monitors { get; }
     Monitor MainMonitor { get; }
     uint ScreenDpi { get; }
@@ -42,7 +42,7 @@ public interface IPhotinoWindow
     Point MinSize { get; }
     int MinHeight { get; }
     int MinWidth { get; }
-    PhotinoWindow? Parent { get; } 
+    IPhotinoWindow? Parent { get; } 
     bool Resizable { get; }
     Size Size { get; }
     string BrowserControlInitParameters { get; }

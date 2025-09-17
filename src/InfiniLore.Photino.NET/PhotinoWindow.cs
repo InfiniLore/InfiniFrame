@@ -924,7 +924,7 @@ public class PhotinoWindow : IPhotinoWindow
     ///     Gets the reference to parent PhotinoWindow instance.
     ///     This property can only be set in the constructor and it is optional.
     /// </summary>
-    public PhotinoWindow? Parent { get; }
+    public IPhotinoWindow? Parent { get; }
 
     /// <summary>
     ///     Gets or sets whether the native window can be resized by the user.
@@ -2193,9 +2193,9 @@ public class PhotinoWindow : IPhotinoWindow
             i++;
         }
 
-        _startupParameters.NativeParent = Parent is null
-            ? IntPtr.Zero
-            : Parent._nativeInstance;
+        _startupParameters.NativeParent = Parent is PhotinoWindow parent
+            ? parent._nativeInstance 
+            : IntPtr.Zero;
 
         var errors = _startupParameters.GetParamErrors();
         if (errors.Count == 0)
