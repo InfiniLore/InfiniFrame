@@ -3,8 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
 
-// ReSharper disable once ArrangeTypeModifiers
-internal static partial class PhotinoNative
+public static partial class PhotinoNative
 {
     private const string DllName = "Photino.Native";
 

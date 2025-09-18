@@ -42,7 +42,7 @@ else
     {
         #pragma warning disable IL3050, IL2026
         _forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
-        #pragma warning restore 
+        #pragma warning restore IL3050, IL2026
     }
 
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]

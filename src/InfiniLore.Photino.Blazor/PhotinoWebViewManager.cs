@@ -34,7 +34,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager
     {
         _window = window ?? throw new ArgumentNullException(nameof(window));
 
-        // Create a scheduler that uses one threads.
+        // Create a scheduler that uses one thread.
         var sts = new SynchronousTaskScheduler();
 
         _window.WebMessageReceived += (_, message) =>

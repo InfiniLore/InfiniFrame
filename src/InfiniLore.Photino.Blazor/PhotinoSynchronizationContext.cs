@@ -12,25 +12,13 @@ namespace InfiniLore.Photino.Blazor;
 // except that it also uses Photino's "Invoke" to ensure we're running on the correct thread to be able to
 // interact with the unmanaged resources (the window and WebView).
 //
-// It might be that a simpler variant of this would work, for example purely using Photino's "Invoke" and
+// It might be that a simpler variant of this would work, for example, purely using Photino's "Invoke" and
 // relying on that for single-threadedness. Maybe also in the future Photino could consider having its own
 // built-in SyncContext/Dispatcher like other UI platforms.
 
-class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizationContext.State? state = null) : SynchronizationContext
+public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizationState? state = null) : SynchronizationContext
 {
-    private readonly State _state = state ?? new State();
-
-    private static readonly ContextCallback ExecutionContextThunk = static state =>
-    {
-        if (state is not WorkItem item) return;
-        item.SynchronizationContext?.ExecuteSynchronously(null, item.Callback, item.StateObject);
-    };
-
-    private static readonly Action<Task, object?> BackgroundWorkThunk = static (_, state) =>
-    {
-        if (state is not WorkItem item) return;
-        item.SynchronizationContext?.ExecuteBackground(item);
-    };
+    private readonly PhotinoSynchronizationState _state = state ?? new PhotinoSynchronizationState();
     
     public event UnhandledExceptionEventHandler? UnhandledException;
 
@@ -173,7 +161,7 @@ class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizatio
         }
     }
 
-    // Similar to Post, but it can runs the work item synchronously if the context is not busy.
+    // Similar to Post, but it can run the work item synchronously if the context is not busy.
     //
     // This is the main code path used by components, we want to be able to run async work but only dispatch
     // if necessary.
@@ -197,11 +185,22 @@ class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizatio
         ExecuteSynchronously(completion, d, state);
     }
 
+    private static void ExecutionContextThunk(object? state)
+    {
+        if (state is not PhotinoSynchronizationWorkItem item) return;
+        item.SynchronizationContext?.ExecuteSynchronously(null, item.Callback, item.StateObject);
+    }
+
+    private static void BackgroundWorkThunk(Task antecedent, object? state) {
+        if (state is not PhotinoSynchronizationWorkItem item) return;
+        item.SynchronizationContext?.ExecuteBackground(item);
+    }
+
     private Task Enqueue(Task antecedent, SendOrPostCallback d, object? state, bool forceAsync = false)
     {
-        // If we get here is means that a callback is being explicitly queued. Let's instead add it to the queue and yield.
+        // If we get here, it means that a callback is being explicitly queued. Let's instead add it to the queue and yield.
         //
-        // We use our own queue here to maintain the execution order of the callbacks scheduled here. Also
+        // We use our own queue here to maintain the execution order of the callbacks scheduled here. Also,
         // we need a queue rather than just scheduling an item in the thread pool - those items would immediately
         // block and hurt scalability.
         //
@@ -214,7 +213,7 @@ class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizatio
         }
 
         var flags = forceAsync ? TaskContinuationOptions.RunContinuationsAsynchronously : TaskContinuationOptions.None;
-        return antecedent.ContinueWith(BackgroundWorkThunk, new WorkItem
+        return antecedent.ContinueWith(BackgroundWorkThunk, new PhotinoSynchronizationWorkItem
         {
             SynchronizationContext = this,
             ExecutionContext = executionContext,
@@ -235,19 +234,11 @@ class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizatio
                 var original = Current;
                 try
                 {
-                    lock (_state.Lock)
-                    {
-                        _state.IsBusy = true;
-                    }
                     SetSynchronizationContext(this);
                     d?.Invoke(state);
                 }
                 finally
                 {
-                    lock (_state.Lock)
-                    {
-                        _state.IsBusy = false;
-                    }
                     SetSynchronizationContext(original);
 
                     completion?.SetResult(null!);
@@ -256,7 +247,7 @@ class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizatio
         );
     }
 
-    private void ExecuteBackground(WorkItem item)
+    private void ExecuteBackground(PhotinoSynchronizationWorkItem item)
     {
         if (item.ExecutionContext is null)
         {
@@ -287,29 +278,5 @@ class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizatio
     {
         var handler = UnhandledException;
         handler?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
-    }
-
-    public class State
-    {
-        public readonly Lock Lock = new Lock();
-        public bool IsBusy;// Just for debugging
-        public Task Task = Task.CompletedTask;
-
-        public override string ToString()
-        {
-            return $"{{ Busy: {IsBusy}, Pending Task: {Task} }}";
-        }
-    }
-
-    private class WorkItem
-    {
-        public SendOrPostCallback? Callback;
-        public ExecutionContext? ExecutionContext;
-        public object? StateObject;
-        public PhotinoSynchronizationContext? SynchronizationContext;
-    }
-
-    private class PhotinoSynchronizationTaskCompletionSource<TCallback, TResult>(TCallback callback) : TaskCompletionSource<TResult> {
-        public TCallback Callback { get; } = callback;
     }
 }

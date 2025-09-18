@@ -27,9 +27,6 @@ public sealed class PhotinoJSComponentConfiguration(IPhotinoWebViewManager manag
             : ParameterView.FromDictionary(parameters);
 
         // Dispatch because this is going to be async, and we want to catch any errors
-        _ = manager.Dispatcher.InvokeAsync(async () =>
-        {
-            await manager.AddRootComponentAsync(typeComponent, selector, parameterView);
-        });
+        _ = manager.Dispatcher.InvokeAsync( () => manager.AddRootComponentAsync(typeComponent, selector, parameterView));
     }
 }
