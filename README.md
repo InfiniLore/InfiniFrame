@@ -4,6 +4,9 @@ A rework of the [`Photino.Net`](https://github.com/tryphotino/photino.NET) and [
 
 This project is mainly meant to be used as a dependency for Infinilore, so my goals are focused on that, but it should be possible to use this as a replacement for the original `Photino.NET` and `Photino.Blazor` projects, minding the breaking changes mentioned below.
 
+
+This project is not affected with- or endorsed by the original authors of Photino.NET and Photino.Blazor.
+
 ---
 
 ## Status
