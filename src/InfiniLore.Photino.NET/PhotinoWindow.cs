@@ -611,6 +611,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                         currentMonitorArea = monitor.MonitorArea;
                         break;
                     }
+                    
                     if (currentMonitorArea == default)
                     {
                         PhotinoNative.SetFullScreen(_nativeInstance, value);
