@@ -9,11 +9,13 @@ public static class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        PhotinoServer
-            .CreateStaticFileServer(args, 5174, 100, "wwwroot", out var baseUrl)
-            .RunAsync();
+        var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
+        photinoServerBuilder.UsePort(5174, 100);
         
-        var window = new PhotinoWindow()
+        var photinoServer = photinoServerBuilder.Build();
+        photinoServer.Run();
+        
+        var window = photinoServer.GetAttachedWindow()
             .SetTitle("InfiniLore Photino.NET REACT Sample")
             .SetUseOsDefaultSize(false)
             .SetSize(new Size(800, 600))
@@ -35,9 +37,9 @@ public static class Program
                 var window = (PhotinoWindow)sender!;
                 var response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
-            })
-            .Load(baseUrl);
+            });
         
         window.WaitForClose();
+        
     }
 }

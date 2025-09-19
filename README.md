@@ -21,8 +21,12 @@ Although I have been able to keep most of the original API so far, the following
 - `PhotinoWindow.Log()` and `PhotinoWindow.Verbosity` have been removed from the codebase and have been replaced with a `ILogger` approach so proper logging handlers can be injected.
 When a logger isn't defined in the DI container creating the `PhotinoWindow`, it will create a default console logger that will log to the console.
 - `PhotinoServer(webRootFolder:...)` is no longer hard coded to depend on starting from the `Resources/` folder and is now fully configurable and has the default value of `wwwroot`. 
+- `PhotinoServer.CreateStaticFileServer()` is completely replaced by a combination of `PhotinoServerBuilder.Create()` and `PhotinoServerBuilder.Build()` to create the static file server in a more fluent API way.
+This also adds the `PhotinoServer.GetAttachedWindow()` method to immediately get an attached window to the server without further setup.
 
 ---
+
+## Examples
 
 ## Repo history
 

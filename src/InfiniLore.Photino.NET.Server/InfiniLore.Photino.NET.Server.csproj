@@ -5,4 +5,8 @@
         <OutputType>Library</OutputType>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
+    </ItemGroup>
+
 </Project>
