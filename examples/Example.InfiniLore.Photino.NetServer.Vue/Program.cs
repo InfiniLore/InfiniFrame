@@ -11,7 +11,7 @@ public static class Program
     public static void Main(string[] args)
     {
         PhotinoServer
-            .CreateStaticFileServer(args, 5173, 100, "", out var baseUrl)
+            .CreateStaticFileServer(args, 5173, 100, "wwwroot", out var baseUrl)
             .RunAsync();
         
         var appUrl = Debugger.IsAttached ? "http://localhost:5173" : baseUrl;
