@@ -6,6 +6,9 @@
     <File Path=".github\workflows\release.yml" />
     <File Path=".github\workflows\workflow-todo.yml" />
   </Folder>
+  <Folder Name="/.dev-tools/py/">
+    <File Path="dev\bump_version.py" />
+  </Folder>
   <Folder Name="/example/">
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.HelloWorld\Example.InfiniLore.Photino.Blazor.HelloWorld.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.MultiWindowSample\Example.InfiniLore.Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
