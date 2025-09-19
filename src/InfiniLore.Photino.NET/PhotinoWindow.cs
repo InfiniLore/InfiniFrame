@@ -604,25 +604,19 @@ public partial class PhotinoWindow : IPhotinoWindow
                     
                     _preFullscreenArea = new Rectangle(left, top, width, height);
 
-                    Monitor currentMonitor = default;
+                    Rectangle currentMonitorArea = default;
                     foreach (var monitor in monitors)
                     {
-                        var monitorArea = monitor.MonitorArea;
-                        var windowCenterX = _preFullscreenArea.X + _preFullscreenArea.Width / 2;
-                        var windowCenterY = _preFullscreenArea.Y + _preFullscreenArea.Height / 2;
-
-                        if (windowCenterX < monitorArea.X || windowCenterX >= monitorArea.X + monitorArea.Width || windowCenterY < monitorArea.Y || windowCenterY >= monitorArea.Y + monitorArea.Height)
-                            continue;
-                        currentMonitor = monitor;
+                        if (!monitor.MonitorArea.IntersectsWith(_preFullscreenArea)) continue;
+                        currentMonitorArea = monitor.MonitorArea;
                         break;
                     }
-                    if (currentMonitor == default)
+                    if (currentMonitorArea == default)
                     {
                         PhotinoNative.SetFullScreen(_nativeInstance, value);
                         return;
                     }
                     
-                    var currentMonitorArea = currentMonitor.MonitorArea;
                     PhotinoNative.SetFullScreen(_nativeInstance, value);
                     PhotinoNative.SetPosition(_nativeInstance, currentMonitorArea.X, currentMonitorArea.Y);
                     PhotinoNative.SetSize(_nativeInstance, currentMonitorArea.Width, currentMonitorArea.Height);
