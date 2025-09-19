@@ -12,7 +12,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <Deterministic>true</Deterministic>
 
-        <Version>0.1.0-preview.0</Version>
+        <Version>0.1.0-preview.1</Version>
         <Authors>TryPhotino, Anna Sas</Authors>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -21,8 +21,8 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false" />
     </ItemGroup>
 </Project>
