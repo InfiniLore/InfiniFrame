@@ -251,18 +251,9 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.ContextMenuEnabled;
-
             var enabled = false;
             Invoke(() => PhotinoNative.GetContextMenuEnabled(_nativeInstance, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (ContextMenuEnabled == value) return;
-            if (IsNotInitialized() ) _startupParameters.ContextMenuEnabled = value;
-            else Invoke(() => PhotinoNative.SetContextMenuEnabled(_nativeInstance, value));
         }
     }
 
@@ -274,22 +265,9 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.DevToolsEnabled;
-
             var enabled = false;
             Invoke(() => PhotinoNative.GetDevToolsEnabled(_nativeInstance, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (DevToolsEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.DevToolsEnabled = value;
-                else
-                    Invoke(() => PhotinoNative.SetDevToolsEnabled(_nativeInstance, value));
-            }
         }
     }
 
@@ -297,22 +275,9 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.MediaAutoplayEnabled;
-
             var enabled = false;
             Invoke(() => PhotinoNative.GetMediaAutoplayEnabled(_nativeInstance, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (MediaAutoplayEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.MediaAutoplayEnabled = value;
-                else
-                    throw new ApplicationException("MediaAutoplayEnabled can only be set before the native window is instantiated.");
-            }
         }
     }
 
@@ -320,9 +285,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.UserAgent;
-
             var userAgent = string.Empty;
             Invoke(() =>
             {
@@ -331,38 +293,15 @@ public partial class PhotinoWindow : IPhotinoWindow
             });
             return userAgent;
         }
-        set
-        {
-            if (UserAgent != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.UserAgent = value;
-                else
-                    throw new ApplicationException("UserAgent can only be set before the native window is instantiated.");
-            }
-        }
     }
 
     public bool FileSystemAccessEnabled
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.FileSystemAccessEnabled;
-
             var enabled = false;
             Invoke(() => PhotinoNative.GetFileSystemAccessEnabled(_nativeInstance, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (FileSystemAccessEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.FileSystemAccessEnabled = value;
-                else
-                    throw new ApplicationException("FileSystemAccessEnabled can only be set before the native window is instantiated.");
-            }
         }
     }
 
@@ -370,25 +309,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.WebSecurityEnabled;
-
             var enabled = true;
             Invoke(() => PhotinoNative.GetWebSecurityEnabled(_nativeInstance, out enabled));
             return enabled;
         }
-        set
-        {
-            if (WebSecurityEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.WebSecurityEnabled = value;
-                else
-                    throw new ApplicationException("WebSecurityEnabled can only be set before the native window is instantiated.");
-            }
-        }
     }
 
+    // TODO CONTINUE HERE
     public bool JavascriptClipboardAccessEnabled
     {
         get
@@ -1538,7 +1465,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetContextMenuEnabled(bool enabled)
     {
         _logger.LogDebug(".SetContextMenuEnabled({Enabled})", enabled);
-        ContextMenuEnabled = enabled;
+        
+        Invoke(() =>
+        {
+            PhotinoNative.GetContextMenuEnabled(_nativeInstance, out var isEnabled);
+            if (isEnabled == enabled) return;
+            PhotinoNative.SetContextMenuEnabled(_nativeInstance, enabled);
+        });
         return this;
     }
 
@@ -1553,7 +1486,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetDevToolsEnabled(bool enabled)
     {
         _logger.LogDebug(".SetDevTools({Enabled})", enabled);
-        DevToolsEnabled = enabled;
+        
+        Invoke(() =>
+        {
+            PhotinoNative.GetDevToolsEnabled(_nativeInstance, out var isEnabled);
+            if (isEnabled == enabled) return;
+            PhotinoNative.SetDevToolsEnabled(_nativeInstance, enabled);
+        });
         return this;
     }
 
@@ -1587,18 +1526,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         _logger.LogDebug(".SetGrantBrowserPermission({Grant})", grant);
         GrantBrowserPermissions = grant;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.UserAgent" />. Sets the user agent on the browser control at initialization.
-    /// </summary>
-    /// <param name="userAgent"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetUserAgent(string userAgent)
-    {
-        _logger.LogDebug(".SetUserAgent({UserAgent})", userAgent);
-        UserAgent = userAgent;
         return this;
     }
 
@@ -1647,42 +1574,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         _logger.LogDebug(".SetNotificationRegistrationId({NotificationRegistrationId})", notificationRegistrationId);
         NotificationRegistrationId = notificationRegistrationId;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.MediaAutoplayEnabled" /> on the browser control at initialization.
-    /// </summary>
-    /// <param name="enable"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetMediaAutoplayEnabled(bool enable)
-    {
-        _logger.LogDebug(".SetMediaAutoplayEnabled({Enable})", enable);
-        MediaAutoplayEnabled = enable;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.FileSystemAccessEnabled" /> on the browser control at initialization.
-    /// </summary>
-    /// <param name="enable"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetFileSystemAccessEnabled(bool enable)
-    {
-        _logger.LogDebug(".SetFileSystemAccessEnabled({Enable})", enable);
-        FileSystemAccessEnabled = enable;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.WebSecurityEnabled" /> on the browser control at initialization.
-    /// </summary>
-    /// <param name="enable"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetWebSecurityEnabled(bool enable)
-    {
-        _logger.LogDebug(".SetWebSecurityEnabled({Enable})", enable);
-        WebSecurityEnabled = enable;
         return this;
     }
 

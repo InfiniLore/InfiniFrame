@@ -29,6 +29,12 @@ When a logger isn't defined in the DI container creating the `PhotinoWindow`, it
   - `PhotinoWindow.Centered` property is now only available during usage of `PhotinoWindowBuilder`
   - `PhotinoWindow.Chromeless` setter property is now only available during usage of `PhotinoWindowBuilder`
   - `PhotinoWindow.Transparent` setter property is now only available during usage of `PhotinoWindowBuilder`
+  - `PhotinoWindow.ContextMenuEnabled` setter property is now only available during usage of `PhotinoWindowBuilder`
+  - `PhotinoWindow.DevToolsEnabled` setter property is now only available during usage of `PhotinoWindowBuilder`
+  - `PhotinoWindow.MediaAutoplayEnabled` setter property, together with the fluent api style method, are now only available during usage of `PhotinoWindowBuilder`
+  - `PhotinoWindow.UserAgent` setter property, together with the fluent api style method, are now only available during usage of `PhotinoWindowBuilder`
+  - `PhotinoWindow.SetFileSystemAccessEnabled` setter property, together with the fluent api style method, are now only available during usage of `PhotinoWindowBuilder`
+  - `PhotinoWindow.SetWebSecurityEnabled` setter property, together with the fluent api style method, are now only available during usage of `PhotinoWindowBuilder`
 
 **Photino.NET.Server changes**
 - `PhotinoServer(webRootFolder:...)` is no longer hard coded to depend on starting from the `Resources/` folder and is now fully configurable and has the default value of `wwwroot`. 

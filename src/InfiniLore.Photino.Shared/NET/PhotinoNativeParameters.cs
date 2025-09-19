@@ -3,7 +3,7 @@
 namespace InfiniLore.Photino.NET;
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-struct PhotinoNativeParameters
+public struct PhotinoNativeParameters
 {
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
@@ -267,6 +267,8 @@ struct PhotinoNativeParameters
         MaxWidth = int.MaxValue
     };
 
+
+    // TODO this should not be a part of the struct, but instead a separate validator logic should be made
     /// <summary>
     ///     Checks the parameters to ensure they are valid before window creation. Called by PhotinoWindow prior to
     ///     initializing native window.

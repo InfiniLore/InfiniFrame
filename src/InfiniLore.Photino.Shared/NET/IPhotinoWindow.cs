@@ -14,12 +14,6 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     Monitor MainMonitor { get; }
     uint ScreenDpi { get; }
     Guid Id { get; }
-    bool ContextMenuEnabled { get; }
-    bool DevToolsEnabled { get; }
-    bool MediaAutoplayEnabled { get; }
-    string UserAgent { get; }
-    bool FileSystemAccessEnabled { get; }
-    bool WebSecurityEnabled { get; }
     bool JavascriptClipboardAccessEnabled { get; }
     bool MediaStreamEnabled { get; }
     bool SmoothScrollingEnabled { get; }
@@ -84,12 +78,8 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     IPhotinoWindow SetDevToolsEnabled(bool enabled);
     IPhotinoWindow SetFullScreen(bool fullScreen);
     IPhotinoWindow SetGrantBrowserPermissions(bool grant);
-    IPhotinoWindow SetUserAgent(string userAgent);
     IPhotinoWindow SetBrowserControlInitParameters(string parameters);
     IPhotinoWindow SetNotificationRegistrationId(string notificationRegistrationId);
-    IPhotinoWindow SetMediaAutoplayEnabled(bool enable);
-    IPhotinoWindow SetFileSystemAccessEnabled(bool enable);
-    IPhotinoWindow SetWebSecurityEnabled(bool enable);
     IPhotinoWindow SetJavascriptClipboardAccessEnabled(bool enable);
     IPhotinoWindow SetMediaStreamEnabled(bool enable);
     IPhotinoWindow SetSmoothScrollingEnabled(bool enable);
