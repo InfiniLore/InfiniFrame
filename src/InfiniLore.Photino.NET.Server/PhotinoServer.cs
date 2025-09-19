@@ -1,11 +1,8 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
-using System;
-using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection;
 
-namespace Photino.NET.Server;
+namespace InfiniLore.Photino.NET.Server;
 
 /// <summary>
 /// The PhotinoServer class enables users to host their web projects in
@@ -13,17 +10,13 @@ namespace Photino.NET.Server;
 /// </summary>
 public class PhotinoServer
 {
-    public static WebApplication CreateStaticFileServer(
-        string[] args,
-        out string baseUrl)
-    {
-        return CreateStaticFileServer(
-            args,
-            startPort: 8000,
-            portRange: 100,
-            webRootFolder: "wwwroot",
-            out baseUrl);
-    }
+    public static WebApplication CreateStaticFileServer(string[] args, out string baseUrl) => CreateStaticFileServer(
+    args,
+    startPort: 8000,
+    portRange: 100,
+    webRootFolder: "wwwroot",
+    out baseUrl
+    );
 
     public static WebApplication CreateStaticFileServer(
         string[] args,
@@ -41,39 +34,39 @@ public class PhotinoServer
             });
 
         //Try to read files from the embedded resources - from a slightly different path, prefixed with Resources/
-        var manifestEmbeddedFileProvider =
-            new ManifestEmbeddedFileProvider(
-                System.Reflection.Assembly.GetEntryAssembly(),
-                $"Resources/{webRootFolder}");
-
+        if (Assembly.GetEntryAssembly() is not {} entryAssembly)
+        {
+            throw new SystemException("Could not find entry assembly.");
+        }
+        
         var physicalFileProvider = builder.Environment.WebRootFileProvider;
+        var manifestEmbeddedFileProvider = new ManifestEmbeddedFileProvider(entryAssembly, $"Resources/{webRootFolder}");
 
-        //Try to read from disk first, if not found, try to read from embedded resources.
-        CompositeFileProvider compositeWebProvider
-            = new(physicalFileProvider, manifestEmbeddedFileProvider);
+        //Try to read from the disk first, if not found, try to read from embedded resources.
+        var compositeWebProvider = new CompositeFileProvider(physicalFileProvider, manifestEmbeddedFileProvider);
 
         builder.Environment.WebRootFileProvider = compositeWebProvider;
 
-        int port = startPort;
+        var port = startPort;
 
         // Try ports until available port is found
         while (IPGlobalProperties
-            .GetIPGlobalProperties()
-            .GetActiveTcpListeners()
-            .Any(x => x.Port == port))
+               .GetIPGlobalProperties()
+               .GetActiveTcpListeners()
+               .Any(x => x.Port == port))
         {
-            if (port > port + portRange)
-                throw new SystemException($"Couldn't find open port within range {port - portRange} - {port}.");
+            if (port > port + portRange) throw new SystemException($"Couldn't find open port within range {port - portRange} - {port}.");
             port++;
         }
 
+        // Because this is for locally running and serving the static files, we don't need to worry about SSL.
         baseUrl = $"http://localhost:{port}";
 
         builder.WebHost.UseUrls(baseUrl);
 
-        WebApplication app = builder.Build();
+        var app = builder.Build();
         app.UseDefaultFiles();
-        app.UseStaticFiles(new StaticFileOptions
+        app.UseStaticFiles(new StaticFileOptions 
         {
             DefaultContentType = "text/plain"
         });

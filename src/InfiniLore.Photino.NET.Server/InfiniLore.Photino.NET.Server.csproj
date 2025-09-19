@@ -2,10 +2,7 @@
 
     <PropertyGroup>
         <PackageId>InfiniLore.Photino.NET.Server</PackageId>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
-    
-    <ItemGroup>
-        
-    </ItemGroup>
 
 </Project>
