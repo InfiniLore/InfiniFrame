@@ -5,6 +5,7 @@
     
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniLore.Photino.Net"/>
+        <InternalsVisibleTo Include="InfiniLore.Photino.Net.Server"/>
         <InternalsVisibleTo Include="InfiniLore.Photino.Blazor"/>
     </ItemGroup>
 </Project>

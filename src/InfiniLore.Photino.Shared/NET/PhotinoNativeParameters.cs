@@ -266,39 +266,4 @@ public struct PhotinoNativeParameters
         MaxHeight = int.MaxValue,
         MaxWidth = int.MaxValue
     };
-
-
-    // TODO this should not be a part of the struct, but instead a separate validator logic should be made
-    /// <summary>
-    ///     Checks the parameters to ensure they are valid before window creation. Called by PhotinoWindow prior to
-    ///     initializing native window.
-    /// </summary>
-    /// <returns>List of error strings</returns>
-    internal List<string> GetParamErrors()
-    {
-        var response = new List<string>();
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var startUrl = StartUrl;
-        var startString = StartString;
-        var windowIconFile = WindowIconFile;
-
-        if (string.IsNullOrWhiteSpace(startUrl) && string.IsNullOrWhiteSpace(startString))
-            response.Add("An initial URL or HTML string must be supplied in StartUrl or StartString for the browser control to naviage to.");
-
-        if (Maximized && Minimized)
-            response.Add("Window cannot be both maximized and minimized on startup.");
-
-        if (FullScreen && (Maximized || Minimized))
-            response.Add("FullScreen cannot be combined with Maximized or Minimized");
-
-        if (!string.IsNullOrWhiteSpace(windowIconFile) && !File.Exists(windowIconFile))
-            response.Add($"WindowIconFile: {windowIconFile} cannot be found");
-
-        if (isWindows && Chromeless && (UseOsDefaultLocation || UseOsDefaultSize))
-            response.Add("Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize on Windows. Size and location must be specified.");
-
-        Size = Marshal.SizeOf<PhotinoNativeParameters>();
-
-        return response;
-    }
 }

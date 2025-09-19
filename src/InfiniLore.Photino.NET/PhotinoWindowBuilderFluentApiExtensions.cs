@@ -34,4 +34,13 @@ public static class PhotinoWindowBuilderFluentApiExtensions
         builder.WebSecurityEnabled = enable;
         return builder;
     }
+    
+    /// <summary>
+    ///     Sets SetCentered on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder Center(this IPhotinoWindowBuilder builder, bool enable = true)
+    {
+        builder.Centered = enable;
+        return builder;
+    }
 }

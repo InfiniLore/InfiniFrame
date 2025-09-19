@@ -2,8 +2,6 @@
 
 public interface IPhotinoWindowBuilder : IPhotinoWindowBase
 {
-    PhotinoNativeParameters StartupParameters { get; }
-    
     bool Centered { get; set; }
     new bool Chromeless { get; set; }
     new bool Transparent { get; set; }
@@ -13,4 +11,7 @@ public interface IPhotinoWindowBuilder : IPhotinoWindowBase
     string UserAgent { get; set; }
     new bool FileSystemAccessEnabled { get; set; }
     new bool WebSecurityEnabled { get; set; }
+    
+    IPhotinoWindow Build();
+    IPhotinoWindow Build(IServiceProvider provider);
 }

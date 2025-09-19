@@ -1,9 +1,11 @@
-﻿namespace InfiniLore.Photino.NET;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+namespace InfiniLore.Photino.NET;
 
 public class PhotinoWindowBuilder : IPhotinoWindowBuilder
 {
     private PhotinoNativeParameters _startupParameters = PhotinoNativeParameters.Default;
-    public PhotinoNativeParameters StartupParameters => _startupParameters;
 
     #region PhotinoWindowBase properties
     public bool Centered
@@ -61,16 +63,26 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
     }
 
     #endregion
+    
+    public string StartUrl 
+    {
+        get => _startupParameters.StartUrl;
+        set => _startupParameters.StartUrl = value;
+    }
 
     private PhotinoWindowBuilder() {}
 
-    public PhotinoWindowBuilder Create()
+    public static PhotinoWindowBuilder Create()
     {
         return new PhotinoWindowBuilder();
     }
 
-    public PhotinoWindow Build()
+    public IPhotinoWindow Build()
     {
-        return new PhotinoWindow();
+        return new PhotinoWindow(_startupParameters);
+    }
+    public IPhotinoWindow Build(IServiceProvider provider)
+    {
+        return new PhotinoWindow(_startupParameters, null, provider.GetService<ILogger<PhotinoWindow>>());
     }
 }

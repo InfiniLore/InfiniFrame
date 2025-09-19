@@ -4,18 +4,22 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.Photino.Blazor;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddPhotinoBlazorDesktop(this IServiceCollection services, IFileProvider? fileProvider = null)
+    public static IServiceCollection AddPhotinoBlazorDesktop(this IServiceCollection services, Action<IPhotinoWindowBuilder>? builder = null, IFileProvider? fileProvider = null)
     {
         services.AddOptions<PhotinoBlazorAppConfiguration>();
         
         if (fileProvider is not null) services.AddSingleton(fileProvider);
         else services.AddSingleton<IFileProvider>(static _ => new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot")));
+        
+        
+        var windowBuilder = PhotinoWindowBuilder.Create();
+        builder?.Invoke(windowBuilder);
+        services.AddSingleton<IPhotinoWindowBuilder>(windowBuilder);
         
         return services
             .AddScoped(static sp =>
@@ -30,7 +34,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<PhotinoBlazorApp>()
             .AddSingleton<PhotinoHttpHandler>()
             .AddSingleton<PhotinoSynchronizationContext>()
-            .AddSingleton<IPhotinoWindow>(static provider => new PhotinoWindow(null, provider.GetService<ILogger<PhotinoWindow>>()))
+            // TODO add the proper builder setup here
+            .AddSingleton<IPhotinoWindow>(static provider => provider.GetRequiredService<IPhotinoWindowBuilder>().Build(provider))
             .AddBlazorWebView();
     }
 }

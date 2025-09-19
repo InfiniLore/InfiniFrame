@@ -2,11 +2,11 @@
 
 public static class PhotinoServerExtensions
 {
-    public static PhotinoWindow GetAttachedWindow(this PhotinoServer server)
+    public static IPhotinoWindowBuilder GetAttachedWindowBuilder(this PhotinoServer server)
     {
-        var window = new PhotinoWindow();
-        window.Load(server.BaseUrl);
+        var builder = PhotinoWindowBuilder.Create();
+        builder.StartUrl = server.BaseUrl;
         
-        return window;
+        return builder;
     }
 }

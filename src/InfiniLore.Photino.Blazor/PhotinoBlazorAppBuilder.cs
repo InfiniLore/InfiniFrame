@@ -19,7 +19,7 @@ public class PhotinoBlazorAppBuilder
         // here so that it shows up this way in the project templates.
         // var jsRuntime = DefaultWebAssemblyJSRuntime.Instance;
         var builder = new PhotinoBlazorAppBuilder();
-        builder.Services.AddPhotinoBlazorDesktop(fileProvider);
+        builder.Services.AddPhotinoBlazorDesktop(fileProvider:fileProvider);
 
         // Right now we don't have conventions or behaviors that are specific to this method
         // however, making this the default for the template allows us to add things like that

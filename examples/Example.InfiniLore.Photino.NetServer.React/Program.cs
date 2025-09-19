@@ -15,12 +15,16 @@ public static class Program
         var photinoServer = photinoServerBuilder.Build();
         photinoServer.Run();
         
-        var window = photinoServer.GetAttachedWindow()
+        
+
+        var windowBuilder = photinoServer.GetAttachedWindowBuilder()
+            .Center();
+        // .SetResizable(true);
+
+        var window = windowBuilder.Build()
             .SetTitle("InfiniLore Photino.NET REACT Sample")
             .SetUseOsDefaultSize(false)
             .SetSize(new Size(800, 600))
-            .Center()
-            .SetResizable(true)
             .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) =>
             {
                 contentType = "text/javascript";

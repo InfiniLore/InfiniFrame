@@ -21,7 +21,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     //Pointers to the type and instance.
     private static IntPtr _nativeType = IntPtr.Zero;
     private IntPtr _nativeInstance;
-    private PhotinoNativeParameters _startupParameters = PhotinoNativeParameters.Default;
+    private PhotinoNativeParameters _startupParameters;
 
     //There can only be 1 message loop for all windows.
     private static bool _messageLoopIsStarted;
@@ -48,6 +48,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
 
     #region Constructors
+
     /// <summary>
     ///     Initializes a new instance of the PhotinoWindow class.
     /// </summary>
@@ -55,10 +56,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     This class represents a native window with a native browser control taking up the entire client area.
     ///     If a parent window is specified, this window will be created as a child of the specified parent window.
     /// </remarks>
+    /// <param name="parameters"></param>
     /// <param name="parent">The parent PhotinoWindow. This is optional and defaults to null.</param>
     /// <param name="logger">THe logger used by the main application</param>
-    public PhotinoWindow(PhotinoWindow? parent = null, ILogger<PhotinoWindow>? logger = null)
+    public PhotinoWindow(PhotinoNativeParameters parameters, PhotinoWindow? parent = null, ILogger<PhotinoWindow>? logger = null)
     {
+        _startupParameters = parameters;
+        
         if (logger is not null) _logger = logger;
         else _logger = LoggerFactory.Create(config => {
             config.AddConsole().SetMinimumLevel(LogLevel.Debug);
@@ -2039,8 +2043,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             ? parent._nativeInstance 
             : IntPtr.Zero;
 
-        var errors = _startupParameters.GetParamErrors();
-        if (errors.Count == 0)
+        if (PhotinoNativeParametersValidator.Validate(_startupParameters, _logger))
         {
             OnWindowCreating();
             try //All C++ exceptions will bubble up to here.
@@ -2084,8 +2087,8 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
         else
         {
-            var formattedErrors = errors.Aggregate("\n", (current, error) => current + error + "\n");
-            throw new ArgumentException($"Startup Parameters Are Not Valid: {formattedErrors}");
+            _logger.LogCritical("Startup Parameters Are Not Valid, please check the log file");
+            throw new ArgumentException("Startup Parameters Are Not Valid, please check the log file");
         }
     }
 
