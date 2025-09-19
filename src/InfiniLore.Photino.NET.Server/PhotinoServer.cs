@@ -40,10 +40,13 @@ public class PhotinoServer
         }
         
         var physicalFileProvider = builder.Environment.WebRootFileProvider;
-        var manifestEmbeddedFileProvider = new ManifestEmbeddedFileProvider(entryAssembly, webRootFolder);
+        
+        entryAssembly.GetManifestResourceNames();
+        
+        var embeddedFileProvider = new EmbeddedFileProvider(entryAssembly, webRootFolder);
 
         //Try to read from the disk first, if not found, try to read from embedded resources.
-        var compositeWebProvider = new CompositeFileProvider(physicalFileProvider, manifestEmbeddedFileProvider);
+        var compositeWebProvider = new CompositeFileProvider(physicalFileProvider, embeddedFileProvider);
 
         builder.Environment.WebRootFileProvider = compositeWebProvider;
 

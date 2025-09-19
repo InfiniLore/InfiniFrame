@@ -14,8 +14,6 @@ public static class Program
             .CreateStaticFileServer(args, 5173, 100, "wwwroot", out var baseUrl)
             .RunAsync();
         
-        var appUrl = Debugger.IsAttached ? "http://localhost:5173" : baseUrl;
-
         var window = new PhotinoWindow()
             .SetTitle("InfiniLore Photino.NET VUE Sample")
             .SetUseOsDefaultSize(false)
