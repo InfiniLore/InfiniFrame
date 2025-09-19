@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <PackageId>InfiniLore.Photino.NET.Server</PackageId>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        
+    </ItemGroup>
+
+</Project>
