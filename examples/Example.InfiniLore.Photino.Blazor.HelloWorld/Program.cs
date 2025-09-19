@@ -8,6 +8,7 @@ public static class Program
     [STAThread] private static void Main(string[] args)
     {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
+        
         appBuilder.Services
             .AddLogging();
 

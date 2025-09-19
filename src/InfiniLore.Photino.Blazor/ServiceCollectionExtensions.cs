@@ -9,7 +9,7 @@ namespace InfiniLore.Photino.Blazor;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddPhotinoBlazorDesktop(this IServiceCollection services, Action<IPhotinoWindowBuilder>? builder = null, IFileProvider? fileProvider = null)
+    public static IServiceCollection AddPhotinoBlazorDesktop(this IServiceCollection services, IFileProvider? fileProvider = null, Action<IPhotinoWindowBuilder>? windowBuilder = null)
     {
         services.AddOptions<PhotinoBlazorAppConfiguration>();
         
@@ -17,9 +17,9 @@ public static class ServiceCollectionExtensions
         else services.AddSingleton<IFileProvider>(static _ => new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot")));
         
         
-        var windowBuilder = PhotinoWindowBuilder.Create();
-        builder?.Invoke(windowBuilder);
-        services.AddSingleton<IPhotinoWindowBuilder>(windowBuilder);
+        var builder = PhotinoWindowBuilder.Create();
+        windowBuilder?.Invoke(builder);
+        services.AddSingleton<IPhotinoWindowBuilder>(builder);
         
         return services
             .AddScoped(static sp =>
@@ -34,8 +34,15 @@ public static class ServiceCollectionExtensions
             .AddSingleton<PhotinoBlazorApp>()
             .AddSingleton<PhotinoHttpHandler>()
             .AddSingleton<PhotinoSynchronizationContext>()
-            // TODO add the proper builder setup here
             .AddSingleton<IPhotinoWindow>(static provider => provider.GetRequiredService<IPhotinoWindowBuilder>().Build(provider))
             .AddBlazorWebView();
+    }
+
+    public static IServiceCollection AddPhotinoWindowBuilder(this IServiceCollection services, Action<IPhotinoWindowBuilder> windowBuilder)
+    {
+        var builder = PhotinoWindowBuilder.Create();
+        windowBuilder.Invoke(builder);
+        services.AddSingleton<IPhotinoWindowBuilder>(builder);
+        return services;
     }
 }
