@@ -1,11 +1,9 @@
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
 
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public partial class PhotinoWindow : IPhotinoWindow
 {
     public event EventHandler<Point>? WindowLocationChanged;

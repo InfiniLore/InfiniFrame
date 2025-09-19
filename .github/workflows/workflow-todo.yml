@@ -1,0 +1,30 @@
+name: "Run TODO to Issue"
+on:
+  push:
+    branches:
+      - core
+    paths-ignore:
+      - ".github/workflows/workflow-todo.yml" # Exclude this specific workflow file
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v5"
+      - name: "TODO to Issue"
+        uses: "alstr/todo-to-issue-action@v5"
+        with:
+          PROJECT: "organization/InfiniLore/1"
+          PROJECTS_SECRET: "${{ secrets.PROJECTS_SECRET }}"
+          ISSUE_TEMPLATE: |
+            ### 📝 Todo : ** {{ title }} **
+            **Description:**  
+            {{ body }}
+
+            **Code Snippet:**
+            {{ snippet }}
+
+            **File:**  
+            {{ url }}
+
+          IDENTIFIERS: '[{"name": "TODO", "labels": ["todo"]}]'
+          CLOSE_ISSUES: "true"
