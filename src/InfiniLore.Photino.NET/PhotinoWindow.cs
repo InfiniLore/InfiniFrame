@@ -215,58 +215,14 @@ public partial class PhotinoWindow : IPhotinoWindow
     public int ManagedThreadId => _managedThreadId;
     #endregion
 
-    //READ-WRITE PROPERTIES
+    #region READ WRITE PROPERTIES
     /// <summary>
-    ///     When true, the native window will appear centered on the screen. By default, this is set to false.
+    ///     Gets the value indicating whether the native window is chromeless.
     /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set a value after a native window is initialized.
-    /// </exception>
-    public bool Centered
-    {
-        get
-        {
-            return IsNotInitialized() && _startupParameters.CenterOnInitialize;
-        }
-        set
-        {
-            if (IsNotInitialized())
-            {
-                if (_startupParameters is { CenterOnInitialize: true } != value)
-                    _startupParameters.CenterOnInitialize = value;
-            }
-            else
-                Invoke(() => PhotinoNative.Center(_nativeInstance));
-        }
-    }
-
-    /// <summary>
-    ///     Gets or sets a value indicating whether the native window should be chromeless.
-    ///     When true, the native window will appear without a title bar or border.
-    ///     By default, this is set to false.
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set a value after a native window is initialized.
-    /// </exception>
     /// <remarks>
     ///     The user has to supply titlebar, border, dragging and resizing manually.
     /// </remarks>
-    public bool Chromeless
-    {
-        get
-        {
-            return _startupParameters.Chromeless;
-        }
-        set
-        {
-            if (IsNotInitialized())
-            {
-                if (_startupParameters is { Chromeless: true } != value)
-                    _startupParameters.Chromeless = value;
-            }
-            else ThrowIfNotInitialized();
-        }
-    }
+    public bool Chromeless => _startupParameters.Chromeless;
 
     /// <summary>
     ///     When true, the native window and browser control can be displayed with a transparent background.
@@ -281,27 +237,9 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.Transparent;
-
             var enabled = false;
             Invoke(() => PhotinoNative.GetTransparentEnabled(_nativeInstance, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (Transparent != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.Transparent = value;
-                else
-                {
-                    if (IsWindowsPlatform)
-                        throw new ApplicationException("Transparent can only be set on Windows before the native window is instantiated.");
-                    _logger.LogDebug("Invoking PhotinoNative.SetTransparentEnabled({value})", value);
-                    Invoke(() => PhotinoNative.SetTransparentEnabled(_nativeInstance, value));
-                }
-            }
         }
     }
 
@@ -1319,7 +1257,10 @@ public partial class PhotinoWindow : IPhotinoWindow
             else Invoke(() => PhotinoNative.SetZoom(_nativeInstance, value));
         }
     }
+    
+    #endregion
 
+    #region FLIENT METHODS
     //FLUENT METHODS FOR INITIALIZING STARTUP PARAMETERS FOR NEW WINDOWS
     //CAN ALSO BE CALLED AFTER INITIALIZATION TO SET VALUES
     //ONE OF THESE 3 METHODS *MUST* BE CALLED PRIOR TO CALLING WATERCOLORIST() OR CREATECHILDWINDOW()
@@ -1429,7 +1370,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow Center()
     {
         _logger.LogDebug(".Center()");
-        Centered = true;
+        Invoke(() => PhotinoNative.Center(_nativeInstance));
         return this;
     }
 
@@ -1574,7 +1515,15 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetTransparent(bool enabled)
     {
         _logger.LogDebug(".SetTransparent({Enabled})", enabled);
-        Transparent = enabled;
+
+        if (IsWindowsPlatform)
+        {
+            _logger.LogWarning("Transparent can only be set on Windows before the native window is instantiated.");
+            return this;
+        }
+        
+        _logger.LogDebug("Invoking PhotinoNative.SetTransparentEnabled({value})", enabled);
+        Invoke(() => PhotinoNative.SetTransparentEnabled(_nativeInstance, enabled));
         return this;
     }
 
@@ -2696,4 +2645,5 @@ public partial class PhotinoWindow : IPhotinoWindow
             return buffer;
         }
     }
+    #endregion
 }

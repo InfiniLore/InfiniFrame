@@ -7,16 +7,13 @@ namespace InfiniLore.Photino.NET;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPhotinoWindow
+public interface IPhotinoWindow : IPhotinoWindowBase
 {
     IntPtr WindowHandle { get; }
     IReadOnlyList<Monitor> Monitors { get; }
     Monitor MainMonitor { get; }
     uint ScreenDpi { get; }
     Guid Id { get; }
-    bool Centered { get; }
-    bool Chromeless { get; }
-    bool Transparent { get; }
     bool ContextMenuEnabled { get; }
     bool DevToolsEnabled { get; }
     bool MediaAutoplayEnabled { get; }
