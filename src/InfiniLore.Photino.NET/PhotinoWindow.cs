@@ -158,18 +158,14 @@ public partial class PhotinoWindow : IPhotinoWindow
         get
         {
             ThrowIfNotInitialized();
+            Monitor[] monitors = [];
 
-            var monitors = new List<Monitor>();
-
-            Invoke(() => PhotinoNative.GetAllMonitors(_nativeInstance, Callback));
+            Invoke(() =>
+            {
+                monitors = MonitorsUtility.GetMonitorsAsArray(_nativeInstance);
+            });
 
             return monitors;
-
-            int Callback(in NativeMonitor monitor)
-            {
-                monitors.Add(new Monitor(monitor));
-                return 1;
-            }
         }
     }
 
@@ -570,6 +566,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
     }
 
+    private Rectangle _preFullscreenArea;
 
     /// <summary>
     ///     This property returns or sets the fullscreen status of the window.
@@ -584,17 +581,61 @@ public partial class PhotinoWindow : IPhotinoWindow
                 return _startupParameters.FullScreen;
 
             var fullScreen = false;
+            
             Invoke(() => PhotinoNative.GetFullScreen(_nativeInstance, out fullScreen));
             return fullScreen;
         }
         set
         {
-            if (FullScreen != value)
+            if (FullScreen == value) return;
+            if (IsNotInitialized())
             {
-                if (IsNotInitialized())
-                    _startupParameters.FullScreen = value;
-                else
-                    Invoke(() => PhotinoNative.SetFullScreen(_nativeInstance, value));
+                _startupParameters.FullScreen = value;
+                return;
+            }
+
+            if (value)
+            {
+                Invoke(() =>
+                {
+                    var monitors = MonitorsUtility.GetMonitors(_nativeInstance);
+                    PhotinoNative.GetPosition(_nativeInstance, out var left, out var top);
+                    PhotinoNative.GetSize(_nativeInstance, out var width, out var height);
+                    
+                    _preFullscreenArea = new Rectangle(left, top, width, height);
+
+                    Monitor currentMonitor = default;
+                    foreach (var monitor in monitors)
+                    {
+                        var monitorArea = monitor.MonitorArea;
+                        var windowCenterX = _preFullscreenArea.X + _preFullscreenArea.Width / 2;
+                        var windowCenterY = _preFullscreenArea.Y + _preFullscreenArea.Height / 2;
+
+                        if (windowCenterX < monitorArea.X || windowCenterX >= monitorArea.X + monitorArea.Width || windowCenterY < monitorArea.Y || windowCenterY >= monitorArea.Y + monitorArea.Height)
+                            continue;
+                        currentMonitor = monitor;
+                        break;
+                    }
+                    if (currentMonitor == default)
+                    {
+                        PhotinoNative.SetFullScreen(_nativeInstance, value);
+                        return;
+                    }
+                    
+                    var currentMonitorArea = currentMonitor.MonitorArea;
+                    PhotinoNative.SetFullScreen(_nativeInstance, value);
+                    PhotinoNative.SetPosition(_nativeInstance, currentMonitorArea.X, currentMonitorArea.Y);
+                    PhotinoNative.SetSize(_nativeInstance, currentMonitorArea.Width, currentMonitorArea.Height);
+                });
+            }
+            else
+            {
+                Invoke(() =>
+                {
+                    PhotinoNative.SetFullScreen(_nativeInstance, value);
+                    PhotinoNative.SetPosition(_nativeInstance, _preFullscreenArea.X, _preFullscreenArea.Y);
+                    PhotinoNative.SetSize(_nativeInstance, _preFullscreenArea.Width, _preFullscreenArea.Height);
+                });
             }
         }
     }
