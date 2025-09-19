@@ -1,6 +1,7 @@
 ﻿<Solution>
   <Folder Name="/.dev-tools/">
     <File Path=".gitignore" />
+    <File Path="InfiniLore.Photino.GitHubActions.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />
