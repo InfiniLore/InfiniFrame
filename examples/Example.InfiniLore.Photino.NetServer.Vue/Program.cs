@@ -1,5 +1,6 @@
 ﻿using InfiniLore.Photino.NET;
 using InfiniLore.Photino.NET.Server;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace Example.InfiniLore.Photino.NetServer.Vue;
@@ -10,8 +11,10 @@ public static class Program
     public static void Main(string[] args)
     {
         PhotinoServer
-            .CreateStaticFileServer(args, 7625, 100, "", out var baseUrl)
+            .CreateStaticFileServer(args, 5173, 100, "", out var baseUrl)
             .RunAsync();
+        
+        var appUrl = Debugger.IsAttached ? "http://localhost:5173" : baseUrl;
 
         var window = new PhotinoWindow()
             .SetTitle("InfiniLore Photino.NET VUE Sample")

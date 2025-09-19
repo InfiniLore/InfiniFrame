@@ -22,16 +22,27 @@
         <None Update="wwwroot\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\assets\index-DWXc3VTi.js">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\assets\index-1byZ3dr3.css">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\index.html">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\vite.svg">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Resources\**" />
       <Folder Include="Source\" />
-      <Folder Include="wwwroot\" />
     </ItemGroup>
     
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.9" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
     </ItemGroup>
 
 </Project>

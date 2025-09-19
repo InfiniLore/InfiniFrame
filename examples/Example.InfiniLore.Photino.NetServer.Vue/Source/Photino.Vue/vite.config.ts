@@ -11,11 +11,11 @@ export default defineConfig({
         }
     },
     preview: {
-        port: 5502,
+        port: 7625,
         host: true,
     },
     build : {
-        outDir: '../../Resources/wwwroot',
+        outDir: '../../wwwroot',
         emptyOutDir: true,
     }
 })
