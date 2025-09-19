@@ -2,7 +2,7 @@
 using InfiniLore.Photino.NET.Server;
 using System.Drawing;
 
-namespace Example.InfiniLore.Photino.NetServer.Vue;
+namespace Example.InfiniLore.Photino.NetServer.Vue.Fullscreen;
 
 public static class Program
 {
@@ -10,7 +10,7 @@ public static class Program
     public static void Main(string[] args)
     {
         var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
-        photinoServerBuilder.UsePort(5173, 100);
+        photinoServerBuilder.UsePort(5172, 100);
 
         var photinoServer = photinoServerBuilder.Build();
         photinoServer.Run();
@@ -36,7 +36,7 @@ public static class Program
             })
             .RegisterWebMessageReceivedHandler((sender, message) =>
             {
-                var window = (PhotinoWindow)sender!;
+                if (sender is not PhotinoWindow window) return;
                 var response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
