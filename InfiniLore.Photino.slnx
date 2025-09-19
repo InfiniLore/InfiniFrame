@@ -16,6 +16,7 @@
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.MultiWindowSample\Example.InfiniLore.Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.NativeAOT\Example.InfiniLore.Photino.Blazor.NativeAOT.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.Sample\Example.InfiniLore.Photino.Blazor.Sample.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.InfiniLore.Photino.NetServer.React\Example.InfiniLore.Photino.NetServer.React.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.NetServer.Vue\Example.InfiniLore.Photino.NetServer.Vue.csproj" Type="Classic C#" />
     <File Path="examples\Directory.Build.props" />
   </Folder>

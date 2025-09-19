@@ -27,7 +27,7 @@ public class PhotinoServer
     {
         //This will create the web root folder on disk if it doesn't exist
         var builder = WebApplication
-            .CreateBuilder(new WebApplicationOptions()
+            .CreateBuilder(new WebApplicationOptions
             {
                 Args = args,
                 WebRootPath = webRootFolder
