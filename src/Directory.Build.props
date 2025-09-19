@@ -12,7 +12,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <Deterministic>true</Deterministic>
 
-        <Version>0.1.0-preview.2</Version>
+        <Version>0.1.0-preview.3</Version>
         <Authors>TryPhotino, Anna Sas</Authors>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
