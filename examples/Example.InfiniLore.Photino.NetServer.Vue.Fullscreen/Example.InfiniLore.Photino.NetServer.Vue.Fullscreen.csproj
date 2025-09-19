@@ -26,6 +26,13 @@
       <Folder Include="Source\"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\assets\index-6D1d22Ve.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\assets\index-CsvMUBM9.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\index.html" />
+      <_ContentIncludedByDefault Remove="wwwroot\vite.svg" />
+    </ItemGroup>
+
     <Target Name="BuildFrontend" BeforeTargets="Build">
         <Message Text="Building frontend with npm..." Importance="high" />
         <Exec Command="npm run vue.fullscreen-build" WorkingDirectory="$(ProjectDir)/Source/Photino.Vue" />

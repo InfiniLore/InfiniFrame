@@ -22,4 +22,9 @@ public class PhotinoServer
     {
         _ = WebApp.RunAsync();
     }
+
+    public void Stop()
+    {
+        _ = WebApp.StopAsync();
+    }
 }

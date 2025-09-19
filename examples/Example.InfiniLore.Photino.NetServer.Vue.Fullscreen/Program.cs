@@ -36,11 +36,13 @@ public static class Program
             })
             .RegisterWebMessageReceivedHandler((sender, message) =>
             {
+                if (StandardWebMessageHandlers.TryHandleWebMessage(sender, message)) return;
                 if (sender is not PhotinoWindow window) return;
                 var response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
 
         window.WaitForClose();
+        photinoServer.Stop();
     }
 }
