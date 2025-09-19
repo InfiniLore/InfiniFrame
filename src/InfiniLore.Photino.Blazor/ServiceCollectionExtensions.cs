@@ -31,7 +31,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IPhotinoJSComponentConfiguration, PhotinoJSComponentConfiguration>()
             .AddSingleton<Dispatcher, PhotinoDispatcher>()
             .AddSingleton<JSComponentConfigurationStore>()
-            .AddSingleton<PhotinoBlazorApp>()
+            // .AddSingleton<PhotinoBlazorApp>()
             .AddSingleton<PhotinoHttpHandler>()
             .AddSingleton<PhotinoSynchronizationContext>()
             .AddSingleton<IPhotinoWindow>(static provider => provider.GetRequiredService<IPhotinoWindowBuilder>().Build(provider))
