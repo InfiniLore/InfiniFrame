@@ -2,6 +2,8 @@
 
 namespace InfiniLore.Photino.NET;
 
+// These are the parameter names that are passed to Photino.Native.
+// DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
 public struct PhotinoNativeParameters
 {
@@ -36,7 +38,7 @@ public struct PhotinoNativeParameters
 
     ///<summary>OPTIONAL: Changes the user agent on the browser control at initialiation.</summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string UserAgent;
+    internal string? UserAgent;
 
     /// <summary>
     ///     OPTIONAL:
@@ -52,12 +54,11 @@ public struct PhotinoNativeParameters
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string BrowserControlInitParameters;
+    internal string? BrowserControlInitParameters;
 
     ///<summary>WINDOWS: OPTIONAL: Registers the application for toast notifications. If not provided, uses Window Title.</summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string NotificationRegistrationId;
-
+    internal string? NotificationRegistrationId;
 
     /// <summary>
     ///     OPTIONAL: If native window is created from another native windowm this is the pointer to the parent window. It

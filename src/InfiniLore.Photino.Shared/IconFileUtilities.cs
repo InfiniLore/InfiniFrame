@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.Photino;
 
 public static class IconFileUtilities
 {

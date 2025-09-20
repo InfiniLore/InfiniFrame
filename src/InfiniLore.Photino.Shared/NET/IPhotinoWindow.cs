@@ -29,11 +29,11 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     IPhotinoWindow? Parent { get; } 
     bool Resizable { get; }
     Size Size { get; }
-    string BrowserControlInitParameters { get; }
+    string? BrowserControlInitParameters { get; }
     string StartString { get; }
     string StartUrl { get; set; }
     string? TemporaryFilesPath { get; }
-    string NotificationRegistrationId { get; }
+    string? NotificationRegistrationId { get; }
     string? Title { get; }
     int Top { get; }
     bool Topmost { get; }

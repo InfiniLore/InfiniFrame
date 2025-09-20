@@ -17,4 +17,13 @@ public interface IPhotinoWindowBase
     bool GrantBrowserPermissions { get; }
     int Height { get; }
     string? IconFilePath { get; }
+    int Left { get; }
+    int Top { get; }
+    bool Maximized { get; }
+    int MaxWidth { get; }
+    int MaxHeight { get; }
+    int MinWidth { get; }
+    int MinHeight { get; }
+    bool Minimized { get; }
+    bool Resizable { get; }
 }

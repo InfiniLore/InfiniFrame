@@ -1,6 +1,9 @@
-﻿namespace InfiniLore.Photino.NET;
+﻿using System.Drawing;
 
-public static class PhotinoWindowBuilderFluentApiExtensions
+namespace InfiniLore.Photino.NET;
+
+// ReSharper disable once InconsistentNaming
+public static class IPhotinoWindowBuilderFluentApiExtensions
 {
     public static IPhotinoWindowBuilder SetMediaAutoplayEnabled(this IPhotinoWindowBuilder builder, bool enable)
     {
@@ -112,12 +115,102 @@ public static class PhotinoWindowBuilderFluentApiExtensions
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
+    /// <remarks>
+    ///     This only works on Windows and Linux.
+    /// </remarks>
+    /// <value>
+    ///     The file path to the icon.
+    /// </value>
     public static IPhotinoWindowBuilder SetIconFile(this IPhotinoWindowBuilder builder, string? iconFilePath)
     {
         if (!IconFileUtilities.IsValidIconFile(iconFilePath)) return builder;
         builder.IconFilePath = iconFilePath;
         return builder;
     }
+    
+    /// <summary>
+    ///     Sets Location on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetLocation(this IPhotinoWindowBuilder builder, int left, int top)
+    {
+        builder.Left = left;
+        builder.Top = top;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets Location on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetLocation(this IPhotinoWindowBuilder builder, Point location)
+    {
+        builder.Left = location.X;
+        builder.Top = location.Y;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets Minimized on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetMinimized(this IPhotinoWindowBuilder builder, bool minimized)
+    {
+        builder.Minimized = minimized;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets Maximized on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetMaximized(this IPhotinoWindowBuilder builder, bool maximized)
+    {
+        builder.Maximized = maximized;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets MaxWidth on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetMaxWidth(this IPhotinoWindowBuilder builder, int value)
+    {
+        builder.MaxWidth = value;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets MaxHeight on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetMaxHeight(this IPhotinoWindowBuilder builder, int value)
+    {
+        builder.MaxHeight = value;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets MinWidth on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetMinWidth(this IPhotinoWindowBuilder builder, int value)
+    {
+        builder.MinWidth = Math.Max(0, value);
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets MinHeight on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetMinHeight(this IPhotinoWindowBuilder builder, int value)
+    {
+        builder.MinHeight = Math.Max(0, value);
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets Resizable on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetResizable(this IPhotinoWindowBuilder builder, bool resizable)
+    {
+        builder.Resizable = resizable;
+        return builder;
+    }
+
     
     
     

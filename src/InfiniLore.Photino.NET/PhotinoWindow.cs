@@ -26,20 +26,8 @@ public partial class PhotinoWindow : IPhotinoWindow
     //There can only be 1 message loop for all windows.
     private static bool _messageLoopIsStarted;
 
-    private readonly int _managedThreadId;
+    private readonly int _managedThreadId = Environment.CurrentManagedThreadId;
 
-    ///<summary>Gets or sets the native window maximum height in pixels.</summary>
-    private int _maxHeight = int.MaxValue;
-
-    ///<summary>Gets or sets the native window maximum height in pixels.</summary>
-    private int _maxWidth = int.MaxValue;
-
-    ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    private int _minHeight;
-
-    ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    private int _minWidth;
-    
     private readonly Dictionary<string, NetCustomSchemeDelegate?> _customSchemes = [];
 
     private readonly ILogger<PhotinoWindow> _logger;
@@ -55,21 +43,16 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     If a parent window is specified, this window will be created as a child of the specified parent window.
     /// </remarks>
     /// <param name="parameters"></param>
-    /// <param name="parent">The parent PhotinoWindow. This is optional and defaults to null.</param>
     /// <param name="logger">THe logger used by the main application</param>
-    public PhotinoWindow(PhotinoNativeParameters parameters, PhotinoWindow? parent = null, ILogger<PhotinoWindow>? logger = null)
+    /// <param name="parent">The parent PhotinoWindow. This is optional and defaults to null.</param>
+    public PhotinoWindow(PhotinoNativeParameters parameters, ILogger<PhotinoWindow> logger, PhotinoWindow? parent = null)
     {
         _startupParameters = parameters;
-        
-        if (logger is not null) _logger = logger;
-        else _logger = LoggerFactory.Create(config => {
-            config.AddConsole().SetMinimumLevel(LogLevel.Debug);
-        }).CreateLogger<PhotinoWindow>();
-        
+        _logger = logger;
         Parent = parent;
-        _managedThreadId = Environment.CurrentManagedThreadId;
-
-
+        MaxWidth = parameters.MaxWidth;
+        MaxHeight = parameters.MaxHeight;
+        
         //This only has to be done once
         if (_nativeType == IntPtr.Zero)
             _nativeType = NativeLibrary.GetMainProgramHandle();
@@ -85,6 +68,11 @@ public partial class PhotinoWindow : IPhotinoWindow
         _startupParameters.FocusOutHandler = OnFocusOut;
         _startupParameters.WebMessageReceivedHandler = OnWebMessageReceived;
         _startupParameters.CustomSchemeHandler = OnCustomScheme;
+        
+        MaxWidth = _startupParameters.MaxWidth;
+        MaxHeight = _startupParameters.MaxHeight;
+        MinWidth = _startupParameters.MinWidth;
+        MinHeight = _startupParameters.MinHeight;
     }
     #endregion
 
@@ -413,18 +401,10 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
     }
     
-    // TODO CONTINUE HERE
-    
     /// <summary>
     ///     Gets or sets the icon file for the native window title bar.
     ///     The file must be located on the local machine and cannot be a URL. The default is none.
     /// </summary>
-    /// <remarks>
-    ///     This only works on Windows and Linux.
-    /// </remarks>
-    /// <value>
-    ///     The file path to the icon.
-    /// </value>
     /// <exception cref="System.ArgumentException">Icon file: {value} does not exist.</exception>
     public string? IconFilePath { get; private set; }
 
@@ -437,24 +417,10 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return new Point(_startupParameters.Left, _startupParameters.Top);
-
             var left = 0;
             var top = 0;
             Invoke(() => PhotinoNative.GetPosition(InstanceHandle, out left, out top));
             return new Point(left, top);
-        }
-        set
-        {
-            if (Location.X == value.X && Location.Y == value.Y)  return;
-            if (IsNotInitialized())
-            {
-                _startupParameters.Left = value.X;
-                _startupParameters.Top = value.Y;
-            }
-            else
-                Invoke(() => PhotinoNative.SetPosition(InstanceHandle, value.X, value.Y));
         }
     }
 
@@ -468,15 +434,11 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            return Location.X;
-        }
-        set
-        {
-            if (Location.X != value)
-                Location = new Point(value, Location.Y);
+            var left = 0;
+            Invoke(() => PhotinoNative.GetPosition(InstanceHandle, out left, out _));
+            return left;
         }
     }
-
     /// <summary>
     ///     Gets or sets whether the native window is maximized.
     ///     Default is false.
@@ -485,77 +447,21 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.Maximized;
-
             var maximized = false;
             Invoke(() => PhotinoNative.GetMaximized(InstanceHandle, out maximized));
             return maximized;
         }
-        set
-        {
-            if (Maximized != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.Maximized = value;
-                else
-                    Invoke(() => PhotinoNative.SetMaximized(InstanceHandle, value));
-            }
-        }
     }
 
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
-    public Point MaxSize
-    {
-        get
-        {
-            return new Point(MaxWidth, MaxHeight);
-        }
-        set
-        {
-            if (MaxWidth != value.X || MaxHeight != value.Y)
-            {
-                if (IsNotInitialized())
-                {
-                    _startupParameters.MaxWidth = value.X;
-                    _startupParameters.MaxHeight = value.Y;
-                }
-                else
-                    Invoke(() => PhotinoNative.SetMaxSize(InstanceHandle, value.X, value.Y));
-            }
-        }
-    }
-    public int MaxHeight
-    {
-        get
-        {
-            return _maxHeight;
-        }
-        set
-        {
-            if (_maxHeight != value)
-            {
-                MaxSize = new Point(MaxSize.X, value);
-                _maxHeight = value;
-            }
-        }
-    }
-    public int MaxWidth
-    {
-        get
-        {
-            return _maxWidth;
-        }
-        set
-        {
-            if (_maxWidth != value)
-            {
-                MaxSize = new Point(value, MaxSize.Y);
-                _maxWidth = value;
-            }
-        }
-    }
+    public Point MaxSize => new Point(MaxWidth, MaxHeight);
 
+    ///<summary>Gets or sets the native window maximum height in pixels.</summary>
+    public int MaxHeight { get; private set; }
+
+    ///<summary>Gets or sets the native window maximum width in pixels.</summary>
+    public int MaxWidth { get; private set; }
+    
     /// <summary>
     ///     Gets or sets whether the native window is minimized (hidden).
     ///     Default is false.
@@ -564,83 +470,27 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.Minimized;
-
             var minimized = false;
             Invoke(() => PhotinoNative.GetMinimized(InstanceHandle, out minimized));
             return minimized;
         }
-        set
-        {
-            if (Minimized != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.Minimized = value;
-                else
-                    Invoke(() => PhotinoNative.SetMinimized(InstanceHandle, value));
-            }
-        }
     }
 
     ///<summary>Gets or set the minimum size of the native window in pixels.</summary>
-    public Point MinSize
-    {
-        get
-        {
-            return new Point(MinWidth, MinHeight);
-        }
-        set
-        {
-            if (MinWidth != value.X || MinHeight != value.Y)
-            {
-                if (IsNotInitialized())
-                {
-                    _startupParameters.MinWidth = value.X;
-                    _startupParameters.MinHeight = value.Y;
-                }
-                else
-                    Invoke(() => PhotinoNative.SetMinSize(InstanceHandle, value.X, value.Y));
-            }
-        }
-    }
-    public int MinHeight
-    {
-        get
-        {
-            return _minHeight;
-        }
-        set
-        {
-            if (_minHeight != value)
-            {
-                MinSize = new Point(MinSize.X, value);
-                _minHeight = value;
-            }
-        }
-    }
-    public int MinWidth
-    {
-        get
-        {
-            return _minWidth;
-        }
-        set
-        {
-            if (_minWidth != value)
-            {
-                MinSize = new Point(value, MinSize.Y);
-                _minWidth = value;
-            }
-        }
-    }
+    public Point MinSize => new Point(MinWidth, MinHeight);
 
+    ///<summary>Gets or sets the native window minimum height in pixels.</summary>
+    public int MinHeight { get; }
+
+    ///<summary>Gets or sets the native window minimum height in pixels.</summary>
+    public int MinWidth { get; }
+    
     /// <summary>
     ///     Gets the reference to the parent PhotinoWindow instance.
     ///     This property can only be set in the constructor, and it is optional.
     /// </summary>
     public IPhotinoWindow? Parent { get; }
-
+    
     /// <summary>
     ///     Gets or sets whether the user can resize the native window.
     ///     Default is true.
@@ -649,25 +499,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.Resizable;
-
             var resizable = false;
             Invoke(() => PhotinoNative.GetResizable(InstanceHandle, out resizable));
             return resizable;
         }
-        set
-        {
-            if (Resizable != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.Resizable = value;
-                else
-                    Invoke(() => PhotinoNative.SetResizable(InstanceHandle, value));
-            }
-        }
     }
 
+    // TODO CONTINUE HERE
     /// <summary>
     ///     Gets or sets the native window Size. This represents the width and the height of the window in pixels.
     ///     The default Size is 0,0.
@@ -717,7 +555,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
-    public string BrowserControlInitParameters
+    public string? BrowserControlInitParameters
     {
         get
         {
@@ -822,7 +660,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public string NotificationRegistrationId
+    public string? NotificationRegistrationId
     {
         get
         {
@@ -881,12 +719,9 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            return Location.Y;
-        }
-        set
-        {
-            if (Location.Y != value)
-                Location = Location with { Y = value };
+            var top = 0;
+            Invoke(() => PhotinoNative.GetPosition(InstanceHandle, out _, out top));
+            return top;
         }
     }
 
@@ -1202,7 +1037,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 : location.Y;
         }
 
-        Location = location;
+        SetLocation(location);
 
         return this;
     }
@@ -1512,7 +1347,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetLeft(int left)
     {
         _logger.LogDebug(".SetLeft({Left})", Left);
-        Left = left;
+        
+        Invoke(() =>
+        {
+            PhotinoNative.GetPosition(InstanceHandle, out var oldLeft, out var top);
+            if (left == oldLeft) return;
+            PhotinoNative.SetPosition(InstanceHandle, left, top);
+        });
         return this;
     }
 
@@ -1527,7 +1368,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetResizable(bool resizable)
     {
         _logger.LogDebug(".SetResizable({Resizable})", resizable);
-        Resizable = resizable;
+        Invoke(() => PhotinoNative.SetResizable(InstanceHandle, resizable));
         return this;
     }
 
@@ -1579,7 +1420,12 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetLocation(Point location)
     {
         _logger.LogDebug(".SetLocation({Location})", location);
-        Location = location;
+        Invoke(() =>
+        {
+            PhotinoNative.GetPosition(InstanceHandle, out var left, out var top);
+            if (left == location.X && top == location.Y) return;
+            PhotinoNative.SetPosition(InstanceHandle, location.X, location.Y);
+        });
         return this;
     }
 
@@ -1594,7 +1440,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetMaximized(bool maximized)
     {
         _logger.LogDebug(".SetMaximized({Maximized})", maximized);
-        Maximized = maximized;
+        Invoke(() => PhotinoNative.SetMaximized(InstanceHandle, maximized));
         return this;
     }
 
@@ -1602,7 +1448,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetMaxSize(int maxWidth, int maxHeight)
     {
         _logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
-        MaxSize = new Point(maxWidth, maxHeight);
+        Invoke(() => PhotinoNative.SetMaxSize(InstanceHandle, maxWidth, maxHeight));
         return this;
     }
 
@@ -1633,7 +1479,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetMinimized(bool minimized)
     {
         _logger.LogDebug(".SetMinimized({Minimized})", minimized);
-        Minimized = minimized;
+        Invoke(() => PhotinoNative.SetMinimized(InstanceHandle, minimized));
         return this;
     }
 
@@ -1641,7 +1487,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetMinSize(int minWidth, int minHeight)
     {
         _logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
-        MinSize = new Point(minWidth, minHeight);
+        Invoke(() => PhotinoNative.SetMinSize(InstanceHandle, minWidth, minHeight));
         return this;
     }
 
@@ -1649,7 +1495,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetMinHeight(int minHeight)
     {
         _logger.LogDebug(".SetMinHeight({MinHeight})", minHeight);
-        MinHeight = minHeight;
+        SetMinSize(MinWidth, minHeight);
         return this;
     }
 
@@ -1657,7 +1503,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetMinWidth(int minWidth)
     {
         _logger.LogDebug(".SetMinWidth({MinWidth})", minWidth);
-        MinWidth = minWidth;
+        SetMinSize(minWidth, MinHeight);
         return this;
     }
 
@@ -1709,7 +1555,12 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetTop(int top)
     {
         _logger.LogDebug(".SetTop({Top})", top);
-        Top = top;
+        Invoke(() =>
+        {
+            PhotinoNative.GetPosition(InstanceHandle, out var left, out var oldTop);
+            if (top == oldTop) return;
+            PhotinoNative.SetPosition(InstanceHandle, left, top);
+        });
         return this;
     }
 

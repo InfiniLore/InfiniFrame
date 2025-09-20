@@ -8,7 +8,7 @@ public interface IPhotinoWindowBuilder : IPhotinoWindowBase
     new bool ContextMenuEnabled { get; set; }
     new bool DevToolsEnabled { get; set; }
     bool MediaAutoplayEnabled { get; set; }
-    string UserAgent { get; set; }
+    string? UserAgent { get; set; }
     new bool FileSystemAccessEnabled { get; set; }
     new bool WebSecurityEnabled { get; set; }
     new bool JavascriptClipboardAccessEnabled { get; set; }
@@ -20,6 +20,15 @@ public interface IPhotinoWindowBuilder : IPhotinoWindowBase
     new bool GrantBrowserPermissions { get; set; }
     new int Height { get; set; }
     new string? IconFilePath { get; set; }
+    new int Left { get; set; }
+    new int Top { get; set; }
+    new bool Maximized { get; set; }
+    new int MaxWidth { get; set; }
+    new int MaxHeight { get; set; }
+    new int MinWidth { get; set; }
+    new int MinHeight { get; set; }
+    new bool Minimized { get; set; }
+    new bool Resizable { get; set; }
     
     IPhotinoWindow Build();
     IPhotinoWindow Build(IServiceProvider provider);
