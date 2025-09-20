@@ -36,6 +36,7 @@ public interface IPhotinoWindowBuilder : IPhotinoWindowBase
     new string? TemporaryFilesPath { get; set; }
     new string? NotificationRegistrationId { get; set; }
     new string? Title { get; set; }
+    new bool TopMost { get; set; }
     
     IPhotinoWindow Build();
     IPhotinoWindow Build(IServiceProvider provider);

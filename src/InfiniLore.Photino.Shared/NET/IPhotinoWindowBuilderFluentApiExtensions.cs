@@ -305,6 +305,15 @@ public static class IPhotinoWindowBuilderFluentApiExtensions
         builder.Title = title;
         return builder;
     }
+    
+    /// <summary>
+    ///     Sets TopMost on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetTopMost(this IPhotinoWindowBuilder builder, bool resizable)
+    {
+        builder.TopMost = resizable;
+        return builder;
+    }
 
     
     

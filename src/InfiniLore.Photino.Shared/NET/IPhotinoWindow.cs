@@ -19,9 +19,6 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     Point MaxSize { get; }
     Point MinSize { get; }
     IPhotinoWindow? Parent { get; } 
-    string? NotificationRegistrationId { get; }
-    string? Title { get; }
-    bool Topmost { get; }
     bool UseOsDefaultLocation { get; }
     bool UseOsDefaultSize { get; }
     EventHandler<string>? WebMessageReceivedHandler { get; }

@@ -43,6 +43,7 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
     public string? TemporaryFilesPath { get; set; } = Path.Combine(Path.GetTempPath(), "photino");
     public string? NotificationRegistrationId { get; set; }
     public string? Title { get; set; }
+    public bool TopMost { get; set; }
     
     #endregion
       

@@ -33,4 +33,5 @@ public interface IPhotinoWindowBase
     string? TemporaryFilesPath { get; }
     string? NotificationRegistrationId { get; }
     string? Title { get; }
+    bool TopMost { get; }
 }

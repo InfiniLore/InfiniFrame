@@ -607,7 +607,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             return title;
         }
     }
-    
+
     /// <summary>
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
     ///     Default is 0.
@@ -622,33 +622,22 @@ public partial class PhotinoWindow : IPhotinoWindow
             return top;
         }
     }
-    
-    // TODO CONTINUE HERE
 
     /// <summary>
     ///     Gets or sets whether the native window is always at the top of the z-order.
     ///     Default is false.
     /// </summary>
-    public bool Topmost
+    public bool TopMost
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.Topmost;
-
             var topmost = false;
             Invoke(() => PhotinoNative.GetTopmost(InstanceHandle, out topmost));
             return topmost;
         }
-        set
-        {
-            if (Topmost == value) return;
-            if (IsNotInitialized())
-                _startupParameters.Topmost = value;
-            else
-                Invoke(() => PhotinoNative.SetTopmost(InstanceHandle, value));
-        }
     }
+    
+    // TODO CONTINUE HERE
 
     /// <summary>
     ///     When true, the native window starts up at the OS Default location.
@@ -1409,7 +1398,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetTopMost(bool topMost)
     {
         _logger.LogDebug(".SetTopMost({TopMost})", topMost);
-        Topmost = topMost;
+        Invoke(() => PhotinoNative.SetTopmost(InstanceHandle, topMost));
         return this;
     }
 
