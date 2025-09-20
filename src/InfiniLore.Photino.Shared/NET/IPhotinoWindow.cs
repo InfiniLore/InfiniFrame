@@ -9,20 +9,13 @@ namespace InfiniLore.Photino.NET;
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IPhotinoWindow : IPhotinoWindowBase
 {
+    IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
     IReadOnlyList<Monitor> Monitors { get; }
     Monitor MainMonitor { get; }
     uint ScreenDpi { get; }
     Guid Id { get; }
-    bool JavascriptClipboardAccessEnabled { get; }
-    bool MediaStreamEnabled { get; }
-    bool SmoothScrollingEnabled { get; }
-    bool IgnoreCertificateErrorsEnabled { get; }
-    bool NotificationsEnabled { get; }
-    bool FullScreen { get; }
-    bool GrantBrowserPermissions { get; }
-    int Height { get; }
-    string? IconFile { get; }
+    string? IconFilePath { get; }
     Point Location { get; }
     int Left { get; }
     bool Maximized { get; }
@@ -77,14 +70,8 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     IPhotinoWindow SetContextMenuEnabled(bool enabled);
     IPhotinoWindow SetDevToolsEnabled(bool enabled);
     IPhotinoWindow SetFullScreen(bool fullScreen);
-    IPhotinoWindow SetGrantBrowserPermissions(bool grant);
     IPhotinoWindow SetBrowserControlInitParameters(string parameters);
     IPhotinoWindow SetNotificationRegistrationId(string notificationRegistrationId);
-    IPhotinoWindow SetJavascriptClipboardAccessEnabled(bool enable);
-    IPhotinoWindow SetMediaStreamEnabled(bool enable);
-    IPhotinoWindow SetSmoothScrollingEnabled(bool enable);
-    IPhotinoWindow SetIgnoreCertificateErrorsEnabled(bool enable);
-    IPhotinoWindow SetNotificationsEnabled(bool enable);
     IPhotinoWindow SetHeight(int height);
     IPhotinoWindow SetIconFile(string iconFile);
     IPhotinoWindow SetLeft(int left);

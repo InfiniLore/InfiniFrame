@@ -28,7 +28,7 @@ public struct PhotinoNativeParameters
     ///     window (if supported). Default is none.
     /// </summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string WindowIconFile;
+    internal string? WindowIconFile;
 
     ///<summary>WINDOWS: OPTIONAL: Path to store temp files for browser control. Defaults is user's AppDataLocal folder.</summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]

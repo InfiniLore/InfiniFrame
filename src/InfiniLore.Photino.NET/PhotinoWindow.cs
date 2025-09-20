@@ -20,15 +20,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     
     //Pointers to the type and instance.
     private static IntPtr _nativeType = IntPtr.Zero;
-    private IntPtr _nativeInstance;
+    public IntPtr InstanceHandle { get; private set; }
     private PhotinoNativeParameters _startupParameters;
 
     //There can only be 1 message loop for all windows.
     private static bool _messageLoopIsStarted;
 
     private readonly int _managedThreadId;
-
-    private string? _iconFile;
 
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
     private int _maxHeight = int.MaxValue;
@@ -141,7 +139,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             ThrowIfNotInitialized();
 
             var handle = IntPtr.Zero;
-            Invoke(() => handle = PhotinoNative.GetWindowHandlerWin32(_nativeInstance));
+            Invoke(() => handle = PhotinoNative.GetWindowHandlerWin32(InstanceHandle));
             return handle;
         }
     }
@@ -166,7 +164,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
             Invoke(() =>
             {
-                monitors = MonitorsUtility.GetMonitorsAsArray(_nativeInstance);
+                monitors = MonitorsUtility.GetMonitorsAsArray(InstanceHandle);
             });
 
             return monitors;
@@ -203,7 +201,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             ThrowIfNotInitialized();
 
             uint dpi = 0;
-            Invoke(() => dpi = PhotinoNative.GetScreenDpi(_nativeInstance));
+            Invoke(() => dpi = PhotinoNative.GetScreenDpi(InstanceHandle));
             return dpi;
         }
     }
@@ -242,7 +240,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         get
         {
             var enabled = false;
-            Invoke(() => PhotinoNative.GetTransparentEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetTransparentEnabled(InstanceHandle, out enabled));
             return enabled;
         }
     }
@@ -256,7 +254,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         get
         {
             var enabled = false;
-            Invoke(() => PhotinoNative.GetContextMenuEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetContextMenuEnabled(InstanceHandle, out enabled));
             return enabled;
         }
     }
@@ -270,7 +268,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         get
         {
             var enabled = false;
-            Invoke(() => PhotinoNative.GetDevToolsEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetDevToolsEnabled(InstanceHandle, out enabled));
             return enabled;
         }
     }
@@ -280,7 +278,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         get
         {
             var enabled = false;
-            Invoke(() => PhotinoNative.GetMediaAutoplayEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetMediaAutoplayEnabled(InstanceHandle, out enabled));
             return enabled;
         }
     }
@@ -292,7 +290,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             var userAgent = string.Empty;
             Invoke(() =>
             {
-                var ptr = PhotinoNative.GetUserAgent(_nativeInstance);
+                var ptr = PhotinoNative.GetUserAgent(InstanceHandle);
                 userAgent = Marshal.PtrToStringAuto(ptr);
             });
             return userAgent;
@@ -304,7 +302,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         get
         {
             var enabled = false;
-            Invoke(() => PhotinoNative.GetFileSystemAccessEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetFileSystemAccessEnabled(InstanceHandle, out enabled));
             return enabled;
         }
     }
@@ -314,32 +312,18 @@ public partial class PhotinoWindow : IPhotinoWindow
         get
         {
             var enabled = true;
-            Invoke(() => PhotinoNative.GetWebSecurityEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetWebSecurityEnabled(InstanceHandle, out enabled));
             return enabled;
         }
     }
 
-    // TODO CONTINUE HERE
     public bool JavascriptClipboardAccessEnabled
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.JavascriptClipboardAccessEnabled;
-
             var enabled = true;
-            Invoke(() => PhotinoNative.GetJavascriptClipboardAccessEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetJavascriptClipboardAccessEnabled(InstanceHandle, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (JavascriptClipboardAccessEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.JavascriptClipboardAccessEnabled = value;
-                else
-                    throw new ApplicationException("JavascriptClipboardAccessEnabled can only be set before the native window is instantiated.");
-            }
         }
     }
 
@@ -347,22 +331,9 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.MediaStreamEnabled;
-
             var enabled = true;
-            Invoke(() => PhotinoNative.GetMediaStreamEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetMediaStreamEnabled(InstanceHandle, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (MediaStreamEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.MediaStreamEnabled = value;
-                else
-                    throw new ApplicationException("MediaStreamEnabled can only be set before the native window is instantiated.");
-            }
         }
     }
 
@@ -370,22 +341,9 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.SmoothScrollingEnabled;
-
             var enabled = false;
-            Invoke(() => PhotinoNative.GetSmoothScrollingEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetSmoothScrollingEnabled(InstanceHandle, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (SmoothScrollingEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.SmoothScrollingEnabled = value;
-                else
-                    throw new ApplicationException("SmoothScrollingEnabled can only be set before the native window is instantiated.");
-            }
         }
     }
 
@@ -393,22 +351,10 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.IgnoreCertificateErrorsEnabled;
 
             var enabled = false;
-            Invoke(() => PhotinoNative.GetIgnoreCertificateErrorsEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetIgnoreCertificateErrorsEnabled(InstanceHandle, out enabled));
             return enabled;
-        }
-        set
-        {
-            if (IgnoreCertificateErrorsEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.IgnoreCertificateErrorsEnabled = value;
-                else
-                    throw new ApplicationException("IgnoreCertificateErrorsEnabled can only be set before the native window is instantiated.");
-            }
         }
     }
 
@@ -416,27 +362,12 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.NotificationsEnabled;
-
             var enabled = false;
-            Invoke(() => PhotinoNative.GetNotificationsEnabled(_nativeInstance, out enabled));
+            Invoke(() => PhotinoNative.GetNotificationsEnabled(InstanceHandle, out enabled));
             return enabled;
         }
-        set
-        {
-            if (NotificationsEnabled != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.NotificationsEnabled = value;
-                else
-                    throw new ApplicationException("NotificationsEnabled can only be set before the native window is instantiated.");
-            }
-        }
     }
-
-    private Rectangle _preFullscreenArea;
-
+    
     /// <summary>
     ///     This property returns or sets the fullscreen status of the window.
     ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.
@@ -446,95 +377,27 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.FullScreen;
-
             var fullScreen = false;
-            
-            Invoke(() => PhotinoNative.GetFullScreen(_nativeInstance, out fullScreen));
+            Invoke(() => PhotinoNative.GetFullScreen(InstanceHandle, out fullScreen));
             return fullScreen;
         }
-        set
-        {
-            if (FullScreen == value) return;
-            if (IsNotInitialized())
-            {
-                _startupParameters.FullScreen = value;
-                return;
-            }
-
-            if (value)
-            {
-                Invoke(() =>
-                {
-                    var monitors = MonitorsUtility.GetMonitors(_nativeInstance);
-                    PhotinoNative.GetPosition(_nativeInstance, out var left, out var top);
-                    PhotinoNative.GetSize(_nativeInstance, out var width, out var height);
-                    
-                    _preFullscreenArea = new Rectangle(left, top, width, height);
-
-                    Rectangle currentMonitorArea = default;
-                    foreach (var monitor in monitors)
-                    {
-                        if (!monitor.MonitorArea.IntersectsWith(_preFullscreenArea)) continue;
-                        currentMonitorArea = monitor.MonitorArea;
-                        break;
-                    }
-                    
-                    if (currentMonitorArea == default)
-                    {
-                        PhotinoNative.SetFullScreen(_nativeInstance, value);
-                        return;
-                    }
-                    
-                    PhotinoNative.SetFullScreen(_nativeInstance, value);
-                    PhotinoNative.SetPosition(_nativeInstance, currentMonitorArea.X, currentMonitorArea.Y);
-                    PhotinoNative.SetSize(_nativeInstance, currentMonitorArea.Width, currentMonitorArea.Height);
-                });
-            }
-            else
-            {
-                Invoke(() =>
-                {
-                    PhotinoNative.SetFullScreen(_nativeInstance, value);
-                    PhotinoNative.SetPosition(_nativeInstance, _preFullscreenArea.X, _preFullscreenArea.Y);
-                    PhotinoNative.SetSize(_nativeInstance, _preFullscreenArea.Width, _preFullscreenArea.Height);
-                });
-            }
-        }
     }
-
+    private Rectangle _preFullscreenArea;
+    
     /// <summary>
-    ///     Gets or Sets whether the native browser control grants all requests for access to local resources
+    ///     Gets whether the native browser control grants all requests for access to local resources
     ///     such as the user's camera and microphone. By default, this is set to true.
     /// </summary>
-    /// <remarks>
-    ///     This only works on Windows.
-    /// </remarks>
     public bool GrantBrowserPermissions
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.GrantBrowserPermissions;
-
             var grant = false;
-            Invoke(() => PhotinoNative.GetGrantBrowserPermissions(_nativeInstance, out grant));
+            Invoke(() => PhotinoNative.GetGrantBrowserPermissions(InstanceHandle, out grant));
             return grant;
-        }
-        set
-        {
-            if (GrantBrowserPermissions != value)
-            {
-                if (IsNotInitialized())
-                    _startupParameters.GrantBrowserPermissions = value;
-                else
-                    throw new ApplicationException("GrantBrowserPermissions can only be set before the native window is instantiated.");
-            }
         }
     }
 
-    /// ///
     /// <summary>
     ///     Gets or Sets the Height property of the native window in pixels.
     ///     The default value is 0.
@@ -544,15 +407,14 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            return Size.Height;
-        }
-        set
-        {
-            var currentSize = Size;
-            if (currentSize.Height != value)
-                Size = new Size(currentSize.Width, value);
+            var height = 0; 
+            Invoke(() => PhotinoNative.GetSize(InstanceHandle, out _, out height));
+            return height;
         }
     }
+    
+    // TODO CONTINUE HERE
+    
     /// <summary>
     ///     Gets or sets the icon file for the native window title bar.
     ///     The file must be located on the local machine and cannot be a URL. The default is none.
@@ -564,31 +426,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     The file path to the icon.
     /// </value>
     /// <exception cref="System.ArgumentException">Icon file: {value} does not exist.</exception>
-    public string? IconFile
-    {
-        get
-        {
-            return _iconFile;
-        }
-        set
-        {
-            if (_iconFile == value) return;
-            if (!File.Exists(value))
-            {
-                var absolutePath = $"{AppContext.BaseDirectory}{value}";
-                if (!File.Exists(absolutePath))
-                    throw new ArgumentException($"Icon file: {value} does not exist.");
-            }
-
-            _iconFile = value;
-            if (_iconFile is null) return;
-
-            if (IsNotInitialized())
-                _startupParameters.WindowIconFile = _iconFile;
-            else
-                Invoke(() => PhotinoNative.SetIconFile(_nativeInstance, _iconFile));
-        }
-    }
+    public string? IconFilePath { get; private set; }
 
     /// <summary>
     ///     Gets or sets the native window Left (X) and Top coordinates (Y) in pixels.
@@ -604,7 +442,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
             var left = 0;
             var top = 0;
-            Invoke(() => PhotinoNative.GetPosition(_nativeInstance, out left, out top));
+            Invoke(() => PhotinoNative.GetPosition(InstanceHandle, out left, out top));
             return new Point(left, top);
         }
         set
@@ -616,7 +454,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 _startupParameters.Top = value.Y;
             }
             else
-                Invoke(() => PhotinoNative.SetPosition(_nativeInstance, value.X, value.Y));
+                Invoke(() => PhotinoNative.SetPosition(InstanceHandle, value.X, value.Y));
         }
     }
 
@@ -651,7 +489,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 return _startupParameters.Maximized;
 
             var maximized = false;
-            Invoke(() => PhotinoNative.GetMaximized(_nativeInstance, out maximized));
+            Invoke(() => PhotinoNative.GetMaximized(InstanceHandle, out maximized));
             return maximized;
         }
         set
@@ -661,7 +499,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 if (IsNotInitialized())
                     _startupParameters.Maximized = value;
                 else
-                    Invoke(() => PhotinoNative.SetMaximized(_nativeInstance, value));
+                    Invoke(() => PhotinoNative.SetMaximized(InstanceHandle, value));
             }
         }
     }
@@ -683,7 +521,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                     _startupParameters.MaxHeight = value.Y;
                 }
                 else
-                    Invoke(() => PhotinoNative.SetMaxSize(_nativeInstance, value.X, value.Y));
+                    Invoke(() => PhotinoNative.SetMaxSize(InstanceHandle, value.X, value.Y));
             }
         }
     }
@@ -730,7 +568,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 return _startupParameters.Minimized;
 
             var minimized = false;
-            Invoke(() => PhotinoNative.GetMinimized(_nativeInstance, out minimized));
+            Invoke(() => PhotinoNative.GetMinimized(InstanceHandle, out minimized));
             return minimized;
         }
         set
@@ -740,7 +578,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 if (IsNotInitialized())
                     _startupParameters.Minimized = value;
                 else
-                    Invoke(() => PhotinoNative.SetMinimized(_nativeInstance, value));
+                    Invoke(() => PhotinoNative.SetMinimized(InstanceHandle, value));
             }
         }
     }
@@ -762,7 +600,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                     _startupParameters.MinHeight = value.Y;
                 }
                 else
-                    Invoke(() => PhotinoNative.SetMinSize(_nativeInstance, value.X, value.Y));
+                    Invoke(() => PhotinoNative.SetMinSize(InstanceHandle, value.X, value.Y));
             }
         }
     }
@@ -815,7 +653,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 return _startupParameters.Resizable;
 
             var resizable = false;
-            Invoke(() => PhotinoNative.GetResizable(_nativeInstance, out resizable));
+            Invoke(() => PhotinoNative.GetResizable(InstanceHandle, out resizable));
             return resizable;
         }
         set
@@ -825,7 +663,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 if (IsNotInitialized())
                     _startupParameters.Resizable = value;
                 else
-                    Invoke(() => PhotinoNative.SetResizable(_nativeInstance, value));
+                    Invoke(() => PhotinoNative.SetResizable(InstanceHandle, value));
             }
         }
     }
@@ -844,7 +682,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
             var width = 0;
             var height = 0;
-            Invoke(() => PhotinoNative.GetSize(_nativeInstance, out width, out height));
+            Invoke(() => PhotinoNative.GetSize(InstanceHandle, out width, out height));
             return new Size(width, height);
         }
         set
@@ -857,7 +695,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                     _startupParameters.Width = value.Width;
                 }
                 else
-                    Invoke(() => PhotinoNative.SetSize(_nativeInstance, value.Width, value.Height));
+                    Invoke(() => PhotinoNative.SetSize(InstanceHandle, value.Width, value.Height));
             }
         }
     }
@@ -915,7 +753,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         {
             var ss = _startupParameters.StartString;
             if (string.Compare(ss, value, StringComparison.OrdinalIgnoreCase) == 0) return;
-            if (_nativeInstance != IntPtr.Zero)
+            if (InstanceHandle != IntPtr.Zero)
                 throw new ApplicationException($"{nameof(ss)} cannot be changed after Photino Window is initialized");
             LoadRawString(value);
         }
@@ -942,7 +780,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         {
             var su = _startupParameters.StartUrl;
             if (string.Compare(su, value, StringComparison.OrdinalIgnoreCase) == 0) return;
-            if (_nativeInstance != IntPtr.Zero)
+            if (InstanceHandle != IntPtr.Zero)
                 throw new ApplicationException($"{nameof(su)} cannot be changed after Photino Window is initialized");
             Load(value);
         }
@@ -968,7 +806,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         {
             var tfp = _startupParameters.TemporaryFilesPath;
             if (tfp == value) return;
-            if (_nativeInstance != IntPtr.Zero)
+            if (InstanceHandle != IntPtr.Zero)
                 throw new ApplicationException($"{nameof(tfp)} cannot be changed after Photino Window is initialized");
             _startupParameters.TemporaryFilesPath = value;
         }
@@ -994,7 +832,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         {
             var nri = _startupParameters.NotificationRegistrationId;
             if (nri == value) return;
-            if (_nativeInstance != IntPtr.Zero)
+            if (InstanceHandle != IntPtr.Zero)
                 throw new ApplicationException($"{nameof(nri)} cannot be changed after Photino Window is initialized");
             _startupParameters.NotificationRegistrationId = value;
         }
@@ -1014,7 +852,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             var title = string.Empty;
             Invoke(() =>
             {
-                var ptr = PhotinoNative.GetTitle(_nativeInstance);
+                var ptr = PhotinoNative.GetTitle(InstanceHandle);
                 title = Marshal.PtrToStringAuto(ptr);
             });
             return title;
@@ -1030,7 +868,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             if (IsNotInitialized())
                 _startupParameters.Title = value;
             else
-                Invoke(() => PhotinoNative.SetTitle(_nativeInstance, value));
+                Invoke(() => PhotinoNative.SetTitle(InstanceHandle, value));
         }
     }
 
@@ -1064,7 +902,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 return _startupParameters.Topmost;
 
             var topmost = false;
-            Invoke(() => PhotinoNative.GetTopmost(_nativeInstance, out topmost));
+            Invoke(() => PhotinoNative.GetTopmost(InstanceHandle, out topmost));
             return topmost;
         }
         set
@@ -1073,7 +911,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             if (IsNotInitialized())
                 _startupParameters.Topmost = value;
             else
-                Invoke(() => PhotinoNative.SetTopmost(_nativeInstance, value));
+                Invoke(() => PhotinoNative.SetTopmost(InstanceHandle, value));
         }
     }
 
@@ -1095,7 +933,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
         set
         {
-            if (_nativeInstance != IntPtr.Zero) throw new ApplicationException("UseOsDefaultLocation can only be set before the native window is instantiated.");
+            if (InstanceHandle != IntPtr.Zero) throw new ApplicationException("UseOsDefaultLocation can only be set before the native window is instantiated.");
             if (UseOsDefaultLocation == value) return;
             _startupParameters.UseOsDefaultLocation = value;
         }
@@ -1178,14 +1016,14 @@ public partial class PhotinoWindow : IPhotinoWindow
                 return _startupParameters.Zoom;
 
             var zoom = 0;
-            Invoke(() => PhotinoNative.GetZoom(_nativeInstance, out zoom));
+            Invoke(() => PhotinoNative.GetZoom(InstanceHandle, out zoom));
             return zoom;
         }
         set
         {
             if (Zoom == value) return;
             if (IsNotInitialized()) _startupParameters.Zoom = value;
-            else Invoke(() => PhotinoNative.SetZoom(_nativeInstance, value));
+            else Invoke(() => PhotinoNative.SetZoom(InstanceHandle, value));
         }
     }
     
@@ -1209,7 +1047,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         if (Environment.CurrentManagedThreadId == _managedThreadId)
             workItem();
         else
-            PhotinoNative.Invoke(_nativeInstance, workItem.Invoke);
+            PhotinoNative.Invoke(InstanceHandle, workItem.Invoke);
         return this;
     }
 
@@ -1228,7 +1066,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         _logger.LogDebug(".Load({uri})", uri);
         
         if (IsNotInitialized()) _startupParameters.StartUrl = uri.ToString();
-        else Invoke(() => PhotinoNative.NavigateToUrl(_nativeInstance, uri.ToString()));
+        else Invoke(() => PhotinoNative.NavigateToUrl(InstanceHandle, uri.ToString()));
         return this;
     }
 
@@ -1284,7 +1122,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         var shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 50), "...") : content;
         _logger.LogDebug(".LoadRawString({Content})", shortContent);
         if (IsNotInitialized()) _startupParameters.StartString = content;
-        else Invoke(() => PhotinoNative.NavigateToString(_nativeInstance, content));
+        else Invoke(() => PhotinoNative.NavigateToString(InstanceHandle, content));
         return this;
     }
 
@@ -1301,7 +1139,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow Center()
     {
         _logger.LogDebug(".Center()");
-        Invoke(() => PhotinoNative.Center(_nativeInstance));
+        Invoke(() => PhotinoNative.Center(InstanceHandle));
         return this;
     }
 
@@ -1322,7 +1160,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         // If the window is outside the work area,
         // recalculate the position and continue.
         //When a window isn't initialized yet, cannot determine screen size.
-        if (!allowOutsideWorkArea && _nativeInstance != IntPtr.Zero)
+        if (!allowOutsideWorkArea && InstanceHandle != IntPtr.Zero)
         {
             var horizontalWindowEdge = location.X + Width;
             var verticalWindowEdge = location.Y + Height;
@@ -1431,7 +1269,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetChromeless(bool chromeless)
     {
         _logger.LogDebug(".SetChromeless({chromeless})", chromeless);
-        if (_nativeInstance != IntPtr.Zero)
+        if (InstanceHandle != IntPtr.Zero)
             throw new ApplicationException("Chromeless can only be set before the native window is instantiated.");
 
         _startupParameters.Chromeless = chromeless;
@@ -1454,7 +1292,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
         
         _logger.LogDebug("Invoking PhotinoNative.SetTransparentEnabled({value})", enabled);
-        Invoke(() => PhotinoNative.SetTransparentEnabled(_nativeInstance, enabled));
+        Invoke(() => PhotinoNative.SetTransparentEnabled(InstanceHandle, enabled));
         return this;
     }
 
@@ -1472,9 +1310,9 @@ public partial class PhotinoWindow : IPhotinoWindow
         
         Invoke(() =>
         {
-            PhotinoNative.GetContextMenuEnabled(_nativeInstance, out var isEnabled);
+            PhotinoNative.GetContextMenuEnabled(InstanceHandle, out var isEnabled);
             if (isEnabled == enabled) return;
-            PhotinoNative.SetContextMenuEnabled(_nativeInstance, enabled);
+            PhotinoNative.SetContextMenuEnabled(InstanceHandle, enabled);
         });
         return this;
     }
@@ -1493,9 +1331,9 @@ public partial class PhotinoWindow : IPhotinoWindow
         
         Invoke(() =>
         {
-            PhotinoNative.GetDevToolsEnabled(_nativeInstance, out var isEnabled);
+            PhotinoNative.GetDevToolsEnabled(InstanceHandle, out var isEnabled);
             if (isEnabled == enabled) return;
-            PhotinoNative.SetDevToolsEnabled(_nativeInstance, enabled);
+            PhotinoNative.SetDevToolsEnabled(InstanceHandle, enabled);
         });
         return this;
     }
@@ -1511,25 +1349,52 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetFullScreen(bool fullScreen)
     {
         _logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
-        FullScreen = fullScreen;
-        return this;
-    }
 
-    /// <summary>
-    ///     When set to true, the native browser control grants all requests for access to local resources
-    ///     such as the users' camera and microphone. By default, this is set to true.
-    /// </summary>
-    /// <remarks>
-    ///     This only works on Windows.
-    /// </remarks>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="grant">Whether permissions should be automatically granted.</param>
-    public IPhotinoWindow SetGrantBrowserPermissions(bool grant)
-    {
-        _logger.LogDebug(".SetGrantBrowserPermission({Grant})", grant);
-        GrantBrowserPermissions = grant;
+        if (FullScreen == fullScreen)
+        {
+            _logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
+            return this;
+        }
+
+        if (fullScreen)
+        {
+            Invoke(() =>
+            {
+                var monitors = MonitorsUtility.GetMonitors(InstanceHandle);
+                PhotinoNative.GetPosition(InstanceHandle, out var left, out var top);
+                PhotinoNative.GetSize(InstanceHandle, out var width, out var height);
+                    
+                _preFullscreenArea = new Rectangle(left, top, width, height);
+
+                Rectangle currentMonitorArea = default;
+                foreach (var monitor in monitors)
+                {
+                    if (!monitor.MonitorArea.IntersectsWith(_preFullscreenArea)) continue;
+                    currentMonitorArea = monitor.MonitorArea;
+                    break;
+                }
+                    
+                if (currentMonitorArea == default)
+                {
+                    PhotinoNative.SetFullScreen(InstanceHandle, true);
+                    return;
+                }
+                    
+                PhotinoNative.SetFullScreen(InstanceHandle, true);
+                PhotinoNative.SetPosition(InstanceHandle, currentMonitorArea.X, currentMonitorArea.Y);
+                PhotinoNative.SetSize(InstanceHandle, currentMonitorArea.Width, currentMonitorArea.Height);
+            });
+            return this;
+        }
+        
+        // Set Fullscreen to false => Restore to previous state
+        Invoke(() =>
+        {
+            PhotinoNative.SetFullScreen(InstanceHandle, false);
+            PhotinoNative.SetPosition(InstanceHandle, _preFullscreenArea.X, _preFullscreenArea.Y);
+            PhotinoNative.SetSize(InstanceHandle, _preFullscreenArea.Width, _preFullscreenArea.Height);
+        });
+
         return this;
     }
 
@@ -1580,73 +1445,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         NotificationRegistrationId = notificationRegistrationId;
         return this;
     }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.JavascriptClipboardAccessEnabled" /> on the browser control at initialization.
-    /// </summary>
-    /// <param name="enable"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetJavascriptClipboardAccessEnabled(bool enable)
-    {
-        _logger.LogDebug(".SetJavascriptClipboardAccessEnabled({Enable})", enable);
-        JavascriptClipboardAccessEnabled = enable;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.MediaStreamEnabled" /> on the browser control at initialization.
-    /// </summary>
-    /// <param name="enable"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetMediaStreamEnabled(bool enable)
-    {
-        _logger.LogDebug(".SetMediaStreamEnabled({Enable})", enable);
-        MediaStreamEnabled = enable;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.SmoothScrollingEnabled" /> on the browser control at initialization.
-    /// </summary>
-    /// <param name="enable"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetSmoothScrollingEnabled(bool enable)
-    {
-        _logger.LogDebug(".SetSmoothScrollingEnabled({Enable})", enable);
-        SmoothScrollingEnabled = enable;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.IgnoreCertificateErrorsEnabled" /> on the browser control at initialization.
-    /// </summary>
-    /// <param name="enable"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetIgnoreCertificateErrorsEnabled(bool enable)
-    {
-        _logger.LogDebug(".SetIgnoreCertificateErrorsEnabled({Enable})", enable);
-        IgnoreCertificateErrorsEnabled = enable;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets whether ShowNotification() can be called.
-    /// </summary>
-    /// <remarks>
-    ///     Only available on Windows.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if a platform is not Windows.
-    /// </exception>
-    /// <param name="enable"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetNotificationsEnabled(bool enable)
-    {
-        _logger.LogDebug(".SetNotificationsEnabled({Enable})", enable);
-        NotificationsEnabled = enable;
-        return this;
-    }
-
+    
     /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Height" /> in pixels.
     ///     Default is 0.
@@ -1659,9 +1458,16 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetHeight(int height)
     {
         _logger.LogDebug(".SetHeight({Height})", height);
-        Height = height;
+        
+        Invoke(() =>
+        {
+            PhotinoNative.GetSize(InstanceHandle, out var width, out _ );
+            PhotinoNative.SetSize(InstanceHandle, width, height);
+        });
+        
         return this;
     }
+    
     /// <summary>
     ///     Sets the icon file for the native window title bar.
     ///     The file must be located on the local machine and cannot be a URL. The default is none.
@@ -1673,11 +1479,24 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <exception cref="System.ArgumentException">Icon file: {value} does not exist.</exception>
-    /// <param name="iconFile">The file path to the icon.</param>
-    public IPhotinoWindow SetIconFile(string iconFile)
+    /// <param name="iconFilePath">The file path to the icon.</param>
+    public IPhotinoWindow SetIconFile(string iconFilePath)
     {
-        _logger.LogDebug(".SetIconFile({IconFile})", iconFile);
-        IconFile = iconFile;
+        _logger.LogDebug(".SetIconFile({IconFile})", iconFilePath);
+
+        if (IconFilePath == iconFilePath)
+        {
+            _logger.LogDebug("Icon file is already set to {IconFile}, skipping assignment", iconFilePath);
+            return this;
+        }
+        if (!IconFileUtilities.IsValidIconFile(iconFilePath))
+        {
+            _logger.LogWarning("Icon file {IconFile} does not exist or is an invalid file path.", iconFilePath);
+            return this;
+        }
+        
+        IconFilePath = iconFilePath;
+        Invoke(() => PhotinoNative.SetIconFile(InstanceHandle, iconFilePath));
         return this;
     }
 
@@ -2011,7 +1830,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow ClearBrowserAutoFill()
     {
         if (IsWindowsPlatform)
-            Invoke(() => PhotinoNative.ClearBrowserAutoFill(_nativeInstance));
+            Invoke(() => PhotinoNative.ClearBrowserAutoFill(InstanceHandle));
         else
             _logger.LogWarning("ClearBrowserAutoFill is only supported on the Windows platform");
 
@@ -2040,7 +1859,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
 
         _startupParameters.NativeParent = Parent is PhotinoWindow parent
-            ? parent._nativeInstance 
+            ? parent.InstanceHandle 
             : IntPtr.Zero;
 
         if (PhotinoNativeParametersValidator.Validate(_startupParameters, _logger))
@@ -2055,7 +1874,7 @@ public partial class PhotinoWindow : IPhotinoWindow
                 else if (IsMacOsPlatform)
                     Invoke(() => PhotinoNative.RegisterMac());
 
-                Invoke(() => _nativeInstance = PhotinoNative.Ctor(ref _startupParameters));
+                Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref _startupParameters));
             }
             catch (Exception ex)
             {
@@ -2073,7 +1892,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             _messageLoopIsStarted = true;
             try
             {
-                Invoke(() => PhotinoNative.WaitForExit(_nativeInstance));//start the message loop. there can only be 1 message loop for all windows.
+                Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));//start the message loop. there can only be 1 message loop for all windows.
             }
             catch (Exception ex)
             {
@@ -2103,7 +1922,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         _logger.LogDebug(".Close()");
         if (IsNotInitialized())
             throw new ApplicationException("Close cannot be called until after the Photino window is initialized.");
-        Invoke(() => PhotinoNative.Close(_nativeInstance));
+        Invoke(() => PhotinoNative.Close(InstanceHandle));
     }
 
     /// <summary>
@@ -2121,7 +1940,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         _logger.LogDebug(".SendWebMessage({Message})", message);
         if (IsNotInitialized())
             throw new ApplicationException("SendWebMessage cannot be called until after the Photino window is initialized.");
-        Invoke(() => PhotinoNative.SendWebMessage(_nativeInstance, message));
+        Invoke(() => PhotinoNative.SendWebMessage(InstanceHandle, message));
     }
 
     public async Task SendWebMessageAsync(string message)
@@ -2131,7 +1950,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             _logger.LogDebug(".SendWebMessage({Message})", message);
             if (IsNotInitialized())
                 throw new ApplicationException("SendWebMessage cannot be called until after the Photino window is initialized.");
-            Invoke(() => PhotinoNative.SendWebMessage(_nativeInstance, message));
+            Invoke(() => PhotinoNative.SendWebMessage(InstanceHandle, message));
         });
     }
 
@@ -2149,7 +1968,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         _logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
         if (IsNotInitialized())
             throw new ApplicationException("SendNotification cannot be called until after the Photino window is initialized.");
-        Invoke(() => PhotinoNative.ShowNotification(_nativeInstance, title, body));
+        Invoke(() => PhotinoNative.ShowNotification(InstanceHandle, title, body));
     }
 
     /// <summary>
@@ -2243,7 +2062,7 @@ public partial class PhotinoWindow : IPhotinoWindow
 
         Invoke(() =>
         {
-            var ptrResult = PhotinoNative.ShowSaveFile(_nativeInstance, title, defaultPath, nativeFilters, filters.Length);
+            var ptrResult = PhotinoNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length);
             result = Marshal.PtrToStringAuto(ptrResult);
         });
 
@@ -2284,7 +2103,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public PhotinoDialogResult ShowMessage(string title, string? text, PhotinoDialogButtons buttons = PhotinoDialogButtons.Ok, PhotinoDialogIcon icon = PhotinoDialogIcon.Info)
     {
         var result = PhotinoDialogResult.Cancel;
-        Invoke(() => result = PhotinoNative.ShowMessage(_nativeInstance, title, text ?? string.Empty, buttons, icon));
+        Invoke(() => result = PhotinoNative.ShowMessage(InstanceHandle, title, text ?? string.Empty, buttons, icon));
         return result;
     }
 
@@ -2308,8 +2127,8 @@ public partial class PhotinoWindow : IPhotinoWindow
         Invoke(() =>
         {
             var ptrResults = foldersOnly ?
-                PhotinoNative.ShowOpenFolder(_nativeInstance, title, defaultPath, multiSelect, out var resultCount) :
-                PhotinoNative.ShowOpenFile(_nativeInstance, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount);
+                PhotinoNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out var resultCount) :
+                PhotinoNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount);
             if (resultCount == 0) return;
 
             var ptrArray = new IntPtr[resultCount];
@@ -2477,7 +2296,7 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
         else
         {
-            PhotinoNative.AddCustomSchemeName(_nativeInstance, scheme);
+            PhotinoNative.AddCustomSchemeName(InstanceHandle, scheme);
         }
 
         _customSchemes[scheme] += handler;
