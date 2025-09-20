@@ -1,8 +1,7 @@
-using InfiniLore.Photino.NET;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino;
+namespace InfiniLore.Photino.NET;
 
 public static partial class PhotinoNative
 {

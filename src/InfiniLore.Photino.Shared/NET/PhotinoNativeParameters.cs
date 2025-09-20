@@ -241,7 +241,8 @@ public struct PhotinoNativeParameters
     /// </summary>
     public static PhotinoNativeParameters Default => new PhotinoNativeParameters
     {
-        Resizable = true,//These values can't be initialized within the struct itself. Set required defaults.
+        //These values can't be initialized within the struct itself. Set required defaults.
+        Resizable = true,
         ContextMenuEnabled = true,
         CustomSchemeNames = new string[16],
         DevToolsEnabled = true,
