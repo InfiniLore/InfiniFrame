@@ -36,10 +36,16 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
     public int MinHeight { get; set; }
     public bool Minimized { get; set; }
     public bool Resizable { get; set; }
-
-    #endregion
+    public int Width { get; set; }
+    public string? BrowserControlInitParameters { get; set; }
+    public string? StartUrl { get; set; }    
+    public string? StartString { get; set; }  
+    public string? TemporaryFilesPath { get; set; } = Path.Combine(Path.GetTempPath(), "photino");
+    public string? NotificationRegistrationId { get; set; }
+    public string? Title { get; set; }
     
-    public string StartUrl { get; set; } = PhotinoNativeParameters.Default.StartString;    
+    #endregion
+      
 
     private PhotinoWindowBuilder() {}
 
@@ -79,8 +85,13 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
             MinHeight = MinHeight,
             Minimized = Minimized,
             Resizable = Resizable,
-            
-            StartString = StartUrl,
+            Width = Width,
+            BrowserControlInitParameters = BrowserControlInitParameters,
+            StartUrl = StartUrl,
+            StartString = StartString,
+            TemporaryFilesPath = TemporaryFilesPath,
+            NotificationRegistrationId = NotificationRegistrationId,
+            Title = Title,
         };
         return parameters;
     }
@@ -102,6 +113,6 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
     }
     public IPhotinoWindow Build(IServiceProvider provider)
     {
-        return new PhotinoWindow(GetParameters(), provider.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger(), null);
+        return new PhotinoWindow(GetParameters(), provider.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
     }
 }

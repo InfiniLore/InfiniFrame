@@ -230,20 +230,20 @@ public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchro
         // Anything run on the sync context should actually be dispatched as far as Photino
         // is concerned, so that it's safe to interact with the native window/WebView.
         window.Invoke(() =>
+        {
+            var original = Current;
+            try
             {
-                var original = Current;
-                try
-                {
-                    SetSynchronizationContext(this);
-                    d?.Invoke(state);
-                }
-                finally
-                {
-                    SetSynchronizationContext(original);
-
-                    completion?.SetResult(null!);
-                }
+                SetSynchronizationContext(this);
+                d?.Invoke(state);
             }
+            finally
+            {
+                SetSynchronizationContext(original);
+
+                completion?.SetResult(null!);
+            }
+        }
         );
     }
 

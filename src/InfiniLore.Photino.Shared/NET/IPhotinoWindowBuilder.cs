@@ -29,6 +29,13 @@ public interface IPhotinoWindowBuilder : IPhotinoWindowBase
     new int MinHeight { get; set; }
     new bool Minimized { get; set; }
     new bool Resizable { get; set; }
+    new int Width { get; set; }
+    new string? BrowserControlInitParameters { get; set; }
+    new string? StartUrl { get; set; }
+    new string? StartString { get; set; }
+    new string? TemporaryFilesPath { get; set; }
+    new string? NotificationRegistrationId { get; set; }
+    new string? Title { get; set; }
     
     IPhotinoWindow Build();
     IPhotinoWindow Build(IServiceProvider provider);

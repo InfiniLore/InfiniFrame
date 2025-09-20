@@ -12,18 +12,18 @@ public struct PhotinoNativeParameters
     ///     initialized. Default is none.
     /// </summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string StartString;
+    internal string? StartString;
 
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will navigate to this URL when initialized.
     ///     Default is none.
     /// </summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string StartUrl;
+    internal string? StartUrl;
 
     ///<summary>OPTIONAL: Appears on the title bar of the native window. Default is none.</summary>
     [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string Title;
+    internal string? Title;
 
     /// <summary>
     ///     WINDOWS AND LINUX ONLY: OPTIONAL: Path to a local file or a URL. Icon appears on the title bar of the native
@@ -129,8 +129,6 @@ public struct PhotinoNativeParameters
 
     ///<summary>OPTIONAL: Initial maximum window height in pixels.</summary>
     [MarshalAs(UnmanagedType.I4)] internal int MaxHeight;
-
-
 
     /// <summary>
     ///     OPTIONAL: If true, native window appears in centered on screen. Left and Top properties are ignored. Default
@@ -257,9 +255,7 @@ public struct PhotinoNativeParameters
         SmoothScrollingEnabled = true,
         IgnoreCertificateErrorsEnabled = false,
         NotificationsEnabled = true,
-        TemporaryFilesPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Photino")
-            : null,
+        TemporaryFilesPath = Path.GetTempPath(),
         Title = "Photino",
         UseOsDefaultLocation = true,
         UseOsDefaultSize = true,

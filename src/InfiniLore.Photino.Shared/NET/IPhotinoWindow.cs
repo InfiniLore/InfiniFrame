@@ -15,32 +15,16 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     Monitor MainMonitor { get; }
     uint ScreenDpi { get; }
     Guid Id { get; }
-    string? IconFilePath { get; }
     Point Location { get; }
-    int Left { get; }
-    bool Maximized { get; }
     Point MaxSize { get; }
-    int MaxHeight { get; }
-    int MaxWidth { get; }
-    bool Minimized { get; }
     Point MinSize { get; }
-    int MinHeight { get; }
-    int MinWidth { get; }
     IPhotinoWindow? Parent { get; } 
-    bool Resizable { get; }
-    Size Size { get; }
-    string? BrowserControlInitParameters { get; }
-    string StartString { get; }
-    string StartUrl { get; set; }
-    string? TemporaryFilesPath { get; }
     string? NotificationRegistrationId { get; }
     string? Title { get; }
-    int Top { get; }
     bool Topmost { get; }
     bool UseOsDefaultLocation { get; }
     bool UseOsDefaultSize { get; }
     EventHandler<string>? WebMessageReceivedHandler { get; }
-    int Width { get; }
     int ManagedThreadId { get; }
 
     event EventHandler<Point>? WindowLocationChanged;
@@ -56,7 +40,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     event EventHandler? WindowCreated;
     
     int Zoom { get; }
-    IPhotinoWindow Invoke(Action workItem);
+    void Invoke(Action workItem);
     IPhotinoWindow Load(Uri uri);
     IPhotinoWindow Load(string path);
     IPhotinoWindow LoadRawString(string content);
@@ -70,8 +54,6 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     IPhotinoWindow SetContextMenuEnabled(bool enabled);
     IPhotinoWindow SetDevToolsEnabled(bool enabled);
     IPhotinoWindow SetFullScreen(bool fullScreen);
-    IPhotinoWindow SetBrowserControlInitParameters(string parameters);
-    IPhotinoWindow SetNotificationRegistrationId(string notificationRegistrationId);
     IPhotinoWindow SetHeight(int height);
     IPhotinoWindow SetIconFile(string iconFile);
     IPhotinoWindow SetLeft(int left);
@@ -87,8 +69,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     IPhotinoWindow SetMinSize(int minWidth, int minHeight);
     IPhotinoWindow SetMinHeight(int minHeight);
     IPhotinoWindow SetMinWidth(int minWidth);
-    IPhotinoWindow SetTemporaryFilesPath(string tempFilesPath);
-    IPhotinoWindow SetTitle(string title);
+    IPhotinoWindow SetTitle(string? title);
     IPhotinoWindow SetTop(int top);
     IPhotinoWindow SetTopMost(bool topMost);
     IPhotinoWindow SetWidth(int width);

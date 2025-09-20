@@ -26,4 +26,11 @@ public interface IPhotinoWindowBase
     int MinHeight { get; }
     bool Minimized { get; }
     bool Resizable { get; }
+    int Width { get; }
+    string? BrowserControlInitParameters { get; }
+    string? StartUrl { get; }
+    string? StartString { get; }
+    string? TemporaryFilesPath { get; }
+    string? NotificationRegistrationId { get; }
+    string? Title { get; }
 }

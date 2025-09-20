@@ -203,11 +203,106 @@ public static class IPhotinoWindowBuilderFluentApiExtensions
     }
     
     /// <summary>
+    ///     Sets FullScreen on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetFullScreen(this IPhotinoWindowBuilder builder, bool fullscreen)
+    {
+        builder.FullScreen = fullscreen;
+        return builder;
+    }
+    
+    /// <summary>
     ///     Sets Resizable on the browser control at initialization.
     /// </summary>
     public static IPhotinoWindowBuilder SetResizable(this IPhotinoWindowBuilder builder, bool resizable)
     {
         builder.Resizable = resizable;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets Width on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetWidth(this IPhotinoWindowBuilder builder, int value)
+    {
+        builder.Width = Math.Max(0, value);
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets Size on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetSize(this IPhotinoWindowBuilder builder, int width, int height)
+    {
+        builder.Width = width;
+        builder.Height = height;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets Size on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetSize(this IPhotinoWindowBuilder builder, Size size)
+    {
+        builder.Width = size.Width;
+        builder.Height = size.Height;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets BrowserControlInitParameters on the browser control at initialization.
+    ///     <remarks>
+    ///         WINDOWS: WebView2 specific string. Space separated.
+    ///         https://peter.sh/experiments/chromium-command-line-switches/
+    ///         https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49
+    ///         viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
+    ///         https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
+    ///         LINUX: Webkit2Gtk specific string. Enter parameter names and values as JSON string.
+    ///         e.g. { "set_enable_encrypted_media": true }
+    ///         https://webkitgtk.org/reference/webkit2gtk/2.5.1/WebKitSettings.html
+    ///         https://lazka.github.io/pgi-docs/WebKit2-4.0/classes/Settings.html
+    ///         MAC: Webkit specific string. Enter parameter names and values as JSON string.
+    ///         e.g. { "minimumFontSize": 8 }
+    ///         https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
+    ///         https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
+    ///     </remarks>
+    /// </summary>
+    public static IPhotinoWindowBuilder SetBrowserControlInitParameters(this IPhotinoWindowBuilder builder, string? parameters)
+    {
+        builder.BrowserControlInitParameters = parameters;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets TemporaryFilesPath on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetTemporaryFilesPath(this IPhotinoWindowBuilder builder, string? path)
+    {
+        builder.TemporaryFilesPath = path;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets NotificationRegistrationId on the browser control at initialization.
+    /// </summary>
+    /// <remarks>
+    ///     Only available on Windows.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown if a platform is not Windows.
+    /// </exception>
+    public static IPhotinoWindowBuilder SetNotificationRegistrationId(this IPhotinoWindowBuilder builder, string? id)
+    {
+        builder.NotificationRegistrationId = id;
+        return builder;
+    }
+    
+    /// <summary>
+    ///     Sets Title on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetTitle(this IPhotinoWindowBuilder builder, string? title)
+    {
+        builder.Title = title;
         return builder;
     }
 

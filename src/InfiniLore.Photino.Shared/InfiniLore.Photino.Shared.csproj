@@ -8,4 +8,8 @@
         <InternalsVisibleTo Include="InfiniLore.Photino.Net.Server"/>
         <InternalsVisibleTo Include="InfiniLore.Photino.Blazor"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Photino.Native" Version="4.0.22"/>
+    </ItemGroup>
 </Project>

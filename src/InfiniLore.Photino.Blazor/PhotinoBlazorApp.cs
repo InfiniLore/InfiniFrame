@@ -22,9 +22,7 @@ public class PhotinoBlazorApp(IPhotinoWindow window, IPhotinoWebViewManager mana
 
     public void Run()
     {
-        if (string.IsNullOrWhiteSpace(window.StartUrl)) window.StartUrl = "/";
-
-        manager.Navigate(window.StartUrl);
+        manager.Navigate(string.IsNullOrWhiteSpace(window.StartUrl) ? "/" : window.StartUrl);
         window.WaitForClose();
     }
 

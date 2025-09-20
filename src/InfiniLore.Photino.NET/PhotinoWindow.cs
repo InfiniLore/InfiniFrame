@@ -505,7 +505,6 @@ public partial class PhotinoWindow : IPhotinoWindow
         }
     }
 
-    // TODO CONTINUE HERE
     /// <summary>
     ///     Gets or sets the native window Size. This represents the width and the height of the window in pixels.
     ///     The default Size is 0,0.
@@ -515,26 +514,10 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return new Size(_startupParameters.Width, _startupParameters.Height);
-
             var width = 0;
             var height = 0;
             Invoke(() => PhotinoNative.GetSize(InstanceHandle, out width, out height));
             return new Size(width, height);
-        }
-        set
-        {
-            if (Size.Width != value.Width || Size.Height != value.Height)
-            {
-                if (IsNotInitialized())
-                {
-                    _startupParameters.Height = value.Height;
-                    _startupParameters.Width = value.Width;
-                }
-                else
-                    Invoke(() => PhotinoNative.SetSize(InstanceHandle, value.Width, value.Height));
-            }
         }
     }
 
@@ -555,20 +538,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
-    public string? BrowserControlInitParameters
-    {
-        get
-        {
-            return _startupParameters.BrowserControlInitParameters;
-        }
-        set
-        {
-            var ss = _startupParameters.BrowserControlInitParameters;
-            if (string.Compare(ss, value, StringComparison.OrdinalIgnoreCase) == 0) return;
-            if (IsNotInitialized()) _startupParameters.BrowserControlInitParameters = value;
-            else throw new ApplicationException($"{nameof(ss)} cannot be changed after Photino Window is initialized");
-        }
-    }
+    public string? BrowserControlInitParameters => _startupParameters.BrowserControlInitParameters;
 
     /// <summary>
     ///     Gets or sets an HTML string that the browser control will render when initialized.
@@ -581,21 +551,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    public string StartString
-    {
-        get
-        {
-            return _startupParameters.StartString;
-        }
-        set
-        {
-            var ss = _startupParameters.StartString;
-            if (string.Compare(ss, value, StringComparison.OrdinalIgnoreCase) == 0) return;
-            if (InstanceHandle != IntPtr.Zero)
-                throw new ApplicationException($"{nameof(ss)} cannot be changed after Photino Window is initialized");
-            LoadRawString(value);
-        }
-    }
+    public string? StartString => _startupParameters.StartString;
 
     /// <summary>
     ///     Gets or sets a URL that the browser control will navigate to when initialized.
@@ -608,21 +564,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    public string StartUrl
-    {
-        get
-        {
-            return _startupParameters.StartUrl;
-        }
-        set
-        {
-            var su = _startupParameters.StartUrl;
-            if (string.Compare(su, value, StringComparison.OrdinalIgnoreCase) == 0) return;
-            if (InstanceHandle != IntPtr.Zero)
-                throw new ApplicationException($"{nameof(su)} cannot be changed after Photino Window is initialized");
-            Load(value);
-        }
-    }
+    public string? StartUrl => _startupParameters.StartUrl;
 
     /// <summary>
     ///     Gets or sets the local path to store temp files for browser control.
@@ -634,21 +576,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public string? TemporaryFilesPath
-    {
-        get
-        {
-            return _startupParameters.TemporaryFilesPath;
-        }
-        set
-        {
-            var tfp = _startupParameters.TemporaryFilesPath;
-            if (tfp == value) return;
-            if (InstanceHandle != IntPtr.Zero)
-                throw new ApplicationException($"{nameof(tfp)} cannot be changed after Photino Window is initialized");
-            _startupParameters.TemporaryFilesPath = value;
-        }
-    }
+    public string? TemporaryFilesPath => _startupParameters.TemporaryFilesPath;
 
     /// <summary>
     ///     Gets or sets the registration id for doing toast notifications.
@@ -660,21 +588,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public string? NotificationRegistrationId
-    {
-        get
-        {
-            return _startupParameters.NotificationRegistrationId;
-        }
-        set
-        {
-            var nri = _startupParameters.NotificationRegistrationId;
-            if (nri == value) return;
-            if (InstanceHandle != IntPtr.Zero)
-                throw new ApplicationException($"{nameof(nri)} cannot be changed after Photino Window is initialized");
-            _startupParameters.NotificationRegistrationId = value;
-        }
-    }
+    public string? NotificationRegistrationId => _startupParameters.NotificationRegistrationId;
 
     /// <summary>
     ///     Gets or sets the native window title.
@@ -684,32 +598,16 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.Title;
-
             var title = string.Empty;
-            Invoke(() =>
+            Invoke(() => 
             {
                 var ptr = PhotinoNative.GetTitle(InstanceHandle);
                 title = Marshal.PtrToStringAuto(ptr);
             });
             return title;
         }
-        set
-        {
-            if (value is null) return;
-            if (Title == value) return;
-            // Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars
-            if (value.Length > 31 && IsLinuxPlatform)
-                value = value[..31];
-
-            if (IsNotInitialized())
-                _startupParameters.Title = value;
-            else
-                Invoke(() => PhotinoNative.SetTitle(InstanceHandle, value));
-        }
     }
-
+    
     /// <summary>
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
     ///     Default is 0.
@@ -724,6 +622,8 @@ public partial class PhotinoWindow : IPhotinoWindow
             return top;
         }
     }
+    
+    // TODO CONTINUE HERE
 
     /// <summary>
     ///     Gets or sets whether the native window is always at the top of the z-order.
@@ -830,12 +730,6 @@ public partial class PhotinoWindow : IPhotinoWindow
         {
             return Size.Width;
         }
-        set
-        {
-            var currentSize = Size;
-            if (currentSize.Width != value)
-                Size = currentSize with { Width = value };
-        }
     }
 
     /// <summary>
@@ -876,14 +770,13 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
     /// <param name="workItem"> The delegate encapsulating a method / action to be executed in the UI thread.</param>
-    public IPhotinoWindow Invoke(Action workItem)
+    public void Invoke(Action workItem)
     {
         // If we're already on the UI thread, no need to dispatch
         if (Environment.CurrentManagedThreadId == _managedThreadId)
             workItem();
         else
             PhotinoNative.Invoke(InstanceHandle, workItem.Invoke);
-        return this;
     }
 
     /// <summary>
@@ -1232,54 +1125,6 @@ public partial class PhotinoWindow : IPhotinoWindow
 
         return this;
     }
-
-    /// <summary>
-    ///     Sets <see cref="IPhotinoWindow.BrowserControlInitParameters" /> platform specific initialization parameters for the
-    ///     native browser control on startup.
-    ///     Default is none.
-    ///     <remarks>
-    ///         WINDOWS: WebView2 specific string. Space separated.
-    ///         https://peter.sh/experiments/chromium-command-line-switches/
-    ///         https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49
-    ///         viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
-    ///         https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
-    ///         LINUX: Webkit2Gtk specific string. Enter parameter names and values as JSON string.
-    ///         e.g. { "set_enable_encrypted_media": true }
-    ///         https://webkitgtk.org/reference/webkit2gtk/2.5.1/WebKitSettings.html
-    ///         https://lazka.github.io/pgi-docs/WebKit2-4.0/classes/Settings.html
-    ///         MAC: Webkit specific string. Enter parameter names and values as JSON string.
-    ///         e.g. { "minimumFontSize": 8 }
-    ///         https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
-    ///         https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
-    ///     </remarks>
-    ///     <param name="parameters"></param>
-    ///     <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    /// </summary>
-    public IPhotinoWindow SetBrowserControlInitParameters(string parameters)
-    {
-        _logger.LogDebug(".SetBrowserControlInitParameters({Parameters})", parameters);
-        BrowserControlInitParameters = parameters;
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets the registration id for toast notifications.
-    /// </summary>
-    /// <remarks>
-    ///     Only available on Windows.
-    ///     Defaults to window title if not specified.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if a platform is not Windows.
-    /// </exception>
-    /// <param name="notificationRegistrationId"></param>
-    /// <returns>Returns the current <see cref="IPhotinoWindow" /> instance.</returns>
-    public IPhotinoWindow SetNotificationRegistrationId(string notificationRegistrationId)
-    {
-        _logger.LogDebug(".SetNotificationRegistrationId({NotificationRegistrationId})", notificationRegistrationId);
-        NotificationRegistrationId = notificationRegistrationId;
-        return this;
-    }
     
     /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Height" /> in pixels.
@@ -1385,7 +1230,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetSize(Size size)
     {
         _logger.LogDebug(".SetSize({Size})", size);
-        Size = size;
+        Invoke(() => PhotinoNative.SetSize(InstanceHandle, size.Width, size.Height));
         return this;
     }
 
@@ -1403,7 +1248,8 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetSize(int width, int height)
     {
         _logger.LogDebug(".SetSize({Width}, {Height})", width, height);
-        Size = new Size(width, height);
+        
+        Invoke(() => PhotinoNative.SetSize(InstanceHandle, width, height));
         return this;
     }
 
@@ -1508,27 +1354,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     }
 
     /// <summary>
-    ///     Sets the local path to store temp files for browser control.
-    ///     Default is the user's AppDataLocal folder.
-    /// </summary>
-    /// <remarks>
-    ///     Only available on Windows.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if a platform is not Windows.
-    /// </exception>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="tempFilesPath">Path to temp files' directory.</param>
-    public IPhotinoWindow SetTemporaryFilesPath(string tempFilesPath)
-    {
-        _logger.LogDebug(".SetTemporaryFilesPath({TempFilesPath})", tempFilesPath);
-        TemporaryFilesPath = tempFilesPath;
-        return this;
-    }
-
-    /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Title" />.
     ///     Default is "Photino".
     /// </summary>
@@ -1536,10 +1361,19 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="title">Window title</param>
-    public IPhotinoWindow SetTitle(string title)
+    public IPhotinoWindow SetTitle(string? title)
     {
         _logger.LogDebug(".SetTitle({Title})", title);
-        Title = title;
+        
+        Invoke(() => 
+        {
+            var ptr = PhotinoNative.GetTitle(InstanceHandle);
+            var oldTitle = Marshal.PtrToStringAuto(ptr);
+            if (title == oldTitle) return;
+            if (IsLinuxPlatform && title?.Length > 31) title = title[..31]; // Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars
+            PhotinoNative.SetTitle(InstanceHandle, title ?? string.Empty);
+        });
+        
         return this;
     }
 
@@ -1591,7 +1425,12 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetWidth(int width)
     {
         _logger.LogDebug(".SetWidth({Width})", width);
-        Width = width;
+        
+        Invoke(() =>
+        {
+            PhotinoNative.GetSize(InstanceHandle, out _, out var height );
+            PhotinoNative.SetSize(InstanceHandle,width, height);
+        });
         return this;
     }
 
