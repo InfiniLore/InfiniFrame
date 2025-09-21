@@ -5,10 +5,14 @@ using System.Collections.Immutable;
 using System.Drawing;
 
 namespace InfiniLore.Photino.NET;
+using Microsoft.Extensions.Logging;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IPhotinoWindow : IPhotinoWindowBase {
+    internal ILogger<IPhotinoWindow> Logger { get; }
+    
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
     ImmutableArray<Monitor> Monitors { get; }
@@ -36,12 +40,6 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
 
     int Zoom { get; }
     void Invoke(Action workItem);
-    IPhotinoWindow Load(Uri uri);
-    IPhotinoWindow Load(string path);
-    IPhotinoWindow LoadRawString(string content);
-    IPhotinoWindow Center();
-    IPhotinoWindow MoveTo(Point location, bool allowOutsideWorkArea = false);
-    IPhotinoWindow MoveTo(int left, int top, bool allowOutsideWorkArea = false);
     IPhotinoWindow Offset(Point offset);
     IPhotinoWindow Offset(int left, int top);
     IPhotinoWindow SetChromeless(bool chromeless);

@@ -29,7 +29,7 @@ public class PhotinoWindow : IPhotinoWindow {
     private readonly Dictionary<string, NetCustomSchemeDelegate?> _customSchemes = [];
 
     private readonly ILogger<PhotinoWindow> _logger;
-
+    ILogger<IPhotinoWindow> IPhotinoWindow.Logger => _logger;
 
     #region Constructors
     /// <summary>
@@ -73,38 +73,6 @@ public class PhotinoWindow : IPhotinoWindow {
     #endregion
 
     #region READ ONLY PROPERTIES
-    /// <summary>
-    ///     Indicates whether the current platform is Windows.
-    /// </summary>
-    /// <value>
-    ///     <c>true</c> if the current platform is Windows; otherwise, <c>false</c>.
-    /// </value>
-    public static bool IsWindowsPlatform { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-    /// <summary>
-    ///     Indicates whether the current platform is macOS.
-    /// </summary>
-    /// <value>
-    ///     <c>true</c> if the current platform is macOS; otherwise, <c>false</c>.
-    /// </value>
-    public static bool IsMacOsPlatform { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-
-    /// <summary>
-    ///     Indicates the version of macOS
-    /// </summary>
-    public static Version? MacOsVersion {
-        get {
-            return IsMacOsPlatform ? Version.Parse(RuntimeInformation.OSDescription.Split(' ')[1]) : null;
-        }
-    }
-
-    /// <summary>
-    ///     Indicates whether the current platform is Linux.
-    /// </summary>
-    /// <value>
-    ///     <c>true</c> if the current platform is Linux; otherwise, <c>false</c>.
-    /// </value>
-    public static bool IsLinuxPlatform { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
     /// <summary>
     ///     Represents a property that gets the handle of the native window on a Windows platform.
@@ -121,7 +89,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <exception cref="System.PlatformNotSupportedException">Thrown when accessed from a non-Windows platform.</exception>
     public IntPtr WindowHandle {
         get {
-            if (!IsWindowsPlatform) return IntPtr.Zero;
+            if (!PlatformUtilities.IsWindowsPlatform) return IntPtr.Zero;
 
             return InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetWindowHandlerWin32);
         }
@@ -430,167 +398,6 @@ public class PhotinoWindow : IPhotinoWindow {
     }
 
     /// <summary>
-    ///     Loads specified <see cref="Uri" /> into the browser control.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
-    /// </returns>
-    /// <remarks>
-    ///     Load() or LoadString() must be called before a native window is initialized.
-    /// </remarks>
-    /// <param name="uri">A Uri pointing to the file or the URL to load.</param>
-    public IPhotinoWindow Load(Uri uri) {
-        _logger.LogDebug(".Load({uri})", uri);
-        Invoke(() => PhotinoNative.NavigateToUrl(InstanceHandle, uri.ToString()));
-        return this;
-    }
-
-    /// <summary>
-    ///     Loads a specified path into the browser control.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <remarks>
-    ///     Load() or LoadString() must be called before a native window is initialized.
-    /// </remarks>
-    /// <param name="path">A path pointing to the resource to load.</param>
-    public IPhotinoWindow Load(string path) {
-        _logger.LogDebug(".Load({Path})", path);
-
-        // ––––––––––––––––––––––
-        // SECURITY RISK!
-        // This needs validation!
-        // ––––––––––––––––––––––
-        // Open a web URL string path
-        if (path.Contains("http://") || path.Contains("https://"))
-            return Load(new Uri(path));
-
-        // Open a file resource string path
-        string absolutePath = Path.GetFullPath(path);
-
-        // For a bundled app it can be necessary to consider
-        // the app context base directory. Check there too.
-        if (File.Exists(absolutePath)) return Load(new Uri(absolutePath, UriKind.Absolute));
-
-        absolutePath = $"{AppContext.BaseDirectory}/{path}";
-
-        if (File.Exists(absolutePath)) return Load(new Uri(absolutePath, UriKind.Absolute));
-
-        _logger.LogWarning("File not found: {Path}", absolutePath);
-        return this;
-    }
-
-    /// <summary>
-    ///     Loads a raw string into the browser control.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <remarks>
-    ///     Used to load HTML into the browser control directly.
-    ///     Load() or LoadString() must be called before a native window is initialized.
-    /// </remarks>
-    /// <param name="content">Raw content (such as HTML)</param>
-    public IPhotinoWindow LoadRawString(string content) {
-        string shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 50), "...") : content;
-        _logger.LogDebug(".LoadRawString({Content})", shortContent);
-        Invoke(() => PhotinoNative.NavigateToString(InstanceHandle, content));
-        return this;
-    }
-
-    /// <summary>
-    ///     Centers the native window on the primary display.
-    /// </summary>
-    /// <remarks>
-    ///     If called prior to window initialization, overrides Left (X) and Top (Y) properties.
-    /// </remarks>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    public IPhotinoWindow Center() {
-        _logger.LogDebug(".Center()");
-        Invoke(() => PhotinoNative.Center(InstanceHandle));
-        return this;
-    }
-
-    /// <summary>
-    ///     Moves the native window to the specified location on the screen in pixels using a Point.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="location">Position as <see cref="Point" /></param>
-    /// <param name="allowOutsideWorkArea">Whether the window can go off-screen (work area)</param>
-    public IPhotinoWindow MoveTo(Point location, bool allowOutsideWorkArea = false) {
-        _logger.LogDebug(".MoveTo({location}, {allowOutsideWorkArea})", location, allowOutsideWorkArea);
-        _logger.LogDebug("Current location: {Location}", Location);
-        _logger.LogDebug("New location: {NewLocation}", location);
-
-        // If the window is outside the work area,
-        // recalculate the position and continue.
-        //When a window isn't initialized yet, cannot determine screen size.
-        if (!allowOutsideWorkArea && InstanceHandle != IntPtr.Zero) {
-            int horizontalWindowEdge = location.X + Width;
-            int verticalWindowEdge = location.Y + Height;
-
-            int horizontalWorkAreaEdge = MainMonitor.WorkArea.Width;
-            int verticalWorkAreaEdge = MainMonitor.WorkArea.Height;
-
-            bool isOutsideHorizontalWorkArea = horizontalWindowEdge > horizontalWorkAreaEdge;
-            bool isOutsideVerticalWorkArea = verticalWindowEdge > verticalWorkAreaEdge;
-
-            var locationInsideWorkArea = new Point(
-            isOutsideHorizontalWorkArea ? horizontalWorkAreaEdge - Width : location.X,
-            isOutsideVerticalWorkArea ? verticalWorkAreaEdge - Height : location.Y
-            );
-
-            location = locationInsideWorkArea;
-        }
-
-        // Bug:
-        // For some reason the vertical position is not handled correctly.
-        // Whenever a positive value is set, the window appears at the
-        // very bottom of the screen, and the only visible thing is the
-        // application window title bar. As a workaround we make a
-        // negative value out of the vertical position to "pull" the window up.
-        // Note:
-        // This behavior seems to be a macOS thing. In the Photino.Native
-        // project files it is commented to be expected behavior for macOS.
-        // There is some code trying to mitigate this problem, but it might
-        // not work as expected. Further investigation is necessary.
-        // Update:
-        // This behavior seems to have changed with macOS Sonoma.
-        // Therefore, we determine the version of macOS and only apply the
-        // workaround for older versions.
-        if (IsMacOsPlatform && MacOsVersion?.Major < 23) {
-            Size workArea = MainMonitor.WorkArea.Size;
-            location.Y = location.Y >= 0
-                ? location.Y - workArea.Height
-                : location.Y;
-        }
-
-        SetLocation(location);
-
-        return this;
-    }
-
-    /// <summary>
-    ///     Moves the native window to the specified location on the screen in pixels
-    ///     using <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> (Y) properties.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="left">Position from left in pixels</param>
-    /// <param name="top">Position from top in pixels</param>
-    /// <param name="allowOutsideWorkArea">Whether the window can go off-screen (work area)</param>
-    public IPhotinoWindow MoveTo(int left, int top, bool allowOutsideWorkArea = false) {
-        _logger.LogDebug(".MoveTo({left}, {top}, {allowOutsideWorkArea})", left, top, allowOutsideWorkArea);
-        return MoveTo(new Point(left, top), allowOutsideWorkArea);
-    }
-
-    /// <summary>
     ///     Moves the native window relative to its current location on the screen
     ///     using a <see cref="Point" />.
     /// </summary>
@@ -648,7 +455,7 @@ public class PhotinoWindow : IPhotinoWindow {
     public IPhotinoWindow SetTransparent(bool enabled) {
         _logger.LogDebug(".SetTransparent({Enabled})", enabled);
 
-        if (IsWindowsPlatform) {
+        if (PlatformUtilities.IsWindowsPlatform) {
             _logger.LogWarning("Transparent can only be set on Windows before the native window is instantiated.");
             return this;
         }
@@ -978,7 +785,7 @@ public class PhotinoWindow : IPhotinoWindow {
             string? oldTitle = Marshal.PtrToStringAuto(ptr);
             if (title == oldTitle) return;
 
-            if (IsLinuxPlatform && title?.Length > 31) title = title[..31];// Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars
+            if (PlatformUtilities.IsLinuxPlatform && title?.Length > 31) title = title[..31];// Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars
             PhotinoNative.SetTitle(InstanceHandle, title ?? string.Empty);
         });
 
@@ -1067,7 +874,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <seealso href="https://docs.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution" />
     /// <param name="data">Runtime path for WebView2</param>
     public IPhotinoWindow Win32SetWebView2Path(string data) {
-        if (IsWindowsPlatform)
+        if (PlatformUtilities.IsWindowsPlatform)
             Invoke(() => PhotinoNative.setWebView2RuntimePath_win32(_nativeType, data));
         else
             _logger.LogDebug("Win32SetWebView2Path is only supported on the Windows platform");
@@ -1085,7 +892,7 @@ public class PhotinoWindow : IPhotinoWindow {
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     public IPhotinoWindow ClearBrowserAutoFill() {
-        if (IsWindowsPlatform)
+        if (PlatformUtilities.IsWindowsPlatform)
             Invoke(() => PhotinoNative.ClearBrowserAutoFill(InstanceHandle));
         else
             _logger.LogWarning("ClearBrowserAutoFill is only supported on the Windows platform");
@@ -1122,16 +929,16 @@ public class PhotinoWindow : IPhotinoWindow {
             {
                 _nativeType = NativeLibrary.GetMainProgramHandle();
 
-                if (IsWindowsPlatform)
+                if (PlatformUtilities.IsWindowsPlatform)
                     Invoke(() => PhotinoNative.RegisterWin32(_nativeType));
-                else if (IsMacOsPlatform)
+                else if (PlatformUtilities.IsMacOsPlatform)
                     Invoke(() => PhotinoNative.RegisterMac());
 
                 Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref _startupParameters));
             }
             catch (Exception ex) {
                 int lastError = 0;
-                if (IsWindowsPlatform)
+                if (PlatformUtilities.IsWindowsPlatform)
                     lastError = Marshal.GetLastWin32Error();
 
                 _logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
@@ -1148,7 +955,7 @@ public class PhotinoWindow : IPhotinoWindow {
             }
             catch (Exception ex) {
                 int lastError = 0;
-                if (IsWindowsPlatform)
+                if (PlatformUtilities.IsWindowsPlatform)
                     lastError = Marshal.GetLastWin32Error();
 
                 _logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
@@ -1377,7 +1184,7 @@ public class PhotinoWindow : IPhotinoWindow {
     private static string[] GetNativeFilters((string Name, string[] Extensions)[] filters, bool empty = false) {
         string[] nativeFilters = Array.Empty<string>();
         if (!empty && filters is { Length: > 0 }) {
-            nativeFilters = IsMacOsPlatform ?
+            nativeFilters = PlatformUtilities.IsMacOsPlatform ?
                 filters.SelectMany(t => t.Extensions.Select(s => s == "*" ? s : s.TrimStart('*', '.'))).ToArray() :
                 filters.Select(t => $"{t.Name}|{t.Extensions.Select(s => s.StartsWith('.') ? $"*{s}" : !s.StartsWith("*.") ? $"*.{s}" : s).Aggregate((e1, e2) => $"{e1};{e2}")}").ToArray();
         }

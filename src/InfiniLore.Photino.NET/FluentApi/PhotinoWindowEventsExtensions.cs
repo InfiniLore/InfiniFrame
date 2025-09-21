@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 
 namespace InfiniLore.Photino.NET;
-public static class PhotinoWindowEventFluentApiExtensions {
+public static class PhotinoWindowEventsExtensions {
     /// <summary>
     ///     Registers user-defined handler methods to receive callbacks from the native window when its location changes.
     /// </summary>
