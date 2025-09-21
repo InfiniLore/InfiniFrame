@@ -25,13 +25,4 @@ public readonly record struct Monitor(Rectangle MonitorArea, Rectangle WorkArea,
         )
     {
     }
-
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="Monitor" /> struct using a native monitor structure.
-    /// </summary>
-    /// <param name="nativeMonitor">The native monitor structure.</param>
-    public Monitor(NativeMonitor nativeMonitor)
-        : this(nativeMonitor.Monitor, nativeMonitor.Work, nativeMonitor.Scale)
-    {
-    }
 }
