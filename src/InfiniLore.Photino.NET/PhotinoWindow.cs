@@ -1,3 +1,4 @@
+using InfiniLore.Photino.NET.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Drawing;
 using System.Runtime.InteropServices;

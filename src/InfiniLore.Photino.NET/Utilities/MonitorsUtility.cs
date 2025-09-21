@@ -1,6 +1,6 @@
 ﻿using System.Buffers;
 
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.Photino.NET.Utilities;
 
 internal static class MonitorsUtility
 {
