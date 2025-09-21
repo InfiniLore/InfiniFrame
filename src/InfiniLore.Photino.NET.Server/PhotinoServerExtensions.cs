@@ -2,7 +2,7 @@
 public static class PhotinoServerExtensions {
     public static IPhotinoWindowBuilder GetAttachedWindowBuilder(this PhotinoServer server) {
         var builder = PhotinoWindowBuilder.Create();
-        builder.StartUrl = server.BaseUrl;
+        builder.Configuration.StartUrl = server.BaseUrl;
 
         return builder;
     }

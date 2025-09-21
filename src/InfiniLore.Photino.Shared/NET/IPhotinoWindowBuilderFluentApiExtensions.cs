@@ -300,13 +300,26 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
         return builder;
     }
 
+    public static T SetZoom<T>(this T builder, int zoom) where T : IPhotinoWindowBuilder {
+        builder.Configuration.Zoom = zoom;
+        return builder;
+    }
 
+    public static T SetStartUrl<T>(this T builder, string? url) where T : IPhotinoWindowBuilder {
+        builder.Configuration.StartUrl = url;
+        return builder;
+    }
 
+    public static T SetStartUrl<T>(this T builder, Uri? url) where T : IPhotinoWindowBuilder {
+        builder.Configuration.StartUrl = url?.ToString();
+        return builder;
+    }
 
-
-
-
-
+    public static T SetStartString<T>(this T builder, string? startString) where T : IPhotinoWindowBuilder {
+        builder.Configuration.StartString = startString;
+        return builder;
+    }
+    
     /// <summary>
     ///     Sets SetCentered on the browser control at initialization.
     /// </summary>
