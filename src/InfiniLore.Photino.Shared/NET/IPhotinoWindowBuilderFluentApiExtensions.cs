@@ -4,7 +4,7 @@ namespace InfiniLore.Photino.NET;
 // ReSharper disable once InconsistentNaming
 public static class IPhotinoWindowBuilderFluentApiExtensions {
     public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
-        builder.MediaAutoplayEnabled = enable;
+        builder.Configuration.MediaAutoplayEnabled = enable;
         return builder;
     }
 
@@ -12,7 +12,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets the user agent on the browser control at initialization.
     /// </summary>
     public static T SetUserAgent<T>(this T builder, string userAgent) where T : IPhotinoWindowBuilder {
-        builder.UserAgent = userAgent;
+        builder.Configuration.UserAgent = userAgent;
         return builder;
     }
 
@@ -20,7 +20,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets FileSystemAccessEnabled on the browser control at initialization.
     /// </summary>
     public static T SetFileSystemAccessEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
-        builder.FileSystemAccessEnabled = enable;
+        builder.Configuration.FileSystemAccessEnabled = enable;
         return builder;
     }
 
@@ -28,7 +28,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets WebSecurityEnabled on the browser control at initialization.
     /// </summary>
     public static T SetWebSecurityEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
-        builder.WebSecurityEnabled = enable;
+        builder.Configuration.WebSecurityEnabled = enable;
         return builder;
     }
 
@@ -36,7 +36,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets JavascriptClipboardAccessEnabled on the browser control at initialization.
     /// </summary>
     public static T SetJavascriptClipboardAccessEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
-        builder.JavascriptClipboardAccessEnabled = enable;
+        builder.Configuration.JavascriptClipboardAccessEnabled = enable;
         return builder;
     }
 
@@ -44,7 +44,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets MediaStreamEnabled on the browser control at initialization.
     /// </summary>
     public static T SetMediaStreamEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
-        builder.MediaStreamEnabled = enable;
+        builder.Configuration.MediaStreamEnabled = enable;
         return builder;
     }
 
@@ -52,7 +52,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets SmoothScrollingEnabled on the browser control at initialization.
     /// </summary>
     public static T SetSmoothScrollingEnabled<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
-        builder.SmoothScrollingEnabled = enable;
+        builder.Configuration.SmoothScrollingEnabled = enable;
         return builder;
     }
 
@@ -60,7 +60,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
     public static T SetIgnoreCertificateErrorsEnabled<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
-        builder.IgnoreCertificateErrorsEnabled = enable;
+        builder.Configuration.IgnoreCertificateErrorsEnabled = enable;
         return builder;
     }
 
@@ -75,7 +75,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Thrown if a platform is not Windows.
     /// </exception>
     public static T SetNotificationsEnabled<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
-        builder.NotificationsEnabled = enable;
+        builder.Configuration.NotificationsEnabled = enable;
         return builder;
     }
 
@@ -87,7 +87,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     This only works on Windows.
     /// </remarks>
     public static T GrantBrowserPermissions<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
-        builder.GrantBrowserPermissions = enable;
+        builder.Configuration.GrantBrowserPermissions = enable;
         return builder;
     }
 
@@ -95,7 +95,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
     public static T SetHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.Height = Math.Max(0, value);
+        builder.Configuration.Height = Math.Max(0, value);
         return builder;
     }
 
@@ -111,7 +111,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     public static T SetIconFile<T>(this T builder, string? iconFilePath) where T : IPhotinoWindowBuilder {
         if (!IconFileUtilities.IsValidIconFile(iconFilePath)) return builder;
 
-        builder.IconFilePath = iconFilePath;
+        builder.Configuration.IconFilePath = iconFilePath;
         return builder;
     }
 
@@ -119,8 +119,8 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Location on the browser control at initialization.
     /// </summary>
     public static T SetLocation<T>(this T builder, int left, int top) where T : IPhotinoWindowBuilder {
-        builder.Left = left;
-        builder.Top = top;
+        builder.Configuration.Left = left;
+        builder.Configuration.Top = top;
         return builder;
     }
 
@@ -128,8 +128,8 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Location on the browser control at initialization.
     /// </summary>
     public static T SetLocation<T>(this T builder, Point location) where T : IPhotinoWindowBuilder {
-        builder.Left = location.X;
-        builder.Top = location.Y;
+        builder.Configuration.Left = location.X;
+        builder.Configuration.Top = location.Y;
         return builder;
     }
 
@@ -137,7 +137,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Minimized on the browser control at initialization.
     /// </summary>
     public static T SetMinimized<T>(this T builder, bool minimized) where T : IPhotinoWindowBuilder {
-        builder.Minimized = minimized;
+        builder.Configuration.Minimized = minimized;
         return builder;
     }
 
@@ -145,7 +145,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Maximized on the browser control at initialization.
     /// </summary>
     public static T SetMaximized<T>(this T builder, bool maximized) where T : IPhotinoWindowBuilder {
-        builder.Maximized = maximized;
+        builder.Configuration.Maximized = maximized;
         return builder;
     }
 
@@ -153,7 +153,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets MaxWidth on the browser control at initialization.
     /// </summary>
     public static T SetMaxWidth<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.MaxWidth = value;
+        builder.Configuration.MaxWidth = value;
         return builder;
     }
 
@@ -161,7 +161,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets MaxHeight on the browser control at initialization.
     /// </summary>
     public static T SetMaxHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.MaxHeight = value;
+        builder.Configuration.MaxHeight = value;
         return builder;
     }
 
@@ -169,7 +169,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets MinWidth on the browser control at initialization.
     /// </summary>
     public static T SetMinWidth<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.MinWidth = Math.Max(0, value);
+        builder.Configuration.MinWidth = Math.Max(0, value);
         return builder;
     }
 
@@ -177,7 +177,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets MinHeight on the browser control at initialization.
     /// </summary>
     public static T SetMinHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.MinHeight = Math.Max(0, value);
+        builder.Configuration.MinHeight = Math.Max(0, value);
         return builder;
     }
 
@@ -185,7 +185,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets FullScreen on the browser control at initialization.
     /// </summary>
     public static T SetFullScreen<T>(this T builder, bool fullscreen) where T : IPhotinoWindowBuilder {
-        builder.FullScreen = fullscreen;
+        builder.Configuration.FullScreen = fullscreen;
         return builder;
     }
 
@@ -193,7 +193,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Resizable on the browser control at initialization.
     /// </summary>
     public static T SetResizable<T>(this T builder, bool resizable) where T : IPhotinoWindowBuilder {
-        builder.Resizable = resizable;
+        builder.Configuration.Resizable = resizable;
         return builder;
     }
 
@@ -201,7 +201,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Width on the browser control at initialization.
     /// </summary>
     public static T SetWidth<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.Width = Math.Max(0, value);
+        builder.Configuration.Width = Math.Max(0, value);
         return builder;
     }
 
@@ -209,8 +209,8 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Size on the browser control at initialization.
     /// </summary>
     public static T SetSize<T>(this T builder, int width, int height) where T : IPhotinoWindowBuilder {
-        builder.Width = width;
-        builder.Height = height;
+        builder.Configuration.Width = width;
+        builder.Configuration.Height = height;
         return builder;
     }
 
@@ -218,8 +218,8 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Size on the browser control at initialization.
     /// </summary>
     public static T SetSize<T>(this T builder, Size size) where T : IPhotinoWindowBuilder {
-        builder.Width = size.Width;
-        builder.Height = size.Height;
+        builder.Configuration.Width = size.Width;
+        builder.Configuration.Height = size.Height;
         return builder;
     }
 
@@ -242,7 +242,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     </remarks>
     /// </summary>
     public static T SetBrowserControlInitParameters<T>(this T builder, string? parameters) where T : IPhotinoWindowBuilder {
-        builder.BrowserControlInitParameters = parameters;
+        builder.Configuration.BrowserControlInitParameters = parameters;
         return builder;
     }
 
@@ -250,7 +250,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets TemporaryFilesPath on the browser control at initialization.
     /// </summary>
     public static T SetTemporaryFilesPath<T>(this T builder, string? path) where T : IPhotinoWindowBuilder {
-        builder.TemporaryFilesPath = path;
+        builder.Configuration.TemporaryFilesPath = path;
         return builder;
     }
 
@@ -264,7 +264,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Thrown if a platform is not Windows.
     /// </exception>
     public static T SetNotificationRegistrationId<T>(this T builder, string? id) where T : IPhotinoWindowBuilder {
-        builder.NotificationRegistrationId = id;
+        builder.Configuration.NotificationRegistrationId = id;
         return builder;
     }
 
@@ -272,7 +272,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets Title on the browser control at initialization.
     /// </summary>
     public static T SetTitle<T>(this T builder, string? title) where T : IPhotinoWindowBuilder {
-        builder.Title = title;
+        builder.Configuration.Title = title;
         return builder;
     }
 
@@ -280,7 +280,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets TopMost on the browser control at initialization.
     /// </summary>
     public static T SetTopMost<T>(this T builder, bool resizable) where T : IPhotinoWindowBuilder {
-        builder.TopMost = resizable;
+        builder.Configuration.TopMost = resizable;
         return builder;
     }
 
@@ -288,7 +288,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets UseOsDefaultLocation on the browser control at initialization.
     /// </summary>
     public static T SetUseOsDefaultLocation<T>(this T builder, bool useOsDefaultLocation) where T : IPhotinoWindowBuilder {
-        builder.UseOsDefaultLocation = useOsDefaultLocation;
+        builder.Configuration.UseOsDefaultLocation = useOsDefaultLocation;
         return builder;
     }
 
@@ -296,7 +296,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets UseOsDefaultSize on the browser control at initialization.
     /// </summary>
     public static T SetUseOsDefaultSize<T>(this T builder, bool useOsDefaultSize) where T : IPhotinoWindowBuilder {
-        builder.UseOsDefaultSize = useOsDefaultSize;
+        builder.Configuration.UseOsDefaultSize = useOsDefaultSize;
         return builder;
     }
 
@@ -311,7 +311,7 @@ public static class IPhotinoWindowBuilderFluentApiExtensions {
     ///     Sets SetCentered on the browser control at initialization.
     /// </summary>
     public static T Center<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
-        builder.Centered = enable;
+        builder.Configuration.Centered = enable;
         return builder;
     }
 }

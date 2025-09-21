@@ -1,4 +1,4 @@
-﻿namespace InfiniLore.Photino.NET.Utilities;
+﻿namespace InfiniLore.Photino.NET.MessageHandlers;
 public static class FullscreenWebMessageHandler {
     private const string FullscreenEnter = "fullscreen:enter";
     private const string FullscreenExit = "fullscreen:exit";

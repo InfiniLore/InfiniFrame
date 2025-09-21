@@ -32,4 +32,5 @@ public interface IPhotinoWindowBase {
     string? NotificationRegistrationId { get; }
     string? Title { get; }
     bool TopMost { get; }
+    int Zoom { get; }
 }

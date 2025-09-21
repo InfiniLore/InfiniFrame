@@ -12,25 +12,24 @@ public static class Program {
         PhotinoServer photinoServer = photinoServerBuilder.Build();
         photinoServer.Run();
 
-
-
         IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
+            .SetUseOsDefaultSize(false)
+            .SetResizable(true)
             .Center();
-        // .SetResizable(true);
 
         IPhotinoWindow window = windowBuilder.Build()
             .SetTitle("InfiniLore Photino.NET REACT Sample")
-            .SetUseOsDefaultSize(false)
             .SetSize(new Size(800, 600))
-            .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) => {
+            .RegisterCustomSchemeHandler("app", handler: (object _, string _, string _, out string? contentType) => {
                 contentType = "text/javascript";
-                return new MemoryStream("""
-                                            (() =>{
-                                                window.setTimeout(() => {
-                                                    alert(`🎉 Dynamically inserted JavaScript.`);
-                                                }, 1000);
-                                            })();
-                                            """u8.ToArray());
+                return new MemoryStream(
+                """
+                    (() =>{
+                        window.setTimeout(() => {
+                            alert(`🎉 Dynamically inserted JavaScript.`);
+                        }, 1000);
+                    })();
+                    """u8.ToArray());
             })
             .RegisterWebMessageReceivedHandler((sender, message) => {
                 var window = (PhotinoWindow)sender!;

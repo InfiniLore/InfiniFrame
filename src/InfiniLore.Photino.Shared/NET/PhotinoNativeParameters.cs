@@ -9,34 +9,28 @@ public struct PhotinoNativeParameters {
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
     ///     initialized. Default is none.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? StartString;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? StartString;
 
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will navigate to this URL when initialized.
     ///     Default is none.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? StartUrl;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? StartUrl;
 
     ///<summary>OPTIONAL: Appears on the title bar of the native window. Default is none.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? Title;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? Title;
 
     /// <summary>
     ///     WINDOWS AND LINUX ONLY: OPTIONAL: Path to a local file or a URL. Icon appears on the title bar of the native
     ///     window (if supported). Default is none.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? WindowIconFile;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? WindowIconFile;
 
     ///<summary>WINDOWS: OPTIONAL: Path to store temp files for browser control. Defaults is user's AppDataLocal folder.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? TemporaryFilesPath;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? TemporaryFilesPath;
 
     ///<summary>OPTIONAL: Changes the user agent on the browser control at initialiation.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? UserAgent;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? UserAgent;
 
     /// <summary>
     ///     OPTIONAL:
@@ -51,12 +45,10 @@ public struct PhotinoNativeParameters {
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? BrowserControlInitParameters;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? BrowserControlInitParameters;
 
     ///<summary>WINDOWS: OPTIONAL: Registers the application for toast notifications. If not provided, uses Window Title.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? NotificationRegistrationId;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? NotificationRegistrationId;
 
     /// <summary>
     ///     OPTIONAL: If native window is created from another native windowm this is the pointer to the parent window. It
@@ -92,14 +84,10 @@ public struct PhotinoNativeParameters {
     [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebMessageReceivedDelegate WebMessageReceivedHandler;
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
-    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPStr, SizeConst = 16)]
-    // ReSharper disable once CollectionNeverQueried.Global
-    internal string[] CustomSchemeNames;
-
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPStr, SizeConst = 16)] internal string[] CustomSchemeNames;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebResourceRequestedDelegate CustomSchemeHandler;
-
 
     ///<summary>OPTIONAL: Initial window position in pixels. Default is 0. Can be overridden with UseOsDefaultLocation.</summary>
     [MarshalAs(UnmanagedType.I4)] internal int Left;
@@ -227,38 +215,9 @@ public struct PhotinoNativeParameters {
     /// </summary>
     [MarshalAs(UnmanagedType.I1)] internal bool NotificationsEnabled;
 
-
     /// <summary>
     ///     Set when GetParamErrors() is called, prior to initializing the native window. It is a check to make sure the
     ///     struct matches what C++ is expecting.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)] internal int Size;
-
-    /// <summary>
-    ///     Parameters sent to Photino.Native to start a new instance of a Photino.Native window.
-    /// </summary>
-    public static PhotinoNativeParameters Default => new PhotinoNativeParameters {
-        //These values can't be initialized within the struct itself. Set required defaults.
-        Resizable = true,
-        ContextMenuEnabled = true,
-        CustomSchemeNames = new string[16],
-        DevToolsEnabled = true,
-        GrantBrowserPermissions = true,
-        UserAgent = "Photino WebView",
-        MediaAutoplayEnabled = true,
-        FileSystemAccessEnabled = true,
-        WebSecurityEnabled = true,
-        JavascriptClipboardAccessEnabled = true,
-        MediaStreamEnabled = true,
-        SmoothScrollingEnabled = true,
-        IgnoreCertificateErrorsEnabled = false,
-        NotificationsEnabled = true,
-        TemporaryFilesPath = Path.GetTempPath(),
-        Title = "Photino",
-        UseOsDefaultLocation = true,
-        UseOsDefaultSize = true,
-        Zoom = 100,
-        MaxHeight = int.MaxValue,
-        MaxWidth = int.MaxValue
-    };
 }
