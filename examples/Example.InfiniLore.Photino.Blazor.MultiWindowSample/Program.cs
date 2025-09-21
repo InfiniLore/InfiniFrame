@@ -23,7 +23,7 @@ class Program {
         Queue<WindowCreationArgs> windowsToCreate,
         string[] args
     ) {
-        if (!windowsToCreate.TryDequeue(out var windowCreationArgs)) {
+        if (!windowsToCreate.TryDequeue(out WindowCreationArgs? windowCreationArgs)) {
             return;
         }
 
@@ -35,7 +35,7 @@ class Program {
         // register root component and selector
         appBuilder.RootComponents.Add(windowCreationArgs.RootComponentType, "app");
 
-        var app = appBuilder.Build();
+        PhotinoBlazorApp app = appBuilder.Build();
 
         // customize window
         Windows.Add(
@@ -57,7 +57,7 @@ class Program {
     }
 
     private static void CloseAllWindows() {
-        foreach (var window in Windows) {
+        foreach (IPhotinoWindow window in Windows) {
             window.Close();
         }
     }

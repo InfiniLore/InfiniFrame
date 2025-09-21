@@ -6,7 +6,7 @@ public static class IconFileUtilities {
         if (string.IsNullOrWhiteSpace(filePath)) return false;
         if (File.Exists(filePath)) return true;
 
-        var absolutePath = $"{AppContext.BaseDirectory}{filePath}";
+        string absolutePath = $"{AppContext.BaseDirectory}{filePath}";
         return File.Exists(absolutePath);
     }
 }

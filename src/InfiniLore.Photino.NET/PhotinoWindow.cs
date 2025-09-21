@@ -467,7 +467,7 @@ public class PhotinoWindow : IPhotinoWindow {
             return Load(new Uri(path));
 
         // Open a file resource string path
-        var absolutePath = Path.GetFullPath(path);
+        string absolutePath = Path.GetFullPath(path);
 
         // For a bundled app it can be necessary to consider
         // the app context base directory. Check there too.
@@ -493,7 +493,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// </remarks>
     /// <param name="content">Raw content (such as HTML)</param>
     public IPhotinoWindow LoadRawString(string content) {
-        var shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 50), "...") : content;
+        string shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 50), "...") : content;
         _logger.LogDebug(".LoadRawString({Content})", shortContent);
         Invoke(() => PhotinoNative.NavigateToString(InstanceHandle, content));
         return this;
@@ -531,14 +531,14 @@ public class PhotinoWindow : IPhotinoWindow {
         // recalculate the position and continue.
         //When a window isn't initialized yet, cannot determine screen size.
         if (!allowOutsideWorkArea && InstanceHandle != IntPtr.Zero) {
-            var horizontalWindowEdge = location.X + Width;
-            var verticalWindowEdge = location.Y + Height;
+            int horizontalWindowEdge = location.X + Width;
+            int verticalWindowEdge = location.Y + Height;
 
-            var horizontalWorkAreaEdge = MainMonitor.WorkArea.Width;
-            var verticalWorkAreaEdge = MainMonitor.WorkArea.Height;
+            int horizontalWorkAreaEdge = MainMonitor.WorkArea.Width;
+            int verticalWorkAreaEdge = MainMonitor.WorkArea.Height;
 
-            var isOutsideHorizontalWorkArea = horizontalWindowEdge > horizontalWorkAreaEdge;
-            var isOutsideVerticalWorkArea = verticalWindowEdge > verticalWorkAreaEdge;
+            bool isOutsideHorizontalWorkArea = horizontalWindowEdge > horizontalWorkAreaEdge;
+            bool isOutsideVerticalWorkArea = verticalWindowEdge > verticalWorkAreaEdge;
 
             var locationInsideWorkArea = new Point(
             isOutsideHorizontalWorkArea ? horizontalWorkAreaEdge - Width : location.X,
@@ -564,7 +564,7 @@ public class PhotinoWindow : IPhotinoWindow {
         // Therefore, we determine the version of macOS and only apply the
         // workaround for older versions.
         if (IsMacOsPlatform && MacOsVersion?.Major < 23) {
-            var workArea = MainMonitor.WorkArea.Size;
+            Size workArea = MainMonitor.WorkArea.Size;
             location.Y = location.Y >= 0
                 ? location.Y - workArea.Height
                 : location.Y;
@@ -600,9 +600,9 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <param name="offset">Relative offset</param>
     public IPhotinoWindow Offset(Point offset) {
         _logger.LogDebug(".Offset({offset})", offset);
-        var location = Location;
-        var left = location.X + offset.X;
-        var top = location.Y + offset.Y;
+        Point location = Location;
+        int left = location.X + offset.X;
+        int top = location.Y + offset.Y;
         return MoveTo(left, top);
     }
 
@@ -670,7 +670,7 @@ public class PhotinoWindow : IPhotinoWindow {
         _logger.LogDebug(".SetContextMenuEnabled({Enabled})", enabled);
 
         Invoke(() => {
-            PhotinoNative.GetContextMenuEnabled(InstanceHandle, out var isEnabled);
+            PhotinoNative.GetContextMenuEnabled(InstanceHandle, out bool isEnabled);
             if (isEnabled == enabled) return;
 
             PhotinoNative.SetContextMenuEnabled(InstanceHandle, enabled);
@@ -691,7 +691,7 @@ public class PhotinoWindow : IPhotinoWindow {
         _logger.LogDebug(".SetDevTools({Enabled})", enabled);
 
         Invoke(() => {
-            PhotinoNative.GetDevToolsEnabled(InstanceHandle, out var isEnabled);
+            PhotinoNative.GetDevToolsEnabled(InstanceHandle, out bool isEnabled);
             if (isEnabled == enabled) return;
 
             PhotinoNative.SetDevToolsEnabled(InstanceHandle, enabled);
@@ -718,14 +718,14 @@ public class PhotinoWindow : IPhotinoWindow {
 
         if (fullScreen) {
             Invoke(() => {
-                var monitors = MonitorsUtility.GetMonitors(InstanceHandle);
-                PhotinoNative.GetPosition(InstanceHandle, out var left, out var top);
-                PhotinoNative.GetSize(InstanceHandle, out var width, out var height);
+                ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(InstanceHandle);
+                PhotinoNative.GetPosition(InstanceHandle, out int left, out int top);
+                PhotinoNative.GetSize(InstanceHandle, out int width, out int height);
 
                 _preFullscreenArea = new Rectangle(left, top, width, height);
 
                 Rectangle currentMonitorArea = default;
-                foreach (var monitor in monitors) {
+                foreach (Monitor monitor in monitors) {
                     if (!monitor.MonitorArea.IntersectsWith(_preFullscreenArea)) continue;
 
                     currentMonitorArea = monitor.MonitorArea;
@@ -767,7 +767,7 @@ public class PhotinoWindow : IPhotinoWindow {
         _logger.LogDebug(".SetHeight({Height})", height);
 
         Invoke(() => {
-            PhotinoNative.GetSize(InstanceHandle, out var width, out _);
+            PhotinoNative.GetSize(InstanceHandle, out int width, out _);
             PhotinoNative.SetSize(InstanceHandle, width, height);
         });
 
@@ -816,7 +816,7 @@ public class PhotinoWindow : IPhotinoWindow {
         _logger.LogDebug(".SetLeft({Left})", Left);
 
         Invoke(() => {
-            PhotinoNative.GetPosition(InstanceHandle, out var oldLeft, out var top);
+            PhotinoNative.GetPosition(InstanceHandle, out int oldLeft, out int top);
             if (left == oldLeft) return;
 
             PhotinoNative.SetPosition(InstanceHandle, left, top);
@@ -883,7 +883,7 @@ public class PhotinoWindow : IPhotinoWindow {
     public IPhotinoWindow SetLocation(Point location) {
         _logger.LogDebug(".SetLocation({Location})", location);
         Invoke(() => {
-            PhotinoNative.GetPosition(InstanceHandle, out var left, out var top);
+            PhotinoNative.GetPosition(InstanceHandle, out int left, out int top);
             if (left == location.X && top == location.Y) return;
 
             PhotinoNative.SetPosition(InstanceHandle, location.X, location.Y);
@@ -974,8 +974,8 @@ public class PhotinoWindow : IPhotinoWindow {
         _logger.LogDebug(".SetTitle({Title})", title);
 
         Invoke(() => {
-            var ptr = PhotinoNative.GetTitle(InstanceHandle);
-            var oldTitle = Marshal.PtrToStringAuto(ptr);
+            IntPtr ptr = PhotinoNative.GetTitle(InstanceHandle);
+            string? oldTitle = Marshal.PtrToStringAuto(ptr);
             if (title == oldTitle) return;
 
             if (IsLinuxPlatform && title?.Length > 31) title = title[..31];// Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars
@@ -996,7 +996,7 @@ public class PhotinoWindow : IPhotinoWindow {
     public IPhotinoWindow SetTop(int top) {
         _logger.LogDebug(".SetTop({Top})", top);
         Invoke(() => {
-            PhotinoNative.GetPosition(InstanceHandle, out var left, out var oldTop);
+            PhotinoNative.GetPosition(InstanceHandle, out int left, out int oldTop);
             if (top == oldTop) return;
 
             PhotinoNative.SetPosition(InstanceHandle, left, top);
@@ -1031,7 +1031,7 @@ public class PhotinoWindow : IPhotinoWindow {
         _logger.LogDebug(".SetWidth({Width})", width);
 
         Invoke(() => {
-            PhotinoNative.GetSize(InstanceHandle, out _, out var height);
+            PhotinoNative.GetSize(InstanceHandle, out _, out int height);
             PhotinoNative.SetSize(InstanceHandle, width, height);
         });
 
@@ -1106,8 +1106,8 @@ public class PhotinoWindow : IPhotinoWindow {
     /// </remarks>
     public void WaitForClose() {
         //fill in the fixed size array of custom scheme names
-        var i = 0;
-        foreach (var name in _customSchemes.Take(16)) {
+        int i = 0;
+        foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in _customSchemes.Take(16)) {
             _startupParameters.CustomSchemeNames[i] = name.Key;
             i++;
         }
@@ -1130,7 +1130,7 @@ public class PhotinoWindow : IPhotinoWindow {
                 Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref _startupParameters));
             }
             catch (Exception ex) {
-                var lastError = 0;
+                int lastError = 0;
                 if (IsWindowsPlatform)
                     lastError = Marshal.GetLastWin32Error();
 
@@ -1147,7 +1147,7 @@ public class PhotinoWindow : IPhotinoWindow {
                 Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));//start the message loop. there can only be 1 message loop for all windows.
             }
             catch (Exception ex) {
-                var lastError = 0;
+                int lastError = 0;
                 if (IsWindowsPlatform)
                     lastError = Marshal.GetLastWin32Error();
 
@@ -1288,10 +1288,10 @@ public class PhotinoWindow : IPhotinoWindow {
         filters ??= Array.Empty<(string, string[])>();
 
         string? result = null;
-        var nativeFilters = GetNativeFilters(filters);
+        string[] nativeFilters = GetNativeFilters(filters);
 
         Invoke(() => {
-            var ptrResult = PhotinoNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length);
+            IntPtr ptrResult = PhotinoNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length);
             result = Marshal.PtrToStringAuto(ptrResult);
         });
 
@@ -1347,20 +1347,20 @@ public class PhotinoWindow : IPhotinoWindow {
         defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         filters ??= Array.Empty<(string, string[])>();
 
-        var results = Array.Empty<string?>();
-        var nativeFilters = GetNativeFilters(filters, foldersOnly);
+        string?[] results = Array.Empty<string?>();
+        string[] nativeFilters = GetNativeFilters(filters, foldersOnly);
 
         Invoke(() => {
-            var ptrResults = foldersOnly ?
-                PhotinoNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out var resultCount) :
+            IntPtr ptrResults = foldersOnly ?
+                PhotinoNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out int resultCount) :
                 PhotinoNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount);
 
             if (resultCount == 0) return;
 
-            var ptrArray = new IntPtr[resultCount];
+            IntPtr[] ptrArray = new IntPtr[resultCount];
             results = new string?[resultCount];
             Marshal.Copy(ptrResults, ptrArray, 0, resultCount);
-            for (var i = 0; i < resultCount; i++) {
+            for (int i = 0; i < resultCount; i++) {
                 results[i] = Marshal.PtrToStringAuto(ptrArray[i]);
             }
         });
@@ -1375,7 +1375,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <param name="empty"></param>
     /// <returns>String array of filters</returns>
     private static string[] GetNativeFilters((string Name, string[] Extensions)[] filters, bool empty = false) {
-        var nativeFilters = Array.Empty<string>();
+        string[] nativeFilters = Array.Empty<string>();
         if (!empty && filters is { Length: > 0 }) {
             nativeFilters = IsMacOsPlatform ?
                 filters.SelectMany(t => t.Extensions.Select(s => s == "*" ? s : s.TrimStart('*', '.'))).ToArray() :
@@ -1452,7 +1452,7 @@ public class PhotinoWindow : IPhotinoWindow {
     private byte OnWindowClosing() {
         //C++ handles bool values as a single byte, C# uses 4 bytes
         byte noClose = 0;
-        var doNotClose = WindowClosing?.Invoke(this, null);
+        bool? doNotClose = WindowClosing?.Invoke(this, null);
         if (doNotClose ?? false)
             noClose = 1;
 
@@ -1537,18 +1537,18 @@ public class PhotinoWindow : IPhotinoWindow {
     private IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType) {
         contentType = null;
         numBytes = 0;
-        var colonPos = url.IndexOf(':');
+        int colonPos = url.IndexOf(':');
 
         if (colonPos < 0)
             throw new ApplicationException($"URL: '{url}' does not contain a colon.");
 
-        var scheme = url[..colonPos].ToLower();
+        string scheme = url[..colonPos].ToLower();
 
-        if (!_customSchemes.TryGetValue(scheme, out var handler)) {
+        if (!_customSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
             throw new ApplicationException($"A handler for the custom scheme '{scheme}' has not been registered.");
         }
 
-        var responseStream = handler?.Invoke(this, scheme, url, out contentType);
+        Stream? responseStream = handler?.Invoke(this, scheme, url, out contentType);
 
         if (responseStream is null) {
             // Webview should pass through request to normal handlers (e.g., network)
@@ -1563,7 +1563,7 @@ public class PhotinoWindow : IPhotinoWindow {
             responseStream.CopyTo(ms);
 
             numBytes = (int)ms.Position;
-            var buffer = Marshal.AllocHGlobal(numBytes);
+            IntPtr buffer = Marshal.AllocHGlobal(numBytes);
             Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
             return buffer;
         }

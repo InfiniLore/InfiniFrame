@@ -10,14 +10,14 @@ public static class Program {
         var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
         photinoServerBuilder.UsePort(5172, 100);
 
-        var photinoServer = photinoServerBuilder.Build();
+        PhotinoServer photinoServer = photinoServerBuilder.Build();
         photinoServer.Run();
 
-        var windowBuilder = photinoServer.GetAttachedWindowBuilder()
+        IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
             .Center();
         // .SetResizable(true);
 
-        var window = windowBuilder.Build()
+        IPhotinoWindow window = windowBuilder.Build()
             .SetTitle("InfiniLore Photino.NET VUE Sample")
             .SetUseOsDefaultSize(false)
             .SetSize(new Size(800, 600))
@@ -37,7 +37,7 @@ public static class Program {
                 if (FullscreenWebMessageHandler.TryHandleWebMessage(sender, message)) return;
                 if (sender is not PhotinoWindow window) return;
 
-                var response = $"Received message: \"{message}\"";
+                string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
 

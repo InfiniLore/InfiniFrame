@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.FileProviders;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 
@@ -46,7 +47,7 @@ public class PhotinoServerBuilder {
             throw new SystemException("Could not find entry assembly.");
         }
 
-        var physicalFileProvider = WebAppBuilder.Environment.WebRootFileProvider;
+        IFileProvider physicalFileProvider = WebAppBuilder.Environment.WebRootFileProvider;
 
         entryAssembly.GetManifestResourceNames();
 
@@ -62,12 +63,12 @@ public class PhotinoServerBuilder {
         // Don't do anything if no port range is specified
         if (PortRange < 0) return;
 
-        var listeners = IPGlobalProperties
+        IPEndPoint[] listeners = IPGlobalProperties
             .GetIPGlobalProperties()
             .GetActiveTcpListeners();
 
         // Try ports until an available port is found within the PortRange.
-        for (var newPort = Port; newPort < Port + PortRange; newPort++) {
+        for (int newPort = Port; newPort < Port + PortRange; newPort++) {
             if (listeners.Any(x => x.Port == newPort)) continue;
 
             Port = newPort;

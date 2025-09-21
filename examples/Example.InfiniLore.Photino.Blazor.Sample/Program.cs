@@ -21,7 +21,7 @@ class Program {
         // register root component and selector
         appBuilder.RootComponents.Add<App>("app");
 
-        var app = appBuilder.Build();
+        PhotinoBlazorApp app = appBuilder.Build();
 
         // customize window
         app.MainWindow

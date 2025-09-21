@@ -3,7 +3,7 @@
 namespace InfiniLore.Photino.NET.Utilities;
 internal static class MonitorsUtility {
     public static ImmutableArray<Monitor> GetMonitors(IntPtr windowHandle) {
-        var builder = ImmutableArray.CreateBuilder<Monitor>();
+        ImmutableArray<Monitor>.Builder builder = ImmutableArray.CreateBuilder<Monitor>();
 
         PhotinoNative.GetAllMonitors(windowHandle, Callback);
         return builder.ToImmutable();

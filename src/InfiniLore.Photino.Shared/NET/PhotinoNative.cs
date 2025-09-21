@@ -338,22 +338,22 @@ public static partial class PhotinoNative {
     internal static void GetTop(IntPtr instance, out int top) => GetPosition(instance, out _, out top);
 
     internal static void GetSize(IntPtr instance, out Size size) {
-        GetSize(instance, out var width, out var height);
+        GetSize(instance, out int width, out int height);
         size = new Size(width, height);
     }
 
     internal static void GetPosition(IntPtr instance, out Point position) {
-        GetPosition(instance, out var left, out var top);
+        GetPosition(instance, out int left, out int top);
         position = new Point(left, top);
     }
 
     internal static void GetUserAgent(IntPtr instance, out string? userAgent) {
-        var ptr = GetUserAgent(instance);
+        IntPtr ptr = GetUserAgent(instance);
         userAgent = Marshal.PtrToStringAuto(ptr);
     }
 
     internal static void GetTitle(IntPtr instance, out string? title) {
-        var ptr = GetTitle(instance);
+        IntPtr ptr = GetTitle(instance);
         title = Marshal.PtrToStringAuto(ptr);
     }
     #endregion

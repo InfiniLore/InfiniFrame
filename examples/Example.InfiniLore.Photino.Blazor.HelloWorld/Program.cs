@@ -17,7 +17,7 @@ public static class Program {
         // register root component
         appBuilder.RootComponents.Add<App>("app");
 
-        var app = appBuilder.Build();
+        PhotinoBlazorApp app = appBuilder.Build();
         app.Run();
     }
 }

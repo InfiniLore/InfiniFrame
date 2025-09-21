@@ -56,15 +56,15 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
     public Stream? HandleWebRequest(object? sender, string? schema, string url, out string? contentType) {
         // It would be better if we were told whether this is a navigation request, but
         // since we're not, guess.
-        var localPath = new Uri(url).LocalPath;
-        var hasFileExtension = localPath.LastIndexOf('.') > localPath.LastIndexOf('/');
+        string localPath = new Uri(url).LocalPath;
+        bool hasFileExtension = localPath.LastIndexOf('.') > localPath.LastIndexOf('/');
 
         //Remove parameters before attempting to retrieve the file. For example: http://localhost/_content/Blazorise/button.js?v=1.0.7.0
         if (url.Contains('?')) url = url[..url.IndexOf('?')];
 
         if (url.StartsWith(AppBaseUri, StringComparison.Ordinal)
             && TryGetResponseContent(url, !hasFileExtension, out _, out _,
-                                     out var content, out var headers)) {
+                                     out Stream content, out IDictionary<string, string> headers)) {
             headers.TryGetValue("Content-Type", out contentType);
             return content;
         }
@@ -82,10 +82,10 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
     }
 
     private async Task MessagePump() {
-        var reader = _channel.Reader;
+        ChannelReader<string> reader = _channel.Reader;
         try {
             while (true) {
-                var message = await reader.ReadAsync();
+                string message = await reader.ReadAsync();
                 await _window.SendWebMessageAsync(message);
             }
         }

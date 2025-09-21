@@ -67,7 +67,7 @@ public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchro
             if (state is not PhotinoSynchronizationTaskCompletionSource<Func<TResult>, TResult> completion) return;
 
             try {
-                var result = completion.Callback();
+                TResult result = completion.Callback();
                 completion.SetResult(result);
             }
             catch (OperationCanceledException) {
@@ -88,7 +88,7 @@ public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchro
             if (state is not PhotinoSynchronizationTaskCompletionSource<Func<Task<TResult>>, TResult> completion) return;
 
             try {
-                var result = await completion.Callback();
+                TResult result = await completion.Callback();
                 completion.SetResult(result);
             }
             catch (OperationCanceledException) {
@@ -184,7 +184,7 @@ public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchro
             executionContext = ExecutionContext.Capture();
         }
 
-        var flags = forceAsync ? TaskContinuationOptions.RunContinuationsAsynchronously : TaskContinuationOptions.None;
+        TaskContinuationOptions flags = forceAsync ? TaskContinuationOptions.RunContinuationsAsynchronously : TaskContinuationOptions.None;
         return antecedent.ContinueWith(BackgroundWorkThunk, new PhotinoSynchronizationWorkItem {
             SynchronizationContext = this,
             ExecutionContext = executionContext,
@@ -201,7 +201,7 @@ public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchro
         // Anything run on the sync context should actually be dispatched as far as Photino
         // is concerned, so that it's safe to interact with the native window/WebView.
         window.Invoke(() => {
-            var original = Current;
+            SynchronizationContext? original = Current;
             try {
                 SetSynchronizationContext(this);
                 d?.Invoke(state);
@@ -237,7 +237,7 @@ public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchro
     }
 
     private void DispatchException(Exception ex) {
-        var handler = UnhandledException;
+        UnhandledExceptionEventHandler? handler = UnhandledException;
         handler?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
     }
 }

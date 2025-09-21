@@ -12,7 +12,7 @@ public class PhotinoBlazorApp(IPhotinoWindow window, IPhotinoWebViewManager mana
 
         if (rootComponentConfiguration is null) return;
 
-        foreach (var component in rootComponents) {
+        foreach ((Type, string) component in rootComponents) {
             rootComponentConfiguration.Add(component.Item1, component.Item2);
         }
     }

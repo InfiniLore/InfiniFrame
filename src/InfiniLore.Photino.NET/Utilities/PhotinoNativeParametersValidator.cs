@@ -5,12 +5,12 @@ namespace InfiniLore.Photino.NET.Utilities;
 public static class PhotinoNativeParametersValidator {
     // ReSharper disable once InvertIf
     public static bool Validate(PhotinoNativeParameters parameters, ILogger logger) {
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var startUrl = parameters.StartUrl;
-        var startString = parameters.StartString;
-        var windowIconFile = parameters.WindowIconFile;
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        string? startUrl = parameters.StartUrl;
+        string? startString = parameters.StartString;
+        string? windowIconFile = parameters.WindowIconFile;
 
-        var result = true;
+        bool result = true;
         if (string.IsNullOrWhiteSpace(startUrl) && string.IsNullOrWhiteSpace(startString)) {
             logger.LogWarning("No initial URL or HTML string was supplied in StartUrl or StartString for the browser control to navigate to.");
             result = false;
