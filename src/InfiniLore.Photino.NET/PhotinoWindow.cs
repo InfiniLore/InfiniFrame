@@ -122,10 +122,7 @@ public class PhotinoWindow : IPhotinoWindow {
     public IntPtr WindowHandle {
         get {
             if (!IsWindowsPlatform) return IntPtr.Zero;
-
-            var handle = IntPtr.Zero;
-            Invoke(() => handle = PhotinoNative.GetWindowHandlerWin32(InstanceHandle));
-            return handle;
+            return InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetWindowHandlerWin32);
         }
     }
 
@@ -140,16 +137,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <returns>
     ///     A read-only list of Monitor objects representing information about each display monitor.
     /// </returns>
-    public ImmutableArray<Monitor> Monitors {
-        get {
-            var monitors = ImmutableArray<Monitor>.Empty;
-            Invoke(() => {
-                monitors = MonitorsUtility.GetMonitors(InstanceHandle);
-            });
-
-            return monitors;
-        }
-    }
+    public ImmutableArray<Monitor> Monitors => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors);
 
     /// <summary>
     ///     Retrieves the primary monitor information from the native window instance.
@@ -159,11 +147,7 @@ public class PhotinoWindow : IPhotinoWindow {
     ///     Returns a Monitor object representing the main monitor. The main monitor is the first monitor in the list of
     ///     available monitors.
     /// </returns>
-    public Monitor MainMonitor {
-        get {
-            return Monitors[0];
-        }
-    }
+    public Monitor MainMonitor => Monitors[0];
 
     /// <summary>
     ///     Gets the dots per inch (DPI) for the primary display from the native window.
@@ -171,13 +155,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <exception cref="ApplicationException">
     ///     An ApplicationException is thrown if the window hasn't been initialized yet.
     /// </exception>
-    public uint ScreenDpi {
-        get {
-            uint dpi = 0;
-            Invoke(() => dpi = PhotinoNative.GetScreenDpi(InstanceHandle));
-            return dpi;
-        }
-    }
+    public uint ScreenDpi => InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetScreenDpi);
 
     /// <summary>
     ///     Gets a unique GUID to identify the native window.
@@ -197,11 +175,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <remarks>
     ///     The user has to supply titlebar, border, dragging and resizing manually.
     /// </remarks>
-    public bool Chromeless {
-        get {
-            return _startupParameters.Chromeless;
-        }
-    }
+    public bool Chromeless => _startupParameters.Chromeless;
 
     /// <summary>
     ///     When true, the native window and browser control can be displayed with a transparent background.
@@ -212,152 +186,57 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <exception cref="ApplicationException">
     ///     On Windows, thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    public bool Transparent {
-        get {
-            var enabled = false;
-            Invoke(() => PhotinoNative.GetTransparentEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool Transparent => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's context menu.
     ///     By default, this is set to true.
     /// </summary>
-    public bool ContextMenuEnabled {
-        get {
-            var enabled = false;
-            Invoke(() => PhotinoNative.GetContextMenuEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool ContextMenuEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetContextMenuEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's developer tools.
     ///     By default, this is set to true.
     /// </summary>
-    public bool DevToolsEnabled {
-        get {
-            var enabled = false;
-            Invoke(() => PhotinoNative.GetDevToolsEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool DevToolsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetDevToolsEnabled);
 
-    public bool MediaAutoplayEnabled {
-        get {
-            var enabled = false;
-            Invoke(() => PhotinoNative.GetMediaAutoplayEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool MediaAutoplayEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMediaAutoplayEnabled);
 
-    public string UserAgent {
-        get {
-            var userAgent = string.Empty;
-            Invoke(() => {
-                var ptr = PhotinoNative.GetUserAgent(InstanceHandle);
-                userAgent = Marshal.PtrToStringAuto(ptr);
-            });
+    public string? UserAgent => InvokeUtilities.InvokeAndReturn<string?>(this, PhotinoNative.GetUserAgent);
 
-            return userAgent;
-        }
-    }
+    public bool FileSystemAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetFileSystemAccessEnabled);
 
-    public bool FileSystemAccessEnabled {
-        get {
-            var enabled = false;
-            Invoke(() => PhotinoNative.GetFileSystemAccessEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool WebSecurityEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetWebSecurityEnabled);
 
-    public bool WebSecurityEnabled {
-        get {
-            var enabled = true;
-            Invoke(() => PhotinoNative.GetWebSecurityEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool JavascriptClipboardAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetJavascriptClipboardAccessEnabled);
 
-    public bool JavascriptClipboardAccessEnabled {
-        get {
-            var enabled = true;
-            Invoke(() => PhotinoNative.GetJavascriptClipboardAccessEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool MediaStreamEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMediaStreamEnabled);
 
-    public bool MediaStreamEnabled {
-        get {
-            var enabled = true;
-            Invoke(() => PhotinoNative.GetMediaStreamEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool SmoothScrollingEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetSmoothScrollingEnabled);
 
-    public bool SmoothScrollingEnabled {
-        get {
-            var enabled = false;
-            Invoke(() => PhotinoNative.GetSmoothScrollingEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool IgnoreCertificateErrorsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetIgnoreCertificateErrorsEnabled);
 
-    public bool IgnoreCertificateErrorsEnabled {
-        get {
-
-            var enabled = false;
-            Invoke(() => PhotinoNative.GetIgnoreCertificateErrorsEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
-
-    public bool NotificationsEnabled {
-        get {
-            var enabled = false;
-            Invoke(() => PhotinoNative.GetNotificationsEnabled(InstanceHandle, out enabled));
-            return enabled;
-        }
-    }
+    public bool NotificationsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetNotificationsEnabled);
 
     /// <summary>
     ///     This property returns or sets the fullscreen status of the window.
     ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.
     ///     By default, this is set to false.
     /// </summary>
-    public bool FullScreen {
-        get {
-            var fullScreen = false;
-            Invoke(() => PhotinoNative.GetFullScreen(InstanceHandle, out fullScreen));
-            return fullScreen;
-        }
-    }
+    public bool FullScreen => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetFullScreen);
     private Rectangle _preFullscreenArea;
 
     /// <summary>
     ///     Gets whether the native browser control grants all requests for access to local resources
     ///     such as the user's camera and microphone. By default, this is set to true.
     /// </summary>
-    public bool GrantBrowserPermissions {
-        get {
-            var grant = false;
-            Invoke(() => PhotinoNative.GetGrantBrowserPermissions(InstanceHandle, out grant));
-            return grant;
-        }
-    }
+    public bool GrantBrowserPermissions => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetGrantBrowserPermissions);
 
     /// <summary>
     ///     Gets or Sets the Height property of the native window in pixels.
     ///     The default value is 0.
     /// </summary>
-    public int Height {
-        get {
-            var height = 0;
-            Invoke(() => PhotinoNative.GetSize(InstanceHandle, out _, out height));
-            return height;
-        }
-    }
+    public int Height => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetHeight);
 
     /// <summary>
     ///     Gets or sets the icon file for the native window title bar.
@@ -370,45 +249,23 @@ public class PhotinoWindow : IPhotinoWindow {
     ///     Gets or sets the native window Left (X) and Top coordinates (Y) in pixels.
     ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
     /// </summary>
-    public Point Location {
-        get {
-            var left = 0;
-            var top = 0;
-            Invoke(() => PhotinoNative.GetPosition(InstanceHandle, out left, out top));
-            return new Point(left, top);
-        }
-    }
+    public Point Location => InvokeUtilities.InvokeAndReturn<Point>(this, PhotinoNative.GetPosition);
 
     /// <summary>
     ///     Gets or sets the native window Left (X) coordinate in pixels.
     ///     This represents the horizontal position of the window relative to the screen.
     ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
     /// </summary>
-    public int Left {
-        get {
-            var left = 0;
-            Invoke(() => PhotinoNative.GetPosition(InstanceHandle, out left, out _));
-            return left;
-        }
-    }
+    public int Left => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetLeft);
+    
     /// <summary>
     ///     Gets or sets whether the native window is maximized.
     ///     Default is false.
     /// </summary>
-    public bool Maximized {
-        get {
-            var maximized = false;
-            Invoke(() => PhotinoNative.GetMaximized(InstanceHandle, out maximized));
-            return maximized;
-        }
-    }
+    public bool Maximized => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMaximized);
 
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
-    public Point MaxSize {
-        get {
-            return new Point(MaxWidth, MaxHeight);
-        }
-    }
+    public Point MaxSize => new Point(MaxWidth, MaxHeight);
 
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
     public int MaxHeight { get; private set; }
@@ -420,20 +277,10 @@ public class PhotinoWindow : IPhotinoWindow {
     ///     Gets or sets whether the native window is minimized (hidden).
     ///     Default is false.
     /// </summary>
-    public bool Minimized {
-        get {
-            var minimized = false;
-            Invoke(() => PhotinoNative.GetMinimized(InstanceHandle, out minimized));
-            return minimized;
-        }
-    }
+    public bool Minimized => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMinimized);
 
     ///<summary>Gets or set the minimum size of the native window in pixels.</summary>
-    public Point MinSize {
-        get {
-            return new Point(MinWidth, MinHeight);
-        }
-    }
+    public Point MinSize => new Point(MinWidth, MinHeight);
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
     public int MinHeight { get; }
@@ -451,26 +298,13 @@ public class PhotinoWindow : IPhotinoWindow {
     ///     Gets or sets whether the user can resize the native window.
     ///     Default is true.
     /// </summary>
-    public bool Resizable {
-        get {
-            var resizable = false;
-            Invoke(() => PhotinoNative.GetResizable(InstanceHandle, out resizable));
-            return resizable;
-        }
-    }
+    public bool Resizable => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetResizable);
 
     /// <summary>
     ///     Gets or sets the native window Size. This represents the width and the height of the window in pixels.
     ///     The default Size is 0,0.
     /// </summary>
-    public Size Size {
-        get {
-            var width = 0;
-            var height = 0;
-            Invoke(() => PhotinoNative.GetSize(InstanceHandle, out width, out height));
-            return new Size(width, height);
-        }
-    }
+    public Size Size => InvokeUtilities.InvokeAndReturn<Size>(this, PhotinoNative.GetSize);
 
     /// <summary>
     ///     Gets or sets platform-specific initialization parameters for the native browser control on startup.
@@ -489,11 +323,7 @@ public class PhotinoWindow : IPhotinoWindow {
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
-    public string? BrowserControlInitParameters {
-        get {
-            return _startupParameters.BrowserControlInitParameters;
-        }
-    }
+    public string? BrowserControlInitParameters => _startupParameters.BrowserControlInitParameters;
 
     /// <summary>
     ///     Gets or sets an HTML string that the browser control will render when initialized.
@@ -506,11 +336,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    public string? StartString {
-        get {
-            return _startupParameters.StartString;
-        }
-    }
+    public string? StartString => _startupParameters.StartString;
 
     /// <summary>
     ///     Gets or sets a URL that the browser control will navigate to when initialized.
@@ -523,11 +349,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    public string? StartUrl {
-        get {
-            return _startupParameters.StartUrl;
-        }
-    }
+    public string? StartUrl => _startupParameters.StartUrl;
 
     /// <summary>
     ///     Gets or sets the local path to store temp files for browser control.
@@ -539,11 +361,7 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public string? TemporaryFilesPath {
-        get {
-            return _startupParameters.TemporaryFilesPath;
-        }
-    }
+    public string? TemporaryFilesPath => _startupParameters.TemporaryFilesPath;
 
     /// <summary>
     ///     Gets or sets the registration id for doing toast notifications.
@@ -555,76 +373,38 @@ public class PhotinoWindow : IPhotinoWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public string? NotificationRegistrationId {
-        get {
-            return _startupParameters.NotificationRegistrationId;
-        }
-    }
+    public string? NotificationRegistrationId => _startupParameters.NotificationRegistrationId;
 
     /// <summary>
     ///     Gets or sets the native window title.
     ///     Default is "Photino".
     /// </summary>
-    public string? Title {
-        get {
-            var title = string.Empty;
-            Invoke(() => {
-                var ptr = PhotinoNative.GetTitle(InstanceHandle);
-                title = Marshal.PtrToStringAuto(ptr);
-            });
-
-            return title;
-        }
-    }
+    public string? Title => InvokeUtilities.InvokeAndReturn<string?>(this, PhotinoNative.GetTitle);
 
     /// <summary>
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
     ///     Default is 0.
     /// </summary>
-    public int Top {
-        get {
-            var top = 0;
-            Invoke(() => PhotinoNative.GetPosition(InstanceHandle, out _, out top));
-            return top;
-        }
-    }
+    public int Top => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetTop);
 
     /// <summary>
     ///     Gets or sets whether the native window is always at the top of the z-order.
     ///     Default is false.
     /// </summary>
-    public bool TopMost {
-        get {
-            var topmost = false;
-            Invoke(() => PhotinoNative.GetTopmost(InstanceHandle, out topmost));
-            return topmost;
-        }
-    }
+    public bool TopMost => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTopmost);
 
     /// <summary>
     ///     Gets or Sets the native window width in pixels.
     ///     Default is 0.
     /// </summary>
-    public int Width {
-        get {
-            var width = 0;
-            Invoke(() => PhotinoNative.GetSize(InstanceHandle, out width, out _));
-            return width;
-        }
-    }
+    public int Width => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetWidth);
 
     /// <summary>
     ///     Gets or sets the native browser control <see cref="PhotinoWindow.Zoom" />.
     ///     Default is 100.
     /// </summary>
     /// <example>100 = 100%, 50 = 50%</example>
-    public int Zoom {
-        get {
-            var zoom = 0;
-            Invoke(() => PhotinoNative.GetZoom(InstanceHandle, out zoom));
-            return zoom;
-        }
-    }
+    public int Zoom => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetZoom);
     #endregion
 
     // TODO CONTINUE HERE

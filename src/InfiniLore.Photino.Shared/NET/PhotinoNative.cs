@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -346,5 +347,32 @@ public static partial class PhotinoNative
     internal static partial PhotinoDialogResult ShowMessage(IntPtr inst, string title, string text, PhotinoDialogButtons buttons, PhotinoDialogIcon icon);
 
     #endregion
+    
+    #region Overloads
+    internal static void GetHeight(IntPtr instance, out int height) => GetSize(instance, out _, out height);
+    internal static void GetWidth(IntPtr instance, out int width) => GetSize(instance, out width, out _);
+    
+    internal static void GetLeft(IntPtr instance, out int left) => GetPosition(instance, out left, out _);
+    internal static void GetTop(IntPtr instance, out int top) => GetPosition(instance, out _, out top);
 
+    internal static void GetSize(IntPtr instance, out Size size) {
+        GetSize(instance, out var width, out var height);
+        size = new Size(width, height);
+    }
+    
+    internal static void GetPosition(IntPtr instance, out Point position) {
+        GetPosition(instance, out var left, out var top);
+        position = new Point(left, top);
+    }
+
+    internal static void GetUserAgent(IntPtr instance, out string? userAgent) {
+        var ptr = GetUserAgent(instance);
+        userAgent = Marshal.PtrToStringAuto(ptr);
+    }
+    
+    internal static void GetTitle(IntPtr instance, out string? title) {
+        var ptr = GetTitle(instance);
+        title = Marshal.PtrToStringAuto(ptr);
+    }
+    #endregion
 }
