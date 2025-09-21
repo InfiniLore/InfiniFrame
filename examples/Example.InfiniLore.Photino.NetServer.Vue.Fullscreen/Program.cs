@@ -4,12 +4,9 @@ using System.Drawing;
 using InfiniLore.Photino.NET.Utilities;
 
 namespace Example.InfiniLore.Photino.NetServer.Vue.Fullscreen;
-
-public static class Program
-{
+public static class Program {
     [STAThread]
-    public static void Main(string[] args)
-    {
+    public static void Main(string[] args) {
         var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
         photinoServerBuilder.UsePort(5172, 100);
 
@@ -18,14 +15,13 @@ public static class Program
 
         var windowBuilder = photinoServer.GetAttachedWindowBuilder()
             .Center();
-            // .SetResizable(true);
+        // .SetResizable(true);
 
         var window = windowBuilder.Build()
             .SetTitle("InfiniLore Photino.NET VUE Sample")
             .SetUseOsDefaultSize(false)
             .SetSize(new Size(800, 600))
-            .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) =>
-            {
+            .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) => {
                 contentType = "text/javascript";
                 return new MemoryStream(
                 """
@@ -37,10 +33,10 @@ public static class Program
                     """u8.ToArray()
                 );
             })
-            .RegisterWebMessageReceivedHandler((sender, message) =>
-            {
+            .RegisterWebMessageReceivedHandler((sender, message) => {
                 if (FullscreenWebMessageHandler.TryHandleWebMessage(sender, message)) return;
                 if (sender is not PhotinoWindow window) return;
+
                 var response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });

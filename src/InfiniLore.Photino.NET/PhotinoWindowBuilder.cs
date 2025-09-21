@@ -2,15 +2,12 @@
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.Photino.NET;
-
-public class PhotinoWindowBuilder : IPhotinoWindowBuilder
-{
+public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
-    
+
     #region PhotinoWindowBase properties
-    
     public bool Centered { get; set; }
-    public bool Chromeless { get; set; } 
+    public bool Chromeless { get; set; }
     public bool Transparent { get; set; }
     public bool ContextMenuEnabled { get; set; } = true;
     public bool DevToolsEnabled { get; set; } = true;
@@ -38,29 +35,25 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
     public bool Resizable { get; set; }
     public int Width { get; set; }
     public string? BrowserControlInitParameters { get; set; }
-    public string? StartUrl { get; set; }    
-    public string? StartString { get; set; }  
+    public string? StartUrl { get; set; }
+    public string? StartString { get; set; }
     public string? TemporaryFilesPath { get; set; } = Path.Combine(Path.GetTempPath(), "photino");
     public string? NotificationRegistrationId { get; set; }
     public string? Title { get; set; }
     public bool TopMost { get; set; }
     public bool UseOsDefaultLocation { get; set; }
     public bool UseOsDefaultSize { get; set; }
-    
     #endregion
-      
+
 
     private PhotinoWindowBuilder() {}
 
-    public static PhotinoWindowBuilder Create()
-    {
+    public static PhotinoWindowBuilder Create() {
         return new PhotinoWindowBuilder();
     }
 
-    private PhotinoNativeParameters GetParameters()
-    {
-        var parameters = new PhotinoNativeParameters
-        {
+    private PhotinoNativeParameters GetParameters() {
+        var parameters = new PhotinoNativeParameters {
             CenterOnInitialize = Centered,
             Chromeless = Chromeless,
             Transparent = Transparent,
@@ -101,23 +94,21 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
         return parameters;
     }
 
-    private ILogger<PhotinoWindow> GetDefaultLogger()
-    {
-        if (!UseDefaultLogger) return LoggerFactory.Create(config => {
-            config.ClearProviders(); // Remove default console logger
-        }).CreateLogger<PhotinoWindow>();
-        
-        return  LoggerFactory.Create(config => {
+    private ILogger<PhotinoWindow> GetDefaultLogger() {
+        if (!UseDefaultLogger)
+            return LoggerFactory.Create(config => {
+                config.ClearProviders();// Remove default console logger
+            }).CreateLogger<PhotinoWindow>();
+
+        return LoggerFactory.Create(config => {
             config.AddConsole().SetMinimumLevel(LogLevel.Debug);
         }).CreateLogger<PhotinoWindow>();
     }
 
-    public IPhotinoWindow Build()
-    {
+    public IPhotinoWindow Build() {
         return new PhotinoWindow(GetParameters(), GetDefaultLogger());
     }
-    public IPhotinoWindow Build(IServiceProvider provider)
-    {
+    public IPhotinoWindow Build(IServiceProvider provider) {
         return new PhotinoWindow(GetParameters(), provider.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
     }
 }

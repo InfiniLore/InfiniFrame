@@ -1,11 +1,9 @@
 namespace InfiniLore.Photino;
-
 /// <summary>
 ///     Defines options for a dialog
 /// </summary>
 [Flags]
-public enum PhotinoDialogOptions : byte
-{
+public enum PhotinoDialogOptions : byte {
     /// <summary>
     ///     Represents no options for the dialog.
     /// </summary>

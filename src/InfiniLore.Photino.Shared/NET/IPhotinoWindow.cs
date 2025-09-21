@@ -8,8 +8,7 @@ namespace InfiniLore.Photino.NET;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPhotinoWindow : IPhotinoWindowBase
-{
+public interface IPhotinoWindow : IPhotinoWindowBase {
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
     ImmutableArray<Monitor> Monitors { get; }
@@ -20,7 +19,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     Point MaxSize { get; }
     Point MinSize { get; }
     Size Size { get; }
-    IPhotinoWindow? Parent { get; } 
+    IPhotinoWindow? Parent { get; }
     int ManagedThreadId { get; }
 
     event EventHandler<Point>? WindowLocationChanged;
@@ -34,7 +33,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     event NetClosingDelegate? WindowClosing;
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
-    
+
     int Zoom { get; }
     void Invoke(Action workItem);
     IPhotinoWindow Load(Uri uri);

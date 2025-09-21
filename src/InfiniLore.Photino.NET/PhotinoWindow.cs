@@ -122,6 +122,7 @@ public class PhotinoWindow : IPhotinoWindow {
     public IntPtr WindowHandle {
         get {
             if (!IsWindowsPlatform) return IntPtr.Zero;
+
             return InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetWindowHandlerWin32);
         }
     }
@@ -257,7 +258,7 @@ public class PhotinoWindow : IPhotinoWindow {
     ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
     /// </summary>
     public int Left => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetLeft);
-    
+
     /// <summary>
     ///     Gets or sets whether the native window is maximized.
     ///     Default is false.

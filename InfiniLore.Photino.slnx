@@ -1,33 +1,47 @@
 ﻿<Solution>
-  <Folder Name="/.dev-tools/">
-    <File Path=".gitignore" />
-    <File Path="InfiniLore.Photino.GitHubActions.slnf" />
-    <File Path="README.md" />
-    <File Path=".editorconfig" />
-  </Folder>
-  <Folder Name="/.dev-tools/github/">
-    <File Path=".github\workflows\release.yml" />
-    <File Path=".github\workflows\workflow-todo.yml" />
-  </Folder>
-  <Folder Name="/.dev-tools/py/">
-    <File Path="dev\bump_version.py" />
-  </Folder>
-  <Folder Name="/example/">
-    <Project Path="examples\Example.InfiniLore.Photino.Blazor.HelloWorld\Example.InfiniLore.Photino.Blazor.HelloWorld.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.Blazor.MultiWindowSample\Example.InfiniLore.Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.Blazor.NativeAOT\Example.InfiniLore.Photino.Blazor.NativeAOT.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.Blazor.Sample\Example.InfiniLore.Photino.Blazor.Sample.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.NetServer.React\Example.InfiniLore.Photino.NetServer.React.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.NetServer.Vue.Fullscreen\Example.InfiniLore.Photino.NetServer.Vue.Fullscreen.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.NetServer.Vue\Example.InfiniLore.Photino.NetServer.Vue.csproj" Type="Classic C#" />
-    <File Path="examples\Directory.Build.props" />
-  </Folder>
-  <Folder Name="/src/">
-    <Project Path="src\InfiniLore.Photino.Blazor\InfiniLore.Photino.Blazor.csproj" Type="Classic C#" />
-    <Project Path="src\InfiniLore.Photino.NET.Server\InfiniLore.Photino.NET.Server.csproj" Type="Classic C#" />
-    <Project Path="src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
-    <Project Path="src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" Type="Classic C#" />
-    <File Path="src\Directory.Build.props" />
-  </Folder>
-  <Folder Name="/tests/" />
+    <Folder Name="/.dev-tools/">
+        <File Path=".gitignore"/>
+        <File Path="InfiniLore.Photino.GitHubActions.slnf"/>
+        <File Path="README.md"/>
+        <File Path=".editorconfig"/>
+    </Folder>
+    <Folder Name="/.dev-tools/github/">
+        <File Path=".github\workflows\release.yml"/>
+        <File Path=".github\workflows\workflow-todo.yml"/>
+    </Folder>
+    <Folder Name="/.dev-tools/py/">
+        <File Path="dev\bump_version.py"/>
+    </Folder>
+    <Folder Name="/example/">
+        <Project
+            Path="examples\Example.InfiniLore.Photino.Blazor.HelloWorld\Example.InfiniLore.Photino.Blazor.HelloWorld.csproj"
+            Type="Classic C#"/>
+        <Project
+            Path="examples\Example.InfiniLore.Photino.Blazor.MultiWindowSample\Example.InfiniLore.Photino.Blazor.MultiWindowSample.csproj"
+            Type="Classic C#"/>
+        <Project
+            Path="examples\Example.InfiniLore.Photino.Blazor.NativeAOT\Example.InfiniLore.Photino.Blazor.NativeAOT.csproj"
+            Type="Classic C#"/>
+        <Project
+            Path="examples\Example.InfiniLore.Photino.Blazor.Sample\Example.InfiniLore.Photino.Blazor.Sample.csproj"
+            Type="Classic C#"/>
+        <Project
+            Path="examples\Example.InfiniLore.Photino.NetServer.React\Example.InfiniLore.Photino.NetServer.React.csproj"
+            Type="Classic C#"/>
+        <Project
+            Path="examples\Example.InfiniLore.Photino.NetServer.Vue.Fullscreen\Example.InfiniLore.Photino.NetServer.Vue.Fullscreen.csproj"
+            Type="Classic C#"/>
+        <Project
+            Path="examples\Example.InfiniLore.Photino.NetServer.Vue\Example.InfiniLore.Photino.NetServer.Vue.csproj"
+            Type="Classic C#"/>
+        <File Path="examples\Directory.Build.props"/>
+    </Folder>
+    <Folder Name="/src/">
+        <Project Path="src\InfiniLore.Photino.Blazor\InfiniLore.Photino.Blazor.csproj" Type="Classic C#"/>
+        <Project Path="src\InfiniLore.Photino.NET.Server\InfiniLore.Photino.NET.Server.csproj" Type="Classic C#"/>
+        <Project Path="src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj"/>
+        <Project Path="src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" Type="Classic C#"/>
+        <File Path="src\Directory.Build.props"/>
+    </Folder>
+    <Folder Name="/tests/"/>
 </Solution>

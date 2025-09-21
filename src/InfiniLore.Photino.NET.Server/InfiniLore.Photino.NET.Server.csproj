@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
+        <ProjectReference Include="..\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj"/>
     </ItemGroup>
 
 </Project>

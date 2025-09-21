@@ -1,5 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino;
-
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)] public delegate void CppMovedDelegate(int x, int y);
+[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+public delegate void CppMovedDelegate(int x, int y);

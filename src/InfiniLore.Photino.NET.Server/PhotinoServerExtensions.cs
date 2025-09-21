@@ -1,12 +1,9 @@
 ﻿namespace InfiniLore.Photino.NET.Server;
-
-public static class PhotinoServerExtensions
-{
-    public static IPhotinoWindowBuilder GetAttachedWindowBuilder(this PhotinoServer server)
-    {
+public static class PhotinoServerExtensions {
+    public static IPhotinoWindowBuilder GetAttachedWindowBuilder(this PhotinoServer server) {
         var builder = PhotinoWindowBuilder.Create();
         builder.StartUrl = server.BaseUrl;
-        
+
         return builder;
     }
 }

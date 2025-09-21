@@ -1,12 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
-
 // These are the parameter names that are passed to Photino.Native.
 // DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-public struct PhotinoNativeParameters
-{
+public struct PhotinoNativeParameters {
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
     ///     initialized. Default is none.
@@ -239,8 +237,7 @@ public struct PhotinoNativeParameters
     /// <summary>
     ///     Parameters sent to Photino.Native to start a new instance of a Photino.Native window.
     /// </summary>
-    public static PhotinoNativeParameters Default => new PhotinoNativeParameters
-    {
+    public static PhotinoNativeParameters Default => new PhotinoNativeParameters {
         //These values can't be initialized within the struct itself. Set required defaults.
         Resizable = true,
         ContextMenuEnabled = true,

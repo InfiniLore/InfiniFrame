@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite'
-import { fileURLToPath, URL } from 'node:url'
+import {defineConfig} from 'vite'
+import {fileURLToPath, URL} from 'node:url'
 import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-    plugins: [vue()], 
+    plugins: [vue()],
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -14,7 +14,7 @@ export default defineConfig({
         port: 7625,
         host: true,
     },
-    build : {
+    build: {
         outDir: '../../wwwroot',
         emptyOutDir: true,
     }

@@ -1,7 +1,5 @@
 ﻿namespace InfiniLore.Photino.NET;
-
-public interface IPhotinoWindowBase
-{
+public interface IPhotinoWindowBase {
     bool Chromeless { get; }
     bool Transparent { get; }
     bool ContextMenuEnabled { get; }

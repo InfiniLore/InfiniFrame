@@ -1,7 +1,5 @@
 ﻿namespace InfiniLore.Photino.NET;
-
-public interface IPhotinoWindowBuilder : IPhotinoWindowBase
-{
+public interface IPhotinoWindowBuilder : IPhotinoWindowBase {
     bool Centered { get; set; }
     new bool Chromeless { get; set; }
     new bool Transparent { get; set; }
@@ -39,7 +37,7 @@ public interface IPhotinoWindowBuilder : IPhotinoWindowBase
     new bool TopMost { get; set; }
     bool UseOsDefaultLocation { get; set; }
     bool UseOsDefaultSize { get; set; }
-    
+
     IPhotinoWindow Build();
     IPhotinoWindow Build(IServiceProvider provider);
 }
