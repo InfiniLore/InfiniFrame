@@ -1,8 +1,10 @@
 ﻿using System.Drawing;
 
+// ReSharper disable once CheckNamespace
 namespace InfiniLore.Photino.NET;
+
 // ReSharper disable once InconsistentNaming
-public static class IPhotinoWindowBuilderFluentApiExtensions {
+public static class IPhotinoWindowBuilderExtensions {
     public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
         builder.Configuration.MediaAutoplayEnabled = enable;
         return builder;

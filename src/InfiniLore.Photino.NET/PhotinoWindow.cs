@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
-public class PhotinoWindow : IPhotinoWindow {
+public sealed class PhotinoWindow : IPhotinoWindow {
     public event EventHandler<Point>? WindowLocationChanged;
     public event EventHandler<Size>? WindowSizeChanged;
     public event EventHandler? WindowFocusIn;
