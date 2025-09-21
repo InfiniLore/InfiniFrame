@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Collections.Immutable;
 
 namespace InfiniLore.Photino.NET.Utilities;
 
@@ -37,8 +38,8 @@ internal static class MonitorsUtility {
         }
     }
 
-    public static Monitor[] GetMonitorsAsArray(IntPtr windowHandle)
+    public static ImmutableArray<Monitor> GetMonitorsAsImmutableArray(IntPtr windowHandle)
     {
-        return GetMonitors(windowHandle).ToArray();
+        return GetMonitors(windowHandle).ToImmutableArray();
     }
 }

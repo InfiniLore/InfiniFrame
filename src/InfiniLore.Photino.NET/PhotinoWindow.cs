@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using InfiniLore.Photino.NET.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Drawing;
@@ -144,18 +145,15 @@ public partial class PhotinoWindow : IPhotinoWindow
     /// <returns>
     ///     A read-only list of Monitor objects representing information about each display monitor.
     /// </returns>
-    public IReadOnlyList<Monitor> Monitors
+    public ImmutableArray<Monitor> Monitors
     {
         get
         {
-            ThrowIfNotInitialized();
-            Monitor[] monitors = [];
-
+            var monitors = ImmutableArray<Monitor>.Empty;
             Invoke(() =>
             {
-                monitors = MonitorsUtility.GetMonitorsAsArray(InstanceHandle);
+                monitors = MonitorsUtility.GetMonitorsAsImmutableArray(InstanceHandle);
             });
-
             return monitors;
         }
     }

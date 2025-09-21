@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Immutable;
 using System.Drawing;
 
 namespace InfiniLore.Photino.NET;
@@ -11,7 +12,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase
 {
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
-    IReadOnlyList<Monitor> Monitors { get; }
+    ImmutableArray<Monitor> Monitors { get; }
     Monitor MainMonitor { get; }
     uint ScreenDpi { get; }
     Guid Id { get; }
