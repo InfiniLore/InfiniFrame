@@ -947,6 +947,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
 
             OnWindowCreated();
 
+            // TODO needs a lock
             if (_messageLoopIsStarted) return;
 
             _messageLoopIsStarted = true;
