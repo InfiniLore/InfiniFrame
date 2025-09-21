@@ -70,8 +70,6 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     IPhotinoWindow SetTopMost(bool topMost);
     IPhotinoWindow SetWidth(int width);
     IPhotinoWindow SetZoom(int zoom);
-    IPhotinoWindow SetUseOsDefaultLocation(bool useOsDefault);
-    IPhotinoWindow SetUseOsDefaultSize(bool useOsDefault);
     IPhotinoWindow Win32SetWebView2Path(string data);
     IPhotinoWindow ClearBrowserAutoFill();
     void WaitForClose();
