@@ -3,6 +3,7 @@
     <File Path=".gitignore" />
     <File Path="InfiniLore.Photino.GitHubActions.slnf" />
     <File Path="README.md" />
+    <File Path=".editorconfig" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />

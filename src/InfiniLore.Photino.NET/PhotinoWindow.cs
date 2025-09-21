@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
 
-public partial class PhotinoWindow : IPhotinoWindow
+public class PhotinoWindow : IPhotinoWindow
 {
     public event EventHandler<Point>? WindowLocationChanged;
     public event EventHandler<Size>? WindowSizeChanged;
@@ -125,9 +125,8 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            ThrowIfNotWindowsEnvironment();
-            ThrowIfNotInitialized();
-
+            if (!IsWindowsPlatform) return IntPtr.Zero;
+            
             var handle = IntPtr.Zero;
             Invoke(() => handle = PhotinoNative.GetWindowHandlerWin32(InstanceHandle));
             return handle;
@@ -152,7 +151,7 @@ public partial class PhotinoWindow : IPhotinoWindow
             var monitors = ImmutableArray<Monitor>.Empty;
             Invoke(() =>
             {
-                monitors = MonitorsUtility.GetMonitorsAsImmutableArray(InstanceHandle);
+                monitors = MonitorsUtility.GetMonitors(InstanceHandle);
             });
             return monitors;
         }
@@ -170,7 +169,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            ThrowIfNotInitialized();
             return Monitors[0];
         }
     }
@@ -185,8 +183,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            ThrowIfNotInitialized();
-
             uint dpi = 0;
             Invoke(() => dpi = PhotinoNative.GetScreenDpi(InstanceHandle));
             return dpi;
@@ -389,7 +385,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Gets or Sets the Height property of the native window in pixels.
     ///     The default value is 0.
     /// </summary>
-    /// <seealso cref="UseOsDefaultSize" />
     public int Height
     {
         get
@@ -411,7 +406,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Gets or sets the native window Left (X) and Top coordinates (Y) in pixels.
     ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
     /// </summary>
-    /// <seealso cref="UseOsDefaultLocation" />
     public Point Location
     {
         get
@@ -428,7 +422,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     This represents the horizontal position of the window relative to the screen.
     ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
     /// </summary>
-    /// <seealso cref="UseOsDefaultLocation" />
     public int Left
     {
         get
@@ -508,7 +501,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Gets or sets the native window Size. This represents the width and the height of the window in pixels.
     ///     The default Size is 0,0.
     /// </summary>
-    /// <seealso cref="UseOsDefaultSize" />
     public Size Size
     {
         get
@@ -611,7 +603,6 @@ public partial class PhotinoWindow : IPhotinoWindow
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
     ///     Default is 0.
     /// </summary>
-    /// <seealso cref="UseOsDefaultLocation" />
     public int Top
     {
         get
@@ -635,88 +626,18 @@ public partial class PhotinoWindow : IPhotinoWindow
             return topmost;
         }
     }
-    
-    // TODO CONTINUE HERE
-
-    /// <summary>
-    ///     When true, the native window starts up at the OS Default location.
-    ///     Default is true.
-    /// </summary>
-    /// <remarks>
-    ///     Overrides Left (X) and Top (Y) properties.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set a value after a native window is initialized.
-    /// </exception>
-    public bool UseOsDefaultLocation
-    {
-        get
-        {
-            return _startupParameters.UseOsDefaultLocation;
-        }
-        set
-        {
-            if (InstanceHandle != IntPtr.Zero) throw new ApplicationException("UseOsDefaultLocation can only be set before the native window is instantiated.");
-            if (UseOsDefaultLocation == value) return;
-            _startupParameters.UseOsDefaultLocation = value;
-        }
-    }
-
-    /// <summary>
-    ///     When true, the native window starts at the OS Default size.
-    ///     Default is true.
-    /// </summary>
-    /// <remarks>
-    ///     Overrides Height and Width properties.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set a value after a native window is initialized.
-    /// </exception>
-    public bool UseOsDefaultSize
-    {
-        get
-        {
-            return _startupParameters.UseOsDefaultSize;
-        }
-        set
-        {
-            if (IsNotInitialized())
-            {
-                if (UseOsDefaultSize != value)
-                    _startupParameters.UseOsDefaultSize = value;
-            }
-            else
-                throw new ApplicationException("UseOsDefaultSize can only be set before the native window is instantiated.");
-        }
-    }
-
-    /// <summary>
-    ///     Gets or sets handlers for WebMessageReceived event.
-    ///     Set assigns a new handler to the event.
-    /// </summary>
-    /// <seealso cref="WebMessageReceived" />
-    public EventHandler<string>? WebMessageReceivedHandler
-    {
-        get
-        {
-            return WebMessageReceived;
-        }
-        set
-        {
-            WebMessageReceived += value;
-        }
-    }
 
     /// <summary>
     ///     Gets or Sets the native window width in pixels.
     ///     Default is 0.
     /// </summary>
-    /// <seealso cref="UseOsDefaultSize" />
     public int Width
     {
         get
         {
-            return Size.Width;
+            var width = 0; 
+            Invoke(() => PhotinoNative.GetSize(InstanceHandle, out width, out _));
+            return width;
         }
     }
 
@@ -729,23 +650,15 @@ public partial class PhotinoWindow : IPhotinoWindow
     {
         get
         {
-            if (IsNotInitialized())
-                return _startupParameters.Zoom;
-
             var zoom = 0;
             Invoke(() => PhotinoNative.GetZoom(InstanceHandle, out zoom));
             return zoom;
         }
-        set
-        {
-            if (Zoom == value) return;
-            if (IsNotInitialized()) _startupParameters.Zoom = value;
-            else Invoke(() => PhotinoNative.SetZoom(InstanceHandle, value));
-        }
     }
     
     #endregion
-
+    
+    // TODO CONTINUE HERE
     #region FLIENT METHODS
     //FLUENT METHODS FOR INITIALIZING STARTUP PARAMETERS FOR NEW WINDOWS
     //CAN ALSO BE CALLED AFTER INITIALIZATION TO SET VALUES
@@ -1434,7 +1347,7 @@ public partial class PhotinoWindow : IPhotinoWindow
     public IPhotinoWindow SetZoom(int zoom)
     {
         _logger.LogDebug(".SetZoom({Zoom})", zoom);
-        Zoom = zoom;
+        Invoke(() => PhotinoNative.SetZoom(InstanceHandle, zoom));
         return this;
     }
 

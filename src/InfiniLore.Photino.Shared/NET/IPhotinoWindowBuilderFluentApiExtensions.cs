@@ -314,18 +314,24 @@ public static class IPhotinoWindowBuilderFluentApiExtensions
         builder.TopMost = resizable;
         return builder;
     }
-
     
+    /// <summary>
+    ///     Sets UseOsDefaultLocation on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetUseOsDefaultLocation(this IPhotinoWindowBuilder builder, bool useOsDefaultLocation)
+    {
+        builder.UseOsDefaultLocation = useOsDefaultLocation;
+        return builder;
+    }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    /// <summary>
+    ///     Sets UseOsDefaultSize on the browser control at initialization.
+    /// </summary>
+    public static IPhotinoWindowBuilder SetUseOsDefaultSize(this IPhotinoWindowBuilder builder, bool useOsDefaultSize)
+    {
+        builder.UseOsDefaultSize = useOsDefaultSize;
+        return builder;
+    }
     
     
     

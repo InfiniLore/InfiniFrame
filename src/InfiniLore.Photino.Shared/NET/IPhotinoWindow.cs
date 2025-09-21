@@ -19,10 +19,8 @@ public interface IPhotinoWindow : IPhotinoWindowBase
     Point Location { get; }
     Point MaxSize { get; }
     Point MinSize { get; }
+    Size Size { get; }
     IPhotinoWindow? Parent { get; } 
-    bool UseOsDefaultLocation { get; }
-    bool UseOsDefaultSize { get; }
-    EventHandler<string>? WebMessageReceivedHandler { get; }
     int ManagedThreadId { get; }
 
     event EventHandler<Point>? WindowLocationChanged;

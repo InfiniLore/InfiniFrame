@@ -44,6 +44,8 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
     public string? NotificationRegistrationId { get; set; }
     public string? Title { get; set; }
     public bool TopMost { get; set; }
+    public bool UseOsDefaultLocation { get; set; }
+    public bool UseOsDefaultSize { get; set; }
     
     #endregion
       
@@ -93,6 +95,8 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder
             TemporaryFilesPath = TemporaryFilesPath,
             NotificationRegistrationId = NotificationRegistrationId,
             Title = Title,
+            UseOsDefaultLocation = UseOsDefaultLocation,
+            UseOsDefaultSize = UseOsDefaultSize,
         };
         return parameters;
     }

@@ -1,6 +1,7 @@
 ﻿using InfiniLore.Photino.NET;
 using InfiniLore.Photino.NET.Server;
 using System.Drawing;
+using InfiniLore.Photino.NET.Utilities;
 
 namespace Example.InfiniLore.Photino.NetServer.Vue.Fullscreen;
 
@@ -38,7 +39,7 @@ public static class Program
             })
             .RegisterWebMessageReceivedHandler((sender, message) =>
             {
-                if (StandardWebMessageHandlers.TryHandleWebMessage(sender, message)) return;
+                if (FullscreenWebMessageHandler.TryHandleWebMessage(sender, message)) return;
                 if (sender is not PhotinoWindow window) return;
                 var response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);

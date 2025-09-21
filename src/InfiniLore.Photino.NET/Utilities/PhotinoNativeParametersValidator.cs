@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using Microsoft.Extensions.Logging;
 
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.Photino.NET.Utilities;
 
 public static class PhotinoNativeParametersValidator
 {

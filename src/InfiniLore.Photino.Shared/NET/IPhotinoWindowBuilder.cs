@@ -37,6 +37,8 @@ public interface IPhotinoWindowBuilder : IPhotinoWindowBase
     new string? NotificationRegistrationId { get; set; }
     new string? Title { get; set; }
     new bool TopMost { get; set; }
+    bool UseOsDefaultLocation { get; set; }
+    bool UseOsDefaultSize { get; set; }
     
     IPhotinoWindow Build();
     IPhotinoWindow Build(IServiceProvider provider);
