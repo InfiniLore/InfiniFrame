@@ -13,7 +13,7 @@ public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewMana
         builder.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest)
             .SetUseOsDefaultSize(true)
             .SetUseOsDefaultLocation(true)
-            .SetStartUrl("/index.html");
+            .SetStartUrl(PhotinoWebViewManager.AppBaseUri);
 
         AppDomain.CurrentDomain.UnhandledException += (_, error) => {
             provider.GetService<IPhotinoWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
@@ -29,7 +29,7 @@ public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewMana
     public void Run() {
         var window = provider.GetRequiredService<IPhotinoWindow>();
         
-        manager.Navigate(window.StartUrl!);
+        // manager.Navigate(window.StartUrl!);
         window.WaitForClose();
     }
 

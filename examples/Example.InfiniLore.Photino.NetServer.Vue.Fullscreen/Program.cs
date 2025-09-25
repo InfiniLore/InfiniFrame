@@ -40,7 +40,6 @@ public static class Program {
                 window.SendWebMessage(response);
             });
         
-        window.Initialize();
         window.WaitForClose();
         photinoServer.Stop();
     }
