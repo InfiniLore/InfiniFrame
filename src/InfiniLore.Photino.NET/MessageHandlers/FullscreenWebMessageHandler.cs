@@ -1,22 +1,18 @@
-﻿namespace InfiniLore.Photino.NET;
-
-public static class StandardWebMessageHandlers
-{
+﻿namespace InfiniLore.Photino.NET.MessageHandlers;
+public static class FullscreenWebMessageHandler {
     private const string FullscreenEnter = "fullscreen:enter";
     private const string FullscreenExit = "fullscreen:exit";
-    
-    public static bool TryHandleWebMessage(object? sender, string? message)
-    {
+
+    public static bool TryHandleWebMessage(object? sender, string? message) {
         if (sender is not IPhotinoWindow window) return false;
-        switch (message)
-        {
-            case FullscreenEnter:
-            {
+
+        switch (message) {
+            case FullscreenEnter: {
                 window.SetFullScreen(true);
                 return true;
-            }    
-            case FullscreenExit:
-            {
+            }
+
+            case FullscreenExit: {
                 window.SetFullScreen(false);
                 return true;
             }

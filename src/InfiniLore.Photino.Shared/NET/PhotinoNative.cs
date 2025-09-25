@@ -1,10 +1,9 @@
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
-
-public static partial class PhotinoNative
-{
+public static partial class PhotinoNative {
     private const string DllName = "Photino.Native";
 
     // ReSharper disable InconsistentNaming
@@ -70,7 +69,6 @@ public static partial class PhotinoNative
     // ReSharper restore InconsistentNaming
 
     #region Register
-
     // ReSharper disable once UnusedMethodReturnValue.Local
     [LibraryImport(DllName, EntryPoint = Photino_register_win32, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -80,11 +78,9 @@ public static partial class PhotinoNative
     [LibraryImport(DllName, EntryPoint = Photino_register_mac, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial IntPtr RegisterMac();
-
     #endregion
 
     #region CTOR-DTOR
-
     //Not useful to use LibraryImport when passing a user-defined type.
     //See https://stackoverflow.com/questions/77770231/libraryimport-the-type-is-not-supported-by-source-generated-p-invokes
     [DllImport(DllName, EntryPoint = Photino_ctor, CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Ansi)]
@@ -101,11 +97,9 @@ public static partial class PhotinoNative
     [LibraryImport(DllName, EntryPoint = Photino_Close, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void Close(IntPtr instance);
-
     #endregion
 
     #region Get
-
     [LibraryImport(DllName, EntryPoint = Photino_getHwnd_win32, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial IntPtr GetWindowHandlerWin32(IntPtr instance);
@@ -197,24 +191,20 @@ public static partial class PhotinoNative
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void GetZoom(IntPtr instance, out int zoom);
 
-    [DllImport(DllName, EntryPoint= Photino_GetMaximized, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+    [DllImport(DllName, EntryPoint = Photino_GetMaximized, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
     internal static extern void GetMaximized(IntPtr instance, out bool maximized);
 
-    [DllImport(DllName, EntryPoint= Photino_GetMinimized, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+    [DllImport(DllName, EntryPoint = Photino_GetMinimized, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
     internal static extern void GetMinimized(IntPtr instance, out bool minimized);
-
     #endregion
 
     #region MARSHAL CALLS FROM Non-UI Thread to UI Thread
-
     [LibraryImport(DllName, EntryPoint = Photino_Invoke, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void Invoke(IntPtr instance, InvokeCallback callback);
-
     #endregion
 
     #region Navigate
-
     [LibraryImport(DllName, EntryPoint = Photino_NavigateToString, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void NavigateToString(IntPtr instance, string content);
@@ -222,11 +212,9 @@ public static partial class PhotinoNative
     [LibraryImport(DllName, EntryPoint = Photino_NavigateToUrl, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void NavigateToUrl(IntPtr instance, string url);
-
     #endregion
 
     #region Set
-
     [LibraryImport(DllName, EntryPoint = Photino_setWebView2RuntimePath_win32, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void setWebView2RuntimePath_win32(IntPtr instance, string webView2RuntimePath);
@@ -295,11 +283,9 @@ public static partial class PhotinoNative
     [LibraryImport(DllName, EntryPoint = Photino_SetZoom, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void SetZoom(IntPtr instance, int zoom);
-
     #endregion
 
     #region Misc
-
     [LibraryImport(DllName, EntryPoint = Photino_Center, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void Center(IntPtr instance);
@@ -324,11 +310,9 @@ public static partial class PhotinoNative
     [LibraryImport(DllName, EntryPoint = Photino_WaitForExit, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void WaitForExit(IntPtr instance);
-
     #endregion
 
     #region Dialog
-
     [LibraryImport(DllName, EntryPoint = Photino_ShowOpenFile, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial IntPtr ShowOpenFile(IntPtr inst, string title, string defaultPath, [MarshalAs(UnmanagedType.I1)] bool multiSelect, string[] filters, int filtersCount, out int resultCount);
@@ -344,7 +328,33 @@ public static partial class PhotinoNative
     [LibraryImport(DllName, EntryPoint = Photino_ShowMessage, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial PhotinoDialogResult ShowMessage(IntPtr inst, string title, string text, PhotinoDialogButtons buttons, PhotinoDialogIcon icon);
-
     #endregion
 
+    #region Overloads
+    internal static void GetHeight(IntPtr instance, out int height) => GetSize(instance, out _, out height);
+    internal static void GetWidth(IntPtr instance, out int width) => GetSize(instance, out width, out _);
+
+    internal static void GetLeft(IntPtr instance, out int left) => GetPosition(instance, out left, out _);
+    internal static void GetTop(IntPtr instance, out int top) => GetPosition(instance, out _, out top);
+
+    internal static void GetSize(IntPtr instance, out Size size) {
+        GetSize(instance, out int width, out int height);
+        size = new Size(width, height);
+    }
+
+    internal static void GetPosition(IntPtr instance, out Point position) {
+        GetPosition(instance, out int left, out int top);
+        position = new Point(left, top);
+    }
+
+    internal static void GetUserAgent(IntPtr instance, out string? userAgent) {
+        IntPtr ptr = GetUserAgent(instance);
+        userAgent = Marshal.PtrToStringAuto(ptr);
+    }
+
+    internal static void GetTitle(IntPtr instance, out string? title) {
+        IntPtr ptr = GetTitle(instance);
+        title = Marshal.PtrToStringAuto(ptr);
+    }
+    #endregion
 }

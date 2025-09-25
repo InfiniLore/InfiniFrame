@@ -1,10 +1,8 @@
 namespace InfiniLore.Photino;
-
 /// <summary>
 ///     Represents the types of buttons that can be displayed in a Photino-dialog.
 /// </summary>
-public enum PhotinoDialogButtons
-{
+public enum PhotinoDialogButtons {
     /// <summary>
     ///     Represents a dialog with an OK button.
     /// </summary>

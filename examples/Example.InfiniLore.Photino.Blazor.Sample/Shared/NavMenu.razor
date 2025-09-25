@@ -28,16 +28,13 @@
 @code {
     private bool _collapseNavMenu = true;
 
-    private string? NavMenuCssClass
-    {
-        get
-        {
+    private string? NavMenuCssClass {
+        get {
             return _collapseNavMenu ? "collapse" : null;
         }
     }
 
-    private void ToggleNavMenu()
-    {
+    private void ToggleNavMenu() {
         _collapseNavMenu = !_collapseNavMenu;
     }
 }

@@ -12,9 +12,9 @@ using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
 namespace InfiniLore.Photino.Blazor;
+using Microsoft.Extensions.DependencyInjection;
 
-public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager
-{
+public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
 
     // On Windows, we can't use a custom scheme to host the initial HTML,
     // because webview2 won't let you do top-level navigation to such a URL.
@@ -25,51 +25,48 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager
         : "app";
 
     public static readonly string AppBaseUri = $"{BlazorAppScheme}://localhost/";
-    private readonly Channel<string> _channel;
-    private readonly IPhotinoWindow _window;
+    private readonly Channel<string> _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
+    private Lazy<IPhotinoWindow> LazyWindow { get; }
+    private readonly SynchronousTaskScheduler _syncScheduler = new SynchronousTaskScheduler();
 
-    public PhotinoWebViewManager(IPhotinoWindow window, IServiceProvider provider, Dispatcher dispatcher,
-        IFileProvider fileProvider, JSComponentConfigurationStore jsComponents, IOptions<PhotinoBlazorAppConfiguration> config)
-        : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage)
-    {
-        _window = window ?? throw new ArgumentNullException(nameof(window));
-
-        // Create a scheduler that uses one thread.
-        var sts = new SynchronousTaskScheduler();
-
-        _window.WebMessageReceived += (_, message) =>
-        {
+    public PhotinoWebViewManager(
+        IPhotinoWindowBuilder builder,
+        IServiceProvider provider,
+        Dispatcher dispatcher,
+        IFileProvider fileProvider,
+        JSComponentConfigurationStore jsComponents,
+        IOptions<PhotinoBlazorAppConfiguration> config
+    )
+        : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
+        builder.RegisterWebMessageReceivedHandler((_, message) => {
             // On some platforms, we need to move off the browser UI thread
-            Task.Factory.StartNew(m =>
-            {
+            Task.Factory.StartNew(m => {
                 // TODO: Fix this. Photino should ideally tell us the URL that the message comes from so we
                 // know whether to trust it. Currently it's hardcoded to trust messages from any source, including
                 // if the webview is somehow navigated to an external URL.
                 var messageOriginUrl = new Uri(AppBaseUri);
-                
-                MessageReceived(messageOriginUrl, (string)m!);
-            }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, sts);
-        };
 
-        //Create channel and start reader
-        _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
+                MessageReceived(messageOriginUrl, (string)m!);
+            }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, _syncScheduler);
+        });
+        LazyWindow = new Lazy<IPhotinoWindow>(provider.GetRequiredService<IPhotinoWindow>);
+
+        //start reader
         Task.Run(MessagePump);
     }
 
-    public Stream? HandleWebRequest(object? sender, string? schema, string url, out string? contentType)
-    {
+    public Stream? HandleWebRequest(object? sender, string? schema, string url, out string? contentType) {
         // It would be better if we were told whether this is a navigation request, but
         // since we're not, guess.
-        var localPath = new Uri(url).LocalPath;
-        var hasFileExtension = localPath.LastIndexOf('.') > localPath.LastIndexOf('/');
+        string localPath = new Uri(url).LocalPath;
+        bool hasFileExtension = localPath.LastIndexOf('.') > localPath.LastIndexOf('/');
 
         //Remove parameters before attempting to retrieve the file. For example: http://localhost/_content/Blazorise/button.js?v=1.0.7.0
         if (url.Contains('?')) url = url[..url.IndexOf('?')];
 
         if (url.StartsWith(AppBaseUri, StringComparison.Ordinal)
             && TryGetResponseContent(url, !hasFileExtension, out _, out _,
-                                     out var content, out var headers))
-        {
+                                     out Stream content, out IDictionary<string, string> headers)) {
             headers.TryGetValue("Content-Type", out contentType);
             return content;
         }
@@ -77,37 +74,30 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager
         return null;
     }
 
-    protected override void NavigateCore(Uri absoluteUri)
-    {
-        _window.Load(absoluteUri);
+    protected override void NavigateCore(Uri absoluteUri) {
+        LazyWindow.Value.Load(absoluteUri);// TODO handle exceptions
     }
 
-    protected override void SendMessage(string message)
-    {
+    protected override void SendMessage(string message) {
         while (!_channel.Writer.TryWrite(message))
             Thread.Sleep(200);
     }
 
-    private async Task MessagePump()
-    {
-        var reader = _channel.Reader;
-        try
-        {
-            while (true)
-            {
-                var message = await reader.ReadAsync();
-                await _window.SendWebMessageAsync(message);
+    private async Task MessagePump() {
+        ChannelReader<string> reader = _channel.Reader;
+        try {
+            while (true) {
+                string message = await reader.ReadAsync();
+                await LazyWindow.Value.SendWebMessageAsync(message);
             }
         }
         catch (ChannelClosedException) {}
     }
 
-    protected override ValueTask DisposeAsyncCore()
-    {
+    protected override ValueTask DisposeAsyncCore() {
         //complete channel
         try { _channel.Writer.Complete(); }
-        catch
-        {
+        catch {
             // ignored
         }
 

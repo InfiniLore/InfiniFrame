@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.FileProviders;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 
 namespace InfiniLore.Photino.NET.Server;
-
-public class PhotinoServerBuilder
-{
+public class PhotinoServerBuilder {
     public WebApplicationBuilder WebAppBuilder { get; private init; } = null!;
 
     public int Port { get; internal set; } = 8000;
@@ -16,29 +15,24 @@ public class PhotinoServerBuilder
 
     private PhotinoServerBuilder() {}
 
-    public static PhotinoServerBuilder Create(string webRootFolder = "wwwroot", string[]? args = null)
-    {
-        return new PhotinoServerBuilder
-        {
+    public static PhotinoServerBuilder Create(string webRootFolder = "wwwroot", string[]? args = null) {
+        return new PhotinoServerBuilder {
             EmbeddedFileProviderBaseNamespace = webRootFolder,
-            WebAppBuilder = WebApplication.CreateBuilder(new WebApplicationOptions
-            {
+            WebAppBuilder = WebApplication.CreateBuilder(new WebApplicationOptions {
                 Args = args,
                 WebRootPath = webRootFolder
             })
         };
     }
 
-    public PhotinoServer Build()
-    {
+    public PhotinoServer Build() {
         InitializeFileProvider();
         InitializePortAssignment();
         InitializeWebHost();
 
         ArgumentException.ThrowIfNullOrWhiteSpace(BaseUrl);
 
-        var server = new PhotinoServer
-        {
+        var server = new PhotinoServer {
             WebApp = WebAppBuilder.Build(),
             BaseUrl = BaseUrl
         };
@@ -48,14 +42,12 @@ public class PhotinoServerBuilder
         return server;
     }
 
-    private void InitializeFileProvider()
-    {
-        if (Assembly.GetEntryAssembly() is not {} entryAssembly)
-        {
+    private void InitializeFileProvider() {
+        if (Assembly.GetEntryAssembly() is not {} entryAssembly) {
             throw new SystemException("Could not find entry assembly.");
         }
 
-        var physicalFileProvider = WebAppBuilder.Environment.WebRootFileProvider;
+        IFileProvider physicalFileProvider = WebAppBuilder.Environment.WebRootFileProvider;
 
         entryAssembly.GetManifestResourceNames();
 
@@ -67,27 +59,25 @@ public class PhotinoServerBuilder
         WebAppBuilder.Environment.WebRootFileProvider = compositeWebProvider;
     }
 
-    private void InitializePortAssignment()
-    {
+    private void InitializePortAssignment() {
         // Don't do anything if no port range is specified
         if (PortRange < 0) return;
 
-        var listeners = IPGlobalProperties
+        IPEndPoint[] listeners = IPGlobalProperties
             .GetIPGlobalProperties()
             .GetActiveTcpListeners();
 
         // Try ports until an available port is found within the PortRange.
-        for (var newPort = Port; newPort < Port + PortRange; newPort++)
-        {
+        for (int newPort = Port; newPort < Port + PortRange; newPort++) {
             if (listeners.Any(x => x.Port == newPort)) continue;
+
             Port = newPort;
             break;
         }
         if (Port == Port + PortRange) throw new SystemException($"Couldn't find open port within range {Port} - {Port + PortRange}.");
     }
 
-    private void InitializeWebHost()
-    {
+    private void InitializeWebHost() {
         // TODO add https support
         BaseUrl = $"http://localhost:{Port}";
         WebAppBuilder.WebHost.UseUrls(BaseUrl);

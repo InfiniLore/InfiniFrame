@@ -3,43 +3,40 @@ using InfiniLore.Photino.NET.Server;
 using System.Drawing;
 
 namespace Example.InfiniLore.Photino.NetServer.React;
-
-public static class Program
-{
+public static class Program {
     [STAThread]
-    public static void Main(string[] args)
-    {
+    public static void Main(string[] args) {
         var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
         photinoServerBuilder.UsePort(5174, 100);
-        
-        var photinoServer = photinoServerBuilder.Build();
+
+        PhotinoServer photinoServer = photinoServerBuilder.Build();
         photinoServer.Run();
-        
-        var window = photinoServer.GetAttachedWindow()
-            .SetTitle("InfiniLore Photino.NET REACT Sample")
+
+        IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
             .SetUseOsDefaultSize(false)
-            .SetSize(new Size(800, 600))
-            .Center()
             .SetResizable(true)
-            .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) =>
-            {
+            .Center()
+            .SetTitle("InfiniLore Photino.NET REACT Sample")
+            .SetSize(new Size(800, 600))
+            .RegisterCustomSchemeHandler("app", handler: (object _, string _, string _, out string? contentType) => {
                 contentType = "text/javascript";
-                return new MemoryStream("""
-                                        (() =>{
-                                            window.setTimeout(() => {
-                                                alert(`🎉 Dynamically inserted JavaScript.`);
-                                            }, 1000);
-                                        })();
-                                        """u8.ToArray());
+                return new MemoryStream(
+                    """
+                        (() =>{
+                            window.setTimeout(() => {
+                                alert(`🎉 Dynamically inserted JavaScript.`);
+                            }, 1000);
+                        })();
+                        """u8.ToArray());
             })
-            .RegisterWebMessageReceivedHandler((sender, message) =>
-            {
+            .RegisterWebMessageReceivedHandler((sender, message) => {
                 var window = (PhotinoWindow)sender!;
-                var response = $"Received message: \"{message}\"";
+                string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
         
-        window.WaitForClose();
+        IPhotinoWindow window = windowBuilder.Build();
         
+        window.WaitForClose();
     }
 }

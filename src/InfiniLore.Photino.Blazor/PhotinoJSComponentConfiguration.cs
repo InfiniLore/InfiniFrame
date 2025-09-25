@@ -6,12 +6,10 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace InfiniLore.Photino.Blazor;
-
 /// <summary>
 ///     Configures root components for a <see cref="PhotinoJSComponentConfiguration" />.
 /// </summary>
-public sealed class PhotinoJSComponentConfiguration(IPhotinoWebViewManager manager, JSComponentConfigurationStore jsComponents) : IPhotinoJSComponentConfiguration
-{
+public sealed class PhotinoJSComponentConfiguration(IPhotinoWebViewManager manager, JSComponentConfigurationStore jsComponents) : IPhotinoJSComponentConfiguration {
     public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
 
     /// <summary>
@@ -20,13 +18,12 @@ public sealed class PhotinoJSComponentConfiguration(IPhotinoWebViewManager manag
     /// <param name="typeComponent">The component type.</param>
     /// <param name="selector">A CSS selector describing where the component should be added in the host page.</param>
     /// <param name="parameters">An optional dictionary of parameters to pass to the component.</param>
-    public void Add(Type typeComponent, string selector, IDictionary<string, object?>? parameters = null)
-    {
-        var parameterView = parameters is null
+    public void Add(Type typeComponent, string selector, IDictionary<string, object?>? parameters = null) {
+        ParameterView parameterView = parameters is null
             ? ParameterView.Empty
             : ParameterView.FromDictionary(parameters);
 
         // Dispatch because this is going to be async, and we want to catch any errors
-        _ = manager.Dispatcher.InvokeAsync( () => manager.AddRootComponentAsync(typeComponent, selector, parameterView));
+        _ = manager.Dispatcher.InvokeAsync(() => manager.AddRootComponentAsync(typeComponent, selector, parameterView));
     }
 }

@@ -1,47 +1,38 @@
 using InfiniLore.Photino.Blazor.Contracts;
 using InfiniLore.Photino.NET;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniLore.Photino.Blazor;
+using Microsoft.Extensions.Options;
 
-public class PhotinoBlazorApp(IServiceProvider services, IPhotinoWindow window, IPhotinoWebViewManager manager, IPhotinoJSComponentConfiguration? rootComponents = null)
-{
-    /// <summary>
-    ///     Gets configuration for the service provider.
-    /// </summary>
-    public IServiceProvider Services { get; } = services;
+public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewManager manager, IServiceProvider provider, IOptions<PhotinoBlazorAppConfiguration> config, IPhotinoJSComponentConfiguration? rootComponentConfiguration = null) {
+    public IPhotinoWindowBuilder WindowBuilder => builder;
+    public IServiceProvider Provider => provider;
+    
+    internal void Initialize(RootComponentList rootComponents) {
+        builder
+            .RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest)
+            .SetUseOsDefaultSize(true)
+            .SetUseOsDefaultLocation(true)
+            .SetStartUrl(PhotinoWebViewManager.AppBaseUri);
 
-    /// <summary>
-    ///     Gets configuration for the root components in the window.
-    /// </summary>
-    public IPhotinoJSComponentConfiguration? RootComponents { get; } = rootComponents;
+        AppDomain.CurrentDomain.UnhandledException += (_, error) => {
+            provider.GetService<IPhotinoWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+        };
 
-    public IPhotinoWindow MainWindow { get; } = window;
+        if (rootComponentConfiguration is null) return;
 
-    public IPhotinoWebViewManager WindowManager { get; } = manager;
-
-    internal void Initialize(RootComponentList rootComponents)
-    {
-       MainWindow.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest);
-
-        if (RootComponents is null) return;
-        foreach (var component in rootComponents) {
-            RootComponents.Add(component.Item1, component.Item2);
+        foreach ((Type, string) component in rootComponents) {
+            rootComponentConfiguration.Add(component.Item1, component.Item2);
         }
     }
 
-    public void Run()
-    {
-        if (string.IsNullOrWhiteSpace(MainWindow.StartUrl)) MainWindow.StartUrl = "/";
-
-        WindowManager.Navigate(MainWindow.StartUrl);
-        MainWindow.WaitForClose();
+    public void Run() {
+        var window = provider.GetRequiredService<IPhotinoWindow>();
+        
+        window.WaitForClose();
     }
 
-    public Stream? HandleWebRequest(object? sender, string? scheme, string? url, out string? contentType)
-    {
-        contentType = null;
-        return !string.IsNullOrWhiteSpace(url) 
-            ? WindowManager.HandleWebRequest(sender, scheme, url, out contentType) 
-            : null;
-    }
+    public Stream? HandleWebRequest(object sender, string scheme, string url, out string? contentType)
+        => manager.HandleWebRequest(sender, scheme, url, out contentType);
 }

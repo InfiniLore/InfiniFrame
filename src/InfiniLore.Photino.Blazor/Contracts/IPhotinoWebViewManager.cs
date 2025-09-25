@@ -5,14 +5,12 @@ using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniLore.Photino.Blazor.Contracts;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPhotinoWebViewManager
-{
+public interface IPhotinoWebViewManager {
     Dispatcher Dispatcher { get; }
-    
+
     void Navigate([StringSyntax(StringSyntaxAttribute.Uri)] string url);
     Task AddRootComponentAsync(Type componentType, string selector, ParameterView parameters);
     Task RemoveRootComponentAsync(string selector);

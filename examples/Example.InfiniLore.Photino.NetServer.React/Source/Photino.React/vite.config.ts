@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import { fileURLToPath, URL } from 'node:url'
+import {defineConfig} from 'vite'
+import {fileURLToPath, URL} from 'node:url'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
@@ -14,7 +14,7 @@ export default defineConfig({
         port: 7626,
         host: true,
     },
-    build : {
+    build: {
         outDir: '../../wwwroot',
         emptyOutDir: true,
     }

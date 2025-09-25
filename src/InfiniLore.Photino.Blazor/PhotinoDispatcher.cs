@@ -4,24 +4,19 @@
 using Microsoft.AspNetCore.Components;
 
 namespace InfiniLore.Photino.Blazor;
-
-class PhotinoDispatcher : Dispatcher
-{
+class PhotinoDispatcher : Dispatcher {
     private readonly PhotinoSynchronizationContext _context;
 
-    public PhotinoDispatcher(PhotinoSynchronizationContext context)
-    {
+    public PhotinoDispatcher(PhotinoSynchronizationContext context) {
         _context = context;
         _context.UnhandledException += (_, e) => OnUnhandledException(e);
     }
 
-    public override bool CheckAccess()
-    {
+    public override bool CheckAccess() {
         return SynchronizationContext.Current == _context;
     }
 
-    public override Task InvokeAsync(Action workItem)
-    {
+    public override Task InvokeAsync(Action workItem) {
         if (!CheckAccess()) return _context.InvokeAsync(workItem);
 
         workItem();

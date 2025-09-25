@@ -1,10 +1,8 @@
 namespace InfiniLore.Photino;
-
 /// <summary>
 ///     Represents the icons that can be used in a Photino dialog.
 /// </summary>
-public enum PhotinoDialogIcon
-{
+public enum PhotinoDialogIcon {
     /// <summary>
     ///     An information icon.
     /// </summary>

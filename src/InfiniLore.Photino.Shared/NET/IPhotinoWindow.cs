@@ -1,104 +1,34 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Immutable;
 using System.Drawing;
 
 namespace InfiniLore.Photino.NET;
+using Microsoft.Extensions.Logging;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPhotinoWindow
-{
+public interface IPhotinoWindow : IPhotinoWindowBase {
+    internal ILogger<IPhotinoWindow> Logger { get; }
+    IPhotinoWindowEvents Events { get; }
+    
+    IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
-    IReadOnlyList<Monitor> Monitors { get; }
+    ImmutableArray<Monitor> Monitors { get; }
     Monitor MainMonitor { get; }
     uint ScreenDpi { get; }
     Guid Id { get; }
-    bool Centered { get; }
-    bool Chromeless { get; }
-    bool Transparent { get; }
-    bool ContextMenuEnabled { get; }
-    bool DevToolsEnabled { get; }
-    bool MediaAutoplayEnabled { get; }
-    string UserAgent { get; }
-    bool FileSystemAccessEnabled { get; }
-    bool WebSecurityEnabled { get; }
-    bool JavascriptClipboardAccessEnabled { get; }
-    bool MediaStreamEnabled { get; }
-    bool SmoothScrollingEnabled { get; }
-    bool IgnoreCertificateErrorsEnabled { get; }
-    bool NotificationsEnabled { get; }
-    bool FullScreen { get; }
-    bool GrantBrowserPermissions { get; }
-    int Height { get; }
-    string? IconFile { get; }
     Point Location { get; }
-    int Left { get; }
-    bool Maximized { get; }
     Point MaxSize { get; }
-    int MaxHeight { get; }
-    int MaxWidth { get; }
-    bool Minimized { get; }
     Point MinSize { get; }
-    int MinHeight { get; }
-    int MinWidth { get; }
-    IPhotinoWindow? Parent { get; } 
-    bool Resizable { get; }
     Size Size { get; }
-    string BrowserControlInitParameters { get; }
-    string StartString { get; }
-    string StartUrl { get; set; }
-    string? TemporaryFilesPath { get; }
-    string NotificationRegistrationId { get; }
-    string? Title { get; }
-    int Top { get; }
-    bool Topmost { get; }
-    bool UseOsDefaultLocation { get; }
-    bool UseOsDefaultSize { get; }
-    EventHandler<string>? WebMessageReceivedHandler { get; }
-    int Width { get; }
+    IPhotinoWindow? Parent { get; }
     int ManagedThreadId { get; }
+    Rectangle CachedPreFullScreenBounds { get; internal set; }
 
-    event EventHandler<Point>? WindowLocationChanged;
-    event EventHandler<Size>? WindowSizeChanged;
-    event EventHandler? WindowFocusIn;
-    event EventHandler? WindowMaximized;
-    event EventHandler? WindowRestored;
-    event EventHandler? WindowFocusOut;
-    event EventHandler? WindowMinimized;
-    event EventHandler<string>? WebMessageReceived;
-    event NetClosingDelegate? WindowClosing;
-    event EventHandler? WindowCreating;
-    event EventHandler? WindowCreated;
-    
-    int Zoom { get; }
-    IPhotinoWindow Invoke(Action workItem);
-    IPhotinoWindow Load(Uri uri);
-    IPhotinoWindow Load(string path);
-    IPhotinoWindow LoadRawString(string content);
-    IPhotinoWindow Center();
-    IPhotinoWindow MoveTo(Point location, bool allowOutsideWorkArea = false);
-    IPhotinoWindow MoveTo(int left, int top, bool allowOutsideWorkArea = false);
-    IPhotinoWindow Offset(Point offset);
-    IPhotinoWindow Offset(int left, int top);
-    IPhotinoWindow SetChromeless(bool chromeless);
-    IPhotinoWindow SetTransparent(bool enabled);
-    IPhotinoWindow SetContextMenuEnabled(bool enabled);
-    IPhotinoWindow SetDevToolsEnabled(bool enabled);
-    IPhotinoWindow SetFullScreen(bool fullScreen);
-    IPhotinoWindow SetGrantBrowserPermissions(bool grant);
-    IPhotinoWindow SetUserAgent(string userAgent);
-    IPhotinoWindow SetBrowserControlInitParameters(string parameters);
-    IPhotinoWindow SetNotificationRegistrationId(string notificationRegistrationId);
-    IPhotinoWindow SetMediaAutoplayEnabled(bool enable);
-    IPhotinoWindow SetFileSystemAccessEnabled(bool enable);
-    IPhotinoWindow SetWebSecurityEnabled(bool enable);
-    IPhotinoWindow SetJavascriptClipboardAccessEnabled(bool enable);
-    IPhotinoWindow SetMediaStreamEnabled(bool enable);
-    IPhotinoWindow SetSmoothScrollingEnabled(bool enable);
-    IPhotinoWindow SetIgnoreCertificateErrorsEnabled(bool enable);
-    IPhotinoWindow SetNotificationsEnabled(bool enable);
-    IPhotinoWindow SetHeight(int height);
+    void Invoke(Action workItem);
     IPhotinoWindow SetIconFile(string iconFile);
     IPhotinoWindow SetLeft(int left);
     IPhotinoWindow SetResizable(bool resizable);
@@ -113,16 +43,14 @@ public interface IPhotinoWindow
     IPhotinoWindow SetMinSize(int minWidth, int minHeight);
     IPhotinoWindow SetMinHeight(int minHeight);
     IPhotinoWindow SetMinWidth(int minWidth);
-    IPhotinoWindow SetTemporaryFilesPath(string tempFilesPath);
-    IPhotinoWindow SetTitle(string title);
+    IPhotinoWindow SetTitle(string? title);
     IPhotinoWindow SetTop(int top);
     IPhotinoWindow SetTopMost(bool topMost);
     IPhotinoWindow SetWidth(int width);
     IPhotinoWindow SetZoom(int zoom);
-    IPhotinoWindow SetUseOsDefaultLocation(bool useOsDefault);
-    IPhotinoWindow SetUseOsDefaultSize(bool useOsDefault);
     IPhotinoWindow Win32SetWebView2Path(string data);
     IPhotinoWindow ClearBrowserAutoFill();
+
     void WaitForClose();
     void Close();
     void SendWebMessage(string message);

@@ -1,42 +1,36 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
-
+// These are the parameter names that are passed to Photino.Native.
+// DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-struct PhotinoNativeParameters
-{
+public struct PhotinoNativeParameters {
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
     ///     initialized. Default is none.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string StartString;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? StartString;
 
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will navigate to this URL when initialized.
     ///     Default is none.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string StartUrl;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? StartUrl;
 
     ///<summary>OPTIONAL: Appears on the title bar of the native window. Default is none.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string Title;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? Title;
 
     /// <summary>
     ///     WINDOWS AND LINUX ONLY: OPTIONAL: Path to a local file or a URL. Icon appears on the title bar of the native
     ///     window (if supported). Default is none.
     /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string WindowIconFile;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? WindowIconFile;
 
     ///<summary>WINDOWS: OPTIONAL: Path to store temp files for browser control. Defaults is user's AppDataLocal folder.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string? TemporaryFilesPath;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? TemporaryFilesPath;
 
     ///<summary>OPTIONAL: Changes the user agent on the browser control at initialiation.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string UserAgent;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? UserAgent;
 
     /// <summary>
     ///     OPTIONAL:
@@ -51,13 +45,10 @@ struct PhotinoNativeParameters
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string BrowserControlInitParameters;
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? BrowserControlInitParameters;
 
     ///<summary>WINDOWS: OPTIONAL: Registers the application for toast notifications. If not provided, uses Window Title.</summary>
-    [MarshalAs(UnmanagedType.LPUTF8Str)]
-    internal string NotificationRegistrationId;
-
+    [MarshalAs(UnmanagedType.LPUTF8Str)] internal string? NotificationRegistrationId;
 
     /// <summary>
     ///     OPTIONAL: If native window is created from another native windowm this is the pointer to the parent window. It
@@ -93,14 +84,10 @@ struct PhotinoNativeParameters
     [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebMessageReceivedDelegate WebMessageReceivedHandler;
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
-    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPStr, SizeConst = 16)]
-    // ReSharper disable once CollectionNeverQueried.Global
-    internal string[] CustomSchemeNames;
-
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPStr, SizeConst = 16)] internal string[] CustomSchemeNames;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebResourceRequestedDelegate CustomSchemeHandler;
-
 
     ///<summary>OPTIONAL: Initial window position in pixels. Default is 0. Can be overridden with UseOsDefaultLocation.</summary>
     [MarshalAs(UnmanagedType.I4)] internal int Left;
@@ -128,8 +115,6 @@ struct PhotinoNativeParameters
 
     ///<summary>OPTIONAL: Initial maximum window height in pixels.</summary>
     [MarshalAs(UnmanagedType.I4)] internal int MaxHeight;
-
-
 
     /// <summary>
     ///     OPTIONAL: If true, native window appears in centered on screen. Left and Top properties are ignored. Default
@@ -230,73 +215,9 @@ struct PhotinoNativeParameters
     /// </summary>
     [MarshalAs(UnmanagedType.I1)] internal bool NotificationsEnabled;
 
-
     /// <summary>
     ///     Set when GetParamErrors() is called, prior to initializing the native window. It is a check to make sure the
     ///     struct matches what C++ is expecting.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)] internal int Size;
-
-    /// <summary>
-    ///     Parameters sent to Photino.Native to start a new instance of a Photino.Native window.
-    /// </summary>
-    public static PhotinoNativeParameters Default => new PhotinoNativeParameters
-    {
-        Resizable = true,//These values can't be initialized within the struct itself. Set required defaults.
-        ContextMenuEnabled = true,
-        CustomSchemeNames = new string[16],
-        DevToolsEnabled = true,
-        GrantBrowserPermissions = true,
-        UserAgent = "Photino WebView",
-        MediaAutoplayEnabled = true,
-        FileSystemAccessEnabled = true,
-        WebSecurityEnabled = true,
-        JavascriptClipboardAccessEnabled = true,
-        MediaStreamEnabled = true,
-        SmoothScrollingEnabled = true,
-        IgnoreCertificateErrorsEnabled = false,
-        NotificationsEnabled = true,
-        TemporaryFilesPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Photino")
-            : null,
-        Title = "Photino",
-        UseOsDefaultLocation = true,
-        UseOsDefaultSize = true,
-        Zoom = 100,
-        MaxHeight = int.MaxValue,
-        MaxWidth = int.MaxValue
-    };
-
-    /// <summary>
-    ///     Checks the parameters to ensure they are valid before window creation. Called by PhotinoWindow prior to
-    ///     initializing native window.
-    /// </summary>
-    /// <returns>List of error strings</returns>
-    internal List<string> GetParamErrors()
-    {
-        var response = new List<string>();
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var startUrl = StartUrl;
-        var startString = StartString;
-        var windowIconFile = WindowIconFile;
-
-        if (string.IsNullOrWhiteSpace(startUrl) && string.IsNullOrWhiteSpace(startString))
-            response.Add("An initial URL or HTML string must be supplied in StartUrl or StartString for the browser control to naviage to.");
-
-        if (Maximized && Minimized)
-            response.Add("Window cannot be both maximized and minimized on startup.");
-
-        if (FullScreen && (Maximized || Minimized))
-            response.Add("FullScreen cannot be combined with Maximized or Minimized");
-
-        if (!string.IsNullOrWhiteSpace(windowIconFile) && !File.Exists(windowIconFile))
-            response.Add($"WindowIconFile: {windowIconFile} cannot be found");
-
-        if (isWindows && Chromeless && (UseOsDefaultLocation || UseOsDefaultSize))
-            response.Add("Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize on Windows. Size and location must be specified.");
-
-        Size = Marshal.SizeOf<PhotinoNativeParameters>();
-
-        return response;
-    }
 }

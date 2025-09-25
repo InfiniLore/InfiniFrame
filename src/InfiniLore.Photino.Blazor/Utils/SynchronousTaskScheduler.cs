@@ -1,24 +1,18 @@
 ﻿namespace InfiniLore.Photino.Blazor.Utils;
-
-class SynchronousTaskScheduler : TaskScheduler
-{
-    public override int MaximumConcurrencyLevel
-    {
+class SynchronousTaskScheduler : TaskScheduler {
+    public override int MaximumConcurrencyLevel {
         get { return 1; }
     }
 
-    protected override void QueueTask(Task task)
-    {
+    protected override void QueueTask(Task task) {
         TryExecuteTask(task);
     }
 
-    protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued)
-    {
+    protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) {
         return TryExecuteTask(task);
     }
 
-    protected override IEnumerable<Task> GetScheduledTasks()
-    {
+    protected override IEnumerable<Task> GetScheduledTasks() {
         return Enumerable.Empty<Task>();
     }
 }
