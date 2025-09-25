@@ -21,20 +21,7 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
         var config = provider.GetService<IConfiguration>();
         var photinoConfiguration = config?.Get<IPhotinoConfiguration>();
         
-        PhotinoNativeParameters startupParameters = photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
-        
-        //These are for the callbacks from C++ to C#.
-        startupParameters.ClosingHandler = Events.OnWindowClosing;
-        startupParameters.ResizedHandler = Events.OnSizeChanged;
-        startupParameters.MaximizedHandler = Events.OnMaximized;
-        startupParameters.RestoredHandler = Events.OnRestored;
-        startupParameters.MinimizedHandler = Events.OnMinimized;
-        startupParameters.MovedHandler = Events.OnLocationChanged;
-        startupParameters.FocusInHandler = Events.OnFocusIn;
-        startupParameters.FocusOutHandler = Events.OnFocusOut;
-        startupParameters.WebMessageReceivedHandler = Events.OnWebMessageReceived;
-
-        return startupParameters;
+        return photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
     }
 
     private ILogger<PhotinoWindow> GetDefaultLogger() {
@@ -51,7 +38,17 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     public IPhotinoWindow Build(IServiceProvider? provider = null) {
         var window = new PhotinoWindow(CustomSchemeHandlers, provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
         
+        //These are for the callbacks from C++ to C#.
         PhotinoNativeParameters startupParameters = GetParameters(provider);
+        startupParameters.ClosingHandler = Events.OnWindowClosing;
+        startupParameters.ResizedHandler = Events.OnSizeChanged;
+        startupParameters.MaximizedHandler = Events.OnMaximized;
+        startupParameters.RestoredHandler = Events.OnRestored;
+        startupParameters.MinimizedHandler = Events.OnMinimized;
+        startupParameters.MovedHandler = Events.OnLocationChanged;
+        startupParameters.FocusInHandler = Events.OnFocusIn;
+        startupParameters.FocusOutHandler = Events.OnFocusOut;
+        startupParameters.WebMessageReceivedHandler = Events.OnWebMessageReceived;
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
         window.StartupParameters = startupParameters;
         

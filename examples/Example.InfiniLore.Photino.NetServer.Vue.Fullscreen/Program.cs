@@ -30,9 +30,9 @@ public static class Program {
                         """u8.ToArray()
                 );
             })
+            .RegisterWebMessageReceivedHandler(FullscreenWebMessageHandler.HandleWebMessage)
             .RegisterWebMessageReceivedHandler((sender, message) => {
-                if (FullscreenWebMessageHandler.TryHandleWebMessage(sender, message)) return;
-                if (sender is not PhotinoWindow window) return;
+                if (sender is not IPhotinoWindow window) return;
 
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
