@@ -193,7 +193,8 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     ///     By default, this is set to false.
     /// </summary>
     public bool FullScreen => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetFullScreen);
-    private Rectangle _preFullscreenArea;
+    
+    public Rectangle CachedPreFullScreenBounds { get; set; }
 
     /// <summary>
     ///     Gets whether the native browser control grants all requests for access to local resources
@@ -377,11 +378,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     #endregion
 
     // TODO CONTINUE HERE
-    #region FLIENT METHODS
-    //FLUENT METHODS FOR INITIALIZING STARTUP PARAMETERS FOR NEW WINDOWS
-    //CAN ALSO BE CALLED AFTER INITIALIZATION TO SET VALUES
-    //ONE OF THESE 3 METHODS *MUST* BE CALLED PRIOR TO CALLING WATERCOLORIST() OR CREATECHILDWINDOW()
-
+    #region FLUENT METHODS
     /// <summary>
     ///     Dispatches an Action to the UI thread if called from another thread.
     /// </summary>
@@ -395,190 +392,6 @@ public sealed class PhotinoWindow : IPhotinoWindow {
             workItem();
         else
             PhotinoNative.Invoke(InstanceHandle, workItem.Invoke);
-    }
-
-    /// <summary>
-    ///     Moves the native window relative to its current location on the screen
-    ///     using a <see cref="Point" />.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="offset">Relative offset</param>
-    public IPhotinoWindow Offset(Point offset) {
-        _logger.LogDebug(".Offset({offset})", offset);
-        Point location = Location;
-        int left = location.X + offset.X;
-        int top = location.Y + offset.Y;
-        return MoveTo(left, top);
-    }
-
-    /// <summary>
-    ///     Moves the native window relative to its current location on the screen in pixels
-    ///     using <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> (Y) properties.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="left">Relative offset from left in pixels</param>
-    /// <param name="top">Relative offset from top in pixels</param>
-    public IPhotinoWindow Offset(int left, int top) {
-        _logger.LogDebug(".Offset({left}, {top})", left, top);
-        return Offset(new Point(left, top));
-    }
-
-    /// <summary>
-    ///     When true, the native window will appear without a title bar or border.
-    ///     By default, this is set to false.
-    /// </summary>
-    /// <remarks>
-    ///     The user has to supply titlebar, border, dragging and resizing manually.
-    /// </remarks>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="chromeless">Whether the window should be chromeless</param>
-    public IPhotinoWindow SetChromeless(bool chromeless) {
-        _logger.LogDebug(".SetChromeless({chromeless})", chromeless);
-        if (InstanceHandle != IntPtr.Zero)
-            throw new ApplicationException("Chromeless can only be set before the native window is instantiated.");
-
-        _startupParameters.Chromeless = chromeless;
-        return this;
-    }
-
-    /// <summary>
-    ///     When true, the native window can be displayed with a transparent background.
-    ///     Chromeless must be set to true. HTML document's body background must have alpha-based value.
-    ///     By default, this is set to false.
-    /// </summary>
-    public IPhotinoWindow SetTransparent(bool enabled) {
-        _logger.LogDebug(".SetTransparent({Enabled})", enabled);
-
-        if (PlatformUtilities.IsWindowsPlatform) {
-            _logger.LogWarning("Transparent can only be set on Windows before the native window is instantiated.");
-            return this;
-        }
-
-        _logger.LogDebug("Invoking PhotinoNative.SetTransparentEnabled({value})", enabled);
-        Invoke(() => PhotinoNative.SetTransparentEnabled(InstanceHandle, enabled));
-        return this;
-    }
-
-    /// <summary>
-    ///     When true, the user can access the browser control's context menu.
-    ///     By default, this is set to true.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="enabled">Whether the context menu should be available</param>
-    public IPhotinoWindow SetContextMenuEnabled(bool enabled) {
-        _logger.LogDebug(".SetContextMenuEnabled({Enabled})", enabled);
-
-        Invoke(() => {
-            PhotinoNative.GetContextMenuEnabled(InstanceHandle, out bool isEnabled);
-            if (isEnabled == enabled) return;
-
-            PhotinoNative.SetContextMenuEnabled(InstanceHandle, enabled);
-        });
-
-        return this;
-    }
-
-    /// <summary>
-    ///     When true, the user can access the browser control's developer tools.
-    ///     By default, this is set to true.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="enabled">Whether developer tools should be available</param>
-    public IPhotinoWindow SetDevToolsEnabled(bool enabled) {
-        _logger.LogDebug(".SetDevTools({Enabled})", enabled);
-
-        Invoke(() => {
-            PhotinoNative.GetDevToolsEnabled(InstanceHandle, out bool isEnabled);
-            if (isEnabled == enabled) return;
-
-            PhotinoNative.SetDevToolsEnabled(InstanceHandle, enabled);
-        });
-
-        return this;
-    }
-
-    /// <summary>
-    ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.
-    ///     By default, this is set to false.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="fullScreen">Whether the window should be fullscreen</param>
-    public IPhotinoWindow SetFullScreen(bool fullScreen) {
-        _logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
-
-        if (FullScreen == fullScreen) {
-            _logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
-            return this;
-        }
-
-        if (fullScreen) {
-            Invoke(() => {
-                ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(InstanceHandle);
-                PhotinoNative.GetPosition(InstanceHandle, out int left, out int top);
-                PhotinoNative.GetSize(InstanceHandle, out int width, out int height);
-
-                _preFullscreenArea = new Rectangle(left, top, width, height);
-
-                Rectangle currentMonitorArea = default;
-                foreach (Monitor monitor in monitors) {
-                    if (!monitor.MonitorArea.IntersectsWith(_preFullscreenArea)) continue;
-
-                    currentMonitorArea = monitor.MonitorArea;
-                    break;
-                }
-
-                if (currentMonitorArea == default) {
-                    PhotinoNative.SetFullScreen(InstanceHandle, true);
-                    return;
-                }
-
-                PhotinoNative.SetFullScreen(InstanceHandle, true);
-                PhotinoNative.SetPosition(InstanceHandle, currentMonitorArea.X, currentMonitorArea.Y);
-                PhotinoNative.SetSize(InstanceHandle, currentMonitorArea.Width, currentMonitorArea.Height);
-            });
-
-            return this;
-        }
-
-        // Set Fullscreen to false => Restore to previous state
-        Invoke(() => {
-            PhotinoNative.SetFullScreen(InstanceHandle, false);
-            PhotinoNative.SetPosition(InstanceHandle, _preFullscreenArea.X, _preFullscreenArea.Y);
-            PhotinoNative.SetSize(InstanceHandle, _preFullscreenArea.Width, _preFullscreenArea.Height);
-        });
-
-        return this;
-    }
-
-    /// <summary>
-    ///     Sets the native window <see cref="IPhotinoWindow.Height" /> in pixels.
-    ///     Default is 0.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="height">Height in pixels</param>
-    public IPhotinoWindow SetHeight(int height) {
-        _logger.LogDebug(".SetHeight({Height})", height);
-
-        Invoke(() => {
-            PhotinoNative.GetSize(InstanceHandle, out int width, out _);
-            PhotinoNative.SetSize(InstanceHandle, width, height);
-        });
-
-        return this;
     }
 
     /// <summary>
@@ -925,7 +738,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
 
         if (PhotinoNativeParametersValidator.Validate(_startupParameters, _logger)) {
             OnWindowCreating();
-            try//All C++ exceptions will bubble up to here.
+            try //All C++ exceptions will bubble up to here.
             {
                 _nativeType = NativeLibrary.GetMainProgramHandle();
 

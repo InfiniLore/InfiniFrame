@@ -25,6 +25,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     Size Size { get; }
     IPhotinoWindow? Parent { get; }
     int ManagedThreadId { get; }
+    Rectangle CachedPreFullScreenBounds { get; internal set; }
 
     event EventHandler<Point>? WindowLocationChanged;
     event EventHandler<Size>? WindowSizeChanged;

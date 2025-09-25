@@ -321,6 +321,16 @@ public static class IPhotinoWindowBuilderExtensions {
         builder.Configuration.StartString = startString;
         return builder;
     }
+
+    public static T SetChromeless<T>(this T builder, bool chromeless) where T : IPhotinoWindowBuilder {
+        builder.Configuration.Chromeless = chromeless;
+        return builder;
+    }
+
+    public static T SetTransparent<T>(this T builder, bool transparent) where T : IPhotinoWindowBuilder {
+        builder.Configuration.Transparent = transparent;
+        return builder;
+    }
     
     /// <summary>
     ///     Sets SetCentered on the browser control at initialization.

@@ -18,15 +18,13 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
         
         var config = provider.GetService<IConfiguration>();
         var photinoConfiguration = config?.Get<IPhotinoConfiguration>();
-        if (photinoConfiguration is not null) return photinoConfiguration.ToParameters();
-
-        return Configuration.ToParameters();
+        return photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
     }
 
     private ILogger<PhotinoWindow> GetDefaultLogger() {
         if (!UseDefaultLogger)
             return LoggerFactory.Create(config => {
-                config.ClearProviders();// Remove default console logger
+                config.ClearProviders(); // Remove default console logger
             }).CreateLogger<PhotinoWindow>();
 
         return LoggerFactory.Create(config => {
