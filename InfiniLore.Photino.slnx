@@ -19,7 +19,6 @@
   </Folder>
   <Folder Name="/example/">
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.MultiWindowSample\Example.InfiniLore.Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.Blazor.NativeAOT\Example.InfiniLore.Photino.Blazor.NativeAOT.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.Sample\Example.InfiniLore.Photino.Blazor.Sample.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.NetServer.React\Example.InfiniLore.Photino.NetServer.React.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.NetServer.Vue.Fullscreen\Example.InfiniLore.Photino.NetServer.Vue.Fullscreen.csproj" Type="Classic C#" />

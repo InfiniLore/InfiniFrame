@@ -14,7 +14,6 @@ public class PhotinoBlazorAppBuilder {
     public static PhotinoBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IPhotinoWindowBuilder>? windowBuilder = null) {
         // We don't use the args for anything right now, but we want to accept them
         // here so that it shows up this way in the project templates.
-        // var jsRuntime = DefaultWebAssemblyJSRuntime.Instance;
         var appBuilder = new PhotinoBlazorAppBuilder();
         appBuilder.Services.AddPhotinoBlazorDesktop(fileProvider: fileProvider, windowBuilder: windowBuilder);
 

@@ -2,9 +2,7 @@ using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniLore.Photino.Blazor;
-using Microsoft.Extensions.Options;
-
-public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewManager manager, IServiceProvider provider, IOptions<PhotinoBlazorAppConfiguration> config, IPhotinoJsComponentConfiguration? rootComponentConfiguration = null) {
+public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewManager manager, IServiceProvider provider, IPhotinoJsComponentConfiguration? rootComponentConfiguration = null) {
     public IPhotinoWindowBuilder WindowBuilder => builder;
     public IServiceProvider Provider => provider;
     
@@ -32,6 +30,6 @@ public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewMana
         window.WaitForClose();
     }
 
-    public Stream? HandleWebRequest(object sender, string scheme, string url, out string? contentType)
+    public Stream? HandleWebRequest(object? sender, string? scheme, string? url, out string? contentType)
         => manager.HandleWebRequest(sender, scheme, url, out contentType);
 }
