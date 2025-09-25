@@ -49,9 +49,17 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     }
     
     public IPhotinoWindow Build(IServiceProvider? provider = null) {
+        var window = new PhotinoWindow(CustomSchemeHandlers, provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
+        
         PhotinoNativeParameters startupParameters = GetParameters(provider);
-        var window = new PhotinoWindow(startupParameters, CustomSchemeHandlers, provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
+        window.StartupParameters = startupParameters;
+        
+        window.MaxHeight = startupParameters.MaxHeight;
+        window.MaxWidth = startupParameters.MaxWidth;
+        window.MinHeight = startupParameters.MinHeight;
+        window.MinWidth = startupParameters.MinWidth;
+        
         window.Events = Events.DefineSender(window);
         window.Initialize();
         return window;

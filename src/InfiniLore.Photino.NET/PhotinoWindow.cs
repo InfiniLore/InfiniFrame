@@ -1,29 +1,32 @@
 using InfiniLore.Photino.NET.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
-using System.Diagnostics;
-
-public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary<string, NetCustomSchemeDelegate?> customSchemes, ILogger<PhotinoWindow> logger, PhotinoWindow? parent = null) : IPhotinoWindow {
+public sealed class PhotinoWindow(
+    Dictionary<string, NetCustomSchemeDelegate?> customSchemes,
+    ILogger<PhotinoWindow> logger,
+    PhotinoWindow? parent = null
+) : IPhotinoWindow {
+    
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new Lazy<IntPtr>(NativeLibrary.GetMainProgramHandle);
     public static IntPtr NativeType => WindowType.Value;
-    
-    public IntPtr InstanceHandle { get; private set; }
-    private PhotinoNativeParameters _startupParameters = parameters;
 
+    public IntPtr InstanceHandle { get; private set; }
+    public PhotinoNativeParameters StartupParameters;
 
     ILogger<IPhotinoWindow> IPhotinoWindow.Logger => logger;
 
     public IPhotinoWindow? Parent { get; } = parent;
     public IPhotinoWindowEvents Events { get; set; } = null!;
-    
-    private static Lock _messageLoopIsStartedLock = new Lock();
-    private static bool _messageLoopIsStarted; //There can only be 1 message loop for all windows.
-        
+
+    private static readonly Lock MessageLoopIsStartedLock = new Lock();
+    private static bool _messageLoopIsStarted;//There can only be 1 message loop for all windows.
+
     #region PROPERTIES
     /// <summary>
     ///     Represents a property that gets the handle of the native window on a Windows platform.
@@ -39,8 +42,8 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     /// <exception cref="System.ApplicationException">Thrown when the window is not initialized yet.</exception>
     /// <exception cref="System.PlatformNotSupportedException">Thrown when accessed from a non-Windows platform.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public IntPtr WindowHandle => PlatformUtilities.IsWindowsPlatform 
-        ? InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetWindowHandlerWin32) 
+    public IntPtr WindowHandle => PlatformUtilities.IsWindowsPlatform
+        ? InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetWindowHandlerWin32)
         : IntPtr.Zero;
 
     /// <summary>
@@ -88,7 +91,7 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
-    
+
     /// <summary>
     ///     Gets the value indicating whether the native window is chromeless.
     /// </summary>
@@ -96,7 +99,7 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     ///     The user has to supply titlebar, border, dragging and resizing manually.
     /// </remarks>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Chromeless => _startupParameters.Chromeless;
+    public bool Chromeless => StartupParameters.Chromeless;
 
     /// <summary>
     ///     When true, the native window and browser control can be displayed with a transparent background.
@@ -158,7 +161,7 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool FullScreen => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetFullScreen);
-    
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Rectangle CachedPreFullScreenBounds { get; set; }
 
@@ -212,11 +215,11 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
 
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MaxHeight { get; set; } = parameters.MaxHeight;
+    public int MaxHeight { get; set; }
 
     ///<summary>Gets or sets the native window maximum width in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MaxWidth { get; set; } = parameters.MaxWidth;
+    public int MaxWidth { get; set; }
 
     /// <summary>
     ///     Gets or sets whether the native window is minimized (hidden).
@@ -231,11 +234,11 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MinHeight { get; } = parameters.MinHeight;
+    public int MinHeight { get; set; }
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MinWidth { get; } = parameters.MinWidth;
+    public int MinWidth { get; set; }
 
     /// <summary>
     ///     Gets or sets whether the user can resize the native window.
@@ -260,16 +263,16 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     ///     viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
     ///     https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
     ///     LINUX: Webkit2Gtk specific string. Enter parameter names and values as JSON string.
-    ///     e.g. { "set_enable_encrypted_media": true }
+    ///     E.g. { "set_enable_encrypted_media": true }
     ///     https://webkitgtk.org/reference/webkit2gtk/2.5.1/WebKitSettings.html
     ///     https://lazka.github.io/pgi-docs/WebKit2-4.0/classes/Settings.html
-    ///     MAC: Webkit specific string. Enter parameter names and values as JSON string.
-    ///     e.g. { "minimumFontSize": 8 }
+    ///     Mac: Webkit specific string. Enter parameter names and values as JSON string.
+    ///     E.g. { "minimumFontSize": 8 }
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? BrowserControlInitParameters => _startupParameters.BrowserControlInitParameters;
+    public string? BrowserControlInitParameters => StartupParameters.BrowserControlInitParameters;
 
     /// <summary>
     ///     Gets or sets an HTML string that the browser control will render when initialized.
@@ -283,7 +286,7 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? StartString => _startupParameters.StartString;
+    public string? StartString => StartupParameters.StartString;
 
     /// <summary>
     ///     Gets or sets a URL that the browser control will navigate to when initialized.
@@ -297,7 +300,7 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? StartUrl => _startupParameters.StartUrl;
+    public string? StartUrl => StartupParameters.StartUrl;
 
     /// <summary>
     ///     Gets or sets the local path to store temp files for browser control.
@@ -310,7 +313,7 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     ///     Thrown if a platform is not Windows.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? TemporaryFilesPath => _startupParameters.TemporaryFilesPath;
+    public string? TemporaryFilesPath => StartupParameters.TemporaryFilesPath;
 
     /// <summary>
     ///     Gets or sets the registration id for doing toast notifications.
@@ -323,7 +326,7 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     ///     Thrown if a platform is not Windows.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? NotificationRegistrationId => _startupParameters.NotificationRegistrationId;
+    public string? NotificationRegistrationId => StartupParameters.NotificationRegistrationId;
 
     /// <summary>
     ///     Gets or sets the native window title.
@@ -366,29 +369,29 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
         //fill in the fixed size array of custom scheme names
         int i = 0;
         foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in customSchemes.Take(16)) {
-            _startupParameters.CustomSchemeNames[i] = name.Key;
+            StartupParameters.CustomSchemeNames[i] = name.Key;
             i++;
         }
 
-        _startupParameters.NativeParent = Parent is PhotinoWindow parent
+        StartupParameters.NativeParent = Parent is PhotinoWindow parent
             ? parent.InstanceHandle
             : IntPtr.Zero;
-        
-        if (!PhotinoNativeParametersValidator.Validate(_startupParameters, logger)) {
+
+        if (!PhotinoNativeParametersValidator.Validate(StartupParameters, logger)) {
             logger.LogCritical("Startup Parameters Are Not Valid, please check the log file");
             throw new ArgumentException("Startup Parameters Are Not Valid, please check the log file");
         }
-        
+
         Events.OnWindowCreating();
-        
-        try //All C++ exceptions will bubble up to here.
+
+        try//All C++ exceptions will bubble up to here.
         {
             if (PlatformUtilities.IsWindowsPlatform)
                 Invoke(() => PhotinoNative.RegisterWin32(NativeType));
             else if (PlatformUtilities.IsMacOsPlatform)
                 Invoke(() => PhotinoNative.RegisterMac());
 
-            Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref _startupParameters));
+            Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref StartupParameters));
         }
         catch (Exception ex) {
             int lastError = 0;
@@ -400,9 +403,9 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
         }
 
         Events.OnWindowCreated();
-        
+
     }
-    
+
     /// <summary>
     ///     Dispatches an Action to the UI thread if called from another thread.
     /// </summary>
@@ -415,7 +418,7 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
         if (Environment.CurrentManagedThreadId == ManagedThreadId) workItem();
         else PhotinoNative.Invoke(InstanceHandle, workItem.Invoke);
     }
-    
+
     /// <summary>
     ///     Responsible for the initialization of the primary native window and remains in operation until the window is
     ///     closed.
@@ -425,11 +428,12 @@ public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary
     ///     The operation of the message loop is exclusive to the main native window only.
     /// </remarks>
     public void WaitForClose() {
-        lock (_messageLoopIsStartedLock) {
+        lock (MessageLoopIsStartedLock) {
             if (_messageLoopIsStarted) return;
+
             _messageLoopIsStarted = true;
         }
-        
+
         try {
             Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));//start the message loop. there can only be 1 message loop for all windows.
         }
