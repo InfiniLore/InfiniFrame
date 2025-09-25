@@ -1,15 +1,14 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using InfiniLore.Photino.Blazor.Contracts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace InfiniLore.Photino.Blazor;
 /// <summary>
-///     Configures root components for a <see cref="PhotinoJSComponentConfiguration" />.
+///     Configures root components for a <see cref="PhotinoJsComponentConfiguration" />.
 /// </summary>
-public sealed class PhotinoJSComponentConfiguration(IPhotinoWebViewManager manager, JSComponentConfigurationStore jsComponents) : IPhotinoJSComponentConfiguration {
+public sealed class PhotinoJsComponentConfiguration(IPhotinoWebViewManager manager, JSComponentConfigurationStore jsComponents) : IPhotinoJsComponentConfiguration {
     public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
 
     /// <summary>

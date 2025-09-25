@@ -3,10 +3,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.AspNetCore.Components.Web;
 
-namespace InfiniLore.Photino.Blazor.Contracts;
+namespace InfiniLore.Photino.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPhotinoJSComponentConfiguration : IJSComponentConfiguration {
+public interface IPhotinoJsComponentConfiguration : IJSComponentConfiguration {
     void Add(Type typeComponent, string selector, IDictionary<string, object?>? parameters = null);
 }

@@ -18,7 +18,6 @@
     <File Path="webpack.config.js" />
   </Folder>
   <Folder Name="/example/">
-    <Project Path="examples\Example.InfiniLore.Photino.Blazor.HelloWorld\Example.InfiniLore.Photino.Blazor.HelloWorld.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.MultiWindowSample\Example.InfiniLore.Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.NativeAOT\Example.InfiniLore.Photino.Blazor.NativeAOT.csproj" Type="Classic C#" />
     <Project Path="examples\Example.InfiniLore.Photino.Blazor.Sample\Example.InfiniLore.Photino.Blazor.Sample.csproj" Type="Classic C#" />

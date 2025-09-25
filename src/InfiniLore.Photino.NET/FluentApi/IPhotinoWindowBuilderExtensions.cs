@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 
-// ReSharper disable once CheckNamespace
 namespace InfiniLore.Photino.NET;
 
 // ReSharper disable once InconsistentNaming
@@ -339,7 +338,7 @@ public static class IPhotinoWindowBuilderExtensions {
         builder.Configuration.Centered = enable;
         return builder;
     }
-    
+
     /// <summary>
     ///     Registers user-defined custom schemes (other than 'http', 'https' and 'file') and handler methods to receive
     ///     callbacks
@@ -352,6 +351,7 @@ public static class IPhotinoWindowBuilderExtensions {
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
+    /// <param name="builder"></param>
     /// <param name="scheme">The custom scheme</param>
     /// <param name="handler">
     ///     <see cref="EventHandler" />
