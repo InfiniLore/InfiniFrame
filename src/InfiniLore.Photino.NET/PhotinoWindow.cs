@@ -378,13 +378,14 @@ public sealed class PhotinoWindow(
             : IntPtr.Zero;
 
         if (!PhotinoNativeParametersValidator.Validate(StartupParameters, logger)) {
-            logger.LogCritical("Startup Parameters Are Not Valid, please check the log file");
-            throw new ArgumentException("Startup Parameters Are Not Valid, please check the log file");
+            logger.LogCritical("Startup Parameters Are Not Valid, please check the logs");
+            throw new ArgumentException("Startup Parameters Are Not Valid, please check the logs");
         }
 
         Events.OnWindowCreating();
 
-        try//All C++ exceptions will bubble up to here.
+        //All C++ exceptions will bubble up to here.
+        try
         {
             if (PlatformUtilities.IsWindowsPlatform)
                 Invoke(() => PhotinoNative.RegisterWin32(NativeType));
