@@ -10,7 +10,12 @@ class Program {
 
     [STAThread]
     private static void Main(string[] args) {
-        CreateWindows(
+        var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
+        
+        // register services
+        appBuilder.Services.AddLogging();
+        
+        CreateWindows(appBuilder,
         new Queue<WindowCreationArgs>(new[] {
             new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
             new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
@@ -20,6 +25,7 @@ class Program {
     }
 
     private static void CreateWindows(
+        PhotinoBlazorAppBuilder appBuilder,
         Queue<WindowCreationArgs> windowsToCreate,
         string[] args
     ) {
@@ -27,31 +33,28 @@ class Program {
             return;
         }
 
-        var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
-
-        // register services
-        appBuilder.Services.AddLogging();
-
-        // register root component and selector
+        // register the root component and selector
         appBuilder.RootComponents.Add(windowCreationArgs.RootComponentType, "app");
 
         PhotinoBlazorApp app = appBuilder.Build();
 
-        // customize window
+        // customize a window
+        
         Windows.Add(
-        app.MainWindow
-            .SetTitle(windowCreationArgs.Title)
-            .Load(windowCreationArgs.HtmlPath)
-            .RegisterWindowCreatedHandler((_, _) => CreateWindows(windowsToCreate, args))
-            .RegisterWindowClosingHandler((_, _) => {
-                CloseAllWindows();
-                return false;
-            })
+            PhotinoWindowBuilder.Create()
+                .SetTitle(windowCreationArgs.Title)
+                .SetStartUrl(windowCreationArgs.HtmlPath)
+                .RegisterWindowCreatedHandler((_, _) => CreateWindows(appBuilder, windowsToCreate, args))
+                .RegisterWindowClosingHandler((_, _) => {
+                    CloseAllWindows();
+                    return false;
+                })
+                .Build()
         );
 
-        AppDomain.CurrentDomain.UnhandledException += (_, error) => {
-            app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
-        };
+        // AppDomain.CurrentDomain.UnhandledException += (_, error) => {
+        //     app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+        // };
 
         app.Run();
     }

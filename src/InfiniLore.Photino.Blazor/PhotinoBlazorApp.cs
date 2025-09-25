@@ -11,7 +11,6 @@ public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewMana
     
     internal void Initialize(RootComponentList rootComponents) {
         builder
-            .RegisterCustomSchemeHandler("app", HandleWebRequest)
             .RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest)
             .SetUseOsDefaultSize(true)
             .SetUseOsDefaultLocation(true)

@@ -757,7 +757,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     //NON-FLUENT METHODS - CAN ONLY BE CALLED AFTER WINDOW IS INITIALIZED
     //ONE OF THESE 2 METHODS *MUST* BE CALLED TO CREATE THE WINDOW
 
-    public void Initialize() {
+    private void Initialize() {
         //fill in the fixed size array of custom scheme names
         int i = 0;
         foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in _customSchemes.Take(16)) {

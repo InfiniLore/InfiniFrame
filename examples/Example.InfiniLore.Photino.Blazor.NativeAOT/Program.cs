@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Example.InfiniLore.Photino.Blazor.NativeAOT;
+using global::InfiniLore.Photino.NET;
+
 class Program {
     [STAThread] private static void Main(string[] args) {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
@@ -15,13 +17,13 @@ class Program {
         PhotinoBlazorApp app = appBuilder.Build();
 
         // customize window
-        app.MainWindow
+        app.WindowBuilder
             .SetIconFile("favicon.ico")
             .SetTitle("Photino Blazor Sample");
 
-        AppDomain.CurrentDomain.UnhandledException += (_, error) => {
-            app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
-        };
+        // AppDomain.CurrentDomain.UnhandledException += (_, error) => {
+        //     app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+        // };
 
         app.Run();
 

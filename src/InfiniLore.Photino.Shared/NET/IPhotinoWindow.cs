@@ -51,7 +51,6 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     IPhotinoWindow Win32SetWebView2Path(string data);
     IPhotinoWindow ClearBrowserAutoFill();
 
-    void Initialize();
     void WaitForClose();
     void Close();
     void SendWebMessage(string message);
