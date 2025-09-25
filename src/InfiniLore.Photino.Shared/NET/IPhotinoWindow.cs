@@ -29,28 +29,6 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     Rectangle CachedPreFullScreenBounds { get; internal set; }
 
     void Invoke(Action workItem);
-    IPhotinoWindow SetIconFile(string iconFile);
-    IPhotinoWindow SetLeft(int left);
-    IPhotinoWindow SetResizable(bool resizable);
-    IPhotinoWindow SetSize(Size size);
-    IPhotinoWindow SetSize(int width, int height);
-    IPhotinoWindow SetLocation(Point location);
-    IPhotinoWindow SetMaximized(bool maximized);
-    IPhotinoWindow SetMaxSize(int maxWidth, int maxHeight);
-    IPhotinoWindow SetMaxHeight(int maxHeight);
-    IPhotinoWindow SetMaxWidth(int maxWidth);
-    IPhotinoWindow SetMinimized(bool minimized);
-    IPhotinoWindow SetMinSize(int minWidth, int minHeight);
-    IPhotinoWindow SetMinHeight(int minHeight);
-    IPhotinoWindow SetMinWidth(int minWidth);
-    IPhotinoWindow SetTitle(string? title);
-    IPhotinoWindow SetTop(int top);
-    IPhotinoWindow SetTopMost(bool topMost);
-    IPhotinoWindow SetWidth(int width);
-    IPhotinoWindow SetZoom(int zoom);
-    IPhotinoWindow Win32SetWebView2Path(string data);
-    IPhotinoWindow ClearBrowserAutoFill();
-
     void WaitForClose();
     void Close();
     void SendWebMessage(string message);

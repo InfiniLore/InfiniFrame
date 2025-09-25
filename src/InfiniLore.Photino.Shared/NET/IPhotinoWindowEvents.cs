@@ -20,6 +20,8 @@ public interface IPhotinoWindowEvents {
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
     
+    IPhotinoWindowEvents DefineSender<T>(T sender) where T : notnull;
+    
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);
     void OnFocusIn();

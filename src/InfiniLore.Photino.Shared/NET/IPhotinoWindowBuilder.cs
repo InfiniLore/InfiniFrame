@@ -5,6 +5,5 @@ public interface IPhotinoWindowBuilder {
     
     Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; }
     
-    IPhotinoWindow Build();
-    IPhotinoWindow Build(IServiceProvider provider);
+    IPhotinoWindow Build(IServiceProvider? provider = null);
 }

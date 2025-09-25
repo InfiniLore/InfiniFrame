@@ -20,7 +20,21 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
         
         var config = provider.GetService<IConfiguration>();
         var photinoConfiguration = config?.Get<IPhotinoConfiguration>();
-        return photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
+        
+        PhotinoNativeParameters startupParameters = photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
+        
+        //These are for the callbacks from C++ to C#.
+        startupParameters.ClosingHandler = Events.OnWindowClosing;
+        startupParameters.ResizedHandler = Events.OnSizeChanged;
+        startupParameters.MaximizedHandler = Events.OnMaximized;
+        startupParameters.RestoredHandler = Events.OnRestored;
+        startupParameters.MinimizedHandler = Events.OnMinimized;
+        startupParameters.MovedHandler = Events.OnLocationChanged;
+        startupParameters.FocusInHandler = Events.OnFocusIn;
+        startupParameters.FocusOutHandler = Events.OnFocusOut;
+        startupParameters.WebMessageReceivedHandler = Events.OnWebMessageReceived;
+
+        return startupParameters;
     }
 
     private ILogger<PhotinoWindow> GetDefaultLogger() {
@@ -33,12 +47,22 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
             config.AddConsole().SetMinimumLevel(LogLevel.Debug);
         }).CreateLogger<PhotinoWindow>();
     }
-
-    public IPhotinoWindow Build() {
-        return new PhotinoWindow(Events, GetParameters(), CustomSchemeHandlers, GetDefaultLogger());
-    }
     
-    public IPhotinoWindow Build(IServiceProvider provider) {
-        return new PhotinoWindow(Events, GetParameters(provider), CustomSchemeHandlers, provider.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
+    public IPhotinoWindow Build(IServiceProvider? provider = null) {
+        var window = new PhotinoWindow(CustomSchemeHandlers, provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
+        
+        PhotinoNativeParameters startupParameters = GetParameters(provider);
+        startupParameters.CustomSchemeHandler = window.OnCustomScheme;
+        window.StartupParameters = startupParameters;
+        
+        window.MaxHeight = startupParameters.MaxHeight;
+        window.MaxWidth = startupParameters.MaxWidth;
+        window.MinHeight = startupParameters.MinHeight;
+        window.MinWidth = startupParameters.MinWidth;
+        
+        window.Events = Events.DefineSender(window);
+        window.Initialize();
+        return window;
+
     }
 }

@@ -18,8 +18,8 @@ public interface IPhotinoWindowBase {
     int Left { get; }
     int Top { get; }
     bool Maximized { get; }
-    int MaxWidth { get; }
-    int MaxHeight { get; }
+    int MaxWidth { get; set; }
+    int MaxHeight { get; set; }
     int MinWidth { get; }
     int MinHeight { get; }
     bool Minimized { get; }
