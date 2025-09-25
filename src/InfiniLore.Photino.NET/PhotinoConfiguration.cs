@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniLore.Photino.NET;
+using System.Runtime.InteropServices;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -87,6 +88,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
             UseOsDefaultSize = UseOsDefaultSize,
             CustomSchemeNames = CustomSchemeNames,
             Zoom = Zoom,
+            Size = Marshal.SizeOf<PhotinoNativeParameters>()
         };
         return parameters;
     }

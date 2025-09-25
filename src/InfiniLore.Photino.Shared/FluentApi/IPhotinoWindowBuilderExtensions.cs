@@ -339,4 +339,35 @@ public static class IPhotinoWindowBuilderExtensions {
         builder.Configuration.Centered = enable;
         return builder;
     }
+    
+    /// <summary>
+    ///     Registers user-defined custom schemes (other than 'http', 'https' and 'file') and handler methods to receive
+    ///     callbacks
+    ///     when the native browser control encounters them.
+    /// </summary>
+    /// <remarks>
+    ///     Only 16 custom schemes can be registered before initialization. Additional handlers can be added after
+    ///     initialization.
+    /// </remarks>
+    /// <returns>
+    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    /// </returns>
+    /// <param name="scheme">The custom scheme</param>
+    /// <param name="handler">
+    ///     <see cref="EventHandler" />
+    /// </param>
+    /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
+    /// <exception cref="ApplicationException">Thrown if more than 16 custom schemes were set</exception>
+    public static T RegisterCustomSchemeHandler<T>(this T builder, string scheme, NetCustomSchemeDelegate handler) where T : IPhotinoWindowBuilder {
+        if (string.IsNullOrWhiteSpace(scheme)) throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
+        if (handler is null) throw new ArgumentException("A handler (method) with a signature matching NetCustomSchemeDelegate must be supplied.");
+
+        scheme = scheme.ToLower();
+
+        if (builder.CustomSchemeHandlers.Count > 15 && !builder.CustomSchemeHandlers.ContainsKey(scheme)) throw new ApplicationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
+        builder.CustomSchemeHandlers.TryAdd(scheme, null);
+        builder.CustomSchemeHandlers[scheme] = handler;
+
+        return builder;
+    }
 }

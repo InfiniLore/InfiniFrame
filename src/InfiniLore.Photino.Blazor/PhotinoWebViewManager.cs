@@ -73,7 +73,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
     }
 
     protected override void NavigateCore(Uri absoluteUri) {
-        _window.Load(absoluteUri);
+        _window.Load(absoluteUri.ToString()); // TODO handle exceptions
     }
 
     protected override void SendMessage(string message) {

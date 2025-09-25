@@ -36,14 +36,6 @@ public static class PhotinoNativeParametersValidator {
             result = false;
         }
 
-        // In the original Photino the Size is set to the Marshal.SizeOf<PhotinoNativeParameters>() but then never used?
-        // if (parameters.Size != Marshal.SizeOf<PhotinoNativeParameters>())
-        // {
-        //     logger.LogWarning("Sie of PhotinoNativeParameters struct has changed. Please update the PhotinoNativeParameters struct in InfiniLore.Photino.Shared .");
-        //     result = false;      
-        // }
-        parameters.Size = Marshal.SizeOf<PhotinoNativeParameters>();
-
         return result;
     }
 }

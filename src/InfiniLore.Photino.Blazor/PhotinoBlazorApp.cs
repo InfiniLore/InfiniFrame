@@ -1,13 +1,15 @@
 using InfiniLore.Photino.Blazor.Contracts;
 using InfiniLore.Photino.NET;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniLore.Photino.Blazor;
-public class PhotinoBlazorApp(IPhotinoWindow window, IPhotinoWebViewManager manager, IPhotinoJSComponentConfiguration? rootComponentConfiguration = null) {
+
+public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewManager manager, IServiceProvider provider, IPhotinoJSComponentConfiguration? rootComponentConfiguration = null) {
     internal void Initialize(RootComponentList rootComponents) {
-        window.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest);
+        builder.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest);
 
         AppDomain.CurrentDomain.UnhandledException += (_, error) => {
-            window.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+            provider.GetService<IPhotinoWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         };
 
         if (rootComponentConfiguration is null) return;
@@ -18,6 +20,8 @@ public class PhotinoBlazorApp(IPhotinoWindow window, IPhotinoWebViewManager mana
     }
 
     public void Run() {
+        var window = provider.GetRequiredService<IPhotinoWindow>();
+        
         manager.Navigate(string.IsNullOrWhiteSpace(window.StartUrl) ? "/" : window.StartUrl);
         window.WaitForClose();
     }

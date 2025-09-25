@@ -39,16 +39,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
 
-    int Zoom { get; }
     void Invoke(Action workItem);
-    IPhotinoWindow Offset(Point offset);
-    IPhotinoWindow Offset(int left, int top);
-    IPhotinoWindow SetChromeless(bool chromeless);
-    IPhotinoWindow SetTransparent(bool enabled);
-    IPhotinoWindow SetContextMenuEnabled(bool enabled);
-    IPhotinoWindow SetDevToolsEnabled(bool enabled);
-    IPhotinoWindow SetFullScreen(bool fullScreen);
-    IPhotinoWindow SetHeight(int height);
     IPhotinoWindow SetIconFile(string iconFile);
     IPhotinoWindow SetLeft(int left);
     IPhotinoWindow SetResizable(bool resizable);

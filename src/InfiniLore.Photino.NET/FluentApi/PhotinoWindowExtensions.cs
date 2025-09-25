@@ -159,7 +159,8 @@ public static class PhotinoWindowExtensions {
                 : location.Y;
         }
 
-        SetLocation(location);
+        // TODO patch this
+        window.SetLocation(location);
 
         return window;
     }

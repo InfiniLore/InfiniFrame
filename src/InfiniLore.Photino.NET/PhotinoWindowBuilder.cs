@@ -6,6 +6,7 @@ namespace InfiniLore.Photino.NET;
 public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
     public IPhotinoConfiguration Configuration { get; } = new PhotinoConfiguration();
+    public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
     
     private PhotinoWindowBuilder() {}
 
@@ -33,9 +34,10 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     }
 
     public IPhotinoWindow Build() {
-        return new PhotinoWindow(GetParameters(), GetDefaultLogger());
+        return new PhotinoWindow(GetParameters(), CustomSchemeHandlers, GetDefaultLogger());
     }
+    
     public IPhotinoWindow Build(IServiceProvider provider) {
-        return new PhotinoWindow(GetParameters(provider), provider.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
+        return new PhotinoWindow(GetParameters(provider), CustomSchemeHandlers, provider.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
     }
 }

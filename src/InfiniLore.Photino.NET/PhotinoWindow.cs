@@ -26,7 +26,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     //There can only be 1 message loop for all windows.
     private static bool _messageLoopIsStarted;
 
-    private readonly Dictionary<string, NetCustomSchemeDelegate?> _customSchemes = [];
+    private readonly Dictionary<string, NetCustomSchemeDelegate?> _customSchemes;
 
     private readonly ILogger<PhotinoWindow> _logger;
     ILogger<IPhotinoWindow> IPhotinoWindow.Logger => _logger;
@@ -42,12 +42,13 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     /// <param name="parameters"></param>
     /// <param name="logger">THe logger used by the main application</param>
     /// <param name="parent">The parent PhotinoWindow. This is optional and defaults to null.</param>
-    public PhotinoWindow(PhotinoNativeParameters parameters, ILogger<PhotinoWindow> logger, PhotinoWindow? parent = null) {
+    public PhotinoWindow(PhotinoNativeParameters parameters, Dictionary<string, NetCustomSchemeDelegate?> customSchemes, ILogger<PhotinoWindow> logger, PhotinoWindow? parent = null) {
         _startupParameters = parameters;
         _logger = logger;
         Parent = parent;
         MaxWidth = parameters.MaxWidth;
         MaxHeight = parameters.MaxHeight;
+        _customSchemes = customSchemes;
 
         //This only has to be done once
         if (_nativeType == IntPtr.Zero)
