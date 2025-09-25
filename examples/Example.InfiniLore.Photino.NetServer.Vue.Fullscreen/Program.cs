@@ -31,8 +31,8 @@ public static class Program {
                 );
             })
             .RegisterWebMessageReceivedHandler((sender, message) => {
-                if (FullscreenWebMessageHandler.TryHandleWebMessage(sender, message)) return;
-                if (sender is not PhotinoWindow window) return;
+                if (WebMessageHandler.TryHandleWebMessage(sender, message, FullscreenWebMessageHandler.TryHandleWebMessage)) return;
+                if (sender is not IPhotinoWindow window) return;
 
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
