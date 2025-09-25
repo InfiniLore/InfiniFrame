@@ -11,6 +11,9 @@ public static class Program {
         photinoServerBuilder.UsePort(5172, 100);
 
         PhotinoServer photinoServer = photinoServerBuilder.Build();
+        
+        photinoServer.MapPhotinoJsEndpoint();
+
         photinoServer.Run();
 
         IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
@@ -18,16 +21,16 @@ public static class Program {
             .SetUseOsDefaultSize(false)
             .SetTitle("InfiniLore Photino.NET VUE Sample")
             .SetSize(new Size(800, 600))
-            .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) => {
+            .RegisterCustomSchemeHandler("app", handler: (object _, string _, string _, out string? contentType) => {
                 contentType = "text/javascript";
                 return new MemoryStream(
-                    """
-                        (() =>{
-                            window.setTimeout(() => {
-                                alert(`🎉 Dynamically inserted JavaScript.`);
-                            }, 1000);
-                        })();
-                        """u8.ToArray()
+                """
+                    (() =>{
+                        window.setTimeout(() => {
+                            alert(`🎉 Dynamically inserted JavaScript.`);
+                        }, 1000);
+                    })();
+                    """u8.ToArray()
                 );
             })
             .RegisterWebMessageReceivedHandler(FullscreenWebMessageHandler.HandleWebMessage)
@@ -39,7 +42,7 @@ public static class Program {
             });
 
         IPhotinoWindow window = windowBuilder.Build();
-        
+
         window.WaitForClose();
         photinoServer.Stop();
     }

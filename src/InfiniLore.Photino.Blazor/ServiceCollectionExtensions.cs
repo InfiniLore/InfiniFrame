@@ -1,4 +1,3 @@
-using InfiniLore.Photino.Blazor.Contracts;
 using InfiniLore.Photino.NET;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -24,7 +23,7 @@ public static class ServiceCollectionExtensions {
                 return new HttpClient(handler) { BaseAddress = new Uri(PhotinoWebViewManager.AppBaseUri) };
             })
             .AddSingleton<IPhotinoWebViewManager, PhotinoWebViewManager>()
-            .AddSingleton<IPhotinoJSComponentConfiguration, PhotinoJSComponentConfiguration>()
+            .AddSingleton<IPhotinoJsComponentConfiguration, PhotinoJsComponentConfiguration>()
             .AddSingleton<Dispatcher, PhotinoDispatcher>()
             .AddSingleton<JSComponentConfigurationStore>()
             .AddSingleton<PhotinoBlazorApp>()

@@ -1,0 +1,38 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using System.Reflection;
+
+namespace InfiniLore.Photino.NET.Server;
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public static class PhotinoServerExtensions {
+    
+    public static PhotinoServer MapPhotinoJsEndpoint(this PhotinoServer server) {
+        server.WebApp.MapGet("/_content/InfiniLore.Photino.NET/InfiniLore.Photino.js", requestDelegate: async context => {
+            Assembly assembly = typeof(PhotinoWindow).Assembly;
+            const string resourceName = "InfiniLore.Photino.NET.wwwroot.InfiniLore.Photino.js";
+            
+            await using Stream? stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream == null) {
+                context.Response.StatusCode = 404;
+                await context.Response.WriteAsync("Resource not found");
+                return;
+            }
+
+            context.Response.ContentType = "application/javascript";
+            await stream.CopyToAsync(context.Response.Body);
+        });
+
+        return server;
+    }
+    
+    public static IPhotinoWindowBuilder GetAttachedWindowBuilder(this PhotinoServer server) {
+        var builder = PhotinoWindowBuilder.Create();
+        builder.Configuration.StartUrl = server.BaseUrl;
+
+        return builder;
+    }
+}

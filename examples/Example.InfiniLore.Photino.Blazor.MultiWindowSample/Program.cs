@@ -19,15 +19,13 @@ class Program {
         new Queue<WindowCreationArgs>(new[] {
             new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
             new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
-        }),
-        args
+        })
         );
     }
 
     private static void CreateWindows(
         PhotinoBlazorAppBuilder appBuilder,
-        Queue<WindowCreationArgs> windowsToCreate,
-        string[] args
+        Queue<WindowCreationArgs> windowsToCreate
     ) {
         if (!windowsToCreate.TryDequeue(out WindowCreationArgs? windowCreationArgs)) {
             return;
@@ -44,7 +42,7 @@ class Program {
             PhotinoWindowBuilder.Create()
                 .SetTitle(windowCreationArgs.Title)
                 .SetStartUrl(windowCreationArgs.HtmlPath)
-                .RegisterWindowCreatedHandler((_, _) => CreateWindows(appBuilder, windowsToCreate, args))
+                .RegisterWindowCreatedHandler((_, _) => CreateWindows(appBuilder, windowsToCreate))
                 .RegisterWindowClosingHandler((_, _) => {
                     CloseAllWindows();
                     return false;

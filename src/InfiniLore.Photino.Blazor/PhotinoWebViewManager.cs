@@ -1,19 +1,17 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-using InfiniLore.Photino.Blazor.Contracts;
 using InfiniLore.Photino.Blazor.Utils;
 using InfiniLore.Photino.NET;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
 namespace InfiniLore.Photino.Blazor;
-using Microsoft.Extensions.DependencyInjection;
-
 public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
 
     // On Windows, we can't use a custom scheme to host the initial HTML,
@@ -40,7 +38,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
         builder.RegisterWebMessageReceivedHandler((_, message) => {
             // On some platforms, we need to move off the browser UI thread
-            Task.Factory.StartNew(m => {
+            Task.Factory.StartNew(action: m => {
                 // TODO: Fix this. Photino should ideally tell us the URL that the message comes from so we
                 // know whether to trust it. Currently it's hardcoded to trust messages from any source, including
                 // if the webview is somehow navigated to an external URL.
@@ -55,7 +53,12 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
         Task.Run(MessagePump);
     }
 
-    public Stream? HandleWebRequest(object? sender, string? schema, string url, out string? contentType) {
+    public Stream? HandleWebRequest(object? sender, string? schema, string? url, out string? contentType) {
+        if (url is null) {
+            contentType = null;
+            return null;// TODO: Handle this better.
+        }
+
         // It would be better if we were told whether this is a navigation request, but
         // since we're not, guess.
         string localPath = new Uri(url).LocalPath;
