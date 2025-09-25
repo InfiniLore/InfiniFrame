@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IPhotinoWindow : IPhotinoWindowBase {
     internal ILogger<IPhotinoWindow> Logger { get; }
+    IPhotinoWindowEvents Events { get; }
     
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
@@ -26,18 +27,6 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     IPhotinoWindow? Parent { get; }
     int ManagedThreadId { get; }
     Rectangle CachedPreFullScreenBounds { get; internal set; }
-
-    event EventHandler<Point>? WindowLocationChanged;
-    event EventHandler<Size>? WindowSizeChanged;
-    event EventHandler? WindowFocusIn;
-    event EventHandler? WindowMaximized;
-    event EventHandler? WindowRestored;
-    event EventHandler? WindowFocusOut;
-    event EventHandler? WindowMinimized;
-    event EventHandler<string>? WebMessageReceived;
-    event NetClosingDelegate? WindowClosing;
-    event EventHandler? WindowCreating;
-    event EventHandler? WindowCreated;
 
     void Invoke(Action workItem);
     IPhotinoWindow SetIconFile(string iconFile);

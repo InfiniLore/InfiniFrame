@@ -3,153 +3,153 @@
 namespace InfiniLore.Photino.NET;
 public static class PhotinoWindowEventsExtensions {
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks from the native window when its location changes.
+    ///     Registers user-defined handler methods to receive callbacks from the native builder when its location changes.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterLocationChangedHandler(this IPhotinoWindow window, EventHandler<Point> handler) {
-        window.WindowLocationChanged += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterLocationChangedHandler(this IPhotinoWindowBuilder builder, EventHandler<Point> handler) {
+        builder.Events.WindowLocationChanged += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks from the native window when its size changes.
+    ///     Registers user-defined handler methods to receive callbacks from the native builder when its size changes.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterSizeChangedHandler(this IPhotinoWindow window, EventHandler<Size> handler) {
-        window.WindowSizeChanged += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterSizeChangedHandler(this IPhotinoWindowBuilder builder, EventHandler<Size> handler) {
+        builder.Events.WindowSizeChanged += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers registered user-defined handler methods to receive callbacks from the native window when it is focused
+    ///     Registers registered user-defined handler methods to receive callbacks from the native builder when it is focused
     ///     in.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterFocusInHandler(this IPhotinoWindow window, EventHandler handler) {
-        window.WindowFocusIn += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterFocusInHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowFocusIn += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks from the native window when it is maximized.
+    ///     Registers user-defined handler methods to receive callbacks from the native builder when it is maximized.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterMaximizedHandler(this IPhotinoWindow window, EventHandler handler) {
-        window.WindowMaximized += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterMaximizedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowMaximized += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks from the native window when it is restored.
+    ///     Registers user-defined handler methods to receive callbacks from the native builder when it is restored.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterRestoredHandler(this IPhotinoWindow window, EventHandler handler) {
-        window.WindowRestored += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterRestoredHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowRestored += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers registered user-defined handler methods to receive callbacks from the native window when it is focused
+    ///     Registers registered user-defined handler methods to receive callbacks from the native builder when it is focused
     ///     out.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterFocusOutHandler(this IPhotinoWindow window, EventHandler handler) {
-        window.WindowFocusOut += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterFocusOutHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowFocusOut += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks from the native window when it is minimized.
+    ///     Registers user-defined handler methods to receive callbacks from the native builder when it is minimized.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterMinimizedHandler(this IPhotinoWindow window, EventHandler handler) {
-        window.WindowMinimized += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterMinimizedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowMinimized += handler;
+        return builder;
     }
 
 
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks from the native window when it sends a message.
+    ///     Registers user-defined handler methods to receive callbacks from the native builder when it sends a message.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
     /// <remarks>
-    ///     Messages can be sent from JavaScript via <code>window.external.sendMessage(message)</code>
+    ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
     /// </remarks>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterWebMessageReceivedHandler(this IPhotinoWindow window, EventHandler<string> handler) {
-        window.WebMessageReceived += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterWebMessageReceivedHandler(this IPhotinoWindowBuilder builder, EventHandler<string> handler) {
+        builder.Events.WebMessageReceived += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks from the native window when the window is about to
+    ///     Registers user-defined handler methods to receive callbacks from the native builder when the builder is about to
     ///     close.
-    ///     Handler can return true to prevent the window from closing.
+    ///     Handler can return true to prevent the builder from closing.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="NetClosingDelegate" /></param>
-    public static IPhotinoWindow RegisterWindowClosingHandler(this IPhotinoWindow window, NetClosingDelegate handler) {
-        window.WindowClosing += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterWindowClosingHandler(this IPhotinoWindowBuilder builder, NetClosingDelegate handler) {
+        builder.Events.WindowClosing += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks before the native window is created.
+    ///     Registers user-defined handler methods to receive callbacks before the native builder is created.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindow RegisterWindowCreatingHandler(this IPhotinoWindow window, EventHandler handler) {
-        window.WindowCreating += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterWindowCreatingHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowCreating += handler;
+        return builder;
     }
 
     /// <summary>
-    ///     Registers user-defined handler methods to receive callbacks after the native window is created.
+    ///     Registers user-defined handler methods to receive callbacks after the native builder is created.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
-    /// <param name="window">The window to register the handler for.</param>
+    /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="NetClosingDelegate" /></param>
-    public static IPhotinoWindow RegisterWindowCreatedHandler(this IPhotinoWindow window, EventHandler handler) {
-        window.WindowCreated += handler;
-        return window;
+    public static IPhotinoWindowBuilder RegisterWindowCreatedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowCreated += handler;
+        return builder;
     }
 }

@@ -28,14 +28,14 @@ public static class Program {
                             }, 1000);
                         })();
                         """u8.ToArray());
-            });
-        
-        IPhotinoWindow window = windowBuilder.Build()
+            })
             .RegisterWebMessageReceivedHandler((sender, message) => {
                 var window = (PhotinoWindow)sender!;
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
+        
+        IPhotinoWindow window = windowBuilder.Build();
         
         window.WaitForClose();
     }

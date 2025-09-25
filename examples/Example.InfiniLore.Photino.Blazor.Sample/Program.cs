@@ -7,8 +7,9 @@ using InfiniLore.Photino.NET;
 namespace Example.InfiniLore.Photino.Blazor.Sample;
 using System.Drawing;
 
-class Program {
-    [STAThread] private static void Main(string[] args) {
+public static class Program {
+    [STAThread] 
+    private static void Main(string[] args) {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
 
         appBuilder.Services.AddLogging(config => {
@@ -33,7 +34,6 @@ class Program {
             .SetUseOsDefaultSize(false)
             .SetTitle("InfiniLore Photino.Blazor Sample")
             .SetSize(new Size(800, 600));
-
         app.Run();
 
     }

@@ -8,17 +8,6 @@ namespace InfiniLore.Photino.NET;
 using System.Diagnostics;
 
 public sealed class PhotinoWindow : IPhotinoWindow {
-    public event EventHandler<Point>? WindowLocationChanged;
-    public event EventHandler<Size>? WindowSizeChanged;
-    public event EventHandler? WindowFocusIn;
-    public event EventHandler? WindowMaximized;
-    public event EventHandler? WindowRestored;
-    public event EventHandler? WindowFocusOut;
-    public event EventHandler? WindowMinimized;
-    public event EventHandler<string>? WebMessageReceived;
-    public event NetClosingDelegate? WindowClosing;
-    public event EventHandler? WindowCreating;
-    public event EventHandler? WindowCreated;
 
     //Pointers to the type and instance.
     private static IntPtr _nativeType = IntPtr.Zero;
@@ -32,6 +21,8 @@ public sealed class PhotinoWindow : IPhotinoWindow {
 
     private readonly ILogger<PhotinoWindow> _logger;
     ILogger<IPhotinoWindow> IPhotinoWindow.Logger => _logger;
+    
+    public IPhotinoWindowEvents Events { get; }
 
     #region Constructors
     /// <summary>
@@ -41,31 +32,33 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     ///     This class represents a native window with a native browser control taking up the entire client area.
     ///     If a parent window is specified, this window will be created as a child of the specified parent window.
     /// </remarks>
+    /// <param name="events"></param>
     /// <param name="parameters"></param>
     /// <param name="logger">THe logger used by the main application</param>
     /// <param name="parent">The parent PhotinoWindow. This is optional and defaults to null.</param>
-    public PhotinoWindow(PhotinoNativeParameters parameters, Dictionary<string, NetCustomSchemeDelegate?> customSchemes, ILogger<PhotinoWindow> logger, PhotinoWindow? parent = null) {
+    public PhotinoWindow(IPhotinoWindowEvents events, PhotinoNativeParameters parameters, Dictionary<string, NetCustomSchemeDelegate?> customSchemes, ILogger<PhotinoWindow> logger, PhotinoWindow? parent = null) {
         _startupParameters = parameters;
         _logger = logger;
         Parent = parent;
         MaxWidth = parameters.MaxWidth;
         MaxHeight = parameters.MaxHeight;
         _customSchemes = customSchemes;
+        Events = events;
 
         //This only has to be done once
         if (_nativeType == IntPtr.Zero)
             _nativeType = NativeLibrary.GetMainProgramHandle();
 
         //These are for the callbacks from C++ to C#.
-        _startupParameters.ClosingHandler = OnWindowClosing;
-        _startupParameters.ResizedHandler = OnSizeChanged;
-        _startupParameters.MaximizedHandler = OnMaximized;
-        _startupParameters.RestoredHandler = OnRestored;
-        _startupParameters.MinimizedHandler = OnMinimized;
-        _startupParameters.MovedHandler = OnLocationChanged;
-        _startupParameters.FocusInHandler = OnFocusIn;
-        _startupParameters.FocusOutHandler = OnFocusOut;
-        _startupParameters.WebMessageReceivedHandler = OnWebMessageReceived;
+        _startupParameters.ClosingHandler = Events.OnWindowClosing;
+        _startupParameters.ResizedHandler = Events.OnSizeChanged;
+        _startupParameters.MaximizedHandler = Events.OnMaximized;
+        _startupParameters.RestoredHandler = Events.OnRestored;
+        _startupParameters.MinimizedHandler = Events.OnMinimized;
+        _startupParameters.MovedHandler = Events.OnLocationChanged;
+        _startupParameters.FocusInHandler = Events.OnFocusIn;
+        _startupParameters.FocusOutHandler = Events.OnFocusOut;
+        _startupParameters.WebMessageReceivedHandler = Events.OnWebMessageReceived;
         _startupParameters.CustomSchemeHandler = OnCustomScheme;
 
         MaxWidth = _startupParameters.MaxWidth;
@@ -781,7 +774,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
             throw new ArgumentException("Startup Parameters Are Not Valid, please check the log file");
         }
         
-        OnWindowCreating();
+        Events.OnWindowCreating();
         
         try //All C++ exceptions will bubble up to here.
         {
@@ -803,7 +796,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
 
-        OnWindowCreated();
+        Events.OnWindowCreated();
         
     }
     
@@ -1055,94 +1048,6 @@ public sealed class PhotinoWindow : IPhotinoWindow {
         }
 
         return nativeFilters;
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window's location changes.
-    /// </summary>
-    /// <param name="left">Position from left in pixels</param>
-    /// <param name="top">Position from top in pixels</param>
-    private void OnLocationChanged(int left, int top) {
-        var location = new Point(left, top);
-        WindowLocationChanged?.Invoke(this, location);
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window's size changes.
-    /// </summary>
-    private void OnSizeChanged(int width, int height) {
-        var size = new Size(width, height);
-        WindowSizeChanged?.Invoke(this, size);
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window focuses in.
-    /// </summary>
-    private void OnFocusIn() {
-        WindowFocusIn?.Invoke(this, EventArgs.Empty);
-    }
-
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window is maximized.
-    /// </summary>
-    private void OnMaximized() {
-        WindowMaximized?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window is restored.
-    /// </summary>
-    private void OnRestored() {
-        WindowRestored?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window focuses out.
-    /// </summary>
-    private void OnFocusOut() {
-        WindowFocusOut?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window is minimized.
-    /// </summary>
-    private void OnMinimized() {
-        WindowMinimized?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window sends a message.
-    /// </summary>
-    private void OnWebMessageReceived(string message) {
-        WebMessageReceived?.Invoke(this, message);
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window is about to close.
-    /// </summary>
-    private byte OnWindowClosing() {
-        //C++ handles bool values as a single byte, C# uses 4 bytes
-        byte noClose = 0;
-        bool? doNotClose = WindowClosing?.Invoke(this, null);
-        if (doNotClose ?? false)
-            noClose = 1;
-
-        return noClose;
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods before the native window is created.
-    /// </summary>
-    private void OnWindowCreating() {
-        WindowCreating?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods after the native window is created.
-    /// </summary>
-    private void OnWindowCreated() {
-        WindowCreated?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

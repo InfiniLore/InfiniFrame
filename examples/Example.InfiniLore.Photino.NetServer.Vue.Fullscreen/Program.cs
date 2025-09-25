@@ -29,9 +29,7 @@ public static class Program {
                         })();
                         """u8.ToArray()
                 );
-            });
-
-        IPhotinoWindow window = windowBuilder.Build()
+            })
             .RegisterWebMessageReceivedHandler((sender, message) => {
                 if (FullscreenWebMessageHandler.TryHandleWebMessage(sender, message)) return;
                 if (sender is not PhotinoWindow window) return;
@@ -39,6 +37,8 @@ public static class Program {
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
+
+        IPhotinoWindow window = windowBuilder.Build();
         
         window.WaitForClose();
         photinoServer.Stop();

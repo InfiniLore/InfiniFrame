@@ -10,7 +10,9 @@ public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewMana
     public IServiceProvider Provider => provider;
     
     internal void Initialize(RootComponentList rootComponents) {
-        builder.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest)
+        builder
+            .RegisterCustomSchemeHandler("app", HandleWebRequest)
+            .RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest)
             .SetUseOsDefaultSize(true)
             .SetUseOsDefaultLocation(true)
             .SetStartUrl(PhotinoWebViewManager.AppBaseUri);
@@ -29,14 +31,9 @@ public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewMana
     public void Run() {
         var window = provider.GetRequiredService<IPhotinoWindow>();
         
-        // manager.Navigate(window.StartUrl!);
         window.WaitForClose();
     }
 
-    public Stream? HandleWebRequest(object? sender, string? scheme, string? url, out string? contentType) {
-        contentType = null;
-        return !string.IsNullOrWhiteSpace(url)
-            ? manager.HandleWebRequest(sender, scheme, url, out contentType)
-            : null;
-    }
+    public Stream? HandleWebRequest(object sender, string scheme, string url, out string? contentType)
+        => manager.HandleWebRequest(sender, scheme, url, out contentType);
 }
