@@ -7,74 +7,24 @@ using System.Runtime.InteropServices;
 namespace InfiniLore.Photino.NET;
 using System.Diagnostics;
 
-public sealed class PhotinoWindow : IPhotinoWindow {
-
+public sealed class PhotinoWindow(PhotinoNativeParameters parameters, Dictionary<string, NetCustomSchemeDelegate?> customSchemes, ILogger<PhotinoWindow> logger, PhotinoWindow? parent = null) : IPhotinoWindow {
     //Pointers to the type and instance.
-    public static IntPtr NativeType { get; private set; }= IntPtr.Zero;
-    public IntPtr InstanceHandle { get; private set; }
-    private PhotinoNativeParameters _startupParameters;
-
-    //There can only be 1 message loop for all windows.
-    private static bool _messageLoopIsStarted;
-
-    private readonly Dictionary<string, NetCustomSchemeDelegate?> _customSchemes;
-
-    private readonly ILogger<PhotinoWindow> _logger;
-    ILogger<IPhotinoWindow> IPhotinoWindow.Logger => _logger;
+    private static readonly Lazy<IntPtr> WindowType = new Lazy<IntPtr>(NativeLibrary.GetMainProgramHandle);
+    public static IntPtr NativeType => WindowType.Value;
     
-    public IPhotinoWindowEvents Events { get; }
+    public IntPtr InstanceHandle { get; private set; }
+    private PhotinoNativeParameters _startupParameters = parameters;
 
-    #region Constructors
-    /// <summary>
-    ///     Initializes a new instance of the PhotinoWindow class.
-    /// </summary>
-    /// <remarks>
-    ///     This class represents a native window with a native browser control taking up the entire client area.
-    ///     If a parent window is specified, this window will be created as a child of the specified parent window.
-    /// </remarks>
-    /// <param name="events"></param>
-    /// <param name="parameters"></param>
-    /// <param name="customSchemes"></param>
-    /// <param name="logger">THe logger used by the main application</param>
-    /// <param name="parent">The parent PhotinoWindow. This is optional and defaults to null.</param>
-    public PhotinoWindow(IPhotinoWindowEvents events, PhotinoNativeParameters parameters, Dictionary<string, NetCustomSchemeDelegate?> customSchemes, ILogger<PhotinoWindow> logger, PhotinoWindow? parent = null) {
-        _startupParameters = parameters;
-        _logger = logger;
-        Parent = parent;
-        MaxWidth = parameters.MaxWidth;
-        MaxHeight = parameters.MaxHeight;
-        _customSchemes = customSchemes;
+
+    ILogger<IPhotinoWindow> IPhotinoWindow.Logger => logger;
+
+    public IPhotinoWindow? Parent { get; } = parent;
+    public IPhotinoWindowEvents Events { get; set; } = null!;
+    
+    private static Lock _messageLoopIsStartedLock = new Lock();
+    private static bool _messageLoopIsStarted; //There can only be 1 message loop for all windows.
         
-        events.DefineSender(this);
-        Events = events;
-
-        //This only has to be done once
-        if (NativeType == IntPtr.Zero)
-            NativeType = NativeLibrary.GetMainProgramHandle();
-
-        //These are for the callbacks from C++ to C#.
-        _startupParameters.ClosingHandler = Events.OnWindowClosing;
-        _startupParameters.ResizedHandler = Events.OnSizeChanged;
-        _startupParameters.MaximizedHandler = Events.OnMaximized;
-        _startupParameters.RestoredHandler = Events.OnRestored;
-        _startupParameters.MinimizedHandler = Events.OnMinimized;
-        _startupParameters.MovedHandler = Events.OnLocationChanged;
-        _startupParameters.FocusInHandler = Events.OnFocusIn;
-        _startupParameters.FocusOutHandler = Events.OnFocusOut;
-        _startupParameters.WebMessageReceivedHandler = Events.OnWebMessageReceived;
-        _startupParameters.CustomSchemeHandler = OnCustomScheme;
-
-        MaxWidth = _startupParameters.MaxWidth;
-        MaxHeight = _startupParameters.MaxHeight;
-        MinWidth = _startupParameters.MinWidth;
-        MinHeight = _startupParameters.MinHeight;
-        
-        Initialize();
-    }
-    #endregion
-
-    #region READ ONLY PROPERTIES
-
+    #region PROPERTIES
     /// <summary>
     ///     Represents a property that gets the handle of the native window on a Windows platform.
     /// </summary>
@@ -138,9 +88,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
-    #endregion
-
-    #region READ WRITE PROPERTIES
+    
     /// <summary>
     ///     Gets the value indicating whether the native window is chromeless.
     /// </summary>
@@ -264,11 +212,11 @@ public sealed class PhotinoWindow : IPhotinoWindow {
 
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MaxHeight { get; set; }
+    public int MaxHeight { get; set; } = parameters.MaxHeight;
 
     ///<summary>Gets or sets the native window maximum width in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MaxWidth { get; set; }
+    public int MaxWidth { get; set; } = parameters.MaxWidth;
 
     /// <summary>
     ///     Gets or sets whether the native window is minimized (hidden).
@@ -283,18 +231,11 @@ public sealed class PhotinoWindow : IPhotinoWindow {
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MinHeight { get; }
+    public int MinHeight { get; } = parameters.MinHeight;
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MinWidth { get; }
-
-    /// <summary>
-    ///     Gets the reference to the parent PhotinoWindow instance.
-    ///     This property can only be set in the constructor, and it is optional.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public IPhotinoWindow? Parent { get; }
+    public int MinWidth { get; } = parameters.MinWidth;
 
     /// <summary>
     ///     Gets or sets whether the user can resize the native window.
@@ -421,30 +362,10 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     public int Zoom => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetZoom);
     #endregion
 
-    // TODO CONTINUE HERE
-    #region FLUENT METHODS
-    /// <summary>
-    ///     Dispatches an Action to the UI thread if called from another thread.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="workItem"> The delegate encapsulating a method / action to be executed in the UI thread.</param>
-    public void Invoke(Action workItem) {
-        // If we're already on the UI thread, no need to dispatch
-        if (Environment.CurrentManagedThreadId == ManagedThreadId)
-            workItem();
-        else
-            PhotinoNative.Invoke(InstanceHandle, workItem.Invoke);
-    }
-
-    //NON-FLUENT METHODS - CAN ONLY BE CALLED AFTER WINDOW IS INITIALIZED
-    //ONE OF THESE 2 METHODS *MUST* BE CALLED TO CREATE THE WINDOW
-
-    private void Initialize() {
+    public void Initialize() {
         //fill in the fixed size array of custom scheme names
         int i = 0;
-        foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in _customSchemes.Take(16)) {
+        foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in customSchemes.Take(16)) {
             _startupParameters.CustomSchemeNames[i] = name.Key;
             i++;
         }
@@ -453,8 +374,8 @@ public sealed class PhotinoWindow : IPhotinoWindow {
             ? parent.InstanceHandle
             : IntPtr.Zero;
         
-        if (!PhotinoNativeParametersValidator.Validate(_startupParameters, _logger)) {
-            _logger.LogCritical("Startup Parameters Are Not Valid, please check the log file");
+        if (!PhotinoNativeParametersValidator.Validate(_startupParameters, logger)) {
+            logger.LogCritical("Startup Parameters Are Not Valid, please check the log file");
             throw new ArgumentException("Startup Parameters Are Not Valid, please check the log file");
         }
         
@@ -462,8 +383,6 @@ public sealed class PhotinoWindow : IPhotinoWindow {
         
         try //All C++ exceptions will bubble up to here.
         {
-            NativeType = NativeLibrary.GetMainProgramHandle();
-
             if (PlatformUtilities.IsWindowsPlatform)
                 Invoke(() => PhotinoNative.RegisterWin32(NativeType));
             else if (PlatformUtilities.IsMacOsPlatform)
@@ -476,12 +395,25 @@ public sealed class PhotinoWindow : IPhotinoWindow {
             if (PlatformUtilities.IsWindowsPlatform)
                 lastError = Marshal.GetLastWin32Error();
 
-            _logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
+            logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
 
         Events.OnWindowCreated();
         
+    }
+    
+    /// <summary>
+    ///     Dispatches an Action to the UI thread if called from another thread.
+    /// </summary>
+    /// <returns>
+    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    /// </returns>
+    /// <param name="workItem"> The delegate encapsulating a method / action to be executed in the UI thread.</param>
+    public void Invoke(Action workItem) {
+        // If we're already on the UI thread, no need to dispatch
+        if (Environment.CurrentManagedThreadId == ManagedThreadId) workItem();
+        else PhotinoNative.Invoke(InstanceHandle, workItem.Invoke);
     }
     
     /// <summary>
@@ -493,10 +425,11 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     ///     The operation of the message loop is exclusive to the main native window only.
     /// </remarks>
     public void WaitForClose() {
-        // TODO needs a lock
-        if (_messageLoopIsStarted) return;
-
-        _messageLoopIsStarted = true;
+        lock (_messageLoopIsStartedLock) {
+            if (_messageLoopIsStarted) return;
+            _messageLoopIsStarted = true;
+        }
+        
         try {
             Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));//start the message loop. there can only be 1 message loop for all windows.
         }
@@ -505,7 +438,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
             if (PlatformUtilities.IsWindowsPlatform)
                 lastError = Marshal.GetLastWin32Error();
 
-            _logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
+            logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
     }
@@ -517,7 +450,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     ///     Thrown when the window is not initialized.
     /// </exception>
     public void Close() {
-        _logger.LogDebug(".Close()");
+        logger.LogDebug(".Close()");
         Invoke(() => PhotinoNative.Close(InstanceHandle));
     }
 
@@ -532,13 +465,13 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     /// </exception>
     /// <param name="message">Message as string</param>
     public void SendWebMessage(string message) {
-        _logger.LogDebug(".SendWebMessage({Message})", message);
+        logger.LogDebug(".SendWebMessage({Message})", message);
         Invoke(() => PhotinoNative.SendWebMessage(InstanceHandle, message));
     }
 
     public async Task SendWebMessageAsync(string message) {
         await Task.Run(() => {
-            _logger.LogDebug(".SendWebMessage({Message})", message);
+            logger.LogDebug(".SendWebMessage({Message})", message);
             Invoke(() => PhotinoNative.SendWebMessage(InstanceHandle, message));
         });
     }
@@ -553,7 +486,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     /// <param name="title">The title of the notification</param>
     /// <param name="body">The text of the notification</param>
     public void SendNotification(string title, string body) {
-        _logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
+        logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
         Invoke(() => PhotinoNative.ShowNotification(InstanceHandle, title, body));
     }
 
@@ -773,7 +706,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
         PhotinoNative.AddCustomSchemeName(InstanceHandle, scheme);
         // }
 
-        _customSchemes[scheme] += handler;
+        customSchemes[scheme] += handler;
 
         return this;
     }
@@ -795,7 +728,7 @@ public sealed class PhotinoWindow : IPhotinoWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown when no handler is registered.
     /// </exception>
-    private IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType) {
+    public IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType) {
         contentType = null;
         numBytes = 0;
         int colonPos = url.IndexOf(':');
@@ -805,8 +738,8 @@ public sealed class PhotinoWindow : IPhotinoWindow {
 
         string scheme = url[..colonPos].ToLower();
 
-        if (!_customSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
-            throw new ApplicationException($"A handler for the custom scheme '{scheme}' has not been registered.");
+        if (!customSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
+            logger.LogWarning("No handler registered for scheme '{Scheme}'", scheme);
         }
 
         Stream? responseStream = handler?.Invoke(this, scheme, url, out contentType);
@@ -829,5 +762,4 @@ public sealed class PhotinoWindow : IPhotinoWindow {
             return buffer;
         }
     }
-    #endregion
 }

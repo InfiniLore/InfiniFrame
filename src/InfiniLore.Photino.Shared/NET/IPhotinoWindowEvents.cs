@@ -20,7 +20,7 @@ public interface IPhotinoWindowEvents {
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
     
-    void DefineSender<T>(T sender) where T : notnull;
+    IPhotinoWindowEvents DefineSender<T>(T sender) where T : notnull;
     
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);
