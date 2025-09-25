@@ -2,8 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using InfiniLore.Photino.NET;
 
 namespace Example.InfiniLore.Photino.Blazor.Sample;
+using System.Drawing;
+
 class Program {
     [STAThread] private static void Main(string[] args) {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
@@ -24,13 +27,12 @@ class Program {
         PhotinoBlazorApp app = appBuilder.Build();
 
         // customize window
-        app.MainWindow
+        app.WindowBuilder
             .SetIconFile("favicon.ico")
-            .SetTitle("Photino Blazor Sample");
-
-        AppDomain.CurrentDomain.UnhandledException += (_, error) => {
-            app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
-        };
+            .Center()
+            .SetUseOsDefaultSize(false)
+            .SetTitle("InfiniLore Photino.Blazor Sample")
+            .SetSize(new Size(800, 600));
 
         app.Run();
 

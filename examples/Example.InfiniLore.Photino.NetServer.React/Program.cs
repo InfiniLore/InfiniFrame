@@ -38,6 +38,5 @@ public static class Program {
             });
         
         window.WaitForClose();
-
     }
 }

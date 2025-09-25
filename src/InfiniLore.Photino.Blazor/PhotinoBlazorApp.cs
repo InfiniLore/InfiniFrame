@@ -3,10 +3,17 @@ using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniLore.Photino.Blazor;
+using Microsoft.Extensions.Options;
 
-public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewManager manager, IServiceProvider provider, IPhotinoJSComponentConfiguration? rootComponentConfiguration = null) {
+public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewManager manager, IServiceProvider provider, IOptions<PhotinoBlazorAppConfiguration> config, IPhotinoJSComponentConfiguration? rootComponentConfiguration = null) {
+    public IPhotinoWindowBuilder WindowBuilder => builder;
+    public IServiceProvider Provider => provider;
+    
     internal void Initialize(RootComponentList rootComponents) {
-        builder.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest);
+        builder.RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest)
+            .SetUseOsDefaultSize(true)
+            .SetUseOsDefaultLocation(true)
+            .SetStartUrl("/index.html");
 
         AppDomain.CurrentDomain.UnhandledException += (_, error) => {
             provider.GetService<IPhotinoWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
@@ -22,7 +29,7 @@ public class PhotinoBlazorApp(IPhotinoWindowBuilder builder, IPhotinoWebViewMana
     public void Run() {
         var window = provider.GetRequiredService<IPhotinoWindow>();
         
-        manager.Navigate(string.IsNullOrWhiteSpace(window.StartUrl) ? "/" : window.StartUrl);
+        manager.Navigate(window.StartUrl!);
         window.WaitForClose();
     }
 

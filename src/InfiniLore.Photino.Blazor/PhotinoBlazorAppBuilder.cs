@@ -30,11 +30,9 @@ public class PhotinoBlazorAppBuilder {
         return new PhotinoBlazorAppBuilder();
     }
 
-    public PhotinoBlazorApp Build(Action<IServiceProvider>? serviceProviderOptions = null) {
+    public PhotinoBlazorApp Build() {
         ServiceProvider sp = Services.BuildServiceProvider();
         var app = sp.GetRequiredService<PhotinoBlazorApp>();
-
-        serviceProviderOptions?.Invoke(sp);
 
         app.Initialize(RootComponents);
         return app;

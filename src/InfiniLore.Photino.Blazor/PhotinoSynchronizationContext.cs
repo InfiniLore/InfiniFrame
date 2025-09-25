@@ -4,6 +4,8 @@
 using InfiniLore.Photino.NET;
 
 namespace InfiniLore.Photino.Blazor;
+using Microsoft.Extensions.DependencyInjection;
+
 // Most UI platforms have a built-in SyncContext/Dispatcher, e.g., Windows Forms and WPF, which WebView
 // can normally use directly. However, Photino currently doesn't.
 //
@@ -15,8 +17,9 @@ namespace InfiniLore.Photino.Blazor;
 // relying on that for single-threadedness. Maybe also in the future Photino could consider having its own
 // built-in SyncContext/Dispatcher like other UI platforms.
 
-public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchronizationState? state = null) : SynchronizationContext {
+public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSynchronizationState? state = null) : SynchronizationContext {
     private readonly PhotinoSynchronizationState _state = state ?? new PhotinoSynchronizationState();
+    private Lazy<IPhotinoWindow> LazyWindow { get; } = new Lazy<IPhotinoWindow>(provider.GetRequiredService<IPhotinoWindow>);
 
     public event UnhandledExceptionEventHandler? UnhandledException;
 
@@ -133,7 +136,7 @@ public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchro
     // shallow copy
     public override SynchronizationContext CreateCopy() {
         lock (_state.Lock) {
-            return new PhotinoSynchronizationContext(window, _state);
+            return new PhotinoSynchronizationContext(provider, _state);
         }
     }
 
@@ -200,18 +203,18 @@ public class PhotinoSynchronizationContext(IPhotinoWindow window, PhotinoSynchro
     ) {
         // Anything run on the sync context should actually be dispatched as far as Photino
         // is concerned, so that it's safe to interact with the native window/WebView.
-        window.Invoke(() => {
-            SynchronizationContext? original = Current;
-            try {
-                SetSynchronizationContext(this);
-                d?.Invoke(state);
-            }
-            finally {
-                SetSynchronizationContext(original);
+        LazyWindow.Value.Invoke(() => {
+                SynchronizationContext? original = Current;
+                try {
+                    SetSynchronizationContext(this);
+                    d?.Invoke(state);
+                }
+                finally {
+                    SetSynchronizationContext(original);
 
-                completion?.SetResult(null!);
+                    completion?.SetResult(null!);
+                }
             }
-        }
         );
     }
 

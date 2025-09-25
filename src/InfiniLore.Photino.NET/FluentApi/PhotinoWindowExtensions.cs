@@ -17,7 +17,7 @@ public static class PhotinoWindowExtensions {
     /// </remarks>
     /// <param name="window">Photino window instance</param>
     /// <param name="uri">A Uri pointing to the file or the URL to load.</param>
-    private static T Load<T>(this T window, Uri uri) where T : class, IPhotinoWindow {
+    public static T Load<T>(this T window, Uri uri) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".Load({uri})", uri);
         window.Invoke(() => PhotinoNative.NavigateToUrl(window.InstanceHandle, uri.ToString()));
         return window;

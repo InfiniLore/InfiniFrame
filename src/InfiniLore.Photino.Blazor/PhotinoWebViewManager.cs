@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
 namespace InfiniLore.Photino.Blazor;
+using Microsoft.Extensions.DependencyInjection;
+
 public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
 
     // On Windows, we can't use a custom scheme to host the initial HTML,
@@ -24,30 +26,34 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
 
     public static readonly string AppBaseUri = $"{BlazorAppScheme}://localhost/";
     private readonly Channel<string> _channel;
-    private readonly IPhotinoWindow _window;
+    private Lazy<IPhotinoWindow> LazyWindow { get; } 
+    private readonly SynchronousTaskScheduler _syncScheduler = new SynchronousTaskScheduler();
 
     public PhotinoWebViewManager(
-        IPhotinoWindow window, IServiceProvider provider, Dispatcher dispatcher,
-        IFileProvider fileProvider, JSComponentConfigurationStore jsComponents, IOptions<PhotinoBlazorAppConfiguration> config
+        IServiceProvider provider, 
+        Dispatcher dispatcher,
+        IFileProvider fileProvider,
+        JSComponentConfigurationStore jsComponents, 
+        IOptions<PhotinoBlazorAppConfiguration> config
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
-        _window = window ?? throw new ArgumentNullException(nameof(window));
+        
+        LazyWindow = new Lazy<IPhotinoWindow>(() => {
+            var window = provider.GetRequiredService<IPhotinoWindow>();
+            window.WebMessageReceived += (_, message) => {
+                // On some platforms, we need to move off the browser UI thread
+                Task.Factory.StartNew(m => {
+                    // TODO: Fix this. Photino should ideally tell us the URL that the message comes from so we
+                    // know whether to trust it. Currently it's hardcoded to trust messages from any source, including
+                    // if the webview is somehow navigated to an external URL.
+                    var messageOriginUrl = new Uri(AppBaseUri);
 
-        // Create a scheduler that uses one thread.
-        var sts = new SynchronousTaskScheduler();
-
-        _window.WebMessageReceived += (_, message) => {
-            // On some platforms, we need to move off the browser UI thread
-            Task.Factory.StartNew(m => {
-                // TODO: Fix this. Photino should ideally tell us the URL that the message comes from so we
-                // know whether to trust it. Currently it's hardcoded to trust messages from any source, including
-                // if the webview is somehow navigated to an external URL.
-                var messageOriginUrl = new Uri(AppBaseUri);
-
-                MessageReceived(messageOriginUrl, (string)m!);
-            }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, sts);
-        };
-
+                    MessageReceived(messageOriginUrl, (string)m!);
+                }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, _syncScheduler);
+            };
+            return window;
+        });
+        
         //Create channel and start reader
         _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
         Task.Run(MessagePump);
@@ -73,7 +79,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
     }
 
     protected override void NavigateCore(Uri absoluteUri) {
-        _window.Load(absoluteUri.ToString()); // TODO handle exceptions
+        LazyWindow.Value.Load(absoluteUri); // TODO handle exceptions
     }
 
     protected override void SendMessage(string message) {
@@ -84,9 +90,10 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
     private async Task MessagePump() {
         ChannelReader<string> reader = _channel.Reader;
         try {
-            while (true) {
-                string message = await reader.ReadAsync();
-                await _window.SendWebMessageAsync(message);
+            while (await reader.WaitToReadAsync()) {
+                while (reader.TryRead(out string? message)) {
+                    await LazyWindow.Value.SendWebMessageAsync(message);
+                }
             }
         }
         catch (ChannelClosedException) {}
