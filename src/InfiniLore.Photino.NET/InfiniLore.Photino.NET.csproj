@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <PackageId>InfiniLore.Photino.NET</PackageId>
@@ -11,6 +11,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <EmbeddedResource Include="wwwroot\InfiniLore.Photino.js"/>
     </ItemGroup>
 
 </Project>

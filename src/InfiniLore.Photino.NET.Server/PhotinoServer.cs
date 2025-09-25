@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace InfiniLore.Photino.NET.Server;
 /// <summary>
 /// The PhotinoServer class enables users to host their web projects in
