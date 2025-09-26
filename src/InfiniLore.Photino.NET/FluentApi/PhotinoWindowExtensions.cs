@@ -188,7 +188,7 @@ public static class PhotinoWindowExtensions {
         // This behavior seems to have changed with macOS Sonoma.
         // Therefore, we determine the version of macOS and only apply the
         // workaround for older versions.
-        if (OperatingSystem.IsMacOSVersionAtLeast(23)) {
+        if (!OperatingSystem.IsMacOSVersionAtLeast(23)) {
             Size workArea = window.MainMonitor.WorkArea.Size;
             location.Y = location.Y >= 0
                 ? location.Y - workArea.Height
@@ -224,23 +224,6 @@ public static class PhotinoWindowExtensions {
 
     #region Offset
     /// <summary>
-    ///     Moves the native window relative to its current location on the screen
-    ///     using a <see cref="Point" />.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
-    /// </returns>
-    /// <param name="window">Photino window instance</param>
-    /// <param name="offset">Relative offset</param>
-    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".Offset({offset})", offset);
-        var location = InvokeUtilities.InvokeAndReturn<Point>(window, PhotinoNative.GetPosition);
-        int left = location.X + offset.X;
-        int top = location.Y + offset.Y;
-        return MoveTo(window, left, top, true);
-    }
-
-    /// <summary>
     ///     Moves the native window relative to its current location on the screen in pixels
     ///     using <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> (Y) properties.
     /// </summary>
@@ -252,7 +235,24 @@ public static class PhotinoWindowExtensions {
     /// <param name="top">Relative offset from top in pixels</param>
     public static T Offset<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".Offset({left}, {top})", left, top);
-        return Offset(window, new Point(left, top));
+        window.Invoke(() => {
+            PhotinoNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
+            PhotinoNative.SetPosition(window.InstanceHandle, oldLeft + left, oldTop + top);
+        });
+        return window;
+    }
+    
+    /// <summary>
+    ///     Moves the native window relative to its current location on the screen
+    ///     using a <see cref="Point" />.
+    /// </summary>
+    /// <returns>
+    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    /// </returns>
+    /// <param name="window">Photino window instance</param>
+    /// <param name="offset">Relative offset</param>
+    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow {
+        return Offset(window, offset.X, offset.Y);
     }
     
     public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow {
