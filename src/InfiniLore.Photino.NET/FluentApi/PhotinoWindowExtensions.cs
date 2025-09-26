@@ -100,7 +100,41 @@ public static class PhotinoWindowExtensions {
         return window;
     }
 
-    // TODO create a CenterOnMonitor method
+    // ReSharper disable once RedundantArgumentDefaultValue
+    public static T CenterOnCurrentMonitor<T>(this T window) where T : class, IPhotinoWindow
+        => CenterOnMonitor(window, -1);
+    
+    public static T CenterOnMonitor<T>(this T window, int monitorIndex = -1) where T : class, IPhotinoWindow {
+        ImmutableArray<Monitor> monitors = InvokeUtilities.InvokeAndReturn(window, MonitorsUtility.GetMonitors);
+
+        if (monitorIndex <= -1 ) {
+            window.Invoke(() => {
+                PhotinoNative.GetRectangle(window.InstanceHandle, out Rectangle rectangle);
+                
+                // TODO think about proper unhappy flow here
+                if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out var monitor)) return;
+                Rectangle area = monitor.MonitorArea;
+                
+                var newLocation = new Point(area.X + area.Width / 2 - rectangle.Width / 2, area.Y + area.Height / 2 - rectangle.Height / 2);
+                PhotinoNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
+            });
+        }
+        
+        if (monitorIndex < 0 || monitorIndex >= monitors.Length) {
+            window.Logger.LogWarning("Monitor index {MonitorIndex} is out of range. Available monitors: {Monitors}", monitorIndex, monitors.Length);
+            return window;
+        }
+
+        window.Invoke(() => {
+            PhotinoNative.GetSize(window.InstanceHandle, out Size size);
+            Rectangle area = monitors[monitorIndex].MonitorArea;
+            
+            var newLocation = new Point(area.X + area.Width / 2 - size.Width / 2, area.Y + area.Height / 2 - size.Height / 2);
+            PhotinoNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
+        });
+        
+        return window;  
+    }
     #endregion
 
     #region MoveTo
@@ -154,7 +188,7 @@ public static class PhotinoWindowExtensions {
         // This behavior seems to have changed with macOS Sonoma.
         // Therefore, we determine the version of macOS and only apply the
         // workaround for older versions.
-        if (PlatformUtilities.IsMacOsPlatform && PlatformUtilities.MacOsVersion?.Major < 23) {
+        if (OperatingSystem.IsMacOSVersionAtLeast(23)) {
             Size workArea = window.MainMonitor.WorkArea.Size;
             location.Y = location.Y >= 0
                 ? location.Y - workArea.Height
@@ -311,15 +345,12 @@ public static class PhotinoWindowExtensions {
                 PhotinoNative.GetSize(window.InstanceHandle, out int width, out int height);
 
                 window.CachedPreFullScreenBounds = new Rectangle(left, top, width, height);
-
-                Rectangle currentMonitorArea = monitors
-                    .First(monitor => monitor.MonitorArea.IntersectsWith(window.CachedPreFullScreenBounds))
-                    .MonitorArea;
-
-                if (currentMonitorArea == default) {
+                if (!MonitorsUtility.TryGetCurrentMonitor(monitors, window.CachedPreFullScreenBounds, out Monitor currentMonitor)) {
+                    window.Logger.LogError("Failed to get current monitor, defaulting to simple fullscreen call");
                     PhotinoNative.SetFullScreen(window.InstanceHandle, true);
                     return;
                 }
+                Rectangle currentMonitorArea = currentMonitor.MonitorArea;
 
                 PhotinoNative.SetFullScreen(window.InstanceHandle, true);
                 PhotinoNative.SetPosition(window.InstanceHandle, currentMonitorArea.X, currentMonitorArea.Y);
@@ -680,7 +711,7 @@ public static class PhotinoWindowExtensions {
     /// <param name="data">Runtime path for WebView2</param>
     public static T Win32SetWebView2Path<T>(this T window, string data) where T : class, IPhotinoWindow {
         if (PlatformUtilities.IsWindowsPlatform)
-            window.Invoke(() => PhotinoNative.setWebView2RuntimePath_win32(PhotinoWindow.NativeType, data));
+            window.Invoke(() => PhotinoNative.SetWebView2RuntimePath_win32(PhotinoWindow.NativeType, data));
         else
             window.Logger.LogDebug("Win32SetWebView2Path is only supported on the Windows platform");
 

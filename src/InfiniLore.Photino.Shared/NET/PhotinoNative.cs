@@ -217,7 +217,7 @@ public static partial class PhotinoNative {
     #region Set
     [LibraryImport(DllName, EntryPoint = Photino_setWebView2RuntimePath_win32, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-    internal static partial void setWebView2RuntimePath_win32(IntPtr instance, string webView2RuntimePath);
+    internal static partial void SetWebView2RuntimePath_win32(IntPtr instance, string webView2RuntimePath);
 
     [LibraryImport(DllName, EntryPoint = Photino_SetTransparentEnabled, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -345,6 +345,16 @@ public static partial class PhotinoNative {
     internal static void GetPosition(IntPtr instance, out Point position) {
         GetPosition(instance, out int left, out int top);
         position = new Point(left, top);
+    }
+
+    internal static void GetRectangle(IntPtr instance, out int x, out int y, out int width, out int height) {
+        GetSize(instance, out width, out height);
+        GetPosition(instance, out x, out y);
+    }
+
+    internal static void GetRectangle(IntPtr instance, out Rectangle rectangle) {
+        GetRectangle(instance, out int x, out int y, out int width, out int height);
+        rectangle = new Rectangle(x, y, width, height);
     }
 
     internal static void GetUserAgent(IntPtr instance, out string? userAgent) {
