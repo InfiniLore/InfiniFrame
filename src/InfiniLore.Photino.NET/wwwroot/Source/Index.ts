@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {sendMessageToHost} from "./MessagingToHost";
+import {releasePointerCapture, setPointerCapture} from "./Pointers";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,3 +14,6 @@ document.addEventListener("fullscreenchange", (_: Event) => {
         sendMessageToHost("fullscreen:exit");
     }
 });
+
+window.setPointerCapture = setPointerCapture;
+window.releasePointerCapture = releasePointerCapture;

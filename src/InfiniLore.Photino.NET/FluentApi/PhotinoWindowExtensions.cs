@@ -216,6 +216,10 @@ public static class PhotinoWindowExtensions {
         window.Logger.LogDebug(".MoveTo({left}, {top}, {allowOutsideWorkArea})", left, top, allowOutsideWorkArea);
         return MoveTo(window, new Point(left, top), allowOutsideWorkArea);
     }
+
+    public static T MoveTo<T>(this T window, double left, double top, bool allowOutsideWorkArea = false) where T : class, IPhotinoWindow {
+        return MoveTo(window, (int)left, (int)top, allowOutsideWorkArea);
+    }
     #endregion
 
     #region Offset
@@ -233,7 +237,7 @@ public static class PhotinoWindowExtensions {
         var location = InvokeUtilities.InvokeAndReturn<Point>(window, PhotinoNative.GetPosition);
         int left = location.X + offset.X;
         int top = location.Y + offset.Y;
-        return MoveTo(window, left, top);
+        return MoveTo(window, left, top, true);
     }
 
     /// <summary>
@@ -249,6 +253,10 @@ public static class PhotinoWindowExtensions {
     public static T Offset<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".Offset({left}, {top})", left, top);
         return Offset(window, new Point(left, top));
+    }
+    
+    public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow {
+        return Offset(window, (int)left, (int)top);
     }
     #endregion
 
