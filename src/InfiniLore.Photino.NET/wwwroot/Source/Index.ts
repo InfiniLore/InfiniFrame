@@ -16,12 +16,12 @@ document.addEventListener("fullscreenchange", (_: Event) => {
 });
 
 // TODO add this is a optional?
-document.addEventListener("keydown", (e: KeyboardEvent) => {
+document.addEventListener("keydown", async (e: KeyboardEvent) => {
     if (e.key === "F11") {
         if (document.fullscreenElement) {
-            document.exitFullscreen().then();
+            await document.exitFullscreen();
         } else {
-            document.body.requestFullscreen().then();
+            await document.body.requestFullscreen();
         }
     }
 });
