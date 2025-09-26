@@ -42,7 +42,7 @@ public sealed class PhotinoWindow(
     /// <exception cref="System.ApplicationException">Thrown when the window is not initialized yet.</exception>
     /// <exception cref="System.PlatformNotSupportedException">Thrown when accessed from a non-Windows platform.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public IntPtr WindowHandle => PlatformUtilities.IsWindowsPlatform
+    public IntPtr WindowHandle => OperatingSystem.IsWindows()
         ? InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetWindowHandlerWin32)
         : IntPtr.Zero;
 
@@ -387,16 +387,16 @@ public sealed class PhotinoWindow(
         //All C++ exceptions will bubble up to here.
         try
         {
-            if (PlatformUtilities.IsWindowsPlatform)
+            if (OperatingSystem.IsWindows())
                 Invoke(() => PhotinoNative.RegisterWin32(NativeType));
-            else if (PlatformUtilities.IsMacOsPlatform)
+            else if (OperatingSystem.IsMacOS())
                 Invoke(() => PhotinoNative.RegisterMac());
 
             Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref StartupParameters));
         }
         catch (Exception ex) {
             int lastError = 0;
-            if (PlatformUtilities.IsWindowsPlatform)
+            if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
 
             logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
@@ -440,7 +440,7 @@ public sealed class PhotinoWindow(
         }
         catch (Exception ex) {
             int lastError = 0;
-            if (PlatformUtilities.IsWindowsPlatform)
+            if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
 
             logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
@@ -664,9 +664,9 @@ public sealed class PhotinoWindow(
     private static string[] GetNativeFilters((string Name, string[] Extensions)[] filters, bool empty = false) {
         string[] nativeFilters = Array.Empty<string>();
         if (!empty && filters is { Length: > 0 }) {
-            nativeFilters = PlatformUtilities.IsMacOsPlatform ?
-                filters.SelectMany(t => t.Extensions.Select(s => s == "*" ? s : s.TrimStart('*', '.'))).ToArray() :
-                filters.Select(t => $"{t.Name}|{t.Extensions.Select(s => s.StartsWith('.') ? $"*{s}" : !s.StartsWith("*.") ? $"*.{s}" : s).Aggregate((e1, e2) => $"{e1};{e2}")}").ToArray();
+            nativeFilters = OperatingSystem.IsMacOS()
+                ? filters.SelectMany(t => t.Extensions.Select(s => s == "*" ? s : s.TrimStart('*', '.'))).ToArray()
+                : filters.Select(t => $"{t.Name}|{t.Extensions.Select(s => s.StartsWith('.') ? $"*{s}" : !s.StartsWith("*.") ? $"*.{s}" : s).Aggregate((e1, e2) => $"{e1};{e2}")}").ToArray();
         }
 
         return nativeFilters;

@@ -261,7 +261,7 @@ public static class PhotinoWindowExtensions {
     public static T SetTransparent<T>(this T window, bool enabled) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetTransparent({Enabled})", enabled);
 
-        if (PlatformUtilities.IsWindowsPlatform) {
+        if (OperatingSystem.IsWindows()) {
             window.Logger.LogWarning("Transparent can only be set on Windows before the native window is instantiated.");
             return window;
         }
@@ -616,7 +616,7 @@ public static class PhotinoWindowExtensions {
             string? oldTitle = Marshal.PtrToStringAuto(ptr);
             if (title == oldTitle) return;
 
-            if (PlatformUtilities.IsLinuxPlatform && title?.Length > 31) title = title[..31];// Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars
+            if (OperatingSystem.IsLinux() && title?.Length > 31) title = title[..31];// Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars
             PhotinoNative.SetTitle(window.InstanceHandle, title ?? string.Empty);
         });
 
@@ -710,7 +710,7 @@ public static class PhotinoWindowExtensions {
     /// <param name="window"></param>
     /// <param name="data">Runtime path for WebView2</param>
     public static T Win32SetWebView2Path<T>(this T window, string data) where T : class, IPhotinoWindow {
-        if (PlatformUtilities.IsWindowsPlatform)
+        if (OperatingSystem.IsWindows())
             window.Invoke(() => PhotinoNative.SetWebView2RuntimePath_win32(PhotinoWindow.NativeType, data));
         else
             window.Logger.LogDebug("Win32SetWebView2Path is only supported on the Windows platform");
@@ -728,7 +728,7 @@ public static class PhotinoWindowExtensions {
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     public static T ClearBrowserAutoFill<T>(this T window) where T : class, IPhotinoWindow {
-        if (PlatformUtilities.IsWindowsPlatform)
+        if (OperatingSystem.IsWindows())
             window.Invoke(() => PhotinoNative.ClearBrowserAutoFill(window.InstanceHandle));
         else
             window.Logger.LogWarning("ClearBrowserAutoFill is only supported on the Windows platform");

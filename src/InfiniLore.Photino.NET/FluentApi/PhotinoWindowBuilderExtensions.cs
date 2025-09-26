@@ -324,12 +324,12 @@ public static class PhotinoWindowBuilderExtensions {
     public static T SetChromeless<T>(this T builder, bool chromeless) where T : IPhotinoWindowBuilder {
         builder.Configuration.Chromeless = chromeless;
 
+        if (!OperatingSystem.IsWindows()) return builder;
+
         // Overrides the os defaults for you, as it does not work together on windows with chromeless
-        if (PlatformUtilities.IsWindowsPlatform) {
-            builder.Configuration.UseOsDefaultLocation = !chromeless && builder.Configuration.UseOsDefaultLocation;
-            builder.Configuration.UseOsDefaultSize = !chromeless && builder.Configuration.UseOsDefaultSize;
-        }
-        
+        builder.Configuration.UseOsDefaultLocation = !chromeless && builder.Configuration.UseOsDefaultLocation;
+        builder.Configuration.UseOsDefaultSize = !chromeless && builder.Configuration.UseOsDefaultSize;
+
         return builder;
     }
 
