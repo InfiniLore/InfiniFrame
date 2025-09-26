@@ -19,13 +19,15 @@ This project is currently in a *very early stage of converting the old code base
 
 ## Breaking changes
 
-Although I have been able to keep most of the original API so far, the following breaking changes have been made:
+Although most of the original API has been kept as is, the introduction of the builder pattern, switching to a more loosely defined fluent-api style and other changes, have brought many breaking changes to the codebase.
+
+Some changes so far, have been described below:
 
 **Solution wide changes**
 
 - Nullability: The entire project now has nullable enabled, this means that some of the return types of methods have
   been changed from `object` to `object?`, but most of the time this shouldn't be a problem given this now mimics what
-  the actual code base was doing.
+  the actual code base was doing all along.
 
 **Photino.NET changes**
 
