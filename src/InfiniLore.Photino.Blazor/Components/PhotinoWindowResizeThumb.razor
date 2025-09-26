@@ -1,0 +1,141 @@
+﻿@namespace InfiniLore.Photino.Blazor
+
+@using InfiniLore.Photino.NET
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Logging
+@using Microsoft.JSInterop
+@inherits ComponentBase
+
+@inject IJSRuntime JsRuntime
+@inject ILogger<PhotinoWindowResizeThumb> Logger
+@inject IPhotinoWindow PhotinoWindow
+
+@* ReSharper disable CSharpWarnings::CS8974 *@
+@{GetStyleValues(out string left, out string top, out string width, out string height, out string cursor);}
+<div @ref="_thumbReference"
+     style="position: absolute; left: @left; top: @top; width: @width; height: @height; cursor: @cursor; background: #aed987;"
+     onpointerdown="@OnPointerDown"
+     onpointerup="@OnPointerUp"
+     onpointermove="@OnPointerMove"
+>
+    @* ReSharper restore CSharpWarnings::CS8974 *@
+</div>
+
+@code {
+    [Parameter] public ResizeOrigin ResizeThumb { get; set; }
+    [Parameter] public int ResizeArea { get; set; } = 10;
+
+    private ElementReference _thumbReference;
+    private bool _suppressRender;
+    private bool _isGrabbing;
+
+    protected override bool ShouldRender() {
+        if (!base.ShouldRender()) return false;
+
+        // Reset every time to ensure we don't render until we're ready.
+        if (_suppressRender) {
+            _suppressRender = false;
+            return false;
+        }
+        return true;
+    }
+
+    private void GetStyleValues(out string left, out string top, out string width, out string height, out string cursor) {
+        switch (ResizeThumb) {
+            case ResizeOrigin.TopLeft: {
+                width = $"{ResizeArea}px";
+                height = $"{ResizeArea}px";
+                left = "0";
+                top = "0";
+                cursor = "nw-resize";
+                return;
+            }
+
+            case ResizeOrigin.Top: {
+                width = "100%";
+                height = $"{ResizeArea}px";
+                left = "0";
+                top = "0";
+                cursor = "n-resize";
+                return;
+            }
+
+                // TODO
+            case ResizeOrigin.TopRight: {
+                width = $"{ResizeArea}px";
+                height = $"{ResizeArea}px";
+                left = "100%";
+                top = "0";
+                cursor = "ne-resize";
+                return;
+            }
+
+            case ResizeOrigin.Right: {
+                width = $"{ResizeArea}px";
+                height = "100%";
+                left = "100%";
+                top = "0";
+                cursor = "e-resize";
+                return;
+            }
+
+            case ResizeOrigin.BottomRight: {
+                width = $"{ResizeArea}px";
+                height = $"{ResizeArea}px";
+                left = "100%";
+                top = "100%";
+                cursor = "se-resize";
+                return;
+            }
+
+            case ResizeOrigin.Bottom: {
+                width = "100%";
+                height = $"{ResizeArea}px";
+                left = "0";
+                top = "100%";
+                cursor = "s-resize";
+                return;
+            }
+
+            case ResizeOrigin.BottomLeft: {
+                width = $"{ResizeArea}px";
+                height = $"{ResizeArea}px";
+                left = "0";
+                top = "100%";
+                cursor = "sw-resize";
+                return;
+            }
+
+            case ResizeOrigin.Left: {
+                width = $"{ResizeArea}px";
+                height = "100%";
+                left = "0";
+                top = "0";
+                cursor = "w-resize";
+                return;
+            }
+
+            default: throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private async Task OnPointerDown(PointerEventArgs args) {
+        _isGrabbing = true;
+        await JsRuntime.InvokeVoidAsync("setPointerCapture", _thumbReference, args.PointerId);
+    }
+
+    private async Task OnPointerUp(PointerEventArgs args) {
+        _isGrabbing = false;
+        await JsRuntime.InvokeVoidAsync("releasePointerCapture", _thumbReference, args.PointerId);
+    }
+
+    private void OnPointerMove(PointerEventArgs args) {
+        if (!_isGrabbing) {
+            _suppressRender = true;
+            return;
+        }
+        
+        Logger.LogInformation("{@args}", args);
+        PhotinoWindow.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
+    }
+}

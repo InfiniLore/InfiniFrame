@@ -49,14 +49,12 @@
         _isGrabbing = true;
         _suppressRender = true;
         await JSRuntime.InvokeVoidAsync("setPointerCapture", _dragArea, args.PointerId);
-        Logger.LogInformation("OnPointerDown");
     }
 
     private async Task OnPointerUp(PointerEventArgs args) {
         _isGrabbing = false;
         _suppressRender = true;
         await JSRuntime.InvokeVoidAsync("releasePointerCapture", _dragArea, args.PointerId);
-        Logger.LogInformation("OnPointerUp");
     }
 
     private void OnPointerMove(PointerEventArgs args) {

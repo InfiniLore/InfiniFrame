@@ -15,5 +15,16 @@ document.addEventListener("fullscreenchange", (_: Event) => {
     }
 });
 
+// TODO add this is a optional?
+document.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.key === "F11") {
+        if (document.fullscreenElement) {
+            document.exitFullscreen().then();
+        } else {
+            document.body.requestFullscreen().then();
+        }
+    }
+});
+
 window.setPointerCapture = setPointerCapture;
 window.releasePointerCapture = releasePointerCapture;

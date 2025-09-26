@@ -743,4 +743,69 @@ public static class PhotinoWindowExtensions {
 
         return window;
     }
+    
+    public static T Resize<T>(this T window, int widthOffset, int heightOffset, ResizeOrigin origin) where T : class, IPhotinoWindow {
+        window.Invoke(() => {
+            PhotinoNative.GetSize(window.InstanceHandle, out int width, out int height);
+            PhotinoNative.GetPosition(window.InstanceHandle, out int x, out int y);
+
+            switch (origin) {
+                case ResizeOrigin.TopLeft: {
+                    x += widthOffset;
+                    y += heightOffset;
+                    width -= widthOffset;
+                    height -= heightOffset;
+                    break;
+                }
+
+                case ResizeOrigin.Top: {
+                    y += heightOffset;
+                    height -= heightOffset;
+                    break;
+                }
+
+                case ResizeOrigin.TopRight: {
+                    width += widthOffset;
+                    y += heightOffset;
+                    height -= heightOffset;
+                    break;
+                }
+
+                case ResizeOrigin.Right: {
+                    width += widthOffset;
+                    break;
+                }
+
+                case ResizeOrigin.BottomRight: {
+                    width += widthOffset;
+                    height += heightOffset;
+                    break;
+                }
+
+                case ResizeOrigin.Bottom: {
+                    height += heightOffset;
+                    break;
+                }
+
+                case ResizeOrigin.BottomLeft: {
+                    x += widthOffset;
+                    width -= widthOffset;
+                    height += heightOffset;
+                    break;
+                }
+
+                case ResizeOrigin.Left: {
+                    x += widthOffset;
+                    width -= widthOffset;
+                    break;
+                }
+                default: throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
+            }
+            
+            PhotinoNative.SetSize(window.InstanceHandle, width, height);
+            PhotinoNative.SetPosition(window.InstanceHandle, x, y);
+            
+        });
+        return window;
+    }
 }

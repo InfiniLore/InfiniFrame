@@ -1,19 +1,30 @@
-﻿@using InfiniLore.Photino.Blazor
+﻿@using global::InfiniLore.Photino
+@using global::InfiniLore.Photino.Blazor
+@using InfiniLore.Photino.Blazor
 @inherits LayoutComponentBase
 
 
-    <div class="sidebar">
-        <NavMenu/>
+<div class="sidebar">
+    <NavMenu/>
+</div>
+
+<div class="main">
+    <div class="top-row px-4">
+        <PhotinoWindowDragArea class="w-100 bg-dark h-100"/>
+        
+        <a href="https://blazor.net" target="_blank" class="ml-md-auto">About</a>
     </div>
 
-    <div class="main">
-        <div class="top-row px-4">
-            <PhotinoWindowDragArea class="w-100 bg-dark h-100"/>
-            
-            <a href="https://blazor.net" target="_blank" class="ml-md-auto">About</a>
-        </div>
-
-        <div class="content px-4">
-            @Body
-        </div>
+    <div class="content px-4">
+        @Body
     </div>
+</div>
+
+<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.Top"/>
+<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.Right"/>
+<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.Bottom"/>
+<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.Left"/>
+<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.TopLeft"/>
+<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.TopRight"/>
+<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.BottomRight"/>
+<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.BottomLeft"/>
