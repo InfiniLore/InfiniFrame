@@ -30,10 +30,10 @@ public class PhotinoBlazorAppBuilder {
     }
 
     public PhotinoBlazorApp Build() {
+        Services.AddSingleton(RootComponents);
         ServiceProvider sp = Services.BuildServiceProvider();
         var app = sp.GetRequiredService<PhotinoBlazorApp>();
-
-        app.Initialize(RootComponents);
+        app.Initialize();
         return app;
     }
 }

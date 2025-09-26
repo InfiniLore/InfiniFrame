@@ -1,9 +1,9 @@
 ﻿using System.Drawing;
 
 namespace InfiniLore.Photino.NET;
+using InfiniLore.Photino.NET.Utilities;
 
-// ReSharper disable once InconsistentNaming
-public static class IPhotinoWindowBuilderExtensions {
+public static class PhotinoWindowBuilderExtensions {
     public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
         builder.Configuration.MediaAutoplayEnabled = enable;
         return builder;
@@ -323,6 +323,13 @@ public static class IPhotinoWindowBuilderExtensions {
 
     public static T SetChromeless<T>(this T builder, bool chromeless) where T : IPhotinoWindowBuilder {
         builder.Configuration.Chromeless = chromeless;
+
+        // Overrides the os defaults for you, as it does not work together on windows with chromeless
+        if (PlatformUtilities.IsWindowsPlatform) {
+            builder.Configuration.UseOsDefaultLocation = !chromeless && builder.Configuration.UseOsDefaultLocation;
+            builder.Configuration.UseOsDefaultSize = !chromeless && builder.Configuration.UseOsDefaultSize;
+        }
+        
         return builder;
     }
 
