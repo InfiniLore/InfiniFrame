@@ -11,9 +11,9 @@
 @inject IPhotinoWindow PhotinoWindow
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
-@{GetStyleValues(out string left, out string top, out string width, out string height, out string cursor);}
+@{ GetStyleValues(out string left, out string top, out string width, out string height, out string cursor); }
 <div @ref="_thumbReference"
-     style="position: absolute; left: @left; top: @top; width: @width; height: @height; cursor: @cursor; background: #aed987;"
+     style="position: absolute; z-index: 10000; left: @left; top: @top; width: @width; height: @height; cursor: @cursor;"
      onpointerdown="@OnPointerDown"
      onpointerup="@OnPointerUp"
      onpointermove="@OnPointerMove"
@@ -60,11 +60,10 @@
                 return;
             }
 
-                // TODO
             case ResizeOrigin.TopRight: {
                 width = $"{ResizeArea}px";
                 height = $"{ResizeArea}px";
-                left = "100%";
+                left = $"calc(100% - {ResizeArea}px)";
                 top = "0";
                 cursor = "ne-resize";
                 return;
@@ -73,7 +72,7 @@
             case ResizeOrigin.Right: {
                 width = $"{ResizeArea}px";
                 height = "100%";
-                left = "100%";
+                left = $"calc(100% - {ResizeArea}px)";
                 top = "0";
                 cursor = "e-resize";
                 return;
@@ -82,8 +81,8 @@
             case ResizeOrigin.BottomRight: {
                 width = $"{ResizeArea}px";
                 height = $"{ResizeArea}px";
-                left = "100%";
-                top = "100%";
+                left = $"calc(100% - {ResizeArea}px)";
+                top = $"calc(100% - {ResizeArea}px)";
                 cursor = "se-resize";
                 return;
             }
@@ -92,7 +91,7 @@
                 width = "100%";
                 height = $"{ResizeArea}px";
                 left = "0";
-                top = "100%";
+                top = $"calc(100% - {ResizeArea}px)";
                 cursor = "s-resize";
                 return;
             }
@@ -101,7 +100,7 @@
                 width = $"{ResizeArea}px";
                 height = $"{ResizeArea}px";
                 left = "0";
-                top = "100%";
+                top = $"calc(100% - {ResizeArea}px)";
                 cursor = "sw-resize";
                 return;
             }
@@ -134,7 +133,7 @@
             _suppressRender = true;
             return;
         }
-        
+
         Logger.LogInformation("{@args}", args);
         PhotinoWindow.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
     }
