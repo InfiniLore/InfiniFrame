@@ -12,7 +12,7 @@ public static class Program {
 
         PhotinoServer photinoServer = photinoServerBuilder.Build();
         
-        photinoServer.MapPhotinoJsEndpoint();
+        photinoServer.MapPhotinoJsEndpoints();
 
         photinoServer.Run();
 

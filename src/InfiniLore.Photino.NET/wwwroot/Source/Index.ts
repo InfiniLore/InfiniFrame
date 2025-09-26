@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
+import {sendMessageToHost} from "./MessagingToHost";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,26 +16,13 @@ declare global {
             };
         };
     }
+    // noinspection JSUnusedGlobalSymbols
     interface External {
         sendMessage?(message: string): void;
     }
 }
 
-
-
-function sendMessageToHost(message: string) {
-    // Try different messaging methods for Photino.NET
-    if (window.chrome?.webview) {
-        window.chrome.webview.postMessage(message);
-    } else if (window.external?.sendMessage) {
-        window.external.sendMessage(message);
-    } else {
-        // Fallback for development
-        console.log("Message to host failed:", message);
-    }
-}
-
-const onFullscreenChange = (event: Event) => {
+const onFullscreenChange = (_: Event) => {
     if (document.fullscreenElement) {
         sendMessageToHost("fullscreen:enter");
     } else {
