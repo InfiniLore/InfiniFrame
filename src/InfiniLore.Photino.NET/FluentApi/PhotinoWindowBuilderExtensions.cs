@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 
 namespace InfiniLore.Photino.NET;
-using InfiniLore.Photino.NET.Utilities;
 
 public static class PhotinoWindowBuilderExtensions {
     public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
