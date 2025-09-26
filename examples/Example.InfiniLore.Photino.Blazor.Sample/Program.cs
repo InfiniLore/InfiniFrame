@@ -29,14 +29,15 @@ public static class Program {
 
         // customize window
         app.WindowBuilder
-            // .SetChromeless(true)
+            .SetChromeless(true)
+            .SetResizable(true)
             .SetIconFile("favicon.ico")
             // .Center()
-            .SetUseOsDefaultSize(true)
-            .SetUseOsDefaultLocation(true);
+            // .SetUseOsDefaultSize(true)
+            // .SetUseOsDefaultLocation(true);
             // .SetTitle("InfiniLore Photino.Blazor Sample")
-            // .SetLocation(new Point(500, 500))
-            // .SetSize(new Size(800, 600));
+            .SetLocation(new Point(100, 100))
+            .SetSize(new Size(800, 600));
             
         app.Run();
 
