@@ -347,13 +347,13 @@ public static partial class PhotinoNative {
         position = new Point(left, top);
     }
 
-    internal static void GetRectangle(IntPtr instance, out int x, out int y, out int width, out int height) {
+    internal static void GetWindowRectangle(IntPtr instance, out int x, out int y, out int width, out int height) {
         GetSize(instance, out width, out height);
         GetPosition(instance, out x, out y);
     }
 
-    internal static void GetRectangle(IntPtr instance, out Rectangle rectangle) {
-        GetRectangle(instance, out int x, out int y, out int width, out int height);
+    internal static void GetWindowRectangle(IntPtr instance, out Rectangle rectangle) {
+        GetWindowRectangle(instance, out int x, out int y, out int width, out int height);
         rectangle = new Rectangle(x, y, width, height);
     }
 

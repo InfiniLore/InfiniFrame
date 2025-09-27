@@ -27,6 +27,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     IPhotinoWindow? Parent { get; }
     int ManagedThreadId { get; }
     Rectangle CachedPreFullScreenBounds { get; internal set; }
+    Rectangle CachedPreMaximizedBounds { get; internal set; }
 
     void Invoke(Action workItem);
     void WaitForClose();

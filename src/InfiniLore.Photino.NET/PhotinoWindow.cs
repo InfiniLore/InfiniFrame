@@ -26,6 +26,9 @@ public sealed class PhotinoWindow(
 
     private static readonly Lock MessageLoopIsStartedLock = new Lock();
     private static bool _messageLoopIsStarted;//There can only be 1 message loop for all windows.
+    
+    public Rectangle CachedPreFullScreenBounds { get; set; }
+    public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
     #region PROPERTIES
     /// <summary>
@@ -161,9 +164,6 @@ public sealed class PhotinoWindow(
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool FullScreen => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetFullScreen);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Rectangle CachedPreFullScreenBounds { get; set; }
 
     /// <summary>
     ///     Gets whether the native browser control grants all requests for access to local resources

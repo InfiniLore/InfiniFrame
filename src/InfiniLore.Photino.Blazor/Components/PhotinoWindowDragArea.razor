@@ -1,16 +1,21 @@
 ﻿@using InfiniLore.Photino.NET
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.Extensions.Logging
 @using Microsoft.JSInterop
+@using System.Drawing
 
 @namespace InfiniLore.Photino.Blazor
 
 @inherits ComponentBase
+@implements IDisposable
+
+@inject IJSRuntime JsRuntime
+@inject IPhotinoWindow PhotinoWindow
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
 <div
     @ref="_dragArea"
     onpointerdown:preventDefault
+    ondblclick="@OnDoubleClick"
     onpointerdown="@OnPointerDown"
     onpointerup="@OnPointerUp"
     onpointermove="@OnPointerMove"
@@ -23,15 +28,12 @@
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? ExtraAttributes { get; set; }
-
-    [Inject] public IPhotinoWindow PhotinoWindow { get; set; } = null!;
-    [Inject] public ILogger<PhotinoWindowDragArea> Logger { get; set; } = null!;
-    [Inject] public IJSRuntime JSRuntime { get; set; } = null!;
-
+    
     private ElementReference _dragArea;
 
     private bool _isGrabbing;
     private bool _suppressRender;
+    private bool _suppressGrabbing; // TEMP solution to fix a bug with dragging after returning from maximized state.
 
     // ReSharper disable once InvertIf
     protected override bool ShouldRender() {
@@ -45,20 +47,63 @@
         return true;
     }
 
+    protected override void OnInitialized() {
+        base.OnInitialized();
+
+        PhotinoWindow.Events.WindowMaximized += OnMaximized;
+        PhotinoWindow.Events.WindowRestored += OnRestored;
+    }
+
+    public void Dispose() {
+        PhotinoWindow.Events.WindowMaximized -= OnMaximized;
+        PhotinoWindow.Events.WindowRestored -= OnRestored;
+    }
+
+    private void OnMaximized(object? sender, EventArgs eventArgs) {
+        _suppressGrabbing = true;
+    }
+    
+    private void OnRestored(object? sender, EventArgs eventArgs) {
+        _suppressGrabbing = false;
+    }
+
     private async Task OnPointerDown(PointerEventArgs args) {
-        _isGrabbing = true;
         _suppressRender = true;
-        await JSRuntime.InvokeVoidAsync("setPointerCapture", _dragArea, args.PointerId);
+        if (_suppressGrabbing) return;
+        _isGrabbing = true;
+        
+        if (PhotinoWindow.CachedPreMaximizedBounds != Rectangle.Empty) {
+            Rectangle bounds = PhotinoWindow.CachedPreMaximizedBounds;
+            PhotinoWindow.CachedPreMaximizedBounds = Rectangle.Empty;
+            
+            PhotinoWindow.Invoke(() => {
+                int targetX = (int)(args.ScreenX - bounds.Width / 2f);
+                int targetY = (int)(args.ScreenY - 10);
+                PhotinoNative.SetSize(PhotinoWindow.InstanceHandle, bounds.Width, bounds.Height);
+                PhotinoNative.SetPosition(PhotinoWindow.InstanceHandle, targetX, targetY);
+            });
+        }
+        
+        await JsRuntime.InvokeVoidAsync("setPointerCapture", _dragArea, args.PointerId);
     }
 
     private async Task OnPointerUp(PointerEventArgs args) {
-        _isGrabbing = false;
         _suppressRender = true;
-        await JSRuntime.InvokeVoidAsync("releasePointerCapture", _dragArea, args.PointerId);
+        if (_suppressGrabbing) return;
+        _isGrabbing = false;
+        await JsRuntime.InvokeVoidAsync("releasePointerCapture", _dragArea, args.PointerId);
+    }
+
+    private void OnDoubleClick(MouseEventArgs args) {
+        _suppressRender = true;
+        if (_suppressGrabbing) return;
+        _isGrabbing = false;
+        PhotinoWindow.ToggleMaximized();
     }
 
     private void OnPointerMove(PointerEventArgs args) {
         _suppressRender = true;
+        if (_suppressGrabbing) return;
         if (!_isGrabbing) return;
 
         PhotinoWindow.Offset(args.MovementX, args.MovementY);

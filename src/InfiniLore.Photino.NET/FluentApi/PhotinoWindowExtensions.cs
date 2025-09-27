@@ -105,11 +105,10 @@ public static class PhotinoWindowExtensions {
         => CenterOnMonitor(window, -1);
     
     public static T CenterOnMonitor<T>(this T window, int monitorIndex = -1) where T : class, IPhotinoWindow {
-        ImmutableArray<Monitor> monitors = InvokeUtilities.InvokeAndReturn(window, MonitorsUtility.GetMonitors);
-
         if (monitorIndex <= -1 ) {
             window.Invoke(() => {
-                PhotinoNative.GetRectangle(window.InstanceHandle, out Rectangle rectangle);
+                ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
+                PhotinoNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
                 
                 // TODO think about proper unhappy flow here
                 if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out var monitor)) return;
@@ -119,13 +118,15 @@ public static class PhotinoWindowExtensions {
                 PhotinoNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
             });
         }
-        
-        if (monitorIndex < 0 || monitorIndex >= monitors.Length) {
-            window.Logger.LogWarning("Monitor index {MonitorIndex} is out of range. Available monitors: {Monitors}", monitorIndex, monitors.Length);
-            return window;
-        }
 
         window.Invoke(() => {
+            ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
+            
+            if (monitorIndex < 0 || monitorIndex >= monitors.Length) {
+                window.Logger.LogWarning("Monitor index {MonitorIndex} is out of range. Available monitors: {Monitors}", monitorIndex, monitors.Length);
+                return;
+            }
+            
             PhotinoNative.GetSize(window.InstanceHandle, out Size size);
             Rectangle area = monitors[monitorIndex].MonitorArea;
             
@@ -348,7 +349,7 @@ public static class PhotinoWindowExtensions {
 
         if (fullScreen) {
             window.Invoke(() => {
-                ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window.InstanceHandle);
+                ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
                 PhotinoNative.GetPosition(window.InstanceHandle, out int left, out int top);
                 PhotinoNative.GetSize(window.InstanceHandle, out int width, out int height);
 
@@ -544,10 +545,69 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window"></param>
     /// <param name="maximized">Whether the window should be maximized.</param>
-    public static T SetMaximized<T>(this T window, bool maximized) where T : class, IPhotinoWindow {
+    public static T SetMaximized<T>(this T window, bool maximized ) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetMaximized({Maximized})", maximized);
-        window.Invoke(() => PhotinoNative.SetMaximized(window.InstanceHandle, maximized));
+        window.Invoke(() => {
+            if (!window.Chromeless) {
+                PhotinoNative.SetMaximized(window.InstanceHandle, maximized);
+                return;
+            }
+            
+            if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor)) {
+                window.Logger.LogWarning("Monitor {Monitor} not found", monitor);
+                return;
+            }
+            
+            Rectangle workArea = monitor.WorkArea;
+            if (maximized) {
+                window.CachedPreMaximizedBounds = windowRect;
+                PhotinoNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
+                PhotinoNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
+                window.Events.OnMaximized();
+            }
+            else if (!maximized && window.CachedPreMaximizedBounds != Rectangle.Empty) {
+                Rectangle oldRect = window.CachedPreMaximizedBounds;
+                PhotinoNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
+                PhotinoNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
+                window.CachedPreMaximizedBounds = Rectangle.Empty;
+                window.Events.OnRestored();
+            }
+        });
         return window;
+    }
+
+    public static T ToggleMaximized<T>(this T window) where T : class, IPhotinoWindow {
+        window.Logger.LogDebug(".ToggleMaximized()");
+        window.Invoke(() => {
+            PhotinoNative.GetMaximized(window.InstanceHandle, out bool maximized);
+            if (!window.Chromeless) {
+                PhotinoNative.SetMaximized(window.InstanceHandle, !maximized);
+                return;
+            }
+            
+            // TODO test on other OS?
+            // If the window is chromeless then we need to manually register the maximize size else it will just fullscreen
+            if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor)) {
+                window.Logger.LogWarning("Monitor {Monitor} not found", monitor);
+                return;
+            }
+            
+            Rectangle workArea = monitor.WorkArea;
+            if (window.CachedPreMaximizedBounds == Rectangle.Empty) {
+                window.CachedPreMaximizedBounds = windowRect;
+                PhotinoNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
+                PhotinoNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
+                window.Events.OnMaximized();
+            }
+            else {
+                Rectangle oldRect = window.CachedPreMaximizedBounds;
+                PhotinoNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
+                PhotinoNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
+                window.CachedPreMaximizedBounds = Rectangle.Empty;
+                window.Events.OnRestored();
+            }
+        });
+        return window;  
     }
 
     ///<summary>Native window maximum Width and Height in pixels.</summary>

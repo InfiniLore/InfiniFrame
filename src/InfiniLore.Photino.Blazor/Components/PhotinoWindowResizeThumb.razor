@@ -5,21 +5,24 @@
 @using Microsoft.Extensions.Logging
 @using Microsoft.JSInterop
 @inherits ComponentBase
+@implements IDisposable
 
 @inject IJSRuntime JsRuntime
 @inject ILogger<PhotinoWindowResizeThumb> Logger
 @inject IPhotinoWindow PhotinoWindow
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
-@{ GetStyleValues(out string left, out string top, out string width, out string height, out string cursor); }
-<div @ref="_thumbReference"
-     style="position: absolute; z-index: 10000; left: @left; top: @top; width: @width; height: @height; cursor: @cursor;"
-     onpointerdown="@OnPointerDown"
-     onpointerup="@OnPointerUp"
-     onpointermove="@OnPointerMove"
->
-    @* ReSharper restore CSharpWarnings::CS8974 *@
-</div>
+@if (!_hidden) {
+    GetStyleValues(out string left, out string top, out string width, out string height, out string cursor);
+    <div @ref="_thumbReference"
+         style="position: absolute; z-index: 10000; left: @left; top: @top; width: @width; height: @height; cursor: @cursor; background-color: rgba(217,70,50,0.4); border: 1px solid #d94632;"
+         onpointerdown="@OnPointerDown"
+         onpointerup="@OnPointerUp"
+         onpointermove="@OnPointerMove"
+    >
+        @* ReSharper restore CSharpWarnings::CS8974 *@
+    </div>
+}
 
 @code {
     [Parameter] public ResizeOrigin ResizeThumb { get; set; }
@@ -28,6 +31,7 @@
     private ElementReference _thumbReference;
     private bool _suppressRender;
     private bool _isGrabbing;
+    private bool _hidden;
 
     protected override bool ShouldRender() {
         if (!base.ShouldRender()) return false;
@@ -37,6 +41,28 @@
 
         _suppressRender = false;
         return false;
+    }
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+
+        PhotinoWindow.Events.WindowMaximized += OnMaximized;
+        PhotinoWindow.Events.WindowRestored += OnRestored;
+    }
+
+    public void Dispose() {
+        PhotinoWindow.Events.WindowMaximized -= OnMaximized;
+        PhotinoWindow.Events.WindowRestored -= OnRestored;
+    }
+
+    private void OnMaximized(object? sender, EventArgs eventArgs) {
+        _hidden = true;
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void OnRestored(object? sender, EventArgs eventArgs) {
+        _hidden = false;
+        InvokeAsync(StateHasChanged);
     }
 
     private void GetStyleValues(out string left, out string top, out string width, out string height, out string cursor) {
@@ -51,9 +77,9 @@
             }
 
             case ResizeOrigin.Top: {
-                width = "100%";
+                width = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
                 height = $"{ResizeArea}px";
-                left = "0";
+                left = $"{ResizeArea}px";
                 top = "0";
                 cursor = "n-resize";
                 return;
@@ -70,9 +96,9 @@
 
             case ResizeOrigin.Right: {
                 width = $"{ResizeArea}px";
-                height = "100%";
+                height = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
                 left = $"calc(100% - {ResizeArea}px)";
-                top = "0";
+                top = $"{ResizeArea}px";
                 cursor = "e-resize";
                 return;
             }
@@ -87,9 +113,9 @@
             }
 
             case ResizeOrigin.Bottom: {
-                width = "100%";
+                width = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
                 height = $"{ResizeArea}px";
-                left = "0";
+                left = $"{ResizeArea}px";
                 top = $"calc(100% - {ResizeArea}px)";
                 cursor = "s-resize";
                 return;
@@ -106,9 +132,9 @@
 
             case ResizeOrigin.Left: {
                 width = $"{ResizeArea}px";
-                height = "100%";
+                height = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
                 left = "0";
-                top = "0";
+                top = $"{ResizeArea}px";
                 cursor = "w-resize";
                 return;
             }

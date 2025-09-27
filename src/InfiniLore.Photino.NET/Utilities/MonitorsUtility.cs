@@ -4,10 +4,10 @@ using System.Drawing;
 namespace InfiniLore.Photino.NET.Utilities;
 
 internal static class MonitorsUtility {
-    public static ImmutableArray<Monitor> GetMonitors(IntPtr windowHandle) {
+    public static ImmutableArray<Monitor> GetMonitors(IPhotinoWindow window) {
         ImmutableArray<Monitor>.Builder builder = ImmutableArray.CreateBuilder<Monitor>();
 
-        PhotinoNative.GetAllMonitors(windowHandle, Callback);
+        PhotinoNative.GetAllMonitors(window.InstanceHandle, Callback);
         return builder.ToImmutable();
 
         int Callback(in NativeMonitor monitor) {
@@ -15,7 +15,7 @@ internal static class MonitorsUtility {
             return 1;
         }
     }
-
+    
     public static bool TryGetCurrentMonitor(ImmutableArray<Monitor> monitors, Rectangle windowBounds, out Monitor monitor) {
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (Monitor temp in monitors) {
@@ -27,5 +27,11 @@ internal static class MonitorsUtility {
         
         monitor = default;
         return false;
+    }
+
+    public static bool TryGetCurrentWindowAndMonitor(IPhotinoWindow window, out Rectangle windowRect, out Monitor monitor) {
+        ImmutableArray<Monitor> monitors = GetMonitors(window);
+        PhotinoNative.GetWindowRectangle(window.InstanceHandle, out windowRect);
+        return TryGetCurrentMonitor(monitors, windowRect, out monitor);
     }
 }
