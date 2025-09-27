@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions {
                 var handler = sp.GetRequiredService<PhotinoHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(PhotinoWebViewManager.AppBaseUri) };
             })
-            .AddScoped<InfiniWindowJs>()
+            .AddScoped<IInfiniWindowJs, InfiniWindowJs>()
             .AddSingleton<IPhotinoWebViewManager, PhotinoWebViewManager>()
             .AddSingleton<IPhotinoJsComponentConfiguration, PhotinoJsComponentConfiguration>()
             .AddSingleton<Dispatcher, PhotinoDispatcher>()
