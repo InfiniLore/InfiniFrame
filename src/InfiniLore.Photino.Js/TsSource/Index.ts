@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {sendMessageToHost} from "./MessagingToHost";
 import {releasePointerCapture, setPointerCapture} from "./Pointers";
+import {getTitleObserver, TitleObserverTarget} from "./Observers";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,3 +29,16 @@ document.addEventListener("keydown", async (e: KeyboardEvent) => {
 
 window.setPointerCapture = setPointerCapture;
 window.releasePointerCapture = releasePointerCapture;
+
+getTitleObserver().observe(TitleObserverTarget, {childList: true});
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

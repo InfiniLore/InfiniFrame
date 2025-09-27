@@ -4,6 +4,7 @@
 using System.Reflection;
 
 namespace InfiniLore.Photino.NET.Server;
+using InfiniLore.Photino.Js;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -11,9 +12,9 @@ namespace InfiniLore.Photino.NET.Server;
 public static class PhotinoServerExtensions {
     
     public static PhotinoServer MapPhotinoJsEndpoints(this PhotinoServer server) {
-        server.WebApp.MapGet("/_content/InfiniLore.Photino.NET/InfiniLore.Photino.js", requestDelegate: async context => {
-            Assembly assembly = typeof(PhotinoWindow).Assembly;
-            const string resourceName = "InfiniLore.Photino.NET.wwwroot.InfiniLore.Photino.js";
+        server.WebApp.MapGet("/_content/InfiniLore.Photino.Js/InfiniLore.Photino.js", requestDelegate: async context => {
+            Assembly assembly = typeof(PhotinoJsAssemblyEntry).Assembly;
+            const string resourceName = "InfiniLore.Photino.Js.wwwroot.InfiniLore.Photino.js";
             
             await using Stream? stream = assembly.GetManifestResourceStream(resourceName);
             if (stream == null) {

@@ -34,6 +34,7 @@
     private bool _isGrabbing;
     private bool _suppressRender;
     private bool _suppressGrabbing; // TEMP solution to fix a bug with dragging after returning from maximized state.
+    private long _lastKnownPointerId;
 
     // ReSharper disable once InvertIf
     protected override bool ShouldRender() {
@@ -83,7 +84,8 @@
                 PhotinoNative.SetPosition(PhotinoWindow.InstanceHandle, targetX, targetY);
             });
         }
-        
+
+        _lastKnownPointerId = args.PointerId;
         await JsRuntime.InvokeVoidAsync("setPointerCapture", _dragArea, args.PointerId);
     }
 
@@ -92,13 +94,21 @@
         if (_suppressGrabbing) return;
         _isGrabbing = false;
         await JsRuntime.InvokeVoidAsync("releasePointerCapture", _dragArea, args.PointerId);
+        _lastKnownPointerId = 0;
     }
 
-    private void OnDoubleClick(MouseEventArgs args) {
+
+    private async Task OnDoubleClick(MouseEventArgs args) {
         _suppressRender = true;
-        if (_suppressGrabbing) return;
         _isGrabbing = false;
         PhotinoWindow.ToggleMaximized();
+        if (_lastKnownPointerId == 0) return;
+        try {
+            await JsRuntime.InvokeVoidAsync("releasePointerCapture", _dragArea, _lastKnownPointerId);
+        }
+        catch (Exception) {
+            // ignore
+        }
     }
 
     private void OnPointerMove(PointerEventArgs args) {

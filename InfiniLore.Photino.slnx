@@ -27,6 +27,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src\InfiniLore.Photino.Blazor\InfiniLore.Photino.Blazor.csproj" Type="Classic C#" />
+    <Project Path="src\InfiniLore.Photino.Js\InfiniLore.Photino.Js.csproj" Type="Classic C#" />
     <Project Path="src\InfiniLore.Photino.NET.Server\InfiniLore.Photino.NET.Server.csproj" Type="Classic C#" />
     <Project Path="src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
     <Project Path="src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" Type="Classic C#" />
