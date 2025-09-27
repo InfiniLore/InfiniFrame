@@ -1,4 +1,7 @@
-﻿namespace InfiniLore.Photino.NET.Utilities;
+﻿using InfiniLore.Photino.NET;
+
+namespace InfiniLore.Photino.Utilities;
+
 internal static class InvokeUtilities {
     public static T? InvokeAndReturn<T>(IPhotinoWindow window, Func<IPhotinoWindow, T> callback) {
         T? value = default;

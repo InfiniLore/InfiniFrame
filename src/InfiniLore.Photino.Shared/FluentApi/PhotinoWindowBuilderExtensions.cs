@@ -164,6 +164,13 @@ public static class PhotinoWindowBuilderExtensions {
         builder.Configuration.MaxHeight = value;
         return builder;
     }
+    
+    public static T SetMaxSize<T>(this T builder, Size maxSize) where T : class, IPhotinoWindowBuilder {
+        builder.Configuration.MaxHeight = maxSize.Height;
+        builder.Configuration.MaxHeight = maxSize.Width;
+        
+        return builder;
+    }
 
     /// <summary>
     ///     Sets MinWidth on the browser control at initialization.

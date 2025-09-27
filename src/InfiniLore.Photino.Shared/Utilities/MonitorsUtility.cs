@@ -1,7 +1,8 @@
-﻿using System.Collections.Immutable;
+﻿using InfiniLore.Photino.NET;
+using System.Collections.Immutable;
 using System.Drawing;
 
-namespace InfiniLore.Photino.NET.Utilities;
+namespace InfiniLore.Photino.Utilities;
 
 internal static class MonitorsUtility {
     public static ImmutableArray<Monitor> GetMonitors(IPhotinoWindow window) {

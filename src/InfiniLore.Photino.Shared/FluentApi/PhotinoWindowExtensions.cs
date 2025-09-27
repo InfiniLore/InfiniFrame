@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
-using InfiniLore.Photino.NET.Utilities;
+using InfiniLore.Photino.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Drawing;
@@ -428,8 +428,8 @@ public static class PhotinoWindowExtensions {
             window.Logger.LogWarning("Icon file {IconFile} does not exist or is an invalid file path.", iconFilePath);
             return window;
         }
-        
-        if (window is PhotinoWindow fullWindow) fullWindow.IconFilePath = iconFilePath;
+
+        window.IconFilePath = iconFilePath;
         window.Invoke(() => PhotinoNative.SetIconFile(window.InstanceHandle, iconFilePath));
         return window;
     }
@@ -779,7 +779,7 @@ public static class PhotinoWindowExtensions {
     /// <param name="data">Runtime path for WebView2</param>
     public static T Win32SetWebView2Path<T>(this T window, string data) where T : class, IPhotinoWindow {
         if (OperatingSystem.IsWindows())
-            window.Invoke(() => PhotinoNative.SetWebView2RuntimePath_win32(PhotinoWindow.NativeType, data));
+            window.Invoke(() => PhotinoNative.SetWebView2RuntimePath_win32(window.NativeType, data));
         else
             window.Logger.LogDebug("Win32SetWebView2Path is only supported on the Windows platform");
 

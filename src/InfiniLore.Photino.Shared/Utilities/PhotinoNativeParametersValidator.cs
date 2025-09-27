@@ -1,7 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿using InfiniLore.Photino.NET;
 using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino.NET.Utilities;
+namespace InfiniLore.Photino.Utilities;
+
 public static class PhotinoNativeParametersValidator {
     // ReSharper disable once InvertIf
     public static bool Validate(PhotinoNativeParameters parameters, ILogger logger) {

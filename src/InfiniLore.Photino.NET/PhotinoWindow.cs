@@ -1,4 +1,3 @@
-using InfiniLore.Photino.NET.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -6,6 +5,8 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
+using InfiniLore.Photino.Utilities;
+
 public sealed class PhotinoWindow(
     Dictionary<string, NetCustomSchemeDelegate?> customSchemes,
     ILogger<PhotinoWindow> logger,
@@ -14,7 +15,7 @@ public sealed class PhotinoWindow(
     
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new Lazy<IntPtr>(NativeLibrary.GetMainProgramHandle);
-    public static IntPtr NativeType => WindowType.Value;
+    public IntPtr NativeType => WindowType.Value;
 
     public IntPtr InstanceHandle { get; private set; }
     public PhotinoNativeParameters StartupParameters;

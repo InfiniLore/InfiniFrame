@@ -16,6 +16,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
+    IntPtr NativeType { get; }
     ImmutableArray<Monitor> Monitors { get; }
     Monitor MainMonitor { get; }
     uint ScreenDpi { get; }
