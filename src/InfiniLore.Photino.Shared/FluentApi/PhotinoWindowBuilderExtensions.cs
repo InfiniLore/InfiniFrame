@@ -167,7 +167,7 @@ public static class PhotinoWindowBuilderExtensions {
     
     public static T SetMaxSize<T>(this T builder, Size maxSize) where T : class, IPhotinoWindowBuilder {
         builder.Configuration.MaxHeight = maxSize.Height;
-        builder.Configuration.MaxHeight = maxSize.Width;
+        builder.Configuration.MaxWidth = maxSize.Width;
         
         return builder;
     }
@@ -185,6 +185,13 @@ public static class PhotinoWindowBuilderExtensions {
     /// </summary>
     public static T SetMinHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
         builder.Configuration.MinHeight = Math.Max(0, value);
+        return builder;
+    }
+    
+    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IPhotinoWindowBuilder {
+        builder.Configuration.MinHeight = minSize.Height;
+        builder.Configuration.MinWidth = minSize.Width;
+        
         return builder;
     }
 

@@ -13,7 +13,7 @@ public static class PhotinoWindowExtensions {
     ///     Loads specified <see cref="Uri" /> into the browser control.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <remarks>
     ///     Load() or LoadString() must be called before a native window is initialized.
@@ -808,8 +808,10 @@ public static class PhotinoWindowExtensions {
     public static T Resize<T>(this T window, int widthOffset, int heightOffset, ResizeOrigin origin) where T : class, IPhotinoWindow {
         window.Invoke(() => {
             PhotinoNative.GetSize(window.InstanceHandle, out int width, out int height);
-            PhotinoNative.GetPosition(window.InstanceHandle, out int x, out int y);
+            PhotinoNative.GetPosition(window.InstanceHandle, out int originalX, out int originalY);
 
+            int x = originalX;
+            int y = originalY;
             switch (origin) {
                 case ResizeOrigin.TopLeft: {
                     x += widthOffset;
@@ -861,6 +863,28 @@ public static class PhotinoWindowExtensions {
                     break;
                 }
                 default: throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
+            }
+
+            // Clamping between min and max size
+            Size max = window.MaxSize;
+            Size min = window.MinSize;
+            
+            if (width >= max.Width) {
+                width = max.Width;
+                x = originalX;
+            }
+            if (height >= max.Height) {
+                height = max.Height;
+                y = originalY;
+            }
+            
+            if (width <= min.Width) {
+                width = min.Width;
+                x = originalX;
+            }
+            if (height <= min.Height) {
+                height = min.Height;
+                y = originalY;
             }
             
             PhotinoNative.SetSize(window.InstanceHandle, width, height);

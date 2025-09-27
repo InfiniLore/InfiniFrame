@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.Utilities;
 
-public static class PhotinoNativeParametersValidator {
+internal static class PhotinoNativeParametersValidator {
     // ReSharper disable once InvertIf
     public static bool Validate(PhotinoNativeParameters parameters, ILogger logger) {
         bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);

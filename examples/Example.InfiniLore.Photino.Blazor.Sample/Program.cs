@@ -38,7 +38,8 @@ public static class Program {
             // .SetTitle("InfiniLore Photino.Blazor Sample")
             .SetLocation(new Point(100, 100))
             .SetSize(new Size(800, 600))
-            .SetMaxSize(new Size(800, 600));
+            .SetMaxSize(new Size(800, 600))
+            .SetMinSize(new Size(600, 400));
             
         app.Run();
 

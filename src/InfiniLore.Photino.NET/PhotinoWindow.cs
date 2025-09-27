@@ -212,7 +212,13 @@ public sealed class PhotinoWindow(
 
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Point MaxSize => new Point(MaxWidth, MaxHeight);
+    public Size MaxSize {
+        get => new Size(MaxWidth, MaxHeight);
+        set {
+            MaxWidth = value.Width;
+            MaxHeight = value.Height;
+        }
+    }
 
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -231,7 +237,13 @@ public sealed class PhotinoWindow(
 
     ///<summary>Gets or set the minimum size of the native window in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Point MinSize => new Point(MinWidth, MinHeight);
+    public Size MinSize {
+        get => new Size(MinWidth, MinHeight);
+        set {
+            MinWidth = value.Width;
+            MinHeight = value.Height;
+        }
+    }
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]

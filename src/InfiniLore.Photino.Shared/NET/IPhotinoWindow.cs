@@ -22,8 +22,8 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     uint ScreenDpi { get; }
     Guid Id { get; }
     Point Location { get; }
-    Point MaxSize { get; }
-    Point MinSize { get; }
+    Size MaxSize { get; set; }
+    Size MinSize { get; set; }
     Size Size { get; }
     IPhotinoWindow? Parent { get; }
     int ManagedThreadId { get; }
