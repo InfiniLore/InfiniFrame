@@ -1,10 +1,11 @@
 using System.Runtime.InteropServices;
-
-namespace InfiniLore.Photino.NET;
 using InfiniLore.Photino.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Drawing;
+
+// ReSharper disable once CheckNamespace
+namespace InfiniLore.Photino.NET;
 
 public static class PhotinoWindowExtensions {
     #region Load

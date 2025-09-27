@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 
+// ReSharper disable once CheckNamespace
 namespace InfiniLore.Photino.NET;
 public static class PhotinoWindowEventsExtensions {
     /// <summary>
