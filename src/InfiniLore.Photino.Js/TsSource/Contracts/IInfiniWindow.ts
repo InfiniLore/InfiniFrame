@@ -5,10 +5,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export function setPointerCapture(element:Element, pointerId: number) {
-    element.setPointerCapture(pointerId);
-}
-
-export function releasePointerCapture(element:Element, pointerId:number) {
-    element.releasePointerCapture(pointerId);
+export interface IInfiniWindow {
+    setPointerCapture(element: Element, pointerId: number): void;
+    releasePointerCapture(element: Element, pointerId: number): void;
 }

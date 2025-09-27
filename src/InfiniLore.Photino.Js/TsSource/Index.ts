@@ -2,8 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {sendMessageToHost, HostMessageIds} from "./MessagingToHost";
-import {releasePointerCapture, setPointerCapture} from "./Pointers";
 import {getTitleObserver, TitleObserverTarget} from "./Observers";
+import {InfiniWindow} from "./InfiniWindow";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -27,8 +27,7 @@ document.addEventListener("keydown", async (e: KeyboardEvent) => {
     }
 });
 
-window.setPointerCapture = setPointerCapture;
-window.releasePointerCapture = releasePointerCapture;
+window.infiniWindow = new InfiniWindow();
 
 getTitleObserver().observe(TitleObserverTarget, {childList: true});
     
