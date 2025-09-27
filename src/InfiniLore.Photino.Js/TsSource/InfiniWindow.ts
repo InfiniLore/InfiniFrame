@@ -28,21 +28,14 @@ export class InfiniWindow implements IInfiniWindow {
     
     private assignEventListeners() {
         document.addEventListener("fullscreenchange", (_: Event) => {
-            if (document.fullscreenElement) {
-                sendMessageToHost(HostMessageIds.fullscreenEnter);
-            } else {
-                sendMessageToHost(HostMessageIds.fullscreenExit);
-            }
+            if (document.fullscreenElement) sendMessageToHost(HostMessageIds.fullscreenEnter);
+            else sendMessageToHost(HostMessageIds.fullscreenExit);
         });
 
         document.addEventListener("keydown", async (e: KeyboardEvent) => {
-            if (e.key === "F11") {
-                if (document.fullscreenElement) {
-                    await document.exitFullscreen();
-                } else {
-                    await document.body.requestFullscreen();
-                }
-            }
+            if (e.key !== "F11") return;
+            if (document.fullscreenElement) await document.exitFullscreen();
+            else await document.body.requestFullscreen();
         });
     }
 }

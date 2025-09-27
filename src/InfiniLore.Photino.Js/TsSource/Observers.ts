@@ -11,9 +11,8 @@ export const TitleObserverTarget : HTMLTitleElement | null = document.querySelec
 export function getTitleObserver() : MutationObserver {
     return new MutationObserver((mutations, _) => {
         mutations.forEach((mutation) => {
-            if (mutation.type === "childList") {
-                sendMessageToHost(HostMessageIds.titleChange, document.title)
-            }
+            if (mutation.type !== "childList") return;
+            sendMessageToHost(HostMessageIds.titleChange, document.title)
         })
     })
 }

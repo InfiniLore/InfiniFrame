@@ -7,14 +7,3 @@ import {InfiniWindow} from "./InfiniWindow";
 // ---------------------------------------------------------------------------------------------------------------------
 export {};
 window.infiniWindow = new InfiniWindow();
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
