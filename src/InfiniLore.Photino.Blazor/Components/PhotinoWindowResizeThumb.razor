@@ -147,11 +147,13 @@
     }
 
     private async Task OnPointerDown(PointerEventArgs args) {
+        // Because we do change the whole view, we need to rerender render.
         _isGrabbing = true;
         await InfiniWindowJs.SetPointerCaptureAsync(_thumbReference, args.PointerId);
     }
 
     private async Task OnPointerUp(PointerEventArgs args) {
+        // Because we do change the whole view, we need to rerender render.
         _isGrabbing = false;
         await InfiniWindowJs.ReleasePointerCaptureAsync(_thumbReference, args.PointerId);
     }
