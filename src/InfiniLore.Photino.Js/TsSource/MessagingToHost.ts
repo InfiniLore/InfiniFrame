@@ -5,7 +5,17 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export function sendMessageToHost(message: string) {
+export const HostMessageIds = {
+    titleChange: "title:change",
+    fullscreenEnter: "fullscreen:enter",
+    fullscreenExit: "fullscreen:exit",
+}
+
+export type HostMessageId = typeof HostMessageIds[keyof typeof HostMessageIds];
+
+export function sendMessageToHost(id: HostMessageId, data?: string) {
+    const message = data ? `${id};${data}` : id;
+    
     // TODO - determine messaging methods for Photino.NET for all platforms
     
     // Try different messaging methods for Photino.NET

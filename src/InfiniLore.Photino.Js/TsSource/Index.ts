@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {sendMessageToHost} from "./MessagingToHost";
+import {sendMessageToHost, HostMessageIds} from "./MessagingToHost";
 import {releasePointerCapture, setPointerCapture} from "./Pointers";
 import {getTitleObserver, TitleObserverTarget} from "./Observers";
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,9 +10,9 @@ import {getTitleObserver, TitleObserverTarget} from "./Observers";
 export {};
 document.addEventListener("fullscreenchange", (_: Event) => {
     if (document.fullscreenElement) {
-        sendMessageToHost("fullscreen:enter");
+        sendMessageToHost(HostMessageIds.fullscreenEnter);
     } else {
-        sendMessageToHost("fullscreen:exit");
+        sendMessageToHost(HostMessageIds.fullscreenExit);
     }
 });
 

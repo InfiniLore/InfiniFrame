@@ -1,19 +1,18 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {sendMessageToHost} from "./MessagingToHost";
+import {sendMessageToHost, HostMessageIds} from "./MessagingToHost";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 export const TitleObserverTarget = document.querySelector('title') as HTMLElement;
 
 export function getTitleObserver() : MutationObserver {
     return new MutationObserver((mutations, _) => {
         mutations.forEach((mutation) => {
             if (mutation.type === "childList") {
-                sendMessageToHost(`title:change;${document.title}`)
+                sendMessageToHost(HostMessageIds.titleChange, document.title)
             }
         })
     })
