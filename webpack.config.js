@@ -6,10 +6,10 @@ module.exports = {
     // mode: "production",
     devtool: "inline-source-map",
     entry: {
-        main: "./src/InfiniLore.Photino.NET/wwwroot/Source/Index.ts",
+        main: "./src/InfiniLore.Photino.Js/TsSource/Index.ts",
     },
     output: {
-        path: path.resolve(__dirname, './src/InfiniLore.Photino.NET/wwwroot'),
+        path: path.resolve(__dirname, './src/InfiniLore.Photino.Js/wwwroot'),
         filename: "InfiniLore.Photino.js" // <--- Will be compiled to this single file
     },
     resolve: {

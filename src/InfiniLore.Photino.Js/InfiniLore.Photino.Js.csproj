@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>InfiniLore.Photino.Js</PackageId>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="wwwroot\InfiniLore.Photino.js" />
+    </ItemGroup>
+
+</Project>
