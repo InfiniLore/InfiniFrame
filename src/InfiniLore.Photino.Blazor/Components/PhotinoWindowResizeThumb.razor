@@ -16,7 +16,7 @@
 @if (!_hidden) {
     GetStyleValues(out string left, out string top, out string width, out string height, out string cursor);
     <div @ref="_thumbReference"
-         style="position: absolute; z-index: @ZIndex; left: @left; top: @top; width: @width; height: @height; cursor: @cursor;"
+         style="position: absolute; z-index: @ZIndex; left: @left; top: @top; width: @width; height: @height; cursor: @cursor; background-color: rgba(217,71,52,0.4); border: 1px solid rgba(217,71,52,0.8);"
          onpointerdown="@OnPointerDown"
          onpointerup="@OnPointerUp"
          onpointermove="@OnPointerMove"
