@@ -17,4 +17,8 @@
       <EmbeddedResource Include="wwwroot\InfiniLore.Photino.js" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
+    </ItemGroup>
+
 </Project>
