@@ -45,12 +45,7 @@
     protected override void OnParametersSet() {
         base.OnParametersSet();
         
-        GetStyleValues(out string left, out string top, out string width, out string height, out string cursor);
-        _left = left;
-        _top = top;
-        _width = width;
-        _height = height;
-        _cursor = cursor;
+        UpdateStyleFields();
     }
 
     protected override bool ShouldRender() {
@@ -85,77 +80,77 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private void GetStyleValues(out string left, out string top, out string width, out string height, out string cursor) {
+    private void UpdateStyleFields() {
         switch (ResizeThumb) {
             case ResizeOrigin.TopLeft: {
-                width = $"{ResizeArea}px";
-                height = $"{ResizeArea}px";
-                left = "0";
-                top = "0";
-                cursor = "nw-resize";
+                _width = $"{ResizeArea}px";
+                _height = $"{ResizeArea}px";
+                _left = "0";
+                _top = "0";
+                _cursor = "nw-resize";
                 return;
             }
 
             case ResizeOrigin.Top: {
-                width = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
-                height = $"{ResizeArea}px";
-                left = $"{ResizeArea}px";
-                top = "0";
-                cursor = "n-resize";
+                _width = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
+                _height = $"{ResizeArea}px";
+                _left = $"{ResizeArea}px";
+                _top = "0";
+                _cursor = "n-resize";
                 return;
             }
 
             case ResizeOrigin.TopRight: {
-                width = $"{ResizeArea}px";
-                height = $"{ResizeArea}px";
-                left = $"calc(100% - {ResizeArea}px)";
-                top = "0";
-                cursor = "ne-resize";
+                _width = $"{ResizeArea}px";
+                _height = $"{ResizeArea}px";
+                _left = $"calc(100% - {ResizeArea}px)";
+                _top = "0";
+                _cursor = "ne-resize";
                 return;
             }
 
             case ResizeOrigin.Right: {
-                width = $"{ResizeArea}px";
-                height = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
-                left = $"calc(100% - {ResizeArea}px)";
-                top = $"{ResizeArea}px";
-                cursor = "e-resize";
+                _width = $"{ResizeArea}px";
+                _height = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
+                _left = $"calc(100% - {ResizeArea}px)";
+                _top = $"{ResizeArea}px";
+                _cursor = "e-resize";
                 return;
             }
 
             case ResizeOrigin.BottomRight: {
-                width = $"{ResizeArea}px";
-                height = $"{ResizeArea}px";
-                left = $"calc(100% - {ResizeArea}px)";
-                top = $"calc(100% - {ResizeArea}px)";
-                cursor = "se-resize";
+                _width = $"{ResizeArea}px";
+                _height = $"{ResizeArea}px";
+                _left = $"calc(100% - {ResizeArea}px)";
+                _top = $"calc(100% - {ResizeArea}px)";
+                _cursor = "se-resize";
                 return;
             }
 
             case ResizeOrigin.Bottom: {
-                width = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
-                height = $"{ResizeArea}px";
-                left = $"{ResizeArea}px";
-                top = $"calc(100% - {ResizeArea}px)";
-                cursor = "s-resize";
+                _width = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
+                _height = $"{ResizeArea}px";
+                _left = $"{ResizeArea}px";
+                _top = $"calc(100% - {ResizeArea}px)";
+                _cursor = "s-resize";
                 return;
             }
 
             case ResizeOrigin.BottomLeft: {
-                width = $"{ResizeArea}px";
-                height = $"{ResizeArea}px";
-                left = "0";
-                top = $"calc(100% - {ResizeArea}px)";
-                cursor = "sw-resize";
+                _width = $"{ResizeArea}px";
+                _height = $"{ResizeArea}px";
+                _left = "0";
+                _top = $"calc(100% - {ResizeArea}px)";
+                _cursor = "sw-resize";
                 return;
             }
 
             case ResizeOrigin.Left: {
-                width = $"{ResizeArea}px";
-                height = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
-                left = "0";
-                top = $"{ResizeArea}px";
-                cursor = "w-resize";
+                _width = $"{ResizeArea}px";
+                _height = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
+                _left = "0";
+                _top = $"{ResizeArea}px";
+                _cursor = "w-resize";
                 return;
             }
 
