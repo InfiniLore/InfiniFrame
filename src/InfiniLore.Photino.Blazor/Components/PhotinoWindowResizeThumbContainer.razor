@@ -1,0 +1,14 @@
+﻿@namespace InfiniLore.Photino.Blazor
+
+<PhotinoWindowResizeThumb ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Top"/>
+<PhotinoWindowResizeThumb ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Right"/>
+<PhotinoWindowResizeThumb ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Bottom"/>
+<PhotinoWindowResizeThumb ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Left"/>
+<PhotinoWindowResizeThumb ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.TopLeft"/>
+<PhotinoWindowResizeThumb ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.TopRight"/>
+<PhotinoWindowResizeThumb ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.BottomRight"/>
+<PhotinoWindowResizeThumb ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.BottomLeft"/>
+
+@code {
+    [Parameter] public int ZIndex { get; set; } = PhotinoWindowResizeThumb.ZIndexValue;
+}

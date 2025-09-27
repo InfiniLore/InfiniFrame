@@ -16,7 +16,7 @@
 @if (!_hidden) {
     GetStyleValues(out string left, out string top, out string width, out string height, out string cursor);
     <div @ref="_thumbReference"
-         style="position: absolute; z-index: 10000; left: @left; top: @top; width: @width; height: @height; cursor: @cursor;"
+         style="position: absolute; z-index: @ZIndex; left: @left; top: @top; width: @width; height: @height; cursor: @cursor;"
          onpointerdown="@OnPointerDown"
          onpointerup="@OnPointerUp"
          onpointermove="@OnPointerMove"
@@ -28,6 +28,8 @@
 @code {
     [Parameter] public ResizeOrigin ResizeThumb { get; set; }
     [Parameter] public int ResizeArea { get; set; } = 10;
+    [Parameter] public int ZIndex { get; set; } = ZIndexValue;
+    internal const int ZIndexValue = 1000;
 
     private ElementReference _thumbReference;
     private bool _suppressRender;

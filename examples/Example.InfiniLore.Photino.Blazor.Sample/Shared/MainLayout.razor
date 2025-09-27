@@ -1,6 +1,9 @@
-﻿@using global::InfiniLore.Photino
-@using global::InfiniLore.Photino.Blazor
+﻿@using InfiniLore.Photino
 @using InfiniLore.Photino.Blazor
+@using InfiniLore.Photino.Blazor
+
+@namespace Example.InfiniLore.Photino.Blazor.Sample.Shared
+
 @inherits LayoutComponentBase
 
 
@@ -20,11 +23,4 @@
     </div>
 </div>
 
-<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.Top"/>
-<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.Right"/>
-<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.Bottom"/>
-<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.Left"/>
-<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.TopLeft"/>
-<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.TopRight"/>
-<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.BottomRight"/>
-<PhotinoWindowResizeThumb ResizeThumb="ResizeOrigin.BottomLeft"/>
+<PhotinoWindowResizeThumbContainer/>
