@@ -33,11 +33,10 @@
         if (!base.ShouldRender()) return false;
 
         // Reset every time to ensure we don't render until we're ready.
-        if (_suppressRender) {
-            _suppressRender = false;
-            return false;
-        }
-        return true;
+        if (!_suppressRender) return true;
+
+        _suppressRender = false;
+        return false;
     }
 
     private void GetStyleValues(out string left, out string top, out string width, out string height, out string cursor) {
@@ -129,10 +128,8 @@
     }
 
     private void OnPointerMove(PointerEventArgs args) {
-        if (!_isGrabbing) {
-            _suppressRender = true;
-            return;
-        }
+        _suppressRender = true;
+        if (!_isGrabbing) return;
 
         Logger.LogInformation("{@args}", args);
         PhotinoWindow.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
