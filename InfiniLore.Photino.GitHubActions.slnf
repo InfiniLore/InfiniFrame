@@ -3,6 +3,7 @@
         "path": "InfiniLore.Photino.slnx",
         "projects": [
             "src\\InfiniLore.Photino.Blazor\\InfiniLore.Photino.Blazor.csproj",
+            "src\\InfiniLore.Photino.Js\\InfiniLore.Photino.Js.csproj",
             "src\\InfiniLore.Photino.NET\\InfiniLore.Photino.NET.csproj",
             "src\\InfiniLore.Photino.NET.Server\\InfiniLore.Photino.NET.Server.csproj",
             "src\\InfiniLore.Photino.Shared\\InfiniLore.Photino.Shared.csproj"

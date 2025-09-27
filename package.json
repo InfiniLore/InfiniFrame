@@ -2,7 +2,8 @@
   "name": "infinilore.photino",
   "version": "0.1.0",
   "scripts": {
-    "watch:typescript": "npx webpack --watch"
+    "production:build": "npx webpack --env production=true",
+    "watch:typescript": "npx webpack --watch --env production=false"
   },
   "keywords": [],
   "author": "",
