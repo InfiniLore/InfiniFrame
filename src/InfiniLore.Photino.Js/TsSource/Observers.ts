@@ -6,7 +6,7 @@ import {sendMessageToHost, HostMessageIds} from "./MessagingToHost";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export const TitleObserverTarget = document.querySelector('title') as HTMLElement;
+export const TitleObserverTarget : HTMLTitleElement | null = document.querySelector('title');
 
 export function getTitleObserver() : MutationObserver {
     return new MutationObserver((mutations, _) => {
