@@ -3,6 +3,11 @@
     <PropertyGroup>
         <PackageId>InfiniLore.Photino.Js</PackageId>
     </PropertyGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="InfiniLore.Photino.Net"/>
+        <InternalsVisibleTo Include="InfiniLore.Photino.Net.Server"/>
+    </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Include="wwwroot\InfiniLore.Photino.js" />
