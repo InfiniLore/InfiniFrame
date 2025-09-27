@@ -1,6 +1,6 @@
-﻿@using InfiniLore.Photino.NET
+﻿@using InfiniLore.Photino.Js
+@using InfiniLore.Photino.NET
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.JSInterop
 @using System.Drawing
 
 @namespace InfiniLore.Photino.Blazor
@@ -8,8 +8,8 @@
 @inherits ComponentBase
 @implements IDisposable
 
-@inject IJSRuntime JsRuntime
 @inject IPhotinoWindow PhotinoWindow
+@inject InfiniWindowJs InfiniWindowJs
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
 <div
@@ -86,14 +86,14 @@
         }
 
         _lastKnownPointerId = args.PointerId;
-        await JsRuntime.InvokeVoidAsync("setPointerCapture", _dragArea, args.PointerId);
+        await InfiniWindowJs.SetPointerCaptureAsync(_dragArea, args.PointerId);
     }
 
     private async Task OnPointerUp(PointerEventArgs args) {
         _suppressRender = true;
         if (_suppressGrabbing) return;
         _isGrabbing = false;
-        await JsRuntime.InvokeVoidAsync("releasePointerCapture", _dragArea, args.PointerId);
+        await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, args.PointerId);
         _lastKnownPointerId = 0;
     }
 
@@ -103,12 +103,7 @@
         _isGrabbing = false;
         PhotinoWindow.ToggleMaximized();
         if (_lastKnownPointerId == 0) return;
-        try {
-            await JsRuntime.InvokeVoidAsync("releasePointerCapture", _dragArea, _lastKnownPointerId);
-        }
-        catch (Exception) {
-            // ignore
-        }
+        await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, _lastKnownPointerId);
     }
 
     private void OnPointerMove(PointerEventArgs args) {

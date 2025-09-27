@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
 namespace InfiniLore.Photino.Blazor;
+using InfiniLore.Photino.Js;
+
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddPhotinoBlazorDesktop(this IServiceCollection services, IFileProvider? fileProvider = null, Action<IPhotinoWindowBuilder>? windowBuilder = null) {
         services.AddOptions<PhotinoBlazorAppConfiguration>();
@@ -22,6 +24,7 @@ public static class ServiceCollectionExtensions {
                 var handler = sp.GetRequiredService<PhotinoHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(PhotinoWebViewManager.AppBaseUri) };
             })
+            .AddScoped<InfiniWindowJs>()
             .AddSingleton<IPhotinoWebViewManager, PhotinoWebViewManager>()
             .AddSingleton<IPhotinoJsComponentConfiguration, PhotinoJsComponentConfiguration>()
             .AddSingleton<Dispatcher, PhotinoDispatcher>()

@@ -1,15 +1,16 @@
-﻿@namespace InfiniLore.Photino.Blazor
-
+﻿@using InfiniLore.Photino.Js
 @using InfiniLore.Photino.NET
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.Extensions.Logging
-@using Microsoft.JSInterop
+
+@namespace InfiniLore.Photino.Blazor
+
 @inherits ComponentBase
 @implements IDisposable
 
-@inject IJSRuntime JsRuntime
 @inject ILogger<PhotinoWindowResizeThumb> Logger
 @inject IPhotinoWindow PhotinoWindow
+@inject InfiniWindowJs InfiniWindowJs 
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
 @if (!_hidden) {
@@ -145,12 +146,12 @@
 
     private async Task OnPointerDown(PointerEventArgs args) {
         _isGrabbing = true;
-        await JsRuntime.InvokeVoidAsync("setPointerCapture", _thumbReference, args.PointerId);
+        await InfiniWindowJs.SetPointerCaptureAsync(_thumbReference, args.PointerId);
     }
 
     private async Task OnPointerUp(PointerEventArgs args) {
         _isGrabbing = false;
-        await JsRuntime.InvokeVoidAsync("releasePointerCapture", _thumbReference, args.PointerId);
+        await InfiniWindowJs.ReleasePointerCaptureAsync(_thumbReference, args.PointerId);
     }
 
     private void OnPointerMove(PointerEventArgs args) {

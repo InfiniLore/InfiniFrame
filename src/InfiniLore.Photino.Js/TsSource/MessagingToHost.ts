@@ -5,16 +5,23 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export function sendMessageToHost(message: string) {
-    // TODO - determine messaging methods for Photino.NET for all platforms
+export const HostMessageIds = {
+    titleChange: "title:change",
+    fullscreenEnter: "fullscreen:enter",
+    fullscreenExit: "fullscreen:exit",
+}
+
+export type HostMessageId = typeof HostMessageIds[keyof typeof HostMessageIds];
+
+export function sendMessageToHost(id: HostMessageId, data?: string) {
+    const message = data ? `${id};${data}` : id;
     
-    // Try different messaging methods for Photino.NET
+    // TODO - determine messaging methods for Photino.NET for all platforms
     if (window.chrome?.webview) {
         window.chrome.webview.postMessage(message);
     } else if (window.external?.sendMessage) {
         window.external.sendMessage(message);
     } else {
-        // Fallback for development
         console.warn("Message to host failed:", message);
     }
 }
