@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Fullscreen from "./Fullscreen.vue";
+import TitleChange from "./TitleChange.vue";
 
 defineProps<{ msg: string }>()
 
@@ -10,6 +11,7 @@ defineProps<{ msg: string }>()
 
     <div class="card">
         <Fullscreen/>
+        <TitleChange/>
     </div>
 
     <p>
