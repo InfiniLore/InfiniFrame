@@ -14,9 +14,8 @@
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
 @if (!_hidden) {
-    GetStyleValues(out string left, out string top, out string width, out string height, out string cursor);
     <div @ref="_thumbReference"
-         style="position: absolute; z-index: @ZIndex; left: @left; top: @top; width: @width; height: @height; cursor: @cursor; background-color: rgba(217,71,52,0.4); border: 1px solid rgba(217,71,52,0.8);"
+         style="position: absolute; z-index: @ZIndex; left: @_left; top: @_top; width: @_width; height: @_height; cursor: @_cursor;"
          onpointerdown="@OnPointerDown"
          onpointerup="@OnPointerUp"
          onpointermove="@OnPointerMove"
@@ -26,15 +25,33 @@
 }
 
 @code {
-    [Parameter] public ResizeOrigin ResizeThumb { get; set; }
-    [Parameter] public int ResizeArea { get; set; } = 10;
+    [EditorRequired, Parameter] public ResizeOrigin ResizeThumb { get; set; }
+    [Parameter] public int ResizeArea { get; set; } = ResizeAreaValue;
     [Parameter] public int ZIndex { get; set; } = ZIndexValue;
     internal const int ZIndexValue = 1000;
+    internal const int ResizeAreaValue = 10;
 
     private ElementReference _thumbReference;
     private bool _suppressRender;
     private bool _isGrabbing;
     private bool _hidden;
+    
+    private string _left = string.Empty;
+    private string _top = string.Empty;
+    private string _width = string.Empty;
+    private string _height = string.Empty;
+    private string _cursor = string.Empty;
+
+    protected override void OnParametersSet() {
+        base.OnParametersSet();
+        
+        GetStyleValues(out string left, out string top, out string width, out string height, out string cursor);
+        _left = left;
+        _top = top;
+        _width = width;
+        _height = height;
+        _cursor = cursor;
+    }
 
     protected override bool ShouldRender() {
         if (!base.ShouldRender()) return false;
