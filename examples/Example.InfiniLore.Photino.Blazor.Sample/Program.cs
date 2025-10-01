@@ -29,6 +29,7 @@ public static class Program {
 
         // customize window
         app.WindowBuilder
+            .SetZoomEnabled(false)
             .SetChromeless(true)
             .SetResizable(true)
             .SetIconFile("favicon.ico")
