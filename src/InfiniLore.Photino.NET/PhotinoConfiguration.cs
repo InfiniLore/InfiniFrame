@@ -47,6 +47,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public bool WebSecurityEnabled { get; set; } = true;
     public int Width { get; set; }
     public int Zoom { get; set; } = 100;
+    public bool ZoomEnabled { get; set; } = true;
     
     public PhotinoNativeParameters ToParameters() => new PhotinoNativeParameters {
         CenterOnInitialize = Centered,
@@ -87,6 +88,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
         UseOsDefaultSize = UseOsDefaultSize,
         CustomSchemeNames = CustomSchemeNames,
         Zoom = Zoom,
+        ZoomEnabled = ZoomEnabled,
         Size = Marshal.SizeOf<PhotinoNativeParameters>()
     };
 }

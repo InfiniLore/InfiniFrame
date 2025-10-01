@@ -390,4 +390,9 @@ public static class PhotinoWindowBuilderExtensions {
 
         return builder;
     }
+    
+    public static T SetZoomEnabled<T>(this T builder, bool zoomEnabled) where T : IPhotinoWindowBuilder {
+        builder.Configuration.ZoomEnabled = zoomEnabled;
+        return builder;
+    }
 }

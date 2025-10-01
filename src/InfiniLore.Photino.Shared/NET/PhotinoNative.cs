@@ -66,6 +66,8 @@ public static partial class PhotinoNative {
     private const string Photino_ShowOpenFolder = nameof(Photino_ShowOpenFolder);
     private const string Photino_ShowSaveFile = nameof(Photino_ShowSaveFile);
     private const string Photino_ShowMessage = nameof(Photino_ShowMessage);
+    private const string Photino_GetZoomEnabled = nameof(Photino_GetZoomEnabled);
+    private const string Photino_SetZoomEnabled = nameof(Photino_SetZoomEnabled);
     // ReSharper restore InconsistentNaming
 
     #region Register
@@ -196,6 +198,9 @@ public static partial class PhotinoNative {
 
     [DllImport(DllName, EntryPoint = Photino_GetMinimized, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
     internal static extern void GetMinimized(IntPtr instance, out bool minimized);
+    
+    [DllImport(DllName, EntryPoint = Photino_GetZoomEnabled, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+    internal static extern void GetZoomEnabled(IntPtr instance, out bool zoomEnabled);
     #endregion
 
     #region MARSHAL CALLS FROM Non-UI Thread to UI Thread
@@ -283,6 +288,9 @@ public static partial class PhotinoNative {
     [LibraryImport(DllName, EntryPoint = Photino_SetZoom, SetLastError = true)]
     [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
     internal static partial void SetZoom(IntPtr instance, int zoom);
+    
+    [DllImport(DllName, EntryPoint = Photino_SetZoomEnabled, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+    internal static extern void SetZoomEnabled(IntPtr instance, bool zoomEnabled);
     #endregion
 
     #region Misc

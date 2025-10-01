@@ -893,4 +893,9 @@ public static class PhotinoWindowExtensions {
         });
         return window;
     }
+
+    public static T SetZoomEnabled<T>(this T window, bool zoomEnabled) where T : class, IPhotinoWindow {
+        window.Invoke(() => PhotinoNative.SetZoomEnabled(window.InstanceHandle, zoomEnabled));
+        return window;   
+    }
 }

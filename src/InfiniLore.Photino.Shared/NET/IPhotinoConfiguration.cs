@@ -39,6 +39,7 @@ public interface IPhotinoConfiguration : IPhotinoWindowBase {
     bool UseOsDefaultSize { get; set; }
     string[] CustomSchemeNames { get; set; }
     new int Zoom { get; set; }
+    bool ZoomEnabled { get; set; }
 
     PhotinoNativeParameters ToParameters();
 }
