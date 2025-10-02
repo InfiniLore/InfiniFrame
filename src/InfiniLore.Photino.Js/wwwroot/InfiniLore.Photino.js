@@ -137,7 +137,7 @@ exports["default"] = InfiniWindow;
 
 /***/ "./src/InfiniLore.Photino.Js/TsSource/MessagingToHost.ts":
 /*!***************************************************************!*\
-  !*** ./src/InfiniLore.Photino.Js/TsSource/MessagingToHost.ts ***!
+  !*** ./src/InfiniLore.Photino.Js/TsSource/HostMessaging.ts ***!
   \***************************************************************/
 /***/ ((__unused_webpack_module, exports) => {
 

@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {HostMessageIds, sendMessageToHost} from "./MessagingToHost";
+import {HostMessageIds} from "./Contracts/IHostMessaging";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -36,7 +36,7 @@ export async function blankTargetHandler(e: MouseEvent) {
         }
         
         e.preventDefault();
-        sendMessageToHost(HostMessageIds.openExternalLink, anchor.href);
+        window.infiniWindow.HostMessaging.sendMessageToHost(HostMessageIds.openExternalLink, anchor.href);
         return;
     }
 }
