@@ -9,9 +9,11 @@ using Microsoft.Extensions.Logging;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class TitleChangedWebMessageHandler {
     private const string TitleChanged = "title:change";
+    private const string RegisterTitleChange = "register:title:change";
 
-    public static T RegisterTitleChangedWebMessageHandler<T>(this T builder) where T : IPhotinoWindowBuilder {
-        builder.MessageHandlers.Register(TitleChanged, HandleWebMessage);
+    public static T RegisterTitleChangedWebMessageHandler<T>(this T builder) where T : class, IPhotinoWindowBuilder {
+        builder.MessageHandlers.RegisterMessageHandler(TitleChanged, HandleWebMessage);
+        RegisterWindowCreatedUtilities.RegisterWindowCreatedWebMessage(builder, RegisterTitleChange);
         return builder;
     }
     

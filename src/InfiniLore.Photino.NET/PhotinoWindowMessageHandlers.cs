@@ -13,7 +13,7 @@ public class PhotinoWindowMessageHandlers : IPhotinoWindowMessageHandlers {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void Register(string messageId, Action<IPhotinoWindow, string?> handler) {
+    public void RegisterMessageHandler(string messageId, Action<IPhotinoWindow, string?> handler) {
         Handlers.Add(messageId, handler);   
     }
     

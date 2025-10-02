@@ -9,6 +9,6 @@ namespace InfiniLore.Photino.NET;
 public interface IPhotinoWindowMessageHandlers {
     bool IsEmpty { get; }
     
-    void Register(string messageId, Action<IPhotinoWindow, string?> handler);
+    void RegisterMessageHandler(string messageId, Action<IPhotinoWindow, string?> handler);
     void Handle(object? sender, string? message);
 }

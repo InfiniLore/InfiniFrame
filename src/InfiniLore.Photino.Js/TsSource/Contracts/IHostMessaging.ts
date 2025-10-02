@@ -12,6 +12,12 @@ export const SendToHostMessageIds = {
     openExternalLink: "open:external",
 }
 
+export const ReceiveFromHostMessageIds = {
+    registerOpenExternal: "register:open:external",
+    registerFullscreenChange: "register:fullscreen:change",
+    registerTitleChange: "register:title:change",
+}
+
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];
 export type MessageCallback = (data?: string) => void;
 

@@ -10,12 +10,14 @@ using System.Diagnostics;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class OpenExternalTargetWebMessageHandler {
     private const string OpenExternal = "open:external";
+    private const string RegisterOpenExternal = "register:open:external";
 
-    public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : IPhotinoWindowBuilder {
-        builder.MessageHandlers.Register(OpenExternal, HandleWebMessage);
+    public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class,IPhotinoWindowBuilder {
+        builder.MessageHandlers.RegisterMessageHandler(OpenExternal, HandleWebMessage);
+        RegisterWindowCreatedUtilities.RegisterWindowCreatedWebMessage(builder, RegisterOpenExternal);
         return builder;
     }
-    
+
     private static void HandleWebMessage(IPhotinoWindow window, string? payload) {
         if (string.IsNullOrWhiteSpace(payload)) return;
 
