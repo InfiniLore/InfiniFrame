@@ -1,10 +1,10 @@
-﻿using Example.InfiniLore.Photino.Blazor.MultiWindowSample.Components;
+﻿using Example.Blazor.MultiWindowSample.Components;
 using InfiniLore.Photino.Blazor;
 using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Example.InfiniLore.Photino.Blazor.MultiWindowSample;
-class Program {
+namespace Example.Blazor.MultiWindowSample;
+static class Program {
 
     private static readonly List<IPhotinoWindow> Windows = new List<IPhotinoWindow>();
 

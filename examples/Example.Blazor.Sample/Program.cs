@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using InfiniLore.Photino.NET;
 
-namespace Example.InfiniLore.Photino.Blazor.Sample;
+namespace Example.Blazor.Sample;
 using System.Drawing;
 
 public static class Program {

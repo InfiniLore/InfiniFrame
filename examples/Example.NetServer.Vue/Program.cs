@@ -1,19 +1,15 @@
 ﻿using InfiniLore.Photino.NET;
-using InfiniLore.Photino.NET.MessageHandlers;
 using InfiniLore.Photino.NET.Server;
 using System.Drawing;
 
-namespace Example.InfiniLore.Photino.NetServer.Vue.Fullscreen;
+namespace Example.NetServer.Vue;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
         var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
-        photinoServerBuilder.UsePort(5172, 100);
+        photinoServerBuilder.UsePort(5173, 100);
 
         PhotinoServer photinoServer = photinoServerBuilder.Build();
-        
-        photinoServer.MapPhotinoJsEndpoints();
-
         photinoServer.Run();
 
         IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
@@ -21,14 +17,20 @@ public static class Program {
             .SetUseOsDefaultSize(false)
             .SetTitle("InfiniLore Photino.NET VUE Sample")
             .SetSize(new Size(800, 600))
-            
-            .RegisterFullScreenWebMessageHandler()
-            .RegisterOpenExternalTargetWebMessageHandler()
-            .RegisterTitleChangedWebMessageHandler()
-            
+            .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) => {
+                contentType = "text/javascript";
+                return new MemoryStream(
+                    """
+                        (() =>{
+                            window.setTimeout(() => {
+                                alert(`🎉 Dynamically inserted JavaScript.`);
+                            }, 1000);
+                        })();
+                        """u8.ToArray()
+                );
+            })
             .RegisterWebMessageReceivedHandler((sender, message) => {
-                if (sender is not IPhotinoWindow window) return;
-
+                var window = (PhotinoWindow)sender!;
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
@@ -36,6 +38,5 @@ public static class Program {
         IPhotinoWindow window = windowBuilder.Build();
 
         window.WaitForClose();
-        photinoServer.Stop();
     }
 }
