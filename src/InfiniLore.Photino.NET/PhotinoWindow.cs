@@ -24,6 +24,7 @@ public sealed class PhotinoWindow(
 
     public IPhotinoWindow? Parent { get; } = parent;
     public IPhotinoWindowEvents Events { get; set; } = null!;
+    public IPhotinoWindowMessageHandlers MessageHandlers { get; set; } = null!;
 
     private static readonly Lock MessageLoopIsStartedLock = new Lock();
     private static bool _messageLoopIsStarted;//There can only be 1 message loop for all windows.

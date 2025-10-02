@@ -1,16 +1,14 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IHostMessaging, SendToHostMessageId} from "./IHostMessaging";
+namespace InfiniLore.Photino.NET;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface IInfiniWindow {
-    HostMessaging : IHostMessaging;
-
-    sendMessageToHost(id: SendToHostMessageId, data?: string): void;
+public interface IPhotinoWindowMessageHandlers {
+    bool IsEmpty { get; }
     
-    setPointerCapture(element: Element, pointerId: number): void;
-    releasePointerCapture(element: Element, pointerId: number): void;
+    void RegisterMessageHandler(string messageId, Action<IPhotinoWindow, string?> handler);
+    void Handle(object? sender, string? message);
 }

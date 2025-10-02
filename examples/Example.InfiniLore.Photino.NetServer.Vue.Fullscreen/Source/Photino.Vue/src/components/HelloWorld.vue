@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Fullscreen from "./Fullscreen.vue";
 import TitleChange from "./TitleChange.vue";
+import NewWindow from "./NewWindow.vue";
 
 defineProps<{ msg: string }>()
 
@@ -12,6 +13,7 @@ defineProps<{ msg: string }>()
     <div class="card">
         <Fullscreen/>
         <TitleChange/>
+        <NewWindow/>
     </div>
 
     <p>

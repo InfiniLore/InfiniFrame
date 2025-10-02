@@ -12,6 +12,7 @@ declare global {
         chrome?: {
             webview?: {
                 postMessage(message: string): void;
+                addEventListener(type: 'message', listener: (event: { data: string }) => void): void;
             };
         };
         infiniWindow : IInfiniWindow
@@ -19,5 +20,6 @@ declare global {
     // noinspection JSUnusedGlobalSymbols
     interface External {
         sendMessage?(message: string): void;
+        receiveMessage?: (message: string) => void;
     }
 }
