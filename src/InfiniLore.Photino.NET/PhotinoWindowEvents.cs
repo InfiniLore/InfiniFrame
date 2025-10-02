@@ -22,7 +22,7 @@ public class PhotinoWindowEvents : IPhotinoWindowEvents {
     public event EventHandler? WindowCreating;
     public event EventHandler? WindowCreated;
 
-    public IPhotinoWindowEvents DefineSender<T>(T sender) where T : notnull{
+    public IPhotinoWindowEvents DefineSender<T>(T sender) where T : class{
         ArgumentNullException.ThrowIfNull(sender);
         Sender = sender;   
         return this;   
