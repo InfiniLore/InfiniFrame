@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {IInfiniWindow} from "./Contracts/IInfiniWindow";
 import {IHostMessaging, SendToHostMessageId} from "./Contracts/IHostMessaging";
-import {HostMessaging} from "./HostMessaging";
+import HostMessaging from "./HostMessaging";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

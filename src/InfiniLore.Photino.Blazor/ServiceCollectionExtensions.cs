@@ -35,11 +35,4 @@ public static class ServiceCollectionExtensions {
             .AddSingleton<IPhotinoWindow>(static provider => provider.GetRequiredService<IPhotinoWindowBuilder>().Build(provider))
             .AddBlazorWebView();
     }
-
-    public static IServiceCollection AddPhotinoWindowBuilder(this IServiceCollection services, Action<IPhotinoWindowBuilder> windowBuilder) {
-        var builder = PhotinoWindowBuilder.Create();
-        windowBuilder.Invoke(builder);
-        services.AddSingleton<IPhotinoWindowBuilder>(builder);
-        return services;
-    }
 }

@@ -25,22 +25,22 @@ public static class Program {
         // register root component and selector
         appBuilder.RootComponents.Add<App>("app");
 
-        PhotinoBlazorApp app = appBuilder.Build();
-
-        // customize window
-        app.WindowBuilder
-            .SetChromeless(true)
-            .SetResizable(true)
-            .SetIconFile("favicon.ico")
-            // .Center()
-            // .SetUseOsDefaultSize(true)
-            // .SetUseOsDefaultLocation(true);
-            // .SetTitle("InfiniLore Photino.Blazor Sample")
-            .SetLocation(new Point(100, 100))
-            .SetSize(new Size(800, 600))
+        appBuilder.WithPhotinoWindowBuilder(builder => {
+            builder
+                .SetChromeless(true)
+                .SetResizable(true)
+                .SetIconFile("favicon.ico")
+                // .Center()
+                // .SetUseOsDefaultSize(true)
+                // .SetUseOsDefaultLocation(true);
+                // .SetTitle("InfiniLore Photino.Blazor Sample")
+                .SetLocation(new Point(100, 100))
+                .SetSize(new Size(800, 600));
             // .SetMaxSize(new Size(800, 600))
             // .SetMinSize(new Size(600, 400))
-            ;
+        });
+
+        PhotinoBlazorApp app = appBuilder.Build();
         
         app.Run();
 
