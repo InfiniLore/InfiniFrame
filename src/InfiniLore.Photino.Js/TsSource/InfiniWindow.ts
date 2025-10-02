@@ -4,7 +4,7 @@
 import {IInfiniWindow} from "./Contracts/IInfiniWindow";
 import {getTitleObserver, TitleObserverTarget} from "./Observers";
 import {blankTargetHandler} from "./BlankTargetHandler";
-import {HostMessageIds, IHostMessaging} from "./Contracts/IHostMessaging";
+import {SendToHostMessageIds, IHostMessaging} from "./Contracts/IHostMessaging";
 import {HostMessaging} from "./HostMessaging";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -31,8 +31,8 @@ export class InfiniWindow implements IInfiniWindow {
     
     private assignEventListeners() {
         document.addEventListener("fullscreenchange", (_: Event) => {
-            if (document.fullscreenElement) this.HostMessaging.sendMessageToHost(HostMessageIds.fullscreenEnter);
-            else this.HostMessaging.sendMessageToHost(HostMessageIds.fullscreenExit);
+            if (document.fullscreenElement) this.HostMessaging.sendMessageToHost(SendToHostMessageIds.fullscreenEnter);
+            else this.HostMessaging.sendMessageToHost(SendToHostMessageIds.fullscreenExit);
         });
 
         document.addEventListener("keydown", async (e: KeyboardEvent) => {

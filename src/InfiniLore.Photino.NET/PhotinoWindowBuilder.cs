@@ -3,10 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.Photino.NET;
+
 public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
+    
     public IPhotinoConfiguration Configuration { get; } = new PhotinoConfiguration();
     public IPhotinoWindowEvents Events { get; } = new PhotinoWindowEvents();
+    public IPhotinoWindowMessageHandlers MessageHandlers { get; } = new PhotinoWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
     
     private PhotinoWindowBuilder() {}
@@ -36,7 +39,12 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     }
     
     public IPhotinoWindow Build(IServiceProvider? provider = null) {
-        var window = new PhotinoWindow(CustomSchemeHandlers, provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger());
+        var window = new PhotinoWindow(
+            CustomSchemeHandlers,
+            provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger()
+        );
+        
+        if (!MessageHandlers.IsEmpty) Events.WebMessageReceived += PhotinoWindowMessageHandlers.HandleStatic;
         
         //These are for the callbacks from C++ to C#.
         PhotinoNativeParameters startupParameters = GetParameters(provider);
@@ -58,6 +66,7 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
         window.MinWidth = startupParameters.MinWidth;
         
         window.Events = Events.DefineSender(window);
+        window.MessageHandlers = MessageHandlers;
         window.Initialize();
         return window;
 

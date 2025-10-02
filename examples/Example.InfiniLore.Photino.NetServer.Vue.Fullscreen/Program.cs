@@ -33,9 +33,11 @@ public static class Program {
                     """u8.ToArray()
                 );
             })
-            .RegisterWebMessageReceivedHandler(FullscreenWebMessageHandler.HandleWebMessage)
-            .RegisterWebMessageReceivedHandler(TitleChangeWebMessageHandler.HandleWebMessage)
-            .RegisterWebMessageReceivedHandler(OpenExternalTargetWebMessageHandler.HandleWebMessage)
+            
+            .RegisterFullScreenWebMessageHandler()
+            .RegisterOpenExternalTargetWebMessageHandler()
+            .RegisterTitleChangedWebMessageHandler()
+            
             .RegisterWebMessageReceivedHandler((sender, message) => {
                 if (sender is not IPhotinoWindow window) return;
 

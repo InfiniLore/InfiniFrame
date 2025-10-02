@@ -1,18 +1,14 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {SendToHostMessageIds} from "./Contracts/IHostMessaging";
+namespace InfiniLore.Photino.NET;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export const TitleObserverTarget : HTMLTitleElement | null = document.querySelector('title');
-
-export function getTitleObserver() : MutationObserver {
-    return new MutationObserver((mutations, _) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type !== "childList") return;
-            window.infiniWindow.HostMessaging.sendMessageToHost(SendToHostMessageIds.titleChange, document.title);
-        })
-    })
+public interface IPhotinoWindowMessageHandlers {
+    bool IsEmpty { get; }
+    
+    void Register(string messageId, Action<IPhotinoWindow, string?> handler);
+    void Handle(IPhotinoWindow window, string? message);
 }

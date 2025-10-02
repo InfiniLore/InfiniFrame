@@ -11,33 +11,29 @@ using System.Diagnostics;
 public static class OpenExternalTargetWebMessageHandler {
     private const string OpenExternal = "open:external";
 
-    public static void HandleWebMessage(object? sender, string? message) {
-        if (sender is not IPhotinoWindow window) return;
+    public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : IPhotinoWindowBuilder {
+        builder.MessageHandlers.Register(OpenExternal, HandleWebMessage);
+        return builder;
+    }
+    
+    private static void HandleWebMessage(IPhotinoWindow window, string? payload) {
+        if (string.IsNullOrWhiteSpace(payload)) return;
 
-        string[]? split = message?.Split(';', 2, StringSplitOptions.RemoveEmptyEntries);
-        switch (split?.FirstOrDefault()) {
-            case OpenExternal: {
-                string? url = split.ElementAtOrDefault(1);
-                if (string.IsNullOrWhiteSpace(url)) return;
+        if (!Uri.TryCreate(payload, UriKind.Absolute, out Uri? uri)) {
+            window.Logger.LogWarning("Invalid URL: {uri}", payload);
+            return;
+        }
 
-                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri)) {
-                    window.Logger.LogWarning("Invalid URL: {uri}", url);
-                    return;
-                }
-
-                try {
-                    var psi = new ProcessStartInfo {
-                        FileName = uri.AbsoluteUri,
-                        UseShellExecute = true,
-                        CreateNoWindow = true
-                    };
-                    Process.Start(psi);
-                }
-                catch (Exception ex) {
-                    window.Logger.LogError("Failed to open external: {ex}", ex);
-                }
-                return;
-            }
+        try {
+            var psi = new ProcessStartInfo {
+                FileName = uri.AbsoluteUri,
+                UseShellExecute = true,
+                CreateNoWindow = true
+            };
+            Process.Start(psi);
+        }
+        catch (Exception ex) {
+            window.Logger.LogError("Failed to open external: {ex}", ex);
         }
     }
 }
