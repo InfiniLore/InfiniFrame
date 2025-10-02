@@ -43,8 +43,8 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
             CustomSchemeHandlers,
             provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger()
         );
-        
-        Events.WebMessageReceived += PhotinoWindowMessageHandlers.GlobalHandle;
+
+        Events.WebMessageReceived += MessageHandlers.Handle;
         
         //These are for the callbacks from C++ to C#.
         PhotinoNativeParameters startupParameters = GetParameters(provider);

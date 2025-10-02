@@ -10,5 +10,5 @@ public interface IPhotinoWindowMessageHandlers {
     bool IsEmpty { get; }
     
     void Register(string messageId, Action<IPhotinoWindow, string?> handler);
-    void Handle(IPhotinoWindow window, string message);
+    void Handle(object? sender, string? message);
 }
