@@ -3,10 +3,10 @@ using System.Net.Http.Headers;
 
 namespace InfiniLore.Photino.Blazor;
 public class PhotinoHttpHandler : DelegatingHandler {
-    private readonly PhotinoBlazorApp _app;
+    private readonly IPhotinoWebViewManager _manager;
 
-    public PhotinoHttpHandler(PhotinoBlazorApp app, HttpMessageHandler? innerHandler = null) {
-        _app = app;
+    public PhotinoHttpHandler(IPhotinoWebViewManager manager, HttpMessageHandler? innerHandler = null) {
+        _manager = manager;
 
         //the last (inner) handler in the pipeline should be a "real" handler.
         //To make an HTTP request, create a HttpClientHandler instance.
@@ -14,7 +14,7 @@ public class PhotinoHttpHandler : DelegatingHandler {
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
-        Stream? content = _app.HandleWebRequest(null, null, request.RequestUri?.AbsoluteUri, out string? contentType);
+        Stream? content = _manager.HandleWebRequest(null, null, request.RequestUri?.AbsoluteUri, out string? contentType);
         if (content is null || contentType is null) return await base.SendAsync(request, cancellationToken);
 
         var response = new HttpResponseMessage(HttpStatusCode.OK);

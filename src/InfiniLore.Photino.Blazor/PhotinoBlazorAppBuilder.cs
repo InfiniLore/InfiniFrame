@@ -18,6 +18,7 @@ public class PhotinoBlazorAppBuilder {
         var appBuilder = new PhotinoBlazorAppBuilder();
         appBuilder.Services.AddPhotinoBlazorDesktop(fileProvider: fileProvider, windowBuilder: windowBuilder);
         appBuilder.Services.AddSingleton(appBuilder.WindowBuilder);
+        appBuilder.Services.AddSingleton(appBuilder.RootComponents);
 
         // Right now we don't have conventions or behaviors that are specific to this method
         // however, making this the default for the template allows us to add things like that
@@ -32,18 +33,17 @@ public class PhotinoBlazorAppBuilder {
     }
 
     public PhotinoBlazorApp Build() {
-        Services.AddSingleton(RootComponents);
         ServiceProvider sp = Services.BuildServiceProvider();
-        var app = sp.GetRequiredService<PhotinoBlazorApp>();
+        var manager = sp.GetRequiredService<IPhotinoWebViewManager>();
 
         WindowBuilder
-            .RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, app.HandleWebRequest)
+            .RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, manager.HandleWebRequest)
             .SetStartUrl(PhotinoWebViewManager.AppBaseUri);
 
         AppDomain.CurrentDomain.UnhandledException += (_, error) => {
             sp.GetService<IPhotinoWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         };
         
-        return app;
+        return sp.GetRequiredService<PhotinoBlazorApp>();
     }
 }

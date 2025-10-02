@@ -14,11 +14,6 @@ public static class ServiceCollectionExtensions {
         if (fileProvider is not null) services.AddSingleton(fileProvider);
         else services.AddSingleton<IFileProvider>(static _ => new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot")));
 
-
-        var builder = PhotinoWindowBuilder.Create();
-        windowBuilder?.Invoke(builder);
-        services.AddSingleton<IPhotinoWindowBuilder>(builder);
-
         return services
             .AddScoped(static sp => {
                 var handler = sp.GetRequiredService<PhotinoHttpHandler>();
