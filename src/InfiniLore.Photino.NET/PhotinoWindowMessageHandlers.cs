@@ -9,6 +9,7 @@ namespace InfiniLore.Photino.NET;
 public class PhotinoWindowMessageHandlers : IPhotinoWindowMessageHandlers {
     private Dictionary<string, Action<IPhotinoWindow, string?>> Handlers { get; } = new Dictionary<string, Action<IPhotinoWindow, string?>>();
     public bool IsEmpty => Handlers.Count == 0;
+    
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -31,7 +32,8 @@ public class PhotinoWindowMessageHandlers : IPhotinoWindowMessageHandlers {
     public static void GlobalHandle(object? sender, string? message) {
         if (sender is not IPhotinoWindow window) return;
         if (window.MessageHandlers.IsEmpty) return;
-        if (message is null) return;
+        if (string.IsNullOrWhiteSpace(message)) return;
+        
         window.MessageHandlers.Handle(window, message);   
     }
 }
