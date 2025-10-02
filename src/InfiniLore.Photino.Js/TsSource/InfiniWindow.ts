@@ -4,6 +4,7 @@
 import {IInfiniWindow} from "./Contracts/IInfiniWindow";
 import {getTitleObserver, TitleObserverTarget} from "./Observers";
 import {HostMessageIds, sendMessageToHost} from "./MessagingToHost";
+import {blankTargetHandler} from "./BlankTargetHandler";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -37,5 +38,9 @@ export class InfiniWindow implements IInfiniWindow {
             if (document.fullscreenElement) await document.exitFullscreen();
             else await document.body.requestFullscreen();
         });
+
+        document.addEventListener( "click", blankTargetHandler, { capture: true });
     }
 }
+
+export default InfiniWindow

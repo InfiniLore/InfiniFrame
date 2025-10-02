@@ -35,6 +35,7 @@ public static class Program {
             })
             .RegisterWebMessageReceivedHandler(FullscreenWebMessageHandler.HandleWebMessage)
             .RegisterWebMessageReceivedHandler(TitleChangeWebMessageHandler.HandleWebMessage)
+            .RegisterWebMessageReceivedHandler(OpenExternalTargetWebMessageHandler.HandleWebMessage)
             .RegisterWebMessageReceivedHandler((sender, message) => {
                 if (sender is not IPhotinoWindow window) return;
 
