@@ -41,7 +41,7 @@ public static class Program {
             // .SetMaxSize(new Size(800, 600))
             // .SetMinSize(new Size(600, 400))
             ;
-            
+        
         app.Run();
 
     }

@@ -5,15 +5,18 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export const HostMessageIds = {
+export const SendToHostMessageIds = {
     titleChange: "title:change",
     fullscreenEnter: "fullscreen:enter",
     fullscreenExit: "fullscreen:exit",
     openExternalLink: "open:external",
 }
 
-export type HostMessageId = typeof HostMessageIds[keyof typeof HostMessageIds];
+export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];
+export type MessageCallback = (data?: string) => void;
 
 export interface IHostMessaging {
-    sendMessageToHost(id: HostMessageId, data?: string): void;
+    sendMessageToHost(id: SendToHostMessageId, data?: string): void;
+    assignMessageReceivedHandler(messageId:string, callback:MessageCallback): void;
+    unregisterMessageReceivedHandler(messageId: string) : void;
 }
