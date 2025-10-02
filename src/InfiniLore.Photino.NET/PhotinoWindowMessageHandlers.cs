@@ -16,11 +16,8 @@ public class PhotinoWindowMessageHandlers : IPhotinoWindowMessageHandlers {
         Handlers.Add(messageId, handler);   
     }
     
-    public void Handle(IPhotinoWindow window, string? message) {
-        if (message is null) return;
-        
+    public void Handle(IPhotinoWindow window, string message) {
         (string messageId, string? payload) = ParseMessage(message);
-        
         if (!Handlers.TryGetValue(messageId, out Action<IPhotinoWindow, string?>? handler)) return;
 
         handler(window, payload);
@@ -31,8 +28,10 @@ public class PhotinoWindowMessageHandlers : IPhotinoWindowMessageHandlers {
         return (split[0], split.ElementAtOrDefault(1));
     }
 
-    public static void HandleStatic(object? sender, string message) {
+    public static void GlobalHandle(object? sender, string? message) {
         if (sender is not IPhotinoWindow window) return;
+        if (window.MessageHandlers.IsEmpty) return;
+        if (message is null) return;
         window.MessageHandlers.Handle(window, message);   
     }
 }
