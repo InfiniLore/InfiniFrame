@@ -8,8 +8,7 @@ import {HostMessageIds, sendMessageToHost} from "./MessagingToHost";
 // ---------------------------------------------------------------------------------------------------------------------
 function isExternalLink(url: string): boolean {
     try {
-        const u = new URL(url, location.href);
-        return u.hostname !== location.hostname;
+        return new URL(url, location.href).hostname !== location.hostname;
     } catch {
         return false;
     }
@@ -17,12 +16,13 @@ function isExternalLink(url: string): boolean {
 
 export async function blankTargetHandler(e: MouseEvent) {
     let el = e.target as HTMLElement | null;
-
+    
     while (el && el !== document.body) {
         if (el.tagName?.toLowerCase() !== "a") {
             el = el.parentElement;
             continue;
         }
+        
         const anchor = el as HTMLAnchorElement;
         if (!anchor.href) {
             el = el.parentElement;
@@ -30,10 +30,13 @@ export async function blankTargetHandler(e: MouseEvent) {
         }
 
         const target = anchor.getAttribute("target");
-        if (target === "_blank" || anchor.hasAttribute("data-external") || isExternalLink(anchor.href)) {
-            e.preventDefault();
-            sendMessageToHost(HostMessageIds.openExternalLink, anchor.href);
-            return;
+        if (!(target === "_blank" || anchor.hasAttribute("data-external") || isExternalLink(anchor.href))) {
+            el = el.parentElement;
+            continue;
         }
+        
+        e.preventDefault();
+        sendMessageToHost(HostMessageIds.openExternalLink, anchor.href);
+        return;
     }
 }
