@@ -8,6 +8,7 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <ApplicationIcon>favicon.ico</ApplicationIcon>
+        <RootNamespace>Example.Blazor.Sample</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,9 +28,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Serilog" Version="4.3.0"/>
-        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
-        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
+        <PackageReference Include="Serilog"/>
+        <PackageReference Include="Serilog.AspNetCore"/>
+        <PackageReference Include="Serilog.Sinks.Console"/>
     </ItemGroup>
 
 </Project>

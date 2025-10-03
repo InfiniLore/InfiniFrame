@@ -2,7 +2,7 @@
 using InfiniLore.Photino.NET.Server;
 using System.Drawing;
 
-namespace Example.InfiniLore.Photino.NetServer.React;
+namespace Example.NetServer.React;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {

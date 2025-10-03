@@ -4,6 +4,7 @@
     <File Path="InfiniLore.Photino.GitHubActions.slnf" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
+    <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />
@@ -18,11 +19,11 @@
     <File Path="webpack.config.js" />
   </Folder>
   <Folder Name="/example/">
-    <Project Path="examples\Example.InfiniLore.Photino.Blazor.MultiWindowSample\Example.InfiniLore.Photino.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.Blazor.Sample\Example.InfiniLore.Photino.Blazor.Sample.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.NetServer.React\Example.InfiniLore.Photino.NetServer.React.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.NetServer.Vue.Fullscreen\Example.InfiniLore.Photino.NetServer.Vue.Fullscreen.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.InfiniLore.Photino.NetServer.Vue\Example.InfiniLore.Photino.NetServer.Vue.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.Blazor.MultiWindowSample\Example.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.Blazor.Sample\Example.Blazor.Sample.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.NetServer.React\Example.NetServer.React.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.NetServer.Vue.Fullscreen\Example.NetServer.Vue.Fullscreen.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.NetServer.Vue\Example.NetServer.Vue.csproj" Type="Classic C#" />
     <File Path="examples\Directory.Build.props" />
   </Folder>
   <Folder Name="/src/">
