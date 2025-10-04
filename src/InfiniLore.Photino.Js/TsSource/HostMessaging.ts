@@ -41,7 +41,7 @@ class HostMessaging implements IHostMessaging {
         })
     }
         
-    public sendMessageToHost(id: SendToHostMessageId, data?: string) {
+    public sendMessageToHost(id: SendToHostMessageId | string, data?: string) {
         const message = data ? `${id};${data}` : id;
 
         // TODO - determine messaging methods for Photino.NET for all platforms
