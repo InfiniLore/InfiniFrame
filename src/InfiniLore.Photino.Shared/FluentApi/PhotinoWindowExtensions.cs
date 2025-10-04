@@ -598,14 +598,14 @@ public static class PhotinoWindowExtensions {
                 window.CachedPreMaximizedBounds = windowRect;
                 PhotinoNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
                 PhotinoNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
-                window.Events.OnMaximized();
+                // window.Events.OnMaximized();
             }
             else {
                 Rectangle oldRect = window.CachedPreMaximizedBounds;
                 PhotinoNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
                 PhotinoNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
                 window.CachedPreMaximizedBounds = Rectangle.Empty;
-                window.Events.OnRestored();
+                // window.Events.OnRestored();
             }
         });
         return window;  
