@@ -34,6 +34,8 @@
     </ItemGroup>
 
     <Target Name="BuildFrontend" BeforeTargets="Build">
+        <Message Text="Installing npm packages" Importance="high"/>
+        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)/Source/Photino.Vue"/>
         <Message Text="Building frontend with npm..." Importance="high"/>
         <Exec Command="npm run vue.fullscreen-build" WorkingDirectory="$(ProjectDir)/Source/Photino.Vue"/>
     </Target>
