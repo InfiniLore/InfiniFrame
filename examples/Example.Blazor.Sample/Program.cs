@@ -18,7 +18,7 @@ public static class Program {
         });
 
         appBuilder.Services.AddSerilog(config => {
-            config.WriteTo.Console()
+            config.WriteTo.Async(static c => c.Console())
                 .MinimumLevel.Debug();
         });
 
@@ -44,6 +44,5 @@ public static class Program {
         PhotinoBlazorApp app = appBuilder.Build();
         
         app.Run();
-
     }
 }
