@@ -10,12 +10,14 @@ export const SendToHostMessageIds = {
     fullscreenEnter: "__infiniWindow:fullscreen:enter",
     fullscreenExit: "__infiniWindow:fullscreen:exit",
     openExternalLink: "__infiniWindow:open:external",
+    windowClose: "__infiniWindow:window:close",
 }
 
 export const ReceiveFromHostMessageIds = {
     registerOpenExternal: "__infiniWindow:register:open:external",
     registerFullscreenChange: "__infiniWindow:register:fullscreen:change",
     registerTitleChange: "__infiniWindow:register:title:change",
+    registerWindowClose: "__infiniWindow:register:window:close",
 }
 
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];
