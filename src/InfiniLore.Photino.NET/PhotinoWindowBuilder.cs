@@ -39,7 +39,9 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     }
     
     public IPhotinoWindow Build(IServiceProvider? provider = null) {
-        // if(CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(, "Maximum number of custom scheme handlers is 16.");
+        #pragma warning disable CA2208
+        if(CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(nameof(CustomSchemeHandlers), "Maximum number of custom scheme handlers is 16.");
+        #pragma warning restore CA2208
         
         var window = new PhotinoWindow(
             CustomSchemeHandlers,
