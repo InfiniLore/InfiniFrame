@@ -9,8 +9,8 @@ using System.Diagnostics;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class OpenExternalTargetWebMessageHandler {
-    private const string OpenExternal = "open:external";
-    private const string RegisterOpenExternal = "register:open:external";
+    private const string OpenExternal = HandlerNames.InfiniWindowPrefix + "open:external";
+    private const string RegisterOpenExternal = HandlerNames.InfiniWindowPrefix + "register:open:external";
 
     public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class,IPhotinoWindowBuilder {
         builder.MessageHandlers.RegisterMessageHandler(OpenExternal, HandleWebMessage);

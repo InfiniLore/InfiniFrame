@@ -39,9 +39,15 @@ class HostMessaging implements IHostMessaging {
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerTitleChange, _ => {
             if (TitleObserverTarget) getTitleObserver().observe(TitleObserverTarget, {childList: true});
         })
+        
+        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerWindowClose, _ => {
+            window.close = () => {
+                this.sendMessageToHost(SendToHostMessageIds.windowClose);
+            } 
+        })
     }
         
-    public sendMessageToHost(id: SendToHostMessageId, data?: string) {
+    public sendMessageToHost(id: SendToHostMessageId | string, data?: string) {
         const message = data ? `${id};${data}` : id;
 
         // TODO - determine messaging methods for Photino.NET for all platforms

@@ -1,10 +1,10 @@
 ﻿namespace InfiniLore.Photino.NET.MessageHandlers;
 public static class FullscreenWebMessageHandler {
-    private const string FullscreenEnter = "fullscreen:enter";
-    private const string FullscreenExit = "fullscreen:exit";
-    private const string FullscreenToggle = "fullscreen:toggle";
+    private const string FullscreenEnter = HandlerNames.InfiniWindowPrefix + "fullscreen:enter";
+    private const string FullscreenExit = HandlerNames.InfiniWindowPrefix + "fullscreen:exit";
+    private const string FullscreenToggle = HandlerNames.InfiniWindowPrefix + "fullscreen:toggle";
     
-    private const string RegisterFullScreenChange = "register:fullscreen:change";
+    private const string RegisterFullScreenChange = HandlerNames.InfiniWindowPrefix + "register:fullscreen:change";
 
     public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IPhotinoWindowBuilder {
         builder.MessageHandlers.RegisterMessageHandler(FullscreenEnter, static (window, _) => window.SetFullScreen(true) );
