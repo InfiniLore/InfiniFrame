@@ -27,7 +27,8 @@ public static class Program {
 
         appBuilder.WithPhotinoWindowBuilder(builder => {
             builder
-                // .SetChromeless(true)
+                .SetTransparent(true)
+                .SetChromeless(true)
                 // .SetResizable(true)
                 .SetIconFile("favicon.ico")
                 // .Center()

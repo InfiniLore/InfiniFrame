@@ -13,7 +13,7 @@
 @* ReSharper disable CSharpWarnings::CS8974 *@
 @if (!_hidden) {
     <div @ref="_thumbReference"
-         style="position: absolute; z-index: @ZIndex; left: @_left; top: @_top; width: @_width; height: @_height; cursor: @_cursor;"
+         style="position: absolute; z-index: @ZIndex; left: @_left; top: @_top; width: @_width; height: @_height; cursor: @_cursor; border: 1px solid black; background-color: rgba(217,68,52,0.4) "
          onpointerdown="@OnPointerDown"
          onpointerup="@OnPointerUp"
          onpointermove="@OnPointerMove"

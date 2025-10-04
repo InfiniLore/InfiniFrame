@@ -712,18 +712,8 @@ public sealed class PhotinoWindow(
             throw new ArgumentException("A handler (method) with a signature matching NetCustomSchemeDelegate must be supplied.");
 
         scheme = scheme.ToLower();
-
-        // TODO implement in builder pattern
-        // if (IsNotInitialized())
-        // {
-        //     if (_customSchemes.Count > 15 && !_customSchemes.ContainsKey(scheme))
-        //         throw new ApplicationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
-        //     _customSchemes.TryAdd(scheme, null);
-        // }
-        // else
-        // {
+        
         PhotinoNative.AddCustomSchemeName(InstanceHandle, scheme);
-        // }
 
         customSchemes[scheme] += handler;
 
