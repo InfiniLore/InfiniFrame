@@ -25,9 +25,6 @@ public sealed class PhotinoWindow(
     public IPhotinoWindow? Parent { get; } = parent;
     public IPhotinoWindowEvents Events { get; set; } = null!;
     public IPhotinoWindowMessageHandlers MessageHandlers { get; set; } = null!;
-
-    private static readonly Lock MessageLoopIsStartedLock = new Lock();
-    private static bool _messageLoopIsStarted;//There can only be 1 message loop for all windows.
     
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
@@ -442,14 +439,14 @@ public sealed class PhotinoWindow(
     ///     The operation of the message loop is exclusive to the main native window only.
     /// </remarks>
     public void WaitForClose() {
-        lock (MessageLoopIsStartedLock) {
-            if (_messageLoopIsStarted) return;
-
-            _messageLoopIsStarted = true;
+        if (!MessageLoopState.TryAcquireFirstState()) {
+            logger.LogWarning("Message loop is already running. This call will be ignored.");
+            return;
         }
 
         try {
-            Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));//start the message loop. there can only be 1 message loop for all windows.
+            logger.LogDebug("Starting message loop. There can only be 1 message loop for all windows.");
+            Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));
         }
         catch (Exception ex) {
             int lastError = 0;
