@@ -87,7 +87,7 @@ app {
     position: sticky;
     top: 0;
     z-index: 1;
-    height: 3.5rem;
+    height: 2rem;
     display: flex;
     align-items: center;
 }
@@ -104,7 +104,7 @@ app {
 
 .main > div {
     padding-left: 2rem !important;
-    padding-right: 1.5rem !important;
+    /*padding-right: 1.5rem !important;*/
 }
 
 .content {

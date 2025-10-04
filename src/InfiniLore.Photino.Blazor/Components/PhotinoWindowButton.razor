@@ -8,29 +8,49 @@
 @inject IPhotinoWindow PhotinoWindow
 
 
-<button class="window-button window-button-@(WindowAction.ToString().ToLower()) window-button-@GetOperatingSystem()"
-        @onclick="@OnClick">
-    @if (OperatingSystem.IsMacOS()) {
-        <span class="window-icon">@((MarkupString)GetIcon())</span>
-    }
-</button>
+<div class="@Class window-button window-button-@(WindowAction.ToString().ToLower()) window-button-@GetOperatingSystem()"
+     @onclick="@OnClick">
+    <span class="window-icon">@((MarkupString)GetIcon())</span>
+</div>
 
 <!--suppress CssUnusedSymbol -->
 <style>
     .window-button {
-        width: 32px;
-        height: 32px;
+        width: 1.5em;
+        min-height: 1em;
+        max-height: 100%;
+        line-height: 100%;
         border: none;
         background: transparent;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        text-align: justify-all;
         cursor: pointer;
         transition: all 0.2s ease;
         font-family: 'Segoe UI Symbol', 'Apple Color Emoji', sans-serif;
-        font-size: 12px;
+        font-size: 1.5em;
         color: #666;
         border-radius: 0;
+    }
+
+    /* Dark background support */
+    @@media (prefers-color-scheme: dark) {
+        .window-button {
+            color: #ccc;
+        }
+
+        .window-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .window-button:active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .window-button-macos {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
     }
 
     .window-button:hover {
@@ -45,6 +65,11 @@
     .window-button-windows {
         font-family: 'Segoe MDL2 Assets', 'Segoe UI Symbol', sans-serif;
     }
+    
+    .window-button-windows:hover {
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #666;
+    }
 
     .window-button-windows.window-button-close:hover {
         background-color: #e81123;
@@ -56,12 +81,19 @@
         background-color: rgba(0, 0, 0, 0.1);
     }
 
+    @@media (prefers-color-scheme: dark) {
+        .window-button-windows.window-button-maximize:hover,
+        .window-button-windows.window-button-minimize:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    }
+
     /* macOS-specific styles - Traffic Light Buttons */
     .window-button-macos {
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        border: 0.5px solid rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(0, 0, 0, 0.2);
         margin: 0 4px;
         position: relative;
         box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3),
@@ -134,23 +166,29 @@
     .window-icon {
         pointer-events: none;
         user-select: none;
+    
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 100%;
     }
 </style>
 
 @code {
     [EditorRequired, Parameter] public required WindowAction WindowAction { get; set; }
+    [Parameter] public string? Class { get; set; } 
 
-    
+
     private const string Windows = "windows";
     private const string MacOs = "macos";
     private const string Linux = "linux";
-    
+
     private static string GetOperatingSystem() {
         if (OperatingSystem.IsWindows()) return Windows;
         if (OperatingSystem.IsMacOS()) return MacOs;
+
         return OperatingSystem.IsLinux() ? Linux : "unknown";
     }
-    
+
     private string GetIcon() {
         string os = GetOperatingSystem();
 
