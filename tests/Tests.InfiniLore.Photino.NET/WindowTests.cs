@@ -43,4 +43,16 @@ public class WindowTests {
         // Assert
         await Assert.That(Window.NativeType).IsNotDefault();
     }
+    
+    [Test]
+    public async Task Maximize_IsDefined() {
+        // Arrange
+        InitializeWindow();
+        
+        // Act
+        Window.SetMaximized(true);
+
+        // Assert
+        await Assert.That(Window.Maximized).IsTrue();
+    }
 }
