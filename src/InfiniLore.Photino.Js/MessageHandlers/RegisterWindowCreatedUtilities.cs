@@ -1,7 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniLore.Photino.NET.MessageHandlers;
+using InfiniLore.Photino.NET;
+
+namespace InfiniLore.Photino.Js.MessageHandlers;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -13,6 +15,7 @@ public static class RegisterWindowCreatedUtilities {
 
             // TODO this is a hack but works because we can only send an event after the window is fully created.
             //      The issue is that OnWindowCreated is called before the window is fully finalized.
+            //      We should fix this in the future.
             _ = Task.Run(async () => {
                 await Task.Delay(1000);
                 await window.SendWebMessageAsync(messageId);

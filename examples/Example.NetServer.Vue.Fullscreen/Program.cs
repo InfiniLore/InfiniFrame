@@ -1,5 +1,5 @@
-﻿using InfiniLore.Photino.NET;
-using InfiniLore.Photino.NET.MessageHandlers;
+﻿using InfiniLore.Photino.Js.MessageHandlers;
+using InfiniLore.Photino.NET;
 using InfiniLore.Photino.NET.Server;
 using System.Drawing;
 
