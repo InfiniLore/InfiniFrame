@@ -9,6 +9,7 @@
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />
     <File Path=".github\workflows\workflow-todo.yml" />
+    <File Path=".github\workflows\onPullRequest.yml" />
   </Folder>
   <Folder Name="/.dev-tools/py/">
     <File Path="dev\bump_version.py" />
