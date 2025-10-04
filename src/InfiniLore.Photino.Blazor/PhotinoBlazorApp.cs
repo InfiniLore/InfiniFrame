@@ -25,7 +25,7 @@ public class PhotinoBlazorApp(
         }
 
         try {
-            window.Invoke(window.WaitForClose);
+            window.WaitForClose();
         }
         finally {
             // TODO think about proper exception handling here
