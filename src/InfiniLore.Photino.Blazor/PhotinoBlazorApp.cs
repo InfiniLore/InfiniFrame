@@ -32,6 +32,7 @@ public class PhotinoBlazorApp(
             window.Invoke(() => _ = Task.Run(DisposeAsync));
         }
     }
+    
     public async ValueTask DisposeAsync() {
         lock (_disposeLock) {
             if (_disposed) return;
