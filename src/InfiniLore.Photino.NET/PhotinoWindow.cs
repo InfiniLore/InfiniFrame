@@ -418,7 +418,6 @@ public sealed class PhotinoWindow(
         }
 
         Events.OnWindowCreated();
-
     }
 
     /// <summary>
@@ -524,7 +523,8 @@ public sealed class PhotinoWindow(
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
     /// <param name="filters">Array of Extensions for filtering.</param>
     /// <returns>Array of file paths as strings</returns>
-    public string?[] ShowOpenFile(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null) => ShowOpenDialog(false, title, defaultPath, multiSelect, filters);
+    public string?[] ShowOpenFile(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
+        => ShowOpenDialog(false, title, defaultPath, multiSelect, filters);
 
     /// <summary>
     ///     Async version is required for InfiniLore.Photino.Blazor
@@ -541,9 +541,8 @@ public sealed class PhotinoWindow(
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
     /// <param name="filters">Array of Extensions for filtering.</param>
     /// <returns>Array of file paths as strings</returns>
-    public async Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null) {
-        return await Task.Run(() => ShowOpenFile(title, defaultPath, multiSelect, filters));
-    }
+    public async Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
+        => await Task.Run(() => ShowOpenFile(title, defaultPath, multiSelect, filters));
 
     /// <summary>
     ///     Show an open folder dialog native to the OS.
@@ -555,7 +554,8 @@ public sealed class PhotinoWindow(
     /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
     /// <returns>Array of folder paths as strings</returns>
-    public string?[] ShowOpenFolder(string title = "Select folder", string? defaultPath = null, bool multiSelect = false) => ShowOpenDialog(true, title, defaultPath, multiSelect, null);
+    public string?[] ShowOpenFolder(string title = "Select folder", string? defaultPath = null, bool multiSelect = false)
+        => ShowOpenDialog(true, title, defaultPath, multiSelect, null);
 
     /// <summary>
     ///     Async version is required for InfiniLore.Photino.Blazor
