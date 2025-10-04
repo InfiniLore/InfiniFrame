@@ -10,6 +10,7 @@ public class WindowTests {
         var builder = PhotinoWindowBuilder.Create();
 
         builder.SetStartUrl("https://localhost/");
+        builder.SetSize(10, 10);
         
         Window = builder.Build();
     }
@@ -45,14 +46,30 @@ public class WindowTests {
     }
     
     [Test]
-    public async Task Maximize_IsDefined() {
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Maximize_IsDefined(bool state) {
         // Arrange
         InitializeWindow();
         
         // Act
-        Window.SetMaximized(true);
+        Window.SetMaximized(state);
 
         // Assert
-        await Assert.That(Window.Maximized).IsTrue();
+        await Assert.That(Window.Maximized).IsEqualTo(state);
+    }
+    
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Minimize_IsDefined(bool state) {
+        // Arrange
+        InitializeWindow();
+        
+        // Act
+        Window.SetMinimized(state);
+
+        // Assert
+        await Assert.That(Window.Minimized).IsEqualTo(state);
     }
 }
