@@ -369,7 +369,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     initialization.
     /// </remarks>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="builder"></param>
     /// <param name="scheme">The custom scheme</param>
