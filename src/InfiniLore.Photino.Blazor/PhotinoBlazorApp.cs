@@ -28,7 +28,8 @@ public class PhotinoBlazorApp(
             window.Invoke(window.WaitForClose);
         }
         finally {
-            _ = Task.Run(DisposeAsync);
+            // TODO think about proper exception handling here
+            window.Invoke(() => _ = Task.Run(DisposeAsync));
         }
     }
     public async ValueTask DisposeAsync() {
@@ -54,13 +55,10 @@ public class PhotinoBlazorApp(
                     break;
                 }
             }
-            
-            var logger = provider.GetRequiredService<ILogger<PhotinoBlazorApp>>();
-            logger.LogInformation("PhotinoBlazorApp disposed");
         }
         catch (Exception e) {
-            var logger = provider.GetRequiredService<ILogger<PhotinoBlazorApp>>();
-            logger.LogError(e, "Error disposing of PhotinoBlazorApp");
+            var logger = provider.GetService<ILogger<PhotinoBlazorApp>>();
+            logger?.LogError(e, "Error disposing of PhotinoBlazorApp");
         }
         
         GC.SuppressFinalize(this);
