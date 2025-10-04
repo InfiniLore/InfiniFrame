@@ -8,7 +8,7 @@ on:
 
 jobs:
     test:
-        name: Build & Test
+        name: Build & Test (Photino Headless)
         runs-on: ubuntu-latest
         
         steps:
@@ -20,12 +20,13 @@ jobs:
               with:
                   dotnet-version: '9.x'
             
-            # Install GTK and WebKit dependencies
+            # Install GTK, WebKitGTK, and Xvfb dependencies
             - name: Install WebKitGTK and dependencies
               run: |
                   sudo apt-get update
                   sudo apt-get install -y \
                     xvfb \
+                    fluxbox \
                     libnotify4 \
                     libnotify-dev \
                     libwebkit2gtk-4.1-dev \
@@ -42,19 +43,28 @@ jobs:
               run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
 
             - name: Build (Release)
-              run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore -p:GeneratePackageOnBuild=false -p:IsPackable=false
+              run: dotnet build InfiniLore.Photino.GitHubActions.slnf \
+                  --configuration Release \
+                  --no-restore \
+                  -p:GeneratePackageOnBuild=false \
+                  -p:IsPackable=false
             
-            # Run tests inside a virtual display (required for Photino)
-            - name: Run tests (headless)
+            # Run tests inside a virtual display with Fluxbox window manager
+            - name: Run tests (headless with window manager)
               env:
                   CI: true
                   DISPLAY: ":99"
               run: |
-                # Start virtual framebuffer in background
-                Xvfb :99 -screen 0 1920x1080x24 &
-                sleep 3
-                # Run tests
-                dotnet test InfiniLore.Photino.GitHubActions.slnf \
-                --configuration Release \
-                --no-restore \
-                --no-build 
+                  echo "Starting virtual framebuffer..."
+                  Xvfb :99 -screen 0 1920x1080x24 &
+                  sleep 3
+                  
+                  echo "Starting Fluxbox window manager..."
+                  fluxbox >/dev/null 2>&1 &
+                  sleep 5
+                  
+                  echo "Running tests..."
+                  dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    --configuration Release \
+                    --no-restore \
+                    --no-build
