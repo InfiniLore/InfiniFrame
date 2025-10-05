@@ -1,33 +1,35 @@
 name: DotNET Testing (Photino)
-
-on:
-    workflow_dispatch:
+'on':
+    workflow_dispatch: null
     pull_request:
-        types: [opened, synchronize, reopened, ready_for_review]
-        branches: [ master ]
-
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - ready_for_review
+        branches:
+            - master
 jobs:
-    # ---------------------------------------------------------------------------------------
-    # Linux (Headless)
-    # ---------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+    # Linux
+    # ------------------------------------------------------------------------------------------------------------------
     linux-test:
-        name: Build & Test (Photino Headless - Linux)
+        name: Build & Test (Linux)
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
-
+              
             - name: Setup .NET 9 SDK
               uses: actions/setup-dotnet@v4
               with:
-                  dotnet-version: '9.x'
-
-            - name: Install WebKitGTK and dependencies
+                  dotnet-version: 9.x
+                  
+            - name: Install GUI and WebKitGTK dependencies
               run: |
                   sudo apt-get update
                   sudo apt-get install -y \
-                    xvfb \
+                    xorg \
                     openbox \
                     libnotify4 \
                     libnotify-dev \
@@ -39,11 +41,12 @@ jobs:
                     libatk1.0-dev \
                     libharfbuzz-dev \
                     libepoxy-dev \
-                    libx11-dev
-
+                    libx11-dev \
+                    x11-utils \
+                    xdotool
+                  
             - name: Restore dependencies
               run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
-
             - name: Build (Release)
               run: |
                   dotnet build InfiniLore.Photino.GitHubActions.slnf \
@@ -51,46 +54,44 @@ jobs:
                     --no-restore \
                     -p:GeneratePackageOnBuild=false \
                     -p:IsPackable=false
-
-            - name: Run tests (Headless)
-              env:
-                  CI: true
-                  DISPLAY: ":99"
-              run: |
-                  echo "Starting virtual framebuffer..."
-                  Xvfb :99 -screen 0 1920x1080x24 &
-                  sleep 3
                   
-                  echo "Starting Openbox window manager..."
-                  openbox >/dev/null 2>&1 &
+            - name: Start real X server and Openbox
+              run: |
+                  echo "Starting Xorg server on :1..."
+                  sudo Xorg :1 -noreset vt1 &
+                  export DISPLAY=:1
+                  sleep 5
+                  echo "Starting Openbox..."
+                  openbox-session &
                   sleep 5
                   
-                  echo "Running tests..."
+            - name: Run tests with GUI
+              env:
+                  CI: true
+                  DISPLAY: ':1'
+              run: |
                   dotnet test InfiniLore.Photino.GitHubActions.slnf \
                     --configuration Release \
-                    --no-build \
                     --no-restore \
-                    --logger "console;verbosity=detailed"
-
-    # ---------------------------------------------------------------------------------------
+                    --no-build
+    # ------------------------------------------------------------------------------------------------------------------
     # Windows
-    # ---------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     windows-test:
-        name: Build & Test (Photino - Windows)
+        name: Build & Test (Windows)
         runs-on: windows-latest
-
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
-
+              
             - name: Setup .NET 9 SDK
               uses: actions/setup-dotnet@v4
               with:
-                  dotnet-version: '9.x'
-
+                  dotnet-version: 9.x
+                  
             - name: Restore dependencies
               run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
-
+              
             - name: Build (Release)
               run: |
                   dotnet build InfiniLore.Photino.GitHubActions.slnf `
@@ -98,7 +99,7 @@ jobs:
                     --no-restore `
                     -p:GeneratePackageOnBuild=false `
                     -p:IsPackable=false
-
+                  
             - name: Run tests
               run: |
                   echo "Running tests on Windows..."
