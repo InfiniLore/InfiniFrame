@@ -10,69 +10,40 @@ jobs:
     # ---------------------------------------------------------------------------------------
     # Linux (Headless)
     # ---------------------------------------------------------------------------------------
-    linux-test:
-        name: Build & Test (Photino Headless - Linux)
+    linux-gui:
+        name: Build & Test (Linux GUI)
         runs-on: ubuntu-latest
-
         steps:
-            -   name: Checkout repository
-                uses: actions/checkout@v5
+            -   uses: actions/checkout@v5
 
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v4
                 with:
                     dotnet-version: '9.x'
 
-            -   name: Install GUI and WebKitGTK dependencies
+            -   name: Install GUI dependencies
                 run: |
                     sudo apt-get update
-                    sudo apt-get install -y \
-                      xorg \
-                      openbox \
-                      libnotify4 \
-                      libnotify-dev \
-                      libwebkit2gtk-4.1-dev \
-                      libgtk-3-dev \
-                      libglib2.0-dev \
-                      libgdk-pixbuf2.0-dev \
-                      libpango1.0-dev \
-                      libatk1.0-dev \
-                      libharfbuzz-dev \
-                      libepoxy-dev \
-                      libx11-dev \
-                      x11-utils \
-                      xdotool
+                    sudo apt-get install -y xorg openbox libnotify4 libwebkit2gtk-4.1-dev libgtk-3-dev \
+                                            libglib2.0-dev libgdk-pixbuf2.0-dev libpango1.0-dev \
+                                            libatk1.0-dev libharfbuzz-dev libepoxy-dev libx11-dev x11-utils
+
+            -   name: Start X server with Openbox
+                run: |
+                    X :1 -nolisten tcp &
+                    export DISPLAY=:1
+                    openbox >/dev/null 2>&1 &
+                    sleep 5
+                    xset q
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
 
             -   name: Build (Release)
-                run: |
-                    dotnet build InfiniLore.Photino.GitHubActions.slnf \
-                      --configuration Release \
-                      --no-restore \
-                      -p:GeneratePackageOnBuild=false \
-                      -p:IsPackable=false
+                run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
 
-            -   name: Start real X server and Openbox
-                run: |
-                    echo "Starting Xorg server on :1..."
-                    sudo Xorg :1 -noreset vt1 &
-                    export DISPLAY=:1
-                    sleep 5
-                    echo "Starting Openbox..."
-                    openbox-session &
-                    sleep 5
-
-            -   name: Run tests with GUI
-                env:
-                    CI: true
-                    DISPLAY: ":1"
-                run: |
-                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
-                      --configuration Release \
-                      --no-restore \
-                      --no-build
+            -   name: Run tests
+                run: dotnet test InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore --no-build
 
     # ---------------------------------------------------------------------------------------
     # Windows
