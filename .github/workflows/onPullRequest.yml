@@ -1,93 +1,98 @@
 name: DotNET Testing (Photino)
+
 on:
-    workflow_dispatch: 
+    workflow_dispatch:
     pull_request:
-        types: [ opened, synchronize, reopened, ready_for_review ]
+        types: [opened, synchronize, reopened, ready_for_review]
         branches: [ master ]
 
 jobs:
-    # ------------------------------------------------------------------------------------------------------------------
-    # Linux
-    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------
+    # Linux (Headless)
+    # ---------------------------------------------------------------------------------------
     linux-test:
-        name: Build & Test (Linux)
+        name: Build & Test (Photino Headless - Linux)
         runs-on: ubuntu-latest
+
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v5
-              
-            - name: Setup .NET 9 SDK
-              uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: 9.x
-                  
-            - name: Install GUI and WebKitGTK dependencies
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install -y \
-                    xorg \
-                    openbox \
-                    libnotify4 \
-                    libnotify-dev \
-                    libwebkit2gtk-4.1-dev \
-                    libgtk-3-dev \
-                    libglib2.0-dev \
-                    libgdk-pixbuf2.0-dev \
-                    libpango1.0-dev \
-                    libatk1.0-dev \
-                    libharfbuzz-dev \
-                    libepoxy-dev \
-                    libx11-dev \
-                    x11-utils \
-                    xdotool
-                  
-            - name: Restore dependencies
-              run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
-            - name: Build (Release)
-              run: |
-                  dotnet build InfiniLore.Photino.GitHubActions.slnf \
-                    --configuration Release \
-                    --no-restore \
-                    -p:GeneratePackageOnBuild=false \
-                    -p:IsPackable=false
-                  
-            - name: Start real X server and Openbox
-              run: |
-                  echo "Starting Xorg server on :1..."
-                  sudo Xorg :1 -noreset vt1 &
-                  export DISPLAY=:1
-                  sleep 5
-                  echo "Starting Openbox..."
-                  openbox-session &
-                  sleep 5
-                  
-            - name: Run tests with GUI
-              env:
-                  CI: true
-                  DISPLAY: ':1'
-              run: |
-                  dotnet test InfiniLore.Photino.GitHubActions.slnf \
-                    --configuration Release \
-                    --no-restore \
-                    --no-build
-    # ------------------------------------------------------------------------------------------------------------------
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+
+            -   name: Setup .NET 9 SDK
+                uses: actions/setup-dotnet@v4
+                with:
+                    dotnet-version: '9.x'
+
+            -   name: Install GUI and WebKitGTK dependencies
+                run: |
+                    sudo apt-get update
+                    sudo apt-get install -y \
+                      xorg \
+                      openbox \
+                      libnotify4 \
+                      libnotify-dev \
+                      libwebkit2gtk-4.1-dev \
+                      libgtk-3-dev \
+                      libglib2.0-dev \
+                      libgdk-pixbuf2.0-dev \
+                      libpango1.0-dev \
+                      libatk1.0-dev \
+                      libharfbuzz-dev \
+                      libepoxy-dev \
+                      libx11-dev \
+                      x11-utils \
+                      xdotool
+
+            -   name: Restore dependencies
+                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+
+            -   name: Build (Release)
+                run: |
+                    dotnet build InfiniLore.Photino.GitHubActions.slnf \
+                      --configuration Release \
+                      --no-restore \
+                      -p:GeneratePackageOnBuild=false \
+                      -p:IsPackable=false
+
+            -   name: Start real X server and Openbox
+                run: |
+                    echo "Starting Xorg server on :1..."
+                    sudo Xorg :1 -noreset vt1 &
+                    export DISPLAY=:1
+                    sleep 5
+                    echo "Starting Openbox..."
+                    openbox-session &
+                    sleep 5
+
+            -   name: Run tests with GUI
+                env:
+                    CI: true
+                    DISPLAY: ":1"
+                run: |
+                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                      --configuration Release \
+                      --no-restore \
+                      --no-build
+
+    # ---------------------------------------------------------------------------------------
     # Windows
-    # ------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------
     windows-test:
-        name: Build & Test (Windows)
+        name: Build & Test (Photino - Windows)
         runs-on: windows-latest
+
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
-              
+
             - name: Setup .NET 9 SDK
               uses: actions/setup-dotnet@v4
               with:
-                  dotnet-version: 9.x
-                  
+                  dotnet-version: '9.x'
+
             - name: Restore dependencies
               run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
-              
+
             - name: Build (Release)
               run: |
                   dotnet build InfiniLore.Photino.GitHubActions.slnf `
@@ -95,7 +100,7 @@ jobs:
                     --no-restore `
                     -p:GeneratePackageOnBuild=false `
                     -p:IsPackable=false
-                  
+
             - name: Run tests
               run: |
                   echo "Running tests on Windows..."
