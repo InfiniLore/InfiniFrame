@@ -17,13 +17,18 @@ public class WindowTests {
 
     private void InitializeWindow() {
         _ = Task.Run(Window.WaitForClose);
-        
+    }
+    
+    [After(Test)]
+    public void Teardown() {
+        Window.Close();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
+    [NotInParallel(ParallellControl.Photino)]
     public async Task InstanceHandle_IsDefined() {
         // Arrange
         InitializeWindow();
@@ -35,6 +40,7 @@ public class WindowTests {
     }
     
     [Test]
+    [NotInParallel(ParallellControl.Photino)]
     public async Task NativeType_IsDefined() {
         // Arrange
         InitializeWindow();
@@ -46,6 +52,7 @@ public class WindowTests {
     }
     
     [Test]
+    [NotInParallel(ParallellControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Maximize_IsDefined(bool state) {
@@ -60,6 +67,7 @@ public class WindowTests {
     }
     
     [Test]
+    [NotInParallel(ParallellControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Minimize_IsDefined(bool state) {
