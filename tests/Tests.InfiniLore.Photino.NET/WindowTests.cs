@@ -2,11 +2,13 @@
 
 namespace Tests.InfiniLore.Photino.NET;
 
+[ParallelLimiter<PhotinoParallelLimit>]
 public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task InstanceHandle_IsDefined() {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
@@ -19,6 +21,7 @@ public class WindowTests {
     }
     
     [Test]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task NativeType_IsDefined() {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
@@ -31,30 +34,34 @@ public class WindowTests {
     }
     
     [Test]
-    public async Task Maximize_IsDefined() {
+    [NotInParallel(ParallelControl.Photino)]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Maximize_IsDefined(bool state) {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
         
-        // Act & Assert
-        window.SetMaximized(true);
-        await Assert.That(window.Maximized).IsTrue();
-        
-        window.SetMaximized(false);
-        await Assert.That(window.Maximized).IsFalse();
+        // Act
+        window.SetMaximized(state);
+
+        // Assert
+        await Assert.That(window.Maximized).IsEqualTo(state);
     }
     
     [Test]
-    public async Task Minimize_IsDefined() {
+    [NotInParallel(ParallelControl.Photino)]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Minimize_IsDefined(bool state) {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
         
-        // Act & Assert
-        window.SetMinimized(true);
-        await Assert.That(window.Minimized).IsTrue();
-        
-        window.SetMinimized(false);
-        await Assert.That(window.Minimized).IsFalse();
+        // Act
+        window.SetMinimized(state);
+
+        // Assert
+        await Assert.That(window.Minimized).IsEqualTo(state);
     }
 }
