@@ -44,27 +44,27 @@ jobs:
 
             - name: Build (Release)
               run: |
-                dotnet build InfiniLore.Photino.GitHubActions.slnf \
-                  --configuration Release \
-                  --no-restore \
-                  -p:GeneratePackageOnBuild=false \
-            
-                  -p:IsPackable=false
-            
+                  dotnet build InfiniLore.Photino.GitHubActions.slnf \
+                    --configuration Release \
+                    --no-restore \
+                    -p:GeneratePackageOnBuild=false \
+                    -p:IsPackable=false
+
             - name: Run tests (headless with window manager)
               env:
-                CI: true
-                DISPLAY: ":99"
+                  CI: true
+                  DISPLAY: ":99"
               run: |
-                echo "Starting virtual framebuffer..."
-                Xvfb :99 -screen 0 1920x1080x24 &
-                sleep 3
-            
-                echo "Starting Fluxbox window manager..."
-                fluxbox >/dev/null 2>&1 &
-                sleep 5
-            
-                echo "Running tests..."
-                dotnet test InfiniLore.Photino.GitHubActions.slnf \
-                  --configuration Release \
-                  --no-restore \
+                  echo "Starting virtual framebuffer..."
+                  Xvfb :99 -screen 0 1920x1080x24 &
+                  sleep 3
+                  
+                  echo "Starting Fluxbox window manager..."
+                  fluxbox >/dev/null 2>&1 &
+                  sleep 5
+                  
+                  echo "Running tests..."
+                  dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    --configuration Release \
+                    --no-restore \
+                    --no-build
