@@ -13,13 +13,15 @@ public class WindowTests {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
-        
+
         // Act
 
         // Assert
         await Assert.That(window.InstanceHandle).IsNotDefault();
     }
-    
+}
+[ParallelLimiter<PhotinoParallelLimit>]
+public class WindowTests2 {
     [Test]
     [NotInParallel(ParallelControl.Photino)]
     public async Task NativeType_IsDefined() {
@@ -32,6 +34,9 @@ public class WindowTests {
         // Assert
         await Assert.That(window.NativeType).IsNotDefault();
     }
+}
+[ParallelLimiter<PhotinoParallelLimit>]
+public class WindowTests3 {
     
     [Test]
     [NotInParallel(ParallelControl.Photino)]
@@ -47,6 +52,9 @@ public class WindowTests {
         window.SetMaximized(false);
         await Assert.That(window.Maximized).IsFalse();
     }
+}
+[ParallelLimiter<PhotinoParallelLimit>]
+public class WindowTests4 {
     
     [Test]
     [NotInParallel(ParallelControl.Photino)]
