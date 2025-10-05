@@ -1,14 +1,10 @@
 name: DotNET Testing (Photino)
-'on':
-    workflow_dispatch: null
+on:
+    workflow_dispatch: 
     pull_request:
-        types:
-            - opened
-            - synchronize
-            - reopened
-            - ready_for_review
-        branches:
-            - master
+        types: [ opened, synchronize, reopened, ready_for_review ]
+        branches: [ master ]
+
 jobs:
     # ------------------------------------------------------------------------------------------------------------------
     # Linux
