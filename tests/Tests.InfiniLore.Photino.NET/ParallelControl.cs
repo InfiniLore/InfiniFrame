@@ -1,11 +1,17 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using TUnit.Core.Interfaces;
+
 namespace Tests.InfiniLore.Photino.NET;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class ParallellControl {
+public static class ParallelControl {
     public const string Photino = nameof(Photino);
+}
+
+public class PhotinoParallelLimit : IParallelLimit {
+    public int Limit => 1;
 }
