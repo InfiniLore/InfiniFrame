@@ -2,13 +2,11 @@
 
 namespace Tests.InfiniLore.Photino.NET;
 
-[ParallelLimiter<PhotinoParallelLimit>]
 public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [NotInParallel(ParallelControl.Photino)]
     public async Task InstanceHandle_IsDefined() {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
@@ -21,7 +19,6 @@ public class WindowTests {
     }
     
     [Test]
-    [NotInParallel(ParallelControl.Photino)]
     public async Task NativeType_IsDefined() {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
@@ -34,7 +31,6 @@ public class WindowTests {
     }
     
     [Test]
-    [NotInParallel(ParallelControl.Photino)]
     public async Task Maximize_IsDefined() {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
@@ -49,7 +45,6 @@ public class WindowTests {
     }
     
     [Test]
-    [NotInParallel(ParallelControl.Photino)]
     public async Task Minimize_IsDefined() {
         // Arrange
         using var windowUtility = WindowStateUtility.Create();
