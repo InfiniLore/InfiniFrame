@@ -28,22 +28,28 @@ jobs:
                                             libglib2.0-dev libgdk-pixbuf2.0-dev libpango1.0-dev \
                                             libatk1.0-dev libharfbuzz-dev libepoxy-dev libx11-dev x11-utils
 
-            -   name: Start X server with Openbox
-                run: |
-                    X :1 -nolisten tcp &
-                    export DISPLAY=:1
-                    openbox >/dev/null 2>&1 &
-                    sleep 5
-                    xset q
-
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
 
             -   name: Build (Release)
                 run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+                
+            -   name: Start X server with Openbox and run tests
+                run: |
+                    echo "Starting X server..."
+                    X :1 -nolisten tcp &
+                    export DISPLAY=:1
 
-            -   name: Run tests
-                run: dotnet test InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore --no-build
+                    echo "Starting Openbox..."
+                    openbox >/dev/null 2>&1 &
+                    sleep 5
+                    
+                    # Run the tests in the same shell with DISPLAY exported
+                    echo "Running tests..."
+                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    --configuration Release \
+                    --no-build \
+                    --no-restore
 
     # ---------------------------------------------------------------------------------------
     # Windows
