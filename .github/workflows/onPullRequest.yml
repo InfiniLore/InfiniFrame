@@ -20,13 +20,13 @@ jobs:
               with:
                   dotnet-version: '9.x'
             
-            # Install GTK, WebKitGTK, and Xvfb dependencies
+            # Install GTK, WebKitGTK, Xvfb, and Openbox dependencies
             - name: Install WebKitGTK and dependencies
               run: |
                   sudo apt-get update
                   sudo apt-get install -y \
                     xvfb \
-                    fluxbox \
+                    openbox \
                     libnotify4 \
                     libnotify-dev \
                     libwebkit2gtk-4.1-dev \
@@ -50,7 +50,7 @@ jobs:
                     -p:GeneratePackageOnBuild=false \
                     -p:IsPackable=false
 
-            - name: Run tests (headless with window manager)
+            - name: Run tests (headless with Openbox)
               env:
                   CI: true
                   DISPLAY: ":99"
@@ -59,8 +59,8 @@ jobs:
                   Xvfb :99 -screen 0 1920x1080x24 &
                   sleep 3
                   
-                  echo "Starting Fluxbox window manager..."
-                  fluxbox >/dev/null 2>&1 &
+                  echo "Starting Openbox window manager..."
+                  openbox >/dev/null 2>&1 &
                   sleep 5
                   
                   echo "Running tests..."
