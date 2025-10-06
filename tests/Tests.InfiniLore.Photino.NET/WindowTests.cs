@@ -68,4 +68,20 @@ public class WindowTests {
         // Assert
         await Assert.That(window.Minimized).IsEqualTo(state);
     }
+    
+    
+    [Test]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Close_IsDefined() {
+        SkipUtilities.SkipOnLinux();
+        
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+        
+        // Act
+        window.Close();
+
+        // Assert
+    }
 }
