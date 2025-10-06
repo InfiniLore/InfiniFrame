@@ -3,10 +3,6 @@ name: MultiPlatform Testing
 on:
     workflow_dispatch:
         inputs:
-            branch:
-                description: 'Branch to run the tests on (default: master)'
-                required: false
-                default: 'master'
             pr_number:
                 description: 'PR number to test (use the PR number from the URL)'
                 required: false
