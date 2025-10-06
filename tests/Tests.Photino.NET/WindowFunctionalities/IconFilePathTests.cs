@@ -13,7 +13,7 @@ public class IconFilePathTests {
     private const string InvalidIconFilePath = "invalid.ico";
     
     [Test]
-    public async Task Builder_ShouldSetIconFilePath() {
+    public async Task Builder() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
         PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration() {
@@ -44,7 +44,7 @@ public class IconFilePathTests {
 
     [Test]
     [SkipUtility.OnMacOs]
-    public async Task Window_ShouldSetIconFilePath() {
+    public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
@@ -72,7 +72,7 @@ public class IconFilePathTests {
     
     [Test]
     [SkipUtility.OnMacOs]
-    public async Task FullIntegration_ShouldSetIconFilePath() {
+    public async Task FullIntegration() {
         // Arrange
 
         // Act

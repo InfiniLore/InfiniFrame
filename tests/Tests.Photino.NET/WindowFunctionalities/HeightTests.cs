@@ -2,15 +2,13 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.Photino.NET;
-using System.Drawing;
 using Tests.Photino.NET.TestUtilities;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class SizeTests {
-    private const int Width = 10;
+public class HeightTests {
     private const int Height = 20;
 
     [Test]
@@ -19,14 +17,13 @@ public class SizeTests {
         var builder = PhotinoWindowBuilder.Create();
 
         // Act
-        builder.SetSize(Width, Height);
+        builder.SetUseOsDefaultSize(true);
+        builder.SetHeight(Height);
 
         // Assert
-        await Assert.That(builder.Configuration.Width).IsEqualTo(Width);
         await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
 
         PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
-        await Assert.That(configParameters.Width).IsEqualTo(Width);
         await Assert.That(configParameters.Height).IsEqualTo(Height);
     }
 
@@ -35,7 +32,6 @@ public class SizeTests {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
         PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration {
-            Width = Width,
             Height = Height,
             UseOsDefaultSize = false,
             Centered = false
@@ -43,10 +39,9 @@ public class SizeTests {
 
         // Act
         builder.SetUseOsDefaultSize(true);
-        builder.SetSize(Width, Height);
+        builder.SetHeight(Height);
 
         // Assert
-        await Assert.That(builder.Configuration.Width).IsEqualTo(Width);
         await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
         await Assert.That(builder.Configuration.UseOsDefaultSize).IsEqualTo(false);
         await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
@@ -63,10 +58,10 @@ public class SizeTests {
         IPhotinoWindow window = windowUtility.Window;
 
         // Act
-        window.SetSize(400, 500);
+        window.SetHeight(500);
 
         // Assert
-        await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
+        await Assert.That(window.Height).IsEqualTo(500);
     }
 
     [Test]
@@ -78,42 +73,42 @@ public class SizeTests {
         using var windowUtility = WindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
-                .SetSize(400, 500)
+                .SetHeight(500)
         );
         IPhotinoWindow window = windowUtility.Window;
 
         // Assert
-        await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
+        await Assert.That(window.Height).IsEqualTo(500);
     }
     
     [Test]
     [SkipUtility.OnMacOs]
-    public async Task Window_WithChromelessToGetSmallestSize() {
+    public async Task Window_WithChromelessToGetSmallestHeight() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create(builder => builder.SetChromeless(true));
         IPhotinoWindow window = windowUtility.Window;
 
         // Act
-        window.SetSize(Width, Height);
+        window.SetHeight(Height);
 
         // Assert
-        await Assert.That(window.Size).IsEqualTo(new Size(Width, Height));
+        await Assert.That(window.Height).IsEqualTo(Height);
     }
 
     [Test]
     [SkipUtility.OnMacOs]
-    public async Task FullIntegration_WithChromelessToGetSmallestSize() {
+    public async Task FullIntegration_WithChromelessToGetSmallestHeight() {
         // Arrange
 
         // Act
         using var windowUtility = WindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
-                .SetSize(Width, Height)
+                .SetHeight(Height)
         );
         IPhotinoWindow window = windowUtility.Window;
 
         // Assert
-        await Assert.That(window.Size).IsEqualTo(new Size(Width, Height));
+        await Assert.That(window.Height).IsEqualTo(Height);
     }
 }

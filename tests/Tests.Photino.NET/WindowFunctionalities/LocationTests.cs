@@ -14,7 +14,7 @@ public class LocationTests {
     private const int Top = 20;
     
     [Test]
-    public async Task Builder_ShouldSetLocation() {
+    public async Task Builder() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
         
@@ -59,7 +59,7 @@ public class LocationTests {
 
     [Test]
     [SkipUtility.OnMacOs]
-    public async Task Window_ShouldSetLocation() {
+    public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
@@ -73,7 +73,7 @@ public class LocationTests {
     
     [Test]
     [SkipUtility.OnMacOs]
-    public async Task FullIntegration_ShouldSetLocation() {
+    public async Task FullIntegration() {
         // Arrange
 
         // Act
