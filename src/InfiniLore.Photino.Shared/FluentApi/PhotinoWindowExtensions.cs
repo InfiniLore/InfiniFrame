@@ -472,11 +472,8 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window"></param>
     /// <param name="size">Width &amp; Height</param>
-    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetSize({Size})", size);
-        window.Invoke(() => PhotinoNative.SetSize(window.InstanceHandle, size.Width, size.Height));
-        return window;
-    }
+    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+        => SetSize(window, size.Width, size.Height);
 
     /// <summary>
     ///     Sets the native window Size. This represents the <see cref="IPhotinoWindow.Width" /> and the
