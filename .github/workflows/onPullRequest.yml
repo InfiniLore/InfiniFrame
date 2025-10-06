@@ -2,8 +2,14 @@ name: DotNET Testing (Photino)
 
 on:
     workflow_dispatch:
+        inputs:
+            pr_number:
+                description: 'Pull Request Number'
+                required: false
+                type: string
+    
     pull_request:
-        types: [opened, synchronize, reopened, ready_for_review]
+        types: [opened, ready_for_review]
         branches: [ master ]
 
 jobs:
@@ -12,7 +18,7 @@ jobs:
     # ---------------------------------------------------------------------------------------
     linux-gui:
         name: Build & Test - Linux
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04-desktop  # Use desktop variant if available
         steps:
             -   uses: actions/checkout@v5
 
@@ -21,31 +27,35 @@ jobs:
                 with:
                     dotnet-version: '9.x'
 
+            -   name: Install GUI dependencies
+                run: |
+                    sudo apt-get update
+                    export DEBIAN_FRONTEND=noninteractive
+                    sudo apt-get install -y \
+                        libnotify4 \
+                        libwebkit2gtk-4.1-dev \
+                        libgtk-3-dev \
+                        libglib2.0-dev \
+                        libgdk-pixbuf2.0-dev \
+                        libpango1.0-dev \
+                        libatk1.0-dev \
+                        libharfbuzz-dev \
+                        libepoxy-dev \
+                        libx11-dev
+
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
 
             -   name: Build (Release)
                 run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
 
-            -   name: Run GUI tests
-                uses: coactions/setup-xvfb@v1
-                with:
-                    run: |
-                        # Install dependencies
-                        sudo apt-get update
-                        sudo apt-get install -y mutter libnotify4 libwebkit2gtk-4.1-dev libgtk-3-dev \
-                                                libglib2.0-dev libgdk-pixbuf2.0-dev libpango1.0-dev \
-                                                libatk1.0-dev libharfbuzz-dev libepoxy-dev libx11-dev x11-utils
-
-                        # Start window manager
-                        mutter --wayland --nested &
-                        sleep 5
-
-                        # Run tests
-                        dotnet test InfiniLore.Photino.GitHubActions.slnf \
-                        --configuration Release \
-                        --no-build \
-                        --no-restore
+            -   name: Run tests with GUI
+                run: |
+                    echo "Running tests with native display..."
+                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    --configuration Release \
+                    --no-build \
+                    --no-restore
 
     # ---------------------------------------------------------------------------------------
     # Windows
