@@ -299,9 +299,7 @@ jobs:
                         --configuration Release \
                         --no-build \
                         --no-restore \
-                        --logger "console;verbosity=detailed" \
-                        -- RunConfiguration.TargetPlatform=arm64 \
-                        RunConfiguration.MaxCpuCount=1
+                        --logger "console;verbosity=detailed"
     
     update-status:
         name: Update Manual CI Status
