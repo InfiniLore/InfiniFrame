@@ -73,7 +73,7 @@ public class WindowTests {
     [Test]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Close_IsDefined() {
-        SkipUtilities.SkipOnLinux();
+        // SkipUtilities.SkipOnLinux();
         
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
@@ -89,7 +89,25 @@ public class WindowTests {
         await Task.Delay(100);
 
         // Assert
-        bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
         await Assert.That(windowClosing).IsTrue();
+    }
+    
+    [Test]
+    [NotInParallel(ParallelControl.Photino)]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Fullscreen_IsDefined(bool state) {
+        // SkipUtilities.SkipOnLinux(state);
+        
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+        
+        // Act
+        window.SetFullScreen(state);
+
+        // Assert
+        await Assert.That(window.FullScreen).IsEqualTo(state);
     }
 }
