@@ -30,12 +30,30 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
+                    
+                    
                     echo "Posting pending status for Manual MultiPlatform CI"
+                    
+                    # Post status for Linux
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d '{"state":"pending","context":"Manual MultiPlatform CI","description":"Tests are running..."}'
+                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"Linux tests\"}"
+
+                    # Post status for Windows  
+                    curl -X POST \
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Windows\",\"description\":\"Windows tests\"}"
+
+                    # Post status for macOS
+                    curl -X POST \
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"macOS tests\"}"
     
     # ---------------------------------------------------------------------------------------
     # Linux (Full Desktop Environment)
@@ -280,36 +298,31 @@ jobs:
             -   name: Setup GUI environment and run tests
                 run: |
                     echo "Setting up macOS GUI environment..."
-                    
+
                     # Verify setup
                     echo "=== Environment Status ==="
                     echo "System: $(sw_vers -productName) $(sw_vers -productVersion)"
                     echo "Architecture: $(uname -m)"
                     echo "Running in native macOS mode"
-                    
-                    # Set up virtual display for headless GUI testing
-                    sudo /usr/sbin/purge
-                    
-                    # Create a virtual display
-                    sudo /System/Library/Frameworks/CoreServices.framework/Frameworks/Menu\ Extras.framework/Resources/User.login -console
-                    
-                    # Start virtual framebuffer (similar to Xvfb on Linux)
-                    export DISPLAY=:99
-                    
+
                     # Set environment variables for macOS GUI testing
                     export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
                     export NSUnbufferedIO=YES
-                    export NSApplicationActivationPolicyAccessory=1
-                    
-                    # Run in headless mode
-                    echo "=== Running Tests in headless mode ==="
-                    
-                    # Use caffeinate to prevent system sleep and maintain GUI context
-                    caffeinate -d dotnet test InfiniLore.Photino.GitHubActions.slnf \
+
+                    # Critical: Force GUI operations to run on main thread
+                    export DOTNET_RUNNING_IN_CONTAINER=true
+                    export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+                    echo "=== Running Tests with main thread enforcement ==="
+
+                    # Run tests with explicit main thread handling
+                    # The key is using the synchronization context properly
+                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
-                        --logger "console;verbosity=detailed"
+                        --logger "console;verbosity=detailed" \
+                        -- RunConfiguration.DisableAppDomain=true
 
     update-status:
         name: Update Manual CI Status
