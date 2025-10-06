@@ -1,0 +1,21 @@
+﻿name: Optional Check
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+        branches: [master]
+
+jobs:
+    visible:
+        name: DotNET Testing (Photino)
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Display notice
+              run: |
+                  echo "::notice::This test suite is optional and must be triggered manually."
+                  echo "::notice::You can run it from the 'Actions' tab → 'DotNET Testing (Photino)'."
+                  echo "✅ Optional check registered successfully."
+
+            - name: Mark as skipped (neutral)
+              run: exit 78

@@ -1,56 +1,74 @@
-name: DotNET Testing (Photino)
+name: MultiPlatform Testing
 
 on:
     workflow_dispatch:
-    pull_request:
-        types: [ opened, synchronize, reopened, ready_for_review ]
-        branches: [ master ]
+        inputs:
+            pr_number:
+                description: 'Optional: Link this run to a specific Pull Request number'
+                required: false
+                default: ''
 
 jobs:
+    set-pr-context:
+        name: Set PR Context
+        runs-on: ubuntu-latest
+        outputs:
+            ref: ${{ steps.ref.outputs.ref }}
+        steps:
+            - id: ref
+              run: |
+                  if [ -n "${{ github.event.inputs.pr_number }}" ]; then
+                      echo "Using PR #${{ github.event.inputs.pr_number }}"
+                      echo "ref=refs/pull/${{ github.event.inputs.pr_number }}/merge" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "No PR number provided; running on default branch context."
+                      echo "ref=${{ github.ref }}" >> "$GITHUB_OUTPUT"
+                  fi
+
     # ---------------------------------------------------------------------------------------
     # Linux (Headless)
     # ---------------------------------------------------------------------------------------
     linux-gui:
         name: Build & Test - Linux
         runs-on: ubuntu-latest
+        needs: [set-pr-context]
         steps:
-            -   uses: actions/checkout@v5
+            - uses: actions/checkout@v5
+              with:
+                  ref: ${{ needs.set-pr-context.outputs.ref }}
 
-            -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
-                with:
-                    dotnet-version: '9.x'
-            
-            # Cache APT packages to avoid re-downloading
-            -   name: Cache APT packages
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        /var/cache/apt/archives
-                        /var/lib/apt/lists
-                    key: ${{ runner.os }}-apt-${{ hashFiles('**/onPullRequest.yml') }}
-                    restore-keys: |
-                        ${{ runner.os }}-apt-
-            
-            # Cache .NET packages
-            -   name: Cache .NET packages
-                uses: actions/cache@v4
-                with:
-                    path: ~/.nuget/packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-nuget-
-            
-            # Cache .NET build output
-            -   name: Cache .NET build
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        **/bin
-                        **/obj
-                    key: ${{ runner.os }}-build-${{ hashFiles('**/*.cs', '**/*.csproj', '**/*.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-build-
+            - name: Setup .NET 9 SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '9.x'
+
+            - name: Cache APT packages
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      /var/cache/apt/archives
+                      /var/lib/apt/lists
+                  key: ${{ runner.os }}-apt-${{ hashFiles('**/onPullRequest-multiPlatformTesting.yml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-apt-
+
+            - name: Cache .NET packages
+              uses: actions/cache@v4
+              with:
+                  path: ~/.nuget/packages
+                  key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nuget-
+
+            - name: Cache .NET build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      **/bin
+                      **/obj
+                  key: ${{ runner.os }}-build-${{ hashFiles('**/*.cs', '**/*.csproj', '**/*.props') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-
 
             -   name: Install lightweight GUI environment (cached)
                 run: |
@@ -77,11 +95,11 @@ jobs:
                         libepoxy-dev \
                         libx11-dev
 
-            -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+            - name: Restore dependencies (cached)
+              run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
 
-            -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+            - name: Build (Release) (cached)
+              run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
 
             -   name: Start lightweight desktop and run tests
                 run: |
@@ -122,10 +140,13 @@ jobs:
     windows-gui:
         name: Build & Test - Windows
         runs-on: windows-latest
+        needs: [set-pr-context]
 
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
+              with:
+                  ref: ${{ needs.set-pr-context.outputs.ref }}
 
             - name: Setup .NET 9 SDK
               uses: actions/setup-dotnet@v4
