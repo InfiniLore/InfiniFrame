@@ -390,4 +390,20 @@ public static class PhotinoWindowBuilderExtensions {
 
         return builder;
     }
+    
+    public static T SetLeft<T>(this T builder, int left) where T : IPhotinoWindowBuilder {
+        builder.Configuration.Left = left;
+        
+        builder.Configuration.UseOsDefaultLocation = false;
+        builder.Configuration.Centered = false;
+        return builder;
+    }
+    
+    public static T SetTop<T>(this T builder, int top) where T : IPhotinoWindowBuilder {
+        builder.Configuration.Top = top;
+        
+        builder.Configuration.UseOsDefaultLocation = false;
+        builder.Configuration.Centered = false;
+        return builder;
+    }
 }
