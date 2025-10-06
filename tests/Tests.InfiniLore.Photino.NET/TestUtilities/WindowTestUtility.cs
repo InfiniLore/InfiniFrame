@@ -9,6 +9,8 @@ using global::InfiniLore.Photino.NET;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowTestUtility : IDisposable {
     public required IPhotinoWindow Window { get; set; }
+    
+    public static List<IPhotinoWindow> Windows { get; } = new List<IPhotinoWindow>();
 
     public static WindowTestUtility Create(Action<IPhotinoWindowBuilder>? builder = null) {
         var windowBuilder = PhotinoWindowBuilder.Create();
@@ -22,6 +24,8 @@ public class WindowTestUtility : IDisposable {
         };
         
         _ = Task.Run(utility.Window.WaitForClose);
+        
+        Windows.Add(utility.Window);
 
         return utility; 
     }

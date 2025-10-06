@@ -16,10 +16,11 @@ public class WindowBuilderTests {
     public async Task SetLocation_ShouldOverwriteOsDefaultLocation() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
-        var expectedConfigParameters = new PhotinoConfiguration() {
+        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration {
             Left = 10,
             Top = 20,
             UseOsDefaultLocation = false,
+            Centered = false,
         }.ToParameters();
         
         // Act
@@ -32,6 +33,7 @@ public class WindowBuilderTests {
         await Assert.That(builder.Configuration.Left).IsEqualTo(10);
         await Assert.That(builder.Configuration.Top).IsEqualTo(20);
         await Assert.That(builder.Configuration.UseOsDefaultLocation).IsEqualTo(false);
+        await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
         
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
@@ -44,6 +46,7 @@ public class WindowBuilderTests {
             Width = 10,
             Height = 20,
             UseOsDefaultSize = false,
+            Centered = false,
         }.ToParameters();
         
         // Act
@@ -56,6 +59,7 @@ public class WindowBuilderTests {
         await Assert.That(builder.Configuration.Width).IsEqualTo(10);
         await Assert.That(builder.Configuration.Height).IsEqualTo(20);
         await Assert.That(builder.Configuration.UseOsDefaultSize).IsEqualTo(false);
+        await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
         
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }

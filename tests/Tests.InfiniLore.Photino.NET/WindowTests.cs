@@ -76,12 +76,20 @@ public class WindowTests {
         SkipUtilities.SkipOnLinux();
         
         // Arrange
-        using var windowUtility = WindowTestUtility.Create();
+        var windowClosingTcs = new TaskCompletionSource<bool>();
+        var windowUtility = WindowTestUtility.Create(
+            builder => builder.Events.PreWindowClosing += (_, _) => {
+                windowClosingTcs.SetResult(true);
+            }
+        );
         IPhotinoWindow window = windowUtility.Window;
         
         // Act
         window.Close();
+        await Task.Delay(100);
 
         // Assert
+        bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await Assert.That(windowClosing).IsTrue();
     }
 }
