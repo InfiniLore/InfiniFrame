@@ -41,5 +41,22 @@ public static class SkipUtility {
         
         Skip.When(state.Value, "This test is not supported on Linux environments with the current test setup");
     }
+    
+    public static void SkipOnWindows(Func<bool> predicate) {
+        if (!OperatingSystem.IsWindows()) return;
+        
+        Skip.When(predicate(), "This test is not supported on Windows environments with the current test setup");
+    }
+    
+    public static void SkipOnWindows(bool? state = null) {
+        if (!OperatingSystem.IsWindows()) return;
+        
+        if (state is null) {
+            Skip.Test("This test is not supported on Windows environments");
+            return;
+        }
+        
+        Skip.When(state.Value, "This test is not supported on Windows environments with the current test setup");
+    }
     #endregion
 }

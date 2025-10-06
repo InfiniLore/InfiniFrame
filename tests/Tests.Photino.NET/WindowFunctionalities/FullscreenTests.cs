@@ -29,6 +29,7 @@ public class FullScreenTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window(bool state) {
@@ -45,6 +46,7 @@ public class FullScreenTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state) {
