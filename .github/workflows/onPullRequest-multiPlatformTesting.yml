@@ -1,0 +1,197 @@
+name: MultiPlatform Testing
+
+on:
+    workflow_dispatch:
+        inputs:
+            pr_number:
+                description: 'PR number to test (use the PR number from the URL)'
+                required: true
+
+jobs:
+    # ---------------------------------------------------------------------------------------
+    # Linux (Full Desktop Environment)
+    # ---------------------------------------------------------------------------------------
+    linux-gui:
+        name: Build & Test - Linux
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v5
+                with:
+                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+
+            -   name: Setup .NET 9 SDK
+                uses: actions/setup-dotnet@v4
+                with:
+                    dotnet-version: '9.x'
+            
+            # Cache APT packages to avoid re-downloading
+            -   name: Cache APT packages
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        /var/cache/apt/archives
+                        /var/lib/apt/lists
+                    key: ${{ runner.os }}-apt-${{ hashFiles('**/onPullRequest-multiPlatformTesting.yml') }}
+                    restore-keys: |
+                        ${{ runner.os }}-apt-
+            
+            # Cache .NET packages
+            -   name: Cache .NET packages
+                uses: actions/cache@v4
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-nuget-
+            
+            # Cache .NET build output
+            -   name: Cache .NET build
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        **/bin
+                        **/obj
+                    key: ${{ runner.os }}-build-${{ hashFiles('**/*.cs', '**/*.csproj', '**/*.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-build-
+
+            -   name: Install desktop environment and dependencies
+                run: |
+                    # Update package lists
+                    sudo apt-get update
+                    
+                    export DEBIAN_FRONTEND=noninteractive
+                    sudo apt-get install -y \
+                        gnome-shell \
+                        gnome-session \
+                        gnome-settings-daemon \
+                        mutter \
+                        xvfb \
+                        x11-utils \
+                        x11-xserver-utils \
+                        dbus-x11 \
+                        at-spi2-core \
+                        gsettings-desktop-schemas \
+                        libnotify4 \
+                        libwebkit2gtk-4.1-dev \
+                        libgtk-3-dev \
+                        libglib2.0-dev \
+                        libgdk-pixbuf2.0-dev \
+                        libpango1.0-dev \
+                        libatk1.0-dev \
+                        libharfbuzz-dev \
+                        libepoxy-dev \
+                        libx11-dev \
+                        fonts-liberation \
+                        xfonts-base
+
+            -   name: Restore dependencies (cached)
+                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+
+            -   name: Build (Release) (cached)
+                run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+
+            -   name: Start desktop environment and run tests
+                run: |
+                    echo "Starting desktop environment..."
+                    
+                    # Start D-Bus session (fixed syntax)
+                    eval $(dbus-launch --sh-syntax)
+                    
+                    # Start Xvfb
+                    Xvfb :99 \
+                        -screen 0 1920x1080x24 \
+                        -ac \
+                        +extension GLX \
+                        +extension RANDR \
+                        +extension RENDER \
+                        -nolisten tcp \
+                        -noreset &
+                    
+                    export DISPLAY=:99
+                    export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
+                    export XDG_SESSION_TYPE=x11
+                    export XDG_SESSION_CLASS=user
+                    export XDG_SESSION_DESKTOP=ubuntu
+                    export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+                    export DESKTOP_SESSION=ubuntu
+                    
+                    # Create runtime directory
+                    mkdir -p "$XDG_RUNTIME_DIR"
+                    chmod 700 "$XDG_RUNTIME_DIR"
+                    
+                    # Wait for X server
+                    echo "Waiting for X server..."
+                    timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
+                        echo "X server failed to start"
+                        exit 1
+                    }
+                    
+                    # Start GNOME settings daemon
+                    gnome-settings-daemon &
+                    sleep 2
+                    
+                    # Start Mutter window manager
+                    echo "Starting Mutter window manager..."
+                    mutter --replace &
+                    sleep 8
+                    
+                    # Verify setup
+                    echo "=== Environment Status ==="
+                    echo "Display: $DISPLAY"
+                    echo "Desktop: $XDG_CURRENT_DESKTOP"
+                    echo "Session: $XDG_SESSION_DESKTOP"
+                    echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
+                    
+                    echo "X11 info:"
+                    xdpyinfo | head -3 || echo "xdpyinfo failed"
+                    
+                    echo "Window manager:"
+                    ps aux | grep mutter | grep -v grep || echo "Mutter not found"
+                    
+                    # Test window capabilities
+                    echo "Testing window manager capabilities..."
+                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "✓ Window manager responding" || echo "✗ Window manager not responding"
+                    
+                    echo "=== Running Tests ==="
+                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                        --configuration Release \
+                        --no-build \
+                        --no-restore \
+                        --logger "console;verbosity=detailed"
+
+    # ---------------------------------------------------------------------------------------
+    # Windows
+    # ---------------------------------------------------------------------------------------
+    windows-gui:
+        name: Build & Test - Windows
+        runs-on: windows-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v5
+
+            - name: Setup .NET 9 SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '9.x'
+
+            - name: Restore dependencies
+              run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+
+            - name: Build (Release)
+              run: |
+                  dotnet build InfiniLore.Photino.GitHubActions.slnf `
+                    --configuration Release `
+                    --no-restore `
+                    -p:GeneratePackageOnBuild=false `
+                    -p:IsPackable=false
+
+            - name: Run tests
+              run: |
+                  echo "Running tests on Windows..."
+                  dotnet test InfiniLore.Photino.GitHubActions.slnf `
+                    --configuration Release `
+                    --no-build `
+                    --no-restore `
+                    --logger "console;verbosity=detailed"

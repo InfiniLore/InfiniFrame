@@ -9,6 +9,8 @@
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />
     <File Path=".github\workflows\workflow-todo.yml" />
+    <File Path=".github\workflows\onPullRequest-multiPlatformTesting.yml" />
+    <File Path=".github\workflows\onPullRequest-pendingCheck.yml" />
   </Folder>
   <Folder Name="/.dev-tools/py/">
     <File Path="dev\bump_version.py" />
@@ -34,5 +36,7 @@
     <Project Path="src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" Type="Classic C#" />
     <File Path="src\Directory.Build.props" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="tests\Tests.InfiniLore.Photino.NET\Tests.InfiniLore.Photino.NET.csproj" Type="Classic C#" />
+  </Folder>
 </Solution>
