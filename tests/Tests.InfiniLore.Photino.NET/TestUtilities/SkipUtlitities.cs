@@ -7,6 +7,24 @@ namespace Tests.InfiniLore.Photino.NET.TestUtilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class SkipUtilities {
+    #region Attributes
+    public class OnLinuxAttribute() : SkipAttribute("This test is not supported on Linux environments") {
+        public override Task<bool> ShouldSkip(TestRegisteredContext context)
+            => Task.FromResult(OperatingSystem.IsLinux());
+    }
+
+    public class OnWindowsAttribute() : SkipAttribute("This test is not supported on Windows environments") {
+        public override Task<bool> ShouldSkip(TestRegisteredContext context)
+            => Task.FromResult(OperatingSystem.IsWindows());
+    }
+        
+    public class OnMacOsAttribute() : SkipAttribute("This test is not supported on Mac OS environments") {
+        public override Task<bool> ShouldSkip(TestRegisteredContext context)
+            => Task.FromResult(OperatingSystem.IsMacOS());
+    }
+    #endregion
+    
+    #region Methods
     public static void SkipOnLinux(Func<bool> predicate) {
         if (!OperatingSystem.IsLinux()) return;
         
@@ -23,4 +41,5 @@ public static class SkipUtilities {
         
         Skip.When(state.Value, "This test is not supported on Linux environments with the current test setup");
     }
+    #endregion
 }
