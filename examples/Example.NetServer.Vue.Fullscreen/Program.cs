@@ -17,7 +17,7 @@ public static class Program {
         photinoServer.Run();
 
         IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
-            // .Center()
+            .Center()
             // .SetUseOsDefaultSize(false)
             .SetTitle("InfiniLore Photino.NET VUE Sample")
             .SetSize(new Size(800, 600))
@@ -34,10 +34,10 @@ public static class Program {
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
-
+        
         IPhotinoWindow window = windowBuilder.Build();
         // window.SetLocation(new Point(1000,0));
-
+        
         window.WaitForClose();
         photinoServer.Stop();
     }

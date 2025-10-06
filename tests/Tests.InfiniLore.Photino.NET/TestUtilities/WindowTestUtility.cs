@@ -8,7 +8,7 @@ using global::InfiniLore.Photino.NET;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowTestUtility : IDisposable {
-    public required IPhotinoWindow Window { get; set; }
+    public required IPhotinoWindow Window { get; init; }
 
     public static WindowTestUtility Create(Action<IPhotinoWindowBuilder>? builder = null) {
         var windowBuilder = PhotinoWindowBuilder.Create();

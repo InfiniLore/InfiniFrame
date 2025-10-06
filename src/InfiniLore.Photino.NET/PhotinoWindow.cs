@@ -182,8 +182,6 @@ public sealed class PhotinoWindow(
     ///     Gets or sets the icon file for the native window title bar.
     ///     The file must be located on the local machine and cannot be a URL. The default is none.
     /// </summary>
-    /// <exception cref="System.ArgumentException">Icon file: {value} does not exist.</exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? IconFilePath { get; set; }
 
     /// <summary>
@@ -466,6 +464,7 @@ public sealed class PhotinoWindow(
     /// </exception>
     public void Close() {
         logger.LogDebug(".Close()");
+        Events.OnWindowClosingRequested();
         Invoke(() => PhotinoNative.Close(InstanceHandle));
     }
 

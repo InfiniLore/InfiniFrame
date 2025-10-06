@@ -122,6 +122,7 @@ public static class PhotinoWindowBuilderExtensions {
         builder.Configuration.Top = top;
         
         builder.Configuration.UseOsDefaultLocation = false;
+        builder.Configuration.Centered = false;
         return builder;
     }
 
@@ -225,6 +226,7 @@ public static class PhotinoWindowBuilderExtensions {
         builder.Configuration.Height = Math.Max(0, height);
         
         builder.Configuration.UseOsDefaultSize = false;
+        builder.Configuration.Centered = false;
         return builder;
     }
 

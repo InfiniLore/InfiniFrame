@@ -8,14 +8,21 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
-    
+
     <ItemGroup>
-      <PackageReference Include="TUnit" />
+        <PackageReference Include="TUnit" />
     </ItemGroup>
-    
+
     <ItemGroup>
-      <ProjectReference Include="..\..\src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
-      <ProjectReference Include="..\..\src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
+        <ProjectReference Include="..\..\src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
+        <ProjectReference Include="..\..\src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\assets\favicon.ico">
+            <Link>Assets\favicon.ico</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>

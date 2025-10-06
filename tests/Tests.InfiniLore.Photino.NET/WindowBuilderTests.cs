@@ -16,25 +16,26 @@ public class WindowBuilderTests {
     public async Task SetLocation_ShouldOverwriteOsDefaultLocation() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
-        var expectedConfigParameters = new PhotinoConfiguration() {
+        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration {
             Left = 10,
             Top = 20,
             UseOsDefaultLocation = false,
+            Centered = false,
         }.ToParameters();
         
         // Act
         builder.SetUseOsDefaultLocation(true);
         builder.SetLocation(10, 20);
         
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
 
         // Assert
         await Assert.That(builder.Configuration.Left).IsEqualTo(10);
         await Assert.That(builder.Configuration.Top).IsEqualTo(20);
         await Assert.That(builder.Configuration.UseOsDefaultLocation).IsEqualTo(false);
+        await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
         
+        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
-        
     }
     
     [Test]
@@ -45,19 +46,38 @@ public class WindowBuilderTests {
             Width = 10,
             Height = 20,
             UseOsDefaultSize = false,
+            Centered = false,
         }.ToParameters();
         
         // Act
         builder.SetUseOsDefaultSize(true);
         builder.SetSize(10, 20);
         
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
 
         // Assert
         await Assert.That(builder.Configuration.Width).IsEqualTo(10);
         await Assert.That(builder.Configuration.Height).IsEqualTo(20);
         await Assert.That(builder.Configuration.UseOsDefaultSize).IsEqualTo(false);
+        await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
         
+        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
+    }
+
+    [Test]
+    public async Task SetIconFilepath() {
+        // Arrange
+        const string iconFilePath = "Assets/favicon.ico";
+        var builder = PhotinoWindowBuilder.Create();
+        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration() {
+            IconFilePath = iconFilePath
+        }.ToParameters();
+        
+        // Act
+        builder.SetIconFile(iconFilePath);
+
+        // Assert
+        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(iconFilePath);
+        await Assert.That(builder.Configuration.ToParameters()).IsEqualTo(expectedConfigParameters);
     }
 }
