@@ -33,11 +33,10 @@ jobs:
         name: Build & Test - Linux
         runs-on: ubuntu-latest
         steps:
-            -   name: Checkout repository
-                uses: actions/checkout@v5
+            -   uses: actions/checkout@v5
                 with:
-                    ref: ${{ github.event.inputs.pr_number && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.event.inputs.branch }}
-            
+                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v4
                 with:
@@ -191,7 +190,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v5
               with:
-                  ref: ${{ github.event.inputs.pr_number && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.event.inputs.branch }}
+                  ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             - name: Setup .NET 9 SDK
               uses: actions/setup-dotnet@v4
