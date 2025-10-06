@@ -33,7 +33,7 @@ public class WindowBuilderTests {
         await Assert.That(builder.Configuration.Top).IsEqualTo(20);
         await Assert.That(builder.Configuration.UseOsDefaultLocation).IsEqualTo(false);
         
-        await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
+        await Assert.That(configParameters).IsEquivalentTo(expectedConfigParameters);
         
     }
     
@@ -58,6 +58,6 @@ public class WindowBuilderTests {
         await Assert.That(builder.Configuration.Height).IsEqualTo(20);
         await Assert.That(builder.Configuration.UseOsDefaultSize).IsEqualTo(false);
         
-        await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
+        await Assert.That(configParameters).IsEquivalentTo(expectedConfigParameters);
     }
 }
