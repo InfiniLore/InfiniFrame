@@ -11,22 +11,21 @@ namespace Tests.Photino.NET.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class MoveToTests {
+public class MoveWithinCurrentMonitorAreaTests {
     
     [Test]
     [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
-    [Arguments(0, 0, false, 0,0)]
-    [Arguments(100, 100, false, 100,100)]
-    [Arguments(-100, -100, true, -100,-100)]
-    [Arguments(-100, -100, false, 0,0)]
-    public async Task Window(int x, int y, bool allowOutsideWorkArea, int expectedX, int expectedY) {
+    [Arguments(0, 0, 0,0)]
+    [Arguments(100, 100, 100,100)]
+    [Arguments(-100, -100, 0,0)]
+    public async Task Window(int x, int y, int expectedX, int expectedY) {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
 
         // Act
-        window.MoveTo(x,y, allowOutsideWorkArea);
+        window.MoveWithinCurrentMonitorArea(x,y);
 
         // Assert
         int offsetX = 0;

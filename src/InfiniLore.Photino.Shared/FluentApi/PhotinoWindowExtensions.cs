@@ -148,33 +148,26 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="location">Position as <see cref="Point" /></param>
-    /// <param name="allowOutsideWorkArea">Whether the window can go off-screen (work area)</param>
-    public static T MoveTo<T>(this T window, Point location, bool allowOutsideWorkArea = false) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".MoveTo({location}, {allowOutsideWorkArea})", location, allowOutsideWorkArea);
-        window.Logger.LogDebug("Current location: {Location}", window.Location);
-        window.Logger.LogDebug("New location: {NewLocation}", location);
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow {
+        window.Invoke(() => {
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
+            int horizontalWindowEdge = location.X + windowRect.Width;
+            int verticalWindowEdge = location.Y + windowRect.Height;
 
-        // If the window is outside the work area,
-        // recalculate the position and continue.
-        if (!allowOutsideWorkArea) {
-            window.Invoke(() => {
-                MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
-                int horizontalWindowEdge = location.X + windowRect.Width;
-                int verticalWindowEdge = location.Y + windowRect.Height;
-                
-                int horizontalWorkAreaEdge = monitor.WorkArea.Width;
-                int verticalWorkAreaEdge = monitor.WorkArea.Height;
-                
-                location = new Point(
-                    horizontalWindowEdge > horizontalWorkAreaEdge 
-                        ? Math.Max(horizontalWorkAreaEdge - window.Width, 0)
-                        : Math.Max(location.X, 0),
-                    verticalWindowEdge > verticalWorkAreaEdge 
-                        ? Math.Max(verticalWorkAreaEdge - window.Height, 0) 
-                        : Math.Max(location.Y, 0)
-                );
-            });
-        }
+            int leftBound = monitor.WorkArea.X;
+            int topBound = monitor.WorkArea.Y;
+            int rightBound = monitor.WorkArea.X + monitor.WorkArea.Width;
+            int bottomBound = monitor.WorkArea.Y + monitor.WorkArea.Height;
+
+            location = new Point(
+            horizontalWindowEdge > rightBound
+                ? Math.Max(rightBound - window.Width, leftBound)
+                : Math.Max(location.X, leftBound),
+            verticalWindowEdge > bottomBound
+                ? Math.Max(bottomBound - window.Height, topBound)
+                : Math.Max(location.Y, topBound)
+            );
+        });
 
         // Bug:
         // For some reason the vertical position is not handled correctly.
@@ -198,7 +191,6 @@ public static class PhotinoWindowExtensions {
                 : location.Y;
         }
 
-        // TODO patch this
         window.SetLocation(location);
 
         return window;
@@ -214,14 +206,13 @@ public static class PhotinoWindowExtensions {
     /// <param name="window">Photino window instance</param>
     /// <param name="left">Position from left in pixels</param>
     /// <param name="top">Position from top in pixels</param>
-    /// <param name="allowOutsideWorkArea">Whether the window can go off-screen (work area)</param>
-    public static T MoveTo<T>(this T window, int left, int top, bool allowOutsideWorkArea = false) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".MoveTo({left}, {top}, {allowOutsideWorkArea})", left, top, allowOutsideWorkArea);
-        return MoveTo(window, new Point(left, top), allowOutsideWorkArea);
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
+        window.Logger.LogDebug(".MoveWithinMonitorArea({left}, {top})", left, top);
+        return MoveWithinCurrentMonitorArea(window, new Point(left, top));
     }
 
-    public static T MoveTo<T>(this T window, double left, double top, bool allowOutsideWorkArea = false) where T : class, IPhotinoWindow {
-        return MoveTo(window, (int)left, (int)top, allowOutsideWorkArea);
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IPhotinoWindow {
+        return MoveWithinCurrentMonitorArea(window, (int)left, (int)top);
     }
     #endregion
 
