@@ -1,6 +1,7 @@
 ﻿using InfiniLore.Photino.NET;
 
 namespace Tests.InfiniLore.Photino.NET;
+using Tests.InfiniLore.Photino.NET.TestUtilities;
 
 public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
@@ -37,6 +38,8 @@ public class WindowTests {
     [Arguments(true)]
     [Arguments(false)]
     public async Task Maximize_IsDefined(bool state) {
+        SkipUtilities.SkipOnLinux(state);
+        
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
@@ -53,6 +56,8 @@ public class WindowTests {
     [Arguments(true)]
     [Arguments(false)]
     public async Task Minimize_IsDefined(bool state) {
+        SkipUtilities.SkipOnLinux(state);
+        
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
