@@ -146,27 +146,27 @@ public static class PhotinoWindowExtensions {
     /// <returns>
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
+    /// <param name="left">Position from left in pixels</param>
+    /// <param name="top">Position from top in pixels</param>
     /// <param name="window">Photino window instance</param>
-    /// <param name="location">Position as <see cref="Point" /></param>
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow {
+    // ReSharper disable twice AccessToModifiedClosure
+    public static T MoveWithinCurrentMonitorArea<T>(this T window,  int left, int top) where T : class, IPhotinoWindow {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
-            int horizontalWindowEdge = location.X + windowRect.Width;
-            int verticalWindowEdge = location.Y + windowRect.Height;
+            int horizontalWindowEdge = left + windowRect.Width;
+            int verticalWindowEdge = top + windowRect.Height;
 
             int leftBound = monitor.WorkArea.X;
             int topBound = monitor.WorkArea.Y;
             int rightBound = monitor.WorkArea.X + monitor.WorkArea.Width;
             int bottomBound = monitor.WorkArea.Y + monitor.WorkArea.Height;
 
-            location = new Point(
-            horizontalWindowEdge > rightBound
+            left = horizontalWindowEdge > rightBound
                 ? Math.Max(rightBound - window.Width, leftBound)
-                : Math.Max(location.X, leftBound),
-            verticalWindowEdge > bottomBound
+                : Math.Max(left, leftBound);
+            top = verticalWindowEdge > bottomBound
                 ? Math.Max(bottomBound - window.Height, topBound)
-                : Math.Max(location.Y, topBound)
-            );
+                : Math.Max(top, topBound);
         });
 
         // Bug:
@@ -186,12 +186,12 @@ public static class PhotinoWindowExtensions {
         // workaround for older versions.
         if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(23)) {
             Size workArea = window.MainMonitor.WorkArea.Size;
-            location.Y = location.Y >= 0
-                ? location.Y - workArea.Height
-                : location.Y;
+            top = top >= 0
+                ? top - workArea.Height
+                : top;
         }
 
-        window.SetLocation(location);
+        SetLocation(window, left, top);
 
         return window;
     }
@@ -204,11 +204,9 @@ public static class PhotinoWindowExtensions {
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
-    /// <param name="left">Position from left in pixels</param>
-    /// <param name="top">Position from top in pixels</param>
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".MoveWithinMonitorArea({left}, {top})", left, top);
-        return MoveWithinCurrentMonitorArea(window, new Point(left, top));
+    /// <param name="location">Position as <see cref="Point" /></param>
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow {
+        return MoveWithinCurrentMonitorArea(window, location.X, location.Y);
     }
 
     public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IPhotinoWindow {
@@ -506,6 +504,17 @@ public static class PhotinoWindowExtensions {
     #endregion
     
     #region SetLocation
+    public static T SetLocation<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
+        window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
+        window.Invoke(() => {
+            PhotinoNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
+            if (oldLeft == left && oldTop == top) return;
+            PhotinoNative.SetPosition(window.InstanceHandle, left, top);
+        });
+
+        return window;
+    }
+    
     /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> coordinates (Y)
     ///     in pixels.
@@ -517,27 +526,7 @@ public static class PhotinoWindowExtensions {
     /// <param name="window"></param>
     /// <param name="location">Location as a <see cref="Point" /></param>
     public static T SetLocation<T>(this T window, Point location) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetLocation({Location})", location);
-        window.Invoke(() => {
-            PhotinoNative.GetPosition(window.InstanceHandle, out int left, out int top);
-            if (left == location.X && top == location.Y) return;
-
-            PhotinoNative.SetPosition(window.InstanceHandle, location.X, location.Y);
-        });
-
-        return window;
-    }
-    
-    public static T SetLocation<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
-        window.Invoke(() => {
-            PhotinoNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
-            if (oldLeft == left && oldTop == top) return;
-
-            PhotinoNative.SetPosition(window.InstanceHandle, left, top);
-        });
-
-        return window;
+        return SetLocation(window, location.X, location.Y);
     }
     #endregion
 
