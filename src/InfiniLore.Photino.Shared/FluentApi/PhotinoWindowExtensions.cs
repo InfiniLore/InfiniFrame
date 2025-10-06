@@ -535,6 +535,18 @@ public static class PhotinoWindowExtensions {
 
         return window;
     }
+    
+    public static T SetLocation<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
+        window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
+        window.Invoke(() => {
+            PhotinoNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
+            if (oldLeft == left && oldTop == top) return;
+
+            PhotinoNative.SetPosition(window.InstanceHandle, left, top);
+        });
+
+        return window;
+    }
     #endregion
 
     /// <summary>

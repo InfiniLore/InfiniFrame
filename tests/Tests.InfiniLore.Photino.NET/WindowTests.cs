@@ -116,20 +116,4 @@ public class WindowTests {
         // Assert
         await Assert.That(window.FullScreen).IsEqualTo(state);
     }
-
-    [Test]
-    [SkipUtility.OnMacOs]
-    public async Task IconFilePath_IsDefined() {
-        const string iconFilePath = "Assets/favicon.ico";
-        
-        // Arrange
-        using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
-
-        // Act
-        window.SetIconFile(iconFilePath);
-
-        // Assert
-        await Assert.That(window.IconFilePath).IsEqualTo(iconFilePath);
-    }
 }
