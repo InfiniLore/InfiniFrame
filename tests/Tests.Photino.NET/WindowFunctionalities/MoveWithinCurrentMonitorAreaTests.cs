@@ -3,8 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.Photino.NET;
 using InfiniLore.Photino.Utilities;
-using Tests.Photino.NET.TestUtilities;
 using System.Drawing;
+using Tests.Photino.NET.TestUtilities;
 using Monitor=InfiniLore.Photino.Monitor;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
@@ -31,10 +31,13 @@ public class MoveWithinCurrentMonitorAreaTests {
         int offsetX = 0;
         int offsetY = 0;
         window.Invoke(() => {
-            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle _, out Monitor monitor);
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out _, out Monitor monitor);
             offsetX = monitor.MonitorArea.X;
             offsetY = monitor.MonitorArea.Y;
         });
-        await Assert.That(window.Location).IsEqualTo(new Point(offsetX + expectedX,offsetY + expectedY));
+        
+        Point location = window.Location;
+        await Assert.That(location.X).IsEqualTo(offsetX + expectedX);
+        await Assert.That(location.Y).IsEqualTo(offsetY + expectedY);
     }
 }
