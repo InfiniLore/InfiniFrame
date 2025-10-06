@@ -71,7 +71,7 @@ public sealed class PhotinoWindow(
     ///     available monitors.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Monitor MainMonitor => Monitors[0];
+    public Monitor MainMonitor => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors)[0];
 
     /// <summary>
     ///     Gets the dots per inch (DPI) for the primary display from the native window.
@@ -88,10 +88,8 @@ public sealed class PhotinoWindow(
     /// <remarks>
     ///     This property is not currently used by the Photino framework.
     /// </remarks>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Guid Id { get; } = Guid.NewGuid();
 
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
 
     /// <summary>
@@ -100,7 +98,6 @@ public sealed class PhotinoWindow(
     /// <remarks>
     ///     The user has to supply titlebar, border, dragging and resizing manually.
     /// </remarks>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool Chromeless => StartupParameters.Chromeless;
 
     /// <summary>
@@ -207,7 +204,6 @@ public sealed class PhotinoWindow(
     public bool Maximized => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMaximized);
 
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size MaxSize {
         get => new Size(MaxWidth, MaxHeight);
         set {
@@ -217,11 +213,9 @@ public sealed class PhotinoWindow(
     }
 
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MaxHeight { get; set; }
 
     ///<summary>Gets or sets the native window maximum width in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MaxWidth { get; set; }
 
     /// <summary>
@@ -232,7 +226,6 @@ public sealed class PhotinoWindow(
     public bool Minimized => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMinimized);
 
     ///<summary>Gets or set the minimum size of the native window in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size MinSize {
         get => new Size(MinWidth, MinHeight);
         set {
@@ -242,11 +235,9 @@ public sealed class PhotinoWindow(
     }
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MinHeight { get; set; }
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MinWidth { get; set; }
 
     /// <summary>
@@ -280,7 +271,6 @@ public sealed class PhotinoWindow(
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? BrowserControlInitParameters => StartupParameters.BrowserControlInitParameters;
 
     /// <summary>
@@ -294,7 +284,6 @@ public sealed class PhotinoWindow(
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? StartString => StartupParameters.StartString;
 
     /// <summary>
@@ -308,7 +297,6 @@ public sealed class PhotinoWindow(
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? StartUrl => StartupParameters.StartUrl;
 
     /// <summary>
@@ -321,7 +309,6 @@ public sealed class PhotinoWindow(
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? TemporaryFilesPath => StartupParameters.TemporaryFilesPath;
 
     /// <summary>
@@ -334,7 +321,6 @@ public sealed class PhotinoWindow(
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? NotificationRegistrationId => StartupParameters.NotificationRegistrationId;
 
     /// <summary>
