@@ -36,7 +36,7 @@ public static class Program {
             });
 
         IPhotinoWindow window = windowBuilder.Build();
-        window.SetLocation(new Point(1000,0));
+        // window.SetLocation(new Point(1000,0));
 
         window.WaitForClose();
         photinoServer.Stop();

@@ -95,8 +95,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
     public static T SetHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Height = Math.Max(0, value);
-        return builder;
+        return SetSize(builder, builder.Configuration.Width, value);
     }
 
     /// <summary>
@@ -121,6 +120,8 @@ public static class PhotinoWindowBuilderExtensions {
     public static T SetLocation<T>(this T builder, int left, int top) where T : IPhotinoWindowBuilder {
         builder.Configuration.Left = left;
         builder.Configuration.Top = top;
+        
+        builder.Configuration.UseOsDefaultLocation = false;
         return builder;
     }
 
@@ -128,9 +129,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets Location on the browser control at initialization.
     /// </summary>
     public static T SetLocation<T>(this T builder, Point location) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Left = location.X;
-        builder.Configuration.Top = location.Y;
-        return builder;
+        return SetLocation(builder, location.X, location.Y);
     }
 
     /// <summary>
@@ -215,16 +214,17 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets Width on the browser control at initialization.
     /// </summary>
     public static T SetWidth<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Width = Math.Max(0, value);
-        return builder;
+        return SetSize(builder, value, builder.Configuration.Height);
     }
 
     /// <summary>
     ///     Sets Size on the browser control at initialization.
     /// </summary>
     public static T SetSize<T>(this T builder, int width, int height) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Width = width;
-        builder.Configuration.Height = height;
+        builder.Configuration.Width = Math.Max(0, width);
+        builder.Configuration.Height = Math.Max(0, height);
+        
+        builder.Configuration.UseOsDefaultSize = false;
         return builder;
     }
 
@@ -232,9 +232,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets Size on the browser control at initialization.
     /// </summary>
     public static T SetSize<T>(this T builder, Size size) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Width = size.Width;
-        builder.Configuration.Height = size.Height;
-        return builder;
+        return SetSize(builder, size.Width, size.Height);
     }
 
     /// <summary>

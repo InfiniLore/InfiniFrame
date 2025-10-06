@@ -11,7 +11,7 @@ public class WindowTests {
     [NotInParallel(ParallelControl.Photino)]
     public async Task InstanceHandle_IsDefined() {
         // Arrange
-        using var windowUtility = WindowStateUtility.Create();
+        using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
         
         // Act
@@ -24,7 +24,7 @@ public class WindowTests {
     [NotInParallel(ParallelControl.Photino)]
     public async Task NativeType_IsDefined() {
         // Arrange
-        using var windowUtility = WindowStateUtility.Create();
+        using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
         
         // Act
@@ -39,7 +39,7 @@ public class WindowTests {
     [Arguments(false)]
     public async Task Maximize_IsDefined(bool state) {
         // Arrange
-        using var windowUtility = WindowStateUtility.Create();
+        using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
         
         // Act
@@ -55,7 +55,7 @@ public class WindowTests {
     [Arguments(false)]
     public async Task Minimize_IsDefined(bool state) {
         // Arrange
-        using var windowUtility = WindowStateUtility.Create();
+        using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
         
         // Act
