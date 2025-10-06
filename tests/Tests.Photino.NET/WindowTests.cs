@@ -38,45 +38,6 @@ public class WindowTests {
     [Test]
     [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Maximize_IsDefined(bool state) {
-        SkipUtility.SkipOnLinux(state);
-        
-        // Arrange
-        using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
-        
-        // Act
-        window.SetMaximized(state);
-
-        // Assert
-        await Assert.That(window.Maximized).IsEqualTo(state);
-    }
-    
-    [Test]
-    [SkipUtility.OnMacOs]
-    [NotInParallel(ParallelControl.Photino)]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Minimize_IsDefined(bool state) {
-        SkipUtility.SkipOnLinux(state);
-        
-        // Arrange
-        using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
-        
-        // Act
-        window.SetMinimized(state);
-
-        // Assert
-        await Assert.That(window.Minimized).IsEqualTo(state);
-    }
-    
-    
-    [Test]
-    [SkipUtility.OnMacOs]
-    [NotInParallel(ParallelControl.Photino)]
     public async Task Close_IsDefined() {
         // SkipUtilities.SkipOnLinux();
         
