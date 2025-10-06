@@ -203,13 +203,11 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="location">Position as <see cref="Point" /></param>
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow {
-        return MoveWithinCurrentMonitorArea(window, location.X, location.Y);
-    }
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow 
+        => MoveWithinCurrentMonitorArea(window, location.X, location.Y);
 
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IPhotinoWindow {
-        return MoveWithinCurrentMonitorArea(window, (int)left, (int)top);
-    }
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IPhotinoWindow 
+        => MoveWithinCurrentMonitorArea(window, (int)left, (int)top);
     #endregion
 
     #region Offset
@@ -241,13 +239,11 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="offset">Relative offset</param>
-    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow {
-        return Offset(window, offset.X, offset.Y);
-    }
-    
-    public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow {
-        return Offset(window, (int)left, (int)top);
-    }
+    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow 
+        => Offset(window, offset.X, offset.Y);
+
+    public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow 
+        => Offset(window, (int)left, (int)top);
     #endregion
 
     #region SetTransparent
