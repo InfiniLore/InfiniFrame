@@ -7,8 +7,8 @@ public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
-    [STAThread]
     [Test]
+    [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task InstanceHandle_IsDefined() {
         // Arrange
@@ -21,8 +21,8 @@ public class WindowTests {
         await Assert.That(window.InstanceHandle).IsNotDefault();
     }
     
-    [STAThread]
     [Test]
+    [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task NativeType_IsDefined() {
         // Arrange
@@ -34,9 +34,9 @@ public class WindowTests {
         // Assert
         await Assert.That(window.NativeType).IsNotDefault();
     }
-   
-    [STAThread] 
+    
     [Test]
+    [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -54,8 +54,8 @@ public class WindowTests {
         await Assert.That(window.Maximized).IsEqualTo(state);
     }
     
-    [STAThread]
     [Test]
+    [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -74,8 +74,8 @@ public class WindowTests {
     }
     
     
-    [STAThread]
     [Test]
+    [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Close_IsDefined() {
         // SkipUtilities.SkipOnLinux();
@@ -98,8 +98,8 @@ public class WindowTests {
         await Assert.That(windowClosing).IsTrue();
     }
     
-    [STAThread]
     [Test]
+    [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -117,8 +117,8 @@ public class WindowTests {
         await Assert.That(window.FullScreen).IsEqualTo(state);
     }
 
-    [STAThread]
     [Test]
+    [SkipUtility.OnMacOs]
     public async Task IconFilePath_IsDefined() {
         const string iconFilePath = "Assets/favicon.ico";
         

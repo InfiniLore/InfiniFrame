@@ -9,8 +9,8 @@ using Tests.InfiniLore.Photino.NET.TestUtilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowIntegrationTests {
-    [STAThread]
     [Test]
+    [SkipUtility.OnMacOs]
     public async Task IconFilePath() {
         // Arrange
         const string iconFilePath = "Assets/favicon.ico";
