@@ -20,20 +20,52 @@ jobs:
                 uses: actions/setup-dotnet@v4
                 with:
                     dotnet-version: '9.x'
+            
+            # Cache APT packages to avoid re-downloading
+            -   name: Cache APT packages
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        /var/cache/apt/archives
+                        /var/lib/apt/lists
+                    key: ${{ runner.os }}-apt-${{ hashFiles('**/onPullRequest.yml') }}
+                    restore-keys: |
+                        ${{ runner.os }}-apt-
+            
+            # Cache .NET packages
+            -   name: Cache .NET packages
+                uses: actions/cache@v4
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-nuget-
+            
+            # Cache .NET build output
+            -   name: Cache .NET build
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        **/bin
+                        **/obj
+                    key: ${{ runner.os }}-build-${{ hashFiles('**/*.cs', '**/*.csproj', '**/*.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-build-
 
-            -   name: Install full desktop environment
+            -   name: Install lightweight GUI environment (cached)
                 run: |
-                    sudo apt-get update
+                    # Update package lists only if cache miss
+                    if [ ! -f "/var/lib/apt/lists/lock" ]; then
+                        sudo apt-get update
+                    fi
+                    
                     export DEBIAN_FRONTEND=noninteractive
                     sudo apt-get install -y \
-                        ubuntu-desktop-minimal \
                         xvfb \
-                        x11vnc \
-                        gnome-session \
-                        gnome-shell \
-                        ubuntu-gnome-desktop \
+                        openbox \
+                        x11-utils \
+                        x11-xserver-utils \
                         dbus-x11 \
-                        pulseaudio \
                         libnotify4 \
                         libwebkit2gtk-4.1-dev \
                         libgtk-3-dev \
@@ -45,37 +77,40 @@ jobs:
                         libepoxy-dev \
                         libx11-dev
 
-            -   name: Restore dependencies
+            -   name: Restore dependencies (cached)
                 run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
 
-            -   name: Build (Release)
+            -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
 
-            -   name: Start full desktop session and run tests
+            -   name: Start lightweight desktop and run tests
                 run: |
-                    echo "Starting full GNOME desktop session..."
-
+                    echo "Starting lightweight desktop environment..."
+                    
                     # Start D-Bus
-                    sudo service dbus start
                     export $(dbus-launch)
-
-                    # Start Xvfb with proper extensions
+                    
+                    # Start Xvfb
                     Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
                     export DISPLAY=:99
-
+                    
                     # Wait for X server
+                    sleep 3
+                    
+                    # Start OpenBox window manager
+                    openbox --replace &
+                    
+                    # Wait for window manager
                     sleep 5
-
-                    # Start GNOME session
-                    gnome-session --session=ubuntu &
-
-                    # Wait for desktop to fully load
-                    sleep 15
-
-                    # Verify desktop is running
-                    ps aux | grep gnome
-
-                    echo "Running tests with full desktop..."
+                    
+                    # Verify setup
+                    echo "X11 info:"
+                    xdpyinfo | head -5 || echo "xdpyinfo failed"
+                    
+                    echo "Window manager process:"
+                    ps aux | grep openbox | grep -v grep || echo "OpenBox not found in ps"
+                    
+                    echo "Running tests..."
                     dotnet test InfiniLore.Photino.GitHubActions.slnf \
                     --configuration Release \
                     --no-build \
@@ -84,7 +119,7 @@ jobs:
     # ---------------------------------------------------------------------------------------
     # Windows
     # ---------------------------------------------------------------------------------------
-    windows-test:
+    windows-gui:
         name: Build & Test - Windows
         runs-on: windows-latest
 
