@@ -6,6 +6,18 @@ on:
             pr_number:
                 description: 'PR number to test (use the PR number from the URL)'
                 required: false
+            run_linux:
+                description: 'Run Linux GUI tests'
+                type: boolean
+                default: true
+            run_windows:
+                description: 'Run Windows GUI tests'
+                type: boolean
+                default: true
+            run_macos:
+                description: 'Run macOS GUI tests'
+                type: boolean
+                default: false
 
 jobs:
     mark-pending:
@@ -29,6 +41,7 @@ jobs:
     # Linux (Full Desktop Environment)
     # ---------------------------------------------------------------------------------------
     linux-gui:
+        if: ${{ github.event.inputs.run_linux == 'true' }}
         needs: mark-pending
         name: Build & Test - Linux
         runs-on: ubuntu-latest
@@ -182,6 +195,7 @@ jobs:
     # Windows
     # ---------------------------------------------------------------------------------------
     windows-gui:
+        if: ${{ github.event.inputs.run_windows == 'true' }}
         needs: mark-pending
         name: Build & Test - Windows
         runs-on: windows-latest
@@ -221,6 +235,7 @@ jobs:
     # macOS
     # ---------------------------------------------------------------------------------------
     macos-gui:
+        if: ${{ github.event.inputs.run_macos == 'true' }}
         needs: mark-pending
         name: Build & Test - macOS
         runs-on: macos-latest
@@ -318,28 +333,64 @@ jobs:
                       --no-build \
                       --no-restore \
                       --logger "console;verbosity=detailed"
-                  
+    
     update-status:
         name: Update Manual CI Status
         runs-on: ubuntu-latest
         needs: [ linux-gui, windows-gui, macos-gui ]
+        if: always()
         permissions:
             statuses: write
         steps:
             -   name: Post final status
-                if: ${{ always() }}
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    if [[ "${{ needs.linux-gui.result }}" == "success" && "${{ needs.windows-gui.result }}" == "success" && "${{ needs.macos-gui.result }}" == "success" ]]; then
-                      STATUS="success"
-                      DESCRIPTION="MultiPlatform tests passed"
-                    else
-                      STATUS="failure"
-                      DESCRIPTION="One or more platforms failed"
+                    # Initialize variables
+                    ALL_SUCCESS=true
+                    EXECUTED_JOBS=""
+                    FAILED_JOBS=""
+                    
+                    # Check Linux results
+                    if [[ "${{ github.event.inputs.run_linux }}" == "true" ]]; then
+                        EXECUTED_JOBS="$EXECUTED_JOBS Linux"
+                        if [[ "${{ needs.linux-gui.result }}" != "success" ]]; then
+                            ALL_SUCCESS=false
+                            FAILED_JOBS="$FAILED_JOBS Linux"
+                        fi
                     fi
-
-                    echo "Posting $STATUS to PR"
+                    
+                    # Check Windows results
+                    if [[ "${{ github.event.inputs.run_windows }}" == "true" ]]; then
+                        EXECUTED_JOBS="$EXECUTED_JOBS Windows"
+                        if [[ "${{ needs.windows-gui.result }}" != "success" ]]; then
+                            ALL_SUCCESS=false
+                            FAILED_JOBS="$FAILED_JOBS Windows"
+                        fi
+                    fi
+                    
+                    # Check macOS results
+                    if [[ "${{ github.event.inputs.run_macos }}" == "true" ]]; then
+                        EXECUTED_JOBS="$EXECUTED_JOBS macOS"
+                        if [[ "${{ needs.macos-gui.result }}" != "success" ]]; then
+                            ALL_SUCCESS=false
+                            FAILED_JOBS="$FAILED_JOBS macOS"
+                        fi
+                    fi
+                    
+                    # Determine final status
+                    if [[ -z "$EXECUTED_JOBS" ]]; then
+                        STATUS="success"
+                        DESCRIPTION="No platforms selected for testing"
+                    elif $ALL_SUCCESS; then
+                        STATUS="success"
+                        DESCRIPTION="Tests passed on:$EXECUTED_JOBS"
+                    else
+                        STATUS="failure"
+                        DESCRIPTION="Failed on:$FAILED_JOBS"
+                    fi
+                    
+                    echo "Posting $STATUS to PR: $DESCRIPTION"
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
