@@ -10,10 +10,10 @@ jobs:
         name: Mark PR as Pending
         runs-on: ubuntu-latest
         permissions:
-            statuses: write
+            checks: write  # Changed from statuses to checks
         
         steps:
-            -   name: Cancel previous pending statuses and mark current as pending
+            -   name: Skip previous pending and mark current as pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
@@ -29,34 +29,49 @@ jobs:
                     # Process each commit in the PR (except the current one)
                     for commit in $PR_COMMITS; do
                       if [ "$commit" != "${{ github.event.pull_request.head.sha }}" ]; then
-                        echo "Checking statuses for commit: $commit"
+                        echo "Checking for pending check runs on commit: $commit"
                     
-                        # Get current statuses for this commit
-                        STATUSES=$(curl -s \
+                        # Get check runs for this commit
+                        PENDING_RUNS=$(curl -s \
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
                           -H "Accept: application/vnd.github+json" \
-                          "https://api.github.com/repos/${{ github.repository }}/commits/$commit/statuses")
+                          "https://api.github.com/repos/${{ github.repository }}/commits/$commit/check-runs?check_name=Manual%20MultiPlatform%20CI" \
+                          | jq -r '.check_runs[] | select(.status != "completed") | .id')
                     
-                        # Check if there's a pending "Manual MultiPlatform CI" status
-                        PENDING_STATUS=$(echo "$STATUSES" | jq -r '.[] | select(.context == "Manual MultiPlatform CI" and .state == "pending") | .context')
-                    
-                        if [ "$PENDING_STATUS" = "Manual MultiPlatform CI" ]; then
-                          echo "Found pending Manual MultiPlatform CI status for $commit, cancelling it..."
-                          curl -X POST \
-                            -H "Authorization: Bearer $GITHUB_TOKEN" \
-                            -H "Accept: application/vnd.github+json" \
-                            "https://api.github.com/repos/${{ github.repository }}/statuses/$commit" \
-                            -d '{"state": "skipped", "context": "Manual MultiPlatform CI", "description": "Cancelled - superseded by newer commit"}'
-                        else
-                          echo "No pending Manual MultiPlatform CI status found for $commit"
-                        fi
+                        for run_id in $PENDING_RUNS; do
+                          if [ -n "$run_id" ] && [ "$run_id" != "null" ]; then
+                            echo "Skipping check run ID: $run_id for commit $commit"
+                            curl -s -X PATCH \
+                              -H "Authorization: Bearer $GITHUB_TOKEN" \
+                              -H "Accept: application/vnd.github+json" \
+                              "https://api.github.com/repos/${{ github.repository }}/check-runs/$run_id" \
+                              -d '{
+                                "status": "completed",
+                                "completed_at": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+                                "conclusion": "skipped",
+                                "output": {
+                                  "title": "Skipped",
+                                  "summary": "Superseded by newer commit"
+                                }
+                              }' > /dev/null
+                          fi
+                        done
                       fi
                     done
                     
-                    # Set pending status for current commit
-                    echo "Setting pending status for current commit: ${{ github.event.pull_request.head.sha }}"
+                    # Create pending check run for current commit
+                    echo "Creating pending check run for current commit: ${{ github.event.pull_request.head.sha }}"
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
-                      "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
-                      -d '{"state": "pending", "context": "Manual MultiPlatform CI", "description": "Waiting for manual trigger via workflow_dispatch."}'
+                      "https://api.github.com/repos/${{ github.repository }}/check-runs" \
+                      -d '{
+                        "name": "Manual MultiPlatform CI",
+                        "head_sha": "${{ github.event.pull_request.head.sha }}",
+                        "status": "queued",
+                        "started_at": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+                        "output": {
+                          "title": "Manual CI Pending",
+                          "summary": "Waiting for manual trigger via workflow_dispatch."
+                        }
+                      }'
