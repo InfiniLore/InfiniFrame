@@ -30,8 +30,6 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    
-                    
                     echo "Posting pending status for Manual MultiPlatform CI"
                     
                     # Post status for Linux
@@ -63,6 +61,8 @@ jobs:
         needs: mark-pending
         name: Build & Test - Linux
         runs-on: ubuntu-latest
+        permissions:
+            statuses: write
         steps:
             -   uses: actions/checkout@v5
                 with:
@@ -209,6 +209,25 @@ jobs:
                         --no-restore \
                         --logger "console;verbosity=detailed"
 
+            -   name: Update Linux status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if [ "${{ job.status }}" == "success" ]; then
+                        STATUS="success"
+                        DESCRIPTION="Linux tests passed"
+                    else
+                        STATUS="failure"
+                        DESCRIPTION="Linux tests failed"
+                    fi
+                    
+                    curl -X POST \
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"$DESCRIPTION\"}"
+
     # ---------------------------------------------------------------------------------------
     # Windows
     # ---------------------------------------------------------------------------------------
@@ -217,6 +236,8 @@ jobs:
         needs: mark-pending
         name: Build & Test - Windows
         runs-on: windows-latest
+        permissions:
+            statuses: write
 
         steps:
             - name: Checkout repository
@@ -249,6 +270,34 @@ jobs:
                     --no-restore `
                     --logger "console;verbosity=detailed"
 
+            - name: Update Windows status
+              if: always()
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  if ("${{ job.status }}" -eq "success") {
+                      $STATUS = "success"
+                      $DESCRIPTION = "Windows tests passed"
+                  } else {
+                      $STATUS = "failure"
+                      $DESCRIPTION = "Windows tests failed"
+                  }
+                  
+                  $body = @{
+                      state = $STATUS
+                      context = "Manual MultiPlatform CI - Windows"
+                      description = $DESCRIPTION
+                  } | ConvertTo-Json
+                  
+                  Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" `
+                      -Method POST `
+                      -Headers @{
+                          "Authorization" = "Bearer $env:GITHUB_TOKEN"
+                          "Accept" = "application/vnd.github+json"
+                      } `
+                      -Body $body `
+                      -ContentType "application/json"
+
     # ---------------------------------------------------------------------------------------
     # macOS
     # ---------------------------------------------------------------------------------------
@@ -257,6 +306,8 @@ jobs:
         needs: mark-pending
         name: Build & Test - macOS
         runs-on: macos-latest
+        permissions:
+            statuses: write
         
         steps:
             -   name: Checkout repository
@@ -309,79 +360,71 @@ jobs:
                     export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
                     export NSUnbufferedIO=YES
 
-                    echo "=== Running Tests with main thread enforcement ==="
+                    echo "=== Running Tests ==="
 
-                    # Run tests with explicit main thread handling
-                    # The key is using the synchronization context properly
+                    # Run tests
                     dotnet test InfiniLore.Photino.GitHubActions.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
                         --logger "console;verbosity=detailed"
 
-    update-status:
-        name: Update Manual CI Status
-        runs-on: ubuntu-latest
-        needs: [ linux-gui, windows-gui, macos-gui ]
-        if: always()
-        permissions:
-            statuses: write
-        steps:
-            -   name: Post status for all platforms
+            -   name: Update macOS status
+                if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    # Function to determine status based on job result and whether it was enabled
-                    get_platform_status() {
-                        local job_result=$1
-                        local was_enabled=$2
-
-                        if [[ "$was_enabled" != "true" ]]; then
-                            echo "success|skipped"
-                        elif [[ "$job_result" == "success" ]]; then
-                            echo "success|passed"
-                        elif [[ "$job_result" == "skipped" ]]; then
-                            echo "success|skipped"
-                        else
-                            echo "failure|failed"
-                        fi
-                    }
-
-                    # Get status for each platform
-                    LINUX_STATUS=$(get_platform_status "${{ needs.linux-gui.result }}" "${{ github.event.inputs.run_linux }}")
-                    WINDOWS_STATUS=$(get_platform_status "${{ needs.windows-gui.result }}" "${{ github.event.inputs.run_windows }}")
-                    MACOS_STATUS=$(get_platform_status "${{ needs.macos-gui.result }}" "${{ github.event.inputs.run_macos }}")
-
-                    # Extract state and description for each platform
-                    LINUX_STATE="${LINUX_STATUS%|*}"
-                    LINUX_DESC="${LINUX_STATUS#*|}"
-                    WINDOWS_STATE="${WINDOWS_STATUS%|*}"
-                    WINDOWS_DESC="${WINDOWS_STATUS#*|}"
-                    MACOS_STATE="${MACOS_STATUS%|*}"
-                    MACOS_DESC="${MACOS_STATUS#*|}"
-
-                    # Post status for Linux
+                    if [ "${{ job.status }}" == "success" ]; then
+                        STATUS="success"
+                        DESCRIPTION="macOS tests passed"
+                    else
+                        STATUS="failure"
+                        DESCRIPTION="macOS tests failed"
+                    fi
+                    
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$LINUX_STATE\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"Linux tests $LINUX_DESC\"}"
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"$DESCRIPTION\"}"
 
-                    # Post status for Windows  
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$WINDOWS_STATE\",\"context\":\"Manual MultiPlatform CI - Windows\",\"description\":\"Windows tests $WINDOWS_DESC\"}"
-
-                    # Post status for macOS
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$MACOS_STATE\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"macOS tests $MACOS_DESC\"}"
-
-                    echo "Posted status for all platforms:"
-                    echo "- Linux: $LINUX_STATE ($LINUX_DESC)"
-                    echo "- Windows: $WINDOWS_STATE ($WINDOWS_DESC)" 
-                    echo "- macOS: $MACOS_STATE ($MACOS_DESC)"
+    # ---------------------------------------------------------------------------------------
+    # Handle skipped platforms
+    # ---------------------------------------------------------------------------------------
+    mark-skipped:
+        name: Mark Skipped Platforms
+        runs-on: ubuntu-latest
+        needs: mark-pending
+        permissions:
+            statuses: write
+        steps:
+            -   name: Mark skipped platform statuses
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    # Mark Linux as skipped if not enabled
+                    if [[ "${{ github.event.inputs.run_linux }}" != "true" ]]; then
+                        curl -X POST \
+                          -H "Authorization: Bearer $GITHUB_TOKEN" \
+                          -H "Accept: application/vnd.github+json" \
+                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - Linux","description":"Linux tests skipped"}'
+                    fi
+                    
+                    # Mark Windows as skipped if not enabled
+                    if [[ "${{ github.event.inputs.run_windows }}" != "true" ]]; then
+                        curl -X POST \
+                          -H "Authorization: Bearer $GITHUB_TOKEN" \
+                          -H "Accept: application/vnd.github+json" \
+                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - Windows","description":"Windows tests skipped"}'
+                    fi
+                    
+                    # Mark macOS as skipped if not enabled
+                    if [[ "${{ github.event.inputs.run_macos }}" != "true" ]]; then
+                        curl -X POST \
+                          -H "Authorization: Bearer $GITHUB_TOKEN" \
+                          -H "Accept: application/vnd.github+json" \
+                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - macOS","description":"macOS tests skipped"}'
+                    fi
