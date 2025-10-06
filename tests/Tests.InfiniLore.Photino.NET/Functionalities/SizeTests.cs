@@ -16,12 +16,7 @@ public class SizeTests {
     [Test]
     public async Task Builder_ShouldSetSize() {
         // Arrange
-
         var builder = PhotinoWindowBuilder.Create();
-        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration() {
-            Width = Width,
-            Height = Height,
-        }.ToParameters();
 
         // Act
         builder.SetUseOsDefaultSize(true);
@@ -32,14 +27,13 @@ public class SizeTests {
         await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
 
         PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
-        await Assert.That(configParameters.Width).IsEqualTo(expectedConfigParameters.Width);
-        await Assert.That(configParameters.Height).IsEqualTo(expectedConfigParameters.Height);
+        await Assert.That(configParameters.Width).IsEqualTo(Width);
+        await Assert.That(configParameters.Height).IsEqualTo(Height);
     }
 
     [Test]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
-
         var builder = PhotinoWindowBuilder.Create();
         PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration {
             Width = Width,
@@ -65,7 +59,6 @@ public class SizeTests {
     [Test]
     [SkipUtility.OnMacOs]
     public async Task Window_ShouldSetSize() {
-
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
@@ -97,7 +90,6 @@ public class SizeTests {
     [Test]
     [SkipUtility.OnMacOs]
     public async Task Window_WithChromelessToGetSmallestSize_ShouldSetSize() {
-
         // Arrange
         using var windowUtility = WindowTestUtility.Create(builder => builder.SetChromeless(true));
         IPhotinoWindow window = windowUtility.Window;

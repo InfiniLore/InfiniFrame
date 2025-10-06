@@ -16,12 +16,7 @@ public class LocationTests {
     [Test]
     public async Task Builder_ShouldSetLocation() {
         // Arrange
-        
         var builder = PhotinoWindowBuilder.Create();
-        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration() {
-            Left = Left,
-            Top = Top,
-        }.ToParameters();
         
         // Act
         builder.SetUseOsDefaultLocation(true);
@@ -32,14 +27,13 @@ public class LocationTests {
         await Assert.That(builder.Configuration.Top).IsEqualTo(Top);
         
         PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
-        await Assert.That(configParameters.Left).IsEqualTo(expectedConfigParameters.Left);
-        await Assert.That(configParameters.Top).IsEqualTo(expectedConfigParameters.Top);
+        await Assert.That(configParameters.Left).IsEqualTo(Left);
+        await Assert.That(configParameters.Top).IsEqualTo(Top);
     }
     
     [Test]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
-        
         var builder = PhotinoWindowBuilder.Create();
         PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration {
             Left = Left,
@@ -66,7 +60,6 @@ public class LocationTests {
     [Test]
     [SkipUtility.OnMacOs]
     public async Task Window_ShouldSetLocation() {
-        
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
