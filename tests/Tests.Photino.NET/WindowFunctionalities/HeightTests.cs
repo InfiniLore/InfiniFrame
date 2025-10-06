@@ -28,6 +28,7 @@ public class HeightTests {
     }
 
     [Test]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
@@ -52,6 +53,7 @@ public class HeightTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
@@ -66,6 +68,7 @@ public class HeightTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange
 
@@ -83,6 +86,7 @@ public class HeightTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task Window_WithChromelessToGetSmallestHeight() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create(builder => builder.SetChromeless(true));
@@ -97,6 +101,7 @@ public class HeightTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration_WithChromelessToGetSmallestHeight() {
         // Arrange
 

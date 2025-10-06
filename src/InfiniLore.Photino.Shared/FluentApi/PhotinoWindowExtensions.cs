@@ -156,23 +156,24 @@ public static class PhotinoWindowExtensions {
 
         // If the window is outside the work area,
         // recalculate the position and continue.
-        //When a window isn't initialized yet, cannot determine screen size.
-        if (!allowOutsideWorkArea && window.InstanceHandle != IntPtr.Zero) {
-            int horizontalWindowEdge = location.X + window.Width;
-            int verticalWindowEdge = location.Y + window.Height;
-
-            int horizontalWorkAreaEdge = window.MainMonitor.WorkArea.Width;
-            int verticalWorkAreaEdge = window.MainMonitor.WorkArea.Height;
-
-            bool isOutsideHorizontalWorkArea = horizontalWindowEdge > horizontalWorkAreaEdge;
-            bool isOutsideVerticalWorkArea = verticalWindowEdge > verticalWorkAreaEdge;
-
-            var locationInsideWorkArea = new Point(
-                isOutsideHorizontalWorkArea ? horizontalWorkAreaEdge - window.Width : location.X,
-                isOutsideVerticalWorkArea ? verticalWorkAreaEdge - window.Height : location.Y
-            );
-
-            location = locationInsideWorkArea;
+        if (!allowOutsideWorkArea) {
+            window.Invoke(() => {
+                MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
+                int horizontalWindowEdge = location.X + windowRect.Width;
+                int verticalWindowEdge = location.Y + windowRect.Height;
+                
+                int horizontalWorkAreaEdge = monitor.WorkArea.Width;
+                int verticalWorkAreaEdge = monitor.WorkArea.Height;
+                
+                location = new Point(
+                    horizontalWindowEdge > horizontalWorkAreaEdge 
+                        ? Math.Max(horizontalWorkAreaEdge - window.Width, 0)
+                        : Math.Max(location.X, 0),
+                    verticalWindowEdge > verticalWorkAreaEdge 
+                        ? Math.Max(verticalWorkAreaEdge - window.Height, 0) 
+                        : Math.Max(location.Y, 0)
+                );
+            });
         }
 
         // Bug:
@@ -190,7 +191,7 @@ public static class PhotinoWindowExtensions {
         // This behavior seems to have changed with macOS Sonoma.
         // Therefore, we determine the version of macOS and only apply the
         // workaround for older versions.
-        if (!OperatingSystem.IsMacOSVersionAtLeast(23)) {
+        if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(23)) {
             Size workArea = window.MainMonitor.WorkArea.Size;
             location.Y = location.Y >= 0
                 ? location.Y - workArea.Height

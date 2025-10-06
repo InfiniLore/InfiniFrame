@@ -57,6 +57,7 @@ public class SizeTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
@@ -71,6 +72,7 @@ public class SizeTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange
 
@@ -88,6 +90,7 @@ public class SizeTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task Window_WithChromelessToGetSmallestSize() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create(builder => builder.SetChromeless(true));
@@ -102,6 +105,7 @@ public class SizeTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration_WithChromelessToGetSmallestSize() {
         // Arrange
 

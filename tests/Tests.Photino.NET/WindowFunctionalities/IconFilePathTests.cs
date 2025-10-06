@@ -44,6 +44,7 @@ public class IconFilePathTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
@@ -58,6 +59,7 @@ public class IconFilePathTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task Window_ShouldNotSetInvalidIconFilePath() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
@@ -72,6 +74,7 @@ public class IconFilePathTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange
 
