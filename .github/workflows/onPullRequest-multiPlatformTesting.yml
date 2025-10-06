@@ -197,3 +197,29 @@ jobs:
                     --no-build `
                     --no-restore `
                     --logger "console;verbosity=detailed"
+                  
+    update-status:
+        name: Update Manual CI Status
+        runs-on: ubuntu-latest
+        needs: [ linux-gui, windows-gui ]    # <-- wait for both jobs
+        permissions:
+            statuses: write   # required to post a status to the PR
+        steps:
+            -   name: Set final status
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if [[ "${{ needs.linux-gui.result }}" == "success" && "${{ needs.windows-gui.result }}" == "success" ]]; then
+                      STATUS="success"
+                      DESCRIPTION="MultiPlatform tests passed"
+                    else
+                      STATUS="failure"
+                      DESCRIPTION="One or more platforms failed"
+                    fi
+                    
+                    echo "Posting $STATUS to PR"
+                    curl -X POST \
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI\",\"description\":\"$DESCRIPTION\"}"
