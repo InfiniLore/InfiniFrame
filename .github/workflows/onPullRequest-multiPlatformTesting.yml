@@ -8,7 +8,7 @@ on:
 
 jobs:
     # ---------------------------------------------------------------------------------------
-    # Linux (Headless)
+    # Linux (Full Desktop Environment)
     # ---------------------------------------------------------------------------------------
     linux-gui:
         name: Build & Test - Linux
@@ -52,27 +52,23 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-build-
 
-            -   name: Install full GNOME desktop environment
+            -   name: Install desktop environment and dependencies
                 run: |
-                    # Update package lists only if cache miss
-                    if [ ! -f "/var/lib/apt/lists/lock" ]; then
-                        sudo apt-get update
-                    fi
-
+                    # Update package lists
+                    sudo apt-get update
+                    
                     export DEBIAN_FRONTEND=noninteractive
                     sudo apt-get install -y \
-                        ubuntu-desktop-minimal \
                         gnome-shell \
                         gnome-session \
                         gnome-settings-daemon \
-                        gnome-control-center \
                         mutter \
                         xvfb \
                         x11-utils \
                         x11-xserver-utils \
                         dbus-x11 \
                         at-spi2-core \
-                        gconf-service \
+                        gsettings-desktop-schemas \
                         libnotify4 \
                         libwebkit2gtk-4.1-dev \
                         libgtk-3-dev \
@@ -92,15 +88,14 @@ jobs:
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
 
-            -   name: Start full GNOME desktop and run tests
+            -   name: Start desktop environment and run tests
                 run: |
-                    echo "Starting full GNOME desktop environment..."
-
-                    # Start system D-Bus
-                    sudo systemctl start dbus
+                    echo "Starting desktop environment..."
+                    
+                    # Start D-Bus session
                     export $(dbus-launch --sh-syntax)
-
-                    # Start Xvfb with comprehensive settings
+                    
+                    # Start Xvfb
                     Xvfb :99 \
                         -screen 0 1920x1080x24 \
                         -ac \
@@ -108,73 +103,58 @@ jobs:
                         +extension RANDR \
                         +extension RENDER \
                         -nolisten tcp \
-                        -noreset \
-                        -shmem &
-
+                        -noreset &
+                    
                     export DISPLAY=:99
                     export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
                     export XDG_SESSION_TYPE=x11
                     export XDG_SESSION_CLASS=user
-                    export XDG_SESSION_DESKTOP=gnome
-                    export XDG_CURRENT_DESKTOP=GNOME
-                    export GNOME_DESKTOP_SESSION_ID=this-is-deprecated
-                    export DESKTOP_SESSION=gnome
-
+                    export XDG_SESSION_DESKTOP=ubuntu
+                    export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+                    export DESKTOP_SESSION=ubuntu
+                    
                     # Create runtime directory
                     mkdir -p "$XDG_RUNTIME_DIR"
                     chmod 700 "$XDG_RUNTIME_DIR"
-
-                    # Wait for X server to be ready
+                    
+                    # Wait for X server
                     echo "Waiting for X server..."
                     timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
                         echo "X server failed to start"
                         exit 1
                     }
-
+                    
                     # Start GNOME settings daemon
-                    /usr/libexec/gnome-settings-daemon &
+                    gnome-settings-daemon &
                     sleep 2
-
-                    # Start Mutter/GNOME Shell in nested mode
-                    echo "Starting GNOME Shell/Mutter..."
-                    mutter --wayland --nested --no-x11 &
-                    MUTTER_PID=$!
-
-                    # Wait for window manager to be ready
-                    sleep 10
-
+                    
+                    # Start Mutter window manager
+                    echo "Starting Mutter window manager..."
+                    mutter --replace &
+                    sleep 8
+                    
                     # Verify setup
-                    echo "=== Desktop Environment Status ==="
-                    echo "X11 Display: $DISPLAY"
-                    echo "XDG Runtime: $XDG_RUNTIME_DIR"
-                    echo "Current Desktop: $XDG_CURRENT_DESKTOP"
-
+                    echo "=== Environment Status ==="
+                    echo "Display: $DISPLAY"
+                    echo "Desktop: $XDG_CURRENT_DESKTOP"
+                    echo "Session: $XDG_SESSION_DESKTOP"
+                    
                     echo "X11 info:"
-                    xdpyinfo | head -5 || echo "xdpyinfo failed"
-
-                    echo "Window manager processes:"
-                    ps aux | grep -E "(mutter|gnome)" | grep -v grep || echo "No GNOME processes found"
-
-                    echo "D-Bus session:"
-                    echo $DBUS_SESSION_BUS_ADDRESS
-
-                    # Test window manager capabilities
-                    echo "Testing window manager..."
-                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || echo "Window manager not responding"
-
+                    xdpyinfo | head -3 || echo "xdpyinfo failed"
+                    
+                    echo "Window manager:"
+                    ps aux | grep mutter | grep -v grep || echo "Mutter not found"
+                    
+                    # Test window capabilities
+                    echo "Testing window manager capabilities..."
+                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "✓ Window manager responding" || echo "✗ Window manager not responding"
+                    
                     echo "=== Running Tests ==="
                     dotnet test InfiniLore.Photino.GitHubActions.slnf \
-                    --configuration Release \
-                    --no-build \
-                    --no-restore \
-                    --logger "console;verbosity=detailed" || {
-                        echo "=== Test Failure Debug Info ==="
-                        echo "Processes still running:"
-                        ps aux | grep -E "(Xvfb|mutter|gnome|dotnet)" | grep -v grep
-                        echo "X11 status:"
-                        xdpyinfo | head -10 || echo "X11 not responding"
-                        exit 1
-                    }
+                        --configuration Release \
+                        --no-build \
+                        --no-restore \
+                        --logger "console;verbosity=detailed"
 
     # ---------------------------------------------------------------------------------------
     # Windows
