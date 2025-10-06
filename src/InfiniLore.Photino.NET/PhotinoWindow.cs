@@ -466,7 +466,7 @@ public sealed class PhotinoWindow(
     /// </exception>
     public void Close() {
         logger.LogDebug(".Close()");
-        Events.OnPreWindowClosing();
+        Events.OnWindowClosingRequested();
         Invoke(() => PhotinoNative.Close(InstanceHandle));
     }
 

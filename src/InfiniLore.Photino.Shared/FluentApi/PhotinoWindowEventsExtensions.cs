@@ -123,8 +123,8 @@ public static class PhotinoWindowEventsExtensions {
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterPreWindowClosingHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
-        builder.Events.PreWindowClosing += handler;
+    public static IPhotinoWindowBuilder RegisterWindowClosingRequestedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowClosingRequested += handler;
         return builder;
     }
 

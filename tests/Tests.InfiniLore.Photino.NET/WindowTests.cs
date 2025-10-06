@@ -78,7 +78,7 @@ public class WindowTests {
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
         var windowUtility = WindowTestUtility.Create(
-            builder => builder.Events.PreWindowClosing += (_, _) => {
+            builder => builder.Events.WindowClosingRequested += (_, _) => {
                 windowClosingTcs.SetResult(true);
             }
         );

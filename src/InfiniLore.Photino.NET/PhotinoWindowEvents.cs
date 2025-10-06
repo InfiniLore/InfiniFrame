@@ -19,7 +19,7 @@ public class PhotinoWindowEvents : IPhotinoWindowEvents {
     public event EventHandler? WindowMinimized;
     public event EventHandler<string>? WebMessageReceived;
     public event NetClosingDelegate? WindowClosing;
-    public event EventHandler? PreWindowClosing;
+    public event EventHandler? WindowClosingRequested;
     public event EventHandler? WindowCreating;
     public event EventHandler? WindowCreated;
 
@@ -90,8 +90,8 @@ public class PhotinoWindowEvents : IPhotinoWindowEvents {
         WebMessageReceived?.Invoke(Sender, message);
     }
 
-    public void OnPreWindowClosing() {
-        PreWindowClosing?.Invoke(Sender, EventArgs.Empty);   
+    public void OnWindowClosingRequested() {
+        WindowClosingRequested?.Invoke(Sender, EventArgs.Empty);   
     }
 
     /// <summary>
