@@ -1,7 +1,7 @@
 ﻿using InfiniLore.Photino.NET;
+using Tests.Photino.NET.TestUtilities;
 
-namespace Tests.InfiniLore.Photino.NET;
-using Tests.InfiniLore.Photino.NET.TestUtilities;
+namespace Tests.Photino.NET;
 
 public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------

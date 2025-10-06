@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace Tests.InfiniLore.Photino.NET.Functionalities;
-using global::InfiniLore.Photino.NET;
-using Tests.InfiniLore.Photino.NET.TestUtilities;
+using InfiniLore.Photino.NET;
+using Tests.Photino.NET.TestUtilities;
 
+namespace Tests.Photino.NET.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
