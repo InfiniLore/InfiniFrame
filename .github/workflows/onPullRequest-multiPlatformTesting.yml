@@ -287,15 +287,25 @@ jobs:
                     echo "Architecture: $(uname -m)"
                     echo "Running in native macOS mode"
                     
+                    # Set up virtual display for headless GUI testing
+                    sudo /usr/sbin/purge
+                    
+                    # Create a virtual display
+                    sudo /System/Library/Frameworks/CoreServices.framework/Frameworks/Menu\ Extras.framework/Resources/User.login -console
+                    
+                    # Start virtual framebuffer (similar to Xvfb on Linux)
+                    export DISPLAY=:99
+                    
                     # Set environment variables for macOS GUI testing
                     export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
                     export NSUnbufferedIO=YES
+                    export NSApplicationActivationPolicyAccessory=1
                     
-                    # Ensure we're running on main thread for GUI operations
-                    echo "=== Running Tests with macOS Main Thread Support ==="
+                    # Run in headless mode
+                    echo "=== Running Tests in headless mode ==="
                     
-                    # Run tests with explicit main thread apartment state
-                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    # Use caffeinate to prevent system sleep and maintain GUI context
+                    caffeinate -d dotnet test InfiniLore.Photino.GitHubActions.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
