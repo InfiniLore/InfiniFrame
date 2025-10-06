@@ -28,6 +28,7 @@ public class WindowTestUtility : IDisposable {
     
     public void Dispose() {
         Window.Close();
+        // Window.Invoke(() => PhotinoNative.Destructor(Window.InstanceHandle));
         GC.SuppressFinalize(this);
     }
 }

@@ -387,7 +387,7 @@ public sealed class PhotinoWindow(
             else if (OperatingSystem.IsMacOS())
                 Invoke(() => PhotinoNative.RegisterMac());
 
-            Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref StartupParameters));
+            Invoke(() => InstanceHandle = PhotinoNative.Constructor(ref StartupParameters));
         }
         catch (Exception ex) {
             int lastError = 0;
