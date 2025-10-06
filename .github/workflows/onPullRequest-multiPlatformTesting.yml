@@ -52,20 +52,27 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-build-
 
-            -   name: Install lightweight GUI environment (cached)
+            -   name: Install full GNOME desktop environment
                 run: |
                     # Update package lists only if cache miss
                     if [ ! -f "/var/lib/apt/lists/lock" ]; then
                         sudo apt-get update
                     fi
-                    
+
                     export DEBIAN_FRONTEND=noninteractive
                     sudo apt-get install -y \
+                        ubuntu-desktop-minimal \
+                        gnome-shell \
+                        gnome-session \
+                        gnome-settings-daemon \
+                        gnome-control-center \
+                        mutter \
                         xvfb \
-                        openbox \
                         x11-utils \
                         x11-xserver-utils \
                         dbus-x11 \
+                        at-spi2-core \
+                        gconf-service \
                         libnotify4 \
                         libwebkit2gtk-4.1-dev \
                         libgtk-3-dev \
@@ -75,7 +82,9 @@ jobs:
                         libatk1.0-dev \
                         libharfbuzz-dev \
                         libepoxy-dev \
-                        libx11-dev
+                        libx11-dev \
+                        fonts-liberation \
+                        xfonts-base
 
             -   name: Restore dependencies (cached)
                 run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
@@ -83,38 +92,89 @@ jobs:
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
 
-            -   name: Start lightweight desktop and run tests
+            -   name: Start full GNOME desktop and run tests
                 run: |
-                    echo "Starting lightweight desktop environment..."
-                    
-                    # Start D-Bus
-                    export $(dbus-launch)
-                    
-                    # Start Xvfb
-                    Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
+                    echo "Starting full GNOME desktop environment..."
+
+                    # Start system D-Bus
+                    sudo systemctl start dbus
+                    export $(dbus-launch --sh-syntax)
+
+                    # Start Xvfb with comprehensive settings
+                    Xvfb :99 \
+                        -screen 0 1920x1080x24 \
+                        -ac \
+                        +extension GLX \
+                        +extension RANDR \
+                        +extension RENDER \
+                        -nolisten tcp \
+                        -noreset \
+                        -shmem &
+
                     export DISPLAY=:99
-                    
-                    # Wait for X server
-                    sleep 3
-                    
-                    # Start OpenBox window manager
-                    openbox --replace &
-                    
-                    # Wait for window manager
-                    sleep 5
-                    
+                    export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
+                    export XDG_SESSION_TYPE=x11
+                    export XDG_SESSION_CLASS=user
+                    export XDG_SESSION_DESKTOP=gnome
+                    export XDG_CURRENT_DESKTOP=GNOME
+                    export GNOME_DESKTOP_SESSION_ID=this-is-deprecated
+                    export DESKTOP_SESSION=gnome
+
+                    # Create runtime directory
+                    mkdir -p "$XDG_RUNTIME_DIR"
+                    chmod 700 "$XDG_RUNTIME_DIR"
+
+                    # Wait for X server to be ready
+                    echo "Waiting for X server..."
+                    timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
+                        echo "X server failed to start"
+                        exit 1
+                    }
+
+                    # Start GNOME settings daemon
+                    /usr/libexec/gnome-settings-daemon &
+                    sleep 2
+
+                    # Start Mutter/GNOME Shell in nested mode
+                    echo "Starting GNOME Shell/Mutter..."
+                    mutter --wayland --nested --no-x11 &
+                    MUTTER_PID=$!
+
+                    # Wait for window manager to be ready
+                    sleep 10
+
                     # Verify setup
+                    echo "=== Desktop Environment Status ==="
+                    echo "X11 Display: $DISPLAY"
+                    echo "XDG Runtime: $XDG_RUNTIME_DIR"
+                    echo "Current Desktop: $XDG_CURRENT_DESKTOP"
+
                     echo "X11 info:"
                     xdpyinfo | head -5 || echo "xdpyinfo failed"
-                    
-                    echo "Window manager process:"
-                    ps aux | grep openbox | grep -v grep || echo "OpenBox not found in ps"
-                    
-                    echo "Running tests..."
+
+                    echo "Window manager processes:"
+                    ps aux | grep -E "(mutter|gnome)" | grep -v grep || echo "No GNOME processes found"
+
+                    echo "D-Bus session:"
+                    echo $DBUS_SESSION_BUS_ADDRESS
+
+                    # Test window manager capabilities
+                    echo "Testing window manager..."
+                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || echo "Window manager not responding"
+
+                    echo "=== Running Tests ==="
                     dotnet test InfiniLore.Photino.GitHubActions.slnf \
                     --configuration Release \
                     --no-build \
-                    --no-restore
+                    --no-restore \
+                    --logger "console;verbosity=detailed" || {
+                        echo "=== Test Failure Debug Info ==="
+                        echo "Processes still running:"
+                        ps aux | grep -E "(Xvfb|mutter|gnome|dotnet)" | grep -v grep
+                        echo "X11 status:"
+                        xdpyinfo | head -10 || echo "X11 not responding"
+                        exit 1
+                    }
 
     # ---------------------------------------------------------------------------------------
     # Windows

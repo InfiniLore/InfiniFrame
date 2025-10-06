@@ -10,7 +10,6 @@
     <File Path=".github\workflows\release.yml" />
     <File Path=".github\workflows\workflow-todo.yml" />
     <File Path=".github\workflows\onPullRequest-multiPlatformTesting.yml" />
-    <File Path=".github\workflows\onPullRequest-optionalCheck.yml" />
   </Folder>
   <Folder Name="/.dev-tools/py/">
     <File Path="dev\bump_version.py" />
