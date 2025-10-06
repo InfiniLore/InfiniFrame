@@ -42,10 +42,14 @@ public class CenterTests {
         window.Center();
 
         // Assert
-        MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
-        Size size = windowRect.Size;
-        int centerX = monitor.MonitorArea.Width/2  - size.Width / 2;
-        int centerY = monitor.MonitorArea.Height/2 - size.Height / 2;
+        int centerX = 0;
+        int centerY = 0;
+        window.Invoke(() => {
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
+            Size size = windowRect.Size;
+            centerX = monitor.MonitorArea.Width/2  - size.Width / 2;
+            centerY = monitor.MonitorArea.Height/2 - size.Height / 2;
+        });
         
         await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));
     }
@@ -65,10 +69,14 @@ public class CenterTests {
         IPhotinoWindow window = windowUtility.Window;
 
         // Assert
-        MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
-        Size size = windowRect.Size;
-        int centerX = monitor.MonitorArea.Width/2  - size.Width / 2;
-        int centerY = monitor.MonitorArea.Height/2 - size.Height / 2;
+        int centerX = 0;
+        int centerY = 0;
+        window.Invoke(() => {
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
+            Size size = windowRect.Size;
+            centerX = monitor.MonitorArea.Width/2  - size.Width / 2;
+            centerY = monitor.MonitorArea.Height/2 - size.Height / 2;
+        });
         
         if (state) await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));
         else await Assert.That(window.Location).IsNotEqualTo(new Point(centerX, centerY));
