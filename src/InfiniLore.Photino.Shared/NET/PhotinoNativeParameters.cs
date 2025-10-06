@@ -4,7 +4,7 @@ namespace InfiniLore.Photino.NET;
 // These are the parameter names that are passed to Photino.Native.
 // DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-public struct PhotinoNativeParameters {
+public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
     ///     initialized. Default is none.
@@ -84,7 +84,8 @@ public struct PhotinoNativeParameters {
     [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebMessageReceivedDelegate WebMessageReceivedHandler;
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
-    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPStr, SizeConst = 16)] internal string[] CustomSchemeNames;
+    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPStr, SizeConst = 16)]
+    internal string[] CustomSchemeNames;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebResourceRequestedDelegate CustomSchemeHandler;
@@ -220,4 +221,122 @@ public struct PhotinoNativeParameters {
     ///     struct matches what C++ is expecting.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)] internal int Size;
+
+
+    public bool Equals(PhotinoNativeParameters other) => StartString == other.StartString
+        && StartUrl == other.StartUrl
+        && Title == other.Title
+        && WindowIconFile == other.WindowIconFile
+        && TemporaryFilesPath == other.TemporaryFilesPath
+        && UserAgent == other.UserAgent
+        && BrowserControlInitParameters == other.BrowserControlInitParameters
+        && NotificationRegistrationId == other.NotificationRegistrationId
+        && NativeParent == other.NativeParent
+        && ClosingHandler.Equals(other.ClosingHandler)
+        && FocusInHandler.Equals(other.FocusInHandler)
+        && FocusOutHandler.Equals(other.FocusOutHandler)
+        && ResizedHandler.Equals(other.ResizedHandler)
+        && MaximizedHandler.Equals(other.MaximizedHandler)
+        && RestoredHandler.Equals(other.RestoredHandler)
+        && MinimizedHandler.Equals(other.MinimizedHandler)
+        && MovedHandler.Equals(other.MovedHandler)
+        && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
+        && CustomSchemeNames.Equals(other.CustomSchemeNames)
+        && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
+        && Left == other.Left
+        && Top == other.Top
+        && Width == other.Width
+        && Height == other.Height
+        && Zoom == other.Zoom
+        && MinWidth == other.MinWidth
+        && MinHeight == other.MinHeight
+        && MaxWidth == other.MaxWidth
+        && MaxHeight == other.MaxHeight
+        && CenterOnInitialize == other.CenterOnInitialize
+        && Chromeless == other.Chromeless
+        && Transparent == other.Transparent
+        && ContextMenuEnabled == other.ContextMenuEnabled
+        && DevToolsEnabled == other.DevToolsEnabled
+        && FullScreen == other.FullScreen
+        && Maximized == other.Maximized
+        && Minimized == other.Minimized
+        && Resizable == other.Resizable
+        && Topmost == other.Topmost
+        && UseOsDefaultLocation == other.UseOsDefaultLocation
+        && UseOsDefaultSize == other.UseOsDefaultSize
+        && GrantBrowserPermissions == other.GrantBrowserPermissions
+        && MediaAutoplayEnabled == other.MediaAutoplayEnabled
+        && FileSystemAccessEnabled == other.FileSystemAccessEnabled
+        && WebSecurityEnabled == other.WebSecurityEnabled
+        && JavascriptClipboardAccessEnabled == other.JavascriptClipboardAccessEnabled
+        && MediaStreamEnabled == other.MediaStreamEnabled
+        && SmoothScrollingEnabled == other.SmoothScrollingEnabled
+        && IgnoreCertificateErrorsEnabled == other.IgnoreCertificateErrorsEnabled
+        && NotificationsEnabled == other.NotificationsEnabled
+        && Size == other.Size;
+
+    public override bool Equals(object? obj) => obj is PhotinoNativeParameters other && Equals(other);
+
+    public override int GetHashCode() {
+        var hashCode = new HashCode();
+        hashCode.Add(StartString);
+        hashCode.Add(StartUrl);
+        hashCode.Add(Title);
+        hashCode.Add(WindowIconFile);
+        hashCode.Add(TemporaryFilesPath);
+        hashCode.Add(UserAgent);
+        hashCode.Add(BrowserControlInitParameters);
+        hashCode.Add(NotificationRegistrationId);
+        hashCode.Add(NativeParent);
+        hashCode.Add(ClosingHandler);
+        hashCode.Add(FocusInHandler);
+        hashCode.Add(FocusOutHandler);
+        hashCode.Add(ResizedHandler);
+        hashCode.Add(MaximizedHandler);
+        hashCode.Add(RestoredHandler);
+        hashCode.Add(MinimizedHandler);
+        hashCode.Add(MovedHandler);
+        hashCode.Add(WebMessageReceivedHandler);
+        hashCode.Add(CustomSchemeNames);
+        hashCode.Add(CustomSchemeHandler);
+        hashCode.Add(Left);
+        hashCode.Add(Top);
+        hashCode.Add(Width);
+        hashCode.Add(Height);
+        hashCode.Add(Zoom);
+        hashCode.Add(MinWidth);
+        hashCode.Add(MinHeight);
+        hashCode.Add(MaxWidth);
+        hashCode.Add(MaxHeight);
+        hashCode.Add(CenterOnInitialize);
+        hashCode.Add(Chromeless);
+        hashCode.Add(Transparent);
+        hashCode.Add(ContextMenuEnabled);
+        hashCode.Add(DevToolsEnabled);
+        hashCode.Add(FullScreen);
+        hashCode.Add(Maximized);
+        hashCode.Add(Minimized);
+        hashCode.Add(Resizable);
+        hashCode.Add(Topmost);
+        hashCode.Add(UseOsDefaultLocation);
+        hashCode.Add(UseOsDefaultSize);
+        hashCode.Add(GrantBrowserPermissions);
+        hashCode.Add(MediaAutoplayEnabled);
+        hashCode.Add(FileSystemAccessEnabled);
+        hashCode.Add(WebSecurityEnabled);
+        hashCode.Add(JavascriptClipboardAccessEnabled);
+        hashCode.Add(MediaStreamEnabled);
+        hashCode.Add(SmoothScrollingEnabled);
+        hashCode.Add(IgnoreCertificateErrorsEnabled);
+        hashCode.Add(NotificationsEnabled);
+        hashCode.Add(Size);
+        return hashCode.ToHashCode();
+    }
+    public static bool operator ==(PhotinoNativeParameters left, PhotinoNativeParameters right) {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(PhotinoNativeParameters left, PhotinoNativeParameters right) {
+        return !(left == right);
+    }
 }
