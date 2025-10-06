@@ -10,6 +10,7 @@ using Tests.InfiniLore.Photino.NET.TestUtilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class IconFilePathTests {
     private const string IconFilePath = "Assets/favicon.ico";
+    private const string InvalidIconFilePath = "invalid.ico";
     
     [Test]
     public async Task Builder_ShouldSetIconFilePath() {
@@ -28,6 +29,20 @@ public class IconFilePathTests {
     }
 
     [Test]
+    public async Task Builder_ShouldNotSetInvalidIconFilePath() {
+        // Arrange
+        var builder = PhotinoWindowBuilder.Create();
+        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration().ToParameters();
+        
+        // Act
+        builder.SetIconFile(InvalidIconFilePath);
+
+        // Assert
+        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(null);
+        await Assert.That(builder.Configuration.ToParameters()).IsEqualTo(expectedConfigParameters);
+    }
+
+    [Test]
     [SkipUtility.OnMacOs]
     public async Task Window_ShouldSetIconFilePath() {
         // Arrange
@@ -39,6 +54,20 @@ public class IconFilePathTests {
 
         // Assert
         await Assert.That(window.IconFilePath).IsEqualTo(IconFilePath);
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    public async Task Window_ShouldNotSetInvalidIconFilePath() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+        
+        // Act
+        window.SetIconFile(InvalidIconFilePath);
+
+        // Assert
+        await Assert.That(window.IconFilePath).IsEqualTo(null);
     }
     
     [Test]
