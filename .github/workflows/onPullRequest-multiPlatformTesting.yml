@@ -336,15 +336,19 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    # Function to get status directly from job result or platform enablement
+                    # Function to determine status based on job result and whether it was enabled
                     get_platform_status() {
                         local job_result=$1
                         local was_enabled=$2
 
                         if [[ "$was_enabled" != "true" ]]; then
-                            echo "skipped"
+                            echo "success|skipped"
+                        elif [[ "$job_result" == "success" ]]; then
+                            echo "success|passed"
+                        elif [[ "$job_result" == "skipped" ]]; then
+                            echo "success|skipped"
                         else
-                            echo "$job_result"
+                            echo "failure|failed"
                         fi
                     }
 
@@ -353,28 +357,36 @@ jobs:
                     WINDOWS_STATUS=$(get_platform_status "${{ needs.windows-gui.result }}" "${{ github.event.inputs.run_windows }}")
                     MACOS_STATUS=$(get_platform_status "${{ needs.macos-gui.result }}" "${{ github.event.inputs.run_macos }}")
 
+                    # Extract state and description for each platform
+                    LINUX_STATE="${LINUX_STATUS%|*}"
+                    LINUX_DESC="${LINUX_STATUS#*|}"
+                    WINDOWS_STATE="${WINDOWS_STATUS%|*}"
+                    WINDOWS_DESC="${WINDOWS_STATUS#*|}"
+                    MACOS_STATE="${MACOS_STATUS%|*}"
+                    MACOS_DESC="${MACOS_STATUS#*|}"
+
                     # Post status for Linux
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$LINUX_STATUS\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"Linux tests\"}"
+                      -d "{\"state\":\"$LINUX_STATE\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"Linux tests $LINUX_DESC\"}"
 
                     # Post status for Windows  
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$WINDOWS_STATUS\",\"context\":\"Manual MultiPlatform CI - Windows\",\"description\":\"Windows tests\"}"
+                      -d "{\"state\":\"$WINDOWS_STATE\",\"context\":\"Manual MultiPlatform CI - Windows\",\"description\":\"Windows tests $WINDOWS_DESC\"}"
 
                     # Post status for macOS
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$MACOS_STATUS\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"macOS tests\"}"
+                      -d "{\"state\":\"$MACOS_STATE\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"macOS tests $MACOS_DESC\"}"
 
                     echo "Posted status for all platforms:"
-                    echo "- Linux: $LINUX_STATUS"
-                    echo "- Windows: $WINDOWS_STATUS" 
-                    echo "- macOS: $MACOS_STATUS"
+                    echo "- Linux: $LINUX_STATE ($LINUX_DESC)"
+                    echo "- Windows: $WINDOWS_STATE ($WINDOWS_DESC)" 
+                    echo "- macOS: $MACOS_STATE ($MACOS_DESC)"
