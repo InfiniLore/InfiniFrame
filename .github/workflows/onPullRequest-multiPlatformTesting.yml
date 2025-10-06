@@ -309,10 +309,6 @@ jobs:
                     export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
                     export NSUnbufferedIO=YES
 
-                    # Critical: Force GUI operations to run on main thread
-                    export DOTNET_RUNNING_IN_CONTAINER=true
-                    export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
-
                     echo "=== Running Tests with main thread enforcement ==="
 
                     # Run tests with explicit main thread handling
@@ -321,8 +317,7 @@ jobs:
                         --configuration Release \
                         --no-build \
                         --no-restore \
-                        --logger "console;verbosity=detailed" \
-                        -- RunConfiguration.DisableAppDomain=true
+                        --logger "console;verbosity=detailed"
 
     update-status:
         name: Update Manual CI Status
