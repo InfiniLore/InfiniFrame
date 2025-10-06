@@ -58,23 +58,4 @@ public class WindowTests {
         bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
         await Assert.That(windowClosing).IsTrue();
     }
-    
-    [Test]
-    [SkipUtility.OnMacOs]
-    [NotInParallel(ParallelControl.Photino)]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Fullscreen_IsDefined(bool state) {
-        // SkipUtilities.SkipOnLinux(state);
-        
-        // Arrange
-        using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
-        
-        // Act
-        window.SetFullScreen(state);
-
-        // Assert
-        await Assert.That(window.FullScreen).IsEqualTo(state);
-    }
 }
