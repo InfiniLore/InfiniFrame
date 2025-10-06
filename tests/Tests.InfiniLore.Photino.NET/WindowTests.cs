@@ -2,7 +2,6 @@
 
 namespace Tests.InfiniLore.Photino.NET;
 
-[ParallelLimiter<PhotinoParallelLimit>]
 public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
