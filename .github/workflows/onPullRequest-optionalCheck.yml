@@ -18,4 +18,4 @@ jobs:
                   echo "✅ Optional check registered successfully."
 
             - name: Mark as skipped (neutral)
-              run: exit 78
+              run: exit 0
