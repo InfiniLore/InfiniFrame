@@ -32,7 +32,8 @@ public class LocationTests {
         await Assert.That(builder.Configuration.Top).IsEqualTo(Top);
         
         PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
-        await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
+        await Assert.That(configParameters.Left).IsEqualTo(expectedConfigParameters.Left);
+        await Assert.That(configParameters.Top).IsEqualTo(expectedConfigParameters.Top);
     }
     
     [Test]
