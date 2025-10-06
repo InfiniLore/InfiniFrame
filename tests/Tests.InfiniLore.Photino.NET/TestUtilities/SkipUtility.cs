@@ -6,7 +6,7 @@ namespace Tests.InfiniLore.Photino.NET.TestUtilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class SkipUtilities {
+public static class SkipUtility {
     #region Attributes
     public class OnLinuxAttribute() : SkipAttribute("This test is not supported on Linux environments") {
         public override Task<bool> ShouldSkip(TestRegisteredContext context)

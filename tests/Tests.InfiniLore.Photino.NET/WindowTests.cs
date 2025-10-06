@@ -38,7 +38,7 @@ public class WindowTests {
     [Arguments(true)]
     [Arguments(false)]
     public async Task Maximize_IsDefined(bool state) {
-        SkipUtilities.SkipOnLinux(state);
+        SkipUtility.SkipOnLinux(state);
         
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
@@ -56,7 +56,7 @@ public class WindowTests {
     [Arguments(true)]
     [Arguments(false)]
     public async Task Minimize_IsDefined(bool state) {
-        SkipUtilities.SkipOnLinux(state);
+        SkipUtility.SkipOnLinux(state);
         
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
