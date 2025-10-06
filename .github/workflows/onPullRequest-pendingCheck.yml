@@ -1,0 +1,16 @@
+﻿name: Pending Check (Manual CI)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  wait-for-manual:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+      - name: Post pending message
+        run: |
+          echo "This PR requires manual CI approval."
+          echo "Use 'Run workflow' → MultiPlatform Testing to start tests."

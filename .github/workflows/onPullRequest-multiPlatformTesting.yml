@@ -2,9 +2,10 @@ name: MultiPlatform Testing
 
 on:
     workflow_dispatch:
-    pull_request:
-        types: [ opened, synchronize, reopened, ready_for_review ]
-        branches: [ master ]
+        inputs:
+            pr_number:
+                description: 'PR number to test (use the PR number from the URL)'
+                required: true
 
 jobs:
     # ---------------------------------------------------------------------------------------
@@ -15,6 +16,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v5
+                with:
+                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v4

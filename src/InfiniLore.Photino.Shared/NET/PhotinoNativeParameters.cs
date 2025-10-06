@@ -232,17 +232,18 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         && BrowserControlInitParameters == other.BrowserControlInitParameters
         && NotificationRegistrationId == other.NotificationRegistrationId
         && NativeParent == other.NativeParent
-        && ClosingHandler.Equals(other.ClosingHandler)
-        && FocusInHandler.Equals(other.FocusInHandler)
-        && FocusOutHandler.Equals(other.FocusOutHandler)
-        && ResizedHandler.Equals(other.ResizedHandler)
-        && MaximizedHandler.Equals(other.MaximizedHandler)
-        && RestoredHandler.Equals(other.RestoredHandler)
-        && MinimizedHandler.Equals(other.MinimizedHandler)
-        && MovedHandler.Equals(other.MovedHandler)
-        && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
-        && CustomSchemeNames.Equals(other.CustomSchemeNames)
-        && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
+        // Handlers are not checked because they are set by the constructor and are not user-configurable.
+        // && ClosingHandler.Equals(other.ClosingHandler)
+        // && FocusInHandler.Equals(other.FocusInHandler)
+        // && FocusOutHandler.Equals(other.FocusOutHandler)
+        // && ResizedHandler.Equals(other.ResizedHandler)
+        // && MaximizedHandler.Equals(other.MaximizedHandler)
+        // && RestoredHandler.Equals(other.RestoredHandler)
+        // && MinimizedHandler.Equals(other.MinimizedHandler)
+        // && MovedHandler.Equals(other.MovedHandler)
+        // && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
+        && CustomSchemeNames.All(other.CustomSchemeNames.Contains)
+        // && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
         && Left == other.Left
         && Top == other.Top
         && Width == other.Width
