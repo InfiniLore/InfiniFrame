@@ -21,64 +21,31 @@ jobs:
                 with:
                     dotnet-version: '9.x'
 
-            -   name: Install GUI dependencies and desktop environment
-                run: |
-                    sudo apt-get update
-                    export DEBIAN_FRONTEND=noninteractive
-                    sudo apt-get install -y \
-                        xvfb \
-                        x11-apps \
-                        x11-xserver-utils \
-                        xfonts-100dpi \
-                        xfonts-75dpi \
-                        xfonts-scalable \
-                        xfonts-cyrillic \
-                        metacity \
-                        dbus-x11 \
-                        at-spi2-core \
-                        libnotify4 \
-                        libwebkit2gtk-4.1-dev \
-                        libgtk-3-dev \
-                        libglib2.0-dev \
-                        libgdk-pixbuf2.0-dev \
-                        libpango1.0-dev \
-                        libatk1.0-dev \
-                        libharfbuzz-dev \
-                        libepoxy-dev \
-                        libx11-dev \
-                        x11-utils
-
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
 
             -   name: Build (Release)
                 run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
 
-            -   name: Start desktop environment and run tests
-                run: |
-                    echo "Starting virtual desktop environment with window manager..."
-                    # Start D-Bus session
-                    export $(dbus-launch)
+            -   name: Run GUI tests
+                uses: coactions/setup-xvfb@v1
+                with:
+                    run: |
+                        # Install dependencies
+                        sudo apt-get update
+                        sudo apt-get install -y mutter libnotify4 libwebkit2gtk-4.1-dev libgtk-3-dev \
+                                                libglib2.0-dev libgdk-pixbuf2.0-dev libpango1.0-dev \
+                                                libatk1.0-dev libharfbuzz-dev libepoxy-dev libx11-dev x11-utils
 
-                    # Start Xvfb with larger screen
-                    Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX > /dev/null 2>&1 &
-                    export DISPLAY=:99
+                        # Start window manager
+                        mutter --wayland --nested &
+                        sleep 5
 
-                    # Start metacity window manager
-                    metacity --replace > /dev/null 2>&1 &
-
-                    # Wait for window manager to fully start
-                    sleep 10
-
-                    # Verify X server is working
-                    xdpyinfo
-
-                    # Run tests
-                    echo "Running tests..."
-                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
-                    --configuration Release \
-                    --no-build \
-                    --no-restore
+                        # Run tests
+                        dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                        --configuration Release \
+                        --no-build \
+                        --no-restore
 
     # ---------------------------------------------------------------------------------------
     # Windows
