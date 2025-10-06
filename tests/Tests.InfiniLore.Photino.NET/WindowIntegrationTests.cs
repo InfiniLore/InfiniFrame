@@ -9,6 +9,7 @@ using Tests.InfiniLore.Photino.NET.TestUtilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowIntegrationTests {
+    [STAThread]
     [Test]
     public async Task IconFilePath() {
         // Arrange

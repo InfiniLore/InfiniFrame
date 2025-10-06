@@ -12,6 +12,7 @@ public class WindowBuilderTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
+    [STAThread]
     [Test]
     public async Task SetLocation_ShouldOverwriteOsDefaultLocation() {
         // Arrange
@@ -38,6 +39,7 @@ public class WindowBuilderTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
     
+    [STAThread]
     [Test]
     public async Task SetSize_ShouldOverwriteOsDefaultSize() {
         // Arrange
@@ -64,6 +66,7 @@ public class WindowBuilderTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 
+    [STAThread]
     [Test]
     public async Task SetIconFilepath() {
         // Arrange

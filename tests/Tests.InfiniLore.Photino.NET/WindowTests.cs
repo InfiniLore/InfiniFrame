@@ -7,6 +7,7 @@ public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
+    [STAThread]
     [Test]
     [NotInParallel(ParallelControl.Photino)]
     public async Task InstanceHandle_IsDefined() {
@@ -20,6 +21,7 @@ public class WindowTests {
         await Assert.That(window.InstanceHandle).IsNotDefault();
     }
     
+    [STAThread]
     [Test]
     [NotInParallel(ParallelControl.Photino)]
     public async Task NativeType_IsDefined() {
@@ -32,7 +34,8 @@ public class WindowTests {
         // Assert
         await Assert.That(window.NativeType).IsNotDefault();
     }
-    
+   
+    [STAThread] 
     [Test]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
@@ -51,6 +54,7 @@ public class WindowTests {
         await Assert.That(window.Maximized).IsEqualTo(state);
     }
     
+    [STAThread]
     [Test]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
@@ -70,6 +74,7 @@ public class WindowTests {
     }
     
     
+    [STAThread]
     [Test]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Close_IsDefined() {
@@ -93,6 +98,7 @@ public class WindowTests {
         await Assert.That(windowClosing).IsTrue();
     }
     
+    [STAThread]
     [Test]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
@@ -111,6 +117,7 @@ public class WindowTests {
         await Assert.That(window.FullScreen).IsEqualTo(state);
     }
 
+    [STAThread]
     [Test]
     public async Task IconFilePath_IsDefined() {
         const string iconFilePath = "Assets/favicon.ico";
