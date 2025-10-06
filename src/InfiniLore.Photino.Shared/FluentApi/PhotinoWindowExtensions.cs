@@ -149,7 +149,6 @@ public static class PhotinoWindowExtensions {
     /// <param name="left">Position from left in pixels</param>
     /// <param name="top">Position from top in pixels</param>
     /// <param name="window">Photino window instance</param>
-    // ReSharper disable twice AccessToModifiedClosure
     public static T MoveWithinCurrentMonitorArea<T>(this T window,  int left, int top) where T : class, IPhotinoWindow {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
@@ -167,32 +166,31 @@ public static class PhotinoWindowExtensions {
             top = verticalWindowEdge > bottomBound
                 ? Math.Max(bottomBound - window.Height, topBound)
                 : Math.Max(top, topBound);
+            
+            // Bug:
+            // For some reason the vertical position is not handled correctly.
+            // Whenever a positive value is set, the window appears at the
+            // very bottom of the screen, and the only visible thing is the
+            // application window title bar. As a workaround we make a
+            // negative value out of the vertical position to "pull" the window up.
+            // Note:
+            // This behavior seems to be a macOS thing. In the Photino.Native
+            // project files it is commented to be expected behavior for macOS.
+            // There is some code trying to mitigate this problem, but it might
+            // not work as expected. Further investigation is necessary.
+            // Update:
+            // This behavior seems to have changed with macOS Sonoma.
+            // Therefore, we determine the version of macOS and only apply the
+            // workaround for older versions.
+            if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(23)) {
+                Size workArea = window.MainMonitor.WorkArea.Size;
+                top = top >= 0
+                    ? top - workArea.Height
+                    : top;
+            }
+            
+            PhotinoNative.SetPosition(window.InstanceHandle, left, top);
         });
-
-        // Bug:
-        // For some reason the vertical position is not handled correctly.
-        // Whenever a positive value is set, the window appears at the
-        // very bottom of the screen, and the only visible thing is the
-        // application window title bar. As a workaround we make a
-        // negative value out of the vertical position to "pull" the window up.
-        // Note:
-        // This behavior seems to be a macOS thing. In the Photino.Native
-        // project files it is commented to be expected behavior for macOS.
-        // There is some code trying to mitigate this problem, but it might
-        // not work as expected. Further investigation is necessary.
-        // Update:
-        // This behavior seems to have changed with macOS Sonoma.
-        // Therefore, we determine the version of macOS and only apply the
-        // workaround for older versions.
-        if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(23)) {
-            Size workArea = window.MainMonitor.WorkArea.Size;
-            top = top >= 0
-                ? top - workArea.Height
-                : top;
-        }
-
-        SetLocation(window, left, top);
-
         return window;
     }
 
