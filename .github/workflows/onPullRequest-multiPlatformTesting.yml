@@ -216,11 +216,113 @@ jobs:
                     --no-build `
                     --no-restore `
                     --logger "console;verbosity=detailed"
+
+    # ---------------------------------------------------------------------------------------
+    # macOS
+    # ---------------------------------------------------------------------------------------
+    macos-gui:
+        needs: mark-pending
+        name: Build & Test - macOS
+        runs-on: macos-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v5
+              with:
+                  ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+
+            - name: Setup .NET 9 SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '9.x'
+
+            # Cache .NET packages
+            - name: Cache .NET packages
+              uses: actions/cache@v4
+              with:
+                  path: ~/.nuget/packages
+                  key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nuget-
+
+            # Cache .NET build output
+            - name: Cache .NET build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      **/bin
+                      **/obj
+                  key: ${{ runner.os }}-build-${{ hashFiles('**/*.cs', '**/*.csproj', '**/*.props') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-
+
+            - name: Install macOS GUI dependencies
+              run: |
+                  echo "Installing macOS GUI testing dependencies..."
+                  # Install Xvfb for headless GUI testing
+                  brew install --cask xquartz
+                  
+                  # Wait for XQuartz to be available
+                  echo "Waiting for XQuartz installation..."
+                  sleep 5
+
+            - name: Restore dependencies (cached)
+              run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+
+            - name: Build (Release) (cached)
+              run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+
+            - name: Setup GUI environment and run tests
+              run: |
+                  echo "Setting up macOS GUI environment..."
+                  
+                  # Set up display environment for headless GUI testing
+                  export DISPLAY=:99
+                  
+                  # Start Xvfb in the background for headless GUI testing
+                  # Note: XQuartz provides the X11 server on macOS
+                  /usr/X11/bin/Xvfb :99 -screen 0 1920x1080x24 -ac &
+                  XVFB_PID=$!
+                  
+                  # Wait for X server to start
+                  echo "Waiting for X server to start..."
+                  sleep 5
+                  
+                  # Verify X server is running
+                  if ps -p $XVFB_PID > /dev/null; then
+                      echo "✓ Xvfb is running (PID: $XVFB_PID)"
+                  else
+                      echo "✗ Failed to start Xvfb"
+                      # Try without Xvfb - some macOS GUI apps can run without X11
+                      echo "Proceeding without X11 server..."
+                      unset DISPLAY
+                  fi
+                  
+                  # Verify setup
+                  echo "=== Environment Status ==="
+                  echo "Display: ${DISPLAY:-'None (native macOS)'}"
+                  echo "System: $(sw_vers -productName) $(sw_vers -productVersion)"
+                  echo "Architecture: $(uname -m)"
+                  
+                  # Check for GUI capabilities
+                  if command -v xdpyinfo >/dev/null 2>&1 && [ -n "$DISPLAY" ]; then
+                      echo "X11 info:"
+                      xdpyinfo | head -3 || echo "xdpyinfo failed"
+                  else
+                      echo "Running in native macOS mode (no X11)"
+                  fi
+                  
+                  echo "=== Running Tests ==="
+                  dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --logger "console;verbosity=detailed"
                   
     update-status:
         name: Update Manual CI Status
         runs-on: ubuntu-latest
-        needs: [ linux-gui, windows-gui ]
+        needs: [ linux-gui, windows-gui, macos-gui ]
         permissions:
             statuses: write
         steps:
@@ -229,14 +331,14 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    if [[ "${{ needs.linux-gui.result }}" == "success" && "${{ needs.windows-gui.result }}" == "success" ]]; then
+                    if [[ "${{ needs.linux-gui.result }}" == "success" && "${{ needs.windows-gui.result }}" == "success" && "${{ needs.macos-gui.result }}" == "success" ]]; then
                       STATUS="success"
                       DESCRIPTION="MultiPlatform tests passed"
                     else
                       STATUS="failure"
                       DESCRIPTION="One or more platforms failed"
                     fi
-                    
+
                     echo "Posting $STATUS to PR"
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \

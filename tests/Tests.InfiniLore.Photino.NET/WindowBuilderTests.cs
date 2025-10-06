@@ -34,7 +34,6 @@ public class WindowBuilderTests {
         await Assert.That(builder.Configuration.UseOsDefaultLocation).IsEqualTo(false);
         
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
-        
     }
     
     [Test]
