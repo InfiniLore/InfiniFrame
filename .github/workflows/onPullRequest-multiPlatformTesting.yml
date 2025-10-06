@@ -92,8 +92,8 @@ jobs:
                 run: |
                     echo "Starting desktop environment..."
                     
-                    # Start D-Bus session
-                    export $(dbus-launch --sh-syntax)
+                    # Start D-Bus session (fixed syntax)
+                    eval $(dbus-launch --sh-syntax)
                     
                     # Start Xvfb
                     Xvfb :99 \
@@ -138,6 +138,7 @@ jobs:
                     echo "Display: $DISPLAY"
                     echo "Desktop: $XDG_CURRENT_DESKTOP"
                     echo "Session: $XDG_SESSION_DESKTOP"
+                    echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
                     
                     echo "X11 info:"
                     xdpyinfo | head -3 || echo "xdpyinfo failed"
