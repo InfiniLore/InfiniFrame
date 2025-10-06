@@ -170,6 +170,8 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
+              with:
+                  ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             - name: Setup .NET 9 SDK
               uses: actions/setup-dotnet@v4
