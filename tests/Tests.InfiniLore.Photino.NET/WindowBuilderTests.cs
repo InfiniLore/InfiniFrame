@@ -27,7 +27,6 @@ public class WindowBuilderTests {
         builder.SetUseOsDefaultLocation(true);
         builder.SetLocation(10, 20);
         
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
 
         // Assert
         await Assert.That(builder.Configuration.Left).IsEqualTo(10);
@@ -35,6 +34,7 @@ public class WindowBuilderTests {
         await Assert.That(builder.Configuration.UseOsDefaultLocation).IsEqualTo(false);
         await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
         
+        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
     
@@ -53,7 +53,6 @@ public class WindowBuilderTests {
         builder.SetUseOsDefaultSize(true);
         builder.SetSize(10, 20);
         
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
 
         // Assert
         await Assert.That(builder.Configuration.Width).IsEqualTo(10);
@@ -61,6 +60,24 @@ public class WindowBuilderTests {
         await Assert.That(builder.Configuration.UseOsDefaultSize).IsEqualTo(false);
         await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
         
+        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
+    }
+
+    [Test]
+    public async Task SetIconFilepath() {
+        // Arrange
+        const string iconFilePath = "Assets/favicon.ico";
+        var builder = PhotinoWindowBuilder.Create();
+        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration() {
+            IconFilePath = iconFilePath
+        }.ToParameters();
+        
+        // Act
+        builder.SetIconFile(iconFilePath);
+
+        // Assert
+        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(iconFilePath);
+        await Assert.That(builder.Configuration.ToParameters()).IsEqualTo(expectedConfigParameters);
     }
 }
