@@ -72,8 +72,6 @@ public class WindowTests {
     [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Close_IsDefined() {
-        // SkipUtilities.SkipOnLinux();
-        
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
         var windowUtility = WindowTestUtility.Create(
