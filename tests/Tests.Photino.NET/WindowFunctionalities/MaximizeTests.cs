@@ -45,6 +45,26 @@ public class MaximizeTests {
         // Assert
         await Assert.That(window.Maximized).IsEqualTo(state);
     }
+    
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Window_Toggle(bool state) {
+        SkipUtility.SkipOnLinux(state);
+        
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Act
+        window.SetMaximized(state);
+        window.ToggleMaximized();
+
+        // Assert
+        await Assert.That(window.Maximized).IsEqualTo(!state);
+    }
 
     [Test]
     [SkipUtility.OnMacOs]
