@@ -70,6 +70,22 @@ public class SizeTests {
         // Assert
         await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
     }
+    
+    [Test]
+    [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Window_AsSize() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Act
+        window.SetSize(new Size(400, 500));
+
+        // Assert
+        await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
+    }
 
     [Test]
     [SkipUtility.OnMacOs]
