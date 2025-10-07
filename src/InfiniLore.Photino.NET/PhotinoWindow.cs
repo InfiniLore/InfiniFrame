@@ -330,7 +330,7 @@ public sealed class PhotinoWindow(
     ///     Default is "Photino".
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, PhotinoNative.GetTitle);
+    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, PhotinoNative.GetTitle) ?? string.Empty;
 
     /// <summary>
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
