@@ -8,72 +8,59 @@ namespace Tests.Photino.NET.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class TitleTests {
+public class TopMostTests {
 
     [Test]
-    [Arguments("")]
-    [Arguments(null)]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
-    public async Task Builder(string? title) {
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Builder(bool state) {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
 
         // Act
-        builder.SetTitle(title);
+        builder.SetTopMost(state);
 
         // Assert
-        if (title is null) await Assert.That(builder.Configuration.Title).IsEqualTo(string.Empty);
-        else await Assert.That(builder.Configuration.Title).IsEqualTo(title);
-        
+        await Assert.That(builder.Configuration.TopMost).IsEqualTo(state);
+
         PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
-        if (title is null) await Assert.That(configParameters.Title).IsEqualTo(string.Empty);
-        else await Assert.That(configParameters.Title).IsEqualTo(title);
+        await Assert.That(configParameters.Topmost).IsEqualTo(state);
     }
     
     [Test]
     [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
-    [Arguments("")]
-    [Arguments(null)]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
-    public async Task Window(string? title) {
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Window(bool state) {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
 
         // Act
-        window.SetTitle(title);
+        window.SetTopMost(state);
 
         // Assert
-        if (title is null) await Assert.That(window.Title).IsEmpty();
-        else await Assert.That(window.Title).IsEqualTo(title);
+        await Assert.That(window.TopMost).IsEqualTo(state);
     }
 
     [Test]
     [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
-    [Arguments("")]
-    [Arguments(null)]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
-    public async Task FullIntegration(string? title) {
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task FullIntegration(bool state) {
         // Arrange
 
         // Act
         using var windowUtility = WindowTestUtility.Create(
             builder => builder
-                .SetTitle(title)
+                .SetTopMost(state)
         );
         IPhotinoWindow window = windowUtility.Window;
 
         // Assert
-        if (title is null) await Assert.That(window.Title).IsEmpty();
-        else await Assert.That(window.Title).IsEqualTo(title);
+        await Assert.That(window.TopMost).IsEqualTo(state);
     }
     
 }

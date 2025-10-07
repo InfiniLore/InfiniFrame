@@ -284,15 +284,15 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets Title on the browser control at initialization.
     /// </summary>
     public static T SetTitle<T>(this T builder, string? title) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Title = title;
+        builder.Configuration.Title = title ?? string.Empty;
         return builder;
     }
 
     /// <summary>
     ///     Sets TopMost on the browser control at initialization.
     /// </summary>
-    public static T SetTopMost<T>(this T builder, bool resizable) where T : IPhotinoWindowBuilder {
-        builder.Configuration.TopMost = resizable;
+    public static T SetTopMost<T>(this T builder, bool topmost) where T : IPhotinoWindowBuilder {
+        builder.Configuration.TopMost = topmost;
         return builder;
     }
 
