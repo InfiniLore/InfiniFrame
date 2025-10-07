@@ -9,7 +9,6 @@ namespace Tests.Photino.NET.TestUtilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowTestUtility : IDisposable {
     public required IPhotinoWindow Window { get; init; }
-    private Thread? WaitThread { get; set; }
 
     public static WindowTestUtility Create(Action<IPhotinoWindowBuilder>? builder = null) {
         var windowBuilder = PhotinoWindowBuilder.Create();
@@ -21,26 +20,15 @@ public class WindowTestUtility : IDisposable {
         var utility =  new WindowTestUtility {
             Window = windowBuilder.Build()
         };
-        
-        utility.WaitThread = new Thread(utility.Window.WaitForClose) {
-            IsBackground = true,
-            Name = "WindowTestUtility"
-        };
-        utility.WaitThread.Start();
+
+        _ = Task.Run(utility.Window.WaitForClose);
 
         return utility; 
     }
     
     public void Dispose() {
-        Window.Close();
-
         try {
-            if (WaitThread is not { IsAlive: true }) return;
-            if (WaitThread.Join(TimeSpan.FromMilliseconds(100))) return;
-            WaitThread.Interrupt();
-        }
-        catch (Exception ex) {
-            Console.WriteLine($"[WindowTestUtility] Dispose error: {ex}");
+            Window.Close();
         }
         finally {
             GC.SuppressFinalize(this);    
