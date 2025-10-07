@@ -37,7 +37,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public string? StartString { get; set; }
     public string? StartUrl { get; set; }
     public string? TemporaryFilesPath { get; set; } = Path.Combine(Path.GetTempPath(), "photino");
-    public string? Title { get; set; } = "Photino";
+    public string Title { get; set; } = "Photino";
     public int Top { get; set; }
     public bool TopMost { get; set; }
     public bool Transparent { get; set; }

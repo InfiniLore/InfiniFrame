@@ -33,7 +33,7 @@ public interface IPhotinoConfiguration : IPhotinoWindowBase {
     new string? StartString { get; set; }
     new string? TemporaryFilesPath { get; set; }
     new string? NotificationRegistrationId { get; set; }
-    new string? Title { get; set; }
+    new string Title { get; set; }
     new bool TopMost { get; set; }
     bool UseOsDefaultLocation { get; set; }
     bool UseOsDefaultSize { get; set; }

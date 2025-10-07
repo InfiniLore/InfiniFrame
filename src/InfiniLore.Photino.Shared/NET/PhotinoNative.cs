@@ -365,9 +365,9 @@ public static partial class PhotinoNative {
         userAgent = Marshal.PtrToStringAuto(ptr);
     }
 
-    internal static void GetTitle(IntPtr instance, out string? title) {
+    internal static void GetTitle(IntPtr instance, out string title) {
         IntPtr ptr = GetTitle(instance);
-        title = Marshal.PtrToStringAuto(ptr);
+        title = Marshal.PtrToStringAuto(ptr) ?? string.Empty; // The way on how photino works internally is that the title is always an empty string when we set it to null on our end.
     }
     #endregion
 }
