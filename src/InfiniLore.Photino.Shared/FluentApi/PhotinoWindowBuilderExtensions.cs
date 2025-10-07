@@ -342,6 +342,7 @@ public static class PhotinoWindowBuilderExtensions {
         // Overrides the os defaults for you, as it does not work together on windows with chromeless
         builder.Configuration.UseOsDefaultLocation = !chromeless && builder.Configuration.UseOsDefaultLocation;
         builder.Configuration.UseOsDefaultSize = !chromeless && builder.Configuration.UseOsDefaultSize;
+        builder.Configuration.Resizable = !chromeless && builder.Configuration.Resizable;
 
         return builder;
     }
