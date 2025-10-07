@@ -414,4 +414,9 @@ public static class PhotinoWindowBuilderExtensions {
         builder.Configuration.ContextMenuEnabled = enabled;
         return builder;
     }
+    
+    public static T SetDevToolsEnabled<T>(this T builder, bool enabled) where T : IPhotinoWindowBuilder {
+        builder.Configuration.DevToolsEnabled = enabled;
+        return builder;
+    }
 }
