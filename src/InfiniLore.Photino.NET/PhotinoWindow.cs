@@ -110,7 +110,9 @@ public sealed class PhotinoWindow(
     ///     On Windows, thrown if trying to set a value after a native window is initialized.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Transparent => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
+    public bool Transparent => OperatingSystem.IsWindows() 
+        ? StartupParameters.Transparent // on windows it can only be set at startup
+        :  InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's context menu.

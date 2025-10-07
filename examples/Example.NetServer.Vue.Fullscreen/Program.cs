@@ -18,6 +18,7 @@ public static class Program {
 
         IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
             .Center()
+            .SetTransparent(true)
             // .SetUseOsDefaultSize(false)
             .SetTitle("InfiniLore Photino.NET VUE Sample")
             .SetSize(new Size(800, 600))

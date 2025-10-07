@@ -29,7 +29,6 @@ public class TransparentTests {
     
     [Test]
     [SkipUtility.OnMacOs]
-    [SkipUtility.OnWindows] // TODO - Fix this test on Windows
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -42,12 +41,12 @@ public class TransparentTests {
         window.SetTransparent(true);
 
         // Assert
+        if (OperatingSystem.IsWindows()) state = false; // Windows does not support transparency after initialization
         await Assert.That(window.Transparent).IsEqualTo(state);
     }
     
     [Test]
     [SkipUtility.OnMacOs]
-    [SkipUtility.OnWindows] // TODO - Fix this test on Windows
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

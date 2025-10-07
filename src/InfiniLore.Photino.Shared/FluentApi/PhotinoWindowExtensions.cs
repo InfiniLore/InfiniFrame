@@ -139,7 +139,7 @@ public static class PhotinoWindowExtensions {
     }
     #endregion
 
-    #region MoveTo
+    #region MoveWithinCurrentMonitorArea
     /// <summary>
     ///     Moves the native window to the specified location on the screen in pixels using a Point.
     /// </summary>
