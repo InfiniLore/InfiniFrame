@@ -61,7 +61,6 @@ public class DevToolsTests {
                 .SetDevToolsEnabled(state)
         );
         IPhotinoWindow window = windowUtility.Window;
-        Thread.Sleep(5000);
         
         // Assert
         bool foundState = window.DevToolsEnabled;
