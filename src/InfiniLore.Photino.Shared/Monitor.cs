@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 
 namespace InfiniLore.Photino;
+
 // ReSharper disable twice NotAccessedPositionalProperty.Global
 /// <summary>
 ///     Represents information about a monitor.

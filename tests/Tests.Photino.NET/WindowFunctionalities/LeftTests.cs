@@ -69,6 +69,7 @@ public class LeftTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange

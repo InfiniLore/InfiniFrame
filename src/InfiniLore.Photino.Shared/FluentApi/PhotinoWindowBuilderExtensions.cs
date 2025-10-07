@@ -2,6 +2,8 @@
 
 // ReSharper disable once CheckNamespace
 namespace InfiniLore.Photino.NET;
+using InfiniLore.Photino.Utilities;
+
 public static class PhotinoWindowBuilderExtensions {
     public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
         builder.Configuration.MediaAutoplayEnabled = enable;

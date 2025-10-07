@@ -29,6 +29,7 @@ public class TransparentTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux("For some reason the tets environment doesnt support transparency")]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

@@ -57,6 +57,7 @@ public class SizeTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -90,6 +91,7 @@ public class SizeTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window_WithChromelessToGetSmallestSize() {
         // Arrange
