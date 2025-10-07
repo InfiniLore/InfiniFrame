@@ -597,9 +597,16 @@ public static class PhotinoWindowExtensions {
     ///<summary>Native window maximum Width and Height in pixels.</summary>
     public static T SetMaxSize<T>(this T window, int maxWidth, int maxHeight) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
+        
+        window.MaxWidth = maxWidth;
+        window.MaxHeight = maxHeight;
+        
         window.Invoke(() => PhotinoNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight));
         return window;
     }
+    
+    public static T SetMaxSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+        => SetMaxSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
     public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IPhotinoWindow {
