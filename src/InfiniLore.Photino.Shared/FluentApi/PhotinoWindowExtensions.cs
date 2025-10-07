@@ -609,20 +609,12 @@ public static class PhotinoWindowExtensions {
         => SetMaxSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
-    public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetMaxHeight({MaxHeight})", maxHeight);
-        window.MaxHeight = maxHeight;
-        window.Invoke(() => PhotinoNative.SetMaxSize(window.InstanceHandle, window.MaxWidth, maxHeight));
-        return window;
-    }
+    public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IPhotinoWindow 
+        => SetMaxSize(window, window.MaxWidth, maxHeight);
 
     ///<summary>Native window maximum Width in pixels.</summary>
-    public static T SetMaxWidth<T>(this T window, int maxWidth) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetMaxWidth({MaxWidth})", maxWidth);
-        window.MaxWidth = maxWidth;
-        window.Invoke(() => PhotinoNative.SetMaxSize(window.InstanceHandle, maxWidth, window.MaxHeight));
-        return window;
-    }
+    public static T SetMaxWidth<T>(this T window, int maxWidth) where T : class, IPhotinoWindow
+        => SetMaxSize(window, maxWidth, window.MaxHeight);
 
     /// <summary>
     ///     Sets whether the native window is minimized (hidden).
@@ -642,23 +634,24 @@ public static class PhotinoWindowExtensions {
     ///<summary>Native window maximum Width and Height in pixels.</summary>
     public static T SetMinSize<T>(this T window, int minWidth, int minHeight) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
+        
+        window.MinHeight = minHeight;
+        window.MinWidth = minWidth;
+        
         window.Invoke(() => PhotinoNative.SetMinSize(window.InstanceHandle, minWidth, minHeight));
         return window;
     }
+    
+    public static T SetMinSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+        => SetMinSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
-    public static T SetMinHeight<T>(this T window, int minHeight) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetMinHeight({MinHeight})", minHeight);
-        SetMinSize(window, window.MinWidth, minHeight);
-        return window;
-    }
+    public static T SetMinHeight<T>(this T window, int minHeight) where T : class, IPhotinoWindow
+        => SetMinSize(window, window.MinWidth, minHeight);
 
     ///<summary>Native window maximum Width in pixels.</summary>
-    public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetMinWidth({MinWidth})", minWidth);
-        SetMinSize(window, minWidth, window.MinHeight);
-        return window;
-    }
+    public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IPhotinoWindow 
+        => SetMinSize(window, minWidth, window.MinHeight);
 
     /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Title" />.

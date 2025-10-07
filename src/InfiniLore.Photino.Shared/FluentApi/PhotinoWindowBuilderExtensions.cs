@@ -183,12 +183,15 @@ public static class PhotinoWindowBuilderExtensions {
         return builder;
     }
     
-    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IPhotinoWindowBuilder {
-        builder.Configuration.MinHeight = minSize.Height;
-        builder.Configuration.MinWidth = minSize.Width;
+    public static T SetMinSize<T>(this T builder, int width, int height) where T : class, IPhotinoWindowBuilder {
+        builder.Configuration.MinHeight = Math.Max(0, height);
+        builder.Configuration.MinWidth = Math.Max(0, width);
         
         return builder;
     }
+    
+    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IPhotinoWindowBuilder 
+        => SetMinSize(builder, minSize.Width, minSize.Height);
 
     /// <summary>
     ///     Sets FullScreen on the browser control at initialization.
