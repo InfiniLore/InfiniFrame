@@ -82,10 +82,12 @@ public static partial class PhotinoNative {
     #endregion
 
     #region CTOR-DTOR
+    #pragma warning disable SYSLIB1054
     //Not useful to use LibraryImport when passing a user-defined type.
     //See https://stackoverflow.com/questions/77770231/libraryimport-the-type-is-not-supported-by-source-generated-p-invokes
     [DllImport(DllName, EntryPoint = Photino_ctor, CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Ansi)]
     internal static extern IntPtr Constructor(ref PhotinoNativeParameters parameters);
+    #pragma warning restore SYSLIB1054
 
     [LibraryImport(DllName, EntryPoint = Photino_dtor)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

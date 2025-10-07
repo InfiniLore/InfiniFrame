@@ -409,4 +409,9 @@ public static class PhotinoWindowBuilderExtensions {
         builder.Configuration.Centered = false;
         return builder;
     }
+    
+    public static T SetContextMenuEnabled<T>(this T builder, bool enabled) where T : IPhotinoWindowBuilder {
+        builder.Configuration.ContextMenuEnabled = enabled;
+        return builder;
+    }
 }
