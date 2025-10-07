@@ -386,6 +386,8 @@ public static class PhotinoWindowBuilderExtensions {
         if (builder.CustomSchemeHandlers.Count > 15 && !builder.CustomSchemeHandlers.ContainsKey(scheme)) throw new ApplicationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
         builder.CustomSchemeHandlers.TryAdd(scheme, null);
         builder.CustomSchemeHandlers[scheme] = handler;
+        
+        builder.Configuration.CustomSchemeNames.Add(scheme);
 
         return builder;
     }

@@ -2,6 +2,8 @@
 using Tests.Photino.NET.TestUtilities;
 
 namespace Tests.Photino.NET;
+using InfiniLore.Photino;
+using System.Collections.Immutable;
 
 public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
@@ -19,6 +21,37 @@ public class WindowTests {
 
         // Assert
         await Assert.That(window.InstanceHandle).IsNotDefault();
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task WindowHandle_IsDefined() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+        
+        // Act
+        IntPtr handle = window.WindowHandle;
+
+        // Assert
+        if (OperatingSystem.IsWindows()) await Assert.That(handle).IsNotDefault();
+        else await Assert.That(handle).IsEqualTo(IntPtr.Zero);
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Monitors_IsNotEmpty() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+        
+        // Act
+        ImmutableArray<Monitor> monitors = window.Monitors;
+
+        // Assert
+        await Assert.That(monitors).IsNotEmpty();
     }
     
     [Test]

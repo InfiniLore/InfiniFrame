@@ -37,7 +37,7 @@ public interface IPhotinoConfiguration : IPhotinoWindowBase {
     new bool TopMost { get; set; }
     bool UseOsDefaultLocation { get; set; }
     bool UseOsDefaultSize { get; set; }
-    string[] CustomSchemeNames { get; set; }
+    List<string> CustomSchemeNames { get; set; }
     new int Zoom { get; set; }
 
     PhotinoNativeParameters ToParameters();
