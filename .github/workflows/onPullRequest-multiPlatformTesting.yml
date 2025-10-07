@@ -208,6 +208,29 @@ jobs:
                         --no-build \
                         --no-restore \
                         --logger "console;verbosity=detailed"
+            
+            -   name: Display test logs on failure
+                if: failure()
+                run: |
+                    echo "=== Test Run Failed - Displaying Logs ==="
+                    
+                    # Find and display all test result log files
+                    find . -name "*.log" -path "*/TestResults/*" -type f | while read logfile; do
+                        echo "=== Content of $logfile ==="
+                        cat "$logfile" || echo "Could not read $logfile"
+                        echo ""
+                    done
+                    
+                    # Also look for TRX files which might contain detailed test results
+                    find . -name "*.trx" -path "*/TestResults/*" -type f | while read trxfile; do
+                        echo "=== Content of $trxfile ==="
+                        cat "$trxfile" || echo "Could not read $trxfile"
+                        echo ""
+                    done
+                    
+                    # List all files in TestResults directories for debugging
+                    echo "=== All files in TestResults directories ==="
+                    find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
 
             -   name: Update Linux status
                 if: always()
