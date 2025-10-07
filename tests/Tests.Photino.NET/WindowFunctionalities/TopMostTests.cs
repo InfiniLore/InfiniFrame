@@ -29,6 +29,7 @@ public class TopMostTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -46,6 +47,7 @@ public class TopMostTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

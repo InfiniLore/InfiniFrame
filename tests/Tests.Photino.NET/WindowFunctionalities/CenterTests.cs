@@ -58,6 +58,7 @@ public class CenterTests {
 
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

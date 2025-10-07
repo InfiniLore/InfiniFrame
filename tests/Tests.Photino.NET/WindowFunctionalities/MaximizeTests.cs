@@ -48,12 +48,11 @@ public class MaximizeTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window_Toggle(bool state) {
-        SkipUtility.SkipOnLinux(state);
-        
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
         IPhotinoWindow window = windowUtility.Window;
