@@ -56,7 +56,6 @@ public class LocationTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
     
-
     [Test]
     [SkipUtility.OnMacOs]
     [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
@@ -68,6 +67,22 @@ public class LocationTests {
 
         // Act
         window.SetLocation(Left, Top);
+
+        // Assert
+        await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
+    }
+    
+    [Test]
+    [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Window_AsPoint() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Act
+        window.SetLocation(new Point(Left, Top));
 
         // Assert
         await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));

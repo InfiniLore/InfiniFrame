@@ -471,10 +471,15 @@ public static class PhotinoWindowExtensions {
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
-    /// <param name="size">Width &amp; Height</param>
-    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
-        => SetSize(window, size.Width, size.Height);
+    /// <param name="width">Width in pixels</param>
+    /// <param name="height">Height in pixels</param>
+    public static T SetSize<T>(this T window, int width, int height) where T : class, IPhotinoWindow {
+        window.Logger.LogDebug(".SetSize({Width}, {Height})", width, height);
 
+        window.Invoke(() => PhotinoNative.SetSize(window.InstanceHandle, width, height));
+        return window;
+    }
+    
     /// <summary>
     ///     Sets the native window Size. This represents the <see cref="IPhotinoWindow.Width" /> and the
     ///     <see cref="IPhotinoWindow.Height" /> of the window in pixels.
@@ -484,14 +489,9 @@ public static class PhotinoWindowExtensions {
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
-    /// <param name="width">Width in pixels</param>
-    /// <param name="height">Height in pixels</param>
-    public static T SetSize<T>(this T window, int width, int height) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetSize({Width}, {Height})", width, height);
-
-        window.Invoke(() => PhotinoNative.SetSize(window.InstanceHandle, width, height));
-        return window;
-    }
+    /// <param name="size">Width &amp; Height</param>
+    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+        => SetSize(window, size.Width, size.Height);
     #endregion
     
     #region SetLocation
@@ -516,9 +516,8 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window"></param>
     /// <param name="location">Location as a <see cref="Point" /></param>
-    public static T SetLocation<T>(this T window, Point location) where T : class, IPhotinoWindow {
-        return SetLocation(window, location.X, location.Y);
-    }
+    public static T SetLocation<T>(this T window, Point location) where T : class, IPhotinoWindow 
+        => SetLocation(window, location.X, location.Y);
     #endregion
 
     /// <summary>
