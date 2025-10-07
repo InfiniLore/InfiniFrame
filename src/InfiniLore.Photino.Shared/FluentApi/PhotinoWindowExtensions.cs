@@ -813,8 +813,8 @@ public static class PhotinoWindowExtensions {
                 }
 
                 case ResizeOrigin.TopRight: {
-                    width += widthOffset;
                     y += heightOffset;
+                    width += widthOffset;
                     height -= heightOffset;
                     break;
                 }
