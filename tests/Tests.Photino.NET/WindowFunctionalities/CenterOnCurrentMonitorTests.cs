@@ -15,6 +15,7 @@ using System.Drawing;
 public class CenterOnCurrentMonitorTests {
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange

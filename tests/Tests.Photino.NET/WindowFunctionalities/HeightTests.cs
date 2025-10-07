@@ -53,6 +53,7 @@ public class HeightTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -86,6 +87,7 @@ public class HeightTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window_WithChromelessToGetSmallestHeight() {
         // Arrange

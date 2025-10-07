@@ -6,14 +6,14 @@ on:
             pr_number:
                 description: 'PR number to test (use the PR number from the URL)'
                 required: false
-            run_linux:
-                description: 'Run Linux GUI tests'
-                type: boolean
-                default: true
             run_windows:
                 description: 'Run Windows GUI tests'
                 type: boolean
                 default: true
+            run_linux:
+                description: 'Run Linux GUI tests'
+                type: boolean
+                default: false
             run_macos:
                 description: 'Run macOS GUI tests'
                 type: boolean

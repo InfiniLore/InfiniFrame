@@ -7,18 +7,22 @@ namespace Tests.Photino.NET.TestUtilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class SkipUtility {
+    #region Reasons
+    public const string LinuxMovement = "The current test environment does not properly support window moving";
+    #endregion
+    
     #region Attributes
-    public class OnLinuxAttribute() : SkipAttribute("This test is not supported on Linux environments") {
+    public class OnLinuxAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Linux environments") {
         public override Task<bool> ShouldSkip(TestRegisteredContext context)
             => Task.FromResult(OperatingSystem.IsLinux());
     }
 
-    public class OnWindowsAttribute() : SkipAttribute("This test is not supported on Windows environments") {
+    public class OnWindowsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
         public override Task<bool> ShouldSkip(TestRegisteredContext context)
             => Task.FromResult(OperatingSystem.IsWindows());
     }
         
-    public class OnMacOsAttribute() : SkipAttribute("This test is not supported on Mac OS environments") {
+    public class OnMacOsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Mac OS environments") {
         public override Task<bool> ShouldSkip(TestRegisteredContext context)
             => Task.FromResult(OperatingSystem.IsMacOS());
     }

@@ -13,6 +13,7 @@ public class OffsetTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
@@ -34,6 +35,7 @@ public class OffsetTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
@@ -55,6 +57,7 @@ public class OffsetTests {
     
     [Test]
     [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
