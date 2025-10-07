@@ -314,7 +314,7 @@ jobs:
                   
                   
                   # Construct the workflow run URL
-                  WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                   
                   $body = @{
                       state = $STATUS
