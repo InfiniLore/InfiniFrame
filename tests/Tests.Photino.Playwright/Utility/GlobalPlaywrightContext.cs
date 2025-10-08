@@ -21,6 +21,9 @@ public static class GlobalPlaywrightContext {
     private const string PlaywrightConnectionString = "http://127.0.0.1:" + PlaywrightDevtoolsPort;
     public static readonly Uri PlaywrightConnectionUri = new Uri(PlaywrightConnectionString);
     
+    public const string PhotinoWindowTitle = "Photino Playwright";
+    public const string VueDocumentTitle = "Photino Playwright Vue";
+    
     [Before(Assembly)]
     public static void BeforeAll(AssemblyHookContext _) {
         Utility = WindowServerTestUtility.Create(
@@ -28,9 +31,11 @@ public static class GlobalPlaywrightContext {
                 .UsePort(ServerPort),
             
             static windowBuilder => windowBuilder
+                .SetTitle(PhotinoWindowTitle)
                 .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
             
                 .RegisterFullScreenWebMessageHandler()
+                .RegisterTitleChangedWebMessageHandler()
         );
     }
     
