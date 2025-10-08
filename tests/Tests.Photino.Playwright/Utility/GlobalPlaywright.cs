@@ -1,34 +1,35 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace Tests.Photino.Playwright;
 using InfiniLore.Photino.NET;
 using InfiniLore.Photino.NET.Server;
 using Tests.Shared.Photino;
 
+namespace Tests.Photino.Playwright.Utility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class GlobalPlaywright {
     private static WindowServerTestUtility Utility { get; set; } = null!;
-    
-    public const int ServerPort = 9000; // Cannot be the same as the debug port
-    public const string PlaywrightDevtoolsPort = "9222";
-    public const string PlaywrightConnectionString = "http://127.0.0.1:" + PlaywrightDevtoolsPort;
+
+    private const int ServerPort = 9000; // Cannot be the same as the debug port
+    private const string PlaywrightDevtoolsPort = "9222";
+    private const string PlaywrightConnectionString = "http://127.0.0.1:" + PlaywrightDevtoolsPort;
+    public static readonly Uri PlaywrightConnectionUri = new Uri(PlaywrightConnectionString);
     
     [Before(Assembly)]
-    public static void BeforeAll(AssemblyHookContext context) {
+    public static void BeforeAll(AssemblyHookContext _) {
         Utility = WindowServerTestUtility.Create(
-            serverBuilder => serverBuilder
+            static serverBuilder => serverBuilder
                 .UsePort(ServerPort),
             
-            windowBuilder => windowBuilder
+            static windowBuilder => windowBuilder
                 .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
         );
     }
     
     [After(Assembly)]
-    public static void AfterAll(AssemblyHookContext context) {
+    public static void AfterAll(AssemblyHookContext _) {
         Utility.Dispose();
     }
     
