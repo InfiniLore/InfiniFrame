@@ -138,10 +138,10 @@ jobs:
                         xfonts-base
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Linux.slnf
 
             -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+                run: dotnet build InfiniLore.Photino.GitHubActions.Linux.slnf --configuration Release --no-restore
 
             -   name: Start desktop environment and run tests
                 run: |
@@ -206,7 +206,7 @@ jobs:
                     timeout 5 xwininfo -root >/dev/null 2>&1 && echo "✓ Window manager responding" || echo "✗ Window manager not responding"
                     
                     echo "=== Running Tests ==="
-                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    dotnet test InfiniLore.Photino.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
@@ -280,11 +280,11 @@ jobs:
                     dotnet-version: '9.x'
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
 
             -   name: Build (Release)
                 run: |
-                    dotnet build InfiniLore.Photino.GitHubActions.slnf `
+                    dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-restore `
                       -p:GeneratePackageOnBuild=false `
@@ -307,7 +307,7 @@ jobs:
             -   name: Run tests
                 run: |
                     echo "Running tests on Windows..."
-                    dotnet test InfiniLore.Photino.GitHubActions.slnf `
+                    dotnet test InfiniLore.Photino.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore `
@@ -389,10 +389,10 @@ jobs:
                         ${{ runner.os }}-build-
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.MacOs.slnf
 
             -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+                run: dotnet build InfiniLore.Photino.GitHubActions.MacOs.slnf --configuration Release --no-restore
 
             -   name: Setup GUI environment and run tests
                 run: |
@@ -411,7 +411,7 @@ jobs:
                     echo "=== Running Tests ==="
 
                     # Run tests
-                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    dotnet test InfiniLore.Photino.GitHubActions.MacOs.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \

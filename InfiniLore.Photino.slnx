@@ -5,6 +5,9 @@
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="Directory.Packages.props" />
+    <File Path="InfiniLore.Photino.GitHubActions.Linux.slnf" />
+    <File Path="InfiniLore.Photino.GitHubActions.Windows.slnf" />
+    <File Path="InfiniLore.Photino.GitHubActions.MacOs.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />
