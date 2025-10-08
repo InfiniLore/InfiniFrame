@@ -1,9 +1,9 @@
 ﻿using InfiniLore.Photino.NET;
-using Tests.Photino.NET.TestUtilities;
+using System.Collections.Immutable;
+using Tests.Shared.Photino;
+using Monitor=InfiniLore.Photino.Monitor;
 
 namespace Tests.Photino.NET;
-using InfiniLore.Photino;
-using System.Collections.Immutable;
 
 public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------

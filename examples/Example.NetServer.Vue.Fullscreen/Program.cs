@@ -23,6 +23,7 @@ public static class Program {
             .SetTitle("InfiniLore Photino.NET VUE Sample")
             .SetSize(new Size(800, 600))
             .SetLocation(1000,0)
+            .SetBrowserControlInitParameters("--remote-debugging-port=9222")
             
             .RegisterFullScreenWebMessageHandler()
             .RegisterOpenExternalTargetWebMessageHandler()

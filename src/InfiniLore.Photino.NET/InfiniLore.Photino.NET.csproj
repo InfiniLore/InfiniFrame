@@ -6,6 +6,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Tests.Photino.NET"/>
+        <InternalsVisibleTo Include="Tests.Photino.Playwright"/>
     </ItemGroup>
 
     <ItemGroup>

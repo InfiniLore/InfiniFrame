@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="TUnit" />
+      <PackageReference Include="TUnit.Playwright" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Tests.Shared.Photino\Tests.Shared.Photino.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <_ContentIncludedByDefault Remove="wwwroot\index.html"/>
+    </ItemGroup>
+
+</Project>

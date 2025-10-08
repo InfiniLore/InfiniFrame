@@ -4,10 +4,11 @@
 using InfiniLore.Photino.NET;
 using InfiniLore.Photino.Utilities;
 using System.Drawing;
-using Tests.Photino.NET.TestUtilities;
 using Monitor=InfiniLore.Photino.Monitor;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
+using Tests.Shared.Photino;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

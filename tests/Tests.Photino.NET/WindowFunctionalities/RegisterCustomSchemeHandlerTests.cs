@@ -4,7 +4,7 @@
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.Photino;
 using InfiniLore.Photino.NET;
-using Tests.Photino.NET.TestUtilities;
+using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
