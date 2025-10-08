@@ -65,7 +65,9 @@ public class JavascriptInteropTests : PhotinoWebviewTest {
         await Assert.That(originalTitleState).IsEqualTo(GlobalPlaywrightContext.PhotinoWindowTitle);
         await Assert.That(newTitleState).IsEqualTo("New Title");
         await Assert.That(finalTitleState).IsEqualTo(GlobalPlaywrightContext.VueDocumentTitle);
-
+        
+        // Reset
         GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.PhotinoWindowTitle);
+
     }
 }

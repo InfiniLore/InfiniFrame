@@ -43,9 +43,11 @@ public class JavascriptTests : PhotinoWebviewTest {
             $"() => window.infiniWindow.sendMessageToHost('__infiniWindow:title:change', '{newTitle}')"
         );
         string updatedTitle = await WaitForStateChangeAsync(originalTitle, () => GlobalPlaywrightContext.Window.Title);
-        GlobalPlaywrightContext.Window.SetTitle(originalTitle);
 
         // Assert
         await Assert.That(updatedTitle).IsEqualTo(newTitle);   
+        
+        // Reset
+        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.PhotinoWindowTitle);
     }
 }
