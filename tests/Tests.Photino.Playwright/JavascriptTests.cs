@@ -2,27 +2,29 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Playwright;
+using Tests.Photino.Playwright.Utility;
 using Tests.Shared.Photino;
 
 namespace Tests.Photino.Playwright;
-using Tests.Photino.Playwright.Utility;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class WebviewWindowTests : PhotinoWebviewTest {
+public class JavascriptTests : PhotinoWebviewTest {
     [Test]
     [SkipUtility.OnMacOs]
     [SkipUtility.OnLinux]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task Title_ShouldBeExpectedValue() {
+    public async Task InfiniWindowIsInitialized() {
         // Arrange
         IPage page = await GetRootPageAsync();
         
         // Act
-        string title = await page.TitleAsync();
+        bool isInitialized = await page.EvaluateAsync<bool>(
+            // lang=javascript 
+            "() => window.infiniWindow !== undefined && window.infiniWindow !== null"
+        ); 
 
         // Assert
-        await Assert.That(title).IsEqualTo("Photino Playwright Vue");
+        await Assert.That(isInitialized).IsTrue();   
     }
 }
