@@ -17,6 +17,21 @@
     
     <ItemGroup>
         <_ContentIncludedByDefault Remove="wwwroot\index.html"/>
+        <EmbeddedResource Include="wwwroot\**"/>
+        <None Include="wwwroot\**"> 
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Sources\photino-playwright-vue\src\assets\" />
+    </ItemGroup>
+
+    <Target Name="BuildFrontend" BeforeTargets="Build">
+        <Message Text="Installing npm packages" Importance="high"/>
+        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)/Sources/photino-playwright-vue"/>
+        <Message Text="Building frontend with npm..." Importance="high"/>
+        <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)/Sources/photino-playwright-vue"/>
+    </Target>
 
 </Project>

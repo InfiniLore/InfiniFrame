@@ -13,7 +13,7 @@ public class WindowServerTestUtility : IDisposable {
     public required IPhotinoWindow Window { get; init; }
     public required PhotinoServer Server { get; init; }
     private readonly Thread _windowThread;
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
     
     private WindowServerTestUtility(Thread windowThread) { 
         _windowThread = windowThread;

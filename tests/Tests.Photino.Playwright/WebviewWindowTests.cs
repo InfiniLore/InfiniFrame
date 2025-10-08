@@ -10,10 +10,10 @@ using Tests.Photino.Playwright.Utility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class SampleTest : PhotinoWebviewTest {
+public class WebviewWindowTests : PhotinoWebviewTest {
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task Test1() {
+    public async Task Title_ShouldBeExpectedValue() {
         // Arrange
         IPage page = await GetRootPageAsync();
         
@@ -21,19 +21,26 @@ public class SampleTest : PhotinoWebviewTest {
         string title = await page.TitleAsync();
 
         // Assert
-        await Assert.That(title).IsEqualTo("Photino Playwright Test");
+        await Assert.That(title).IsEqualTo("Photino Playwright Vue");
     }
     
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task Test2() {
+    public async Task FullscreenButton_ShouldToggleFullscreen() {
         // Arrange
+        bool originalFullscreenState = GlobalPlaywrightContext.Window.FullScreen;
         IPage page = await GetRootPageAsync();
         
         // Act
-        string title = await page.TitleAsync();
+        await page.ClickAsync("#fullscreen-toggle-button");
+        bool newFullscreenState = GlobalPlaywrightContext.Window.FullScreen;
 
         // Assert
-        await Assert.That(title).IsEqualTo("Photino Playwright Test");
+        await Assert.That(originalFullscreenState).IsFalse();
+        await Assert.That(newFullscreenState).IsTrue();
+        
+        // Cleanup
+        await page.ClickAsync("#fullscreen-toggle-button");
+        await Assert.That(GlobalPlaywrightContext.Window.FullScreen).IsFalse();
     }
 }
