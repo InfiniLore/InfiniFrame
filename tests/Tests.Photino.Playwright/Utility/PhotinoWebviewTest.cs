@@ -20,22 +20,51 @@ public abstract class PhotinoWebviewTest : PageTest {
     /// <param name="relativeUrl">The relative URL of the page to retrieve.</param>
     /// <returns>An asynchronously resolved task containing the page object for the specified URL.</returns>
     protected static async Task<IPage> GetPageAsync(string relativeUrl) {
-        var url = new Uri(GlobalPlaywrightContext.PlaywrightConnectionUri, relativeUrl);
-        
-        IBrowser browser = await Playwright.Chromium.ConnectOverCDPAsync(url.ToString());
-        IBrowserContext context = browser.Contexts[0];
-        IPage page = context.Pages[0];
-        
-        return page;
+        IBrowserContext context = await GetContextAsync(relativeUrl);
+        return context.Pages[0];
     }
 
     /// <summary>
     /// Retrieves the root page of the web application that corresponds to the root URL ("/") using the appropriate Playwright behavior.
     /// </summary>
     /// <returns>Task containing an instance of an IPage object representing the root page.</returns>
-    protected static async Task<IPage> GetRootPageAsync() {
-        return await GetPageAsync("/");
+    protected static async Task<IPage> GetRootPageAsync() 
+        => await GetPageAsync("/");
+
+    /// <summary>
+    /// Asynchronously retrieves a browser context object for the specified relative URL.
+    /// Relative to the root of the Photino application.
+    /// </summary>
+    /// <param name="relativeUrl">The relative URL of the browser context to retrieve.</param>
+    /// <returns>An asynchronously resolved task containing the browser context object for the specified URL.</returns>
+    protected static async Task<IBrowserContext> GetContextAsync(string relativeUrl) {
+        IBrowser browser = await GetBrowserAsync(relativeUrl);
+        return browser.Contexts[0];
     }
+
+    /// <summary>
+    /// Asynchronously retrieves the root browser context for the web application corresponding to the root URL ("/").
+    /// </summary>
+    /// <returns>An asynchronously resolved task containing the root browser context instance.</returns>
+    protected static async Task<IBrowserContext> GetRootContextAsync() 
+        => await GetContextAsync("/");
+
+    /// <summary>
+    /// Asynchronously retrieves a browser instance connected to the specified relative URL.
+    /// </summary>
+    /// <param name="relativeUrl">The relative URL to connect the browser to.</param>
+    /// <returns>A task that resolves to an <see cref="IBrowser"/> instance representing the connected browser.</returns>
+    protected static async Task<IBrowser> GetBrowserAsync(string relativeUrl) {
+        var url = new Uri(GlobalPlaywrightContext.PlaywrightConnectionUri, relativeUrl);
+        return await Playwright.Chromium.ConnectOverCDPAsync(url.ToString());
+    }
+
+    /// <summary>
+    /// Retrieves the root browser instance associated with the root URL ("/") of the application.
+    /// </summary>
+    /// <returns>Task containing an instance of the IBrowser object representing the root browser.</returns>
+    protected static async Task<IBrowser> GetRootBrowserAsync() 
+        => await GetBrowserAsync("/");
 
     /// <summary>
     /// Waits for a state change by repeatedly invoking the specified state provider function until the returned state

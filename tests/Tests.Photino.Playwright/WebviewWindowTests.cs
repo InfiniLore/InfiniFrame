@@ -12,6 +12,8 @@ using Tests.Photino.Playwright.Utility;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebviewWindowTests : PhotinoWebviewTest {
     [Test]
+    [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux]
     [NotInParallel(ParallelControl.Playwright)]
     public async Task Title_ShouldBeExpectedValue() {
         // Arrange
@@ -23,10 +25,30 @@ public class WebviewWindowTests : PhotinoWebviewTest {
         // Assert
         await Assert.That(title).IsEqualTo("Photino Playwright Vue");
     }
-    
+
     [Test]
+    [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task FullscreenButton_ShouldToggleFullscreen() {
+    public async Task Js_InfiniWindowIsInitialized() {
+        // Arrange
+        IPage page = await GetRootPageAsync();
+        
+        // lang=javascript
+        const string js = "() => window.infiniWindow !== undefined && window.infiniWindow !== null";
+        
+        // Act
+        bool isInitialized = await page.EvaluateAsync<bool>(js); 
+
+        // Assert
+        await Assert.That(isInitialized).IsTrue();   
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux]
+    [NotInParallel(ParallelControl.Playwright)]
+    public async Task FullscreenHtmlButton_ShouldTogglePhotinoFullscreen() {
         // Arrange
         bool originalFullscreenState = GlobalPlaywrightContext.Window.FullScreen;
         IPage page = await GetRootPageAsync();
