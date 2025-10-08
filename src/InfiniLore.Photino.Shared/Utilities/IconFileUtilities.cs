@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace InfiniLore.Photino;
+namespace InfiniLore.Photino.Utilities;
+
 public static class IconFileUtilities {
     public static bool IsValidIconFile([NotNullWhen(true)] string? filePath) {
         if (string.IsNullOrWhiteSpace(filePath)) return false;

@@ -139,67 +139,58 @@ public static class PhotinoWindowExtensions {
     }
     #endregion
 
-    #region MoveTo
+    #region MoveWithinCurrentMonitorArea
     /// <summary>
     ///     Moves the native window to the specified location on the screen in pixels using a Point.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
+    /// <param name="left">Position from left in pixels</param>
+    /// <param name="top">Position from top in pixels</param>
     /// <param name="window">Photino window instance</param>
-    /// <param name="location">Position as <see cref="Point" /></param>
-    /// <param name="allowOutsideWorkArea">Whether the window can go off-screen (work area)</param>
-    public static T MoveTo<T>(this T window, Point location, bool allowOutsideWorkArea = false) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".MoveTo({location}, {allowOutsideWorkArea})", location, allowOutsideWorkArea);
-        window.Logger.LogDebug("Current location: {Location}", window.Location);
-        window.Logger.LogDebug("New location: {NewLocation}", location);
+    public static T MoveWithinCurrentMonitorArea<T>(this T window,  int left, int top) where T : class, IPhotinoWindow {
+        window.Invoke(() => {
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
+            int horizontalWindowEdge = left + windowRect.Width;
+            int verticalWindowEdge = top + windowRect.Height;
 
-        // If the window is outside the work area,
-        // recalculate the position and continue.
-        //When a window isn't initialized yet, cannot determine screen size.
-        if (!allowOutsideWorkArea && window.InstanceHandle != IntPtr.Zero) {
-            int horizontalWindowEdge = location.X + window.Width;
-            int verticalWindowEdge = location.Y + window.Height;
+            int leftBound = monitor.WorkArea.X;
+            int topBound = monitor.WorkArea.Y;
+            int rightBound = monitor.WorkArea.X + monitor.WorkArea.Width;
+            int bottomBound = monitor.WorkArea.Y + monitor.WorkArea.Height;
 
-            int horizontalWorkAreaEdge = window.MainMonitor.WorkArea.Width;
-            int verticalWorkAreaEdge = window.MainMonitor.WorkArea.Height;
-
-            bool isOutsideHorizontalWorkArea = horizontalWindowEdge > horizontalWorkAreaEdge;
-            bool isOutsideVerticalWorkArea = verticalWindowEdge > verticalWorkAreaEdge;
-
-            var locationInsideWorkArea = new Point(
-                isOutsideHorizontalWorkArea ? horizontalWorkAreaEdge - window.Width : location.X,
-                isOutsideVerticalWorkArea ? verticalWorkAreaEdge - window.Height : location.Y
-            );
-
-            location = locationInsideWorkArea;
-        }
-
-        // Bug:
-        // For some reason the vertical position is not handled correctly.
-        // Whenever a positive value is set, the window appears at the
-        // very bottom of the screen, and the only visible thing is the
-        // application window title bar. As a workaround we make a
-        // negative value out of the vertical position to "pull" the window up.
-        // Note:
-        // This behavior seems to be a macOS thing. In the Photino.Native
-        // project files it is commented to be expected behavior for macOS.
-        // There is some code trying to mitigate this problem, but it might
-        // not work as expected. Further investigation is necessary.
-        // Update:
-        // This behavior seems to have changed with macOS Sonoma.
-        // Therefore, we determine the version of macOS and only apply the
-        // workaround for older versions.
-        if (!OperatingSystem.IsMacOSVersionAtLeast(23)) {
-            Size workArea = window.MainMonitor.WorkArea.Size;
-            location.Y = location.Y >= 0
-                ? location.Y - workArea.Height
-                : location.Y;
-        }
-
-        // TODO patch this
-        window.SetLocation(location);
-
+            left = horizontalWindowEdge > rightBound
+                ? Math.Max(rightBound - window.Width, leftBound)
+                : Math.Max(left, leftBound);
+            top = verticalWindowEdge > bottomBound
+                ? Math.Max(bottomBound - window.Height, topBound)
+                : Math.Max(top, topBound);
+            
+            // Bug:
+            // For some reason the vertical position is not handled correctly.
+            // Whenever a positive value is set, the window appears at the
+            // very bottom of the screen, and the only visible thing is the
+            // application window title bar. As a workaround we make a
+            // negative value out of the vertical position to "pull" the window up.
+            // Note:
+            // This behavior seems to be a macOS thing. In the Photino.Native
+            // project files it is commented to be expected behavior for macOS.
+            // There is some code trying to mitigate this problem, but it might
+            // not work as expected. Further investigation is necessary.
+            // Update:
+            // This behavior seems to have changed with macOS Sonoma.
+            // Therefore, we determine the version of macOS and only apply the
+            // workaround for older versions.
+            if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(23)) {
+                Size workArea = window.MainMonitor.WorkArea.Size;
+                top = top >= 0
+                    ? top - workArea.Height
+                    : top;
+            }
+            
+            PhotinoNative.SetPosition(window.InstanceHandle, left, top);
+        });
         return window;
     }
 
@@ -211,17 +202,12 @@ public static class PhotinoWindowExtensions {
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
-    /// <param name="left">Position from left in pixels</param>
-    /// <param name="top">Position from top in pixels</param>
-    /// <param name="allowOutsideWorkArea">Whether the window can go off-screen (work area)</param>
-    public static T MoveTo<T>(this T window, int left, int top, bool allowOutsideWorkArea = false) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".MoveTo({left}, {top}, {allowOutsideWorkArea})", left, top, allowOutsideWorkArea);
-        return MoveTo(window, new Point(left, top), allowOutsideWorkArea);
-    }
+    /// <param name="location">Position as <see cref="Point" /></param>
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow 
+        => MoveWithinCurrentMonitorArea(window, location.X, location.Y);
 
-    public static T MoveTo<T>(this T window, double left, double top, bool allowOutsideWorkArea = false) where T : class, IPhotinoWindow {
-        return MoveTo(window, (int)left, (int)top, allowOutsideWorkArea);
-    }
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IPhotinoWindow 
+        => MoveWithinCurrentMonitorArea(window, (int)left, (int)top);
     #endregion
 
     #region Offset
@@ -253,13 +239,11 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="offset">Relative offset</param>
-    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow {
-        return Offset(window, offset.X, offset.Y);
-    }
-    
-    public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow {
-        return Offset(window, (int)left, (int)top);
-    }
+    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow 
+        => Offset(window, offset.X, offset.Y);
+
+    public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow 
+        => Offset(window, (int)left, (int)top);
     #endregion
 
     #region SetTransparent
@@ -487,13 +471,15 @@ public static class PhotinoWindowExtensions {
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
-    /// <param name="size">Width &amp; Height</param>
-    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetSize({Size})", size);
-        window.Invoke(() => PhotinoNative.SetSize(window.InstanceHandle, size.Width, size.Height));
+    /// <param name="width">Width in pixels</param>
+    /// <param name="height">Height in pixels</param>
+    public static T SetSize<T>(this T window, int width, int height) where T : class, IPhotinoWindow {
+        window.Logger.LogDebug(".SetSize({Width}, {Height})", width, height);
+
+        window.Invoke(() => PhotinoNative.SetSize(window.InstanceHandle, width, height));
         return window;
     }
-
+    
     /// <summary>
     ///     Sets the native window Size. This represents the <see cref="IPhotinoWindow.Width" /> and the
     ///     <see cref="IPhotinoWindow.Height" /> of the window in pixels.
@@ -503,17 +489,23 @@ public static class PhotinoWindowExtensions {
     ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
-    /// <param name="width">Width in pixels</param>
-    /// <param name="height">Height in pixels</param>
-    public static T SetSize<T>(this T window, int width, int height) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetSize({Width}, {Height})", width, height);
-
-        window.Invoke(() => PhotinoNative.SetSize(window.InstanceHandle, width, height));
-        return window;
-    }
+    /// <param name="size">Width &amp; Height</param>
+    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+        => SetSize(window, size.Width, size.Height);
     #endregion
     
     #region SetLocation
+    public static T SetLocation<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
+        window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
+        window.Invoke(() => {
+            PhotinoNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
+            if (oldLeft == left && oldTop == top) return;
+            PhotinoNative.SetPosition(window.InstanceHandle, left, top);
+        });
+
+        return window;
+    }
+    
     /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> coordinates (Y)
     ///     in pixels.
@@ -524,17 +516,8 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window"></param>
     /// <param name="location">Location as a <see cref="Point" /></param>
-    public static T SetLocation<T>(this T window, Point location) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetLocation({Location})", location);
-        window.Invoke(() => {
-            PhotinoNative.GetPosition(window.InstanceHandle, out int left, out int top);
-            if (left == location.X && top == location.Y) return;
-
-            PhotinoNative.SetPosition(window.InstanceHandle, location.X, location.Y);
-        });
-
-        return window;
-    }
+    public static T SetLocation<T>(this T window, Point location) where T : class, IPhotinoWindow 
+        => SetLocation(window, location.X, location.Y);
     #endregion
 
     /// <summary>
@@ -614,23 +597,24 @@ public static class PhotinoWindowExtensions {
     ///<summary>Native window maximum Width and Height in pixels.</summary>
     public static T SetMaxSize<T>(this T window, int maxWidth, int maxHeight) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
+        
+        window.MaxWidth = maxWidth;
+        window.MaxHeight = maxHeight;
+        
         window.Invoke(() => PhotinoNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight));
         return window;
     }
+    
+    public static T SetMaxSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+        => SetMaxSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
-    public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetMaxHeight({MaxHeight})", maxHeight);
-        window.MaxHeight = maxHeight;
-        return window;
-    }
+    public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IPhotinoWindow 
+        => SetMaxSize(window, window.MaxWidth, maxHeight);
 
     ///<summary>Native window maximum Width in pixels.</summary>
-    public static T SetMaxWidth<T>(this T window, int maxWidth) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetMaxWidth({MaxWidth})", maxWidth);
-        window.MaxWidth = maxWidth;
-        return window;
-    }
+    public static T SetMaxWidth<T>(this T window, int maxWidth) where T : class, IPhotinoWindow
+        => SetMaxSize(window, maxWidth, window.MaxHeight);
 
     /// <summary>
     ///     Sets whether the native window is minimized (hidden).
@@ -650,23 +634,24 @@ public static class PhotinoWindowExtensions {
     ///<summary>Native window maximum Width and Height in pixels.</summary>
     public static T SetMinSize<T>(this T window, int minWidth, int minHeight) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
+        
+        window.MinHeight = minHeight;
+        window.MinWidth = minWidth;
+        
         window.Invoke(() => PhotinoNative.SetMinSize(window.InstanceHandle, minWidth, minHeight));
         return window;
     }
+    
+    public static T SetMinSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+        => SetMinSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
-    public static T SetMinHeight<T>(this T window, int minHeight) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetMinHeight({MinHeight})", minHeight);
-        SetMinSize(window, window.MinWidth, minHeight);
-        return window;
-    }
+    public static T SetMinHeight<T>(this T window, int minHeight) where T : class, IPhotinoWindow
+        => SetMinSize(window, window.MinWidth, minHeight);
 
     ///<summary>Native window maximum Width in pixels.</summary>
-    public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IPhotinoWindow {
-        window.Logger.LogDebug(".SetMinWidth({MinWidth})", minWidth);
-        SetMinSize(window, minWidth, window.MinHeight);
-        return window;
-    }
+    public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IPhotinoWindow 
+        => SetMinSize(window, minWidth, window.MinHeight);
 
     /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Title" />.
@@ -828,8 +813,8 @@ public static class PhotinoWindowExtensions {
                 }
 
                 case ResizeOrigin.TopRight: {
-                    width += widthOffset;
                     y += heightOffset;
+                    width += widthOffset;
                     height -= heightOffset;
                     break;
                 }

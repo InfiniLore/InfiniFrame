@@ -1,0 +1,60 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.Photino.NET;
+using Tests.Photino.NET.TestUtilities;
+
+namespace Tests.Photino.NET.WindowFunctionalities;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class MinHeightTests {
+    private const int MinHeight = 20;
+
+    [Test]
+    public async Task Builder() {
+        // Arrange
+        var builder = PhotinoWindowBuilder.Create();
+
+        // Act
+        builder.SetMinHeight(MinHeight);
+
+        // Assert
+        await Assert.That(builder.Configuration.MinHeight).IsEqualTo(MinHeight);
+
+        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        await Assert.That(configParameters.MinHeight).IsEqualTo(MinHeight);
+    }
+    
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Window() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Act
+        window.SetMinHeight(500);
+
+        // Assert
+        await Assert.That(window.MinHeight).IsEqualTo(500);
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task FullIntegration() {
+        // Arrange
+
+        // Act
+        using var windowUtility = WindowTestUtility.Create(
+            builder => builder
+                .SetMinHeight(500)
+        );
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Assert
+        await Assert.That(window.MinHeight).IsEqualTo(500);
+    }
+}

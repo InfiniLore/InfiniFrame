@@ -1,6 +1,7 @@
 ﻿@page "/counter"
 @using global::InfiniLore.Photino.NET
 @inject IPhotinoWindow Window
+@inject ILogger<Counter> Logger
 
 <h1>Counter</h1>
 
@@ -14,6 +15,7 @@
     private void IncrementCount() {
         _currentCount++;
 
+        Logger.LogWarning("State {s}", Window.ContextMenuEnabled);
         Window.CenterOnMonitor();
     }
 }

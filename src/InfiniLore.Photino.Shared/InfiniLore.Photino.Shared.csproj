@@ -8,7 +8,7 @@
         <InternalsVisibleTo Include="InfiniLore.Photino.Net"/>
         <InternalsVisibleTo Include="InfiniLore.Photino.Net.Server"/>
         <InternalsVisibleTo Include="InfiniLore.Photino.Blazor"/>
-        <InternalsVisibleTo Include="Tests.InfiniLore.Photino.NET"/>
+        <InternalsVisibleTo Include="Tests.Photino.NET"/>
     </ItemGroup>
 
     <ItemGroup>

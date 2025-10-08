@@ -29,6 +29,8 @@ public sealed class PhotinoWindow(
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
+    internal Dictionary<string, NetCustomSchemeDelegate?> CustomSchemes => customSchemes;
+
     #region PROPERTIES
     /// <summary>
     ///     Represents a property that gets the handle of the native window on a Windows platform.
@@ -110,7 +112,9 @@ public sealed class PhotinoWindow(
     ///     On Windows, thrown if trying to set a value after a native window is initialized.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Transparent => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
+    public bool Transparent => OperatingSystem.IsWindows() 
+        ? StartupParameters.Transparent // on windows it can only be set at startup
+        :  InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's context menu.
@@ -328,7 +332,7 @@ public sealed class PhotinoWindow(
     ///     Default is "Photino".
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? Title => InvokeUtilities.InvokeAndReturn<string?>(this, PhotinoNative.GetTitle);
+    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, PhotinoNative.GetTitle) ?? string.Empty;
 
     /// <summary>
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
@@ -387,7 +391,7 @@ public sealed class PhotinoWindow(
             else if (OperatingSystem.IsMacOS())
                 Invoke(() => PhotinoNative.RegisterMac());
 
-            Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref StartupParameters));
+            Invoke(() => InstanceHandle = PhotinoNative.Constructor(ref StartupParameters));
         }
         catch (Exception ex) {
             int lastError = 0;
@@ -673,10 +677,6 @@ public sealed class PhotinoWindow(
     ///     callbacks
     ///     when the native browser control encounters them.
     /// </summary>
-    /// <remarks>
-    ///     Only 16 custom schemes can be registered before initialization. Additional handlers can be added after
-    ///     initialization.
-    /// </remarks>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
@@ -685,20 +685,16 @@ public sealed class PhotinoWindow(
     ///     <see cref="EventHandler" />
     /// </param>
     /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
-    /// <exception cref="ApplicationException">Thrown if more than 16 custom schemes were set</exception>
     public IPhotinoWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler) {
-        if (string.IsNullOrWhiteSpace(scheme))
-            throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
-
-        if (handler is null)
-            throw new ArgumentException("A handler (method) with a signature matching NetCustomSchemeDelegate must be supplied.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(scheme);
+        ArgumentNullException.ThrowIfNull(handler);
 
         scheme = scheme.ToLower();
         
         PhotinoNative.AddCustomSchemeName(InstanceHandle, scheme);
 
+        customSchemes.TryAdd(scheme, null);
         customSchemes[scheme] += handler;
-
         return this;
     }
 

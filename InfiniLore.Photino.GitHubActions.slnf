@@ -8,7 +8,7 @@
             "src\\InfiniLore.Photino.NET.Server\\InfiniLore.Photino.NET.Server.csproj",
             "src\\InfiniLore.Photino.Shared\\InfiniLore.Photino.Shared.csproj",
             
-            "tests\\Tests.InfiniLore.Photino.NET\\Tests.InfiniLore.Photino.NET.csproj"
+            "tests\\Tests.Photino.NET\\Tests.Photino.NET.csproj"
         ]
     }
 }

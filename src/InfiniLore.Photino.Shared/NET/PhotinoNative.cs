@@ -10,6 +10,7 @@ public static partial class PhotinoNative {
     private const string Photino_register_win32 = nameof(Photino_register_win32);
     private const string Photino_register_mac = nameof(Photino_register_mac);
     private const string Photino_ctor = nameof(Photino_ctor);
+    private const string Photino_dtor = nameof(Photino_dtor);
     private const string Photino_AddCustomSchemeName = nameof(Photino_AddCustomSchemeName);
     private const string Photino_Close = nameof(Photino_Close);
     private const string Photino_getHwnd_win32 = nameof(Photino_getHwnd_win32);
@@ -81,14 +82,16 @@ public static partial class PhotinoNative {
     #endregion
 
     #region CTOR-DTOR
+    #pragma warning disable SYSLIB1054
     //Not useful to use LibraryImport when passing a user-defined type.
     //See https://stackoverflow.com/questions/77770231/libraryimport-the-type-is-not-supported-by-source-generated-p-invokes
     [DllImport(DllName, EntryPoint = Photino_ctor, CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Ansi)]
-    internal static extern IntPtr Ctor(ref PhotinoNativeParameters parameters);
+    internal static extern IntPtr Constructor(ref PhotinoNativeParameters parameters);
+    #pragma warning restore SYSLIB1054
 
-    //necessary?
-    // [DllImport(DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-    // static extern void Photino_dtor(IntPtr instance);  
+    [LibraryImport(DllName, EntryPoint = Photino_dtor)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void Destructor(IntPtr instance);  
 
     [LibraryImport(DllName, EntryPoint = Photino_AddCustomSchemeName, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -362,9 +365,9 @@ public static partial class PhotinoNative {
         userAgent = Marshal.PtrToStringAuto(ptr);
     }
 
-    internal static void GetTitle(IntPtr instance, out string? title) {
+    internal static void GetTitle(IntPtr instance, out string title) {
         IntPtr ptr = GetTitle(instance);
-        title = Marshal.PtrToStringAuto(ptr);
+        title = Marshal.PtrToStringAuto(ptr) ?? string.Empty; // The way on how photino works internally is that the title is always an empty string when we set it to null on our end.
     }
     #endregion
 }

@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Photino.Native" />
         <PackageReference Include="TUnit" />
     </ItemGroup>
 

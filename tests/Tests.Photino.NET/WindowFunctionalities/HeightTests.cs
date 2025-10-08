@@ -1,0 +1,121 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.Photino.NET;
+using Tests.Photino.NET.TestUtilities;
+
+namespace Tests.Photino.NET.WindowFunctionalities;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class HeightTests {
+    private const int Height = 20;
+
+    [Test]
+    public async Task Builder() {
+        // Arrange
+        var builder = PhotinoWindowBuilder.Create();
+
+        // Act
+        builder.SetUseOsDefaultSize(true);
+        builder.SetHeight(Height);
+
+        // Assert
+        await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
+
+        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        await Assert.That(configParameters.Height).IsEqualTo(Height);
+    }
+
+    [Test]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
+        // Arrange
+        var builder = PhotinoWindowBuilder.Create();
+        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration {
+            Height = Height,
+            UseOsDefaultSize = false,
+            Centered = false
+        }.ToParameters();
+
+        // Act
+        builder.SetUseOsDefaultSize(true);
+        builder.SetHeight(Height);
+
+        // Assert
+        await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
+        await Assert.That(builder.Configuration.UseOsDefaultSize).IsEqualTo(false);
+        await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
+
+        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
+    }
+    
+    [Test]
+    [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Window() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Act
+        window.SetHeight(500);
+
+        // Assert
+        await Assert.That(window.Height).IsEqualTo(500);
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task FullIntegration() {
+        // Arrange
+
+        // Act
+        using var windowUtility = WindowTestUtility.Create(
+            builder => builder
+                .SetChromeless(true)
+                .SetHeight(500)
+        );
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Assert
+        await Assert.That(window.Height).IsEqualTo(500);
+    }
+    
+    [Test]
+    [SkipUtility.OnMacOs]
+    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Window_WithChromelessToGetSmallestHeight() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create(builder => builder.SetChromeless(true));
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Act
+        window.SetHeight(Height);
+
+        // Assert
+        await Assert.That(window.Height).IsEqualTo(Height);
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task FullIntegration_WithChromelessToGetSmallestHeight() {
+        // Arrange
+
+        // Act
+        using var windowUtility = WindowTestUtility.Create(
+            builder => builder
+                .SetChromeless(true)
+                .SetHeight(Height)
+        );
+        IPhotinoWindow window = windowUtility.Window;
+
+        // Assert
+        await Assert.That(window.Height).IsEqualTo(Height);
+    }
+}

@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace Tests.InfiniLore.Photino.NET.TestUtilities;
-using global::InfiniLore.Photino.NET;
+using InfiniLore.Photino.NET;
 
+namespace Tests.Photino.NET.TestUtilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -20,14 +20,18 @@ public class WindowTestUtility : IDisposable {
         var utility =  new WindowTestUtility {
             Window = windowBuilder.Build()
         };
-        
+
         _ = Task.Run(utility.Window.WaitForClose);
 
         return utility; 
     }
     
     public void Dispose() {
-        Window.Close();
-        GC.SuppressFinalize(this);
+        try {
+            Window.Close();
+        }
+        finally {
+            GC.SuppressFinalize(this);    
+        }
     }
 }

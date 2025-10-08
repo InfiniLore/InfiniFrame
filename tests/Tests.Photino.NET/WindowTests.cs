@@ -1,7 +1,9 @@
 ﻿using InfiniLore.Photino.NET;
+using Tests.Photino.NET.TestUtilities;
 
-namespace Tests.InfiniLore.Photino.NET;
-using Tests.InfiniLore.Photino.NET.TestUtilities;
+namespace Tests.Photino.NET;
+using InfiniLore.Photino;
+using System.Collections.Immutable;
 
 public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
@@ -19,6 +21,37 @@ public class WindowTests {
 
         // Assert
         await Assert.That(window.InstanceHandle).IsNotDefault();
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task WindowHandle_IsDefined() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+        
+        // Act
+        IntPtr handle = window.WindowHandle;
+
+        // Assert
+        if (OperatingSystem.IsWindows()) await Assert.That(handle).IsNotDefault();
+        else await Assert.That(handle).IsEqualTo(IntPtr.Zero);
+    }
+
+    [Test]
+    [SkipUtility.OnMacOs]
+    [NotInParallel(ParallelControl.Photino)]
+    public async Task Monitors_IsNotEmpty() {
+        // Arrange
+        using var windowUtility = WindowTestUtility.Create();
+        IPhotinoWindow window = windowUtility.Window;
+        
+        // Act
+        ImmutableArray<Monitor> monitors = window.Monitors;
+
+        // Assert
+        await Assert.That(monitors).IsNotEmpty();
     }
     
     [Test]
@@ -38,48 +71,7 @@ public class WindowTests {
     [Test]
     [SkipUtility.OnMacOs]
     [NotInParallel(ParallelControl.Photino)]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Maximize_IsDefined(bool state) {
-        SkipUtility.SkipOnLinux(state);
-        
-        // Arrange
-        using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
-        
-        // Act
-        window.SetMaximized(state);
-
-        // Assert
-        await Assert.That(window.Maximized).IsEqualTo(state);
-    }
-    
-    [Test]
-    [SkipUtility.OnMacOs]
-    [NotInParallel(ParallelControl.Photino)]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Minimize_IsDefined(bool state) {
-        SkipUtility.SkipOnLinux(state);
-        
-        // Arrange
-        using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
-        
-        // Act
-        window.SetMinimized(state);
-
-        // Assert
-        await Assert.That(window.Minimized).IsEqualTo(state);
-    }
-    
-    
-    [Test]
-    [SkipUtility.OnMacOs]
-    [NotInParallel(ParallelControl.Photino)]
     public async Task Close_IsDefined() {
-        // SkipUtilities.SkipOnLinux();
-        
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
         var windowUtility = WindowTestUtility.Create(
@@ -96,40 +88,5 @@ public class WindowTests {
         // Assert
         bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
         await Assert.That(windowClosing).IsTrue();
-    }
-    
-    [Test]
-    [SkipUtility.OnMacOs]
-    [NotInParallel(ParallelControl.Photino)]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Fullscreen_IsDefined(bool state) {
-        // SkipUtilities.SkipOnLinux(state);
-        
-        // Arrange
-        using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
-        
-        // Act
-        window.SetFullScreen(state);
-
-        // Assert
-        await Assert.That(window.FullScreen).IsEqualTo(state);
-    }
-
-    [Test]
-    [SkipUtility.OnMacOs]
-    public async Task IconFilePath_IsDefined() {
-        const string iconFilePath = "Assets/favicon.ico";
-        
-        // Arrange
-        using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
-
-        // Act
-        window.SetIconFile(iconFilePath);
-
-        // Assert
-        await Assert.That(window.IconFilePath).IsEqualTo(iconFilePath);
     }
 }

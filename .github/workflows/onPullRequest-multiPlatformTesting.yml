@@ -6,14 +6,14 @@ on:
             pr_number:
                 description: 'PR number to test (use the PR number from the URL)'
                 required: false
-            run_linux:
-                description: 'Run Linux GUI tests'
-                type: boolean
-                default: true
             run_windows:
                 description: 'Run Windows GUI tests'
                 type: boolean
                 default: true
+            run_linux:
+                description: 'Run Linux GUI tests'
+                type: boolean
+                default: false
             run_macos:
                 description: 'Run macOS GUI tests'
                 type: boolean
@@ -32,26 +32,29 @@ jobs:
                 run: |
                     echo "Posting pending status for Manual MultiPlatform CI"
                     
+                    # Construct the workflow url
+                    WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    
                     # Post status for Linux
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"Linux tests\"}"
+                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"Linux tests\", \"target_url\": \"$WORKFLOW_URL\"}"
 
                     # Post status for Windows  
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Windows\",\"description\":\"Windows tests\"}"
+                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Windows\",\"description\":\"Windows tests\", \"target_url\": \"$WORKFLOW_URL\"}"
 
                     # Post status for macOS
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"macOS tests\"}"
+                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"macOS tests\", \"target_url\": \"$WORKFLOW_URL\"}"
     
     # ---------------------------------------------------------------------------------------
     # Linux (Full Desktop Environment)
@@ -208,6 +211,29 @@ jobs:
                         --no-build \
                         --no-restore \
                         --logger "console;verbosity=detailed"
+            
+            -   name: Display test logs on failure
+                if: failure()
+                run: |
+                    echo "=== Test Run Failed - Displaying Logs ==="
+                    
+                    # Find and display all test result log files
+                    find . -name "*.log" -path "*/TestResults/*" -type f | while read logfile; do
+                        echo "=== Content of $logfile ==="
+                        cat "$logfile" || echo "Could not read $logfile"
+                        echo ""
+                    done
+                    
+                    # Also look for TRX files which might contain detailed test results
+                    find . -name "*.trx" -path "*/TestResults/*" -type f | while read trxfile; do
+                        echo "=== Content of $trxfile ==="
+                        cat "$trxfile" || echo "Could not read $trxfile"
+                        echo ""
+                    done
+                    
+                    # List all files in TestResults directories for debugging
+                    echo "=== All files in TestResults directories ==="
+                    find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
 
             -   name: Update Linux status
                 if: always()
@@ -222,11 +248,14 @@ jobs:
                         DESCRIPTION="Linux tests failed"
                     fi
                     
+                    # Construct the workflow run URL
+                    WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                                        
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"$DESCRIPTION\"}"
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
 
     # ---------------------------------------------------------------------------------------
     # Windows
@@ -283,10 +312,15 @@ jobs:
                       $DESCRIPTION = "Windows tests failed"
                   }
                   
+                  
+                  # Construct the workflow run URL
+                  $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  
                   $body = @{
                       state = $STATUS
                       context = "Manual MultiPlatform CI - Windows"
                       description = $DESCRIPTION
+                      target_url = $WORKFLOW_URL
                   } | ConvertTo-Json
                   
                   Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" `
@@ -382,11 +416,14 @@ jobs:
                         DESCRIPTION="macOS tests failed"
                     fi
                     
+                    # Construct the workflow run URL
+                    WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"$DESCRIPTION\"}"
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
 
     # ---------------------------------------------------------------------------------------
     # Handle skipped platforms
@@ -402,13 +439,16 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
+                    # Construct the workflow run URL
+                    WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    
                     # Mark Linux as skipped if not enabled
                     if [[ "${{ github.event.inputs.run_linux }}" != "true" ]]; then
                         curl -X POST \
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
                           -H "Accept: application/vnd.github+json" \
                           https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - Linux","description":"Linux tests skipped"}'
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - Linux","description":"Linux tests skipped",\"target_url\":\"$WORKFLOW_URL\"}'
                     fi
                     
                     # Mark Windows as skipped if not enabled
@@ -417,7 +457,7 @@ jobs:
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
                           -H "Accept: application/vnd.github+json" \
                           https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - Windows","description":"Windows tests skipped"}'
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - Windows","description":"Windows tests skipped",\"target_url\":\"$WORKFLOW_URL\"}'
                     fi
                     
                     # Mark macOS as skipped if not enabled
@@ -426,5 +466,5 @@ jobs:
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
                           -H "Accept: application/vnd.github+json" \
                           https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - macOS","description":"macOS tests skipped"}'
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - macOS","description":"macOS tests skipped",\"target_url\":\"$WORKFLOW_URL\"}'
                     fi
