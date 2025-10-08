@@ -50,4 +50,21 @@ public class JavascriptTests : PhotinoWebviewTest {
         // Reset
         GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.PhotinoWindowTitle);
     }
+    
+    [Test]
+    [Skip("`window.close()` although supported by the library cannot be tested without killing the entire test process.")]
+    [NotInParallel(ParallelControl.Playwright)]
+    public async Task WindowClose() {
+        // Arrange
+        IPage page = await GetRootPageAsync();
+        
+        // Act
+       await page.EvaluateAsync(
+            // lang=javascript 
+            "() => window.close()"
+        ); 
+
+        // Assert
+        // can't really be asserted in the current context of the PhotinoWindow as it is already closed.
+    }
 }
