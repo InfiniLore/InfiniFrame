@@ -12,8 +12,6 @@ namespace Tests.Photino.Playwright;
 public class JavascriptInteropTests : PhotinoWebviewTest {
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux]
     [NotInParallel(ParallelControl.Playwright)]
     public async Task FullscreenHtmlButton_ShouldTogglePhotinoFullscreen() {
         // Arrange

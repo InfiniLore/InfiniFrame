@@ -13,8 +13,6 @@ using Tests.Photino.Playwright.Utility;
 public class WebviewWindowTests : PhotinoWebviewTest {
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux]
     [NotInParallel(ParallelControl.Playwright)]
     public async Task Title_ShouldBeExpectedValue() {
         // Arrange
