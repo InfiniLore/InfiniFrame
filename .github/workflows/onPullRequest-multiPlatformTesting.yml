@@ -211,7 +211,7 @@ jobs:
                         --no-build \
                         --no-restore \
                         --logger "console;verbosity=detailed"
-            
+
             -   name: Display test logs on failure
                 if: failure()
                 run: |
@@ -250,7 +250,7 @@ jobs:
                     
                     # Construct the workflow run URL
                     WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                                        
+                    
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
@@ -269,68 +269,82 @@ jobs:
             statuses: write
 
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v5
-              with:
-                  ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+                with:
+                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
-            - name: Setup .NET 9 SDK
-              uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: '9.x'
+            -   name: Setup .NET 9 SDK
+                uses: actions/setup-dotnet@v4
+                with:
+                    dotnet-version: '9.x'
 
-            - name: Restore dependencies
-              run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+            -   name: Restore dependencies
+                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
 
-            - name: Build (Release)
-              run: |
-                  dotnet build InfiniLore.Photino.GitHubActions.slnf `
-                    --configuration Release `
-                    --no-restore `
-                    -p:GeneratePackageOnBuild=false `
-                    -p:IsPackable=false
+            -   name: Build (Release)
+                run: |
+                    dotnet build InfiniLore.Photino.GitHubActions.slnf `
+                      --configuration Release `
+                      --no-restore `
+                      -p:GeneratePackageOnBuild=false `
+                      -p:IsPackable=false
 
-            - name: Run tests
-              run: |
-                  echo "Running tests on Windows..."
-                  dotnet test InfiniLore.Photino.GitHubActions.slnf `
-                    --configuration Release `
-                    --no-build `
-                    --no-restore `
-                    --logger "console;verbosity=detailed"
+            -   name: Install Playwright browsers
+                run: |
+                    echo "Installing Playwright browsers..."
+                    # Find the playwright.ps1 script in any target framework directory
+                    $playwrightScript = Get-ChildItem -Path "tests/Tests.Photino.Playwright/bin/Release" -Name "playwright.ps1" -Recurse | Select-Object -First 1
+                    if ($playwrightScript) {
+                        $scriptPath = Join-Path "tests/Tests.Photino.Playwright/bin/Release" $playwrightScript.DirectoryName "playwright.ps1"
+                        pwsh $scriptPath install
+                    } else {
+                        Write-Error "playwright.ps1 script not found in build output"
+                        exit 1
+                    }
+                shell: pwsh
 
-            - name: Update Windows status
-              if: always()
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  if ("${{ job.status }}" -eq "success") {
-                      $STATUS = "success"
-                      $DESCRIPTION = "Windows tests passed"
-                  } else {
-                      $STATUS = "failure"
-                      $DESCRIPTION = "Windows tests failed"
-                  }
-                  
-                  
-                  # Construct the workflow run URL
-                  $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  
-                  $body = @{
-                      state = $STATUS
-                      context = "Manual MultiPlatform CI - Windows"
-                      description = $DESCRIPTION
-                      target_url = $WORKFLOW_URL
-                  } | ConvertTo-Json
-                  
-                  Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" `
-                      -Method POST `
-                      -Headers @{
-                          "Authorization" = "Bearer $env:GITHUB_TOKEN"
-                          "Accept" = "application/vnd.github+json"
-                      } `
-                      -Body $body `
-                      -ContentType "application/json"
+            -   name: Run tests
+                run: |
+                    echo "Running tests on Windows..."
+                    dotnet test InfiniLore.Photino.GitHubActions.slnf `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --logger "console;verbosity=detailed"
+
+            -   name: Update Windows status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if ("${{ job.status }}" -eq "success") {
+                        $STATUS = "success"
+                        $DESCRIPTION = "Windows tests passed"
+                    } else {
+                        $STATUS = "failure"
+                        $DESCRIPTION = "Windows tests failed"
+                    }
+                    
+                    
+                    # Construct the workflow run URL
+                    $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    
+                    $body = @{
+                        state = $STATUS
+                        context = "Manual MultiPlatform CI - Windows"
+                        description = $DESCRIPTION
+                        target_url = $WORKFLOW_URL
+                    } | ConvertTo-Json
+                    
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" `
+                        -Method POST `
+                        -Headers @{
+                            "Authorization" = "Bearer $env:GITHUB_TOKEN"
+                            "Accept" = "application/vnd.github+json"
+                        } `
+                        -Body $body `
+                        -ContentType "application/json"
 
     # ---------------------------------------------------------------------------------------
     # macOS

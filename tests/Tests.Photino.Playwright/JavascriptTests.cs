@@ -10,6 +10,7 @@ namespace Tests.Photino.Playwright;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class JavascriptTests : PhotinoWebviewTest {
+    
     [Test]
     [SkipUtility.OnMacOs]
     [SkipUtility.OnLinux]

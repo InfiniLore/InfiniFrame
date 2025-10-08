@@ -11,6 +11,7 @@ using Tests.Photino.Playwright.Utility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebviewWindowTests : PhotinoWebviewTest {
+    
     [Test]
     [SkipUtility.OnMacOs]
     [SkipUtility.OnLinux]
