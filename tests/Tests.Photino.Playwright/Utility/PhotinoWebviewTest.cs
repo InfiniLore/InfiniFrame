@@ -49,7 +49,7 @@ public abstract class PhotinoWebviewTest : PageTest {
     /// <param name="interval">The interval at which to check for state changes. Defaults to 100 milliseconds if not specified.</param>
     /// <returns>The new state once it changes from the initial value or throws an exception if the timeout is exceeded.</returns>
     /// <exception cref="TUnit.Engine.Exceptions.TestFailedException">Thrown when the timeout for waiting for the state change is exceeded.</exception>
-    protected static async Task<T> WaitForStateChangeAsync<T>(Func<T> stateProvider, T initialValue, TimeSpan timeout = default, TimeSpan interval = default) {
+    protected static async Task<T> WaitForStateChangeAsync<T>(T initialValue, Func<T> stateProvider, TimeSpan timeout = default, TimeSpan interval = default) {
         if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(5);
         if (interval == TimeSpan.Zero) interval = TimeSpan.FromMilliseconds(100);
         
@@ -65,8 +65,8 @@ public abstract class PhotinoWebviewTest : PageTest {
         throw new TestFailedException("State change timeout exceeded", null);
     }
 
-    /// <inheritdoc cref="WaitForStateChangeAsync{T}(Func{T}, T, TimeSpan, TimeSpan)"/>
-    protected static async Task<T> WaitForStateChangeAsync<T>(Func<Task<T>> stateProvider, T initialValue, TimeSpan timeout = default, TimeSpan interval = default) {
+    /// <inheritdoc cref="WaitForStateChangeAsync{T}(T, Func{T}, TimeSpan, TimeSpan)"/>
+    protected static async Task<T> WaitForStateChangeAsync<T>(T initialValue, Func<Task<T>> stateProvider, TimeSpan timeout = default, TimeSpan interval = default) {
         if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(5);
         if (interval == TimeSpan.Zero) interval = TimeSpan.FromMilliseconds(100);
         

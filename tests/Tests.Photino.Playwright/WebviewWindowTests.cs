@@ -30,17 +30,24 @@ public class WebviewWindowTests : PhotinoWebviewTest {
         // Arrange
         bool originalFullscreenState = GlobalPlaywrightContext.Window.FullScreen;
         IPage page = await GetRootPageAsync();
+        const string buttonId = "#fullscreen-toggle-button";
         
         // Act
-        await page.ClickAsync("#fullscreen-toggle-button");
-        bool newFullscreenState = await WaitForStateChangeAsync(static () => GlobalPlaywrightContext.Window.FullScreen, originalFullscreenState) ;
-
+        await page.ClickAsync(buttonId);
+        bool newFullscreenState = await WaitForStateChangeAsync(
+            originalFullscreenState, 
+            static () => GlobalPlaywrightContext.Window.FullScreen
+        ) ;
+        
+        await page.ClickAsync(buttonId);
+        bool finalFullscreenState = await WaitForStateChangeAsync(
+            newFullscreenState, 
+            static () => GlobalPlaywrightContext.Window.FullScreen
+        );
+        
         // Assert
         await Assert.That(originalFullscreenState).IsFalse();
         await Assert.That(newFullscreenState).IsTrue();
-        
-        // Cleanup
-        await page.ClickAsync("#fullscreen-toggle-button");
-        await WaitForStateChangeAsync(() => GlobalPlaywrightContext.Window.FullScreen, newFullscreenState) ;
+        await Assert.That(finalFullscreenState).IsFalse();
     }
 }
