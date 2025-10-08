@@ -33,7 +33,7 @@ public class WebviewWindowTests : PhotinoWebviewTest {
         
         // Act
         await page.ClickAsync("#fullscreen-toggle-button");
-        bool newFullscreenState = await WaitForStateChangeAsync(() => GlobalPlaywrightContext.Window.FullScreen, originalFullscreenState) ;
+        bool newFullscreenState = await WaitForStateChangeAsync(static () => GlobalPlaywrightContext.Window.FullScreen, originalFullscreenState) ;
 
         // Assert
         await Assert.That(originalFullscreenState).IsFalse();
