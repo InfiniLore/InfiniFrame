@@ -8,4 +8,5 @@ namespace Tests.Shared.Photino;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class ParallelControl {
     public const string Photino = nameof(Photino);
+    public const string Playwright = nameof(Playwright);
 }

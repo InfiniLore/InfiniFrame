@@ -58,8 +58,7 @@ public class WindowServerTestUtility : IDisposable {
                 creationSignal.Set();
             }
         }) {
-            IsBackground = false, // Keep the thread alive
-            Name = "PhotonWindowThread"
+            IsBackground = false // Keep the thread alive
         };
         
         // Set apartment state for Windows compatibility
@@ -69,13 +68,8 @@ public class WindowServerTestUtility : IDisposable {
         // Wait for the window and server to be created
         creationSignal.Wait();
         
-        if (creationException != null) {
-            throw new InvalidOperationException("Failed to create window and server", creationException);
-        }
-        
-        if (utility == null) {
-            throw new InvalidOperationException("Window utility was not created");
-        }
+        if (creationException != null) throw new InvalidOperationException("Failed to create window and server", creationException);
+        if (utility == null) throw new InvalidOperationException("Window utility was not created");
         
         // Give a bit more time for the window to fully initialize
         Thread.Sleep(2000);
@@ -87,10 +81,7 @@ public class WindowServerTestUtility : IDisposable {
         if (!_cancellationTokenSource.IsCancellationRequested) {
             _cancellationTokenSource.Cancel();
             
-            // Close the window on its own thread
-            Window.Invoke(() => {
-                Window.Close();
-            });
+            Window.Close();
             
             // Give the window thread time to close gracefully
             if (!_windowThread.Join(TimeSpan.FromSeconds(5))) {
