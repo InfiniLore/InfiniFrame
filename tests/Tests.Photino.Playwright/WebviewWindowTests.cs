@@ -34,11 +34,11 @@ public class WebviewWindowTests : PhotinoWebviewTest {
         // Arrange
         IPage page = await GetRootPageAsync();
         
-        // lang=javascript
-        const string js = "() => window.infiniWindow !== undefined && window.infiniWindow !== null";
-        
         // Act
-        bool isInitialized = await page.EvaluateAsync<bool>(js); 
+        bool isInitialized = await page.EvaluateAsync<bool>(
+            // lang=javascript 
+            "() => window.infiniWindow !== undefined && window.infiniWindow !== null"
+        ); 
 
         // Assert
         await Assert.That(isInitialized).IsTrue();   
