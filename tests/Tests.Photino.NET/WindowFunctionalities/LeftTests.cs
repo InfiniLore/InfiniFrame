@@ -53,8 +53,8 @@ public class LeftTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -69,8 +69,8 @@ public class LeftTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange

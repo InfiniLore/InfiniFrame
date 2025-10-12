@@ -32,7 +32,7 @@ public class MaxSizeTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -47,7 +47,7 @@ public class MaxSizeTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window_AsSize() {
         // Arrange
@@ -62,7 +62,7 @@ public class MaxSizeTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange

@@ -32,7 +32,7 @@ public class RegisterCustomSchemeHandlerTests {
     
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -51,7 +51,7 @@ public class RegisterCustomSchemeHandlerTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange

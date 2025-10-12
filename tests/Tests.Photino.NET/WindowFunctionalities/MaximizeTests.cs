@@ -29,7 +29,7 @@ public class MaximizeTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -48,8 +48,8 @@ public class MaximizeTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -67,7 +67,7 @@ public class MaximizeTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

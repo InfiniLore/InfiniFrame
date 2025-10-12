@@ -34,7 +34,7 @@ public class TitleTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments("")]
     [Arguments(null)]
@@ -55,7 +55,7 @@ public class TitleTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments("")]
     [Arguments(null)]

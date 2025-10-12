@@ -57,8 +57,8 @@ public class SizeTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -73,8 +73,8 @@ public class SizeTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window_AsSize() {
         // Arrange
@@ -89,7 +89,7 @@ public class SizeTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange
@@ -107,8 +107,8 @@ public class SizeTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window_WithChromelessToGetSmallestSize() {
         // Arrange
@@ -123,7 +123,7 @@ public class SizeTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration_WithChromelessToGetSmallestSize() {
         // Arrange

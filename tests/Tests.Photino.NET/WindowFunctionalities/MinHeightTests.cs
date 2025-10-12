@@ -28,7 +28,7 @@ public class MinHeightTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -43,7 +43,7 @@ public class MinHeightTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange

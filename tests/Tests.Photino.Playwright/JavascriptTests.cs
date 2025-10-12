@@ -31,7 +31,7 @@ public class JavascriptTests : PhotinoWebviewTest {
     
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task DynamicallyUpdateTitleFromJS() {
+    public async Task DynamicallyUpdateTitleFromJs() {
         // Arrange
         IPage page = await GetRootPageAsync();
         string originalTitle = GlobalPlaywrightContext.Window.Title;

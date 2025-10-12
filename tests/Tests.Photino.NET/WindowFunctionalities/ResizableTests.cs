@@ -29,7 +29,7 @@ public class Resizable {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -47,7 +47,7 @@ public class Resizable {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

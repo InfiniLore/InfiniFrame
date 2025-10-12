@@ -32,8 +32,8 @@ public class CenterTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -57,8 +57,8 @@ public class CenterTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

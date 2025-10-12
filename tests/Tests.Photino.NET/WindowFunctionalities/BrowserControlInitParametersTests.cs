@@ -11,8 +11,8 @@ using Tests.Shared.Photino;
 public class BrowserControlInitParametersTests {
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     public async Task Builder() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();

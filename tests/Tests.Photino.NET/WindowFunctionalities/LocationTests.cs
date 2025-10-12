@@ -58,8 +58,8 @@ public class LocationTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -74,8 +74,8 @@ public class LocationTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window_AsPoint() {
         // Arrange
@@ -90,7 +90,7 @@ public class LocationTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     public async Task FullIntegration() {
         // Arrange
 

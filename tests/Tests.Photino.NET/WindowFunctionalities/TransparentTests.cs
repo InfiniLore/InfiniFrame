@@ -29,8 +29,8 @@ public class TransparentTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux("For some reason the tets environment doesnt support transparency")]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux("For some reason the tets environment doesnt support transparency")]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -48,7 +48,7 @@ public class TransparentTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

@@ -10,7 +10,7 @@ public class WindowTests {
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task InstanceHandle_IsDefined() {
         // Arrange
@@ -24,7 +24,7 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task WindowHandle_IsDefined() {
         // Arrange
@@ -40,7 +40,7 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Monitors_IsNotEmpty() {
         // Arrange
@@ -55,7 +55,7 @@ public class WindowTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task NativeType_IsDefined() {
         // Arrange
@@ -69,7 +69,7 @@ public class WindowTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Close_IsDefined() {
         // Arrange

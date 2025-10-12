@@ -14,8 +14,8 @@ using Tests.Shared.Photino;
 public class ResizeTests {
 
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.Photino)]
     
     [Arguments(0, 0, ResizeOrigin.TopLeft)]

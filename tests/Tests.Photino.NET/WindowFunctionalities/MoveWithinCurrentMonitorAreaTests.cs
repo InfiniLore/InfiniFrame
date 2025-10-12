@@ -15,8 +15,8 @@ using Tests.Shared.Photino;
 public class MoveWithinCurrentMonitorAreaTests {
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(0, 0, 0,0)]
     [Arguments(100, 100, 100,100)]
@@ -44,8 +44,8 @@ public class MoveWithinCurrentMonitorAreaTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(0, 0, 0,0)]
     [Arguments(100, 100, 100,100)]
@@ -73,8 +73,8 @@ public class MoveWithinCurrentMonitorAreaTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(0, 0, 0,0)]
     [Arguments(100, 100, 100,100)]
