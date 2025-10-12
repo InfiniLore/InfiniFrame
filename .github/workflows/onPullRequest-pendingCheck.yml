@@ -13,7 +13,7 @@ jobs:
         
         steps:
             - name: Print PR info
-              run: echo "Processing PR #${{ github.event.pull_request.number }} in repo ${{ github.repository }}"
+              run: echo "Processing PR ${{ github.event.pull_request.number }} in repo ${{ github.repository }}"
 
             - name: Define context list
               id: define-contexts
