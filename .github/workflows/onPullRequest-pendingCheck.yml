@@ -84,4 +84,4 @@ jobs:
                       -d "{\"state\": \"pending\", \"context\": \"$context\", \"description\": \"Waiting for manual trigger via workflow_dispatch.\", \"target_url\": \"$WORKFLOW_URL\"}"
                   done
 
-                  echo "✅ Successfully set pending statuses for all three platforms"
+                  echo "Successfully set pending statuses for all three platforms"
