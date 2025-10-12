@@ -12,87 +12,76 @@ jobs:
             statuses: write
         
         steps:
-            -   name: Cancel previous pending statuses and mark current as pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    echo "Processing PR #${{ github.event.pull_request.number }}"
-                    
-                    # Define the status contexts for each platform
-                    CONTEXTS=("Manual MultiPlatform CI - Linux" "Manual MultiPlatform CI - Windows" "Manual MultiPlatform CI - macOS")
-                    
-                    # Get all commits in this specific PR
-                    PR_COMMITS=$(curl -s \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits" \
-                      | jq -r '.[].sha')
-                    
-                    # Process each commit in the PR (except the current one)
-                    for commit in $PR_COMMITS; do
-                      if [ "$commit" != "${{ github.event.pull_request.head.sha }}" ]; then
-                        echo "Checking statuses for commit: $commit"
-                    
-                        # Get current statuses for this commit
-                        STATUSES=$(curl -s \
-                          -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github+json" \
-                          "https://api.github.com/repos/${{ github.repository }}/commits/$commit/statuses")
-                    
-                        # Check and cancel pending statuses for each platform context
-                        for context in "${CONTEXTS[@]}"; do
-                          PENDING_STATUS=$(echo "$STATUSES" | jq -r --arg ctx "$context" '.[] | select(.context == $ctx and .state == "pending") | .context')
-                    
-                          if [ "$PENDING_STATUS" = "$context" ]; then
-                            echo "Found pending $context status for $commit, cancelling it..."
-                            curl -X POST \
-                              -H "Authorization: Bearer $GITHUB_TOKEN" \
-                              -H "Accept: application/vnd.github+json" \
-                              "https://api.github.com/repos/${{ github.repository }}/statuses/$commit" \
-                              -d "{\"state\": \"error\", \"context\": \"$context\", \"description\": \"Cancelled - superseded by newer commit\"}"
-                          else
-                            echo "No pending $context status found for $commit"
-                          fi
-                        done
-                    
-                        # Also check for the old single status context for backward compatibility
-                        OLD_PENDING_STATUS=$(echo "$STATUSES" | jq -r '.[] | select(.context == "Manual MultiPlatform CI" and .state == "pending") | .context')
-                        if [ "$OLD_PENDING_STATUS" = "Manual MultiPlatform CI" ]; then
-                          echo "Found old pending Manual MultiPlatform CI status for $commit, cancelling it..."
+            - name: Print PR info
+              run: echo "Processing PR ${{ github.event.pull_request.number }} in repo ${{ github.repository }}"
+
+            - name: Define context list
+              id: define-contexts
+              run: |
+                  CONTEXTS=("Manual MultiPlatform CI - Linux" "Manual MultiPlatform CI - Windows" "Manual MultiPlatform CI - macOS")
+                  echo "CONTEXTS=${CONTEXTS[*]}" >> $GITHUB_ENV
+
+            - name: Cancel pending statuses on older commits
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  CONTEXTS: ${{ env.CONTEXTS }}
+              run: |
+                  IFS=' ' read -r -a CONTEXT_ARRAY <<< "$CONTEXTS"
+
+                  echo "Fetching commits in PR..."
+                  PR_COMMITS=$(curl -s \
+                    -H "Authorization: Bearer $GITHUB_TOKEN" \
+                    -H "Accept: application/vnd.github+json" \
+                    "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits" \
+                    | jq -r '.[].sha')
+
+                  for commit in $PR_COMMITS; do
+                    if [ "$commit" != "${{ github.event.pull_request.head.sha }}" ]; then
+                      echo "Checking statuses for commit: $commit"
+                      STATUSES=$(curl -s \
+                        -H "Authorization: Bearer $GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github+json" \
+                        "https://api.github.com/repos/${{ github.repository }}/commits/$commit/statuses")
+
+                      for context in "${CONTEXT_ARRAY[@]}"; do
+                        PENDING_STATUS=$(echo "$STATUSES" | jq -r --arg ctx "$context" '.[] | select(.context == $ctx and .state == "pending") | .context')
+                        if [ "$PENDING_STATUS" = "$context" ]; then
+                          echo "Found pending $context status for $commit, cancelling..."
                           curl -X POST \
                             -H "Authorization: Bearer $GITHUB_TOKEN" \
                             -H "Accept: application/vnd.github+json" \
                             "https://api.github.com/repos/${{ github.repository }}/statuses/$commit" \
-                            -d '{"state": "error", "context": "Manual MultiPlatform CI", "description": "Cancelled - superseded by newer commit"}'
+                            -d "{\"state\": \"error\", \"context\": \"$context\", \"description\": \"Cancelled - superseded by newer commit\"}"
                         fi
+                      done
+
+                      OLD_PENDING=$(echo "$STATUSES" | jq -r '.[] | select(.context == "Manual MultiPlatform CI" and .state == "pending") | .context')
+                      if [ "$OLD_PENDING" = "Manual MultiPlatform CI" ]; then
+                        echo "Found legacy pending Manual MultiPlatform CI status for $commit, cancelling..."
+                        curl -X POST \
+                          -H "Authorization: Bearer $GITHUB_TOKEN" \
+                          -H "Accept: application/vnd.github+json" \
+                          "https://api.github.com/repos/${{ github.repository }}/statuses/$commit" \
+                          -d '{"state": "error", "context": "Manual MultiPlatform CI", "description": "Cancelled - superseded by newer commit"}'
                       fi
-                    done
-                    
-                    # Set pending status for each platform on current commit
-                    echo "Setting pending statuses for current commit: ${{ github.event.pull_request.head.sha }}"
-                    
-                    # Set the URL for easy navigation to launching the workflow
-                    WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/onPullRequest-multiPlatformTesting.yml"
-                      
-                    # Linux status
+                    fi
+                  done
+
+            - name: Set new pending statuses for current commit
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  CONTEXTS=("Manual MultiPlatform CI - Linux" "Manual MultiPlatform CI - Windows" "Manual MultiPlatform CI - macOS")
+                  echo "Setting pending statuses for current commit: ${{ github.event.pull_request.head.sha }}"
+                  WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/onPullRequest-multiPlatformTesting.yml"
+
+                  for context in "${CONTEXTS[@]}"; do
+                    echo "Setting pending for $context"
                     curl -X POST \
-                    -H "Authorization: Bearer $GITHUB_TOKEN" \
-                    -H "Accept: application/vnd.github+json" \
-                        "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
-                    -d "{\"state\": \"pending\", \"context\": \"Manual MultiPlatform CI - Linux\", \"description\": \"Waiting for manual trigger via workflow_dispatch.\", \"target_url\": \"$WORKFLOW_URL\"}"
-                    
-                    # Windows status
-                    curl -X POST \
-                    -H "Authorization: Bearer $GITHUB_TOKEN" \
-                    -H "Accept: application/vnd.github+json" \
-                        "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
-                    -d "{\"state\": \"pending\", \"context\": \"Manual MultiPlatform CI - Windows\", \"description\": \"Waiting for manual trigger via workflow_dispatch.\", \"target_url\": \"$WORKFLOW_URL\"}"
-                    
-                    # macOS status
-                    curl -X POST \
-                    -H "Authorization: Bearer $GITHUB_TOKEN" \
-                    -H "Accept: application/vnd.github+json" \
-                        "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
-                    -d "{\"state\": \"pending\", \"context\": \"Manual MultiPlatform CI - macOS\", \"description\": \"Waiting for manual trigger via workflow_dispatch.\", \"target_url\": \"$WORKFLOW_URL\"}"
-                        
-                    echo "Successfully set pending statuses for all three platforms"
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
+                      -d "{\"state\": \"pending\", \"context\": \"$context\", \"description\": \"Waiting for manual trigger via workflow_dispatch.\", \"target_url\": \"$WORKFLOW_URL\"}"
+                  done
+
+                  echo "✅ Successfully set pending statuses for all three platforms"
