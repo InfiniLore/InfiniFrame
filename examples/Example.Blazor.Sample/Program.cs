@@ -1,14 +1,13 @@
 ﻿using InfiniLore.Photino.Blazor;
+using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using InfiniLore.Photino.NET;
-
-namespace Example.Blazor.Sample;
 using System.Drawing;
 
+namespace Example.Blazor.Sample;
 public static class Program {
-    [STAThread] 
+    [STAThread]
     private static void Main(string[] args) {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
 
@@ -23,27 +22,25 @@ public static class Program {
         });
 
         // register root component and selector
-        appBuilder.RootComponents.Add<App>("app");
+        appBuilder.AddRootComponent<App>("app");
 
-        appBuilder.WithPhotinoWindowBuilder(builder => {
-            builder
-                // .SetTransparent(true)
-                .SetChromeless(true)
-                // .SetResizable(true)
-                .SetIconFile("favicon.ico")
-                // .Center()
-                // .SetUseOsDefaultSize(true)
-                // .SetUseOsDefaultLocation(true);
-                // .SetTitle("InfiniLore Photino.Blazor Sample")
-                .SetLocation(new Point(100, 100))
-                .SetSize(new Size(800, 600))
-                // .SetMaxSize(new Size(800, 600))
-                // .SetMinSize(new Size(600, 400))
-                ;
-        });
+        appBuilder.Window
+            // .SetTransparent(true)
+            .SetChromeless(true)
+            // .SetResizable(true)
+            .SetIconFile("favicon.ico")
+            // .Center()
+            // .SetUseOsDefaultSize(true)
+            // .SetUseOsDefaultLocation(true);
+            // .SetTitle("InfiniLore Photino.Blazor Sample")
+            .SetLocation(new Point(100, 100))
+            .SetSize(new Size(800, 600))
+            // .SetMaxSize(new Size(800, 600))
+            // .SetMinSize(new Size(600, 400))
+            ;
 
         PhotinoBlazorApp app = appBuilder.Build();
-        
+
         app.Run();
     }
 }

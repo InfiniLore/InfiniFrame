@@ -20,10 +20,14 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
 
     private PhotinoNativeParameters GetParameters(IServiceProvider? provider = null) {
         if (provider is null) return Configuration.ToParameters();
-        
+    
+        // First try to get the registered IPhotinoConfiguration from services
+        var photinoConfiguration = provider.GetService<IPhotinoConfiguration>();
+        if (photinoConfiguration != null) return photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
+
         var config = provider.GetService<IConfiguration>();
-        var photinoConfiguration = config?.Get<IPhotinoConfiguration>();
-        
+        photinoConfiguration = config?.Get<PhotinoConfiguration>();
+
         return photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
     }
 
