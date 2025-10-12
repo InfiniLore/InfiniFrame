@@ -203,38 +203,49 @@ jobs:
                     
                     # Test window capabilities
                     echo "Testing window manager capabilities..."
-                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "✓ Window manager responding" || echo "✗ Window manager not responding"
+                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || echo "Window manager not responding"
                     
                     echo "=== Running Tests ==="
                     dotnet test InfiniLore.Photino.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
-                        --no-restore \
-                        --logger "console;verbosity=detailed"
-
+                        --no-restore
+                    
             -   name: Display test logs on failure
                 if: failure()
                 run: |
                     echo "=== Test Run Failed - Displaying Logs ==="
                     
-                    # Find and display all test result log files
+                    # Function to strip ANSI escape codes for readability
+                    strip_ansi() {
+                        sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
+                    }
+                    
                     find . -name "*.log" -path "*/TestResults/*" -type f | while read logfile; do
                         echo "=== Content of $logfile ==="
-                        cat "$logfile" || echo "Could not read $logfile"
+                        cat "$logfile" | strip_ansi || echo "Could not read $logfile"
                         echo ""
                     done
                     
-                    # Also look for TRX files which might contain detailed test results
                     find . -name "*.trx" -path "*/TestResults/*" -type f | while read trxfile; do
                         echo "=== Content of $trxfile ==="
-                        cat "$trxfile" || echo "Could not read $trxfile"
+                        cat "$trxfile" | strip_ansi || echo "Could not read $trxfile"
                         echo ""
                     done
                     
-                    # List all files in TestResults directories for debugging
                     echo "=== All files in TestResults directories ==="
                     find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
 
+            - name: Upload test results as artifact
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-logs
+                  path: |
+                      **/TestResults/*.log
+                      **/TestResults/*.trx
+        
+            
             -   name: Update Linux status
                 if: always()
                 env:
