@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
@@ -23,11 +25,18 @@ public class PhotinoBlazorAppBuilder {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         // Configure for desktop app (no listening ports by default)
-        builder.WebHost.UseUrls();// Empty URLs - no network listening
+        builder.WebHost.UseWebRoot("wwwroot");
+        builder.WebHost.UseUrls();
 
         // Add Blazor services
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
+        
+        builder.Services.AddLogging(logging =>
+        {
+            logging.AddConsole();
+            logging.SetMinimumLevel(LogLevel.Trace); // Very verbose
+        });
 
         builder.Services
             .AddScoped<IInfiniWindowJs, InfiniWindowJs>()
@@ -48,6 +57,14 @@ public class PhotinoBlazorAppBuilder {
         var windowBuilder = PhotinoWindowBuilder.Create();
         builder.Services.AddSingleton<IPhotinoWindowBuilder>(windowBuilder);
         builder.Services.AddSingleton(windowBuilder.Configuration);
+        
+        
+        builder.Services.AddHttpClient();
+        
+        // Or if you want a base address configured:
+        builder.Services.AddScoped(sp => new HttpClient { 
+            BaseAddress = new Uri(sp.GetRequiredService<IPhotinoConfiguration>().StartUrl ?? "http://localhost") 
+        });
 
         return new PhotinoBlazorAppBuilder(builder, windowBuilder);
     }
@@ -99,15 +116,16 @@ public class PhotinoBlazorAppBuilder {
 
         // Configure the request pipeline for desktop mode
         webApp.UseStaticFiles();
+        webApp.UseRouting();
         webApp.UseAntiforgery();
 
         // Get the root component configuration
-        var rootComponentConfig = Services.BuildServiceProvider()
+        RootComponentConfiguration? rootComponentConfig = Services.BuildServiceProvider()
             .GetService<IOptions<RootComponentConfiguration>>()?.Value;
 
         // Map the first root component (or a default if none specified)
         if (rootComponentConfig?.Components.Count > 0) {
-            var firstComponent = rootComponentConfig.Components[0];
+            RootComponentDescriptor firstComponent = rootComponentConfig.Components[0];
             MethodInfo? mapMethod = typeof(RazorComponentsEndpointRouteBuilderExtensions)
                 .GetMethod(nameof(RazorComponentsEndpointRouteBuilderExtensions.MapRazorComponents))
                 ?.MakeGenericMethod(firstComponent.ComponentType);
@@ -120,6 +138,9 @@ public class PhotinoBlazorAppBuilder {
                 addInteractiveMethod?.Invoke(null, new[] { razorComponents });
             }
         }
+        
+        webApp.MapBlazorHub();
+        webApp.MapFallbackToFile("index.html");
 
         return new PhotinoBlazorApp(webApp, Window);
     }

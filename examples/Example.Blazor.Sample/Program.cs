@@ -26,7 +26,7 @@ public static class Program {
 
         appBuilder.Window
             // .SetTransparent(true)
-            .SetChromeless(true)
+            // .SetChromeless(true)
             // .SetResizable(true)
             .SetIconFile("favicon.ico")
             // .Center()
