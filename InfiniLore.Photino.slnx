@@ -5,6 +5,9 @@
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="Directory.Packages.props" />
+    <File Path="InfiniLore.Photino.GitHubActions.Linux.slnf" />
+    <File Path="InfiniLore.Photino.GitHubActions.Windows.slnf" />
+    <File Path="InfiniLore.Photino.GitHubActions.MacOs.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />
@@ -38,5 +41,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests\Tests.Photino.NET\Tests.Photino.NET.csproj" Type="Classic C#" />
+    <Project Path="tests\Tests.Photino.Playwright\Tests.Photino.Playwright.csproj" Type="Classic C#" />
+    <Project Path="tests\Tests.Shared.Photino\Tests.Shared.Photino.csproj" Type="Classic C#" />
   </Folder>
 </Solution>

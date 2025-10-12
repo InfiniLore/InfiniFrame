@@ -2,9 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.Photino.NET;
-using Tests.Photino.NET.TestUtilities;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
+using Tests.Shared.Photino;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -43,7 +44,7 @@ public class IconFilePathTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -58,7 +59,7 @@ public class IconFilePathTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window_ShouldNotSetInvalidIconFilePath() {
         // Arrange
@@ -73,7 +74,7 @@ public class IconFilePathTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange

@@ -2,11 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.Photino.NET;
-using Tests.Photino.NET.TestUtilities;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.Photino;
 using System.Drawing;
+using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -14,8 +14,8 @@ using System.Drawing;
 public class ResizeTests {
 
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.Photino)]
     
     [Arguments(0, 0, ResizeOrigin.TopLeft)]

@@ -4,7 +4,7 @@
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.Photino;
 using InfiniLore.Photino.NET;
-using Tests.Photino.NET.TestUtilities;
+using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -32,7 +32,7 @@ public class RegisterCustomSchemeHandlerTests {
     
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange
@@ -51,7 +51,7 @@ public class RegisterCustomSchemeHandlerTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
+    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.Photino)]
     public async Task FullIntegration() {
         // Arrange

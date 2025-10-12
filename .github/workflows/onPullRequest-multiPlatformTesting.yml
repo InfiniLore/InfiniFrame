@@ -138,10 +138,10 @@ jobs:
                         xfonts-base
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Linux.slnf
 
             -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+                run: dotnet build InfiniLore.Photino.GitHubActions.Linux.slnf --configuration Release --no-restore
 
             -   name: Start desktop environment and run tests
                 run: |
@@ -203,38 +203,48 @@ jobs:
                     
                     # Test window capabilities
                     echo "Testing window manager capabilities..."
-                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "✓ Window manager responding" || echo "✗ Window manager not responding"
+                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || echo "Window manager not responding"
                     
                     echo "=== Running Tests ==="
-                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    dotnet test InfiniLore.Photino.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
-                        --no-restore \
-                        --logger "console;verbosity=detailed"
-            
+                        --no-restore
+                    
             -   name: Display test logs on failure
                 if: failure()
                 run: |
                     echo "=== Test Run Failed - Displaying Logs ==="
                     
-                    # Find and display all test result log files
+                    # Function to strip ANSI escape codes for readability
+                    strip_ansi() {
+                        sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
+                    }
+                    
                     find . -name "*.log" -path "*/TestResults/*" -type f | while read logfile; do
                         echo "=== Content of $logfile ==="
-                        cat "$logfile" || echo "Could not read $logfile"
+                        cat "$logfile" | strip_ansi || echo "Could not read $logfile"
                         echo ""
                     done
                     
-                    # Also look for TRX files which might contain detailed test results
                     find . -name "*.trx" -path "*/TestResults/*" -type f | while read trxfile; do
                         echo "=== Content of $trxfile ==="
-                        cat "$trxfile" || echo "Could not read $trxfile"
+                        cat "$trxfile" | strip_ansi || echo "Could not read $trxfile"
                         echo ""
                     done
                     
-                    # List all files in TestResults directories for debugging
                     echo "=== All files in TestResults directories ==="
                     find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
 
+            - name: Upload test results as artifact
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-logs
+                  path: |
+                      **/TestResults/*.log
+                      **/TestResults/*.trx
+            
             -   name: Update Linux status
                 if: always()
                 env:
@@ -250,7 +260,7 @@ jobs:
                     
                     # Construct the workflow run URL
                     WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                                        
+                    
                     curl -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
@@ -269,68 +279,91 @@ jobs:
             statuses: write
 
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v5
-              with:
-                  ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+                with:
+                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+                    
+#            -   name: Cache Playwright browsers
+#                uses: actions/cache@v4
+#                with:
+#                    path: |
+#                        ~\AppData\Local\ms-playwright
+#                    key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json', '**/playwright.ps1') }}
+#                    restore-keys: |
+#                        ${{ runner.os }}-playwright-
 
-            - name: Setup .NET 9 SDK
-              uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: '9.x'
+            -   name: Setup .NET 9 SDK
+                uses: actions/setup-dotnet@v4
+                with:
+                    dotnet-version: '9.x'
 
-            - name: Restore dependencies
-              run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+            -   name: Restore dependencies
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
 
-            - name: Build (Release)
-              run: |
-                  dotnet build InfiniLore.Photino.GitHubActions.slnf `
-                    --configuration Release `
-                    --no-restore `
-                    -p:GeneratePackageOnBuild=false `
-                    -p:IsPackable=false
+            -   name: Build (Release)
+                run: |
+                    dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
+                      --configuration Release `
+                      --no-restore `
+                      -p:GeneratePackageOnBuild=false `
+                      -p:IsPackable=false
 
-            - name: Run tests
-              run: |
-                  echo "Running tests on Windows..."
-                  dotnet test InfiniLore.Photino.GitHubActions.slnf `
-                    --configuration Release `
-                    --no-build `
-                    --no-restore `
-                    --logger "console;verbosity=detailed"
+#            -   name: Install Playwright browsers
+#                run: |
+#                    echo "Installing Playwright browsers..."
+#                    
+#                    # Find the playwright.ps1 script in any target framework directory
+#                    $playwrightScript = Get-ChildItem -Path "tests/Tests.Photino.Playwright/bin/Release" -Filter "playwright.ps1" -Recurse | Select-Object -First 1
+#                    if ($playwrightScript) {
+#                        pwsh $playwrightScript.FullName install
+#                    } else {
+#                        Write-Error "playwright.ps1 script not found in build output"
+#                        exit 1
+#                    }
+#                shell: pwsh
 
-            - name: Update Windows status
-              if: always()
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  if ("${{ job.status }}" -eq "success") {
-                      $STATUS = "success"
-                      $DESCRIPTION = "Windows tests passed"
-                  } else {
-                      $STATUS = "failure"
-                      $DESCRIPTION = "Windows tests failed"
-                  }
-                  
-                  
-                  # Construct the workflow run URL
-                  $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  
-                  $body = @{
-                      state = $STATUS
-                      context = "Manual MultiPlatform CI - Windows"
-                      description = $DESCRIPTION
-                      target_url = $WORKFLOW_URL
-                  } | ConvertTo-Json
-                  
-                  Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" `
-                      -Method POST `
-                      -Headers @{
-                          "Authorization" = "Bearer $env:GITHUB_TOKEN"
-                          "Accept" = "application/vnd.github+json"
-                      } `
-                      -Body $body `
-                      -ContentType "application/json"
+            -   name: Run tests
+                run: |
+                    echo "Running tests on Windows..."
+                    dotnet test InfiniLore.Photino.GitHubActions.Windows.slnf `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --logger "console;verbosity=detailed"
+
+            -   name: Update Windows status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if ("${{ job.status }}" -eq "success") {
+                        $STATUS = "success"
+                        $DESCRIPTION = "Windows tests passed"
+                    } else {
+                        $STATUS = "failure"
+                        $DESCRIPTION = "Windows tests failed"
+                    }
+                    
+                    
+                    # Construct the workflow run URL
+                    $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    
+                    $body = @{
+                        state = $STATUS
+                        context = "Manual MultiPlatform CI - Windows"
+                        description = $DESCRIPTION
+                        target_url = $WORKFLOW_URL
+                    } | ConvertTo-Json
+                    
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" `
+                        -Method POST `
+                        -Headers @{
+                            "Authorization" = "Bearer $env:GITHUB_TOKEN"
+                            "Accept" = "application/vnd.github+json"
+                        } `
+                        -Body $body `
+                        -ContentType "application/json"
 
     # ---------------------------------------------------------------------------------------
     # macOS
@@ -375,10 +408,10 @@ jobs:
                         ${{ runner.os }}-build-
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.MacOs.slnf
 
             -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+                run: dotnet build InfiniLore.Photino.GitHubActions.MacOs.slnf --configuration Release --no-restore
 
             -   name: Setup GUI environment and run tests
                 run: |
@@ -397,7 +430,7 @@ jobs:
                     echo "=== Running Tests ==="
 
                     # Run tests
-                    dotnet test InfiniLore.Photino.GitHubActions.slnf \
+                    dotnet test InfiniLore.Photino.GitHubActions.MacOs.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
@@ -448,7 +481,7 @@ jobs:
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
                           -H "Accept: application/vnd.github+json" \
                           https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - Linux","description":"Linux tests skipped",\"target_url\":\"$WORKFLOW_URL\"}'
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - Linux","description":"skipped","target_url":"$WORKFLOW_URL"}'
                     fi
                     
                     # Mark Windows as skipped if not enabled
@@ -457,7 +490,7 @@ jobs:
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
                           -H "Accept: application/vnd.github+json" \
                           https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - Windows","description":"Windows tests skipped",\"target_url\":\"$WORKFLOW_URL\"}'
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - Windows","description":"skipped","target_url":"$WORKFLOW_URL"}'
                     fi
                     
                     # Mark macOS as skipped if not enabled
@@ -466,5 +499,5 @@ jobs:
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
                           -H "Accept: application/vnd.github+json" \
                           https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - macOS","description":"macOS tests skipped",\"target_url\":\"$WORKFLOW_URL\"}'
+                          -d '{"state":"success","context":"Manual MultiPlatform CI - macOS","description":"skipped","target_url":"$WORKFLOW_URL"}'
                     fi

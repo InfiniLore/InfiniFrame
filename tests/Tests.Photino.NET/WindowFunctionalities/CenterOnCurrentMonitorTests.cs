@@ -2,20 +2,20 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.Photino.NET;
-using Tests.Photino.NET.TestUtilities;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.Photino;
 using InfiniLore.Photino.Utilities;
 using System.Drawing;
+using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterOnCurrentMonitorTests {
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnLinux(SkipUtility.LinuxMovement)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.Photino)]
     public async Task Window() {
         // Arrange

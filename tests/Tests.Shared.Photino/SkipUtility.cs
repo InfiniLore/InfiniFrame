@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace Tests.Photino.NET.TestUtilities;
+namespace Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -12,17 +12,17 @@ public static class SkipUtility {
     #endregion
     
     #region Attributes
-    public class OnLinuxAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Linux environments") {
+    public class SkipOnLinuxAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Linux environments") {
         public override Task<bool> ShouldSkip(TestRegisteredContext context)
             => Task.FromResult(OperatingSystem.IsLinux());
     }
 
-    public class OnWindowsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
+    public class SkipOnWindowsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
         public override Task<bool> ShouldSkip(TestRegisteredContext context)
             => Task.FromResult(OperatingSystem.IsWindows());
     }
         
-    public class OnMacOsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Mac OS environments") {
+    public class SkipOnMacOsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Mac OS environments") {
         public override Task<bool> ShouldSkip(TestRegisteredContext context)
             => Task.FromResult(OperatingSystem.IsMacOS());
     }

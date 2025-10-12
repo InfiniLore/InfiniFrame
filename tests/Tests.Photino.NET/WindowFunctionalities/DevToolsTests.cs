@@ -2,9 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.Photino.NET;
-using Tests.Photino.NET.TestUtilities;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
+using Tests.Shared.Photino;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,8 +29,8 @@ public class DevToolsTests {
     }
     
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnWindows("For some reason it keeps tripping up the transport connection")]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]
@@ -47,8 +48,8 @@ public class DevToolsTests {
     }
 
     [Test]
-    [SkipUtility.OnMacOs]
-    [SkipUtility.OnWindows("For some reason it keeps tripping up the transport connection")]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
     [NotInParallel(ParallelControl.Photino)]
     [Arguments(true)]
     [Arguments(false)]

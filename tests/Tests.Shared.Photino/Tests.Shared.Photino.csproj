@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="TUnit.Core" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\InfiniLore.Photino.NET.Server\InfiniLore.Photino.NET.Server.csproj" />
+      <ProjectReference Include="..\..\src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
+      <ProjectReference Include="..\..\src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
+    </ItemGroup>
+
+</Project>

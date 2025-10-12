@@ -3,12 +3,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.Photino.NET;
 
-namespace Tests.Photino.NET.TestUtilities;
+namespace Tests.Shared.Photino;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowTestUtility : IDisposable {
     public required IPhotinoWindow Window { get; init; }
+    
+    private WindowTestUtility() { }
 
     public static WindowTestUtility Create(Action<IPhotinoWindowBuilder>? builder = null) {
         var windowBuilder = PhotinoWindowBuilder.Create();
