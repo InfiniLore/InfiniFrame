@@ -5,7 +5,6 @@
         <OsIsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</OsIsWindows>
         <OsIsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</OsIsLinux>
         <OsIsMacOs>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</OsIsMacOs>
-        
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,14 +20,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Options"/>
-<!--        <PackageReference Include="Photino.Native"/>-->
     </ItemGroup>
-
-    <Target Name="BuildPhotinoNative" BeforeTargets="Build">
-        <MSBuild Projects="../InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj"
-                 Targets="Build"
-                 Properties="Configuration=$(Configuration);Platform=x64"/>
-    </Target>
 
     <!-- Windows native build -->
     <Target Name="BuildPhotinoNativeWindows" BeforeTargets="Build" Condition="$(OsIsWindows)">
