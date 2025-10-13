@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>InfiniLore.Photino</RootNamespace>
+
+        <OsIsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</OsIsWindows>
+        <OsIsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</OsIsLinux>
+        <OsIsMacOs>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</OsIsMacOs>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,12 +28,6 @@
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=x64"/>
     </Target>
-    
-    <PropertyGroup>
-        <OsIsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</OsIsWindows>
-        <OsIsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</OsIsLinux>
-        <OsIsMacOs>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</OsIsMacOs>
-    </PropertyGroup>
 
     <!-- Windows native build -->
     <Target Name="BuildPhotinoNativeWindows" BeforeTargets="Build" Condition="$(OsIsWindows)">
