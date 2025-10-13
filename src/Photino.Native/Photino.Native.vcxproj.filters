@@ -64,6 +64,11 @@
     <None Include="Photino.Mac.NSWindowBorderless.mm">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="../../LICENSE" />
+    <None Include="../../README.md" />
+    <None Include="../../assets/icon.png">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Photino.h">
@@ -108,6 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Photino.Native.rc">

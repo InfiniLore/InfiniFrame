@@ -1,5 +1,5 @@
-CC=c++
-CFLAGS=-std=c++2a -Wall -O2 -shared -fPIC
+﻿CC=c++
+CFLAGS=-std=c++20 -Wall -O2 -shared -fPIC
 # CFLAGS=-std=c++2a -Wall -O0 -g -shared -fPIC
 
 SRC=./src/Photino.Native
