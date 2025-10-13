@@ -137,6 +137,11 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
 
     ///<summary>OPTIONAL: If true, user can access the browser control's context menu. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)] internal bool ContextMenuEnabled;
+    
+    /// <summary>
+    /// OPTIONAL: If true, user can zoom the browser control. Default is true.
+    /// </summary>
+    [MarshalAs(UnmanagedType.I1)] internal bool ZoomEnabled;
 
     ///<summary>OPTIONAL: If true, user can access the browser control's dev tools. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)] internal bool DevToolsEnabled;
@@ -215,11 +220,6 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
     ///     registering the app with Windows which is not always desirable as it creates shortcuts, etc. Default is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)] internal bool NotificationsEnabled;
-
-    /// <summary>
-    /// OPTIONAL: If true, user can zoom the browser control. Default is true.
-    /// </summary>
-    [MarshalAs(UnmanagedType.I1)] internal bool ZoomEnabled;
     
     /// <summary>
     ///     Set when GetParamErrors() is called, prior to initializing the native window. It is a check to make sure the
@@ -279,7 +279,8 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         && SmoothScrollingEnabled == other.SmoothScrollingEnabled
         && IgnoreCertificateErrorsEnabled == other.IgnoreCertificateErrorsEnabled
         && NotificationsEnabled == other.NotificationsEnabled
-        && Size == other.Size;
+        && Size == other.Size
+        && ZoomEnabled == other.ZoomEnabled;
 
     public override bool Equals(object? obj) => obj is PhotinoNativeParameters other && Equals(other);
 
