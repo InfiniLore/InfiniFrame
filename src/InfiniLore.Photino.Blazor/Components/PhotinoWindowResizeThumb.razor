@@ -1,14 +1,12 @@
 ﻿@using InfiniLore.Photino.Js
 @using InfiniLore.Photino.NET
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.Extensions.Logging
 
 @namespace InfiniLore.Photino.Blazor
 
 @inherits ComponentBase
 @implements IDisposable
 
-@inject ILogger<PhotinoWindowResizeThumb> Logger
 @inject IPhotinoWindow PhotinoWindow
 @inject IInfiniWindowJs InfiniWindowJs 
 
@@ -174,7 +172,6 @@
         _suppressRender = true;
         if (!_isGrabbing) return;
 
-        Logger.LogInformation("{@args}", args);
         PhotinoWindow.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
     }
 }

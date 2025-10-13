@@ -20,8 +20,8 @@ public interface IPhotinoWindowBase {
     bool Maximized { get; }
     int MaxWidth { get; set; }
     int MaxHeight { get; set; }
-    int MinWidth { get; }
-    int MinHeight { get; }
+    int MinWidth { get; set; }
+    int MinHeight { get; set; }
     bool Minimized { get; }
     bool Resizable { get; }
     int Width { get; }
@@ -30,7 +30,7 @@ public interface IPhotinoWindowBase {
     string? StartString { get; }
     string? TemporaryFilesPath { get; }
     string? NotificationRegistrationId { get; }
-    string? Title { get; }
+    string Title { get; }
     bool TopMost { get; }
     int Zoom { get; }
     bool ZoomEnabled { get; }

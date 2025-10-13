@@ -24,12 +24,12 @@ public sealed class PhotinoWindow(
 
     public IPhotinoWindow? Parent { get; } = parent;
     public IPhotinoWindowEvents Events { get; set; } = null!;
-
-    private static readonly Lock MessageLoopIsStartedLock = new Lock();
-    private static bool _messageLoopIsStarted;//There can only be 1 message loop for all windows.
+    public IPhotinoWindowMessageHandlers MessageHandlers { get; set; } = null!;
     
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
+
+    internal Dictionary<string, NetCustomSchemeDelegate?> CustomSchemes => customSchemes;
 
     #region PROPERTIES
     /// <summary>
@@ -73,7 +73,7 @@ public sealed class PhotinoWindow(
     ///     available monitors.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Monitor MainMonitor => Monitors[0];
+    public Monitor MainMonitor => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors)[0];
 
     /// <summary>
     ///     Gets the dots per inch (DPI) for the primary display from the native window.
@@ -90,10 +90,8 @@ public sealed class PhotinoWindow(
     /// <remarks>
     ///     This property is not currently used by the Photino framework.
     /// </remarks>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Guid Id { get; } = Guid.NewGuid();
 
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
 
     /// <summary>
@@ -102,7 +100,6 @@ public sealed class PhotinoWindow(
     /// <remarks>
     ///     The user has to supply titlebar, border, dragging and resizing manually.
     /// </remarks>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool Chromeless => StartupParameters.Chromeless;
 
     /// <summary>
@@ -115,7 +112,9 @@ public sealed class PhotinoWindow(
     ///     On Windows, thrown if trying to set a value after a native window is initialized.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Transparent => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
+    public bool Transparent => OperatingSystem.IsWindows() 
+        ? StartupParameters.Transparent // on windows it can only be set at startup
+        :  InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's context menu.
@@ -184,8 +183,6 @@ public sealed class PhotinoWindow(
     ///     Gets or sets the icon file for the native window title bar.
     ///     The file must be located on the local machine and cannot be a URL. The default is none.
     /// </summary>
-    /// <exception cref="System.ArgumentException">Icon file: {value} does not exist.</exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? IconFilePath { get; set; }
 
     /// <summary>
@@ -211,7 +208,6 @@ public sealed class PhotinoWindow(
     public bool Maximized => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMaximized);
 
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size MaxSize {
         get => new Size(MaxWidth, MaxHeight);
         set {
@@ -221,11 +217,9 @@ public sealed class PhotinoWindow(
     }
 
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MaxHeight { get; set; }
 
     ///<summary>Gets or sets the native window maximum width in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MaxWidth { get; set; }
 
     /// <summary>
@@ -236,7 +230,6 @@ public sealed class PhotinoWindow(
     public bool Minimized => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMinimized);
 
     ///<summary>Gets or set the minimum size of the native window in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size MinSize {
         get => new Size(MinWidth, MinHeight);
         set {
@@ -246,11 +239,9 @@ public sealed class PhotinoWindow(
     }
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MinHeight { get; set; }
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int MinWidth { get; set; }
 
     /// <summary>
@@ -284,7 +275,6 @@ public sealed class PhotinoWindow(
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? BrowserControlInitParameters => StartupParameters.BrowserControlInitParameters;
 
     /// <summary>
@@ -298,7 +288,6 @@ public sealed class PhotinoWindow(
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? StartString => StartupParameters.StartString;
 
     /// <summary>
@@ -312,7 +301,6 @@ public sealed class PhotinoWindow(
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? StartUrl => StartupParameters.StartUrl;
 
     /// <summary>
@@ -325,7 +313,6 @@ public sealed class PhotinoWindow(
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? TemporaryFilesPath => StartupParameters.TemporaryFilesPath;
 
     /// <summary>
@@ -338,7 +325,6 @@ public sealed class PhotinoWindow(
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? NotificationRegistrationId => StartupParameters.NotificationRegistrationId;
 
     /// <summary>
@@ -346,7 +332,7 @@ public sealed class PhotinoWindow(
     ///     Default is "Photino".
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? Title => InvokeUtilities.InvokeAndReturn<string?>(this, PhotinoNative.GetTitle);
+    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, PhotinoNative.GetTitle) ?? string.Empty;
 
     /// <summary>
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
@@ -408,7 +394,7 @@ public sealed class PhotinoWindow(
             else if (OperatingSystem.IsMacOS())
                 Invoke(() => PhotinoNative.RegisterMac());
 
-            Invoke(() => InstanceHandle = PhotinoNative.Ctor(ref StartupParameters));
+            Invoke(() => InstanceHandle = PhotinoNative.Constructor(ref StartupParameters));
         }
         catch (Exception ex) {
             int lastError = 0;
@@ -420,7 +406,6 @@ public sealed class PhotinoWindow(
         }
 
         Events.OnWindowCreated();
-
     }
 
     /// <summary>
@@ -445,14 +430,14 @@ public sealed class PhotinoWindow(
     ///     The operation of the message loop is exclusive to the main native window only.
     /// </remarks>
     public void WaitForClose() {
-        lock (MessageLoopIsStartedLock) {
-            if (_messageLoopIsStarted) return;
-
-            _messageLoopIsStarted = true;
+        if (!MessageLoopState.TryAcquireFirstState()) {
+            logger.LogWarning("Message loop is already running. This call will be ignored.");
+            return;
         }
 
         try {
-            Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));//start the message loop. there can only be 1 message loop for all windows.
+            logger.LogDebug("Starting message loop. There can only be 1 message loop for all windows.");
+            Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));
         }
         catch (Exception ex) {
             int lastError = 0;
@@ -472,6 +457,7 @@ public sealed class PhotinoWindow(
     /// </exception>
     public void Close() {
         logger.LogDebug(".Close()");
+        Events.OnWindowClosingRequested();
         Invoke(() => PhotinoNative.Close(InstanceHandle));
     }
 
@@ -526,7 +512,8 @@ public sealed class PhotinoWindow(
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
     /// <param name="filters">Array of Extensions for filtering.</param>
     /// <returns>Array of file paths as strings</returns>
-    public string?[] ShowOpenFile(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null) => ShowOpenDialog(false, title, defaultPath, multiSelect, filters);
+    public string?[] ShowOpenFile(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
+        => ShowOpenDialog(false, title, defaultPath, multiSelect, filters);
 
     /// <summary>
     ///     Async version is required for InfiniLore.Photino.Blazor
@@ -543,9 +530,8 @@ public sealed class PhotinoWindow(
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
     /// <param name="filters">Array of Extensions for filtering.</param>
     /// <returns>Array of file paths as strings</returns>
-    public async Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null) {
-        return await Task.Run(() => ShowOpenFile(title, defaultPath, multiSelect, filters));
-    }
+    public async Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
+        => await Task.Run(() => ShowOpenFile(title, defaultPath, multiSelect, filters));
 
     /// <summary>
     ///     Show an open folder dialog native to the OS.
@@ -557,7 +543,8 @@ public sealed class PhotinoWindow(
     /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
     /// <returns>Array of folder paths as strings</returns>
-    public string?[] ShowOpenFolder(string title = "Select folder", string? defaultPath = null, bool multiSelect = false) => ShowOpenDialog(true, title, defaultPath, multiSelect, null);
+    public string?[] ShowOpenFolder(string title = "Select folder", string? defaultPath = null, bool multiSelect = false)
+        => ShowOpenDialog(true, title, defaultPath, multiSelect, null);
 
     /// <summary>
     ///     Async version is required for InfiniLore.Photino.Blazor
@@ -693,10 +680,6 @@ public sealed class PhotinoWindow(
     ///     callbacks
     ///     when the native browser control encounters them.
     /// </summary>
-    /// <remarks>
-    ///     Only 16 custom schemes can be registered before initialization. Additional handlers can be added after
-    ///     initialization.
-    /// </remarks>
     /// <returns>
     ///     Returns the current <see cref="PhotinoWindow" /> instance.
     /// </returns>
@@ -705,30 +688,16 @@ public sealed class PhotinoWindow(
     ///     <see cref="EventHandler" />
     /// </param>
     /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
-    /// <exception cref="ApplicationException">Thrown if more than 16 custom schemes were set</exception>
     public IPhotinoWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler) {
-        if (string.IsNullOrWhiteSpace(scheme))
-            throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
-
-        if (handler is null)
-            throw new ArgumentException("A handler (method) with a signature matching NetCustomSchemeDelegate must be supplied.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(scheme);
+        ArgumentNullException.ThrowIfNull(handler);
 
         scheme = scheme.ToLower();
-
-        // TODO implement in builder pattern
-        // if (IsNotInitialized())
-        // {
-        //     if (_customSchemes.Count > 15 && !_customSchemes.ContainsKey(scheme))
-        //         throw new ApplicationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
-        //     _customSchemes.TryAdd(scheme, null);
-        // }
-        // else
-        // {
+        
         PhotinoNative.AddCustomSchemeName(InstanceHandle, scheme);
-        // }
 
+        customSchemes.TryAdd(scheme, null);
         customSchemes[scheme] += handler;
-
         return this;
     }
 

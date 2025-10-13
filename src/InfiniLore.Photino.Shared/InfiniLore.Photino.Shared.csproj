@@ -1,18 +1,81 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>InfiniLore.Photino</RootNamespace>
+
+        <OsIsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</OsIsWindows>
+        <OsIsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</OsIsLinux>
+        <OsIsMacOs>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</OsIsMacOs>
+        
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="InfiniLore.Photino.Js"/>
         <InternalsVisibleTo Include="InfiniLore.Photino.Net"/>
         <InternalsVisibleTo Include="InfiniLore.Photino.Net.Server"/>
         <InternalsVisibleTo Include="InfiniLore.Photino.Blazor"/>
+        <InternalsVisibleTo Include="Tests.Photino.NET"/>
+        <InternalsVisibleTo Include="Tests.Photino.Playwright"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
-        <PackageReference Include="Photino.Native" Version="4.0.22"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Options"/>
+<!--        <PackageReference Include="Photino.Native"/>-->
+    </ItemGroup>
+
+    <Target Name="BuildPhotinoNative" BeforeTargets="Build">
+        <MSBuild Projects="../InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=x64"/>
+    </Target>
+
+    <!-- Windows native build -->
+    <Target Name="BuildPhotinoNativeWindows" BeforeTargets="Build" Condition="$(OsIsWindows)">
+        <MSBuild Projects="../../src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=x64"/>
+    </Target>
+
+    <!-- Linux native build -->
+    <Target Name="BuildPhotinoNativeLinux" BeforeTargets="Build" Condition="$(OsIsLinux)">
+        <Exec Command="make -C ../../src/InfiniLore.Photino.Native CONFIG=$(Configuration)"
+              WorkingDirectory="$(MSBuildProjectDirectory)"
+              ContinueOnError="false"/>
+    </Target>
+
+    <!-- macOS native build -->
+    <Target Name="BuildPhotinoNativeMac" BeforeTargets="Build" Condition="$(OsIsMacOs)">
+        <Exec Command="make -C ../../src/InfiniLore.Photino.Native CONFIG=$(Configuration) PLATFORM=mac"
+              WorkingDirectory="$(MSBuildProjectDirectory)"
+              ContinueOnError="false"/>
+    </Target>
+
+    <!-- Windows -->
+    <ItemGroup Condition="$(OsIsWindows)">
+        <None Include="../../src/InfiniLore.Photino.Native/x64/Debug/InfiniLore.Photino.Native.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/win-x64/native/InfiniLore.Photino.Native.dll</Link>
+        </None>
+        <None Include="../../src/InfiniLore.Photino.Native/x64/Debug/WebView2Loader.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/win-x64/native/WebView2Loader.dll</Link>
+        </None>
+    </ItemGroup>
+
+    <!-- Linux -->
+    <ItemGroup Condition="$(OsIsLinux)">
+        <None Include="../../src/InfiniLore.Photino.Native/x64/Debug/libInfiniLore.Photino.Native.so">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/linux-x64/native/libInfiniLore.Photino.Native.so</Link>
+        </None>
+    </ItemGroup>
+
+    <!-- macOS -->
+    <ItemGroup Condition="$(OsIsMacOs)">
+        <None Include="../../src/InfiniLore.Photino.Native/x64/Debug/libInfiniLore.Photino.Native.dylib">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib</Link>
+        </None>
     </ItemGroup>
 </Project>

@@ -2,27 +2,19 @@ using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniLore.Photino.Blazor;
+using Microsoft.Extensions.Logging;
+
 public class PhotinoBlazorApp(
-    IPhotinoWindowBuilder builder,
-    IPhotinoWebViewManager manager,
     IServiceProvider provider,
     RootComponentList rootComponents,
     IPhotinoJsComponentConfiguration? rootComponentConfiguration = null
-) {
-    public IPhotinoWindowBuilder WindowBuilder => builder;
-    public IServiceProvider Provider => provider;
+) : IAsyncDisposable {
     
-    internal void Initialize() {
-        builder
-            .RegisterCustomSchemeHandler(PhotinoWebViewManager.BlazorAppScheme, HandleWebRequest)
-            .SetStartUrl(PhotinoWebViewManager.AppBaseUri);
-
-        AppDomain.CurrentDomain.UnhandledException += (_, error) => {
-            provider.GetService<IPhotinoWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
-        };
-    }
-
+    private bool _disposed;
+    
     public void Run() {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        
         var window = provider.GetRequiredService<IPhotinoWindow>();
         
         if (rootComponentConfiguration is not null) {
@@ -30,10 +22,43 @@ public class PhotinoBlazorApp(
                 rootComponentConfiguration.Add(component.Item1, component.Item2);
             }
         }
-        
-        window.WaitForClose();
-    }
 
-    public Stream? HandleWebRequest(object? sender, string? scheme, string? url, out string? contentType)
-        => manager.HandleWebRequest(sender, scheme, url, out contentType);
+        try {
+            window.WaitForClose();
+        }
+        finally {
+            // TODO think about proper exception handling here
+            window.Invoke(() => _ = Task.Run(DisposeAsync));
+        }
+    }
+    
+    public async ValueTask DisposeAsync() {
+        if (_disposed) return;
+        _disposed = true;
+        
+        try {
+            switch (provider) {
+                case ServiceProvider serviceProvider: {
+                    await serviceProvider.DisposeAsync();
+                    break;
+                }
+
+                case IAsyncDisposable asyncDisposable: {
+                    await asyncDisposable.DisposeAsync();
+                    break;
+                }
+
+                case IDisposable disposable: {
+                    disposable.Dispose();
+                    break;
+                }
+            }
+        }
+        catch (Exception e) {
+            var logger = provider.GetService<ILogger<PhotinoBlazorApp>>();
+            logger?.LogError(e, "Error disposing of PhotinoBlazorApp");
+        }
+        
+        GC.SuppressFinalize(this);
+    }
 }

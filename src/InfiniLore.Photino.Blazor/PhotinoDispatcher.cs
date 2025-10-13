@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Components;
 
 namespace InfiniLore.Photino.Blazor;
-class PhotinoDispatcher : Dispatcher {
+internal class PhotinoDispatcher : Dispatcher {
     private readonly PhotinoSynchronizationContext _context;
 
     public PhotinoDispatcher(PhotinoSynchronizationContext context) {

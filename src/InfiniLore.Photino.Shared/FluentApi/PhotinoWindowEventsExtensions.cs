@@ -1,7 +1,9 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniLore.Photino.NET;
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class PhotinoWindowEventsExtensions {
     /// <summary>
     ///     Registers user-defined handler methods to receive callbacks from the native builder when its location changes.
@@ -20,7 +22,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when its size changes.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
@@ -34,7 +36,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     in.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
@@ -47,7 +49,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when it is maximized.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
@@ -60,7 +62,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when it is restored.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
@@ -74,7 +76,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     out.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
@@ -87,7 +89,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when it is minimized.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
@@ -101,7 +103,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when it sends a message.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <remarks>
     ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
@@ -114,12 +116,25 @@ public static class PhotinoWindowEventsExtensions {
     }
 
     /// <summary>
+    /// Registers user-defined handler methods to receive callbacks from the native builder before the window is closed through the native api calls.
+    /// </summary>
+    /// <returns>
+    /// Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    /// </returns>
+    /// <param name="builder">The builder to register the handler for.</param>
+    /// <param name="handler"><see cref="EventHandler" /></param>
+    public static IPhotinoWindowBuilder RegisterWindowClosingRequestedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+        builder.Events.WindowClosingRequested += handler;
+        return builder;
+    }
+
+    /// <summary>
     ///     Registers user-defined handler methods to receive callbacks from the native builder when the builder is about to
     ///     close.
     ///     Handler can return true to prevent the builder from closing.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="NetClosingDelegate" /></param>
@@ -132,7 +147,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks before the native builder is created.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
@@ -145,7 +160,7 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks after the native builder is created.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="NetClosingDelegate" /></param>

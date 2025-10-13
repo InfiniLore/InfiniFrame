@@ -13,7 +13,8 @@ using Microsoft.Extensions.Logging;
 public interface IPhotinoWindow : IPhotinoWindowBase {
     internal ILogger<IPhotinoWindow> Logger { get; }
     IPhotinoWindowEvents Events { get; }
-    
+    IPhotinoWindowMessageHandlers MessageHandlers { get; }
+
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
     IntPtr NativeType { get; }

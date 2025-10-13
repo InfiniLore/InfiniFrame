@@ -16,11 +16,12 @@ public interface IPhotinoWindowEvents {
     event EventHandler? WindowFocusOut;
     event EventHandler? WindowMinimized;
     event EventHandler<string>? WebMessageReceived;
+    event EventHandler? WindowClosingRequested;
     event NetClosingDelegate? WindowClosing;
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
     
-    IPhotinoWindowEvents DefineSender<T>(T sender) where T : notnull;
+    IPhotinoWindowEvents DefineSender<T>(T sender) where T : class;
     
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);
@@ -30,6 +31,7 @@ public interface IPhotinoWindowEvents {
     void OnFocusOut();
     void OnMinimized();
     void OnWebMessageReceived(string message);
+    void OnWindowClosingRequested();
     byte OnWindowClosing();
     void OnWindowCreating();
     void OnWindowCreated();

@@ -41,7 +41,8 @@ Some changes so far, have been described below:
   This means we start the builder chain with the options for more fluent api extensions than what the `PhotinoWindow`
   properties allowed for.
 
-- **Photino.NET.Server changes**
+**Photino.NET.Server changes**
+ 
 - `PhotinoServer(webRootFolder:...)` is no longer hard coded to depend on starting from the `Resources/` folder and is
   now fully configurable and has the default value of `wwwroot`.
 - `PhotinoServer.CreateStaticFileServer()` is completely replaced by a combination of `PhotinoServerBuilder.Create()`

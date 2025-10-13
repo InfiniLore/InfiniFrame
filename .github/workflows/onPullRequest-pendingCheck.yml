@@ -1,0 +1,79 @@
+﻿name: Pending Check (Manual CI)
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+    mark-pending:
+        name: Mark PR as Pending
+        runs-on: ubuntu-latest
+        if: github.event.pull_request.draft == false && github.event.pull_request.ready_for_review == true && github.event.pull_request.state == 'open'
+        permissions:
+            statuses: write
+        
+        steps:
+            - name: Print PR info
+              run: echo "Processing PR ${{ github.event.pull_request.number }} in repo ${{ github.repository }}"
+
+            - name: Define context list
+              id: define-contexts
+              run: |
+                  echo "contexts=Manual MultiPlatform CI - Linux|Manual MultiPlatform CI - Windows|Manual MultiPlatform CI - macOS" >> $GITHUB_OUTPUT
+
+            - name: Cancel pending statuses on older commits
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  CONTEXTS: ${{ steps.define-contexts.outputs.contexts }}
+              run: |
+                  IFS='|' read -r -a CONTEXT_ARRAY <<< "$CONTEXTS"
+                  echo "Using contexts: ${CONTEXT_ARRAY[*]}"
+                  
+                  echo "Fetching commits in PR..."
+                  PR_COMMITS=$(curl -s \
+                    -H "Authorization: Bearer $GITHUB_TOKEN" \
+                    -H "Accept: application/vnd.github+json" \
+                    "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits" \
+                    | jq -r '.[].sha')
+                  
+                  for commit in $PR_COMMITS; do
+                    if [ "$commit" != "${{ github.event.pull_request.head.sha }}" ]; then
+                      echo "Checking statuses for commit: $commit"
+                      STATUSES=$(curl -s \
+                        -H "Authorization: Bearer $GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github+json" \
+                        "https://api.github.com/repos/${{ github.repository }}/commits/$commit/statuses")
+                  
+                      for context in "${CONTEXT_ARRAY[@]}"; do
+                        PENDING_STATUS=$(echo "$STATUSES" | jq -r --arg ctx "$context" '.[] | select(.context == $ctx and .state == "pending") | .context')
+                        if [ "$PENDING_STATUS" = "$context" ]; then
+                          echo "Found pending $context status for $commit, cancelling..."
+                          curl -X POST \
+                            -H "Authorization: Bearer $GITHUB_TOKEN" \
+                            -H "Accept: application/vnd.github+json" \
+                            "https://api.github.com/repos/${{ github.repository }}/statuses/$commit" \
+                            -d "{\"state\": \"error\", \"context\": \"$context\", \"description\": \"Cancelled - superseded by newer commit\"}"
+                        fi
+                      done
+                    fi
+                  done
+
+            - name: Set new pending statuses for current commit
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  CONTEXTS: ${{ steps.define-contexts.outputs.contexts }}
+              run: |
+                  IFS='|' read -r -a CONTEXT_ARRAY <<< "$CONTEXTS"
+                  echo "Setting pending statuses for: ${CONTEXT_ARRAY[*]}"
+                  WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/onPullRequest-multiPlatformTesting.yml"
+                  
+                  for context in "${CONTEXT_ARRAY[@]}"; do
+                    echo "Setting pending for $context"
+                    curl -X POST \
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
+                      -d "{\"state\": \"pending\", \"context\": \"$context\", \"description\": \"Waiting for manual trigger via workflow_dispatch.\", \"target_url\": \"$WORKFLOW_URL\"}"
+                  done
+                  
+                  echo "Pending statuses set for current commit"

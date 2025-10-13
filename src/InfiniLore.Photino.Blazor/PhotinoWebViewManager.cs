@@ -36,6 +36,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
         IOptions<PhotinoBlazorAppConfiguration> config
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
+        
         builder.RegisterWebMessageReceivedHandler((_, message) => {
             // On some platforms, we need to move off the browser UI thread
             Task.Factory.StartNew(action: m => {
@@ -47,6 +48,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
                 MessageReceived(messageOriginUrl, (string)m!);
             }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, _syncScheduler);
         });
+        
         LazyWindow = new Lazy<IPhotinoWindow>(provider.GetRequiredService<IPhotinoWindow>);
 
         //start reader

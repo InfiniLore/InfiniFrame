@@ -2,6 +2,8 @@
 
 // ReSharper disable once CheckNamespace
 namespace InfiniLore.Photino.NET;
+using InfiniLore.Photino.Utilities;
+
 public static class PhotinoWindowBuilderExtensions {
     public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
         builder.Configuration.MediaAutoplayEnabled = enable;
@@ -95,8 +97,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
     public static T SetHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Height = Math.Max(0, value);
-        return builder;
+        return SetSize(builder, builder.Configuration.Width, value);
     }
 
     /// <summary>
@@ -121,6 +122,9 @@ public static class PhotinoWindowBuilderExtensions {
     public static T SetLocation<T>(this T builder, int left, int top) where T : IPhotinoWindowBuilder {
         builder.Configuration.Left = left;
         builder.Configuration.Top = top;
+        
+        builder.Configuration.UseOsDefaultLocation = false;
+        builder.Configuration.Centered = false;
         return builder;
     }
 
@@ -128,9 +132,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets Location on the browser control at initialization.
     /// </summary>
     public static T SetLocation<T>(this T builder, Point location) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Left = location.X;
-        builder.Configuration.Top = location.Y;
-        return builder;
+        return SetLocation(builder, location.X, location.Y);
     }
 
     /// <summary>
@@ -164,13 +166,6 @@ public static class PhotinoWindowBuilderExtensions {
         builder.Configuration.MaxHeight = value;
         return builder;
     }
-    
-    public static T SetMaxSize<T>(this T builder, Size maxSize) where T : class, IPhotinoWindowBuilder {
-        builder.Configuration.MaxHeight = maxSize.Height;
-        builder.Configuration.MaxWidth = maxSize.Width;
-        
-        return builder;
-    }
 
     /// <summary>
     ///     Sets MinWidth on the browser control at initialization.
@@ -188,12 +183,15 @@ public static class PhotinoWindowBuilderExtensions {
         return builder;
     }
     
-    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IPhotinoWindowBuilder {
-        builder.Configuration.MinHeight = minSize.Height;
-        builder.Configuration.MinWidth = minSize.Width;
+    public static T SetMinSize<T>(this T builder, int width, int height) where T : class, IPhotinoWindowBuilder {
+        builder.Configuration.MinHeight = Math.Max(0, height);
+        builder.Configuration.MinWidth = Math.Max(0, width);
         
         return builder;
     }
+    
+    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IPhotinoWindowBuilder 
+        => SetMinSize(builder, minSize.Width, minSize.Height);
 
     /// <summary>
     ///     Sets FullScreen on the browser control at initialization.
@@ -215,16 +213,18 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets Width on the browser control at initialization.
     /// </summary>
     public static T SetWidth<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Width = Math.Max(0, value);
-        return builder;
+        return SetSize(builder, value, builder.Configuration.Height);
     }
 
     /// <summary>
     ///     Sets Size on the browser control at initialization.
     /// </summary>
     public static T SetSize<T>(this T builder, int width, int height) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Width = width;
-        builder.Configuration.Height = height;
+        builder.Configuration.Width = Math.Max(0, width);
+        builder.Configuration.Height = Math.Max(0, height);
+        
+        builder.Configuration.UseOsDefaultSize = false;
+        builder.Configuration.Centered = false;
         return builder;
     }
 
@@ -232,9 +232,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets Size on the browser control at initialization.
     /// </summary>
     public static T SetSize<T>(this T builder, Size size) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Width = size.Width;
-        builder.Configuration.Height = size.Height;
-        return builder;
+        return SetSize(builder, size.Width, size.Height);
     }
 
     /// <summary>
@@ -286,15 +284,15 @@ public static class PhotinoWindowBuilderExtensions {
     ///     Sets Title on the browser control at initialization.
     /// </summary>
     public static T SetTitle<T>(this T builder, string? title) where T : IPhotinoWindowBuilder {
-        builder.Configuration.Title = title;
+        builder.Configuration.Title = title ?? string.Empty;
         return builder;
     }
 
     /// <summary>
     ///     Sets TopMost on the browser control at initialization.
     /// </summary>
-    public static T SetTopMost<T>(this T builder, bool resizable) where T : IPhotinoWindowBuilder {
-        builder.Configuration.TopMost = resizable;
+    public static T SetTopMost<T>(this T builder, bool topmost) where T : IPhotinoWindowBuilder {
+        builder.Configuration.TopMost = topmost;
         return builder;
     }
 
@@ -342,6 +340,7 @@ public static class PhotinoWindowBuilderExtensions {
         // Overrides the os defaults for you, as it does not work together on windows with chromeless
         builder.Configuration.UseOsDefaultLocation = !chromeless && builder.Configuration.UseOsDefaultLocation;
         builder.Configuration.UseOsDefaultSize = !chromeless && builder.Configuration.UseOsDefaultSize;
+        builder.Configuration.Resizable = !chromeless && builder.Configuration.Resizable;
 
         return builder;
     }
@@ -369,7 +368,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     initialization.
     /// </remarks>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
     /// </returns>
     /// <param name="builder"></param>
     /// <param name="scheme">The custom scheme</param>
@@ -387,12 +386,45 @@ public static class PhotinoWindowBuilderExtensions {
         if (builder.CustomSchemeHandlers.Count > 15 && !builder.CustomSchemeHandlers.ContainsKey(scheme)) throw new ApplicationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
         builder.CustomSchemeHandlers.TryAdd(scheme, null);
         builder.CustomSchemeHandlers[scheme] = handler;
+        
+        builder.Configuration.CustomSchemeNames.Add(scheme);
 
         return builder;
     }
     
-    public static T SetZoomEnabled<T>(this T builder, bool zoomEnabled) where T : IPhotinoWindowBuilder {
-        builder.Configuration.ZoomEnabled = zoomEnabled;
+    public static T SetLeft<T>(this T builder, int left) where T : IPhotinoWindowBuilder {
+        builder.Configuration.Left = left;
+        
+        builder.Configuration.UseOsDefaultLocation = false;
+        builder.Configuration.Centered = false;
         return builder;
     }
+    
+    public static T SetTop<T>(this T builder, int top) where T : IPhotinoWindowBuilder {
+        builder.Configuration.Top = top;
+        
+        builder.Configuration.UseOsDefaultLocation = false;
+        builder.Configuration.Centered = false;
+        return builder;
+    }
+    
+    public static T SetContextMenuEnabled<T>(this T builder, bool enabled) where T : IPhotinoWindowBuilder {
+        builder.Configuration.ContextMenuEnabled = enabled;
+        return builder;
+    }
+    
+    public static T SetDevToolsEnabled<T>(this T builder, bool enabled) where T : IPhotinoWindowBuilder {
+        builder.Configuration.DevToolsEnabled = enabled;
+        return builder;
+    }
+    
+    public static T SetMaxSize<T>(this T builder, int width, int height) where T : IPhotinoWindowBuilder {
+        builder.Configuration.MaxWidth = width;
+        builder.Configuration.MaxHeight = height;
+        
+        return builder;
+    }
+    
+    public static T SetMaxSize<T>(this T builder, Size size) where T : IPhotinoWindowBuilder 
+        => SetMaxSize(builder, size.Width, size.Height);
 }

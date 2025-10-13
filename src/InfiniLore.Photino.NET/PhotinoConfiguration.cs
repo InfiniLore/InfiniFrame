@@ -12,7 +12,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }
     public bool ContextMenuEnabled { get; set; } = true;
-    public string[] CustomSchemeNames { get; set; } = new string[16];
+    public List<string> CustomSchemeNames { get; set; } = new List<string>(16);
     public bool DevToolsEnabled { get; set; } = true;
     public bool FileSystemAccessEnabled { get; set; } = true;
     public bool FullScreen { get; set; }
@@ -37,7 +37,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public string? StartString { get; set; }
     public string? StartUrl { get; set; }
     public string? TemporaryFilesPath { get; set; } = Path.Combine(Path.GetTempPath(), "photino");
-    public string? Title { get; set; } = "Photino";
+    public string Title { get; set; } = "Photino";
     public int Top { get; set; }
     public bool TopMost { get; set; }
     public bool Transparent { get; set; }
@@ -47,48 +47,52 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public bool WebSecurityEnabled { get; set; } = true;
     public int Width { get; set; }
     public int Zoom { get; set; } = 100;
-    public bool ZoomEnabled { get; set; } = true;
     
-    public PhotinoNativeParameters ToParameters() => new PhotinoNativeParameters {
-        CenterOnInitialize = Centered,
-        Chromeless = Chromeless,
-        Transparent = Transparent,
-        ContextMenuEnabled = ContextMenuEnabled,
-        DevToolsEnabled = DevToolsEnabled,
-        MediaAutoplayEnabled = MediaAutoplayEnabled,
-        UserAgent = UserAgent,
-        FileSystemAccessEnabled = FileSystemAccessEnabled,
-        WebSecurityEnabled = WebSecurityEnabled,
-        JavascriptClipboardAccessEnabled = JavascriptClipboardAccessEnabled,
-        MediaStreamEnabled = MediaStreamEnabled,
-        SmoothScrollingEnabled = SmoothScrollingEnabled,
-        IgnoreCertificateErrorsEnabled = IgnoreCertificateErrorsEnabled,
-        NotificationsEnabled = NotificationsEnabled,
-        FullScreen = FullScreen,
-        GrantBrowserPermissions = GrantBrowserPermissions,
-        Height = Height,
-        WindowIconFile = IconFilePath,
-        Left = Left,
-        Top = Top,
-        Maximized = Maximized,
-        MaxWidth = MaxWidth,
-        MaxHeight = MaxHeight,
-        MinWidth = MinWidth,
-        MinHeight = MinHeight,
-        Minimized = Minimized,
-        Resizable = Resizable,
-        Width = Width,
-        BrowserControlInitParameters = BrowserControlInitParameters,
-        StartUrl = StartUrl,
-        StartString = StartString,
-        TemporaryFilesPath = TemporaryFilesPath,
-        NotificationRegistrationId = NotificationRegistrationId,
-        Title = Title,
-        UseOsDefaultLocation = UseOsDefaultLocation,
-        UseOsDefaultSize = UseOsDefaultSize,
-        CustomSchemeNames = CustomSchemeNames,
-        Zoom = Zoom,
-        ZoomEnabled = ZoomEnabled,
-        Size = Marshal.SizeOf<PhotinoNativeParameters>()
-    };
+    public PhotinoNativeParameters ToParameters() {
+        string[] customSchemeNameArray = new string[16];
+        CustomSchemeNames.CopyTo(customSchemeNameArray);
+        
+        return new PhotinoNativeParameters {
+            BrowserControlInitParameters = BrowserControlInitParameters,
+            CenterOnInitialize = Centered,
+            Chromeless = Chromeless,
+            ContextMenuEnabled = ContextMenuEnabled,
+            CustomSchemeNames = customSchemeNameArray,
+            DevToolsEnabled = DevToolsEnabled,
+            FileSystemAccessEnabled = FileSystemAccessEnabled,
+            FullScreen = FullScreen,
+            GrantBrowserPermissions = GrantBrowserPermissions,
+            Height = Height,
+            IgnoreCertificateErrorsEnabled = IgnoreCertificateErrorsEnabled,
+            JavascriptClipboardAccessEnabled = JavascriptClipboardAccessEnabled,
+            Left = Left,
+            MaxHeight = MaxHeight,
+            MaxWidth = MaxWidth,
+            Maximized = Maximized,
+            MediaAutoplayEnabled = MediaAutoplayEnabled,
+            MediaStreamEnabled = MediaStreamEnabled,
+            MinHeight = MinHeight,
+            MinWidth = MinWidth,
+            Minimized = Minimized,
+            NotificationRegistrationId = NotificationRegistrationId,
+            NotificationsEnabled = NotificationsEnabled,
+            Resizable = Resizable,
+            Size = Marshal.SizeOf<PhotinoNativeParameters>(),
+            SmoothScrollingEnabled = SmoothScrollingEnabled,
+            StartString = StartString,
+            StartUrl = StartUrl,
+            TemporaryFilesPath = TemporaryFilesPath,
+            Title = Title,
+            Top = Top,
+            Topmost = TopMost,
+            Transparent = Transparent,
+            UseOsDefaultLocation = UseOsDefaultLocation,
+            UseOsDefaultSize = UseOsDefaultSize,
+            UserAgent = UserAgent,
+            WebSecurityEnabled = WebSecurityEnabled,
+            Width = Width,
+            WindowIconFile = IconFilePath,
+            Zoom = Zoom,
+        };
+    }
 }

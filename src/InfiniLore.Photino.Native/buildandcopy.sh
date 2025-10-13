@@ -1,0 +1,1 @@
+make linux-dev && mv ./lib/dev/Photino.Native.so ./photino.Test/bin/Debug/net6.0/Photino.Native.so

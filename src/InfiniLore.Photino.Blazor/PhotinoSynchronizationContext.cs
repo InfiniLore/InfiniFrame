@@ -5,6 +5,8 @@ using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniLore.Photino.Blazor;
+using InfiniLore.Photino.Blazor.Utils;
+
 // Most UI platforms have a built-in SyncContext/Dispatcher, e.g., Windows Forms and WPF, which WebView
 // can normally use directly. However, Photino currently doesn't.
 //
@@ -23,9 +25,9 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
     public event UnhandledExceptionEventHandler? UnhandledException;
 
     public Task InvokeAsync(Action action) {
-        var completion = new PhotinoSynchronizationTaskCompletionSource<Action, object>(action);
+        var completion = new CallbackTaskCompletionSource<Action, object>(action);
         ExecuteSynchronouslyIfPossible(d: static state => {
-            if (state is not PhotinoSynchronizationTaskCompletionSource<Action, object> completion) return;
+            if (state is not CallbackTaskCompletionSource<Action, object> completion) return;
 
             try {
                 completion.Callback();
@@ -43,10 +45,10 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
     }
 
     public Task InvokeAsync(Func<Task> asyncAction) {
-        var completion = new PhotinoSynchronizationTaskCompletionSource<Func<Task>, object>(asyncAction);
+        var completion = new CallbackTaskCompletionSource<Func<Task>, object>(asyncAction);
         // ReSharper disable once AsyncVoidMethod
         ExecuteSynchronouslyIfPossible(d: static async void (state) => {
-            if (state is not PhotinoSynchronizationTaskCompletionSource<Func<Task>, object> completion) return;
+            if (state is not CallbackTaskCompletionSource<Func<Task>, object> completion) return;
 
             try {
                 await completion.Callback();
@@ -64,9 +66,9 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
     }
 
     public Task<TResult> InvokeAsync<TResult>(Func<TResult> function) {
-        var completion = new PhotinoSynchronizationTaskCompletionSource<Func<TResult>, TResult>(function);
+        var completion = new CallbackTaskCompletionSource<Func<TResult>, TResult>(function);
         ExecuteSynchronouslyIfPossible(d: static state => {
-            if (state is not PhotinoSynchronizationTaskCompletionSource<Func<TResult>, TResult> completion) return;
+            if (state is not CallbackTaskCompletionSource<Func<TResult>, TResult> completion) return;
 
             try {
                 TResult result = completion.Callback();
@@ -84,10 +86,10 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
     }
 
     public Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> asyncFunction) {
-        var completion = new PhotinoSynchronizationTaskCompletionSource<Func<Task<TResult>>, TResult>(asyncFunction);
+        var completion = new CallbackTaskCompletionSource<Func<Task<TResult>>, TResult>(asyncFunction);
         // ReSharper disable once AsyncVoidMethod
         ExecuteSynchronouslyIfPossible(d: static async void (state) => {
-            if (state is not PhotinoSynchronizationTaskCompletionSource<Func<Task<TResult>>, TResult> completion) return;
+            if (state is not CallbackTaskCompletionSource<Func<Task<TResult>>, TResult> completion) return;
 
             try {
                 TResult result = await completion.Callback();
@@ -213,8 +215,7 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
 
                 completion?.SetResult(null!);
             }
-        }
-        );
+        });
     }
 
     private void ExecuteBackground(PhotinoSynchronizationWorkItem item) {
