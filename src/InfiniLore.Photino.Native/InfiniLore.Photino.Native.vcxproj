@@ -6,7 +6,7 @@
     <RootNamespace>PhotinoEdge</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Photino.Native</ProjectName>
+    <ProjectName>InfiniLore.Photino.Native</ProjectName>
     <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <!-- Customizable Package Versions -->
@@ -280,7 +280,7 @@ COPY .\$(OutDir)WebView2Loader.dll $(SolutionDir)tests\Photino.Test\bin\Debug\ne
     <None Include="Photino.Mac.UiDelegate.mm" />
     <None Include="Photino.Mac.WindowDelegate.mm" />
     <None Include="Photino.Mac.UrlSchemeHandler.mm" />
-    <None Include="Photino.Native.nuspec">
+    <None Include="InfiniLore.Photino.Native.nuspec">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64' or '$(Configuration)|$(Platform)'=='Debug|ARM64'">true</DeploymentContent>
     </None>
   </ItemGroup>

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.NET;
 public static partial class PhotinoNative {
-    private const string DllName = "Photino.Native";
+    private const string DllName = "InfiniLore.Photino.Native";
 
     // ReSharper disable InconsistentNaming
     private const string Photino_register_win32 = nameof(Photino_register_win32);

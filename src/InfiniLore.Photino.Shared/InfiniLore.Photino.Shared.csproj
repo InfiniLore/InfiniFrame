@@ -20,20 +20,20 @@
     </ItemGroup>
 
     <Target Name="BuildPhotinoNative" BeforeTargets="Build">
-        <MSBuild Projects="..\Photino.Native\Photino.Native.vcxproj"
+        <MSBuild Projects="..\InfiniLore.Photino.Native\InfiniLore.Photino.Native.vcxproj"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=x64"/>
     </Target>
 
     <ItemGroup>
         <!-- Photino.Native -->
-        <None Include="..\Photino.Native\x64\$(Configuration)\Photino.Native.dll">
+        <None Include="..\InfiniLore.Photino.Native\x64\$(Configuration)\InfiniLore.Photino.Native.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <!--            <TargetPath>runtimes\win-x64\native\Photino.Native.dll</TargetPath>-->
         </None>
 
         <!-- WebView2Loader -->
-        <None Include="..\Photino.Native\x64\$(Configuration)\WebView2Loader.dll">
+        <None Include="..\InfiniLore.Photino.Native\x64\$(Configuration)\WebView2Loader.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <!--            <TargetPath>runtimes\win-x64\native\WebView2Loader.dll</TargetPath>-->
         </None>

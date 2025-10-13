@@ -1,17 +1,17 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Project>
     <Target Name="BuildPhotinoNative" BeforeTargets="Build">
-        <MSBuild Projects="..\..\src\Photino.Native\Photino.Native.vcxproj"
+        <MSBuild Projects="..\..\src\InfiniLore.Photino.Native\InfiniLore.Photino.Native.vcxproj"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=x64"/>
     </Target>
     
     <ItemGroup>
-        <None Include="..\..\src\Photino.Native\x64\Debug\Photino.Native.dll">
+        <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\InfiniLore.Photino.Native.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>Photino.Native.dll</Link>
+            <Link>InfiniLore.Photino.Native.dll</Link>
         </None>
-        <None Include="..\..\src\Photino.Native\x64\Debug\WebView2Loader.dll">
+        <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Link>WebView2Loader.dll</Link>
         </None>
