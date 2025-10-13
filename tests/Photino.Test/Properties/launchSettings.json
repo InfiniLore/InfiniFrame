@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Photino.Test": {
-      "commandName": "Project",
-      "nativeDebugging": true
-    }
-  }
-}
