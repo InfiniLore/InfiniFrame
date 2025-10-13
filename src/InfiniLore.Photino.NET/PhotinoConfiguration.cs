@@ -47,6 +47,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public bool WebSecurityEnabled { get; set; } = true;
     public int Width { get; set; }
     public int Zoom { get; set; } = 100;
+    public bool ZoomEnabled { get; set; } = true;
     
     public PhotinoNativeParameters ToParameters() {
         string[] customSchemeNameArray = new string[16];
@@ -93,6 +94,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
             Width = Width,
             WindowIconFile = IconFilePath,
             Zoom = Zoom,
+            ZoomEnabled = ZoomEnabled,
         };
     }
 }
