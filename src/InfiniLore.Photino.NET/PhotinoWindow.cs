@@ -362,6 +362,9 @@ public sealed class PhotinoWindow(
     /// <example>100 = 100%, 50 = 50%</example>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Zoom => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetZoom);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool ZoomEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetZoomEnabled);
     #endregion
 
     public void Initialize() {

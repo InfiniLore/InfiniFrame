@@ -217,6 +217,11 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
     [MarshalAs(UnmanagedType.I1)] internal bool NotificationsEnabled;
 
     /// <summary>
+    /// OPTIONAL: If true, user can zoom the browser control. Default is true.
+    /// </summary>
+    [MarshalAs(UnmanagedType.I1)] internal bool ZoomEnabled;
+    
+    /// <summary>
     ///     Set when GetParamErrors() is called, prior to initializing the native window. It is a check to make sure the
     ///     struct matches what C++ is expecting.
     /// </summary>

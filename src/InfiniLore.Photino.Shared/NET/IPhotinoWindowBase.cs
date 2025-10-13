@@ -33,4 +33,5 @@ public interface IPhotinoWindowBase {
     string Title { get; }
     bool TopMost { get; }
     int Zoom { get; }
+    bool ZoomEnabled { get; }
 }
