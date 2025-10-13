@@ -43,14 +43,13 @@
     </Target>
 
     <ItemGroup>
-        <!-- Photino.Native -->
-        <None Include="..\..\src\Photino.Native\x64\$(Configuration)\Photino.Native.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <None Include="..\..\src\Photino.Native\x64\Debug\Photino.Native.dll">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          <Link>Photino.Native.dll</Link>
         </None>
-
-        <!-- WebView2Loader -->
-        <None Include="..\..\src\Photino.Native\x64\$(Configuration)\WebView2Loader.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <None Include="..\..\src\Photino.Native\x64\Debug\WebView2Loader.dll">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          <Link>WebView2Loader.dll</Link>
         </None>
     </ItemGroup>
 
