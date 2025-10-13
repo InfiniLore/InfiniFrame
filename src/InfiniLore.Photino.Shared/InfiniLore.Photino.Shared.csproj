@@ -53,29 +53,29 @@
 
     <!-- Windows -->
     <ItemGroup Condition="$(OsIsWindows)">
-        <None Include="../../src/InfiniLore.Photino.Native/x64/Debug/InfiniLore.Photino.Native.dll">
+        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/Debug/InfiniLore.Photino.Native.dll" PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>runtimes/win-x64/native/InfiniLore.Photino.Native.dll</Link>
-        </None>
-        <None Include="../../src/InfiniLore.Photino.Native/x64/Debug/WebView2Loader.dll">
+            <Visible>false</Visible>
+        </Content>
+        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/Debug/WebView2Loader.dll" PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>runtimes/win-x64/native/WebView2Loader.dll</Link>
-        </None>
+            <Visible>false</Visible>
+        </Content>
     </ItemGroup>
 
     <!-- Linux -->
     <ItemGroup Condition="$(OsIsLinux)">
-        <None Include="../../src/InfiniLore.Photino.Native/x64/Debug/libInfiniLore.Photino.Native.so">
+        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/Debug/libInfiniLore.Photino.Native.so" PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>runtimes/linux-x64/native/libInfiniLore.Photino.Native.so</Link>
-        </None>
+            <Visible>false</Visible>
+        </Content>
     </ItemGroup>
 
     <!-- macOS -->
     <ItemGroup Condition="$(OsIsMacOs)">
-        <None Include="../../src/InfiniLore.Photino.Native/x64/Debug/libInfiniLore.Photino.Native.dylib">
+        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/Debug/libInfiniLore.Photino.Native.dylib" PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib</Link>
-        </None>
+            <Visible>false</Visible>
+        </Content>
     </ItemGroup>
 </Project>
