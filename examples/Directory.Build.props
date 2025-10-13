@@ -8,14 +8,36 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
-    
-    <Target Name="BuildPhotinoNative" BeforeTargets="Build">
+
+    <PropertyGroup>
+        <OsIsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</OsIsWindows>
+        <OsIsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</OsIsLinux>
+        <OsIsMacOs>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</OsIsMacOs>
+    </PropertyGroup>
+
+    <!-- Windows native build -->
+    <Target Name="BuildPhotinoNativeWindows" BeforeTargets="Build" Condition="$(OsIsWindows)">
         <MSBuild Projects="..\..\src\InfiniLore.Photino.Native\InfiniLore.Photino.Native.vcxproj"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=x64"/>
     </Target>
 
-    <ItemGroup>
+    <!-- Linux native build -->
+    <Target Name="BuildPhotinoNativeLinux" BeforeTargets="Build" Condition="$(OsIsLinux)">
+        <Exec Command="make -C ..\..\src\InfiniLore.Photino.Native CONFIG=$(Configuration)"
+              WorkingDirectory="$(MSBuildProjectDirectory)"
+              ContinueOnError="false"/>
+    </Target>
+
+    <!-- macOS native build -->
+    <Target Name="BuildPhotinoNativeMac" BeforeTargets="Build" Condition="$(OsIsMacOs)">
+        <Exec Command="make -C ..\..\src\InfiniLore.Photino.Native CONFIG=$(Configuration) PLATFORM=mac"
+              WorkingDirectory="$(MSBuildProjectDirectory)"
+              ContinueOnError="false"/>
+    </Target>
+
+    <!-- Windows -->
+    <ItemGroup Condition="$(OsIsWindows)">
         <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\InfiniLore.Photino.Native.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Link>InfiniLore.Photino.Native.dll</Link>
@@ -24,6 +46,24 @@
         <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Link>WebView2Loader.dll</Link>
+            <Visible>false</Visible>
+        </None>
+    </ItemGroup>
+
+    <!-- Linux -->
+    <ItemGroup Condition="$(OsIsLinux)">
+        <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\libInfiniLore.Photino.Native.so">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>libInfiniLore.Photino.Native.so</Link>
+            <Visible>false</Visible>
+        </None>
+    </ItemGroup>
+
+    <!-- macOS -->
+    <ItemGroup Condition="$(OsIsMacOs)">
+        <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\libInfiniLore.Photino.Native.dylib">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>libInfiniLore.Photino.Native.dylib</Link>
             <Visible>false</Visible>
         </None>
     </ItemGroup>
