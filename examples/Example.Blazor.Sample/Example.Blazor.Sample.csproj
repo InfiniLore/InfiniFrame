@@ -35,23 +35,4 @@
         <PackageReference Include="Serilog.Sinks.Async" />
         <PackageReference Include="Serilog.Sinks.Console"/>
     </ItemGroup>
-
-
-    <Target Name="BuildPhotinoNative" BeforeTargets="Build">
-        <MSBuild Projects="..\..\src\InfiniLore.Photino.Native\InfiniLore.Photino.Native.vcxproj"
-                 Targets="Build"
-                 Properties="Configuration=$(Configuration);Platform=x64"/>
-    </Target>
-
-    <ItemGroup>
-        <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\InfiniLore.Photino.Native.dll">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>InfiniLore.Photino.Native.dll</Link>
-        </None>
-        <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\WebView2Loader.dll">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>WebView2Loader.dll</Link>
-        </None>
-    </ItemGroup>
-
 </Project>

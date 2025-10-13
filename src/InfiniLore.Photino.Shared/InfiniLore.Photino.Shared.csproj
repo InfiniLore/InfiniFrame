@@ -28,14 +28,14 @@
     <ItemGroup>
         <!-- Photino.Native -->
         <None Include="..\InfiniLore.Photino.Native\x64\$(Configuration)\InfiniLore.Photino.Native.dll">
+            <Visible>false</Visible>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <!--            <TargetPath>runtimes\win-x64\native\Photino.Native.dll</TargetPath>-->
         </None>
 
         <!-- WebView2Loader -->
         <None Include="..\InfiniLore.Photino.Native\x64\$(Configuration)\WebView2Loader.dll">
+            <Visible>false</Visible>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <!--            <TargetPath>runtimes\win-x64\native\WebView2Loader.dll</TargetPath>-->
         </None>
     </ItemGroup>
 </Project>

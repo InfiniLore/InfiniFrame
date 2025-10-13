@@ -10,10 +10,12 @@
         <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\InfiniLore.Photino.Native.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Link>InfiniLore.Photino.Native.dll</Link>
+            <Visible>false</Visible>
         </None>
         <None Include="..\..\src\InfiniLore.Photino.Native\x64\Debug\WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Link>WebView2Loader.dll</Link>
+            <Visible>false</Visible>
         </None>
     </ItemGroup>
 </Project>
