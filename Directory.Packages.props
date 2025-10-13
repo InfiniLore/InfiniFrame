@@ -9,6 +9,8 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.3537.50"  />
+    <PackageVersion Include="Microsoft.Windows.ImplementationLibrary" Version="1.0.250325.1" />
     <PackageVersion Include="Photino.Native" Version="4.0.22" />
     <PackageVersion Include="Serilog" Version="4.3.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />

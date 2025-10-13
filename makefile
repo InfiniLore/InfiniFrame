@@ -2,7 +2,7 @@ CC=c++
 CFLAGS=-std=c++2a -Wall -O2 -shared -fPIC
 # CFLAGS=-std=c++2a -Wall -O0 -g -shared -fPIC
 
-SRC=./Photino.Native
+SRC=./src/Photino.Native
 SRC_SHARED=$(SRC)/Shared
 SRC_WIN=$(SRC)/Windows
 SRC_MAC=$(SRC)/macOS

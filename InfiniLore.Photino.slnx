@@ -1,4 +1,4 @@
-﻿<Solution>
+<Solution>
   <Folder Name="/.dev-tools/">
     <File Path=".gitignore" />
     <File Path="InfiniLore.Photino.GitHubActions.slnf" />
@@ -24,24 +24,28 @@
     <File Path="webpack.config.js" />
   </Folder>
   <Folder Name="/example/">
-    <Project Path="examples\Example.Blazor.MultiWindowSample\Example.Blazor.MultiWindowSample.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.Blazor.Sample\Example.Blazor.Sample.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.NetServer.React\Example.NetServer.React.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.NetServer.Vue.Fullscreen\Example.NetServer.Vue.Fullscreen.csproj" Type="Classic C#" />
-    <Project Path="examples\Example.NetServer.Vue\Example.NetServer.Vue.csproj" Type="Classic C#" />
+    <Project Path="examples\Example.Blazor.MultiWindowSample\Example.Blazor.MultiWindowSample.csproj" />
+    <Project Path="examples\Example.Blazor.Sample\Example.Blazor.Sample.csproj" />
+    <Project Path="examples\Example.NetServer.React\Example.NetServer.React.csproj" />
+    <Project Path="examples\Example.NetServer.Vue.Fullscreen\Example.NetServer.Vue.Fullscreen.csproj" />
+    <Project Path="examples\Example.NetServer.Vue\Example.NetServer.Vue.csproj" />
     <File Path="examples\Directory.Build.props" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src\InfiniLore.Photino.Blazor\InfiniLore.Photino.Blazor.csproj" Type="Classic C#" />
-    <Project Path="src\InfiniLore.Photino.Js\InfiniLore.Photino.Js.csproj" Type="Classic C#" />
-    <Project Path="src\InfiniLore.Photino.NET.Server\InfiniLore.Photino.NET.Server.csproj" Type="Classic C#" />
+    <Project Path="src\InfiniLore.Photino.Blazor\InfiniLore.Photino.Blazor.csproj" />
+    <Project Path="src\InfiniLore.Photino.Js\InfiniLore.Photino.Js.csproj" />
+    <Project Path="src\InfiniLore.Photino.NET.Server\InfiniLore.Photino.NET.Server.csproj" />
     <Project Path="src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
-    <Project Path="src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" Type="Classic C#" />
+    <Project Path="src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
+    <Project Path="src\Photino.Native\Photino.Native.vcxproj" Id="b326b50a-f623-40f1-92f7-1ec6a5a48dac">
+      <Configuration Solution="Debug|Any CPU" Project="Debug|Win32" />
+      <Configuration Solution="Release|Any CPU" Project="Release|Win32" />
+    </Project>
     <File Path="src\Directory.Build.props" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests\Tests.Photino.NET\Tests.Photino.NET.csproj" Type="Classic C#" />
-    <Project Path="tests\Tests.Photino.Playwright\Tests.Photino.Playwright.csproj" Type="Classic C#" />
-    <Project Path="tests\Tests.Shared.Photino\Tests.Shared.Photino.csproj" Type="Classic C#" />
+    <Project Path="tests\Tests.Photino.NET\Tests.Photino.NET.csproj" />
+    <Project Path="tests\Tests.Photino.Playwright\Tests.Photino.Playwright.csproj" />
+    <Project Path="tests\Tests.Shared.Photino\Tests.Shared.Photino.csproj" />
   </Folder>
 </Solution>

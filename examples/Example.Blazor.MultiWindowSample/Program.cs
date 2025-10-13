@@ -9,13 +9,13 @@ static class Program {
     private static readonly List<IPhotinoWindow> Windows = new List<IPhotinoWindow>();
 
     [STAThread]
-    private static void Main(string[] args) {
+    private static async Task Main(string[] args) {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
         
         // register services
         appBuilder.Services.AddLogging();
         
-        CreateWindows(appBuilder,
+        await CreateWindows(appBuilder,
         new Queue<WindowCreationArgs>(new[] {
             new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
             new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
@@ -23,7 +23,7 @@ static class Program {
         );
     }
 
-    private static void CreateWindows(
+    private static async Task CreateWindows(
         PhotinoBlazorAppBuilder appBuilder,
         Queue<WindowCreationArgs> windowsToCreate
     ) {
@@ -42,7 +42,7 @@ static class Program {
             PhotinoWindowBuilder.Create()
                 .SetTitle(windowCreationArgs.Title)
                 .SetStartUrl(windowCreationArgs.HtmlPath)
-                .RegisterWindowCreatedHandler((_, _) => CreateWindows(appBuilder, windowsToCreate))
+                .RegisterWindowCreatedHandler((_, _) => Task.Run(() => CreateWindows(appBuilder, windowsToCreate))) 
                 .RegisterWindowClosingHandler((_, _) => {
                     CloseAllWindows();
                     return false;
@@ -54,7 +54,7 @@ static class Program {
         //     app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         // };
 
-        app.RunAsync();
+        await app.RunAsync();
     }
 
     private static void CloseAllWindows() {
