@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Project>
+    <Target Name="BuildPhotinoNative" BeforeTargets="Build">
+        <MSBuild Projects="..\..\src\Photino.Native\Photino.Native.vcxproj"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=x64"/>
+    </Target>
+    
+    <ItemGroup>        
+        <!-- Photino.Native -->
+        <None Include="..\..\src\Photino.Native\x64\$(Configuration)\Photino.Native.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+
+        <!-- WebView2Loader -->
+        <None Include="..\..\src\Photino.Native\x64\$(Configuration)\WebView2Loader.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+</Project>

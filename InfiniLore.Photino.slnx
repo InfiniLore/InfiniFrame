@@ -38,7 +38,7 @@
     <Project Path="src\InfiniLore.Photino.NET.Server\InfiniLore.Photino.NET.Server.csproj" />
     <Project Path="src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
     <Project Path="src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
-    <Project Path="src\Photino.Native\Photino.Native.vcxproj" Id="b326b50a-f623-40f1-92f7-1ec6a5a48dac">
+    <Project Path="src\Photino.Native\Photino.Native.vcxproj">
       <Configuration Solution="Debug|Any CPU" Project="Debug|x64" />
     </Project>
     <File Path="src\Directory.Build.props" />
@@ -47,5 +47,6 @@
     <Project Path="tests\Tests.Photino.NET\Tests.Photino.NET.csproj" />
     <Project Path="tests\Tests.Photino.Playwright\Tests.Photino.Playwright.csproj" />
     <Project Path="tests\Tests.Shared.Photino\Tests.Shared.Photino.csproj" />
+    <File Path="tests\Directory.Build.props" />
   </Folder>
 </Solution>
