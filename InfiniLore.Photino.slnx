@@ -8,6 +8,7 @@
     <File Path="InfiniLore.Photino.GitHubActions.Linux.slnf" />
     <File Path="InfiniLore.Photino.GitHubActions.Windows.slnf" />
     <File Path="InfiniLore.Photino.GitHubActions.MacOs.slnf" />
+    <File Path="makefile" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />
@@ -38,8 +39,7 @@
     <Project Path="src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
     <Project Path="src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
     <Project Path="src\Photino.Native\Photino.Native.vcxproj" Id="b326b50a-f623-40f1-92f7-1ec6a5a48dac">
-      <Configuration Solution="Debug|Any CPU" Project="Debug|Win32" />
-      <Configuration Solution="Release|Any CPU" Project="Release|Win32" />
+      <Configuration Solution="Debug|Any CPU" Project="Debug|x64" />
     </Project>
     <File Path="src\Directory.Build.props" />
   </Folder>
