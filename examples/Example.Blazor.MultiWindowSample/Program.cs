@@ -54,7 +54,7 @@ static class Program {
         //     app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         // };
 
-        await app.RunAsync();
+        app.Run();
     }
 
     private static void CloseAllWindows() {

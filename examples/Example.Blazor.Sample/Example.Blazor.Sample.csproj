@@ -9,6 +9,8 @@
         <IsPackable>false</IsPackable>
         <ApplicationIcon>favicon.ico</ApplicationIcon>
         <RootNamespace>Example.Blazor.Sample</RootNamespace>
+        <PlatformTarget>x64</PlatformTarget>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
 
     <ItemGroup>
@@ -32,6 +34,26 @@
         <PackageReference Include="Serilog.AspNetCore"/>
         <PackageReference Include="Serilog.Sinks.Async" />
         <PackageReference Include="Serilog.Sinks.Console"/>
+    </ItemGroup>
+    
+    <Target Name="BuildPhotinoNative" BeforeTargets="Build">
+        <MSBuild Projects="..\..\src\Photino.Native\Photino.Native.vcxproj"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=x64"/>
+    </Target>
+
+    <ItemGroup>
+        <!-- Photino.Native -->
+        <None Include="..\..\src\Photino.Native\x64\$(Configuration)\Photino.Native.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+<!--            <TargetPath>runtimes\win-x64\native\Photino.Native.dll</TargetPath>-->
+        </None>
+
+        <!-- WebView2Loader -->
+        <None Include="..\..\src\Photino.Native\x64\$(Configuration)\WebView2Loader.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+<!--            <TargetPath>runtimes\win-x64\native\WebView2Loader.dll</TargetPath>-->
+        </None>
     </ItemGroup>
 
 </Project>
