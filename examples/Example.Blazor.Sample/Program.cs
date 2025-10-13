@@ -9,7 +9,7 @@ using System.Drawing;
 
 public static class Program {
     [STAThread] 
-    private static void Main(string[] args) {
+    private static async Task Main(string[] args) {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
 
         appBuilder.Services.AddLogging(config => {
@@ -22,7 +22,7 @@ public static class Program {
                 .MinimumLevel.Debug();
         });
 
-        // register root component and selector
+        // register the root component and selector
         appBuilder.RootComponents.Add<App>("app");
 
         appBuilder.WithPhotinoWindowBuilder(builder => {
@@ -44,6 +44,6 @@ public static class Program {
 
         PhotinoBlazorApp app = appBuilder.Build();
         
-        app.Run();
+        await app.RunAsync();
     }
 }

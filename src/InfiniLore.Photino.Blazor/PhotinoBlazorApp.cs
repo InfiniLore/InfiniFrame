@@ -11,10 +11,12 @@ public class PhotinoBlazorApp(
 ) : IAsyncDisposable {
     
     private bool _disposed;
-    private readonly Lock _disposeLock = new Lock();
+    private readonly SemaphoreSlim _disposeLock = new SemaphoreSlim(1,1);
     
-    public void Run() {
-        lock (_disposeLock) ObjectDisposedException.ThrowIf(_disposed, this);
+    public async Task RunAsync() {
+        await _disposeLock.WaitAsync();
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _disposeLock.Release();
         
         var window = provider.GetRequiredService<IPhotinoWindow>();
         
@@ -34,10 +36,15 @@ public class PhotinoBlazorApp(
     }
     
     public async ValueTask DisposeAsync() {
-        lock (_disposeLock) {
+        await _disposeLock.WaitAsync();
+        try {
             if (_disposed) return;
             _disposed = true;
         }
+        finally {
+            _disposeLock.Release();
+        }
+        
 
         try {
             switch (provider) {
