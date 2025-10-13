@@ -9,13 +9,13 @@ static class Program {
     private static readonly List<IPhotinoWindow> Windows = new List<IPhotinoWindow>();
 
     [STAThread]
-    private static async Task Main(string[] args) {
+    private static void Main(string[] args) {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
         
         // register services
         appBuilder.Services.AddLogging();
         
-        await CreateWindows(appBuilder,
+        CreateWindows(appBuilder,
         new Queue<WindowCreationArgs>(new[] {
             new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
             new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
@@ -23,7 +23,7 @@ static class Program {
         );
     }
 
-    private static async Task CreateWindows(
+    private static void CreateWindows(
         PhotinoBlazorAppBuilder appBuilder,
         Queue<WindowCreationArgs> windowsToCreate
     ) {
