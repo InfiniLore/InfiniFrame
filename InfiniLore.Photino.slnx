@@ -8,7 +8,6 @@
     <File Path="InfiniLore.Photino.GitHubActions.Linux.slnf" />
     <File Path="InfiniLore.Photino.GitHubActions.Windows.slnf" />
     <File Path="InfiniLore.Photino.GitHubActions.MacOs.slnf" />
-    <File Path="makefile" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />

@@ -4,6 +4,16 @@ project(InfiniLore.Photino.Native VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Restore NuGet packages from packages.config
+execute_process(
+    COMMAND nuget restore "${CMAKE_SOURCE_DIR}/packages.config" -PackagesDirectory "${CMAKE_SOURCE_DIR}/packages" 
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}" 
+    RESULT_VARIABLE NUGET_RESULT
+)
+if(NUGET_RESULT)
+    message(FATAL_ERROR "NuGet restore failed" )
+endif()
+
 # Source files common to all platforms
 set(COMMON_SOURCES
         Exports.cpp
