@@ -297,7 +297,7 @@ jobs:
             
             -   name: Build native C++ (x64)
                 run: |
-                    cmake -B build/AMD64 -S src/InfiniLore.Photino.NativeNew -A x64 -DCMAKE_BUILD_TYPE=Release
+                    cmake -B build/AMD64 -S src/InfiniLore.Photino.Native -A x64 -DCMAKE_BUILD_TYPE=Release
                     cmake --build build/AMD64 --config Release
             
             -   name: Restore dependencies

@@ -25,10 +25,10 @@
     <!-- Windows native build -->
     <Target Name="BuildPhotinoNativeWindows" BeforeTargets="Build" Condition="$(OsIsWindows)">
         <Exec Command="cmake -B build"
-              WorkingDirectory="$(SolutionDir)src/InfiniLore.Photino.NativeNew"
+              WorkingDirectory="$(SolutionDir)src/InfiniLore.Photino.Native"
               ContinueOnError="false"/>
         <Exec Command="cmake --build build"
-              WorkingDirectory="$(SolutionDir)src/InfiniLore.Photino.NativeNew"
+              WorkingDirectory="$(SolutionDir)src/InfiniLore.Photino.Native"
               ContinueOnError="false"/>
     </Target>
 
@@ -48,7 +48,7 @@
 
     <!-- Windows -->
     <ItemGroup Condition="$(OsIsWindows)">
-        <Content Include="$(SolutionDir)src/InfiniLore.Photino.NativeNew/build/AMD64/$(Configuration)/Photino.Native.dll"
+        <Content Include="$(SolutionDir)src/InfiniLore.Photino.Native/build/AMD64/$(Configuration)/InfiniLore.Photino.Native.dll"
               Pack="true"
               PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -56,7 +56,7 @@
             <TargetPath>InfiniLore.Photino.Native.dll</TargetPath>
         </Content>
 
-        <Content Include="$(SolutionDir)src/InfiniLore.Photino.NativeNew/build/AMD64/$(Configuration)/WebView2Loader.dll"
+        <Content Include="$(SolutionDir)src/InfiniLore.Photino.Native/build/AMD64/$(Configuration)/WebView2Loader.dll"
               Pack="true"
               PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
