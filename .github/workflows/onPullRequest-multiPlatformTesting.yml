@@ -297,19 +297,11 @@ jobs:
             
             -   name: Build native C++ (x64)
                 run: |
-                    cmake -B build/AMD64 -S src/InfiniLore.Photino.Native -A x64 -DCMAKE_BUILD_TYPE=Release
-                    cmake --build build/AMD64 --config Release
+                    cmake -B build -S src/InfiniLore.Photino.Native -A x64 -DCMAKE_BUILD_TYPE=Release
+                    cmake --build build --config Release
             
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
-                
-            -   name: Build native C++ project first (Release)
-                run: |
-                    msbuild ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj `
-                      /p:Configuration=Release `
-                      /p:Platform=x64 `
-                      /p:PlatformToolset=v143 `
-                      /verbosity:normal
         
             -   name: Build (Release)
                 run: |
