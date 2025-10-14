@@ -67,6 +67,6 @@ public class PhotinoNativeParameterTests {
         // Assert
         await Assert.That(newParameters)
             .IsEqualTo(parameters)
-            .Because("This test only fails if the PhotinoNativeParameters C# struct is wrongly defined and has parameters in the wrong order, comapred the the struct on the c++ side.");
+            .Because("This test only fails if the PhotinoNativeParameters C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.");
     }
 }
