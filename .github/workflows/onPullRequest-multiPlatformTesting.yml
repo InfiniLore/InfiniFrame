@@ -303,6 +303,9 @@ jobs:
             -   name: Restore native NuGet packages
                 run: nuget restore ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj -PackagesDirectory ./packages
 
+            -   name: Restore dependencies
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
+                
             -   name: Build native C++ project first (Release)
                 run: |
                     msbuild ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj `
@@ -310,10 +313,7 @@ jobs:
                       /p:Platform=x64 `
                       /p:PlatformToolset=v143 `
                       /verbosity:normal
-           
-            -   name: Restore dependencies
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
-
+        
             -   name: Build (Release)
                 run: |
                     dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
