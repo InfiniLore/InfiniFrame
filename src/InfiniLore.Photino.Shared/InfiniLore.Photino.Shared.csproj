@@ -1,10 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>InfiniLore.Photino</RootNamespace>
+        
+        <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
+        <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
+        <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
 
-        <OsIsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</OsIsWindows>
-        <OsIsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</OsIsLinux>
-        <OsIsMacOs>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</OsIsMacOs>
+        <!-- Force default platform to x64 if AnyCPU or empty -->
+        <Platform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</Platform>
+
+        <!-- map to CMake architecture -->
+        <CMakeArch Condition="'$(Platform)'=='x64'">x64</CMakeArch>
+        <CMakeArch Condition="'$(Platform)'=='arm64'">ARM64</CMakeArch>
+
+        <!-- Fallback in case none matched -->
+        <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
+
+        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)</NativeOutputDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,63 +34,63 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Options"/>
     </ItemGroup>
-
-    <!-- Windows native build -->
-    <Target Name="BuildPhotinoNativeWindows" BeforeTargets="Build" Condition="$(OsIsWindows)">
-        <Exec Command="cmake -B build"
-              WorkingDirectory="$(SolutionDir)src/InfiniLore.Photino.Native"
-              ContinueOnError="false"/>
-        <Exec Command="cmake --build build"
-              WorkingDirectory="$(SolutionDir)src/InfiniLore.Photino.Native"
-              ContinueOnError="false"/>
-    </Target>
-
-    <!-- Linux native build -->
-    <Target Name="BuildPhotinoNativeLinux" BeforeTargets="Build" Condition="$(OsIsLinux)">
-        <Exec Command="make -C ../../src/InfiniLore.Photino.Native CONFIG=$(Configuration)"
-              WorkingDirectory="$(MSBuildProjectDirectory)"
-              ContinueOnError="false"/>
-    </Target>
-
-    <!-- macOS native build -->
-    <Target Name="BuildPhotinoNativeMac" BeforeTargets="Build" Condition="$(OsIsMacOs)">
-        <Exec Command="make -C ../../src/InfiniLore.Photino.Native CONFIG=$(Configuration) PLATFORM=mac"
-              WorkingDirectory="$(MSBuildProjectDirectory)"
-              ContinueOnError="false"/>
-    </Target>
+    
+    <ItemGroup>
+        <ProjectReference Include="../InfiniLore.Photino.Native/InfiniLore.Photino.Native.proj" />
+    </ItemGroup>
 
     <!-- Windows -->
-    <ItemGroup Condition="$(OsIsWindows)">
-        <Content Include="$(SolutionDir)src/InfiniLore.Photino.Native/build/AMD64/$(Configuration)/InfiniLore.Photino.Native.dll"
-              Pack="true"
-              PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll">
+    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')">
+        <Content Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dll"
+                 Pack="true"
+                 PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>runtimes\win-x64\native\InfiniLore.Photino.Native.dll</Link>
+            <Link>runtimes/win-x64/native/InfiniLore.Photino.Native.dll</Link>
             <TargetPath>InfiniLore.Photino.Native.dll</TargetPath>
         </Content>
 
-        <Content Include="$(SolutionDir)src/InfiniLore.Photino.Native/build/AMD64/$(Configuration)/WebView2Loader.dll"
-              Pack="true"
-              PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
+        <Content Include="$(NativeOutputDir)/WebView2Loader.dll"
+                 Pack="true"
+                 PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>runtimes\win-x64\native\WebView2Loader.dll</Link>
+            <Link>runtimes/win-x64/native/WebView2Loader.dll</Link>
             <TargetPath>WebView2Loader.dll</TargetPath>
         </Content>
     </ItemGroup>
 
     <!-- Linux -->
-    <ItemGroup Condition="$(OsIsLinux)">
-        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/$(Configuration)/libInfiniLore.Photino.Native.so" PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so">
+    <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')">
+        <Content Pack="true"
+                 Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.so"
+                 PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
         </Content>
     </ItemGroup>
 
     <!-- macOS -->
-    <ItemGroup Condition="$(OsIsMacOs)">
-        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/$(Configuration)/libInfiniLore.Photino.Native.dylib" PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib">
+    <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib')">
+        <Content Pack="true"
+                 Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib"
+                 PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
         </Content>
     </ItemGroup>
+
+    <Target Name="CheckNativeDlls" AfterTargets="Build">
+        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')"
+                 Text="INFO: InfiniLore.Photino.Native.dll not found at $(NativeOutputDir)! Tests may fail."
+                 Importance="High" />
+        <Message Condition="!Exists('$(NativeOutputDir)/WebView2Loader.dll')"
+                 Text="INFO: WebView2Loader.dll not found at $(NativeOutputDir)! Tests may fail."
+                 Importance="High" />
+        <Message Condition="!Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')"
+                 Text="INFO: libInfiniLore.Photino.Native.so not found at $(NativeOutputDir)!"
+                 Importance="High" />
+        <Message Condition="!Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib')"
+                 Text="INFO: libInfiniLore.Photino.Native.dylib not found at $(NativeOutputDir)!"
+                 Importance="High" />
+    </Target>
+
 </Project>

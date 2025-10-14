@@ -11,9 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\InfiniLore.Photino.NET.Server\InfiniLore.Photino.NET.Server.csproj" />
-      <ProjectReference Include="..\..\src\InfiniLore.Photino.NET\InfiniLore.Photino.NET.csproj" />
-      <ProjectReference Include="..\..\src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
+      <ProjectReference Include="../../src/InfiniLore.Photino.NET.Server/InfiniLore.Photino.NET.Server.csproj" />
+      <ProjectReference Include="../../src/InfiniLore.Photino.NET/InfiniLore.Photino.NET.csproj" />
+      <ProjectReference Include="../../src/InfiniLore.Photino.Shared/InfiniLore.Photino.Shared.csproj" />
     </ItemGroup>
 
 </Project>

@@ -52,6 +52,15 @@ Some changes so far, have been described below:
 
 ---
 
+## Building and running
+For building and running the project, you will need to have the .NET 9 SDK installed.
+You will also need to add the [nuget cli tool](https://www.nuget.org/downloads) to your PATH.
+
+The solution is set up in such a way that you can build the entire solution without having to need any additional
+dependencies first.
+
+---
+
 ## Repo history
 
 This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of the [Photino.Blazor](https://github.com/tryphotino/photino.Blazor) and [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server) repositories were merged into this.

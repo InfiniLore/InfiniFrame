@@ -138,7 +138,7 @@ jobs:
                         xfonts-base
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Linux.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.Linux.slnf --configuration Release --no-restore
@@ -291,22 +291,32 @@ jobs:
                     
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
-                                      
-            -   name: Build native C++ (x64)
-                working-directory: src/InfiniLore.Photino.Native
-                run: |
-                    cmake -B build -A x64
-                    cmake --build build --config Release
             
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
-        
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+
             -   name: Build (Release)
                 run: |
                     dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
                       --configuration Release `
-                      -p:GeneratePackageOnBuild=false `
-                      -p:IsPackable=false
+                      --no-restore
+
+            -   name: Verify Native DLLs
+                run: |
+                    $nativeDll = "tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dll"
+                    $webView2 = "tests/Tests.Photino.NET/bin/Release/net9.0/WebView2Loader.dll"
+                    
+                    if (-Not (Test-Path $nativeDll)) {
+                        Write-Host "ERROR: InfiniLore.Photino.Native.dll NOT found in test output!"
+                        Exit 1
+                    }
+                    
+                    if (-Not (Test-Path $webView2)) {
+                        Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
+                        Exit 1
+                    }
+                    
+                    Write-Host "✅ All native DLLs present"
 
             -   name: Run tests
                 run: |
@@ -393,7 +403,7 @@ jobs:
                         ${{ runner.os }}-build-
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.MacOs.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.MacOs.slnf --configuration Release --no-restore

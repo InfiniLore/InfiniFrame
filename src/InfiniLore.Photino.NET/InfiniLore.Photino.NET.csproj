@@ -15,8 +15,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\InfiniLore.Photino.Js\InfiniLore.Photino.Js.csproj" />
-        <ProjectReference Include="..\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj"/>
+        <ProjectReference Include="../InfiniLore.Photino.Js/InfiniLore.Photino.Js.csproj" />
+        <ProjectReference Include="../InfiniLore.Photino.Shared/InfiniLore.Photino.Shared.csproj"/>
     </ItemGroup>
 
 </Project>
