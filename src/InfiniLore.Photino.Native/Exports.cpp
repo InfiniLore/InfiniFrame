@@ -345,7 +345,7 @@ extern "C"
 		instance->Invoke(callback);
 	}
 
-    EXPORTED void InfiniWindowTests_NativeParametersReturnAsIs(PhotinoInitParams* params, PhotinoInitParams** new_params)
+    EXPORTED void InfiniWindowTests_NativeParametersReturnAsIs(const PhotinoInitParams* params, PhotinoInitParams** new_params)
 	{
         *new_params = new PhotinoInitParams();
 
@@ -407,7 +407,7 @@ extern "C"
         (*new_params)->JavascriptClipboardAccessEnabled = params->JavascriptClipboardAccessEnabled;
         (*new_params)->MediaStreamEnabled            = params->MediaStreamEnabled;
         (*new_params)->SmoothScrollingEnabled        = params->SmoothScrollingEnabled;
-        (*new_params)->IgnoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
+        (*new_params)->IgnoreCertificateErrorsEnabled= params->IgnoreCertificateErrorsEnabled;
         (*new_params)->NotificationsEnabled          = params->NotificationsEnabled;
 
         (*new_params)->Size                          = params->Size;
