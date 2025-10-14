@@ -72,7 +72,7 @@ jobs:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
             
@@ -284,26 +284,17 @@ jobs:
                 with:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
                     
-#            -   name: Cache Playwright browsers
-#                uses: actions/cache@v4
-#                with:
-#                    path: |
-#                        ~\AppData\Local\ms-playwright
-#                    key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json', '**/playwright.ps1') }}
-#                    restore-keys: |
-#                        ${{ runner.os }}-playwright-
-            
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
                     
             -   name: Add msbuild to PATH
                 uses: microsoft/setup-msbuild@v2
-                    
-            -   name:  Restore native Nuget packages
-                run: dotnet restore ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj --packages ./packages
-                
+                                      
+            -   name: Restore native NuGet packages
+                run: msbuild ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj /t:Restore /p:Configuration=Release /p:Platform=x64
+           
             -   name: Build native Photino
                 run: msbuild src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj /p:Configuration=Release /p:Platform=x64            
             
@@ -317,20 +308,6 @@ jobs:
                       --no-restore `
                       -p:GeneratePackageOnBuild=false `
                       -p:IsPackable=false
-
-#            -   name: Install Playwright browsers
-#                run: |
-#                    echo "Installing Playwright browsers..."
-#                    
-#                    # Find the playwright.ps1 script in any target framework directory
-#                    $playwrightScript = Get-ChildItem -Path "tests/Tests.Photino.Playwright/bin/Release" -Filter "playwright.ps1" -Recurse | Select-Object -First 1
-#                    if ($playwrightScript) {
-#                        pwsh $playwrightScript.FullName install
-#                    } else {
-#                        Write-Error "playwright.ps1 script not found in build output"
-#                        exit 1
-#                    }
-#                shell: pwsh
 
             -   name: Run tests
                 run: |
@@ -392,7 +369,7 @@ jobs:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
             
