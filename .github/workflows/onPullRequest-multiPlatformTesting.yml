@@ -289,20 +289,17 @@ jobs:
                 with:
                     dotnet-version: '9.x'
                     
-            -   name: Set up Visual Studio shell
-                uses: egor-tensin/vs-shell@v2
-                with:
-                    arch: x64
-                    
-            -   name: Add msbuild to PATH
-                uses: microsoft/setup-msbuild@v2
-                
-            -   name: Add VisualStudio build tools
-                run: choco install visualstudio2022-workload-vctools -y
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
                                       
             -   name: Restore native NuGet packages
                 run: nuget restore ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj -PackagesDirectory ./packages
-
+            
+            -   name: Build native C++ (x64)
+                run: |
+                    cmake -B build/AMD64 -S src/InfiniLore.Photino.NativeNew -A x64 -DCMAKE_BUILD_TYPE=Release
+                    cmake --build build/AMD64 --config Release
+            
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
                 
