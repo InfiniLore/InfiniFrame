@@ -303,7 +303,10 @@ jobs:
                     
             -   name:  Restore native Nuget packages
                 run: dotnet restore ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj --packages ./packages
-
+                
+            -   name: Build native Photino
+                run: msbuild src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj /p:Configuration=Release /p:Platform=x64            
+            
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
 
