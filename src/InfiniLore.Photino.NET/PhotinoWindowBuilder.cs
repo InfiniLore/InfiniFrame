@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.Photino.NET;
+using InfiniLore.Photino.Native;
 
 public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;

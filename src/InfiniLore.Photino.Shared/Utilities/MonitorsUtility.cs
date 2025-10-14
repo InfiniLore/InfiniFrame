@@ -3,6 +3,8 @@ using System.Collections.Immutable;
 using System.Drawing;
 
 namespace InfiniLore.Photino.Utilities;
+using InfiniLore.Photino.Native;
+
 internal static class MonitorsUtility {
     public static ImmutableArray<Monitor> GetMonitors(IPhotinoWindow window) {
         ImmutableArray<Monitor>.Builder builder = ImmutableArray.CreateBuilder<Monitor>();

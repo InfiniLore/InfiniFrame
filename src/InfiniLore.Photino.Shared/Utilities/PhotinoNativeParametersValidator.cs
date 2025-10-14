@@ -1,8 +1,8 @@
-﻿using InfiniLore.Photino.NET;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.Photino.Utilities;
+using InfiniLore.Photino.Native;
 
 internal static class PhotinoNativeParametersValidator {
     // ReSharper disable once InvertIf

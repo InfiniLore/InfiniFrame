@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.Photino.Native;
 // These are the parameter names that are passed to Photino.Native.
 // DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -227,8 +227,8 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
     /// </summary>
     [MarshalAs(UnmanagedType.I4)] internal int Size;
 
-
-    public bool Equals(PhotinoNativeParameters other) => StartString == other.StartString
+    public bool Equals(PhotinoNativeParameters other) =>
+        StartString == other.StartString
         && StartUrl == other.StartUrl
         && Title == other.Title
         && WindowIconFile == other.WindowIconFile
@@ -247,7 +247,10 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         // && MinimizedHandler.Equals(other.MinimizedHandler)
         // && MovedHandler.Equals(other.MovedHandler)
         // && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
-        && CustomSchemeNames.All(other.CustomSchemeNames.Contains)
+        && (
+            CustomSchemeNames.All(other.CustomSchemeNames.Contains) 
+            && CustomSchemeNames.Length == other.CustomSchemeNames.Length
+        )
         // && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
         && Left == other.Left
         && Top == other.Top

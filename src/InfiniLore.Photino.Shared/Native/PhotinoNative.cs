@@ -1,76 +1,11 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using static InfiniLore.Photino.Native.NativeDll;
 
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.Photino.Native;
+
 public static partial class PhotinoNative {
-    private const string DllName = "InfiniLore.Photino.Native";
-
-    // ReSharper disable InconsistentNaming
-    private const string Photino_register_win32 = nameof(Photino_register_win32);
-    private const string Photino_register_mac = nameof(Photino_register_mac);
-    private const string Photino_ctor = nameof(Photino_ctor);
-    private const string Photino_dtor = nameof(Photino_dtor);
-    private const string Photino_AddCustomSchemeName = nameof(Photino_AddCustomSchemeName);
-    private const string Photino_Close = nameof(Photino_Close);
-    private const string Photino_getHwnd_win32 = nameof(Photino_getHwnd_win32);
-    private const string Photino_GetAllMonitors = nameof(Photino_GetAllMonitors);
-    private const string Photino_GetTransparentEnabled = nameof(Photino_GetTransparentEnabled);
-    private const string Photino_GetContextMenuEnabled = nameof(Photino_GetContextMenuEnabled);
-    private const string Photino_GetDevToolsEnabled = nameof(Photino_GetDevToolsEnabled);
-    private const string Photino_GetFullScreen = nameof(Photino_GetFullScreen);
-    private const string Photino_GetGrantBrowserPermissions = nameof(Photino_GetGrantBrowserPermissions);
-    private const string Photino_GetUserAgent = nameof(Photino_GetUserAgent);
-    private const string Photino_GetMediaAutoplayEnabled = nameof(Photino_GetMediaAutoplayEnabled);
-    private const string Photino_GetFileSystemAccessEnabled = nameof(Photino_GetFileSystemAccessEnabled);
-    private const string Photino_GetWebSecurityEnabled = nameof(Photino_GetWebSecurityEnabled);
-    private const string Photino_GetJavascriptClipboardAccessEnabled = nameof(Photino_GetJavascriptClipboardAccessEnabled);
-    private const string Photino_GetMediaStreamEnabled = nameof(Photino_GetMediaStreamEnabled);
-    private const string Photino_GetSmoothScrollingEnabled = nameof(Photino_GetSmoothScrollingEnabled);
-    private const string Photino_GetIgnoreCertificateErrorsEnabled = nameof(Photino_GetIgnoreCertificateErrorsEnabled);
-    private const string Photino_GetNotificationsEnabled = nameof(Photino_GetNotificationsEnabled);
-    private const string Photino_GetPosition = nameof(Photino_GetPosition);
-    private const string Photino_GetResizable = nameof(Photino_GetResizable);
-    private const string Photino_GetScreenDpi = nameof(Photino_GetScreenDpi);
-    private const string Photino_GetSize = nameof(Photino_GetSize);
-    private const string Photino_GetTitle = nameof(Photino_GetTitle);
-    private const string Photino_GetTopmost = nameof(Photino_GetTopmost);
-    private const string Photino_GetZoom = nameof(Photino_GetZoom);
-    private const string Photino_GetMaximized = nameof(Photino_GetMaximized);
-    private const string Photino_GetMinimized = nameof(Photino_GetMinimized);
-    private const string Photino_Invoke = nameof(Photino_Invoke);
-    private const string Photino_NavigateToString = nameof(Photino_NavigateToString);
-    private const string Photino_NavigateToUrl = nameof(Photino_NavigateToUrl);
-    private const string Photino_setWebView2RuntimePath_win32 = nameof(Photino_setWebView2RuntimePath_win32);
-    private const string Photino_SetTransparentEnabled = nameof(Photino_SetTransparentEnabled);
-    private const string Photino_SetContextMenuEnabled = nameof(Photino_SetContextMenuEnabled);
-    private const string Photino_SetDevToolsEnabled = nameof(Photino_SetDevToolsEnabled);
-    private const string Photino_SetFullScreen = nameof(Photino_SetFullScreen);
-    private const string Photino_SetGrantBrowserPermissions = nameof(Photino_SetGrantBrowserPermissions);
-    private const string Photino_SetMaximized = nameof(Photino_SetMaximized);
-    private const string Photino_SetMaxSize = nameof(Photino_SetMaxSize);
-    private const string Photino_SetMinimized = nameof(Photino_SetMinimized);
-    private const string Photino_SetMinSize = nameof(Photino_SetMinSize);
-    private const string Photino_SetResizable = nameof(Photino_SetResizable);
-    private const string Photino_SetPosition = nameof(Photino_SetPosition);
-    private const string Photino_SetSize = nameof(Photino_SetSize);
-    private const string Photino_SetTitle = nameof(Photino_SetTitle);
-    private const string Photino_SetTopmost = nameof(Photino_SetTopmost);
-    private const string Photino_SetIconFile = nameof(Photino_SetIconFile);
-    private const string Photino_SetZoom = nameof(Photino_SetZoom);
-    private const string Photino_Center = nameof(Photino_Center);
-    private const string Photino_ClearBrowserAutoFill = nameof(Photino_ClearBrowserAutoFill);
-    private const string Photino_SendWebMessage = nameof(Photino_SendWebMessage);
-    private const string Photino_ShowNotification = nameof(Photino_ShowNotification);
-    private const string Photino_WaitForExit = nameof(Photino_WaitForExit);
-    private const string Photino_ShowOpenFile = nameof(Photino_ShowOpenFile);
-    private const string Photino_ShowOpenFolder = nameof(Photino_ShowOpenFolder);
-    private const string Photino_ShowSaveFile = nameof(Photino_ShowSaveFile);
-    private const string Photino_ShowMessage = nameof(Photino_ShowMessage);
-    private const string Photino_GetZoomEnabled = nameof(Photino_GetZoomEnabled);
-    private const string Photino_SetZoomEnabled = nameof(Photino_SetZoomEnabled);
-    // ReSharper restore InconsistentNaming
-
     #region Register
     // ReSharper disable once UnusedMethodReturnValue.Local
     [LibraryImport(DllName, EntryPoint = Photino_register_win32, SetLastError = true)]
