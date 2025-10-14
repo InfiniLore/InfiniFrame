@@ -7,7 +7,6 @@
             "src\\InfiniLore.Photino.NET\\InfiniLore.Photino.NET.csproj",
             "src\\InfiniLore.Photino.NET.Server\\InfiniLore.Photino.NET.Server.csproj",
             "src\\InfiniLore.Photino.Shared\\InfiniLore.Photino.Shared.csproj",
-            "src\\InfiniLore.Photino.Native\\InfiniLore.Photino.Native.vcxproj",
             
             "tests\\Tests.Photino.NET\\Tests.Photino.NET.csproj",
             "tests\\Tests.Photino.Playwright\\Tests.Photino.Playwright.csproj",
