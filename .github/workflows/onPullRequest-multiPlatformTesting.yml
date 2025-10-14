@@ -297,6 +297,10 @@ jobs:
                 uses: actions/setup-dotnet@v4
                 with:
                     dotnet-version: '9.x'
+                    
+            -   name:  Restore native Nuget packages
+                working-directory: ./src/InfiniLore.Photino.Native
+                run: msbuild InfiniLore.Photino.Native.vcxproj /t:Restore /p:Configuration=Release
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
