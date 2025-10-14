@@ -296,6 +296,9 @@ jobs:
                     
             -   name: Add msbuild to PATH
                 uses: microsoft/setup-msbuild@v2
+                
+            -   name: Add VisualStudio build tools
+                run: choco install visualstudio2022-workload-vctools -y
                                       
             -   name: Restore native NuGet packages
                 run: nuget restore ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj -PackagesDirectory ./packages
