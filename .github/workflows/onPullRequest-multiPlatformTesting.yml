@@ -293,16 +293,13 @@ jobs:
 #                    restore-keys: |
 #                        ${{ runner.os }}-playwright-
             
-            -   name: Add msbuild to PATH
-                uses: microsoft/setup-msbuild@v2
-
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v4
                 with:
                     dotnet-version: '9.x'
                     
             -   name:  Restore native Nuget packages
-                run: msbuild ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj /t:Restore /p:Configuration=Release /p:RestorePackagesPath=./packages
+                run: dotnet restore ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj --packages ./packages
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
