@@ -24,9 +24,12 @@
 
     <!-- Windows native build -->
     <Target Name="BuildPhotinoNativeWindows" BeforeTargets="Build" Condition="$(OsIsWindows)">
-        <MSBuild Projects="../../src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj"
-                 Targets="Build"
-                 Properties="Configuration=$(Configuration);Platform=x64"/>
+        <Exec Command="cmake -B build"
+              WorkingDirectory="$(SolutionDir)src/InfiniLore.Photino.Native"
+              ContinueOnError="false"/>
+        <Exec Command="cmake --build build"
+              WorkingDirectory="$(SolutionDir)src/InfiniLore.Photino.Native"
+              ContinueOnError="false"/>
     </Target>
 
     <!-- Linux native build -->
@@ -45,19 +48,26 @@
 
     <!-- Windows -->
     <ItemGroup Condition="$(OsIsWindows)">
-        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/Debug/InfiniLore.Photino.Native.dll" PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll">
+        <Content Include="$(SolutionDir)src/InfiniLore.Photino.Native/build/AMD64/$(Configuration)/InfiniLore.Photino.Native.dll"
+              Pack="true"
+              PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Visible>false</Visible>
+            <Link>runtimes\win-x64\native\InfiniLore.Photino.Native.dll</Link>
+            <TargetPath>InfiniLore.Photino.Native.dll</TargetPath>
         </Content>
-        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/Debug/WebView2Loader.dll" PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
+
+        <Content Include="$(SolutionDir)src/InfiniLore.Photino.Native/build/AMD64/$(Configuration)/WebView2Loader.dll"
+              Pack="true"
+              PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Visible>false</Visible>
+            <Link>runtimes\win-x64\native\WebView2Loader.dll</Link>
+            <TargetPath>WebView2Loader.dll</TargetPath>
         </Content>
     </ItemGroup>
 
     <!-- Linux -->
     <ItemGroup Condition="$(OsIsLinux)">
-        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/Debug/libInfiniLore.Photino.Native.so" PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so">
+        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/$(Configuration)/libInfiniLore.Photino.Native.so" PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
         </Content>
@@ -65,7 +75,7 @@
 
     <!-- macOS -->
     <ItemGroup Condition="$(OsIsMacOs)">
-        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/Debug/libInfiniLore.Photino.Native.dylib" PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib">
+        <Content Pack="true" Include="../../src/InfiniLore.Photino.Native/x64/$(Configuration)/libInfiniLore.Photino.Native.dylib" PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
         </Content>

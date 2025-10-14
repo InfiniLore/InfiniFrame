@@ -1,4 +1,7 @@
-﻿namespace InfiniLore.Photino.NET;
+﻿using InfiniLore.Photino.Native;
+
+namespace InfiniLore.Photino.NET;
+
 public interface IPhotinoConfiguration : IPhotinoWindowBase {
     bool Centered { get; set; }
     new bool Chromeless { get; set; }

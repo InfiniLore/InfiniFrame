@@ -72,7 +72,7 @@ jobs:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
             
@@ -284,44 +284,29 @@ jobs:
                 with:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
                     
-#            -   name: Cache Playwright browsers
-#                uses: actions/cache@v4
-#                with:
-#                    path: |
-#                        ~\AppData\Local\ms-playwright
-#                    key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json', '**/playwright.ps1') }}
-#                    restore-keys: |
-#                        ${{ runner.os }}-playwright-
-
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
-
+                    
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+                                      
+            -   name: Build native C++ (x64)
+                working-directory: src/InfiniLore.Photino.Native
+                run: |
+                    cmake -B build -A x64
+                    cmake --build build --config Release
+            
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
-
+        
             -   name: Build (Release)
                 run: |
                     dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
                       --configuration Release `
-                      --no-restore `
                       -p:GeneratePackageOnBuild=false `
                       -p:IsPackable=false
-
-#            -   name: Install Playwright browsers
-#                run: |
-#                    echo "Installing Playwright browsers..."
-#                    
-#                    # Find the playwright.ps1 script in any target framework directory
-#                    $playwrightScript = Get-ChildItem -Path "tests/Tests.Photino.Playwright/bin/Release" -Filter "playwright.ps1" -Recurse | Select-Object -First 1
-#                    if ($playwrightScript) {
-#                        pwsh $playwrightScript.FullName install
-#                    } else {
-#                        Write-Error "playwright.ps1 script not found in build output"
-#                        exit 1
-#                    }
-#                shell: pwsh
 
             -   name: Run tests
                 run: |
@@ -383,7 +368,7 @@ jobs:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
             

@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.Photino;
+using InfiniLore.Photino.Native;
 using InfiniLore.Photino.NET;
 using Tests.Shared.Photino;
 

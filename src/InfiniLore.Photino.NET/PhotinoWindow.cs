@@ -3,9 +3,10 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using InfiniLore.Photino.Native;
+using InfiniLore.Photino.Utilities;
 
 namespace InfiniLore.Photino.NET;
-using InfiniLore.Photino.Utilities;
 
 public sealed class PhotinoWindow(
     Dictionary<string, NetCustomSchemeDelegate?> customSchemes,
