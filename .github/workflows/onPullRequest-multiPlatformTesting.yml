@@ -292,9 +292,6 @@ jobs:
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
                                       
-            -   name: Restore native NuGet packages
-                run: nuget restore ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj -PackagesDirectory ./packages
-            
             -   name: Build native C++ (x64)
                 run: |
                     cmake -B build -S src/InfiniLore.Photino.Native -A x64 -DCMAKE_BUILD_TYPE=Release
