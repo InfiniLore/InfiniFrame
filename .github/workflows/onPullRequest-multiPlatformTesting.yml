@@ -293,7 +293,7 @@ jobs:
                 uses: microsoft/setup-msbuild@v2
                                       
             -   name: Restore native NuGet packages
-                run: msbuild ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj /t:Restore /p:Configuration=Release /p:Platform=x64
+                run: nuget restore ./src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj -PackagesDirectory ./packages
            
             -   name: Build native Photino
                 run: msbuild src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.vcxproj /p:Configuration=Release /p:Platform=x64            
