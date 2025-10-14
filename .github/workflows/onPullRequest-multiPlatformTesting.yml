@@ -293,8 +293,9 @@ jobs:
                 uses: lukka/get-cmake@latest
                                       
             -   name: Build native C++ (x64)
+                working-directory: src/InfiniLore.Photino.Native
                 run: |
-                    cmake -B build -S src/InfiniLore.Photino.Native -A x64
+                    cmake -B build -A x64
                     cmake --build build --config Release
             
             -   name: Restore dependencies
