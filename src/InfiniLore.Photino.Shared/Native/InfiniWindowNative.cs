@@ -10,5 +10,10 @@ namespace InfiniLore.Photino.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniWindowNative {
     [DllImport(DllName, EntryPoint = InfiniWindowTests_NativeParametersReturnAsIs, CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Ansi)]
-    internal static extern PhotinoNativeParameters NativeParametersReturnAsIs(ref PhotinoNativeParameters parameters);
+    private static extern void NativeParametersReturnAsIs(ref PhotinoNativeParameters parameters, out IntPtr newParameters);
+
+    internal static PhotinoNativeParameters NativeParametersReturnAsIs(ref PhotinoNativeParameters parameters) {
+        NativeParametersReturnAsIs(ref parameters, out IntPtr newParameters);
+        return Marshal.PtrToStructure<PhotinoNativeParameters>(newParameters);       
+    }
 }
