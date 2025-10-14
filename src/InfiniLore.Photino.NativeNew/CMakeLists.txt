@@ -54,28 +54,45 @@ set(HEADER_FILES
 
 # Platform-specific configuration
 if(WIN32)
+    # define architecture
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64|arm64|aarch64")
+        set(ARCH_DIR "arm64")
+    else()
+        set(ARCH_DIR "x64")
+    endif()
+    
     # Windows build
     add_library(${PROJECT_NAME} SHARED ${COMMON_SOURCES} ${WINDOWS_SOURCES} ${HEADER_FILES})
 
     # Set output directory
     set_target_properties(${PROJECT_NAME} PROPERTIES
-            OUTPUT_NAME "Photino.Native"
+            OUTPUT_NAME "InfiniLore.Photino.Native"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_PROCESSOR}/${CMAKE_BUILD_TYPE}"
     )
 
     # WebView2 package configuration
     set(WEBVIEW2_VERSION "1.0.3537.50" CACHE STRING "WebView2 version")
+
+    set(WEBVIEW2_BASE_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native")
+    set(WEBVIEW2_DLL_SOURCE "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2Loader.dll")
+    set(WEBVIEW2_LIB "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib")
+    
+    # WIL package configuration
     set(WINIMPL_VERSION "1.0.250325.1" CACHE STRING "Windows Implementation Library version")
+    
+    set(WINIMPL_BASE_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}")
 
     # Include directories
     target_include_directories(${PROJECT_NAME} PRIVATE
-            "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native/include"
+        "${WEBVIEW2_BASE_DIR}/include"
+        "${WINIMPL_BASE_DIR}/include"
     )
-
+    
     # Link libraries
     target_link_libraries(${PROJECT_NAME} PRIVATE
             kernel32 user32 gdi32 winspool comdlg32 advapi32
             shell32 ole32 oleaut32 uuid odbc32 odbccp32 shlwapi shcore
+            "${WEBVIEW2_LIB}"
     )
 
     # Preprocessor definitions
@@ -103,6 +120,14 @@ if(WIN32)
     # Resource file
     target_sources(${PROJECT_NAME} PRIVATE Photino.Native.rc)
 
+    # Copy webview2loader to output
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${WEBVIEW2_DLL_SOURCE}"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>/WebView2Loader.dll"
+            COMMENT "Copying WebView2Loader.dll for ${ARCH}"
+    )
+    
 elseif(APPLE)
     # macOS build - copy Exports.cpp to Exports.mm for Objective-C++ compilation
     configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
@@ -114,7 +139,7 @@ elseif(APPLE)
     )
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
-            OUTPUT_NAME "Photino.Native"
+            OUTPUT_NAME "InfiniLore.Photino.Native"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/x64"
             OSX_ARCHITECTURES "x86_64;arm64"
     )
@@ -146,7 +171,7 @@ elseif(UNIX)
     endif()
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
-            OUTPUT_NAME "Photino.Native"
+            OUTPUT_NAME "InfiniLore.Photino.Native"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${ARCH_DIR}"
     )
 
