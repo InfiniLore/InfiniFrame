@@ -64,6 +64,8 @@
     <Target Name="Clean">
         <Message Text="Cleaning build directory: $(CMakeBuildDir)" Importance="High" />
         <RemoveDir Directories="$(CMakeBuildDir)" />
+        <Message Text="Cleaning artifact directory: $(SolutionDir)artifacts/native/" Importance="High" />
+        <RemoveDir Directories="$(SolutionDir)artifacts/native/" />
     </Target>
 
     <!-- Restore target -->
