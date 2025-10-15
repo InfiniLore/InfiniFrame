@@ -32,7 +32,7 @@ public class RegisterCustomSchemeHandlerTests {
         
         IntPtr target = Marshal.StringToHGlobalAnsi("app");
         try {
-            bool found = configParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
+            bool found = configParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringUTF8(ptr) == "app");
             await Assert.That(found).IsTrue();
         } finally {
             Marshal.FreeHGlobal(target); // free the temp pointer

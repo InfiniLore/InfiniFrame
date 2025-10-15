@@ -68,8 +68,8 @@ public class PhotinoNativeParameterTests {
         // Assert
         for (int i = 0; i < parameters.CustomSchemeNames.Length; i++)
         {
-            string? expected = Marshal.PtrToStringAnsi(parameters.CustomSchemeNames[i]);
-            string? actual   = Marshal.PtrToStringAnsi(newParameters.CustomSchemeNames[i]);
+            string? expected = Marshal.PtrToStringUTF8(parameters.CustomSchemeNames[i]);
+            string? actual   = Marshal.PtrToStringUTF8(newParameters.CustomSchemeNames[i]);
             await Assert.That(actual).IsEqualTo(expected);
         }
         
