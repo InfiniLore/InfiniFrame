@@ -13,8 +13,8 @@ public class PhotinoNativeParameterTests {
     [Test]
     public async Task ReturnAsIsIsValid() {
         // Arrange
-        string[] customSchemeNames = new string[16];
-        customSchemeNames[0] = "NAME";
+        IntPtr[] customSchemeNames = new IntPtr[16];
+        customSchemeNames[0] =  Marshal.StringToHGlobalAnsi("NAME");
         
         var parameters = new PhotinoNativeParameters {
             StartString = "this is a string",

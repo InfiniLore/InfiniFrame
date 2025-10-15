@@ -51,8 +51,10 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public bool ZoomEnabled { get; set; } = true;
     
     public PhotinoNativeParameters ToParameters() {
-        string[] customSchemeNameArray = new string[16];
-        CustomSchemeNames.CopyTo(customSchemeNameArray);
+        IntPtr[] customSchemeNameArray = new IntPtr[16];
+        for (int i = 0; i < CustomSchemeNames.Count; i++) {
+            customSchemeNameArray[i] = Marshal.StringToHGlobalAnsi(CustomSchemeNames[i]);
+        }
         
         return new PhotinoNativeParameters {
             BrowserControlInitParameters = BrowserControlInitParameters,

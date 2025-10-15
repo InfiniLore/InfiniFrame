@@ -372,7 +372,7 @@ public sealed class PhotinoWindow(
         //fill in the fixed size array of custom scheme names
         int i = 0;
         foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in customSchemes.Take(16)) {
-            StartupParameters.CustomSchemeNames[i] = name.Key;
+            StartupParameters.CustomSchemeNames[i] = Marshal.StringToHGlobalAnsi(name.Key);
             i++;
         }
 
