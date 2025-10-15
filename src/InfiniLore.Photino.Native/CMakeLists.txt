@@ -157,12 +157,6 @@ if(WIN32)
 elseif(APPLE)
     # macOS build - copy Exports.cpp to Exports.mm for Objective-C++ compilation
     configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
-    
-    # Remove 'lib' prefix so output is InfiniLore.Photino.Native.so
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-            PREFIX ""
-            OSX_ARCHITECTURES "x86_64;arm64"
-    )
 
     add_library(${PROJECT_NAME} SHARED
             ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm
@@ -171,6 +165,7 @@ elseif(APPLE)
     )
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
+            PREFIX ""
             OUTPUT_NAME "InfiniLore.Photino.Native"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
             OSX_ARCHITECTURES "x86_64;arm64"
