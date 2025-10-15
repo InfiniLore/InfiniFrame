@@ -160,7 +160,7 @@ elseif(APPLE)
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
             OUTPUT_NAME "InfiniLore.Photino.Native"
-            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/x64"
+            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
             OSX_ARCHITECTURES "x86_64;arm64"
     )
 
@@ -182,10 +182,7 @@ elseif(APPLE)
 elseif(UNIX)
     # Linux build
     add_library(${PROJECT_NAME} SHARED ${COMMON_SOURCES} ${LINUX_SOURCES} ${HEADER_FILES})
-
-    # Remove 'lib' prefix so output is InfiniLore.Photino.Native.so
-    set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
-
+    
     # Determine architecture
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
         set(ARCH_DIR "arm64")
@@ -195,7 +192,8 @@ elseif(UNIX)
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
             OUTPUT_NAME "InfiniLore.Photino.Native"
-            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${ARCH_DIR}"
+            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
+            PREFIX ""  # removes the 'lib' prefix
     )
 
     # Find required packages
