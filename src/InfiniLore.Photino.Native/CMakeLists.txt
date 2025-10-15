@@ -1,4 +1,5 @@
-﻿cmake_minimum_required(VERSION 4.0)
+﻿
+cmake_minimum_required(VERSION 4.0)
 project(InfiniLore.Photino.Native VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -63,21 +64,27 @@ if(WIN32)
     if(NUGET_RESULT)
         message(FATAL_ERROR "NuGet restore failed" )
     endif()
-    
-    # define architecture
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64|arm64|aarch64")
-        set(ARCH_DIR "arm64")
-    else()
+
+    # define architecture - map CMAKE values to MSBuild expected values
+    if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
+        set(ARCH_DIR "ARM64")
+        set(OUTPUT_ARCH_DIR "ARM64")
+    elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
         set(ARCH_DIR "x64")
+        set(OUTPUT_ARCH_DIR "x64")
+    else()
+        # Default fallback
+        set(ARCH_DIR "x64")
+        set(OUTPUT_ARCH_DIR "x64")
     endif()
-    
+
     # Windows build
     add_library(${PROJECT_NAME} SHARED ${COMMON_SOURCES} ${WINDOWS_SOURCES} ${HEADER_FILES})
 
-    # Set output directory
+    # Set output directory to match MSBuild expectations
     set_target_properties(${PROJECT_NAME} PROPERTIES
             OUTPUT_NAME "InfiniLore.Photino.Native"
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_PROCESSOR}/${CMAKE_BUILD_TYPE}"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
     )
 
     # WebView2 package configuration
@@ -86,18 +93,18 @@ if(WIN32)
     set(WEBVIEW2_BASE_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native")
     set(WEBVIEW2_DLL_SOURCE "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2Loader.dll")
     set(WEBVIEW2_LIB "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib")
-    
+
     # WIL package configuration
     set(WINIMPL_VERSION "1.0.250325.1" CACHE STRING "Windows Implementation Library version")
-    
+
     set(WINIMPL_BASE_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}")
 
     # Include directories
     target_include_directories(${PROJECT_NAME} PRIVATE
-        "${WEBVIEW2_BASE_DIR}/include"
-        "${WINIMPL_BASE_DIR}/include"
+            "${WEBVIEW2_BASE_DIR}/include"
+            "${WINIMPL_BASE_DIR}/include"
     )
-    
+
     # Link libraries
     target_link_libraries(${PROJECT_NAME} PRIVATE
             kernel32 user32 gdi32 winspool comdlg32 advapi32
@@ -135,9 +142,9 @@ if(WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${WEBVIEW2_DLL_SOURCE}"
             "$<TARGET_FILE_DIR:${PROJECT_NAME}>/WebView2Loader.dll"
-            COMMENT "Copying WebView2Loader.dll for ${ARCH}"
+            COMMENT "Copying WebView2Loader.dll for ${OUTPUT_ARCH_DIR}"
     )
-    
+
 elseif(APPLE)
     # macOS build - copy Exports.cpp to Exports.mm for Objective-C++ compilation
     configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
