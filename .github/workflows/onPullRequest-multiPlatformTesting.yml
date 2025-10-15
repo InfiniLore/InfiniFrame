@@ -433,7 +433,7 @@ jobs:
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dylib "
+                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dylib"
 
                     if [ ! -f "$nativeSo" ]; then
                         echo "ERROR: InfiniLore.Photino.Native.dylib  NOT found in test output!"
