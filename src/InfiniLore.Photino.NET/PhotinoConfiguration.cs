@@ -4,7 +4,6 @@
 namespace InfiniLore.Photino.NET;
 using InfiniLore.Photino.Native;
 using System.Runtime.InteropServices;
-using System.Text;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -54,10 +53,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public PhotinoNativeParameters ToParameters() {
         IntPtr[] customSchemeNameArray = new IntPtr[16];
         for (int i = 0; i < CustomSchemeNames.Count; i++) {
-            byte[] utf8Bytes = Encoding.UTF8.GetBytes(CustomSchemeNames[i] + "\0");
-            IntPtr ptr = Marshal.AllocHGlobal(utf8Bytes.Length);
-            Marshal.Copy(utf8Bytes, 0, ptr, utf8Bytes.Length);
-            customSchemeNameArray[i] = ptr;
+            customSchemeNameArray[i] = Marshal.StringToHGlobalAnsi(CustomSchemeNames[i]);
         }
         
         return new PhotinoNativeParameters {
