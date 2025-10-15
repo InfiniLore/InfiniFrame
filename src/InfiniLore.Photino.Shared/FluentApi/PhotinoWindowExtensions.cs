@@ -327,7 +327,6 @@ public static class PhotinoWindowExtensions {
     /// <param name="fullScreen">Whether the window should be fullscreen</param>
     public static T SetFullScreen<T>(this T window, bool fullScreen) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
-        PhotinoNative.SetFullScreen(window.InstanceHandle, fullScreen);
         if (window.FullScreen == fullScreen) {
             window.Logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
             return window;
