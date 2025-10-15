@@ -70,4 +70,9 @@
     <Target Name="Restore">
         <Message Text="Skipping restore for native project." Importance="High"/>
     </Target>
+
+    <!-- Restore target -->
+    <Target Name="VSTest">
+        <Message Text="Skipping VSTest for native project." Importance="High"/>
+    </Target>
 </Project>
