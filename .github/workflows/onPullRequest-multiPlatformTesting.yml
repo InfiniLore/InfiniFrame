@@ -424,6 +424,17 @@ jobs:
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.MacOs.slnf --configuration Release --no-restore
 
+            -   name: Verify Native DLLs for testing
+                run: |
+                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dylib "
+
+                    if [ ! -f "$nativeSo" ]; then
+                        echo "ERROR: InfiniLore.Photino.Native.dylib  NOT found in test output!"
+                        exit 1
+                    fi
+                    
+                    echo "✅ All native DLLs present"
+
             -   name: Setup GUI environment and run tests
                 run: |
                     echo "Setting up macOS GUI environment..."

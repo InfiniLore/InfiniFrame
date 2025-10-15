@@ -159,7 +159,10 @@ elseif(APPLE)
     configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
     
     # Remove 'lib' prefix so output is InfiniLore.Photino.Native.so
-    set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            PREFIX ""
+            OSX_ARCHITECTURES "x86_64;arm64"
+    )
 
     add_library(${PROJECT_NAME} SHARED
             ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm

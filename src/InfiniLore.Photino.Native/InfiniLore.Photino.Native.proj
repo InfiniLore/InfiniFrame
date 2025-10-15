@@ -41,10 +41,14 @@
         <!-- Windows -->
         <Exec Condition="$(IsWindows)" Command="cmake -B $(CMakeBuildDir) -S . -A $(CMakeArch)" />
         <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
+        
+        <!-- Linux -->
+        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)" />
+        <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
 
-        <!-- macOS / Linux -->
-        <Exec Condition="$(IsMac) Or $(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)" />
-        <Exec Condition="$(IsMac) Or $(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
+        <!-- macOS -->
+        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S ." />
+        <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
 
         <!-- Copy native binaries -->
         <MakeDir Directories="$(NativeOutputDir)" />
