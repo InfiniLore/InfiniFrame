@@ -93,18 +93,18 @@
                  Text="❌ WebView2Loader.dll not found at $(NativeOutputDir)! Tests may fail."
                  Importance="High" />
         
-        <Message Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')"
-                 Text="✅ Found libInfiniLore.Photino.Native.so in $(NativeOutputDir)"
+        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.so')"
+                 Text="✅ Found InfiniLore.Photino.Native.so in $(NativeOutputDir)"
                  Importance="High" />
-        <Message Condition="!Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')"
-                 Text="❌ libInfiniLore.Photino.Native.so not found at $(NativeOutputDir)!"
+        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.so')"
+                 Text="❌ InfiniLore.Photino.Native.so not found at $(NativeOutputDir)!"
                  Importance="High" />
 
-        <Message Condition="Exists('$(NativeOutputDir)libInfiniLore.Photino.Native.dylib')"
-                 Text="✅ Found libInfiniLore.Photino.Native.dylib in $(NativeOutputDir)"
+        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dylib')"
+                 Text="✅ Found InfiniLore.Photino.Native.dylib in $(NativeOutputDir)"
                  Importance="High" />
-        <Message Condition="!Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib')"
-                 Text="❌ libInfiniLore.Photino.Native.dylib not found at $(NativeOutputDir)!"
+        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dylib')"
+                 Text="❌ InfiniLore.Photino.Native.dylib not found at $(NativeOutputDir)!"
                  Importance="High" />
     </Target>
 
