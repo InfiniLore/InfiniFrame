@@ -149,14 +149,14 @@ jobs:
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    $nativeDll = "tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.so"
-                    
-                    if (-Not (Test-Path $nativeDll)) {
-                        Write-Host "ERROR: InfiniLore.Photino.Native.so NOT found in test output!"
-                        Exit 1
-                    }
-                    
-                    Write-Host "✅ All native DLLs present"
+                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.so"
+
+                    if [ ! -f "$nativeSo" ]; then
+                    echo "ERROR: InfiniLore.Photino.Native.so NOT found in test output!"
+                    exit 1
+                    fi
+                
+                    echo "✅ All native DLLs present"
 
             -   name: Start desktop environment and run tests
                 run: |
