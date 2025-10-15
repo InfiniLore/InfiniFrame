@@ -107,6 +107,9 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-build-
 
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+
             -   name: Install desktop environment and dependencies
                 run: |
                     # Update package lists
@@ -291,12 +294,8 @@ jobs:
                     
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
-            
-            -   name: Build (Release)
-                run: |
-                    dotnet build src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.proj `
-                      --configuration Release `
-                      --no-restore
+                with:
+                    cmakeVersion: "4.0.0"
             
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf /p:NoWarn=NU1503
@@ -307,7 +306,7 @@ jobs:
                       --configuration Release `
                       --no-restore
 
-            -   name: Verify Native DLLs
+            -   name: Verify Native DLLs for testing
                 run: |
                     $nativeDll = "tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dll"
                     $webView2 = "tests/Tests.Photino.NET/bin/Release/net9.0/WebView2Loader.dll"
