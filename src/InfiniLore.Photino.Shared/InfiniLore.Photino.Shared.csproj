@@ -42,8 +42,8 @@
     <!-- Windows -->
     <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')">
         <Content Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dll"
-                 Pack="true"
-                 PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll">
+                 PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll"
+                 Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Link>runtimes/win-x64/native/InfiniLore.Photino.Native.dll</Link>
             <TargetPath>InfiniLore.Photino.Native.dll</TargetPath>
@@ -60,9 +60,9 @@
 
     <!-- Linux -->
     <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')">
-        <Content Pack="true"
-                 Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.so"
-                 PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so">
+        <Content Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.so"
+                 PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so"
+                 Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
         </Content>
@@ -70,9 +70,9 @@
 
     <!-- macOS -->
     <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib')">
-        <Content Pack="true"
-                 Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib"
-                 PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib">
+        <Content Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib"
+                 PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib"
+                 Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
         </Content>
