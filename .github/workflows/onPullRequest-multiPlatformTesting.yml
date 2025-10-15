@@ -292,13 +292,20 @@ jobs:
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
             
+            -   name: Build (Release)
+                run: |
+                    dotnet build src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.proj `
+                      --configuration Release `
+                      --no-restore
+            
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
                     dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
-                      --configuration Release
+                      --configuration Release `
+                      --no-restore
 
             -   name: Verify Native DLLs
                 run: |
@@ -321,7 +328,9 @@ jobs:
                 run: |
                     echo "Running tests on Windows..."
                     dotnet test InfiniLore.Photino.GitHubActions.Windows.slnf `
-                      --configuration Release
+                      --configuration Release `
+                      --no-build `
+                      --no-restore
 
             -   name: Update Windows status
                 if: always()
