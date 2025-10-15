@@ -32,19 +32,19 @@
         <ProjectReference Include="..\Tests.Shared.Photino\Tests.Shared.Photino.csproj" />
     </ItemGroup>
 
-<!--    <Target Name="EnsureNativeDlls" AfterTargets="Build">-->
-<!--        <ItemGroup>-->
-<!--            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dll"-->
-<!--                        Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')" />-->
-<!--            <NativeDlls Include="$(NativeOutputDir)/WebView2Loader.dll"-->
-<!--                        Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')" />-->
-<!--        </ItemGroup>-->
+    <Target Name="EnsureNativeDlls" AfterTargets="Build">
+        <ItemGroup>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dll"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')" />
+            <NativeDlls Include="$(NativeOutputDir)/WebView2Loader.dll"
+                        Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')" />
+        </ItemGroup>
 
-<!--        <Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />-->
+        <Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
 
-<!--        <Message Condition="Exists('$(OutDir)/InfiniLore.Photino.Native.dll')"-->
-<!--                 Text="✅ Copied InfiniLore.Photino.Native.dll into test output" Importance="High" />-->
-<!--    </Target>-->
+        <Message Condition="Exists('$(OutDir)/InfiniLore.Photino.Native.dll')"
+                 Text="✅ Copied InfiniLore.Photino.Native.dll into test output" Importance="High" />
+    </Target>
 
     <ItemGroup>
         <Content Include="..\..\assets\favicon.ico">
