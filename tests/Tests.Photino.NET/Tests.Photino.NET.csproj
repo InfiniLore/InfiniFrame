@@ -11,23 +11,6 @@
         <!-- Ensure content files from dependencies are copied -->
         <IncludeContentInOutput>true</IncludeContentInOutput>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-
-        <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
-        <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
-        <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
-
-        <!-- Force default platform to x64 if AnyCPU or empty -->
-        <Platform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</Platform>
-
-        <!-- map to CMake architecture -->
-        <CMakeArch Condition="'$(Platform)'=='x64'">x64</CMakeArch>
-        <CMakeArch Condition="'$(Platform)'=='arm64'">ARM64</CMakeArch>
-
-        <!-- Fallback in case none matched -->
-        <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
-
-        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
-        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)</NativeOutputDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -44,45 +27,6 @@
         <Content Include="..\..\assets\favicon.ico">
             <Link>Assets\favicon.ico</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <!-- Windows -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')">
-        <Content Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dll"
-                 PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll"
-                 Pack="true">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>runtimes/win-x64/native/InfiniLore.Photino.Native.dll</Link>
-            <TargetPath>InfiniLore.Photino.Native.dll</TargetPath>
-        </Content>
-
-        <Content Include="$(NativeOutputDir)/WebView2Loader.dll"
-                 Pack="true"
-                 PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>runtimes/win-x64/native/WebView2Loader.dll</Link>
-            <TargetPath>WebView2Loader.dll</TargetPath>
-        </Content>
-    </ItemGroup>
-
-    <!-- Linux -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')">
-        <Content Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.so"
-                 PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so"
-                 Pack="true">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Visible>false</Visible>
-        </Content>
-    </ItemGroup>
-
-    <!-- macOS -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib')">
-        <Content Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib"
-                 PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib"
-                 Pack="true">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Visible>false</Visible>
         </Content>
     </ItemGroup>
 

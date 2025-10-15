@@ -17,7 +17,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Tests.Shared.Photino\Tests.Shared.Photino.csproj" />
-        <ProjectReference Include="../../src/InfiniLore.Photino.Shared/InfiniLore.Photino.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>
