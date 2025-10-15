@@ -3,6 +3,7 @@ using InfiniLore.Photino.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Drawing;
+using InfiniLore.Photino.Native;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniLore.Photino.NET;
@@ -326,18 +327,17 @@ public static class PhotinoWindowExtensions {
     /// <param name="fullScreen">Whether the window should be fullscreen</param>
     public static T SetFullScreen<T>(this T window, bool fullScreen) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
-
         if (window.FullScreen == fullScreen) {
             window.Logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
             return window;
         }
-
+        
         if (fullScreen) {
             window.Invoke(() => {
                 ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
                 PhotinoNative.GetPosition(window.InstanceHandle, out int left, out int top);
                 PhotinoNative.GetSize(window.InstanceHandle, out int width, out int height);
-
+        
                 window.CachedPreFullScreenBounds = new Rectangle(left, top, width, height);
                 if (!MonitorsUtility.TryGetCurrentMonitor(monitors, window.CachedPreFullScreenBounds, out Monitor currentMonitor)) {
                     window.Logger.LogError("Failed to get current monitor, defaulting to simple fullscreen call");
@@ -345,15 +345,15 @@ public static class PhotinoWindowExtensions {
                     return;
                 }
                 Rectangle currentMonitorArea = currentMonitor.MonitorArea;
-
+        
                 PhotinoNative.SetFullScreen(window.InstanceHandle, true);
                 PhotinoNative.SetPosition(window.InstanceHandle, currentMonitorArea.X, currentMonitorArea.Y);
                 PhotinoNative.SetSize(window.InstanceHandle, currentMonitorArea.Width, currentMonitorArea.Height);
             });
-
+        
             return window;
         }
-
+        
         // Set Fullscreen to false => Restore to previous state
         window.Invoke(() => {
             PhotinoNative.SetFullScreen(window.InstanceHandle, false);
@@ -877,5 +877,10 @@ public static class PhotinoWindowExtensions {
             
         });
         return window;
+    }
+
+    public static T SetZoomEnabled<T>(this T window, bool zoomEnabled) where T : class, IPhotinoWindow {
+        window.Invoke(() => PhotinoNative.SetZoomEnabled(window.InstanceHandle, zoomEnabled));
+        return window;   
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.Photino.Native;
 // These are the parameter names that are passed to Photino.Native.
 // DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
@@ -84,8 +84,8 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
     [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebMessageReceivedDelegate WebMessageReceivedHandler;
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
-    [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPStr, SizeConst = 16)]
-    internal string[] CustomSchemeNames;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+    internal IntPtr[] CustomSchemeNames;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebResourceRequestedDelegate CustomSchemeHandler;
@@ -137,6 +137,11 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
 
     ///<summary>OPTIONAL: If true, user can access the browser control's context menu. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)] internal bool ContextMenuEnabled;
+    
+    /// <summary>
+    /// OPTIONAL: If true, user can zoom the browser control. Default is true.
+    /// </summary>
+    [MarshalAs(UnmanagedType.I1)] internal bool ZoomEnabled;
 
     ///<summary>OPTIONAL: If true, user can access the browser control's dev tools. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)] internal bool DevToolsEnabled;
@@ -215,23 +220,15 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
     ///     registering the app with Windows which is not always desirable as it creates shortcuts, etc. Default is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)] internal bool NotificationsEnabled;
-
+    
     /// <summary>
     ///     Set when GetParamErrors() is called, prior to initializing the native window. It is a check to make sure the
     ///     struct matches what C++ is expecting.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)] internal int Size;
 
-
-    public bool Equals(PhotinoNativeParameters other) => StartString == other.StartString
-        && StartUrl == other.StartUrl
-        && Title == other.Title
-        && WindowIconFile == other.WindowIconFile
-        && TemporaryFilesPath == other.TemporaryFilesPath
-        && UserAgent == other.UserAgent
-        && BrowserControlInitParameters == other.BrowserControlInitParameters
-        && NotificationRegistrationId == other.NotificationRegistrationId
-        && NativeParent == other.NativeParent
+    // ReSharper disable once ConvertIfStatementToReturnStatement
+    public bool Equals(PhotinoNativeParameters other) {
         // Handlers are not checked because they are set by the constructor and are not user-configurable.
         // && ClosingHandler.Equals(other.ClosingHandler)
         // && FocusInHandler.Equals(other.FocusInHandler)
@@ -242,39 +239,54 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         // && MinimizedHandler.Equals(other.MinimizedHandler)
         // && MovedHandler.Equals(other.MovedHandler)
         // && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
-        && CustomSchemeNames.All(other.CustomSchemeNames.Contains)
         // && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
-        && Left == other.Left
-        && Top == other.Top
-        && Width == other.Width
-        && Height == other.Height
-        && Zoom == other.Zoom
-        && MinWidth == other.MinWidth
-        && MinHeight == other.MinHeight
-        && MaxWidth == other.MaxWidth
-        && MaxHeight == other.MaxHeight
-        && CenterOnInitialize == other.CenterOnInitialize
-        && Chromeless == other.Chromeless
-        && Transparent == other.Transparent
-        && ContextMenuEnabled == other.ContextMenuEnabled
-        && DevToolsEnabled == other.DevToolsEnabled
-        && FullScreen == other.FullScreen
-        && Maximized == other.Maximized
-        && Minimized == other.Minimized
-        && Resizable == other.Resizable
-        && Topmost == other.Topmost
-        && UseOsDefaultLocation == other.UseOsDefaultLocation
-        && UseOsDefaultSize == other.UseOsDefaultSize
-        && GrantBrowserPermissions == other.GrantBrowserPermissions
-        && MediaAutoplayEnabled == other.MediaAutoplayEnabled
-        && FileSystemAccessEnabled == other.FileSystemAccessEnabled
-        && WebSecurityEnabled == other.WebSecurityEnabled
-        && JavascriptClipboardAccessEnabled == other.JavascriptClipboardAccessEnabled
-        && MediaStreamEnabled == other.MediaStreamEnabled
-        && SmoothScrollingEnabled == other.SmoothScrollingEnabled
-        && IgnoreCertificateErrorsEnabled == other.IgnoreCertificateErrorsEnabled
-        && NotificationsEnabled == other.NotificationsEnabled
-        && Size == other.Size;
+        
+        if (!CustomSchemeNames.All(other.CustomSchemeNames.Contains)
+            || CustomSchemeNames.Length != other.CustomSchemeNames.Length) return false;
+        
+        if (StartString != other.StartString) return false;
+        if (StartUrl != other.StartUrl) return false;
+        if (Title != other.Title) return false;
+        if (WindowIconFile != other.WindowIconFile) return false;
+        if (TemporaryFilesPath != other.TemporaryFilesPath) return false;
+        if (UserAgent != other.UserAgent) return false;
+        if (BrowserControlInitParameters != other.BrowserControlInitParameters) return false;
+        if (NotificationRegistrationId != other.NotificationRegistrationId) return false;     
+        if (NativeParent != other.NativeParent) return false;
+        if (Left != other.Left) return false;
+        if (Top != other.Top) return false;
+        if (Width != other.Width) return false;
+        if (Height != other.Height) return false;
+        if (Zoom != other.Zoom) return false;
+        if (MinWidth != other.MinWidth) return false;
+        if (MinHeight != other.MinHeight) return false;
+        if (MaxWidth != other.MaxWidth) return false;
+        if (MaxHeight != other.MaxHeight) return false;
+        if (CenterOnInitialize != other.CenterOnInitialize) return false;
+        if (Chromeless != other.Chromeless) return false;
+        if (Transparent != other.Transparent) return false;
+        if (ContextMenuEnabled != other.ContextMenuEnabled) return false;
+        if (DevToolsEnabled != other.DevToolsEnabled) return false;
+        if (FullScreen != other.FullScreen) return false;
+        if (Maximized != other.Maximized) return false;
+        if (Minimized != other.Minimized) return false;
+        if (Resizable != other.Resizable) return false;
+        if (Topmost != other.Topmost) return false;
+        if (UseOsDefaultLocation != other.UseOsDefaultLocation) return false;
+        if (UseOsDefaultSize != other.UseOsDefaultSize) return false;
+        if (GrantBrowserPermissions != other.GrantBrowserPermissions) return false;
+        if (MediaAutoplayEnabled != other.MediaAutoplayEnabled) return false;
+        if (FileSystemAccessEnabled != other.FileSystemAccessEnabled) return false;
+        if (WebSecurityEnabled != other.WebSecurityEnabled) return false;
+        if (JavascriptClipboardAccessEnabled != other.JavascriptClipboardAccessEnabled) return false;
+        if (MediaStreamEnabled != other.MediaStreamEnabled) return false;
+        if (SmoothScrollingEnabled != other.SmoothScrollingEnabled) return false;
+        if (IgnoreCertificateErrorsEnabled != other.IgnoreCertificateErrorsEnabled) return false;
+        if (NotificationsEnabled != other.NotificationsEnabled) return false;
+        if (Size != other.Size) return false;
+        if (ZoomEnabled == other.ZoomEnabled) return true;
+        return false;
+    }
 
     public override bool Equals(object? obj) => obj is PhotinoNativeParameters other && Equals(other);
 

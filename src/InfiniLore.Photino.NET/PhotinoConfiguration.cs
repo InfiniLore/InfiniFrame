@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniLore.Photino.NET;
+using InfiniLore.Photino.Native;
 using System.Runtime.InteropServices;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -47,10 +48,13 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public bool WebSecurityEnabled { get; set; } = true;
     public int Width { get; set; }
     public int Zoom { get; set; } = 100;
+    public bool ZoomEnabled { get; set; } = true;
     
     public PhotinoNativeParameters ToParameters() {
-        string[] customSchemeNameArray = new string[16];
-        CustomSchemeNames.CopyTo(customSchemeNameArray);
+        IntPtr[] customSchemeNameArray = new IntPtr[16];
+        for (int i = 0; i < CustomSchemeNames.Count; i++) {
+            customSchemeNameArray[i] = Marshal.StringToHGlobalAnsi(CustomSchemeNames[i]);
+        }
         
         return new PhotinoNativeParameters {
             BrowserControlInitParameters = BrowserControlInitParameters,
@@ -93,6 +97,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
             Width = Width,
             WindowIconFile = IconFilePath,
             Zoom = Zoom,
+            ZoomEnabled = ZoomEnabled,
         };
     }
 }

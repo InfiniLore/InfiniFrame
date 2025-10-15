@@ -42,7 +42,7 @@ static class Program {
             PhotinoWindowBuilder.Create()
                 .SetTitle(windowCreationArgs.Title)
                 .SetStartUrl(windowCreationArgs.HtmlPath)
-                .RegisterWindowCreatedHandler((_, _) => CreateWindows(appBuilder, windowsToCreate))
+                .RegisterWindowCreatedHandler((_, _) => Task.Run(() => CreateWindows(appBuilder, windowsToCreate))) 
                 .RegisterWindowClosingHandler((_, _) => {
                     CloseAllWindows();
                     return false;
@@ -54,7 +54,7 @@ static class Program {
         //     app.MainWindow.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         // };
 
-        app.RunAsync();
+        app.Run();
     }
 
     private static void CloseAllWindows() {

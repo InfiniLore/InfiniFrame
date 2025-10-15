@@ -3,9 +3,10 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using InfiniLore.Photino.Native;
+using InfiniLore.Photino.Utilities;
 
 namespace InfiniLore.Photino.NET;
-using InfiniLore.Photino.Utilities;
 
 public sealed class PhotinoWindow(
     Dictionary<string, NetCustomSchemeDelegate?> customSchemes,
@@ -362,13 +363,16 @@ public sealed class PhotinoWindow(
     /// <example>100 = 100%, 50 = 50%</example>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Zoom => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetZoom);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool ZoomEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetZoomEnabled);
     #endregion
 
     public void Initialize() {
         //fill in the fixed size array of custom scheme names
         int i = 0;
         foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in customSchemes.Take(16)) {
-            StartupParameters.CustomSchemeNames[i] = name.Key;
+            StartupParameters.CustomSchemeNames[i] = Marshal.StringToHGlobalAnsi(name.Key);
             i++;
         }
 

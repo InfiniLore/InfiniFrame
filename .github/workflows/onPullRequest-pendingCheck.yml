@@ -8,6 +8,7 @@ jobs:
     mark-pending:
         name: Mark PR as Pending
         runs-on: ubuntu-latest
+        if: github.event.pull_request.draft == false
         permissions:
             statuses: write
         

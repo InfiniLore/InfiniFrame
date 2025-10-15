@@ -9,7 +9,7 @@ using System.Drawing;
 
 public static class Program {
     [STAThread] 
-    private static async Task Main(string[] args) {
+    private static void Main(string[] args) {
         var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
 
         appBuilder.Services.AddLogging(config => {
@@ -44,6 +44,6 @@ public static class Program {
 
         PhotinoBlazorApp app = appBuilder.Build();
         
-        await app.RunAsync();
+        app.Run();
     }
 }

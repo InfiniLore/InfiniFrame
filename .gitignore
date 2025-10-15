@@ -341,3 +341,6 @@ healthchecksdb
 
 .vscode
 .DS_Store
+/src/InfiniLore.Photino.Native/build/
+/src/InfiniLore.Photino.Native/cmake-build-debug/
+/src/InfiniLore.Photino.Native/packages/

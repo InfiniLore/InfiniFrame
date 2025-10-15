@@ -3,7 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.Photino;
+using InfiniLore.Photino.Native;
 using InfiniLore.Photino.NET;
+using System.Runtime.InteropServices;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -27,7 +29,14 @@ public class RegisterCustomSchemeHandlerTests {
         await Assert.That(builder.Configuration.CustomSchemeNames).Contains("app");
 
         PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
-        await Assert.That(configParameters.CustomSchemeNames).Contains("app");
+        
+        IntPtr target = Marshal.StringToHGlobalAnsi("app");
+        try {
+            bool found = configParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
+            await Assert.That(found).IsTrue();
+        } finally {
+            Marshal.FreeHGlobal(target); // free the temp pointer
+        }
     }
     
 

@@ -1,4 +1,7 @@
-﻿namespace InfiniLore.Photino.NET;
+﻿using InfiniLore.Photino.Native;
+
+namespace InfiniLore.Photino.NET;
+
 public interface IPhotinoConfiguration : IPhotinoWindowBase {
     bool Centered { get; set; }
     new bool Chromeless { get; set; }
@@ -39,6 +42,7 @@ public interface IPhotinoConfiguration : IPhotinoWindowBase {
     bool UseOsDefaultSize { get; set; }
     List<string> CustomSchemeNames { get; set; }
     new int Zoom { get; set; }
+    new bool ZoomEnabled { get; set; }
 
     PhotinoNativeParameters ToParameters();
 }

@@ -72,7 +72,7 @@ jobs:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
             
@@ -107,6 +107,9 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-build-
 
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+
             -   name: Install desktop environment and dependencies
                 run: |
                     # Update package lists
@@ -125,6 +128,7 @@ jobs:
                         at-spi2-core \
                         gsettings-desktop-schemas \
                         libnotify4 \
+                        libnotify-dev \
                         libwebkit2gtk-4.1-dev \
                         libgtk-3-dev \
                         libglib2.0-dev \
@@ -138,10 +142,21 @@ jobs:
                         xfonts-base
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Linux.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.Linux.slnf --configuration Release --no-restore
+
+            -   name: Verify Native DLLs for testing
+                run: |
+                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.so"
+
+                    if [ ! -f "$nativeSo" ]; then
+                        echo "ERROR: InfiniLore.Photino.Native.so NOT found in test output!"
+                        exit 1
+                    fi
+                
+                    echo "✅ All native DLLs present"
 
             -   name: Start desktop environment and run tests
                 run: |
@@ -284,44 +299,41 @@ jobs:
                 with:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
                     
-#            -   name: Cache Playwright browsers
-#                uses: actions/cache@v4
-#                with:
-#                    path: |
-#                        ~\AppData\Local\ms-playwright
-#                    key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json', '**/playwright.ps1') }}
-#                    restore-keys: |
-#                        ${{ runner.os }}-playwright-
-
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
-
+                    
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+                with:
+                    cmakeVersion: "4.0.0"
+            
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
                     dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
                       --configuration Release `
-                      --no-restore `
-                      -p:GeneratePackageOnBuild=false `
-                      -p:IsPackable=false
+                      --no-restore
 
-#            -   name: Install Playwright browsers
-#                run: |
-#                    echo "Installing Playwright browsers..."
-#                    
-#                    # Find the playwright.ps1 script in any target framework directory
-#                    $playwrightScript = Get-ChildItem -Path "tests/Tests.Photino.Playwright/bin/Release" -Filter "playwright.ps1" -Recurse | Select-Object -First 1
-#                    if ($playwrightScript) {
-#                        pwsh $playwrightScript.FullName install
-#                    } else {
-#                        Write-Error "playwright.ps1 script not found in build output"
-#                        exit 1
-#                    }
-#                shell: pwsh
+            -   name: Verify Native DLLs for testing
+                run: |
+                    $nativeDll = "tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dll"
+                    $webView2 = "tests/Tests.Photino.NET/bin/Release/net9.0/WebView2Loader.dll"
+                    
+                    if (-Not (Test-Path $nativeDll)) {
+                        Write-Host "ERROR: InfiniLore.Photino.Native.dll NOT found in test output!"
+                        Exit 1
+                    }
+                    
+                    if (-Not (Test-Path $webView2)) {
+                        Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
+                        Exit 1
+                    }
+                    
+                    Write-Host "✅ All native DLLs present"
 
             -   name: Run tests
                 run: |
@@ -329,8 +341,7 @@ jobs:
                     dotnet test InfiniLore.Photino.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
-                      --no-restore `
-                      --logger "console;verbosity=detailed"
+                      --no-restore
 
             -   name: Update Windows status
                 if: always()
@@ -383,7 +394,7 @@ jobs:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
 
             -   name: Setup .NET 9 SDK
-                uses: actions/setup-dotnet@v4
+                uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
             
@@ -408,10 +419,28 @@ jobs:
                         ${{ runner.os }}-build-
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.MacOs.slnf
+                run: dotnet restore InfiniLore.Photino.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
+                
+            -   name: Build native
+                run: |
+                    dotnet build src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.proj \
+                        --configuration Release \
+                        --no-restore \
+                        /p:SolutionDir=$GITHUB_WORKSPACE/
 
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.MacOs.slnf --configuration Release --no-restore
+
+            -   name: Verify Native DLLs for testing
+                run: |
+                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dylib"
+
+                    if [ ! -f "$nativeSo" ]; then
+                        echo "ERROR: InfiniLore.Photino.Native.dylib  NOT found in test output!"
+                        exit 1
+                    fi
+                    
+                    echo "✅ All native DLLs present"
 
             -   name: Setup GUI environment and run tests
                 run: |

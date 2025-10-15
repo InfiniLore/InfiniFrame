@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Example.NetServer.Vue.Fullscreen": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:49459;http://localhost:49462"
+    }
+  }
+}
