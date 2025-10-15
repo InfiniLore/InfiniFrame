@@ -7,6 +7,10 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+
+        <!-- Ensure content files from dependencies are copied -->
+        <IncludeContentInOutput>true</IncludeContentInOutput>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
     <ItemGroup>
