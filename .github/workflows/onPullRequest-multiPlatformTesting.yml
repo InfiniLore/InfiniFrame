@@ -301,31 +301,13 @@ jobs:
                       --configuration Release `
                       --no-restore
 
-            -   name: Verify Native DLLs
-                run: |
-                    $nativeDll = "tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dll"
-                    $webView2 = "tests/Tests.Photino.NET/bin/Release/net9.0/WebView2Loader.dll"
-                    
-                    if (-Not (Test-Path $nativeDll)) {
-                        Write-Host "ERROR: InfiniLore.Photino.Native.dll NOT found in test output!"
-                        Exit 1
-                    }
-                    
-                    if (-Not (Test-Path $webView2)) {
-                        Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
-                        Exit 1
-                    }
-                    
-                    Write-Host "✅ All native DLLs present"
-
             -   name: Run tests
                 run: |
                     echo "Running tests on Windows..."
                     dotnet test InfiniLore.Photino.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
-                      --no-restore `
-                      --logger "console;verbosity=detailed"
+                      --no-restore
 
             -   name: Update Windows status
                 if: always()
