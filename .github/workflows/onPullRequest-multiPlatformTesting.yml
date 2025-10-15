@@ -425,7 +425,8 @@ jobs:
                 run: |
                     dotnet build src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.proj \
                         --configuration Release \
-                        --no-restore 
+                        --no-restore \
+                        /p:SolutionDir=$GITHUB_WORKSPACE/
 
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.MacOs.slnf --configuration Release --no-restore
