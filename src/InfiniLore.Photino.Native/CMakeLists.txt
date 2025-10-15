@@ -164,6 +164,9 @@ elseif(APPLE)
             ${HEADER_FILES}
     )
 
+    # Add include directories so headers can be found
+    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR})
+
     set_target_properties(${PROJECT_NAME} PROPERTIES
             PREFIX ""
             OUTPUT_NAME "InfiniLore.Photino.Native"
