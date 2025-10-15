@@ -78,21 +78,28 @@ public class WindowServerTestUtility : IDisposable {
     }
     
     public void Dispose() {
-        if (!_cancellationTokenSource.IsCancellationRequested) {
-            _cancellationTokenSource.Cancel();
+        try {
+            if (!_cancellationTokenSource.IsCancellationRequested) {
+                _cancellationTokenSource.Cancel();
             
-            Window.Close();
+                Window.Close();
             
-            // Give the window thread time to close gracefully
-            if (!_windowThread.Join(TimeSpan.FromSeconds(5))) {
-                // Force abort if it doesn't close gracefully
-                _windowThread.Interrupt();
+                // Give the window thread time to close gracefully
+                if (!_windowThread.Join(TimeSpan.FromSeconds(5))) {
+                    // Force abort if it doesn't close gracefully
+                    _windowThread.Interrupt();
+                }
+            
+                Server.Stop();
             }
-            
-            Server.Stop();
-        }
         
-        _cancellationTokenSource.Dispose();
-        GC.SuppressFinalize(this);   
+            _cancellationTokenSource.Dispose();
+        }
+        catch (Exception) {
+            // Ignore
+        }
+        finally {
+            GC.SuppressFinalize(this);   
+        }
     }
 }

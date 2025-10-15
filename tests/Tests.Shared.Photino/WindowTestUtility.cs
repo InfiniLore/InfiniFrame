@@ -32,6 +32,9 @@ public class WindowTestUtility : IDisposable {
         try {
             Window.Close();
         }
+        catch (Exception) {
+            // Ignore
+        }
         finally {
             GC.SuppressFinalize(this);    
         }
