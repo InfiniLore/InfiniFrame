@@ -4,11 +4,6 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-
-
-        <!-- Ensure content files from dependencies are copied -->
-        <IncludeContentInOutput>true</IncludeContentInOutput>
-        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
     <ItemGroup>
