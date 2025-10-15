@@ -147,6 +147,17 @@ jobs:
             -   name: Build (Release) (cached)
                 run: dotnet build InfiniLore.Photino.GitHubActions.Linux.slnf --configuration Release --no-restore
 
+            -   name: Verify Native DLLs for testing
+                run: |
+                    $nativeDll = "tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.so"
+                    
+                    if (-Not (Test-Path $nativeDll)) {
+                        Write-Host "ERROR: InfiniLore.Photino.Native.so NOT found in test output!"
+                        Exit 1
+                    }
+                    
+                    Write-Host "✅ All native DLLs present"
+
             -   name: Start desktop environment and run tests
                 run: |
                     echo "Starting desktop environment..."

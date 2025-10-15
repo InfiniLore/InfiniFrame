@@ -38,16 +38,25 @@
                         Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')" />
             <NativeDlls Include="$(NativeOutputDir)/WebView2Loader.dll"
                         Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')" />
-            <NativeDlls Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.so"
-                        Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')" />
-            <NativeDlls Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib"
-                        Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib')" />
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.Photino.Native.so"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.so')" />
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dylib"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dylib')" />
         </ItemGroup>
 
         <Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
 
         <Message Condition="Exists('$(OutDir)/InfiniLore.Photino.Native.dll')"
                  Text="✅ Copied InfiniLore.Photino.Native.dll into test output" Importance="High" />
+
+        <Message Condition="Exists('$(OutDir)/WebView2Loader.dll')"
+                 Text="✅ Copied WebView2Loader.dll into test output" Importance="High" />
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.Photino.Native.so')"
+                 Text="✅ Copied InfiniLore.Photino.Native.so into test output" Importance="High" />
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.Photino.Native.dylib')"
+                 Text="✅ Copied InfiniLore.Photino.Native.dylib into test output" Importance="High" />
     </Target>
 
     <ItemGroup>
