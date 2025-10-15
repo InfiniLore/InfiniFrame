@@ -7,6 +7,19 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+
+        <!-- Force default platform to x64 if AnyCPU or empty -->
+        <Platform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</Platform>
+
+        <!-- map to CMake architecture -->
+        <CMakeArch Condition="'$(Platform)'=='x64'">x64</CMakeArch>
+        <CMakeArch Condition="'$(Platform)'=='arm64'">ARM64</CMakeArch>
+
+        <!-- Fallback in case none matched -->
+        <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
+
+        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)</NativeOutputDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,6 +31,20 @@
         <ProjectReference Include="..\..\src\InfiniLore.Photino.Shared\InfiniLore.Photino.Shared.csproj" />
         <ProjectReference Include="..\Tests.Shared.Photino\Tests.Shared.Photino.csproj" />
     </ItemGroup>
+
+    <Target Name="EnsureNativeDlls" AfterTargets="Build">
+        <ItemGroup>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dll"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')" />
+            <NativeDlls Include="$(NativeOutputDir)/WebView2Loader.dll"
+                        Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.Photino.Native.dll')"
+                 Text="✅ Copied InfiniLore.Photino.Native.dll into test output" Importance="High" />
+    </Target>
 
     <ItemGroup>
         <Content Include="..\..\assets\favicon.ico">

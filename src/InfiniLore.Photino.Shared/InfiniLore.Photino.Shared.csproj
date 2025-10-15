@@ -78,53 +78,6 @@
         </Content>
     </ItemGroup>
 
-    <Target Name="CopyAndPackNativeBinaries" AfterTargets="Build">
-        <!-- Windows -->
-        <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')">
-            <Content Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dll"
-                     PackagePath="runtimes/win-x64/native/InfiniLore.Photino.Native.dll"
-                     Pack="true">
-                <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-                <TargetPath>InfiniLore.Photino.Native.dll</TargetPath>
-            </Content>
-        </ItemGroup>
-
-        <ItemGroup Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')">
-            <Content Include="$(NativeOutputDir)/WebView2Loader.dll"
-                     PackagePath="runtimes/win-x64/native/WebView2Loader.dll"
-                     Pack="true">
-                <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-                <TargetPath>WebView2Loader.dll</TargetPath>
-            </Content>
-        </ItemGroup>
-
-        <!-- Linux -->
-        <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')">
-            <Content Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.so"
-                     PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so"
-                     Pack="true">
-                <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-                <Visible>false</Visible>
-            </Content>
-        </ItemGroup>
-
-        <!-- macOS -->
-        <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib')">
-            <Content Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib"
-                     PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib"
-                     Pack="true">
-                <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-                <Visible>false</Visible>
-            </Content>
-        </ItemGroup>
-
-        <!-- Optional: Show confirmation in build logs -->
-        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')"
-                 Text="✅ Found and added InfiniLore.Photino.Native.dll" Importance="High" />
-        <Message Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')"
-                 Text="✅ Found and added WebView2Loader.dll" Importance="High" />
-    </Target>
-
     <Target Name="CheckNativeDlls" AfterTargets="Build">
         <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')"
                  Text="✅ Found InfiniLore.Photino.Native.dll in $(NativeOutputDir)"
