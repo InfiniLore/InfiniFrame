@@ -16,8 +16,8 @@
         <!-- Fallback in case none matched -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
 
-        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
-        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)/</CMakeBuildDir>
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)/</NativeOutputDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -59,9 +59,9 @@
     </ItemGroup>
 
     <!-- Linux -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.so')">
-        <Content Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.so"
-                 PackagePath="runtimes/linux-x64/native/libInfiniLore.Photino.Native.so"
+    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.so')">
+        <Content Include="$(NativeOutputDir)/InfiniLore.Photino.Native.so"
+                 PackagePath="runtimes/linux-x64/native/InfiniLore.Photino.Native.so"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
@@ -69,9 +69,9 @@
     </ItemGroup>
 
     <!-- macOS -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib')">
-        <Content Include="$(NativeOutputDir)/libInfiniLore.Photino.Native.dylib"
-                 PackagePath="runtimes/osx-x64/native/libInfiniLore.Photino.Native.dylib"
+    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dylib')">
+        <Content Include="$(NativeOutputDir)/InfiniLore.Photino.Native.dylib"
+                 PackagePath="runtimes/osx-x64/native/InfiniLore.Photino.Native.dylib"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>

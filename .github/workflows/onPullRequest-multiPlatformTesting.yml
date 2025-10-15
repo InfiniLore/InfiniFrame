@@ -152,8 +152,8 @@ jobs:
                     nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.so"
 
                     if [ ! -f "$nativeSo" ]; then
-                    echo "ERROR: InfiniLore.Photino.Native.so NOT found in test output!"
-                    exit 1
+                        echo "ERROR: InfiniLore.Photino.Native.so NOT found in test output!"
+                        exit 1
                     fi
                 
                     echo "✅ All native DLLs present"
