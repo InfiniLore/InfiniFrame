@@ -123,11 +123,20 @@ if(WIN32)
     )
 
     # Compiler flags
-    target_compile_options(${PROJECT_NAME} PRIVATE
-            /W3
-            $<$<CONFIG:Debug>:/Od /MTd>
-            $<$<CONFIG:Release>:/O2 /MT>
-    )
+    if(MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE
+                /W3
+                $<$<CONFIG:Debug>:/Od /MTd>
+                $<$<CONFIG:Release>:/O2 /MT>
+        )
+    else()
+        # GCC/Clang flags
+        target_compile_options(${PROJECT_NAME} PRIVATE
+                -Wall
+                $<$<CONFIG:Debug>:-O0 -g>
+                $<$<CONFIG:Release>:-O2>
+        )
+    endif()
 
     # Linker flags
     set_target_properties(${PROJECT_NAME} PROPERTIES
