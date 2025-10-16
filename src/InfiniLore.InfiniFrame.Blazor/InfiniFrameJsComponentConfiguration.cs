@@ -1,14 +1,20 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace InfiniLore.InfiniFrame.Blazor;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Configures root components for a <see cref="PhotinoJsComponentConfiguration" />.
+///     Configures root components for a <see cref="InfiniFrameJsComponentConfiguration" />.
 /// </summary>
-public sealed class PhotinoJsComponentConfiguration(IPhotinoWebViewManager manager, JSComponentConfigurationStore jsComponents) : IPhotinoJsComponentConfiguration {
+public sealed class InfiniFrameJsComponentConfiguration(IInfiniFrameWebViewManager manager, JSComponentConfigurationStore jsComponents) : IInfiniFrameJsComponentConfiguration {
     public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
 
     /// <summary>

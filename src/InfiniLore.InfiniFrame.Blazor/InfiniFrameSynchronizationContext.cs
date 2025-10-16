@@ -1,10 +1,17 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.DependencyInjection;
+using InfiniLore.InfiniFrame.Blazor.Utils;
 
 namespace InfiniLore.InfiniFrame.Blazor;
-using InfiniLore.InfiniFrame.Blazor.Utils;
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 // Most UI platforms have a built-in SyncContext/Dispatcher, e.g., Windows Forms and WPF, which WebView
 // can normally use directly. However, Photino currently doesn't.
@@ -16,9 +23,8 @@ using InfiniLore.InfiniFrame.Blazor.Utils;
 // It might be that a simpler variant of this would work, for example, purely using Photino's "Invoke" and
 // relying on that for single-threadedness. Maybe also in the future Photino could consider having its own
 // built-in SyncContext/Dispatcher like other UI platforms.
-
-public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSynchronizationState? state = null) : SynchronizationContext {
-    private readonly PhotinoSynchronizationState _state = state ?? new PhotinoSynchronizationState();
+public class InfiniFrameSynchronizationContext(IServiceProvider provider, InfiniFrameSynchronizationState? state = null) : SynchronizationContext {
+    private readonly InfiniFrameSynchronizationState _state = state ?? new InfiniFrameSynchronizationState();
     private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(provider.GetRequiredService<IInfiniFrameWindow>);
 
     public event UnhandledExceptionEventHandler? UnhandledException;
@@ -136,7 +142,7 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
     // shallow copy
     public override SynchronizationContext CreateCopy() {
         lock (_state.Lock) {
-            return new PhotinoSynchronizationContext(provider, _state);
+            return new InfiniFrameSynchronizationContext(provider, _state);
         }
     }
 
@@ -162,13 +168,13 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
     }
 
     private static void ExecutionContextThunk(object? state) {
-        if (state is not PhotinoSynchronizationWorkItem item) return;
+        if (state is not InfiniFrameSynchronizationWorkItem item) return;
 
         item.SynchronizationContext?.ExecuteSynchronously(null, item.Callback, item.StateObject);
     }
 
     private static void BackgroundWorkThunk(Task antecedent, object? state) {
-        if (state is not PhotinoSynchronizationWorkItem item) return;
+        if (state is not InfiniFrameSynchronizationWorkItem item) return;
 
         item.SynchronizationContext?.ExecuteBackground(item);
     }
@@ -188,7 +194,7 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
         }
 
         TaskContinuationOptions flags = forceAsync ? TaskContinuationOptions.RunContinuationsAsynchronously : TaskContinuationOptions.None;
-        return antecedent.ContinueWith(BackgroundWorkThunk, new PhotinoSynchronizationWorkItem {
+        return antecedent.ContinueWith(BackgroundWorkThunk, new InfiniFrameSynchronizationWorkItem {
             SynchronizationContext = this,
             ExecutionContext = executionContext,
             Callback = d,
@@ -217,7 +223,7 @@ public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSyn
         });
     }
 
-    private void ExecuteBackground(PhotinoSynchronizationWorkItem item) {
+    private void ExecuteBackground(InfiniFrameSynchronizationWorkItem item) {
         if (item.ExecutionContext is null) {
             try {
                 ExecuteSynchronously(null, item.Callback, item.StateObject);

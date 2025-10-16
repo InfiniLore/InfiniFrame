@@ -1,5 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView;
@@ -8,11 +12,13 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
-
-namespace InfiniLore.InfiniFrame.Blazor;
 using InfiniLore.InfiniFrame.Blazor.Utils;
 
-public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
+namespace InfiniLore.InfiniFrame.Blazor;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewManager {
 
     // On Windows, we can't use a custom scheme to host the initial HTML,
     // because webview2 won't let you do top-level navigation to such a URL.
@@ -27,13 +33,13 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
     private Lazy<IInfiniFrameWindow> LazyWindow { get; }
     private readonly SynchronousTaskScheduler _syncScheduler = new();
 
-    public PhotinoWebViewManager(
+    public InfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
         IServiceProvider provider,
         Dispatcher dispatcher,
         IFileProvider fileProvider,
         JSComponentConfigurationStore jsComponents,
-        IOptions<PhotinoBlazorAppConfiguration> config
+        IOptions<InfiniFrameBlazorAppConfiguration> config
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
 

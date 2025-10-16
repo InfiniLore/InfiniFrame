@@ -1,14 +1,14 @@
 ﻿@using InfiniLore.InfiniFrame.Js
+@using InfiniLore.InfiniFrame.Native
 @using Microsoft.AspNetCore.Components.Web
 @using System.Drawing
-@using PhotinoNative=InfiniLore.InfiniFrame.Native.InfiniFrameNative
 
-@namespace InfiniLore.Photino.Blazor
+@namespace InfiniLore.InfiniFrame.Blazor
 
 @inherits ComponentBase
 @implements IDisposable
 
-@inject IPhotinoWindow PhotinoWindow
+@inject IInfiniFrameWindow PhotinoWindow
 @inject IInfiniFrameJs InfiniWindowJs
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
@@ -81,8 +81,8 @@
             PhotinoWindow.Invoke(() => {
                 int targetX = (int)(args.ScreenX - bounds.Width / 2f);
                 int targetY = (int)(args.ScreenY - 10);
-                PhotinoNative.SetSize(PhotinoWindow.InstanceHandle, bounds.Width, bounds.Height);
-                PhotinoNative.SetPosition(PhotinoWindow.InstanceHandle, targetX, targetY);
+                InfiniFrameNative.SetSize(PhotinoWindow.InstanceHandle, bounds.Width, bounds.Height);
+                InfiniFrameNative.SetPosition(PhotinoWindow.InstanceHandle, targetX, targetY);
             });
         }
 

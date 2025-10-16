@@ -1,0 +1,17 @@
+﻿@using InfiniLore.InfiniFrame
+@using InfiniLore.InfiniFrame.Blazor
+@namespace InfiniLore.InfiniFrame.Blazor
+
+<InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Top"/>
+<InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Right"/>
+<InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Bottom"/>
+<InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Left"/>
+<InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.TopLeft"/>
+<InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.TopRight"/>
+<InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.BottomRight"/>
+<InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.BottomLeft"/>
+
+@code {
+    [Parameter] public int ZIndex { get; set; } = InfiniFrameWindowResizeThumb.ZIndexValue;
+    [Parameter] public int ResizeArea { get; set; } = InfiniFrameWindowResizeThumb.ResizeAreaValue;
+}

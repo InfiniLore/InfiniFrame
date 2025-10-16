@@ -2,12 +2,12 @@
 
 A rework of
 the [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server)
-and [Photino.Blazor](https://github.com/tryphotino/photino.Blazor)
+and [InfiniFrame.Blazor](https://github.com/tryphotino/InfiniFrame.Blazor)
 and [Photino.Native](https://github.com/tryphotino/photino.Native) projects, to make them more modern and easier to use
 within a DI container.
 
 This project is mainly meant to be used as a dependency for Infinilore, so my goals are focused on that, but it should
-be possible to use this as a replacement for the original `Photino.NET`, `Photino.NET.Server` and `Photino.Blazor`
+be possible to use this as a replacement for the original `Photino.NET`, `Photino.NET.Server` and `InfiniFrame.Blazor`
 projects, minding the breaking changes mentioned below.
 
 This project is not affected with- or endorsed by the original authors of Photino.
@@ -67,7 +67,7 @@ dependencies first.
 ## Repo history
 
 This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of
-the [Photino.Blazor](https://github.com/tryphotino/photino.Blazor)
+the [InfiniFrame.Blazor](https://github.com/tryphotino/InfiniFrame.Blazor)
 and [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server) repositories were merged into this.
 By merging the histories, it was possible to ease development a lot, especially whilst also preserving the original
 commit history and attribution from the contributors of Photino.

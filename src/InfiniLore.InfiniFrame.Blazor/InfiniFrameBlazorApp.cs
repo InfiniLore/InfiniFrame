@@ -1,13 +1,13 @@
-using InfiniLore.Photino.Blazor;
+using InfiniLore.InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.InfiniFrame.Blazor;
 
-public class PhotinoBlazorApp(
+public class InfiniFrameBlazorApp(
     IServiceProvider provider,
     RootComponentList rootComponents,
-    IPhotinoJsComponentConfiguration? rootComponentConfiguration = null
+    IInfiniFrameJsComponentConfiguration? rootComponentConfiguration = null
 ) : IAsyncDisposable {
 
     private bool _disposed;
@@ -56,7 +56,7 @@ public class PhotinoBlazorApp(
             }
         }
         catch (Exception e) {
-            var logger = provider.GetService<ILogger<PhotinoBlazorApp>>();
+            var logger = provider.GetService<ILogger<InfiniFrameBlazorApp>>();
             logger?.LogError(e, "Error disposing of PhotinoBlazorApp");
         }
 

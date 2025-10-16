@@ -46,7 +46,7 @@ jobs:
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
                 run: |
-                    dotnet nuget push src/InfiniLore.Photino.Blazor/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                    dotnet nuget push src/InfiniLore.InfiniFrame.Blazor/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
                     dotnet nuget push src/InfiniLore.Photino.Js/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
                     dotnet nuget push src/InfiniLore.Photino.NET/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
                     dotnet nuget push src/InfiniLore.Photino.NET.Server/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate

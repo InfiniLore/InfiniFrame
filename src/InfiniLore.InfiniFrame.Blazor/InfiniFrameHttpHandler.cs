@@ -2,10 +2,10 @@
 using System.Net.Http.Headers;
 
 namespace InfiniLore.InfiniFrame.Blazor;
-public class PhotinoHttpHandler : DelegatingHandler {
-    private readonly IPhotinoWebViewManager _manager;
+public class InfiniFrameHttpHandler : DelegatingHandler {
+    private readonly IInfiniFrameWebViewManager _manager;
 
-    public PhotinoHttpHandler(IPhotinoWebViewManager manager, HttpMessageHandler? innerHandler = null) {
+    public InfiniFrameHttpHandler(IInfiniFrameWebViewManager manager, HttpMessageHandler? innerHandler = null) {
         _manager = manager;
 
         //the last (inner) handler in the pipeline should be a "real" handler.

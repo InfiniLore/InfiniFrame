@@ -4,11 +4,11 @@
 using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 
-namespace InfiniLore.Photino.Blazor;
+namespace InfiniLore.InfiniFrame.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPhotinoWebViewManager {
+public interface IInfiniFrameWebViewManager {
     Dispatcher Dispatcher { get; }
 
     void Navigate([StringSyntax(StringSyntaxAttribute.Uri)] string url);

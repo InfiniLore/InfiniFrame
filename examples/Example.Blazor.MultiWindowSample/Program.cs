@@ -9,7 +9,7 @@ static class Program {
 
     [STAThread]
     private static void Main(string[] args) {
-        var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
         
         // register services
         appBuilder.Services.AddLogging();
@@ -23,7 +23,7 @@ static class Program {
     }
 
     private static void CreateWindows(
-        PhotinoBlazorAppBuilder appBuilder,
+        InfiniFrameBlazorAppBuilder appBuilder,
         Queue<WindowCreationArgs> windowsToCreate
     ) {
         if (!windowsToCreate.TryDequeue(out WindowCreationArgs? windowCreationArgs)) {
@@ -33,7 +33,7 @@ static class Program {
         // register the root component and selector
         appBuilder.RootComponents.Add(windowCreationArgs.RootComponentType, "app");
 
-        PhotinoBlazorApp app = appBuilder.Build();
+        InfiniFrameBlazorApp app = appBuilder.Build();
 
         // customize a window
         
