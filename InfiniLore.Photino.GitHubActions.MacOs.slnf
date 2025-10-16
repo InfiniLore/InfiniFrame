@@ -1,16 +1,16 @@
 ﻿{
     "solution": {
-        "path": "InfiniLore.Photino.slnx",
+        "path": "InfiniLore.InfiniFrame.slnx",
         "projects": [
             "src\\InfiniLore.InfiniFrame.Blazor\\InfiniLore.InfiniFrame.Blazor.csproj",
-            "src\\InfiniLore.Photino.Js\\InfiniLore.Photino.Js.csproj",
-            "src\\InfiniLore.Photino.NET\\InfiniLore.Photino.NET.csproj",
-            "src\\InfiniLore.Photino.NET.Server\\InfiniLore.Photino.NET.Server.csproj",
-            "src\\InfiniLore.Photino.Shared\\InfiniLore.Photino.Shared.csproj",
-            "src\\InfiniLore.Photino.Native\\InfiniLore.Photino.Native.proj",
-            
-            "tests\\Tests.Photino.NET\\Tests.Photino.NET.csproj",
-            "tests\\Tests.Shared.Photino\\Tests.Shared.Photino.csproj"
+            "src\\InfiniLore.InfiniFrame.Js\\InfiniLore.InfiniFrame.Js.csproj",
+            "src\\InfiniLore.InfiniFrame\\InfiniLore.InfiniFrame.csproj",
+            "src\\InfiniLore.InfiniFrame.Server\\InfiniLore.InfiniFrame.Server.csproj",
+            "src\\InfiniLore.InfiniFrame.Shared\\InfiniLore.InfiniFrame.Shared.csproj",
+            "src\\InfiniLore.InfiniFrame.Native\\InfiniLore.InfiniFrame.Native.proj",
+
+            "tests\\Tests.InfiniFrame\\Tests.InfiniFrame.csproj",
+            "tests\\Tests.Shared.InfiniFrame\\Tests.Shared.InfiniFrame.csproj"
         ]
     }
 }

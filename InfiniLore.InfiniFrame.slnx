@@ -43,8 +43,8 @@
     <Project Path="src\InfiniLore.InfiniFrame.Native\InfiniLore.InfiniFrame.Native.proj" Type="845B7716-6F03-4D02-8E86-79F95485B5D7" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests\Tests.Photino.NET\Tests.Photino.NET.csproj" />
-    <Project Path="tests\Tests.Photino.Playwright\Tests.Photino.Playwright.csproj" />
-    <Project Path="tests\Tests.Shared.Photino\Tests.Shared.Photino.csproj" />
+    <Project Path="tests\Tests.InfiniFrame.Playwright\Tests.InfiniFrame.Playwright.csproj" />
+    <Project Path="tests\Tests.InfiniFrame\Tests.InfiniFrame.csproj" />
+    <Project Path="tests\Tests.Shared\Tests.Shared.csproj" />
   </Folder>
 </Solution>

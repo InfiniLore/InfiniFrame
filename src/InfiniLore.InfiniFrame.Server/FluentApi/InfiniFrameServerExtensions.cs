@@ -10,7 +10,7 @@ namespace InfiniLore.InfiniFrame.Server;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniFrameServerExtensions {
 
-    public static InfiniFrameServer MapPhotinoJsEndpoints(this InfiniFrameServer server) {
+    public static InfiniFrameServer MapInfiniFrameJsEndpoints(this InfiniFrameServer server) {
         server.WebApp.MapGet("/_content/InfiniLore.InfiniFrame.Js/InfiniLore.Photino.js", requestDelegate: async context => {
             Assembly assembly = typeof(InfiniFrameJsAssemblyEntry).Assembly;
             const string resourceName = "InfiniLore.InfiniFrame.Js.wwwroot.InfiniLore.Photino.js";

@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="Tests.Photino.NET"/>
-        <InternalsVisibleTo Include="Tests.Photino.Playwright"/>
+        <InternalsVisibleTo Include="Tests.InfiniFrame"/>
+        <InternalsVisibleTo Include="Tests.InfiniFrame.Playwright"/>
     </ItemGroup>
 
     <ItemGroup>
