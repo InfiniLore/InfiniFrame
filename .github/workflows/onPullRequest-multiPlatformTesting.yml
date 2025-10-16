@@ -148,12 +148,13 @@ jobs:
                 run: |
                     # Build native project first
                     dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
-                        --configuration Release `
-                        --no-restore
+                        --configuration Release \
+                        --no-restore \
+                        /p:SolutionDir=$GITHUB_WORKSPACE/
                     
                     # Then build the rest of the solution
                     dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf `
-                        --configuration Release `
+                        --configuration Release \
                         --no-restore
 
             -   name: Verify Native DLLs for testing
@@ -326,7 +327,8 @@ jobs:
                     # Build native project first
                     dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
                         --configuration Release `
-                        --no-restore
+                        --no-restore `
+                        /p:SolutionDir=$GITHUB_WORKSPACE/
                     
                     # Then build the rest of the solution
                     dotnet build InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
