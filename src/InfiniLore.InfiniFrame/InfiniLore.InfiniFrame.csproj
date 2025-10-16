@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <PackageId>InfiniLore.InfiniFrame.NET</PackageId>
+        <PackageId>InfiniLore.InfiniFrame</PackageId>
     </PropertyGroup>
 
     <ItemGroup>

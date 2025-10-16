@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame.NET.Server\InfiniLore.InfiniFrame.NET.Server.csproj" />
-        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame.NET\InfiniLore.InfiniFrame.NET.csproj" />
+        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame.Server\InfiniLore.InfiniFrame.Server.csproj" />
+        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame\InfiniLore.InfiniFrame.csproj" />
     </ItemGroup>
 
     <ItemGroup>

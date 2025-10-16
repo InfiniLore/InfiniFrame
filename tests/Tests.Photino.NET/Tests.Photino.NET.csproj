@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame.NET\InfiniLore.InfiniFrame.NET.csproj" />
+        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame\InfiniLore.InfiniFrame.csproj" />
         <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame.Shared\InfiniLore.InfiniFrame.Shared.csproj" />
         <ProjectReference Include="..\Tests.Shared.Photino\Tests.Shared.Photino.csproj" />
     </ItemGroup>

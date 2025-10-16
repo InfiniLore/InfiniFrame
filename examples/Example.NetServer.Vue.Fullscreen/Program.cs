@@ -1,6 +1,6 @@
 ﻿using InfiniLore.Photino.Js.MessageHandlers;
-using InfiniLore.InfiniFrame.NET;
-using InfiniLore.InfiniFrame.NET.Server;
+using InfiniLore.InfiniFrame;
+using InfiniLore.InfiniFrame.Server;
 using System.Drawing;
 
 namespace Example.NetServer.Vue.Fullscreen;

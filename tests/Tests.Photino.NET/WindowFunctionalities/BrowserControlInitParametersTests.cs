@@ -4,7 +4,7 @@
 using InfiniLore.InfiniFrame.Native;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.InfiniFrame.NET;
+using InfiniLore.InfiniFrame;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------

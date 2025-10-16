@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.InfiniFrame.Native;
-using InfiniLore.InfiniFrame.NET;
+using InfiniLore.InfiniFrame;
 using System.Drawing;
 
 namespace Tests.Photino.NET.WindowFunctionalities;

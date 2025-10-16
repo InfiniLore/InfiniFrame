@@ -1,4 +1,4 @@
-﻿using InfiniLore.InfiniFrame.NET;
+﻿using InfiniLore.InfiniFrame;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 

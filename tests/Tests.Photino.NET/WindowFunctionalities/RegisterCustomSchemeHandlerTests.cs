@@ -5,7 +5,6 @@ using InfiniLore.InfiniFrame.Native;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame.NET;
 using System.Runtime.InteropServices;
 using Tests.Shared.Photino;
 

@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniLore.InfiniFrame.NET;
+using InfiniLore.InfiniFrame;
 using System.Drawing;
 using Monitor=InfiniLore.Photino.Monitor;
 

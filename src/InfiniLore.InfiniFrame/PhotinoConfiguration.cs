@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.InfiniFrame.Native;
 
-namespace InfiniLore.InfiniFrame.NET;
+namespace InfiniLore.InfiniFrame;
 using System.Runtime.InteropServices;
 
 // ---------------------------------------------------------------------------------------------------------------------

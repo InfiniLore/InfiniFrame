@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace InfiniLore.InfiniFrame.NET;
+namespace InfiniLore.InfiniFrame;
 using InfiniLore.InfiniFrame;
 using Monitor=System.Threading.Monitor;
 

@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.Server</PackageId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\InfiniLore.InfiniFrame\InfiniLore.InfiniFrame.csproj" />
+    </ItemGroup>
+
+</Project>

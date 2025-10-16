@@ -9,7 +9,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\InfiniLore.InfiniFrame.NET\InfiniLore.InfiniFrame.NET.csproj"/>
+        <ProjectReference Include="..\InfiniLore.InfiniFrame\InfiniLore.InfiniFrame.csproj" />
     </ItemGroup>
 
 </Project>
