@@ -2,13 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniLore.Photino.NET;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IPhotinoWindowMessageHandlers {
     bool IsEmpty { get; }
-    
+
     void RegisterMessageHandler(string messageId, Action<IPhotinoWindow, string?> handler);
     void Handle(object? sender, string? message);
 }

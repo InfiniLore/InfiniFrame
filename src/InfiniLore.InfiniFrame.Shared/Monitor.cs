@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 
 namespace InfiniLore.Photino;
-
 // ReSharper disable twice NotAccessedPositionalProperty.Global
 /// <summary>
 ///     Represents information about a monitor.
@@ -18,9 +17,9 @@ public readonly record struct Monitor(Rectangle MonitorArea, Rectangle WorkArea,
     /// <param name="scale">The scale factor of the monitor.</param>
     public Monitor(NativeRect monitor, NativeRect work, double scale)
         : this(
-        new Rectangle(monitor.X, monitor.Y, monitor.Width, monitor.Height),
-        new Rectangle(work.X, work.Y, work.Width, work.Height),
-        scale
+            new Rectangle(monitor.X, monitor.Y, monitor.Width, monitor.Height),
+            new Rectangle(work.X, work.Y, work.Width, work.Height),
+            scale
         ) {
     }
 }

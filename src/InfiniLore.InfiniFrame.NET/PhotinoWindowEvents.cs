@@ -11,7 +11,7 @@ using InfiniLore.Photino;
 // ---------------------------------------------------------------------------------------------------------------------
 public class PhotinoWindowEvents : IPhotinoWindowEvents {
     private object Sender { get; set; } = null!;
-    
+
     public event EventHandler<Point>? WindowLocationChanged;
     public event EventHandler<Size>? WindowSizeChanged;
     public event EventHandler? WindowFocusIn;
@@ -25,12 +25,12 @@ public class PhotinoWindowEvents : IPhotinoWindowEvents {
     public event EventHandler? WindowCreating;
     public event EventHandler? WindowCreated;
 
-    public IPhotinoWindowEvents DefineSender<T>(T sender) where T : class{
+    public IPhotinoWindowEvents DefineSender<T>(T sender) where T : class {
         ArgumentNullException.ThrowIfNull(sender);
-        Sender = sender;   
-        return this;   
+        Sender = sender;
+        return this;
     }
-    
+
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window's location changes.
     /// </summary>
@@ -93,7 +93,7 @@ public class PhotinoWindowEvents : IPhotinoWindowEvents {
     }
 
     public void OnWindowClosingRequested() {
-        WindowClosingRequested?.Invoke(Sender, EventArgs.Empty);   
+        WindowClosingRequested?.Invoke(Sender, EventArgs.Empty);
     }
 
     /// <summary>
@@ -122,5 +122,5 @@ public class PhotinoWindowEvents : IPhotinoWindowEvents {
     public void OnWindowCreated() {
         WindowCreated?.Invoke(Sender, EventArgs.Empty);
     }
-    
+
 }

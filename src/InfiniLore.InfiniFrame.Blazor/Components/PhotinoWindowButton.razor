@@ -65,7 +65,7 @@
     .window-button-windows {
         font-family: 'Segoe MDL2 Assets', 'Segoe UI Symbol', sans-serif;
     }
-    
+
     .window-button-windows:hover {
         background-color: rgba(0, 0, 0, 0.5);
         color: #666;
@@ -166,7 +166,7 @@
     .window-icon {
         pointer-events: none;
         user-select: none;
-    
+
         display: inline-block;
         vertical-align: middle;
         line-height: 100%;
@@ -175,7 +175,7 @@
 
 @code {
     [EditorRequired, Parameter] public required WindowAction WindowAction { get; set; }
-    [Parameter] public string? Class { get; set; } 
+    [Parameter] public string? Class { get; set; }
 
 
     private const string Windows = "windows";

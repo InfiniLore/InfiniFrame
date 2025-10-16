@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>InfiniLore.Photino</RootNamespace>
-        
+
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
         <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
         <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
@@ -34,9 +34,9 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Options"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <ProjectReference Include="..\InfiniLore.InfiniFrame.Native\InfiniLore.InfiniFrame.Native.proj" />
+        <ProjectReference Include="..\InfiniLore.InfiniFrame.Native\InfiniLore.InfiniFrame.Native.proj"/>
     </ItemGroup>
 
     <!-- Windows -->
@@ -81,31 +81,31 @@
     <Target Name="CheckNativeDlls" AfterTargets="Build">
         <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')"
                  Text="✅ Found InfiniLore.Photino.Native.dll in $(NativeOutputDir)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dll')"
                  Text="❌ InfiniLore.Photino.Native.dll not found at $(NativeOutputDir)! Tests may fail."
-                 Importance="High" />
-        
+                 Importance="High"/>
+
         <Message Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')"
                  Text="✅ Found WebView2Loader.dll in $(NativeOutputDir)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(NativeOutputDir)/WebView2Loader.dll')"
                  Text="❌ WebView2Loader.dll not found at $(NativeOutputDir)! Tests may fail."
-                 Importance="High" />
-        
+                 Importance="High"/>
+
         <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.so')"
                  Text="✅ Found InfiniLore.Photino.Native.so in $(NativeOutputDir)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.so')"
                  Text="❌ InfiniLore.Photino.Native.so not found at $(NativeOutputDir)!"
-                 Importance="High" />
+                 Importance="High"/>
 
         <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dylib')"
                  Text="✅ Found InfiniLore.Photino.Native.dylib in $(NativeOutputDir)"
-                 Importance="High" />
+                 Importance="High"/>
         <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.Photino.Native.dylib')"
                  Text="❌ InfiniLore.Photino.Native.dylib not found at $(NativeOutputDir)!"
-                 Importance="High" />
+                 Importance="High"/>
     </Target>
 
 </Project>

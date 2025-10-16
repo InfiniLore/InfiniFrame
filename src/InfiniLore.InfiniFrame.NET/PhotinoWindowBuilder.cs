@@ -8,50 +8,48 @@ using InfiniLore.Photino.Native;
 
 public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
-    
+
     public IPhotinoConfiguration Configuration { get; } = new PhotinoConfiguration();
     public IPhotinoWindowEvents Events { get; } = new PhotinoWindowEvents();
     public IPhotinoWindowMessageHandlers MessageHandlers { get; } = new PhotinoWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
-    
+
     private PhotinoWindowBuilder() {}
 
-    public static PhotinoWindowBuilder Create() {
-        return new PhotinoWindowBuilder();
-    }
+    public static PhotinoWindowBuilder Create() => new();
 
     private PhotinoNativeParameters GetParameters(IServiceProvider? provider = null) {
         if (provider is null) return Configuration.ToParameters();
-        
+
         var config = provider.GetService<IConfiguration>();
         var photinoConfiguration = config?.Get<IPhotinoConfiguration>();
-        
+
         return photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
     }
 
     private ILogger<PhotinoWindow> GetDefaultLogger() {
         if (!UseDefaultLogger)
             return LoggerFactory.Create(config => {
-                config.ClearProviders(); // Remove default console logger
+                config.ClearProviders();// Remove default console logger
             }).CreateLogger<PhotinoWindow>();
 
         return LoggerFactory.Create(config => {
             config.AddConsole().SetMinimumLevel(LogLevel.Debug);
         }).CreateLogger<PhotinoWindow>();
     }
-    
+
     public IPhotinoWindow Build(IServiceProvider? provider = null) {
         #pragma warning disable CA2208
-        if(CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(nameof(CustomSchemeHandlers), "Maximum number of custom scheme handlers is 16.");
+        if (CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(nameof(CustomSchemeHandlers), "Maximum number of custom scheme handlers is 16.");
         #pragma warning restore CA2208
-        
+
         var window = new PhotinoWindow(
             CustomSchemeHandlers,
             provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger()
         );
 
         Events.WebMessageReceived += MessageHandlers.Handle;
-        
+
         //These are for the callbacks from C++ to C#.
         PhotinoNativeParameters startupParameters = GetParameters(provider);
         startupParameters.ClosingHandler = Events.OnWindowClosing;
@@ -65,14 +63,14 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
         startupParameters.WebMessageReceivedHandler = Events.OnWebMessageReceived;
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
         window.StartupParameters = startupParameters;
-        
+
         window.MaxHeight = startupParameters.MaxHeight;
         window.MaxWidth = startupParameters.MaxWidth;
         window.MinHeight = startupParameters.MinHeight;
         window.MinWidth = startupParameters.MinWidth;
 
         window.IconFilePath = startupParameters.WindowIconFile;
-        
+
         window.Events = Events.DefineSender(window);
         window.MessageHandlers = MessageHandlers;
         window.Initialize();

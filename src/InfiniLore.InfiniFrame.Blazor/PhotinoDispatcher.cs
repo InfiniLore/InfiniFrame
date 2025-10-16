@@ -12,9 +12,7 @@ internal class PhotinoDispatcher : Dispatcher {
         _context.UnhandledException += (_, e) => OnUnhandledException(e);
     }
 
-    public override bool CheckAccess() {
-        return SynchronizationContext.Current == _context;
-    }
+    public override bool CheckAccess() => SynchronizationContext.Current == _context;
 
     public override Task InvokeAsync(Action workItem) {
         if (!CheckAccess()) return _context.InvokeAsync(workItem);

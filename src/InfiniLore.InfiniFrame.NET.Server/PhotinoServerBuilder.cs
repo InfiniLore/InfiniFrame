@@ -15,15 +15,13 @@ public class PhotinoServerBuilder {
 
     private PhotinoServerBuilder() {}
 
-    public static PhotinoServerBuilder Create(string webRootFolder = "wwwroot", string[]? args = null) {
-        return new PhotinoServerBuilder {
-            EmbeddedFileProviderBaseNamespace = webRootFolder,
-            WebAppBuilder = WebApplication.CreateBuilder(new WebApplicationOptions {
-                Args = args,
-                WebRootPath = webRootFolder
-            })
-        };
-    }
+    public static PhotinoServerBuilder Create(string webRootFolder = "wwwroot", string[]? args = null) => new() {
+        EmbeddedFileProviderBaseNamespace = webRootFolder,
+        WebAppBuilder = WebApplication.CreateBuilder(new WebApplicationOptions {
+            Args = args,
+            WebRootPath = webRootFolder
+        })
+    };
 
     public PhotinoServer Build() {
         InitializeFileProvider();

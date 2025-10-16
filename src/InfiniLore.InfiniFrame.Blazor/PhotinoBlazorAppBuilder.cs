@@ -8,15 +8,13 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 public class PhotinoBlazorAppBuilder {
-    public RootComponentList RootComponents { get; } = new RootComponentList();
+    public RootComponentList RootComponents { get; } = new();
     public IServiceCollection Services { get; } = new ServiceCollection();
     public IPhotinoWindowBuilder WindowBuilder { get; } = PhotinoWindowBuilder.Create();
-    
+
     private PhotinoBlazorAppBuilder() {}
-    
-    public static PhotinoBlazorAppBuilder CreateDefault(string[]? args = null, Action<IPhotinoWindowBuilder>? windowBuilder = null) {
-        return CreateDefault(null, args, windowBuilder);
-    }
+
+    public static PhotinoBlazorAppBuilder CreateDefault(string[]? args = null, Action<IPhotinoWindowBuilder>? windowBuilder = null) => CreateDefault(null, args, windowBuilder);
 
     public static PhotinoBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IPhotinoWindowBuilder>? windowBuilder = null) {
         // We don't use the args for anything right now, but we want to accept them
@@ -24,7 +22,7 @@ public class PhotinoBlazorAppBuilder {
         var appBuilder = new PhotinoBlazorAppBuilder();
 
         appBuilder.Services.AddOptions<PhotinoBlazorAppConfiguration>();
-        
+
         appBuilder.Services
             .AddSingleton(fileProvider ?? new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot")))
             .AddScoped(static sp => {

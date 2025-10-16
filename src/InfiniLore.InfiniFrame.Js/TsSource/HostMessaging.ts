@@ -15,14 +15,14 @@ import {getTitleObserver, TitleObserverTarget} from "./Observers";
 // ---------------------------------------------------------------------------------------------------------------------
 class HostMessaging implements IHostMessaging {
     private messageHandlers: Map<string, MessageCallback> = new Map();
-    
+
     constructor() {
         this.assignWebMessageReceiver();
-        
+
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerOpenExternal, _ => {
-            document.addEventListener( "click", blankTargetHandler, { capture: true });
+            document.addEventListener("click", blankTargetHandler, {capture: true});
         })
-        
+
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerFullscreenChange, _ => {
             document.addEventListener("fullscreenchange", (_: Event) => {
                 if (document.fullscreenElement) this.sendMessageToHost(SendToHostMessageIds.fullscreenEnter);
@@ -35,18 +35,18 @@ class HostMessaging implements IHostMessaging {
                 else await document.body.requestFullscreen();
             });
         })
-        
+
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerTitleChange, _ => {
             if (TitleObserverTarget) getTitleObserver().observe(TitleObserverTarget, {childList: true});
         })
-        
+
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerWindowClose, _ => {
             window.close = () => {
                 this.sendMessageToHost(SendToHostMessageIds.windowClose);
-            } 
+            }
         })
     }
-        
+
     public sendMessageToHost(id: SendToHostMessageId | string, data?: string) {
         const message = data ? `${id};${data}` : id;
 
@@ -94,11 +94,11 @@ class HostMessaging implements IHostMessaging {
         if (typeof message !== 'string') return true; // Assume non-string messages are Blazor
 
         // Check for common Blazor message patterns
-        return message.startsWith('__bwv:') 
-            || message.startsWith('e=>{') 
-            || message.includes('BeginInvokeJS') 
-            || message.includes('AttachToDocument') 
-            || message.includes('RenderBatch') 
+        return message.startsWith('__bwv:')
+            || message.startsWith('e=>{')
+            || message.includes('BeginInvokeJS')
+            || message.includes('AttachToDocument')
+            || message.includes('RenderBatch')
             || message.includes('Blazor.');
     }
 
@@ -131,11 +131,11 @@ class HostMessaging implements IHostMessaging {
             console.warn('No handler registered for message ID:', messageId);
         }
     }
-    
-    public assignMessageReceivedHandler(messageId:string, callback:MessageCallback) {
+
+    public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {
         this.messageHandlers.set(messageId, callback);
     }
-    
+
     public unregisterMessageReceivedHandler(messageId: string) {
         this.messageHandlers.delete(messageId);
     }

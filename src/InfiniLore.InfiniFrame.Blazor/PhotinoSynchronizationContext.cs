@@ -20,7 +20,7 @@ using InfiniLore.InfiniFrame.Blazor.Utils;
 
 public class PhotinoSynchronizationContext(IServiceProvider provider, PhotinoSynchronizationState? state = null) : SynchronizationContext {
     private readonly PhotinoSynchronizationState _state = state ?? new PhotinoSynchronizationState();
-    private Lazy<IPhotinoWindow> LazyWindow { get; } = new Lazy<IPhotinoWindow>(provider.GetRequiredService<IPhotinoWindow>);
+    private Lazy<IPhotinoWindow> LazyWindow { get; } = new(provider.GetRequiredService<IPhotinoWindow>);
 
     public event UnhandledExceptionEventHandler? UnhandledException;
 

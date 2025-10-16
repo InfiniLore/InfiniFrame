@@ -7,8 +7,7 @@ namespace InfiniLore.Photino;
 ///     to and from native system calls. This structure is defined in a sequential layout for direct,
 ///     unmanaged access to the underlying memory.
 /// </summary>
-[StructLayout(LayoutKind.Sequential)]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+[StructLayout(LayoutKind.Sequential), SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public struct NativeMonitor {
     public NativeRect Monitor { get; set; }
     public NativeRect Work { get; set; }

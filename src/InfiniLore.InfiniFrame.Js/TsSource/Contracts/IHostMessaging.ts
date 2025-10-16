@@ -25,6 +25,8 @@ export type MessageCallback = (data?: string) => void;
 
 export interface IHostMessaging {
     sendMessageToHost(id: SendToHostMessageId | string, data?: string): void;
-    assignMessageReceivedHandler(messageId:string, callback:MessageCallback): void;
-    unregisterMessageReceivedHandler(messageId: string) : void;
+
+    assignMessageReceivedHandler(messageId: string, callback: MessageCallback): void;
+
+    unregisterMessageReceivedHandler(messageId: string): void;
 }

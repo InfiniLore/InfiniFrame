@@ -16,13 +16,13 @@ function isExternalLink(url: string): boolean {
 
 export async function blankTargetHandler(e: MouseEvent) {
     let el = e.target as HTMLElement | null;
-    
+
     while (el && el !== document.body) {
         if (el.tagName?.toLowerCase() !== "a") {
             el = el.parentElement;
             continue;
         }
-        
+
         const anchor = el as HTMLAnchorElement;
         if (!anchor.href) {
             el = el.parentElement;
@@ -34,7 +34,7 @@ export async function blankTargetHandler(e: MouseEvent) {
             el = el.parentElement;
             continue;
         }
-        
+
         e.preventDefault();
         window.infiniWindow.HostMessaging.sendMessageToHost(SendToHostMessageIds.openExternalLink, anchor.href);
         return;

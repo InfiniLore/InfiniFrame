@@ -13,7 +13,7 @@ public static class OpenExternalTargetWebMessageHandler {
     private const string OpenExternal = HandlerNames.InfiniWindowPrefix + "open:external";
     private const string RegisterOpenExternal = HandlerNames.InfiniWindowPrefix + "register:open:external";
 
-    public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class,IPhotinoWindowBuilder {
+    public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class, IPhotinoWindowBuilder {
         builder.MessageHandlers.RegisterMessageHandler(OpenExternal, HandleWebMessage);
         RegisterWindowCreatedUtilities.RegisterWindowCreatedWebMessage(builder, RegisterOpenExternal);
         return builder;

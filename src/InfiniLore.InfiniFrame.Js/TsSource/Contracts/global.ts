@@ -15,11 +15,13 @@ declare global {
                 addEventListener(type: 'message', listener: (event: { data: string }) => void): void;
             };
         };
-        infiniWindow : IInfiniWindow
+        infiniWindow: IInfiniWindow
     }
+
     // noinspection JSUnusedGlobalSymbols
     interface External {
         sendMessage?(message: string): void;
+
         receiveMessage?: (message: string) => void;
     }
 }

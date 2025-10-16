@@ -4,7 +4,6 @@
 using InfiniLore.Photino.NET;
 
 namespace InfiniLore.InfiniFrame.Js.MessageHandlers;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -22,5 +21,5 @@ public static class RegisterWindowCreatedUtilities {
             });
         };
     }
-    
+
 }

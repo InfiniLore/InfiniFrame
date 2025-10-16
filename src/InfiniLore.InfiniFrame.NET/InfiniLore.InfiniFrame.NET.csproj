@@ -15,8 +15,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\InfiniLore.InfiniFrame.Js\InfiniLore.InfiniFrame.Js.csproj" />
-        <ProjectReference Include="..\InfiniLore.InfiniFrame.Shared\InfiniLore.InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="..\InfiniLore.InfiniFrame.Js\InfiniLore.InfiniFrame.Js.csproj"/>
+        <ProjectReference Include="..\InfiniLore.InfiniFrame.Shared\InfiniLore.InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
 </Project>

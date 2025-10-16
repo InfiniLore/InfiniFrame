@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniLore.Photino.Native;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -75,7 +74,7 @@ internal static class NativeDll {
     internal const string Photino_SetZoomEnabled = nameof(Photino_SetZoomEnabled);
     // ReSharper restore InconsistentNaming
     #endregion
-    
+
     #region InfiniWindowTests
     // ReSharper disable InconsistentNaming
     internal const string InfiniWindowTests_NativeParametersReturnAsIs = nameof(InfiniWindowTests_NativeParametersReturnAsIs);

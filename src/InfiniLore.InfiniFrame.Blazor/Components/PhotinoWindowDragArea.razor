@@ -29,18 +29,18 @@
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? ExtraAttributes { get; set; }
-    
+
     private ElementReference _dragArea;
 
     private bool _isGrabbing;
     private bool _suppressRender;
-    private bool _suppressGrabbing; // TEMP solution to fix a bug with dragging after returning from maximized state.
+    private bool _suppressGrabbing;// TEMP solution to fix a bug with dragging after returning from maximized state.
     private long _lastKnownPointerId;
 
     // ReSharper disable once InvertIf
     protected override bool ShouldRender() {
         if (!base.ShouldRender()) return false;
-        
+
         // Reset every time to ensure we don't render until we're ready.
         if (_suppressRender) {
             _suppressRender = false;
@@ -64,7 +64,7 @@
     private void OnMaximized(object? sender, EventArgs eventArgs) {
         _suppressGrabbing = true;
     }
-    
+
     private void OnRestored(object? sender, EventArgs eventArgs) {
         _suppressGrabbing = false;
     }
@@ -72,12 +72,13 @@
     private async Task OnPointerDown(PointerEventArgs args) {
         _suppressRender = true;
         if (_suppressGrabbing) return;
+
         _isGrabbing = true;
-        
+
         if (PhotinoWindow.CachedPreMaximizedBounds != Rectangle.Empty) {
             Rectangle bounds = PhotinoWindow.CachedPreMaximizedBounds;
             PhotinoWindow.CachedPreMaximizedBounds = Rectangle.Empty;
-            
+
             PhotinoWindow.Invoke(() => {
                 int targetX = (int)(args.ScreenX - bounds.Width / 2f);
                 int targetY = (int)(args.ScreenY - 10);
@@ -93,6 +94,7 @@
     private async Task OnPointerUp(PointerEventArgs args) {
         _suppressRender = true;
         if (_suppressGrabbing) return;
+
         _isGrabbing = false;
         await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, args.PointerId);
         _lastKnownPointerId = 0;
@@ -104,6 +106,7 @@
         _isGrabbing = false;
         PhotinoWindow.ToggleMaximized();
         if (_lastKnownPointerId == 0) return;
+
         await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, _lastKnownPointerId);
     }
 

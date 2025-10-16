@@ -27,7 +27,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
     public static readonly string AppBaseUri = $"{BlazorAppScheme}://localhost/";
     private readonly Channel<string> _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
     private Lazy<IPhotinoWindow> LazyWindow { get; }
-    private readonly SynchronousTaskScheduler _syncScheduler = new SynchronousTaskScheduler();
+    private readonly SynchronousTaskScheduler _syncScheduler = new();
 
     public PhotinoWebViewManager(
         IPhotinoWindowBuilder builder,
@@ -38,7 +38,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
         IOptions<PhotinoBlazorAppConfiguration> config
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
-        
+
         builder.RegisterWebMessageReceivedHandler((_, message) => {
             // On some platforms, we need to move off the browser UI thread
             Task.Factory.StartNew(action: m => {
@@ -50,7 +50,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
                 MessageReceived(messageOriginUrl, (string)m!);
             }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, _syncScheduler);
         });
-        
+
         LazyWindow = new Lazy<IPhotinoWindow>(provider.GetRequiredService<IPhotinoWindow>);
 
         //start reader
@@ -73,7 +73,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
 
         if (url.StartsWith(AppBaseUri, StringComparison.Ordinal)
             && TryGetResponseContent(url, !hasFileExtension, out _, out _,
-                                     out Stream content, out IDictionary<string, string> headers)) {
+                out Stream content, out IDictionary<string, string> headers)) {
             headers.TryGetValue("Content-Type", out contentType);
             return content;
         }
@@ -86,8 +86,9 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
     }
 
     protected override void SendMessage(string message) {
-        while (!_channel.Writer.TryWrite(message))
+        while (!_channel.Writer.TryWrite(message)) {
             Thread.Sleep(200);
+        }
     }
 
     private async Task MessagePump() {

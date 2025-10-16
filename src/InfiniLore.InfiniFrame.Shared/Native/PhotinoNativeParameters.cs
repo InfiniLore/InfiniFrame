@@ -137,7 +137,7 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
 
     ///<summary>OPTIONAL: If true, user can access the browser control's context menu. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)] internal bool ContextMenuEnabled;
-    
+
     /// <summary>
     /// OPTIONAL: If true, user can zoom the browser control. Default is true.
     /// </summary>
@@ -220,7 +220,7 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
     ///     registering the app with Windows which is not always desirable as it creates shortcuts, etc. Default is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)] internal bool NotificationsEnabled;
-    
+
     /// <summary>
     ///     Set when GetParamErrors() is called, prior to initializing the native window. It is a check to make sure the
     ///     struct matches what C++ is expecting.
@@ -240,10 +240,10 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         // && MovedHandler.Equals(other.MovedHandler)
         // && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
         // && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
-        
+
         if (!CustomSchemeNames.All(other.CustomSchemeNames.Contains)
             || CustomSchemeNames.Length != other.CustomSchemeNames.Length) return false;
-        
+
         if (StartString != other.StartString) return false;
         if (StartUrl != other.StartUrl) return false;
         if (Title != other.Title) return false;
@@ -251,7 +251,7 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         if (TemporaryFilesPath != other.TemporaryFilesPath) return false;
         if (UserAgent != other.UserAgent) return false;
         if (BrowserControlInitParameters != other.BrowserControlInitParameters) return false;
-        if (NotificationRegistrationId != other.NotificationRegistrationId) return false;     
+        if (NotificationRegistrationId != other.NotificationRegistrationId) return false;
         if (NativeParent != other.NativeParent) return false;
         if (Left != other.Left) return false;
         if (Top != other.Top) return false;
@@ -285,6 +285,7 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         if (NotificationsEnabled != other.NotificationsEnabled) return false;
         if (Size != other.Size) return false;
         if (ZoomEnabled == other.ZoomEnabled) return true;
+
         return false;
     }
 
@@ -345,11 +346,7 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         hashCode.Add(Size);
         return hashCode.ToHashCode();
     }
-    public static bool operator ==(PhotinoNativeParameters left, PhotinoNativeParameters right) {
-        return left.Equals(right);
-    }
+    public static bool operator ==(PhotinoNativeParameters left, PhotinoNativeParameters right) => left.Equals(right);
 
-    public static bool operator !=(PhotinoNativeParameters left, PhotinoNativeParameters right) {
-        return !(left == right);
-    }
+    public static bool operator !=(PhotinoNativeParameters left, PhotinoNativeParameters right) => !(left == right);
 }

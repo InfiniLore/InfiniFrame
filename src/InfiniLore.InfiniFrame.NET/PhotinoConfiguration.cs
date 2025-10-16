@@ -8,12 +8,12 @@ using System.Runtime.InteropServices;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class PhotinoConfiguration: IPhotinoConfiguration {
+public class PhotinoConfiguration : IPhotinoConfiguration {
     public string? BrowserControlInitParameters { get; set; }
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }
     public bool ContextMenuEnabled { get; set; } = true;
-    public List<string> CustomSchemeNames { get; set; } = new List<string>(16);
+    public List<string> CustomSchemeNames { get; set; } = new(16);
     public bool DevToolsEnabled { get; set; } = true;
     public bool FileSystemAccessEnabled { get; set; } = true;
     public bool FullScreen { get; set; }
@@ -49,13 +49,13 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
     public int Width { get; set; }
     public int Zoom { get; set; } = 100;
     public bool ZoomEnabled { get; set; } = true;
-    
+
     public PhotinoNativeParameters ToParameters() {
         IntPtr[] customSchemeNameArray = new IntPtr[16];
         for (int i = 0; i < CustomSchemeNames.Count; i++) {
             customSchemeNameArray[i] = Marshal.StringToHGlobalAnsi(CustomSchemeNames[i]);
         }
-        
+
         return new PhotinoNativeParameters {
             BrowserControlInitParameters = BrowserControlInitParameters,
             CenterOnInitialize = Centered,
@@ -97,7 +97,7 @@ public class PhotinoConfiguration: IPhotinoConfiguration {
             Width = Width,
             WindowIconFile = IconFilePath,
             Zoom = Zoom,
-            ZoomEnabled = ZoomEnabled,
+            ZoomEnabled = ZoomEnabled
         };
     }
 }

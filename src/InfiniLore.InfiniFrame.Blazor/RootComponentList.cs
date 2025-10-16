@@ -5,13 +5,9 @@ namespace InfiniLore.InfiniFrame.Blazor;
 public class RootComponentList : IEnumerable<(Type, string)> {
     private readonly List<(Type componentType, string domElementSelector)> _components = [];
 
-    public IEnumerator<(Type, string)> GetEnumerator() {
-        return _components.GetEnumerator();
-    }
+    public IEnumerator<(Type, string)> GetEnumerator() => _components.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() {
-        return _components.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => _components.GetEnumerator();
 
     public void Add<TComponent>(string selector) where TComponent : IComponent {
         _components.Add((typeof(TComponent), selector));

@@ -5,14 +5,14 @@ public static class FullscreenWebMessageHandler {
     private const string FullscreenEnter = HandlerNames.InfiniWindowPrefix + "fullscreen:enter";
     private const string FullscreenExit = HandlerNames.InfiniWindowPrefix + "fullscreen:exit";
     private const string FullscreenToggle = HandlerNames.InfiniWindowPrefix + "fullscreen:toggle";
-    
+
     private const string RegisterFullScreenChange = HandlerNames.InfiniWindowPrefix + "register:fullscreen:change";
 
     public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IPhotinoWindowBuilder {
-        builder.MessageHandlers.RegisterMessageHandler(FullscreenEnter, static (window, _) => window.SetFullScreen(true) );
-        builder.MessageHandlers.RegisterMessageHandler(FullscreenExit, static (window, _) => window.SetFullScreen(false) );
-        builder.MessageHandlers.RegisterMessageHandler(FullscreenToggle, static (window, _) => window.SetFullScreen(!window.FullScreen) );
-        
+        builder.MessageHandlers.RegisterMessageHandler(FullscreenEnter, handler: static (window, _) => window.SetFullScreen(true));
+        builder.MessageHandlers.RegisterMessageHandler(FullscreenExit, handler: static (window, _) => window.SetFullScreen(false));
+        builder.MessageHandlers.RegisterMessageHandler(FullscreenToggle, handler: static (window, _) => window.SetFullScreen(!window.FullScreen));
+
         RegisterWindowCreatedUtilities.RegisterWindowCreatedWebMessage(builder, RegisterFullScreenChange);
         return builder;
     }

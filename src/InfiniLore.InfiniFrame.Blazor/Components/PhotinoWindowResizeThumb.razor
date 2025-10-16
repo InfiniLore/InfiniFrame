@@ -8,7 +8,7 @@
 @implements IDisposable
 
 @inject IPhotinoWindow PhotinoWindow
-@inject IInfiniWindowJs InfiniWindowJs 
+@inject IInfiniWindowJs InfiniWindowJs
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
 @if (!_hidden) {
@@ -33,7 +33,7 @@
     private bool _suppressRender;
     private bool _isGrabbing;
     private bool _hidden;
-    
+
     private string _left = string.Empty;
     private string _top = string.Empty;
     private string _width = string.Empty;
@@ -42,7 +42,7 @@
 
     protected override void OnParametersSet() {
         base.OnParametersSet();
-        
+
         UpdateStyleFields();
     }
 
@@ -72,7 +72,7 @@
         _hidden = true;
         InvokeAsync(StateHasChanged);
     }
-    
+
     private void OnRestored(object? sender, EventArgs eventArgs) {
         _hidden = false;
         InvokeAsync(StateHasChanged);

@@ -7,7 +7,6 @@ using InfiniLore.Photino.Native;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniLore.Photino.NET;
-
 public static class PhotinoWindowExtensions {
     #region Load
     /// <summary>
@@ -105,17 +104,18 @@ public static class PhotinoWindowExtensions {
     // ReSharper disable once RedundantArgumentDefaultValue
     public static T CenterOnCurrentMonitor<T>(this T window) where T : class, IPhotinoWindow
         => CenterOnMonitor(window, -1);
-    
+
     public static T CenterOnMonitor<T>(this T window, int monitorIndex = -1) where T : class, IPhotinoWindow {
-        if (monitorIndex <= -1 ) {
+        if (monitorIndex <= -1) {
             window.Invoke(() => {
                 ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
                 PhotinoNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
-                
+
                 // TODO think about proper unhappy flow here
-                if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out var monitor)) return;
+                if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out Monitor monitor)) return;
+
                 Rectangle area = monitor.MonitorArea;
-                
+
                 var newLocation = new Point(area.X + area.Width / 2 - rectangle.Width / 2, area.Y + area.Height / 2 - rectangle.Height / 2);
                 PhotinoNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
             });
@@ -123,20 +123,20 @@ public static class PhotinoWindowExtensions {
 
         window.Invoke(() => {
             ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
-            
+
             if (monitorIndex < 0 || monitorIndex >= monitors.Length) {
                 window.Logger.LogWarning("Monitor index {MonitorIndex} is out of range. Available monitors: {Monitors}", monitorIndex, monitors.Length);
                 return;
             }
-            
+
             PhotinoNative.GetSize(window.InstanceHandle, out Size size);
             Rectangle area = monitors[monitorIndex].MonitorArea;
-            
+
             var newLocation = new Point(area.X + area.Width / 2 - size.Width / 2, area.Y + area.Height / 2 - size.Height / 2);
             PhotinoNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
         });
-        
-        return window;  
+
+        return window;
     }
     #endregion
 
@@ -150,7 +150,7 @@ public static class PhotinoWindowExtensions {
     /// <param name="left">Position from left in pixels</param>
     /// <param name="top">Position from top in pixels</param>
     /// <param name="window">Photino window instance</param>
-    public static T MoveWithinCurrentMonitorArea<T>(this T window,  int left, int top) where T : class, IPhotinoWindow {
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
             int horizontalWindowEdge = left + windowRect.Width;
@@ -167,7 +167,7 @@ public static class PhotinoWindowExtensions {
             top = verticalWindowEdge > bottomBound
                 ? Math.Max(bottomBound - window.Height, topBound)
                 : Math.Max(top, topBound);
-            
+
             // Bug:
             // For some reason the vertical position is not handled correctly.
             // Whenever a positive value is set, the window appears at the
@@ -189,7 +189,7 @@ public static class PhotinoWindowExtensions {
                     ? top - workArea.Height
                     : top;
             }
-            
+
             PhotinoNative.SetPosition(window.InstanceHandle, left, top);
         });
         return window;
@@ -204,10 +204,10 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="location">Position as <see cref="Point" /></param>
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow 
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow
         => MoveWithinCurrentMonitorArea(window, location.X, location.Y);
 
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IPhotinoWindow 
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IPhotinoWindow
         => MoveWithinCurrentMonitorArea(window, (int)left, (int)top);
     #endregion
 
@@ -230,7 +230,7 @@ public static class PhotinoWindowExtensions {
         });
         return window;
     }
-    
+
     /// <summary>
     ///     Moves the native window relative to its current location on the screen
     ///     using a <see cref="Point" />.
@@ -240,10 +240,10 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="offset">Relative offset</param>
-    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow 
+    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow
         => Offset(window, offset.X, offset.Y);
 
-    public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow 
+    public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow
         => Offset(window, (int)left, (int)top);
     #endregion
 
@@ -331,13 +331,13 @@ public static class PhotinoWindowExtensions {
             window.Logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
             return window;
         }
-        
+
         if (fullScreen) {
             window.Invoke(() => {
                 ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
                 PhotinoNative.GetPosition(window.InstanceHandle, out int left, out int top);
                 PhotinoNative.GetSize(window.InstanceHandle, out int width, out int height);
-        
+
                 window.CachedPreFullScreenBounds = new Rectangle(left, top, width, height);
                 if (!MonitorsUtility.TryGetCurrentMonitor(monitors, window.CachedPreFullScreenBounds, out Monitor currentMonitor)) {
                     window.Logger.LogError("Failed to get current monitor, defaulting to simple fullscreen call");
@@ -345,15 +345,15 @@ public static class PhotinoWindowExtensions {
                     return;
                 }
                 Rectangle currentMonitorArea = currentMonitor.MonitorArea;
-        
+
                 PhotinoNative.SetFullScreen(window.InstanceHandle, true);
                 PhotinoNative.SetPosition(window.InstanceHandle, currentMonitorArea.X, currentMonitorArea.Y);
                 PhotinoNative.SetSize(window.InstanceHandle, currentMonitorArea.Width, currentMonitorArea.Height);
             });
-        
+
             return window;
         }
-        
+
         // Set Fullscreen to false => Restore to previous state
         window.Invoke(() => {
             PhotinoNative.SetFullScreen(window.InstanceHandle, false);
@@ -386,7 +386,7 @@ public static class PhotinoWindowExtensions {
         return window;
     }
     #endregion
-    
+
     #region SetIcon
     /// <summary>
     ///     Sets the icon file for the native window title bar.
@@ -443,7 +443,7 @@ public static class PhotinoWindowExtensions {
         return window;
     }
     #endregion
-    
+
     #region SetResizable
     /// <summary>
     ///     Sets whether the user can resize the native window.
@@ -454,7 +454,7 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window"></param>
     /// <param name="resizable">Whether the window is resizable</param>
-    public static T SetResizable<T>(this T window, bool resizable) where T : class, IPhotinoWindow{
+    public static T SetResizable<T>(this T window, bool resizable) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetResizable({Resizable})", resizable);
         window.Invoke(() => PhotinoNative.SetResizable(window.InstanceHandle, resizable));
         return window;
@@ -479,7 +479,7 @@ public static class PhotinoWindowExtensions {
         window.Invoke(() => PhotinoNative.SetSize(window.InstanceHandle, width, height));
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the native window Size. This represents the <see cref="IPhotinoWindow.Width" /> and the
     ///     <see cref="IPhotinoWindow.Height" /> of the window in pixels.
@@ -490,22 +490,23 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window"></param>
     /// <param name="size">Width &amp; Height</param>
-    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow
         => SetSize(window, size.Width, size.Height);
     #endregion
-    
+
     #region SetLocation
     public static T SetLocation<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
         window.Invoke(() => {
             PhotinoNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
             if (oldLeft == left && oldTop == top) return;
+
             PhotinoNative.SetPosition(window.InstanceHandle, left, top);
         });
 
         return window;
     }
-    
+
     /// <summary>
     ///     Sets the native window <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> coordinates (Y)
     ///     in pixels.
@@ -516,7 +517,7 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window"></param>
     /// <param name="location">Location as a <see cref="Point" /></param>
-    public static T SetLocation<T>(this T window, Point location) where T : class, IPhotinoWindow 
+    public static T SetLocation<T>(this T window, Point location) where T : class, IPhotinoWindow
         => SetLocation(window, location.X, location.Y);
     #endregion
 
@@ -529,19 +530,19 @@ public static class PhotinoWindowExtensions {
     /// </returns>
     /// <param name="window"></param>
     /// <param name="maximized">Whether the window should be maximized.</param>
-    public static T SetMaximized<T>(this T window, bool maximized ) where T : class, IPhotinoWindow {
+    public static T SetMaximized<T>(this T window, bool maximized) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetMaximized({Maximized})", maximized);
         window.Invoke(() => {
             if (!window.Chromeless) {
                 PhotinoNative.SetMaximized(window.InstanceHandle, maximized);
                 return;
             }
-            
+
             if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor)) {
                 window.Logger.LogWarning("Monitor {Monitor} not found", monitor);
                 return;
             }
-            
+
             Rectangle workArea = monitor.WorkArea;
             if (maximized) {
                 window.CachedPreMaximizedBounds = windowRect;
@@ -568,14 +569,14 @@ public static class PhotinoWindowExtensions {
                 PhotinoNative.SetMaximized(window.InstanceHandle, !maximized);
                 return;
             }
-            
+
             // TODO test on other OS?
             // If the window is chromeless then we need to manually register the maximize size else it will just fullscreen
             if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor)) {
                 window.Logger.LogWarning("Monitor {Monitor} not found", monitor);
                 return;
             }
-            
+
             Rectangle workArea = monitor.WorkArea;
             if (window.CachedPreMaximizedBounds == Rectangle.Empty) {
                 window.CachedPreMaximizedBounds = windowRect;
@@ -591,25 +592,25 @@ public static class PhotinoWindowExtensions {
                 // window.Events.OnRestored();
             }
         });
-        return window;  
+        return window;
     }
 
     ///<summary>Native window maximum Width and Height in pixels.</summary>
     public static T SetMaxSize<T>(this T window, int maxWidth, int maxHeight) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
-        
+
         window.MaxWidth = maxWidth;
         window.MaxHeight = maxHeight;
-        
+
         window.Invoke(() => PhotinoNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight));
         return window;
     }
-    
-    public static T SetMaxSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+
+    public static T SetMaxSize<T>(this T window, Size size) where T : class, IPhotinoWindow
         => SetMaxSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
-    public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IPhotinoWindow 
+    public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IPhotinoWindow
         => SetMaxSize(window, window.MaxWidth, maxHeight);
 
     ///<summary>Native window maximum Width in pixels.</summary>
@@ -634,15 +635,15 @@ public static class PhotinoWindowExtensions {
     ///<summary>Native window maximum Width and Height in pixels.</summary>
     public static T SetMinSize<T>(this T window, int minWidth, int minHeight) where T : class, IPhotinoWindow {
         window.Logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
-        
+
         window.MinHeight = minHeight;
         window.MinWidth = minWidth;
-        
+
         window.Invoke(() => PhotinoNative.SetMinSize(window.InstanceHandle, minWidth, minHeight));
         return window;
     }
-    
-    public static T SetMinSize<T>(this T window, Size size) where T : class, IPhotinoWindow 
+
+    public static T SetMinSize<T>(this T window, Size size) where T : class, IPhotinoWindow
         => SetMinSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
@@ -650,7 +651,7 @@ public static class PhotinoWindowExtensions {
         => SetMinSize(window, window.MinWidth, minHeight);
 
     ///<summary>Native window maximum Width in pixels.</summary>
-    public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IPhotinoWindow 
+    public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IPhotinoWindow
         => SetMinSize(window, minWidth, window.MinHeight);
 
     /// <summary>
@@ -789,7 +790,7 @@ public static class PhotinoWindowExtensions {
 
         return window;
     }
-    
+
     public static T Resize<T>(this T window, int widthOffset, int heightOffset, ResizeOrigin origin) where T : class, IPhotinoWindow {
         window.Invoke(() => {
             PhotinoNative.GetSize(window.InstanceHandle, out int width, out int height);
@@ -847,13 +848,14 @@ public static class PhotinoWindowExtensions {
                     width -= widthOffset;
                     break;
                 }
+
                 default: throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
             }
 
             // Clamping between min and max size
             Size max = window.MaxSize;
             Size min = window.MinSize;
-            
+
             if (width >= max.Width) {
                 width = max.Width;
                 x = originalX;
@@ -862,7 +864,7 @@ public static class PhotinoWindowExtensions {
                 height = max.Height;
                 y = originalY;
             }
-            
+
             if (width <= min.Width) {
                 width = min.Width;
                 x = originalX;
@@ -871,16 +873,16 @@ public static class PhotinoWindowExtensions {
                 height = min.Height;
                 y = originalY;
             }
-            
+
             PhotinoNative.SetSize(window.InstanceHandle, width, height);
             PhotinoNative.SetPosition(window.InstanceHandle, x, y);
-            
+
         });
         return window;
     }
 
     public static T SetZoomEnabled<T>(this T window, bool zoomEnabled) where T : class, IPhotinoWindow {
         window.Invoke(() => PhotinoNative.SetZoomEnabled(window.InstanceHandle, zoomEnabled));
-        return window;   
+        return window;
     }
 }

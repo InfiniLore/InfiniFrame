@@ -9,14 +9,14 @@ public class PhotinoBlazorApp(
     RootComponentList rootComponents,
     IPhotinoJsComponentConfiguration? rootComponentConfiguration = null
 ) : IAsyncDisposable {
-    
+
     private bool _disposed;
-    
+
     public void Run() {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        
+
         var window = provider.GetRequiredService<IPhotinoWindow>();
-        
+
         if (rootComponentConfiguration is not null) {
             foreach ((Type, string) component in rootComponents) {
                 rootComponentConfiguration.Add(component.Item1, component.Item2);
@@ -31,11 +31,12 @@ public class PhotinoBlazorApp(
             window.Invoke(() => _ = Task.Run(DisposeAsync));
         }
     }
-    
+
     public async ValueTask DisposeAsync() {
         if (_disposed) return;
+
         _disposed = true;
-        
+
         try {
             switch (provider) {
                 case ServiceProvider serviceProvider: {
@@ -58,7 +59,7 @@ public class PhotinoBlazorApp(
             var logger = provider.GetService<ILogger<PhotinoBlazorApp>>();
             logger?.LogError(e, "Error disposing of PhotinoBlazorApp");
         }
-        
+
         GC.SuppressFinalize(this);
     }
 }

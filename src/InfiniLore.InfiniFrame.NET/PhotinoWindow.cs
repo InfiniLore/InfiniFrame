@@ -15,9 +15,9 @@ public sealed class PhotinoWindow(
     ILogger<PhotinoWindow> logger,
     PhotinoWindow? parent = null
 ) : IPhotinoWindow {
-    
+
     //Pointers to the type and instance.
-    private static readonly Lazy<IntPtr> WindowType = new Lazy<IntPtr>(NativeLibrary.GetMainProgramHandle);
+    private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     public IntPtr NativeType => WindowType.Value;
 
     public IntPtr InstanceHandle { get; private set; }
@@ -28,7 +28,7 @@ public sealed class PhotinoWindow(
     public IPhotinoWindow? Parent { get; } = parent;
     public IPhotinoWindowEvents Events { get; set; } = null!;
     public IPhotinoWindowMessageHandlers MessageHandlers { get; set; } = null!;
-    
+
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
@@ -115,9 +115,9 @@ public sealed class PhotinoWindow(
     ///     On Windows, thrown if trying to set a value after a native window is initialized.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Transparent => OperatingSystem.IsWindows() 
-        ? StartupParameters.Transparent // on windows it can only be set at startup
-        :  InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
+    public bool Transparent => OperatingSystem.IsWindows()
+        ? StartupParameters.Transparent// on windows it can only be set at startup
+        : InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's context menu.
@@ -212,7 +212,7 @@ public sealed class PhotinoWindow(
 
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
     public Size MaxSize {
-        get => new Size(MaxWidth, MaxHeight);
+        get => new(MaxWidth, MaxHeight);
         set {
             MaxWidth = value.Width;
             MaxHeight = value.Height;
@@ -234,7 +234,7 @@ public sealed class PhotinoWindow(
 
     ///<summary>Gets or set the minimum size of the native window in pixels.</summary>
     public Size MinSize {
-        get => new Size(MinWidth, MinHeight);
+        get => new(MinWidth, MinHeight);
         set {
             MinWidth = value.Width;
             MinHeight = value.Height;
@@ -390,8 +390,7 @@ public sealed class PhotinoWindow(
         Events.OnWindowCreating();
 
         //All C++ exceptions will bubble up to here.
-        try
-        {
+        try {
             if (OperatingSystem.IsWindows())
                 Invoke(() => PhotinoNative.RegisterWin32(NativeType));
             else if (OperatingSystem.IsMacOS())
@@ -644,9 +643,7 @@ public sealed class PhotinoWindow(
         string[] nativeFilters = GetNativeFilters(filters, foldersOnly);
 
         Invoke(() => {
-            IntPtr ptrResults = foldersOnly ?
-                PhotinoNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out int resultCount) :
-                PhotinoNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount);
+            IntPtr ptrResults = foldersOnly ? PhotinoNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out int resultCount) : PhotinoNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount);
 
             if (resultCount == 0) return;
 
@@ -696,7 +693,7 @@ public sealed class PhotinoWindow(
         ArgumentNullException.ThrowIfNull(handler);
 
         scheme = scheme.ToLower();
-        
+
         PhotinoNative.AddCustomSchemeName(InstanceHandle, scheme);
 
         customSchemes.TryAdd(scheme, null);

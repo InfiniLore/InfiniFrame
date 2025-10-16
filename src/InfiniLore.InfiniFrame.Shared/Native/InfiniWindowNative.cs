@@ -22,6 +22,6 @@ public static class InfiniWindowNative {
 
     internal static PhotinoNativeParameters NativeParametersReturnAsIs(ref PhotinoNativeParameters parameters) {
         NativeParametersReturnAsIs(ref parameters, out IntPtr newParameters);
-        return Marshal.PtrToStructure<PhotinoNativeParameters>(newParameters);       
+        return Marshal.PtrToStructure<PhotinoNativeParameters>(newParameters);
     }
 }

@@ -17,11 +17,12 @@ public static class TitleChangedWebMessageHandler {
         RegisterWindowCreatedUtilities.RegisterWindowCreatedWebMessage(builder, RegisterTitleChange);
         return builder;
     }
-    
+
     private static void HandleWebMessage(IPhotinoWindow window, string? payload) {
         if (string.IsNullOrWhiteSpace(payload)) return;
+
         window.Logger.LogInformation("title:change {payload}", payload);
         window.SetTitle(payload);
     }
-    
+
 }
