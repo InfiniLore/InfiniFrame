@@ -3,11 +3,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
 
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPhotinoWindowEvents {
+public interface IInfiniWindowEvents {
     event EventHandler<Point>? WindowLocationChanged;
     event EventHandler<Size>? WindowSizeChanged;
     event EventHandler? WindowFocusIn;
@@ -21,7 +21,7 @@ public interface IPhotinoWindowEvents {
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
 
-    IPhotinoWindowEvents DefineSender<T>(T sender) where T : class;
+    IInfiniWindowEvents DefineSender<T>(T sender) where T : class;
 
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);

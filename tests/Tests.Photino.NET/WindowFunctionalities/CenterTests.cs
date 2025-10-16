@@ -39,7 +39,7 @@ public class CenterTests {
     public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
+        IInfiniWindow window = windowUtility.Window;
 
         // Act
         window.Center();
@@ -71,7 +71,7 @@ public class CenterTests {
             builder => builder
                 .Center(state)
         );
-        IPhotinoWindow window = windowUtility.Window;
+        IInfiniWindow window = windowUtility.Window;
 
         // Assert
         int centerX = 0;

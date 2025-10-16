@@ -14,7 +14,7 @@ public sealed class PhotinoWindow(
     Dictionary<string, NetCustomSchemeDelegate?> customSchemes,
     ILogger<PhotinoWindow> logger,
     PhotinoWindow? parent = null
-) : IPhotinoWindow {
+) : IInfiniWindow {
 
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
@@ -23,11 +23,11 @@ public sealed class PhotinoWindow(
     public IntPtr InstanceHandle { get; private set; }
     public PhotinoNativeParameters StartupParameters;
 
-    ILogger<IPhotinoWindow> IPhotinoWindow.Logger => logger;
+    ILogger<IInfiniWindow> IInfiniWindow.Logger => logger;
 
-    public IPhotinoWindow? Parent { get; } = parent;
-    public IPhotinoWindowEvents Events { get; set; } = null!;
-    public IPhotinoWindowMessageHandlers MessageHandlers { get; set; } = null!;
+    public IInfiniWindow? Parent { get; } = parent;
+    public IInfiniWindowEvents Events { get; set; } = null!;
+    public IInfiniWindowMessageHandlers MessageHandlers { get; set; } = null!;
 
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
@@ -688,7 +688,7 @@ public sealed class PhotinoWindow(
     ///     <see cref="EventHandler" />
     /// </param>
     /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
-    public IPhotinoWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler) {
+    public IInfiniWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler) {
         ArgumentException.ThrowIfNullOrWhiteSpace(scheme);
         ArgumentNullException.ThrowIfNull(handler);
 

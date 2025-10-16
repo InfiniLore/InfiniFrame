@@ -6,21 +6,21 @@ using System.Drawing;
 using InfiniLore.Photino.Native;
 
 // ReSharper disable once CheckNamespace
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.InfiniFrame;
 public static class PhotinoWindowExtensions {
     #region Load
     /// <summary>
     ///     Loads specified <see cref="Uri" /> into the browser control.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <remarks>
     ///     Load() or LoadString() must be called before a native window is initialized.
     /// </remarks>
     /// <param name="window">Photino window instance</param>
     /// <param name="uri">A Uri pointing to the file or the URL to load.</param>
-    public static T Load<T>(this T window, Uri uri) where T : class, IPhotinoWindow {
+    public static T Load<T>(this T window, Uri uri) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".Load({uri})", uri);
         window.Invoke(() => PhotinoNative.NavigateToUrl(window.InstanceHandle, uri.ToString()));
         return window;
@@ -30,14 +30,14 @@ public static class PhotinoWindowExtensions {
     ///     Loads a specified path into the browser control.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <remarks>
     ///     Load() or LoadString() must be called before a native window is initialized.
     /// </remarks>
     /// <param name="window">Photino window instance</param>
     /// <param name="path">A path pointing to the resource to load.</param>
-    public static T Load<T>(this T window, string path) where T : class, IPhotinoWindow {
+    public static T Load<T>(this T window, string path) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".Load({Path})", path);
 
 
@@ -69,7 +69,7 @@ public static class PhotinoWindowExtensions {
     ///     Loads a raw string into the browser control.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <remarks>
     ///     Used to load HTML into the browser control directly.
@@ -77,7 +77,7 @@ public static class PhotinoWindowExtensions {
     /// </remarks>
     /// <param name="window">Photino window instance</param>
     /// <param name="content">Raw content (such as HTML)</param>
-    public static T LoadRawString<T>(this T window, string content) where T : class, IPhotinoWindow {
+    public static T LoadRawString<T>(this T window, string content) where T : class, IInfiniWindow {
         string shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 47), "...") : content;
         window.Logger.LogDebug(".LoadRawString({Content})", shortContent);
         window.Invoke(() => PhotinoNative.NavigateToString(window.InstanceHandle, content));
@@ -93,19 +93,19 @@ public static class PhotinoWindowExtensions {
     ///     If called prior to window initialization, overrides Left (X) and Top (Y) properties.
     /// </remarks>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
-    public static T Center<T>(this T window) where T : class, IPhotinoWindow {
+    public static T Center<T>(this T window) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".Center()");
         window.Invoke(() => PhotinoNative.Center(window.InstanceHandle));
         return window;
     }
 
     // ReSharper disable once RedundantArgumentDefaultValue
-    public static T CenterOnCurrentMonitor<T>(this T window) where T : class, IPhotinoWindow
+    public static T CenterOnCurrentMonitor<T>(this T window) where T : class, IInfiniWindow
         => CenterOnMonitor(window, -1);
 
-    public static T CenterOnMonitor<T>(this T window, int monitorIndex = -1) where T : class, IPhotinoWindow {
+    public static T CenterOnMonitor<T>(this T window, int monitorIndex = -1) where T : class, IInfiniWindow {
         if (monitorIndex <= -1) {
             window.Invoke(() => {
                 ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
@@ -145,12 +145,12 @@ public static class PhotinoWindowExtensions {
     ///     Moves the native window to the specified location on the screen in pixels using a Point.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="left">Position from left in pixels</param>
     /// <param name="top">Position from top in pixels</param>
     /// <param name="window">Photino window instance</param>
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, int left, int top) where T : class, IInfiniWindow {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
             int horizontalWindowEdge = left + windowRect.Width;
@@ -197,32 +197,32 @@ public static class PhotinoWindowExtensions {
 
     /// <summary>
     ///     Moves the native window to the specified location on the screen in pixels
-    ///     using <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> (Y) properties.
+    ///     using <see cref="IInfiniWindow.Left" /> (X) and <see cref="IInfiniWindow.Top" /> (Y) properties.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="location">Position as <see cref="Point" /></param>
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IPhotinoWindow
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, Point location) where T : class, IInfiniWindow
         => MoveWithinCurrentMonitorArea(window, location.X, location.Y);
 
-    public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IPhotinoWindow
+    public static T MoveWithinCurrentMonitorArea<T>(this T window, double left, double top) where T : class, IInfiniWindow
         => MoveWithinCurrentMonitorArea(window, (int)left, (int)top);
     #endregion
 
     #region Offset
     /// <summary>
     ///     Moves the native window relative to its current location on the screen in pixels
-    ///     using <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> (Y) properties.
+    ///     using <see cref="IInfiniWindow.Left" /> (X) and <see cref="IInfiniWindow.Top" /> (Y) properties.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="left">Relative offset from left in pixels</param>
     /// <param name="top">Relative offset from top in pixels</param>
-    public static T Offset<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
+    public static T Offset<T>(this T window, int left, int top) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".Offset({left}, {top})", left, top);
         window.Invoke(() => {
             PhotinoNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
@@ -236,14 +236,14 @@ public static class PhotinoWindowExtensions {
     ///     using a <see cref="Point" />.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="offset">Relative offset</param>
-    public static T Offset<T>(this T window, Point offset) where T : class, IPhotinoWindow
+    public static T Offset<T>(this T window, Point offset) where T : class, IInfiniWindow
         => Offset(window, offset.X, offset.Y);
 
-    public static T Offset<T>(this T window, double left, double top) where T : class, IPhotinoWindow
+    public static T Offset<T>(this T window, double left, double top) where T : class, IInfiniWindow
         => Offset(window, (int)left, (int)top);
     #endregion
 
@@ -253,7 +253,7 @@ public static class PhotinoWindowExtensions {
     ///     Chromeless must be set to true. HTML document's body background must have alpha-based value.
     ///     By default, this is set to false.
     /// </summary>
-    public static T SetTransparent<T>(this T window, bool enabled) where T : class, IPhotinoWindow {
+    public static T SetTransparent<T>(this T window, bool enabled) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetTransparent({Enabled})", enabled);
 
         if (OperatingSystem.IsWindows()) {
@@ -273,11 +273,11 @@ public static class PhotinoWindowExtensions {
     ///     By default, this is set to true.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="enabled">Whether the context menu should be available</param>
-    public static T SetContextMenuEnabled<T>(this T window, bool enabled) where T : class, IPhotinoWindow {
+    public static T SetContextMenuEnabled<T>(this T window, bool enabled) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetContextMenuEnabled({Enabled})", enabled);
 
         window.Invoke(() => {
@@ -297,11 +297,11 @@ public static class PhotinoWindowExtensions {
     ///     By default, this is set to true.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="enabled">Whether developer tools should be available</param>
-    public static T SetDevToolsEnabled<T>(this T window, bool enabled) where T : class, IPhotinoWindow {
+    public static T SetDevToolsEnabled<T>(this T window, bool enabled) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetDevTools({Enabled})", enabled);
 
         window.Invoke(() => {
@@ -321,11 +321,11 @@ public static class PhotinoWindowExtensions {
     ///     By default, this is set to false.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="fullScreen">Whether the window should be fullscreen</param>
-    public static T SetFullScreen<T>(this T window, bool fullScreen) where T : class, IPhotinoWindow {
+    public static T SetFullScreen<T>(this T window, bool fullScreen) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
         if (window.FullScreen == fullScreen) {
             window.Logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
@@ -367,15 +367,15 @@ public static class PhotinoWindowExtensions {
 
     #region SetHeight
     /// <summary>
-    ///     Sets the native window <see cref="IPhotinoWindow.Height" /> in pixels.
+    ///     Sets the native window <see cref="IInfiniWindow.Height" /> in pixels.
     ///     Default is 0.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window">Photino window instance</param>
     /// <param name="height">Height in pixels</param>
-    public static T SetHeight<T>(this T window, int height) where T : class, IPhotinoWindow {
+    public static T SetHeight<T>(this T window, int height) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetHeight({Height})", height);
 
         window.Invoke(() => {
@@ -396,12 +396,12 @@ public static class PhotinoWindowExtensions {
     ///     This only works on Windows and Linux.
     /// </remarks>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <exception cref="System.ArgumentException">Icon file: {value} does not exist.</exception>
     /// <param name="window"></param>
     /// <param name="iconFilePath">The file path to the icon.</param>
-    public static T SetIconFile<T>(this T window, string iconFilePath) where T : class, IPhotinoWindow {
+    public static T SetIconFile<T>(this T window, string iconFilePath) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetIconFile({IconFile})", iconFilePath);
 
         if (window.IconFilePath == iconFilePath) {
@@ -422,15 +422,15 @@ public static class PhotinoWindowExtensions {
 
     #region SetLeft
     /// <summary>
-    ///     Sets the native window to a new <see cref="IPhotinoWindow.Left" /> (X) coordinate in pixels.
+    ///     Sets the native window to a new <see cref="IInfiniWindow.Left" /> (X) coordinate in pixels.
     ///     Default is 0.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="left">Position in pixels from the left (X).</param>
-    public static T SetLeft<T>(this T window, int left) where T : class, IPhotinoWindow {
+    public static T SetLeft<T>(this T window, int left) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetLeft({Left})", left);
 
         window.Invoke(() => {
@@ -450,11 +450,11 @@ public static class PhotinoWindowExtensions {
     ///     Default is true.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="resizable">Whether the window is resizable</param>
-    public static T SetResizable<T>(this T window, bool resizable) where T : class, IPhotinoWindow {
+    public static T SetResizable<T>(this T window, bool resizable) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetResizable({Resizable})", resizable);
         window.Invoke(() => PhotinoNative.SetResizable(window.InstanceHandle, resizable));
         return window;
@@ -463,17 +463,17 @@ public static class PhotinoWindowExtensions {
 
     #region SetSize
     /// <summary>
-    ///     Sets the native window Size. This represents the <see cref="IPhotinoWindow.Width" /> and the
-    ///     <see cref="IPhotinoWindow.Height" /> of the window in pixels.
+    ///     Sets the native window Size. This represents the <see cref="IInfiniWindow.Width" /> and the
+    ///     <see cref="IInfiniWindow.Height" /> of the window in pixels.
     ///     The default Size is 0,0.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="width">Width in pixels</param>
     /// <param name="height">Height in pixels</param>
-    public static T SetSize<T>(this T window, int width, int height) where T : class, IPhotinoWindow {
+    public static T SetSize<T>(this T window, int width, int height) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetSize({Width}, {Height})", width, height);
 
         window.Invoke(() => PhotinoNative.SetSize(window.InstanceHandle, width, height));
@@ -481,21 +481,21 @@ public static class PhotinoWindowExtensions {
     }
 
     /// <summary>
-    ///     Sets the native window Size. This represents the <see cref="IPhotinoWindow.Width" /> and the
-    ///     <see cref="IPhotinoWindow.Height" /> of the window in pixels.
+    ///     Sets the native window Size. This represents the <see cref="IInfiniWindow.Width" /> and the
+    ///     <see cref="IInfiniWindow.Height" /> of the window in pixels.
     ///     The default Size is 0,0.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="size">Width &amp; Height</param>
-    public static T SetSize<T>(this T window, Size size) where T : class, IPhotinoWindow
+    public static T SetSize<T>(this T window, Size size) where T : class, IInfiniWindow
         => SetSize(window, size.Width, size.Height);
     #endregion
 
     #region SetLocation
-    public static T SetLocation<T>(this T window, int left, int top) where T : class, IPhotinoWindow {
+    public static T SetLocation<T>(this T window, int left, int top) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
         window.Invoke(() => {
             PhotinoNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
@@ -508,16 +508,16 @@ public static class PhotinoWindowExtensions {
     }
 
     /// <summary>
-    ///     Sets the native window <see cref="IPhotinoWindow.Left" /> (X) and <see cref="IPhotinoWindow.Top" /> coordinates (Y)
+    ///     Sets the native window <see cref="IInfiniWindow.Left" /> (X) and <see cref="IInfiniWindow.Top" /> coordinates (Y)
     ///     in pixels.
     ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="location">Location as a <see cref="Point" /></param>
-    public static T SetLocation<T>(this T window, Point location) where T : class, IPhotinoWindow
+    public static T SetLocation<T>(this T window, Point location) where T : class, IInfiniWindow
         => SetLocation(window, location.X, location.Y);
     #endregion
 
@@ -526,11 +526,11 @@ public static class PhotinoWindowExtensions {
     ///     Default is false.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="maximized">Whether the window should be maximized.</param>
-    public static T SetMaximized<T>(this T window, bool maximized) where T : class, IPhotinoWindow {
+    public static T SetMaximized<T>(this T window, bool maximized) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetMaximized({Maximized})", maximized);
         window.Invoke(() => {
             if (!window.Chromeless) {
@@ -561,7 +561,7 @@ public static class PhotinoWindowExtensions {
         return window;
     }
 
-    public static T ToggleMaximized<T>(this T window) where T : class, IPhotinoWindow {
+    public static T ToggleMaximized<T>(this T window) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".ToggleMaximized()");
         window.Invoke(() => {
             PhotinoNative.GetMaximized(window.InstanceHandle, out bool maximized);
@@ -596,7 +596,7 @@ public static class PhotinoWindowExtensions {
     }
 
     ///<summary>Native window maximum Width and Height in pixels.</summary>
-    public static T SetMaxSize<T>(this T window, int maxWidth, int maxHeight) where T : class, IPhotinoWindow {
+    public static T SetMaxSize<T>(this T window, int maxWidth, int maxHeight) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
 
         window.MaxWidth = maxWidth;
@@ -606,15 +606,15 @@ public static class PhotinoWindowExtensions {
         return window;
     }
 
-    public static T SetMaxSize<T>(this T window, Size size) where T : class, IPhotinoWindow
+    public static T SetMaxSize<T>(this T window, Size size) where T : class, IInfiniWindow
         => SetMaxSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
-    public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IPhotinoWindow
+    public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IInfiniWindow
         => SetMaxSize(window, window.MaxWidth, maxHeight);
 
     ///<summary>Native window maximum Width in pixels.</summary>
-    public static T SetMaxWidth<T>(this T window, int maxWidth) where T : class, IPhotinoWindow
+    public static T SetMaxWidth<T>(this T window, int maxWidth) where T : class, IInfiniWindow
         => SetMaxSize(window, maxWidth, window.MaxHeight);
 
     /// <summary>
@@ -622,18 +622,18 @@ public static class PhotinoWindowExtensions {
     ///     Default is false.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="minimized">Whether the window should be minimized.</param>
-    public static T SetMinimized<T>(this T window, bool minimized) where T : class, IPhotinoWindow {
+    public static T SetMinimized<T>(this T window, bool minimized) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetMinimized({Minimized})", minimized);
         window.Invoke(() => PhotinoNative.SetMinimized(window.InstanceHandle, minimized));
         return window;
     }
 
     ///<summary>Native window maximum Width and Height in pixels.</summary>
-    public static T SetMinSize<T>(this T window, int minWidth, int minHeight) where T : class, IPhotinoWindow {
+    public static T SetMinSize<T>(this T window, int minWidth, int minHeight) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
 
         window.MinHeight = minHeight;
@@ -643,27 +643,27 @@ public static class PhotinoWindowExtensions {
         return window;
     }
 
-    public static T SetMinSize<T>(this T window, Size size) where T : class, IPhotinoWindow
+    public static T SetMinSize<T>(this T window, Size size) where T : class, IInfiniWindow
         => SetMinSize(window, size.Width, size.Height);
 
     ///<summary>Native window maximum Height in pixels.</summary>
-    public static T SetMinHeight<T>(this T window, int minHeight) where T : class, IPhotinoWindow
+    public static T SetMinHeight<T>(this T window, int minHeight) where T : class, IInfiniWindow
         => SetMinSize(window, window.MinWidth, minHeight);
 
     ///<summary>Native window maximum Width in pixels.</summary>
-    public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IPhotinoWindow
+    public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IInfiniWindow
         => SetMinSize(window, minWidth, window.MinHeight);
 
     /// <summary>
-    ///     Sets the native window <see cref="IPhotinoWindow.Title" />.
+    ///     Sets the native window <see cref="IInfiniWindow.Title" />.
     ///     Default is "Photino".
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="title">Window title</param>
-    public static T SetTitle<T>(this T window, string? title) where T : class, IPhotinoWindow {
+    public static T SetTitle<T>(this T window, string? title) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetTitle({Title})", title);
 
         window.Invoke(() => {
@@ -679,15 +679,15 @@ public static class PhotinoWindowExtensions {
     }
 
     /// <summary>
-    ///     Sets the native window <see cref="IPhotinoWindow.Top" /> (Y) coordinate in pixels.
+    ///     Sets the native window <see cref="IInfiniWindow.Top" /> (Y) coordinate in pixels.
     ///     Default is 0.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="top">Position in pixels from the top (Y).</param>
-    public static T SetTop<T>(this T window, int top) where T : class, IPhotinoWindow {
+    public static T SetTop<T>(this T window, int top) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetTop({Top})", top);
         window.Invoke(() => {
             PhotinoNative.GetPosition(window.InstanceHandle, out int left, out int oldTop);
@@ -704,11 +704,11 @@ public static class PhotinoWindowExtensions {
     ///     Default is false.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="topMost">Whether the window is at the top</param>
-    public static T SetTopMost<T>(this T window, bool topMost) where T : class, IPhotinoWindow {
+    public static T SetTopMost<T>(this T window, bool topMost) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetTopMost({TopMost})", topMost);
         window.Invoke(() => PhotinoNative.SetTopmost(window.InstanceHandle, topMost));
         return window;
@@ -719,11 +719,11 @@ public static class PhotinoWindowExtensions {
     ///     Default is 0.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="width">Width in pixels</param>
-    public static T SetWidth<T>(this T window, int width) where T : class, IPhotinoWindow {
+    public static T SetWidth<T>(this T window, int width) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetWidth({Width})", width);
 
         window.Invoke(() => {
@@ -735,16 +735,16 @@ public static class PhotinoWindowExtensions {
     }
 
     /// <summary>
-    ///     Sets the native browser control <see cref="IPhotinoWindow.Zoom" />.
+    ///     Sets the native browser control <see cref="IInfiniWindow.Zoom" />.
     ///     Default is 100.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="window"></param>
     /// <param name="zoom">Zoomlevel as integer</param>
     /// <example>100 = 100%, 50 = 50%</example>
-    public static T SetZoom<T>(this T window, int zoom) where T : class, IPhotinoWindow {
+    public static T SetZoom<T>(this T window, int zoom) where T : class, IInfiniWindow {
         window.Logger.LogDebug(".SetZoom({Zoom})", zoom);
         window.Invoke(() => PhotinoNative.SetZoom(window.InstanceHandle, zoom));
         return window;
@@ -759,12 +759,12 @@ public static class PhotinoWindowExtensions {
     ///     This only works on Windows.
     /// </remarks>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <seealso href="https://docs.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution" />
     /// <param name="window"></param>
     /// <param name="data">Runtime path for WebView2</param>
-    public static T Win32SetWebView2Path<T>(this T window, string data) where T : class, IPhotinoWindow {
+    public static T Win32SetWebView2Path<T>(this T window, string data) where T : class, IInfiniWindow {
         if (OperatingSystem.IsWindows())
             window.Invoke(() => PhotinoNative.SetWebView2RuntimePath_win32(window.NativeType, data));
         else
@@ -780,9 +780,9 @@ public static class PhotinoWindowExtensions {
     ///     This method is only supported on the Windows platform.
     /// </remarks>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
-    public static T ClearBrowserAutoFill<T>(this T window) where T : class, IPhotinoWindow {
+    public static T ClearBrowserAutoFill<T>(this T window) where T : class, IInfiniWindow {
         if (OperatingSystem.IsWindows())
             window.Invoke(() => PhotinoNative.ClearBrowserAutoFill(window.InstanceHandle));
         else
@@ -791,7 +791,7 @@ public static class PhotinoWindowExtensions {
         return window;
     }
 
-    public static T Resize<T>(this T window, int widthOffset, int heightOffset, ResizeOrigin origin) where T : class, IPhotinoWindow {
+    public static T Resize<T>(this T window, int widthOffset, int heightOffset, ResizeOrigin origin) where T : class, IInfiniWindow {
         window.Invoke(() => {
             PhotinoNative.GetSize(window.InstanceHandle, out int width, out int height);
             PhotinoNative.GetPosition(window.InstanceHandle, out int originalX, out int originalY);
@@ -881,7 +881,7 @@ public static class PhotinoWindowExtensions {
         return window;
     }
 
-    public static T SetZoomEnabled<T>(this T window, bool zoomEnabled) where T : class, IPhotinoWindow {
+    public static T SetZoomEnabled<T>(this T window, bool zoomEnabled) where T : class, IInfiniWindow {
         window.Invoke(() => PhotinoNative.SetZoomEnabled(window.InstanceHandle, zoomEnabled));
         return window;
     }

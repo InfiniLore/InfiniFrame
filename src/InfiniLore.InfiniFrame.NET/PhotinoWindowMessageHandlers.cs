@@ -5,25 +5,25 @@ namespace InfiniLore.InfiniFrame.NET;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class PhotinoWindowMessageHandlers : IPhotinoWindowMessageHandlers {
-    private Dictionary<string, Action<IPhotinoWindow, string?>> Handlers { get; } = new();
+public class PhotinoWindowMessageHandlers : IInfiniWindowMessageHandlers {
+    private Dictionary<string, Action<IInfiniWindow, string?>> Handlers { get; } = new();
     public bool IsEmpty => Handlers.Count == 0;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void RegisterMessageHandler(string messageId, Action<IPhotinoWindow, string?> handler) {
+    public void RegisterMessageHandler(string messageId, Action<IInfiniWindow, string?> handler) {
         Handlers.Add(messageId, handler);
     }
 
     public void Handle(object? sender, string? message) {
-        if (sender is not IPhotinoWindow window) return;
+        if (sender is not IInfiniWindow window) return;
         if (window.MessageHandlers.IsEmpty) return;
         if (string.IsNullOrWhiteSpace(message)) return;
 
         (string messageId, string? payload) = ParseMessage(message);
 
-        if (!Handlers.TryGetValue(messageId, out Action<IPhotinoWindow, string?>? handler)) return;
+        if (!Handlers.TryGetValue(messageId, out Action<IInfiniWindow, string?>? handler)) return;
 
         handler(window, payload);
     }

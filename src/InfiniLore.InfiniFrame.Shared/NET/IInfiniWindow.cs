@@ -3,17 +3,16 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Immutable;
 using System.Drawing;
-
-namespace InfiniLore.Photino.NET;
 using Microsoft.Extensions.Logging;
 
+namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IPhotinoWindow : IPhotinoWindowBase {
-    internal ILogger<IPhotinoWindow> Logger { get; }
-    IPhotinoWindowEvents Events { get; }
-    IPhotinoWindowMessageHandlers MessageHandlers { get; }
+public interface IInfiniWindow : IInfiniWindowBase {
+    internal ILogger<IInfiniWindow> Logger { get; }
+    IInfiniWindowEvents Events { get; }
+    IInfiniWindowMessageHandlers MessageHandlers { get; }
 
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
@@ -26,7 +25,7 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     Size MaxSize { get; set; }
     Size MinSize { get; set; }
     Size Size { get; }
-    IPhotinoWindow? Parent { get; }
+    IInfiniWindow? Parent { get; }
     int ManagedThreadId { get; }
     Rectangle CachedPreFullScreenBounds { get; internal set; }
     Rectangle CachedPreMaximizedBounds { get; internal set; }
@@ -44,5 +43,5 @@ public interface IPhotinoWindow : IPhotinoWindowBase {
     string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
     Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
     PhotinoDialogResult ShowMessage(string title, string? text, PhotinoDialogButtons buttons = PhotinoDialogButtons.Ok, PhotinoDialogIcon icon = PhotinoDialogIcon.Info);
-    IPhotinoWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler);
+    IInfiniWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler);
 }

@@ -46,7 +46,7 @@ public class RegisterCustomSchemeHandlerTests {
     public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
+        IInfiniWindow window = windowUtility.Window;
 
         // Act
         window.RegisterCustomSchemeHandler("app", EmptyHandler);
@@ -70,7 +70,7 @@ public class RegisterCustomSchemeHandlerTests {
             builder => builder
                 .RegisterCustomSchemeHandler("app", EmptyHandler)
         );
-        IPhotinoWindow window = windowUtility.Window;
+        IInfiniWindow window = windowUtility.Window;
 
         // Assert
         var windowCasted = window as PhotinoWindow;

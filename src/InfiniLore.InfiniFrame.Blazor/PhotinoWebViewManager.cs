@@ -26,11 +26,11 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
 
     public static readonly string AppBaseUri = $"{BlazorAppScheme}://localhost/";
     private readonly Channel<string> _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
-    private Lazy<IPhotinoWindow> LazyWindow { get; }
+    private Lazy<IInfiniWindow> LazyWindow { get; }
     private readonly SynchronousTaskScheduler _syncScheduler = new();
 
     public PhotinoWebViewManager(
-        IPhotinoWindowBuilder builder,
+        IInfiniWindowBuilder builder,
         IServiceProvider provider,
         Dispatcher dispatcher,
         IFileProvider fileProvider,
@@ -51,7 +51,7 @@ public class PhotinoWebViewManager : WebViewManager, IPhotinoWebViewManager {
             }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, _syncScheduler);
         });
 
-        LazyWindow = new Lazy<IPhotinoWindow>(provider.GetRequiredService<IPhotinoWindow>);
+        LazyWindow = new Lazy<IInfiniWindow>(provider.GetRequiredService<IInfiniWindow>);
 
         //start reader
         Task.Run(MessagePump);

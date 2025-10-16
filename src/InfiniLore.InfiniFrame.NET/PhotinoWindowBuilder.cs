@@ -6,12 +6,12 @@ namespace InfiniLore.InfiniFrame.NET;
 using InfiniLore.InfiniFrame;
 using InfiniLore.Photino.Native;
 
-public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
+public class PhotinoWindowBuilder : IInfiniWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
 
     public IPhotinoConfiguration Configuration { get; } = new PhotinoConfiguration();
-    public IPhotinoWindowEvents Events { get; } = new PhotinoWindowEvents();
-    public IPhotinoWindowMessageHandlers MessageHandlers { get; } = new PhotinoWindowMessageHandlers();
+    public IInfiniWindowEvents Events { get; } = new PhotinoWindowEvents();
+    public IInfiniWindowMessageHandlers MessageHandlers { get; } = new PhotinoWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
 
     private PhotinoWindowBuilder() {}
@@ -38,7 +38,7 @@ public class PhotinoWindowBuilder : IPhotinoWindowBuilder {
         }).CreateLogger<PhotinoWindow>();
     }
 
-    public IPhotinoWindow Build(IServiceProvider? provider = null) {
+    public IInfiniWindow Build(IServiceProvider? provider = null) {
         #pragma warning disable CA2208
         if (CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(nameof(CustomSchemeHandlers), "Maximum number of custom scheme handlers is 16.");
         #pragma warning restore CA2208

@@ -2,18 +2,18 @@
 using System.Drawing;
 
 // ReSharper disable once CheckNamespace
-namespace InfiniLore.Photino.NET;
+namespace InfiniLore.InfiniFrame;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class PhotinoWindowEventsExtensions {
     /// <summary>
     ///     Registers user-defined handler methods to receive callbacks from the native builder when its location changes.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterLocationChangedHandler(this IPhotinoWindowBuilder builder, EventHandler<Point> handler) {
+    public static IInfiniWindowBuilder RegisterLocationChangedHandler(this IInfiniWindowBuilder builder, EventHandler<Point> handler) {
         builder.Events.WindowLocationChanged += handler;
         return builder;
     }
@@ -22,11 +22,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when its size changes.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterSizeChangedHandler(this IPhotinoWindowBuilder builder, EventHandler<Size> handler) {
+    public static IInfiniWindowBuilder RegisterSizeChangedHandler(this IInfiniWindowBuilder builder, EventHandler<Size> handler) {
         builder.Events.WindowSizeChanged += handler;
         return builder;
     }
@@ -36,11 +36,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     in.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterFocusInHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+    public static IInfiniWindowBuilder RegisterFocusInHandler(this IInfiniWindowBuilder builder, EventHandler handler) {
         builder.Events.WindowFocusIn += handler;
         return builder;
     }
@@ -49,11 +49,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when it is maximized.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterMaximizedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+    public static IInfiniWindowBuilder RegisterMaximizedHandler(this IInfiniWindowBuilder builder, EventHandler handler) {
         builder.Events.WindowMaximized += handler;
         return builder;
     }
@@ -62,11 +62,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when it is restored.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterRestoredHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+    public static IInfiniWindowBuilder RegisterRestoredHandler(this IInfiniWindowBuilder builder, EventHandler handler) {
         builder.Events.WindowRestored += handler;
         return builder;
     }
@@ -76,11 +76,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     out.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterFocusOutHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+    public static IInfiniWindowBuilder RegisterFocusOutHandler(this IInfiniWindowBuilder builder, EventHandler handler) {
         builder.Events.WindowFocusOut += handler;
         return builder;
     }
@@ -89,11 +89,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when it is minimized.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterMinimizedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+    public static IInfiniWindowBuilder RegisterMinimizedHandler(this IInfiniWindowBuilder builder, EventHandler handler) {
         builder.Events.WindowMinimized += handler;
         return builder;
     }
@@ -103,14 +103,14 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks from the native builder when it sends a message.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <remarks>
     ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
     /// </remarks>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterWebMessageReceivedHandler(this IPhotinoWindowBuilder builder, EventHandler<string> handler) {
+    public static IInfiniWindowBuilder RegisterWebMessageReceivedHandler(this IInfiniWindowBuilder builder, EventHandler<string> handler) {
         builder.Events.WebMessageReceived += handler;
         return builder;
     }
@@ -119,11 +119,11 @@ public static class PhotinoWindowEventsExtensions {
     /// Registers user-defined handler methods to receive callbacks from the native builder before the window is closed through the native api calls.
     /// </summary>
     /// <returns>
-    /// Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    /// Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterWindowClosingRequestedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+    public static IInfiniWindowBuilder RegisterWindowClosingRequestedHandler(this IInfiniWindowBuilder builder, EventHandler handler) {
         builder.Events.WindowClosingRequested += handler;
         return builder;
     }
@@ -134,11 +134,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     Handler can return true to prevent the builder from closing.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="NetClosingDelegate" /></param>
-    public static IPhotinoWindowBuilder RegisterWindowClosingHandler(this IPhotinoWindowBuilder builder, NetClosingDelegate handler) {
+    public static IInfiniWindowBuilder RegisterWindowClosingHandler(this IInfiniWindowBuilder builder, NetClosingDelegate handler) {
         builder.Events.WindowClosing += handler;
         return builder;
     }
@@ -147,11 +147,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks before the native builder is created.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="EventHandler" /></param>
-    public static IPhotinoWindowBuilder RegisterWindowCreatingHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+    public static IInfiniWindowBuilder RegisterWindowCreatingHandler(this IInfiniWindowBuilder builder, EventHandler handler) {
         builder.Events.WindowCreating += handler;
         return builder;
     }
@@ -160,11 +160,11 @@ public static class PhotinoWindowEventsExtensions {
     ///     Registers user-defined handler methods to receive callbacks after the native builder is created.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindowBuilder" /> instance.
+    ///     Returns the current <see cref="IInfiniWindowBuilder" /> instance.
     /// </returns>
     /// <param name="builder">The builder to register the handler for.</param>
     /// <param name="handler"><see cref="NetClosingDelegate" /></param>
-    public static IPhotinoWindowBuilder RegisterWindowCreatedHandler(this IPhotinoWindowBuilder builder, EventHandler handler) {
+    public static IInfiniWindowBuilder RegisterWindowCreatedHandler(this IInfiniWindowBuilder builder, EventHandler handler) {
         builder.Events.WindowCreated += handler;
         return builder;
     }

@@ -9,7 +9,7 @@ using InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class PhotinoWindowEvents : IPhotinoWindowEvents {
+public class PhotinoWindowEvents : IInfiniWindowEvents {
     private object Sender { get; set; } = null!;
 
     public event EventHandler<Point>? WindowLocationChanged;
@@ -25,7 +25,7 @@ public class PhotinoWindowEvents : IPhotinoWindowEvents {
     public event EventHandler? WindowCreating;
     public event EventHandler? WindowCreated;
 
-    public IPhotinoWindowEvents DefineSender<T>(T sender) where T : class {
+    public IInfiniWindowEvents DefineSender<T>(T sender) where T : class {
         ArgumentNullException.ThrowIfNull(sender);
         Sender = sender;
         return this;

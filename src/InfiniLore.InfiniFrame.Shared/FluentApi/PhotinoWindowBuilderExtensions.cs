@@ -1,11 +1,15 @@
-﻿using System.Drawing;
-
-// ReSharper disable once CheckNamespace
-namespace InfiniLore.Photino.NET;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using System.Drawing;
 using InfiniLore.Photino.Utilities;
 
-public static class PhotinoWindowBuilderExtensions {
-    public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
+namespace InfiniLore.InfiniFrame;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public static class InfiniWindowBuilderExtensions {
+    public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
         builder.Configuration.MediaAutoplayEnabled = enable;
         return builder;
     }
@@ -13,7 +17,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets the user agent on the browser control at initialization.
     /// </summary>
-    public static T SetUserAgent<T>(this T builder, string userAgent) where T : IPhotinoWindowBuilder {
+    public static T SetUserAgent<T>(this T builder, string userAgent) where T : IInfiniWindowBuilder {
         builder.Configuration.UserAgent = userAgent;
         return builder;
     }
@@ -21,7 +25,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets FileSystemAccessEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetFileSystemAccessEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
+    public static T SetFileSystemAccessEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
         builder.Configuration.FileSystemAccessEnabled = enable;
         return builder;
     }
@@ -29,7 +33,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets WebSecurityEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetWebSecurityEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
+    public static T SetWebSecurityEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
         builder.Configuration.WebSecurityEnabled = enable;
         return builder;
     }
@@ -37,7 +41,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets JavascriptClipboardAccessEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetJavascriptClipboardAccessEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
+    public static T SetJavascriptClipboardAccessEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
         builder.Configuration.JavascriptClipboardAccessEnabled = enable;
         return builder;
     }
@@ -45,7 +49,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets MediaStreamEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetMediaStreamEnabled<T>(this T builder, bool enable) where T : IPhotinoWindowBuilder {
+    public static T SetMediaStreamEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
         builder.Configuration.MediaStreamEnabled = enable;
         return builder;
     }
@@ -53,7 +57,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets SmoothScrollingEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetSmoothScrollingEnabled<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
+    public static T SetSmoothScrollingEnabled<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
         builder.Configuration.SmoothScrollingEnabled = enable;
         return builder;
     }
@@ -61,7 +65,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetIgnoreCertificateErrorsEnabled<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
+    public static T SetIgnoreCertificateErrorsEnabled<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
         builder.Configuration.IgnoreCertificateErrorsEnabled = enable;
         return builder;
     }
@@ -76,7 +80,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public static T SetNotificationsEnabled<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
+    public static T SetNotificationsEnabled<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
         builder.Configuration.NotificationsEnabled = enable;
         return builder;
     }
@@ -88,7 +92,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <remarks>
     ///     This only works on Windows.
     /// </remarks>
-    public static T GrantBrowserPermissions<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
+    public static T GrantBrowserPermissions<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
         builder.Configuration.GrantBrowserPermissions = enable;
         return builder;
     }
@@ -96,7 +100,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder => SetSize(builder, builder.Configuration.Width, value);
+    public static T SetHeight<T>(this T builder, int value) where T : IInfiniWindowBuilder => SetSize(builder, builder.Configuration.Width, value);
 
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
@@ -107,7 +111,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <value>
     ///     The file path to the icon.
     /// </value>
-    public static T SetIconFile<T>(this T builder, string? iconFilePath) where T : IPhotinoWindowBuilder {
+    public static T SetIconFile<T>(this T builder, string? iconFilePath) where T : IInfiniWindowBuilder {
         if (!IconFileUtilities.IsValidIconFile(iconFilePath)) return builder;
 
         builder.Configuration.IconFilePath = iconFilePath;
@@ -117,7 +121,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets Location on the browser control at initialization.
     /// </summary>
-    public static T SetLocation<T>(this T builder, int left, int top) where T : IPhotinoWindowBuilder {
+    public static T SetLocation<T>(this T builder, int left, int top) where T : IInfiniWindowBuilder {
         builder.Configuration.Left = left;
         builder.Configuration.Top = top;
 
@@ -129,12 +133,12 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets Location on the browser control at initialization.
     /// </summary>
-    public static T SetLocation<T>(this T builder, Point location) where T : IPhotinoWindowBuilder => SetLocation(builder, location.X, location.Y);
+    public static T SetLocation<T>(this T builder, Point location) where T : IInfiniWindowBuilder => SetLocation(builder, location.X, location.Y);
 
     /// <summary>
     ///     Sets Minimized on the browser control at initialization.
     /// </summary>
-    public static T SetMinimized<T>(this T builder, bool minimized) where T : IPhotinoWindowBuilder {
+    public static T SetMinimized<T>(this T builder, bool minimized) where T : IInfiniWindowBuilder {
         builder.Configuration.Minimized = minimized;
         return builder;
     }
@@ -142,7 +146,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets Maximized on the browser control at initialization.
     /// </summary>
-    public static T SetMaximized<T>(this T builder, bool maximized) where T : IPhotinoWindowBuilder {
+    public static T SetMaximized<T>(this T builder, bool maximized) where T : IInfiniWindowBuilder {
         builder.Configuration.Maximized = maximized;
         return builder;
     }
@@ -150,7 +154,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets MaxWidth on the browser control at initialization.
     /// </summary>
-    public static T SetMaxWidth<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
+    public static T SetMaxWidth<T>(this T builder, int value) where T : IInfiniWindowBuilder {
         builder.Configuration.MaxWidth = value;
         return builder;
     }
@@ -158,7 +162,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets MaxHeight on the browser control at initialization.
     /// </summary>
-    public static T SetMaxHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
+    public static T SetMaxHeight<T>(this T builder, int value) where T : IInfiniWindowBuilder {
         builder.Configuration.MaxHeight = value;
         return builder;
     }
@@ -166,7 +170,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets MinWidth on the browser control at initialization.
     /// </summary>
-    public static T SetMinWidth<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
+    public static T SetMinWidth<T>(this T builder, int value) where T : IInfiniWindowBuilder {
         builder.Configuration.MinWidth = Math.Max(0, value);
         return builder;
     }
@@ -174,25 +178,25 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets MinHeight on the browser control at initialization.
     /// </summary>
-    public static T SetMinHeight<T>(this T builder, int value) where T : IPhotinoWindowBuilder {
+    public static T SetMinHeight<T>(this T builder, int value) where T : IInfiniWindowBuilder {
         builder.Configuration.MinHeight = Math.Max(0, value);
         return builder;
     }
 
-    public static T SetMinSize<T>(this T builder, int width, int height) where T : class, IPhotinoWindowBuilder {
+    public static T SetMinSize<T>(this T builder, int width, int height) where T : class, IInfiniWindowBuilder {
         builder.Configuration.MinHeight = Math.Max(0, height);
         builder.Configuration.MinWidth = Math.Max(0, width);
 
         return builder;
     }
 
-    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IPhotinoWindowBuilder
+    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IInfiniWindowBuilder
         => SetMinSize(builder, minSize.Width, minSize.Height);
 
     /// <summary>
     ///     Sets FullScreen on the browser control at initialization.
     /// </summary>
-    public static T SetFullScreen<T>(this T builder, bool fullscreen) where T : IPhotinoWindowBuilder {
+    public static T SetFullScreen<T>(this T builder, bool fullscreen) where T : IInfiniWindowBuilder {
         builder.Configuration.FullScreen = fullscreen;
         return builder;
     }
@@ -200,7 +204,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets Resizable on the browser control at initialization.
     /// </summary>
-    public static T SetResizable<T>(this T builder, bool resizable) where T : IPhotinoWindowBuilder {
+    public static T SetResizable<T>(this T builder, bool resizable) where T : IInfiniWindowBuilder {
         builder.Configuration.Resizable = resizable;
         return builder;
     }
@@ -208,12 +212,12 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets Width on the browser control at initialization.
     /// </summary>
-    public static T SetWidth<T>(this T builder, int value) where T : IPhotinoWindowBuilder => SetSize(builder, value, builder.Configuration.Height);
+    public static T SetWidth<T>(this T builder, int value) where T : IInfiniWindowBuilder => SetSize(builder, value, builder.Configuration.Height);
 
     /// <summary>
     ///     Sets Size on the browser control at initialization.
     /// </summary>
-    public static T SetSize<T>(this T builder, int width, int height) where T : IPhotinoWindowBuilder {
+    public static T SetSize<T>(this T builder, int width, int height) where T : IInfiniWindowBuilder {
         builder.Configuration.Width = Math.Max(0, width);
         builder.Configuration.Height = Math.Max(0, height);
 
@@ -225,7 +229,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets Size on the browser control at initialization.
     /// </summary>
-    public static T SetSize<T>(this T builder, Size size) where T : IPhotinoWindowBuilder => SetSize(builder, size.Width, size.Height);
+    public static T SetSize<T>(this T builder, Size size) where T : IInfiniWindowBuilder => SetSize(builder, size.Width, size.Height);
 
     /// <summary>
     ///     Sets BrowserControlInitParameters on the browser control at initialization.
@@ -245,7 +249,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///         https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     ///     </remarks>
     /// </summary>
-    public static T SetBrowserControlInitParameters<T>(this T builder, string? parameters) where T : IPhotinoWindowBuilder {
+    public static T SetBrowserControlInitParameters<T>(this T builder, string? parameters) where T : IInfiniWindowBuilder {
         builder.Configuration.BrowserControlInitParameters = parameters;
         return builder;
     }
@@ -253,7 +257,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets TemporaryFilesPath on the browser control at initialization.
     /// </summary>
-    public static T SetTemporaryFilesPath<T>(this T builder, string? path) where T : IPhotinoWindowBuilder {
+    public static T SetTemporaryFilesPath<T>(this T builder, string? path) where T : IInfiniWindowBuilder {
         builder.Configuration.TemporaryFilesPath = path;
         return builder;
     }
@@ -267,7 +271,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public static T SetNotificationRegistrationId<T>(this T builder, string? id) where T : IPhotinoWindowBuilder {
+    public static T SetNotificationRegistrationId<T>(this T builder, string? id) where T : IInfiniWindowBuilder {
         builder.Configuration.NotificationRegistrationId = id;
         return builder;
     }
@@ -275,7 +279,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets Title on the browser control at initialization.
     /// </summary>
-    public static T SetTitle<T>(this T builder, string? title) where T : IPhotinoWindowBuilder {
+    public static T SetTitle<T>(this T builder, string? title) where T : IInfiniWindowBuilder {
         builder.Configuration.Title = title ?? string.Empty;
         return builder;
     }
@@ -283,7 +287,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets TopMost on the browser control at initialization.
     /// </summary>
-    public static T SetTopMost<T>(this T builder, bool topmost) where T : IPhotinoWindowBuilder {
+    public static T SetTopMost<T>(this T builder, bool topmost) where T : IInfiniWindowBuilder {
         builder.Configuration.TopMost = topmost;
         return builder;
     }
@@ -291,7 +295,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets UseOsDefaultLocation on the browser control at initialization.
     /// </summary>
-    public static T SetUseOsDefaultLocation<T>(this T builder, bool useOsDefaultLocation) where T : IPhotinoWindowBuilder {
+    public static T SetUseOsDefaultLocation<T>(this T builder, bool useOsDefaultLocation) where T : IInfiniWindowBuilder {
         builder.Configuration.UseOsDefaultLocation = useOsDefaultLocation;
         return builder;
     }
@@ -299,32 +303,32 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets UseOsDefaultSize on the browser control at initialization.
     /// </summary>
-    public static T SetUseOsDefaultSize<T>(this T builder, bool useOsDefaultSize) where T : IPhotinoWindowBuilder {
+    public static T SetUseOsDefaultSize<T>(this T builder, bool useOsDefaultSize) where T : IInfiniWindowBuilder {
         builder.Configuration.UseOsDefaultSize = useOsDefaultSize;
         return builder;
     }
 
-    public static T SetZoom<T>(this T builder, int zoom) where T : IPhotinoWindowBuilder {
+    public static T SetZoom<T>(this T builder, int zoom) where T : IInfiniWindowBuilder {
         builder.Configuration.Zoom = zoom;
         return builder;
     }
 
-    public static T SetStartUrl<T>(this T builder, string? url) where T : IPhotinoWindowBuilder {
+    public static T SetStartUrl<T>(this T builder, string? url) where T : IInfiniWindowBuilder {
         builder.Configuration.StartUrl = url;
         return builder;
     }
 
-    public static T SetStartUrl<T>(this T builder, Uri? url) where T : IPhotinoWindowBuilder {
+    public static T SetStartUrl<T>(this T builder, Uri? url) where T : IInfiniWindowBuilder {
         builder.Configuration.StartUrl = url?.ToString();
         return builder;
     }
 
-    public static T SetStartString<T>(this T builder, string? startString) where T : IPhotinoWindowBuilder {
+    public static T SetStartString<T>(this T builder, string? startString) where T : IInfiniWindowBuilder {
         builder.Configuration.StartString = startString;
         return builder;
     }
 
-    public static T SetChromeless<T>(this T builder, bool chromeless) where T : IPhotinoWindowBuilder {
+    public static T SetChromeless<T>(this T builder, bool chromeless) where T : IInfiniWindowBuilder {
         builder.Configuration.Chromeless = chromeless;
 
         if (!OperatingSystem.IsWindows()) return builder;
@@ -337,7 +341,7 @@ public static class PhotinoWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetTransparent<T>(this T builder, bool transparent) where T : IPhotinoWindowBuilder {
+    public static T SetTransparent<T>(this T builder, bool transparent) where T : IInfiniWindowBuilder {
         builder.Configuration.Transparent = transparent;
         return builder;
     }
@@ -345,7 +349,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// <summary>
     ///     Sets SetCentered on the browser control at initialization.
     /// </summary>
-    public static T Center<T>(this T builder, bool enable = true) where T : IPhotinoWindowBuilder {
+    public static T Center<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
         builder.Configuration.Centered = enable;
         return builder;
     }
@@ -360,7 +364,7 @@ public static class PhotinoWindowBuilderExtensions {
     ///     initialization.
     /// </remarks>
     /// <returns>
-    ///     Returns the current <see cref="IPhotinoWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniWindow" /> instance.
     /// </returns>
     /// <param name="builder"></param>
     /// <param name="scheme">The custom scheme</param>
@@ -369,7 +373,7 @@ public static class PhotinoWindowBuilderExtensions {
     /// </param>
     /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
     /// <exception cref="ApplicationException">Thrown if more than 16 custom schemes were set</exception>
-    public static T RegisterCustomSchemeHandler<T>(this T builder, string scheme, NetCustomSchemeDelegate handler) where T : IPhotinoWindowBuilder {
+    public static T RegisterCustomSchemeHandler<T>(this T builder, string scheme, NetCustomSchemeDelegate handler) where T : IInfiniWindowBuilder {
         if (string.IsNullOrWhiteSpace(scheme)) throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
         if (handler is null) throw new ArgumentException("A handler (method) with a signature matching NetCustomSchemeDelegate must be supplied.");
 
@@ -385,7 +389,7 @@ public static class PhotinoWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetLeft<T>(this T builder, int left) where T : IPhotinoWindowBuilder {
+    public static T SetLeft<T>(this T builder, int left) where T : IInfiniWindowBuilder {
         builder.Configuration.Left = left;
 
         builder.Configuration.UseOsDefaultLocation = false;
@@ -393,7 +397,7 @@ public static class PhotinoWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetTop<T>(this T builder, int top) where T : IPhotinoWindowBuilder {
+    public static T SetTop<T>(this T builder, int top) where T : IInfiniWindowBuilder {
         builder.Configuration.Top = top;
 
         builder.Configuration.UseOsDefaultLocation = false;
@@ -401,23 +405,23 @@ public static class PhotinoWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetContextMenuEnabled<T>(this T builder, bool enabled) where T : IPhotinoWindowBuilder {
+    public static T SetContextMenuEnabled<T>(this T builder, bool enabled) where T : IInfiniWindowBuilder {
         builder.Configuration.ContextMenuEnabled = enabled;
         return builder;
     }
 
-    public static T SetDevToolsEnabled<T>(this T builder, bool enabled) where T : IPhotinoWindowBuilder {
+    public static T SetDevToolsEnabled<T>(this T builder, bool enabled) where T : IInfiniWindowBuilder {
         builder.Configuration.DevToolsEnabled = enabled;
         return builder;
     }
 
-    public static T SetMaxSize<T>(this T builder, int width, int height) where T : IPhotinoWindowBuilder {
+    public static T SetMaxSize<T>(this T builder, int width, int height) where T : IInfiniWindowBuilder {
         builder.Configuration.MaxWidth = width;
         builder.Configuration.MaxHeight = height;
 
         return builder;
     }
 
-    public static T SetMaxSize<T>(this T builder, Size size) where T : IPhotinoWindowBuilder
+    public static T SetMaxSize<T>(this T builder, Size size) where T : IInfiniWindowBuilder
         => SetMaxSize(builder, size.Width, size.Height);
 }

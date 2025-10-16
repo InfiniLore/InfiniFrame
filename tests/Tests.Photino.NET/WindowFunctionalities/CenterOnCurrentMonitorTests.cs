@@ -20,7 +20,7 @@ public class CenterOnCurrentMonitorTests {
     public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
-        IPhotinoWindow window = windowUtility.Window;
+        IInfiniWindow window = windowUtility.Window;
 
         // Act
         window.CenterOnCurrentMonitor();

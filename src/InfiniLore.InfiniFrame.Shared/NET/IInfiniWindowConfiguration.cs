@@ -1,7 +1,13 @@
-﻿using InfiniLore.Photino.Native;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.Photino.Native;
 
-namespace InfiniLore.Photino.NET;
-public interface IPhotinoConfiguration : IPhotinoWindowBase {
+namespace InfiniLore.InfiniFrame;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public interface IInfiniWindowConfiguration : IInfiniWindowBase {
     bool Centered { get; set; }
     new bool Chromeless { get; set; }
     new bool Transparent { get; set; }
