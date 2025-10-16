@@ -1,3 +1,6 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.InfiniFrame.Native;
 using InfiniLore.InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
@@ -7,14 +10,14 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame;
-using Monitor=System.Threading.Monitor;
-
-public sealed class PhotinoWindow(
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public sealed class InfiniFrameWindow(
     Dictionary<string, NetCustomSchemeDelegate?> customSchemes,
-    ILogger<PhotinoWindow> logger,
-    PhotinoWindow? parent = null
-) : IInfiniWindow {
+    ILogger<InfiniFrameWindow> logger,
+    InfiniFrameWindow? parent = null
+) : IInfiniFrameWindow {
 
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
@@ -23,11 +26,11 @@ public sealed class PhotinoWindow(
     public IntPtr InstanceHandle { get; private set; }
     public InfiniFrameNativeParameters StartupParameters;
 
-    ILogger<IInfiniWindow> IInfiniWindow.Logger => logger;
+    ILogger<IInfiniFrameWindow> IInfiniFrameWindow.Logger => logger;
 
-    public IInfiniWindow? Parent { get; } = parent;
-    public IInfiniWindowEvents Events { get; set; } = null!;
-    public IInfiniWindowMessageHandlers MessageHandlers { get; set; } = null!;
+    public IInfiniFrameWindow? Parent { get; } = parent;
+    public IInfiniFrameWindowEvents Events { get; set; } = null!;
+    public IInfiniFrameWindowMessageHandlers MessageHandlers { get; set; } = null!;
 
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
@@ -65,7 +68,7 @@ public sealed class PhotinoWindow(
     ///     A read-only list of Monitor objects representing information about each display monitor.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public ImmutableArray<Photino.Monitor> Monitors => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors);
+    public ImmutableArray<Monitor> Monitors => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors);
 
     /// <summary>
     ///     Retrieves the primary monitor information from the native window instance.
@@ -76,7 +79,7 @@ public sealed class PhotinoWindow(
     ///     available monitors.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Photino.Monitor MainMonitor => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors)[0];
+    public Monitor MainMonitor => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors)[0];
 
     /// <summary>
     ///     Gets the dots per inch (DPI) for the primary display from the native window.
@@ -359,7 +362,7 @@ public sealed class PhotinoWindow(
     public int Width => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetWidth);
 
     /// <summary>
-    ///     Gets or sets the native browser control <see cref="PhotinoWindow.Zoom" />.
+    ///     Gets or sets the native browser control <see cref="InfiniFrameWindow.Zoom" />.
     ///     Default is 100.
     /// </summary>
     /// <example>100 = 100%, 50 = 50%</example>
@@ -378,7 +381,7 @@ public sealed class PhotinoWindow(
             i++;
         }
 
-        StartupParameters.NativeParent = Parent is PhotinoWindow parent
+        StartupParameters.NativeParent = Parent is InfiniFrameWindow parent
             ? parent.InstanceHandle
             : IntPtr.Zero;
 
@@ -414,7 +417,7 @@ public sealed class PhotinoWindow(
     ///     Dispatches an Action to the UI thread if called from another thread.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="InfiniFrameWindow" /> instance.
     /// </returns>
     /// <param name="workItem"> The delegate encapsulating a method / action to be executed in the UI thread.</param>
     public void Invoke(Action workItem) {
@@ -681,14 +684,14 @@ public sealed class PhotinoWindow(
     ///     when the native browser control encounters them.
     /// </summary>
     /// <returns>
-    ///     Returns the current <see cref="PhotinoWindow" /> instance.
+    ///     Returns the current <see cref="InfiniFrameWindow" /> instance.
     /// </returns>
     /// <param name="scheme">The custom scheme</param>
     /// <param name="handler">
     ///     <see cref="EventHandler" />
     /// </param>
     /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
-    public IInfiniWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler) {
+    public IInfiniFrameWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler) {
         ArgumentException.ThrowIfNullOrWhiteSpace(scheme);
         ArgumentNullException.ThrowIfNull(handler);
 

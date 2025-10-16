@@ -13,7 +13,7 @@ public class WindowTestUtility : IDisposable {
     private WindowTestUtility() { }
 
     public static WindowTestUtility Create(Action<IPhotinoWindowBuilder>? builder = null) {
-        var windowBuilder = PhotinoWindowBuilder.Create();
+        var windowBuilder = InfiniFrameWindowBuilder.Create();
         
         windowBuilder.SetStartUrl("https://localhost/");
         

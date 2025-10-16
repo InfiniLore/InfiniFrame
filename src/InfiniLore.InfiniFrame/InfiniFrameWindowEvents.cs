@@ -4,12 +4,10 @@
 using System.Drawing;
 
 namespace InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class PhotinoWindowEvents : IInfiniWindowEvents {
+public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     private object Sender { get; set; } = null!;
 
     public event EventHandler<Point>? WindowLocationChanged;
@@ -25,7 +23,7 @@ public class PhotinoWindowEvents : IInfiniWindowEvents {
     public event EventHandler? WindowCreating;
     public event EventHandler? WindowCreated;
 
-    public IInfiniWindowEvents DefineSender<T>(T sender) where T : class {
+    public IInfiniFrameWindowEvents DefineSender<T>(T sender) where T : class {
         ArgumentNullException.ThrowIfNull(sender);
         Sender = sender;
         return this;

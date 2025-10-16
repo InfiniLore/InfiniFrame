@@ -20,7 +20,7 @@ public class TitleTests {
     [Arguments("🏳️‍⚧️")]
     public async Task Builder(string? title) {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.SetTitle(title);

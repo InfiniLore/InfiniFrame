@@ -17,7 +17,7 @@ public class BrowserControlInitParametersTests {
     [SkipUtility.SkipOnLinux]
     public async Task Builder() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
         const string parameter = "--remote-debugging-port=9222";
 
         // Act

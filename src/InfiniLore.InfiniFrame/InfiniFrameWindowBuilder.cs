@@ -1,51 +1,55 @@
-﻿using InfiniLore.InfiniFrame.Native;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame;
-
-public class PhotinoWindowBuilder : IInfiniWindowBuilder {
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
 
-    public IPhotinoConfiguration Configuration { get; } = new PhotinoConfiguration();
-    public IInfiniWindowEvents Events { get; } = new PhotinoWindowEvents();
-    public IInfiniWindowMessageHandlers MessageHandlers { get; } = new PhotinoWindowMessageHandlers();
+    public IInfiniFrameWindowConfiguration Configuration { get; } = new InfiniFrameWindowConfiguration();
+    public IInfiniFrameWindowEvents Events { get; } = new InfiniFrameWindowEvents();
+    public IInfiniFrameWindowMessageHandlers MessageHandlers { get; } = new InfiniFrameWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
 
-    private PhotinoWindowBuilder() {}
+    private InfiniFrameWindowBuilder() {}
 
-    public static PhotinoWindowBuilder Create() => new();
+    public static InfiniFrameWindowBuilder Create() => new();
 
     private InfiniFrameNativeParameters GetParameters(IServiceProvider? provider = null) {
         if (provider is null) return Configuration.ToParameters();
 
         var config = provider.GetService<IConfiguration>();
-        var photinoConfiguration = config?.Get<IPhotinoConfiguration>();
+        var photinoConfiguration = config?.Get<IInfiniFrameWindowConfiguration>();
 
         return photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
     }
 
-    private ILogger<PhotinoWindow> GetDefaultLogger() {
+    private ILogger<InfiniFrameWindow> GetDefaultLogger() {
         if (!UseDefaultLogger)
             return LoggerFactory.Create(config => {
                 config.ClearProviders();// Remove default console logger
-            }).CreateLogger<PhotinoWindow>();
+            }).CreateLogger<InfiniFrameWindow>();
 
         return LoggerFactory.Create(config => {
             config.AddConsole().SetMinimumLevel(LogLevel.Debug);
-        }).CreateLogger<PhotinoWindow>();
+        }).CreateLogger<InfiniFrameWindow>();
     }
 
-    public IInfiniWindow Build(IServiceProvider? provider = null) {
+    public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         #pragma warning disable CA2208
         if (CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(nameof(CustomSchemeHandlers), "Maximum number of custom scheme handlers is 16.");
         #pragma warning restore CA2208
 
-        var window = new PhotinoWindow(
+        var window = new InfiniFrameWindow(
             CustomSchemeHandlers,
-            provider?.GetService<ILogger<PhotinoWindow>>() ?? GetDefaultLogger()
+            provider?.GetService<ILogger<InfiniFrameWindow>>() ?? GetDefaultLogger()
         );
 
         Events.WebMessageReceived += MessageHandlers.Handle;

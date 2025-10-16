@@ -16,7 +16,7 @@ public class MinWidthTests {
     [Test]
     public async Task Builder() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.SetMinWidth(MinWidth);

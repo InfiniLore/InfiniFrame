@@ -5,9 +5,9 @@ namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniWindowMessageHandlers {
+public interface IInfiniFrameWindowMessageHandlers {
     bool IsEmpty { get; }
 
-    void RegisterMessageHandler(string messageId, Action<IInfiniWindow, string?> handler);
+    void RegisterMessageHandler(string messageId, Action<IInfiniFrameWindow, string?> handler);
     void Handle(object? sender, string? message);
 }

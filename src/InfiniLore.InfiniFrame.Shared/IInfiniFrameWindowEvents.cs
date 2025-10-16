@@ -7,7 +7,7 @@ namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniWindowEvents {
+public interface IInfiniFrameWindowEvents {
     event EventHandler<Point>? WindowLocationChanged;
     event EventHandler<Size>? WindowSizeChanged;
     event EventHandler? WindowFocusIn;
@@ -21,7 +21,7 @@ public interface IInfiniWindowEvents {
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
 
-    IInfiniWindowEvents DefineSender<T>(T sender) where T : class;
+    IInfiniFrameWindowEvents DefineSender<T>(T sender) where T : class;
 
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);

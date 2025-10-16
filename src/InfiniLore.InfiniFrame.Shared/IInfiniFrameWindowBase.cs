@@ -5,7 +5,7 @@ namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniWindowBase {
+public interface IInfiniFrameWindowBase {
     bool Chromeless { get; }
     bool Transparent { get; }
     bool ContextMenuEnabled { get; }

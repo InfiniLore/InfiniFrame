@@ -17,7 +17,7 @@ public class TransparentTests {
     [Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.SetTransparent(state);

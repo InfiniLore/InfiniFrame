@@ -9,10 +9,10 @@ namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniWindow : IInfiniWindowBase {
-    internal ILogger<IInfiniWindow> Logger { get; }
-    IInfiniWindowEvents Events { get; }
-    IInfiniWindowMessageHandlers MessageHandlers { get; }
+public interface IInfiniFrameWindow : IInfiniFrameWindowBase {
+    internal ILogger<IInfiniFrameWindow> Logger { get; }
+    IInfiniFrameWindowEvents Events { get; }
+    IInfiniFrameWindowMessageHandlers MessageHandlers { get; }
 
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
@@ -25,7 +25,7 @@ public interface IInfiniWindow : IInfiniWindowBase {
     Size MaxSize { get; set; }
     Size MinSize { get; set; }
     Size Size { get; }
-    IInfiniWindow? Parent { get; }
+    IInfiniFrameWindow? Parent { get; }
     int ManagedThreadId { get; }
     Rectangle CachedPreFullScreenBounds { get; internal set; }
     Rectangle CachedPreMaximizedBounds { get; internal set; }
@@ -43,5 +43,5 @@ public interface IInfiniWindow : IInfiniWindowBase {
     string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
     Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
     PhotinoDialogResult ShowMessage(string title, string? text, PhotinoDialogButtons buttons = PhotinoDialogButtons.Ok, PhotinoDialogIcon icon = PhotinoDialogIcon.Info);
-    IInfiniWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler);
+    IInfiniFrameWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler);
 }

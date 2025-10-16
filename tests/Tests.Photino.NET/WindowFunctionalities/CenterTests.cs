@@ -19,7 +19,7 @@ public class CenterTests {
     [Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.Center(state);
@@ -38,7 +38,7 @@ public class CenterTests {
     public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
-        IInfiniWindow window = windowUtility.Window;
+        IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
         window.Center();
@@ -70,7 +70,7 @@ public class CenterTests {
             builder => builder
                 .Center(state)
         );
-        IInfiniWindow window = windowUtility.Window;
+        IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
         int centerX = 0;

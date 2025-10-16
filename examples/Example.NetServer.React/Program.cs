@@ -30,7 +30,7 @@ public static class Program {
                         """u8.ToArray());
             })
             .RegisterWebMessageReceivedHandler((sender, message) => {
-                var window = (PhotinoWindow)sender!;
+                var window = (InfiniFrameWindow)sender!;
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });

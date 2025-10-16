@@ -17,8 +17,8 @@ public class IconFilePathTests {
     [Test]
     public async Task Builder() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration() {
+        var builder = InfiniFrameWindowBuilder.Create();
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration() {
             IconFilePath = IconFilePath
         }.ToParameters();
         
@@ -33,8 +33,8 @@ public class IconFilePathTests {
     [Test]
     public async Task Builder_ShouldNotSetInvalidIconFilePath() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration().ToParameters();
+        var builder = InfiniFrameWindowBuilder.Create();
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration().ToParameters();
         
         // Act
         builder.SetIconFile(InvalidIconFilePath);

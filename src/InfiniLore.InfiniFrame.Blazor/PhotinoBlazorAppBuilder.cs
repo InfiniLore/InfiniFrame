@@ -10,13 +10,13 @@ using Microsoft.AspNetCore.Components.Web;
 public class PhotinoBlazorAppBuilder {
     public RootComponentList RootComponents { get; } = new();
     public IServiceCollection Services { get; } = new ServiceCollection();
-    public IInfiniWindowBuilder WindowBuilder { get; } = PhotinoWindowBuilder.Create();
+    public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
     private PhotinoBlazorAppBuilder() {}
 
-    public static PhotinoBlazorAppBuilder CreateDefault(string[]? args = null, Action<IInfiniWindowBuilder>? windowBuilder = null) => CreateDefault(null, args, windowBuilder);
+    public static PhotinoBlazorAppBuilder CreateDefault(string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) => CreateDefault(null, args, windowBuilder);
 
-    public static PhotinoBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IInfiniWindowBuilder>? windowBuilder = null) {
+    public static PhotinoBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) {
         // We don't use the args for anything right now, but we want to accept them
         // here so that it shows up this way in the project templates.
         var appBuilder = new PhotinoBlazorAppBuilder();
@@ -37,7 +37,7 @@ public class PhotinoBlazorAppBuilder {
             .AddSingleton<PhotinoBlazorApp>()
             .AddSingleton<PhotinoHttpHandler>()
             .AddSingleton<PhotinoSynchronizationContext>()
-            .AddSingleton<IInfiniWindow>(static provider => provider.GetRequiredService<IInfiniWindowBuilder>().Build(provider))
+            .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
             .AddBlazorWebView()
             .AddSingleton(appBuilder.WindowBuilder)
             .AddSingleton(appBuilder.RootComponents);
@@ -45,7 +45,7 @@ public class PhotinoBlazorAppBuilder {
         return appBuilder;
     }
 
-    public PhotinoBlazorAppBuilder WithPhotinoWindowBuilder(Action<IInfiniWindowBuilder> windowBuilder) {
+    public PhotinoBlazorAppBuilder WithPhotinoWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {
         windowBuilder.Invoke(WindowBuilder);
         return this;
     }
@@ -59,7 +59,7 @@ public class PhotinoBlazorAppBuilder {
             .SetStartUrl(PhotinoWebViewManager.AppBaseUri);
 
         AppDomain.CurrentDomain.UnhandledException += (_, error) => {
-            sp.GetService<IInfiniWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+            sp.GetService<IInfiniFrameWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         };
 
         return sp.GetRequiredService<PhotinoBlazorApp>();

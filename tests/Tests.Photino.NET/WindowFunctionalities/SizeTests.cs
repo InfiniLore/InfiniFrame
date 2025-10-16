@@ -18,7 +18,7 @@ public class SizeTests {
     [Test]
     public async Task Builder() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.SetSize(Width, Height);
@@ -35,8 +35,8 @@ public class SizeTests {
     [Test]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration {
+        var builder = InfiniFrameWindowBuilder.Create();
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration {
             Width = Width,
             Height = Height,
             UseOsDefaultSize = false,

@@ -65,7 +65,7 @@ public class ResizeTests {
     public async Task Window(int widthOffset, int heightOffset, ResizeOrigin origin) {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
-        IInfiniWindow window = windowUtility.Window;
+        IInfiniFrameWindow window = windowUtility.Window;
         Point originalLocation = window.Location;
         Size originalSize = window.Size;
 

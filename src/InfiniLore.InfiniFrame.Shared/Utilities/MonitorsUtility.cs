@@ -10,7 +10,7 @@ namespace InfiniLore.InfiniFrame.Utilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class MonitorsUtility {
-    public static ImmutableArray<Monitor> GetMonitors(IInfiniWindow window) {
+    public static ImmutableArray<Monitor> GetMonitors(IInfiniFrameWindow window) {
         ImmutableArray<Monitor>.Builder builder = ImmutableArray.CreateBuilder<Monitor>();
 
         InfiniFrameNative.GetAllMonitors(window.InstanceHandle, Callback);
@@ -77,7 +77,7 @@ internal static class MonitorsUtility {
         return true;
     }
 
-    public static bool TryGetCurrentWindowAndMonitor(IInfiniWindow window, out Rectangle windowRect, out Monitor monitor) {
+    public static bool TryGetCurrentWindowAndMonitor(IInfiniFrameWindow window, out Rectangle windowRect, out Monitor monitor) {
         ImmutableArray<Monitor> monitors = GetMonitors(window);
         InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out windowRect);
         return TryGetCurrentMonitor(monitors, windowRect, out monitor);

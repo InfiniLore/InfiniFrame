@@ -18,7 +18,7 @@ public class LocationTests {
     [Test]
     public async Task Builder() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
         
         // Act
         builder.SetUseOsDefaultLocation(true);
@@ -36,8 +36,8 @@ public class LocationTests {
     [Test]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration {
+        var builder = InfiniFrameWindowBuilder.Create();
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration {
             Left = Left,
             Top = Top,
             UseOsDefaultLocation = false,

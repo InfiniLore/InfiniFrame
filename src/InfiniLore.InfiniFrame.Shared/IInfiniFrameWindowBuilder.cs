@@ -5,14 +5,14 @@ namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniWindowBuilder {
+public interface IInfiniFrameWindowBuilder {
     bool UseDefaultLogger { get; set; }
 
-    IInfiniWindowConfiguration Configuration { get; }
-    IInfiniWindowEvents Events { get; }
-    IInfiniWindowMessageHandlers MessageHandlers { get; }
+    IInfiniFrameWindowConfiguration Configuration { get; }
+    IInfiniFrameWindowEvents Events { get; }
+    IInfiniFrameWindowMessageHandlers MessageHandlers { get; }
 
     Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; }
 
-    IInfiniWindow Build(IServiceProvider? provider = null);
+    IInfiniFrameWindow Build(IServiceProvider? provider = null);
 }

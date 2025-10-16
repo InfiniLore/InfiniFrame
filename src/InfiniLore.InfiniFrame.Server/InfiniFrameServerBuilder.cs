@@ -1,10 +1,16 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.Extensions.FileProviders;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 
-namespace InfiniLore.Photino.NET.Server;
-public class PhotinoServerBuilder {
+namespace InfiniLore.InfiniFrame.Server;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class InfiniFrameServerBuilder {
     public WebApplicationBuilder WebAppBuilder { get; private init; } = null!;
 
     public int Port { get; internal set; } = 8000;
@@ -13,9 +19,9 @@ public class PhotinoServerBuilder {
     private string? EmbeddedFileProviderBaseNamespace { get; init; }
     private string? BaseUrl { get; set; }
 
-    private PhotinoServerBuilder() {}
+    private InfiniFrameServerBuilder() {}
 
-    public static PhotinoServerBuilder Create(string webRootFolder = "wwwroot", string[]? args = null) => new() {
+    public static InfiniFrameServerBuilder Create(string webRootFolder = "wwwroot", string[]? args = null) => new() {
         EmbeddedFileProviderBaseNamespace = webRootFolder,
         WebAppBuilder = WebApplication.CreateBuilder(new WebApplicationOptions {
             Args = args,
@@ -23,14 +29,14 @@ public class PhotinoServerBuilder {
         })
     };
 
-    public PhotinoServer Build() {
+    public InfiniFrameServer Build() {
         InitializeFileProvider();
         InitializePortAssignment();
         InitializeWebHost();
 
         ArgumentException.ThrowIfNullOrWhiteSpace(BaseUrl);
 
-        var server = new PhotinoServer {
+        var server = new InfiniFrameServer {
             WebApp = WebAppBuilder.Build(),
             BaseUrl = BaseUrl
         };

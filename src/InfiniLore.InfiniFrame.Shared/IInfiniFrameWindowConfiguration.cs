@@ -7,7 +7,7 @@ namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniWindowConfiguration : IInfiniWindowBase {
+public interface IInfiniFrameWindowConfiguration : IInfiniFrameWindowBase {
     bool Centered { get; set; }
     new bool Chromeless { get; set; }
     new bool Transparent { get; set; }

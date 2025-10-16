@@ -17,7 +17,7 @@ public class PhotinoBlazorApp(
     public void Run() {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        var window = provider.GetRequiredService<IInfiniWindow>();
+        var window = provider.GetRequiredService<IInfiniFrameWindow>();
 
         if (rootComponentConfiguration is not null) {
             foreach ((Type, string) component in rootComponents) {

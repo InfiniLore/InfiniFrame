@@ -1,9 +1,15 @@
-namespace InfiniLore.Photino.NET.Server;
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+namespace InfiniLore.InfiniFrame.Server;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
 /// The PhotinoServer class enables users to host their web projects in
 /// a static, local file server to prevent CORS and other issues.
 /// </summary>
-public class PhotinoServer {
+public class InfiniFrameServer {
     public WebApplication WebApp { get; internal init; } = null!;
     public string BaseUrl { get; internal init; } = null!;
 

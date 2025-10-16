@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Server;
 using InfiniLore.Photino.NET;
-using InfiniLore.Photino.NET.Server;
 using Tests.Shared.Photino;
 
 namespace Tests.Photino.Playwright.Utility;
@@ -14,7 +14,7 @@ using InfiniLore.Photino.Js.MessageHandlers;
 public static class GlobalPlaywrightContext {
     private static WindowServerTestUtility Utility { get; set; } = null!;
     public static IPhotinoWindow Window => Utility.Window;
-    public static PhotinoServer Server => Utility.Server;
+    public static InfiniFrameServer Server => Utility.Server;
 
     private const int ServerPort = 9000; // Cannot be the same as the debug port
     private const string PlaywrightDevtoolsPort = "9222";

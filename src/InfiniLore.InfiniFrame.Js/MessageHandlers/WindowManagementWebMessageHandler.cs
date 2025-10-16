@@ -10,7 +10,7 @@ public static class WindowManagementWebMessageHandler {
     private const string RegisterWindowClose = HandlerNames.InfiniWindowPrefix + "register:window:close";
     // private const string RegisterWindowOpen = HandlerNames.InfiniWindowPrefix + "register:window:open";
 
-    public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniWindowBuilder {
+    public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.MessageHandlers.RegisterMessageHandler(WindowMinimize, handler: static (window, _) => window.SetMinimized(true));
         builder.MessageHandlers.RegisterMessageHandler(WindowMaximize, handler: static (window, _) => window.SetMaximized(true));
         builder.MessageHandlers.RegisterMessageHandler(WindowClose, handler: static (window, _) => window.Close());

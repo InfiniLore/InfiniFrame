@@ -5,4 +5,4 @@ namespace InfiniLore.InfiniFrame.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal static class PhotinoJsAssemblyEntry;
+internal static class InfiniFrameJsAssemblyEntry;

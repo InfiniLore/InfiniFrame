@@ -2,14 +2,13 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniLore.InfiniFrame.Native;
-
-namespace InfiniLore.InfiniFrame;
 using System.Runtime.InteropServices;
 
+namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class PhotinoConfiguration : IPhotinoConfiguration {
+public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     public string? BrowserControlInitParameters { get; set; }
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }

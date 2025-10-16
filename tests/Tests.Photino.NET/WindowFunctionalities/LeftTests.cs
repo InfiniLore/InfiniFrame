@@ -16,7 +16,7 @@ public class LeftTests {
     [Test]
     public async Task Builder() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.SetLeft(Left);
@@ -32,8 +32,8 @@ public class LeftTests {
     [NotInParallel(ParallelControl.Photino)]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration {
+        var builder = InfiniFrameWindowBuilder.Create();
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration {
             Left = Left,
             UseOsDefaultLocation = false,
             Centered = false

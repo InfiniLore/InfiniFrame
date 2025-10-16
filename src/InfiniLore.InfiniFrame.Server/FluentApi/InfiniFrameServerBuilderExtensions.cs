@@ -1,23 +1,14 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniLore.InfiniFrame;
+namespace InfiniLore.InfiniFrame.Server;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-/// There can only be 1 message loop for all windows.
-/// </summary>
-internal static class MessageLoopState {
-    private static readonly Lock Lock = new();
-    private static bool IsStarted { get; set; }
-
-    public static bool TryAcquireFirstState() {
-        lock (Lock) {
-            if (IsStarted) return false;
-
-            IsStarted = true;
-            return true;
-        }
+public static class InfiniFrameServerBuilderExtensions {
+    public static InfiniFrameServerBuilder UsePort(this InfiniFrameServerBuilder builder, int port, int portRange = -1) {
+        builder.Port = port;
+        builder.PortRange = portRange;
+        return builder;
     }
 }

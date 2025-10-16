@@ -16,7 +16,7 @@ public class MaxWidthTests {
     [Test]
     public async Task Builder() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.SetMaxWidth(MaxWidth);

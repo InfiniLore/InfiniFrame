@@ -9,7 +9,7 @@ namespace InfiniLore.InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniWindowBuilderExtensions {
-    public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
+    public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MediaAutoplayEnabled = enable;
         return builder;
     }
@@ -17,7 +17,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets the user agent on the browser control at initialization.
     /// </summary>
-    public static T SetUserAgent<T>(this T builder, string userAgent) where T : IInfiniWindowBuilder {
+    public static T SetUserAgent<T>(this T builder, string userAgent) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.UserAgent = userAgent;
         return builder;
     }
@@ -25,7 +25,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets FileSystemAccessEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetFileSystemAccessEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
+    public static T SetFileSystemAccessEnabled<T>(this T builder, bool enable) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.FileSystemAccessEnabled = enable;
         return builder;
     }
@@ -33,7 +33,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets WebSecurityEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetWebSecurityEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
+    public static T SetWebSecurityEnabled<T>(this T builder, bool enable) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.WebSecurityEnabled = enable;
         return builder;
     }
@@ -41,7 +41,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets JavascriptClipboardAccessEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetJavascriptClipboardAccessEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
+    public static T SetJavascriptClipboardAccessEnabled<T>(this T builder, bool enable) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.JavascriptClipboardAccessEnabled = enable;
         return builder;
     }
@@ -49,7 +49,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets MediaStreamEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetMediaStreamEnabled<T>(this T builder, bool enable) where T : IInfiniWindowBuilder {
+    public static T SetMediaStreamEnabled<T>(this T builder, bool enable) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MediaStreamEnabled = enable;
         return builder;
     }
@@ -57,7 +57,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets SmoothScrollingEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetSmoothScrollingEnabled<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
+    public static T SetSmoothScrollingEnabled<T>(this T builder, bool enable = true) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.SmoothScrollingEnabled = enable;
         return builder;
     }
@@ -65,7 +65,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetIgnoreCertificateErrorsEnabled<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
+    public static T SetIgnoreCertificateErrorsEnabled<T>(this T builder, bool enable = true) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.IgnoreCertificateErrorsEnabled = enable;
         return builder;
     }
@@ -80,7 +80,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public static T SetNotificationsEnabled<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
+    public static T SetNotificationsEnabled<T>(this T builder, bool enable = true) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.NotificationsEnabled = enable;
         return builder;
     }
@@ -92,7 +92,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <remarks>
     ///     This only works on Windows.
     /// </remarks>
-    public static T GrantBrowserPermissions<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
+    public static T GrantBrowserPermissions<T>(this T builder, bool enable = true) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.GrantBrowserPermissions = enable;
         return builder;
     }
@@ -100,7 +100,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetHeight<T>(this T builder, int value) where T : IInfiniWindowBuilder => SetSize(builder, builder.Configuration.Width, value);
+    public static T SetHeight<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder => SetSize(builder, builder.Configuration.Width, value);
 
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
@@ -111,7 +111,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <value>
     ///     The file path to the icon.
     /// </value>
-    public static T SetIconFile<T>(this T builder, string? iconFilePath) where T : IInfiniWindowBuilder {
+    public static T SetIconFile<T>(this T builder, string? iconFilePath) where T : IInfiniFrameWindowBuilder {
         if (!IconFileUtilities.IsValidIconFile(iconFilePath)) return builder;
 
         builder.Configuration.IconFilePath = iconFilePath;
@@ -121,7 +121,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Location on the browser control at initialization.
     /// </summary>
-    public static T SetLocation<T>(this T builder, int left, int top) where T : IInfiniWindowBuilder {
+    public static T SetLocation<T>(this T builder, int left, int top) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Left = left;
         builder.Configuration.Top = top;
 
@@ -133,12 +133,12 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Location on the browser control at initialization.
     /// </summary>
-    public static T SetLocation<T>(this T builder, Point location) where T : IInfiniWindowBuilder => SetLocation(builder, location.X, location.Y);
+    public static T SetLocation<T>(this T builder, Point location) where T : IInfiniFrameWindowBuilder => SetLocation(builder, location.X, location.Y);
 
     /// <summary>
     ///     Sets Minimized on the browser control at initialization.
     /// </summary>
-    public static T SetMinimized<T>(this T builder, bool minimized) where T : IInfiniWindowBuilder {
+    public static T SetMinimized<T>(this T builder, bool minimized) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Minimized = minimized;
         return builder;
     }
@@ -146,7 +146,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Maximized on the browser control at initialization.
     /// </summary>
-    public static T SetMaximized<T>(this T builder, bool maximized) where T : IInfiniWindowBuilder {
+    public static T SetMaximized<T>(this T builder, bool maximized) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Maximized = maximized;
         return builder;
     }
@@ -154,7 +154,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets MaxWidth on the browser control at initialization.
     /// </summary>
-    public static T SetMaxWidth<T>(this T builder, int value) where T : IInfiniWindowBuilder {
+    public static T SetMaxWidth<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MaxWidth = value;
         return builder;
     }
@@ -162,7 +162,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets MaxHeight on the browser control at initialization.
     /// </summary>
-    public static T SetMaxHeight<T>(this T builder, int value) where T : IInfiniWindowBuilder {
+    public static T SetMaxHeight<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MaxHeight = value;
         return builder;
     }
@@ -170,7 +170,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets MinWidth on the browser control at initialization.
     /// </summary>
-    public static T SetMinWidth<T>(this T builder, int value) where T : IInfiniWindowBuilder {
+    public static T SetMinWidth<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MinWidth = Math.Max(0, value);
         return builder;
     }
@@ -178,25 +178,25 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets MinHeight on the browser control at initialization.
     /// </summary>
-    public static T SetMinHeight<T>(this T builder, int value) where T : IInfiniWindowBuilder {
+    public static T SetMinHeight<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MinHeight = Math.Max(0, value);
         return builder;
     }
 
-    public static T SetMinSize<T>(this T builder, int width, int height) where T : class, IInfiniWindowBuilder {
+    public static T SetMinSize<T>(this T builder, int width, int height) where T : class, IInfiniFrameWindowBuilder {
         builder.Configuration.MinHeight = Math.Max(0, height);
         builder.Configuration.MinWidth = Math.Max(0, width);
 
         return builder;
     }
 
-    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IInfiniWindowBuilder
+    public static T SetMinSize<T>(this T builder, Size minSize) where T : class, IInfiniFrameWindowBuilder
         => SetMinSize(builder, minSize.Width, minSize.Height);
 
     /// <summary>
     ///     Sets FullScreen on the browser control at initialization.
     /// </summary>
-    public static T SetFullScreen<T>(this T builder, bool fullscreen) where T : IInfiniWindowBuilder {
+    public static T SetFullScreen<T>(this T builder, bool fullscreen) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.FullScreen = fullscreen;
         return builder;
     }
@@ -204,7 +204,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Resizable on the browser control at initialization.
     /// </summary>
-    public static T SetResizable<T>(this T builder, bool resizable) where T : IInfiniWindowBuilder {
+    public static T SetResizable<T>(this T builder, bool resizable) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Resizable = resizable;
         return builder;
     }
@@ -212,12 +212,12 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Width on the browser control at initialization.
     /// </summary>
-    public static T SetWidth<T>(this T builder, int value) where T : IInfiniWindowBuilder => SetSize(builder, value, builder.Configuration.Height);
+    public static T SetWidth<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder => SetSize(builder, value, builder.Configuration.Height);
 
     /// <summary>
     ///     Sets Size on the browser control at initialization.
     /// </summary>
-    public static T SetSize<T>(this T builder, int width, int height) where T : IInfiniWindowBuilder {
+    public static T SetSize<T>(this T builder, int width, int height) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Width = Math.Max(0, width);
         builder.Configuration.Height = Math.Max(0, height);
 
@@ -229,7 +229,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Size on the browser control at initialization.
     /// </summary>
-    public static T SetSize<T>(this T builder, Size size) where T : IInfiniWindowBuilder => SetSize(builder, size.Width, size.Height);
+    public static T SetSize<T>(this T builder, Size size) where T : IInfiniFrameWindowBuilder => SetSize(builder, size.Width, size.Height);
 
     /// <summary>
     ///     Sets BrowserControlInitParameters on the browser control at initialization.
@@ -249,7 +249,7 @@ public static class InfiniWindowBuilderExtensions {
     ///         https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     ///     </remarks>
     /// </summary>
-    public static T SetBrowserControlInitParameters<T>(this T builder, string? parameters) where T : IInfiniWindowBuilder {
+    public static T SetBrowserControlInitParameters<T>(this T builder, string? parameters) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.BrowserControlInitParameters = parameters;
         return builder;
     }
@@ -257,7 +257,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets TemporaryFilesPath on the browser control at initialization.
     /// </summary>
-    public static T SetTemporaryFilesPath<T>(this T builder, string? path) where T : IInfiniWindowBuilder {
+    public static T SetTemporaryFilesPath<T>(this T builder, string? path) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.TemporaryFilesPath = path;
         return builder;
     }
@@ -271,7 +271,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public static T SetNotificationRegistrationId<T>(this T builder, string? id) where T : IInfiniWindowBuilder {
+    public static T SetNotificationRegistrationId<T>(this T builder, string? id) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.NotificationRegistrationId = id;
         return builder;
     }
@@ -279,7 +279,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Title on the browser control at initialization.
     /// </summary>
-    public static T SetTitle<T>(this T builder, string? title) where T : IInfiniWindowBuilder {
+    public static T SetTitle<T>(this T builder, string? title) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Title = title ?? string.Empty;
         return builder;
     }
@@ -287,7 +287,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets TopMost on the browser control at initialization.
     /// </summary>
-    public static T SetTopMost<T>(this T builder, bool topmost) where T : IInfiniWindowBuilder {
+    public static T SetTopMost<T>(this T builder, bool topmost) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.TopMost = topmost;
         return builder;
     }
@@ -295,7 +295,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets UseOsDefaultLocation on the browser control at initialization.
     /// </summary>
-    public static T SetUseOsDefaultLocation<T>(this T builder, bool useOsDefaultLocation) where T : IInfiniWindowBuilder {
+    public static T SetUseOsDefaultLocation<T>(this T builder, bool useOsDefaultLocation) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.UseOsDefaultLocation = useOsDefaultLocation;
         return builder;
     }
@@ -303,32 +303,32 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets UseOsDefaultSize on the browser control at initialization.
     /// </summary>
-    public static T SetUseOsDefaultSize<T>(this T builder, bool useOsDefaultSize) where T : IInfiniWindowBuilder {
+    public static T SetUseOsDefaultSize<T>(this T builder, bool useOsDefaultSize) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.UseOsDefaultSize = useOsDefaultSize;
         return builder;
     }
 
-    public static T SetZoom<T>(this T builder, int zoom) where T : IInfiniWindowBuilder {
+    public static T SetZoom<T>(this T builder, int zoom) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Zoom = zoom;
         return builder;
     }
 
-    public static T SetStartUrl<T>(this T builder, string? url) where T : IInfiniWindowBuilder {
+    public static T SetStartUrl<T>(this T builder, string? url) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.StartUrl = url;
         return builder;
     }
 
-    public static T SetStartUrl<T>(this T builder, Uri? url) where T : IInfiniWindowBuilder {
+    public static T SetStartUrl<T>(this T builder, Uri? url) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.StartUrl = url?.ToString();
         return builder;
     }
 
-    public static T SetStartString<T>(this T builder, string? startString) where T : IInfiniWindowBuilder {
+    public static T SetStartString<T>(this T builder, string? startString) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.StartString = startString;
         return builder;
     }
 
-    public static T SetChromeless<T>(this T builder, bool chromeless) where T : IInfiniWindowBuilder {
+    public static T SetChromeless<T>(this T builder, bool chromeless) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Chromeless = chromeless;
 
         if (!OperatingSystem.IsWindows()) return builder;
@@ -341,7 +341,7 @@ public static class InfiniWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetTransparent<T>(this T builder, bool transparent) where T : IInfiniWindowBuilder {
+    public static T SetTransparent<T>(this T builder, bool transparent) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Transparent = transparent;
         return builder;
     }
@@ -349,7 +349,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets SetCentered on the browser control at initialization.
     /// </summary>
-    public static T Center<T>(this T builder, bool enable = true) where T : IInfiniWindowBuilder {
+    public static T Center<T>(this T builder, bool enable = true) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Centered = enable;
         return builder;
     }
@@ -364,7 +364,7 @@ public static class InfiniWindowBuilderExtensions {
     ///     initialization.
     /// </remarks>
     /// <returns>
-    ///     Returns the current <see cref="IInfiniWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     /// <param name="builder"></param>
     /// <param name="scheme">The custom scheme</param>
@@ -373,7 +373,7 @@ public static class InfiniWindowBuilderExtensions {
     /// </param>
     /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
     /// <exception cref="ApplicationException">Thrown if more than 16 custom schemes were set</exception>
-    public static T RegisterCustomSchemeHandler<T>(this T builder, string scheme, NetCustomSchemeDelegate handler) where T : IInfiniWindowBuilder {
+    public static T RegisterCustomSchemeHandler<T>(this T builder, string scheme, NetCustomSchemeDelegate handler) where T : IInfiniFrameWindowBuilder {
         if (string.IsNullOrWhiteSpace(scheme)) throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
         if (handler is null) throw new ArgumentException("A handler (method) with a signature matching NetCustomSchemeDelegate must be supplied.");
 
@@ -389,7 +389,7 @@ public static class InfiniWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetLeft<T>(this T builder, int left) where T : IInfiniWindowBuilder {
+    public static T SetLeft<T>(this T builder, int left) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Left = left;
 
         builder.Configuration.UseOsDefaultLocation = false;
@@ -397,7 +397,7 @@ public static class InfiniWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetTop<T>(this T builder, int top) where T : IInfiniWindowBuilder {
+    public static T SetTop<T>(this T builder, int top) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Top = top;
 
         builder.Configuration.UseOsDefaultLocation = false;
@@ -405,23 +405,23 @@ public static class InfiniWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetContextMenuEnabled<T>(this T builder, bool enabled) where T : IInfiniWindowBuilder {
+    public static T SetContextMenuEnabled<T>(this T builder, bool enabled) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.ContextMenuEnabled = enabled;
         return builder;
     }
 
-    public static T SetDevToolsEnabled<T>(this T builder, bool enabled) where T : IInfiniWindowBuilder {
+    public static T SetDevToolsEnabled<T>(this T builder, bool enabled) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.DevToolsEnabled = enabled;
         return builder;
     }
 
-    public static T SetMaxSize<T>(this T builder, int width, int height) where T : IInfiniWindowBuilder {
+    public static T SetMaxSize<T>(this T builder, int width, int height) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MaxWidth = width;
         builder.Configuration.MaxHeight = height;
 
         return builder;
     }
 
-    public static T SetMaxSize<T>(this T builder, Size size) where T : IInfiniWindowBuilder
+    public static T SetMaxSize<T>(this T builder, Size size) where T : IInfiniFrameWindowBuilder
         => SetMaxSize(builder, size.Width, size.Height);
 }

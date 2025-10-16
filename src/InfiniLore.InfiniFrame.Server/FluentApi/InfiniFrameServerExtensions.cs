@@ -3,17 +3,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Reflection;
 
-namespace InfiniLore.Photino.NET.Server;
-using InfiniLore.Photino.Js;
-
+namespace InfiniLore.InfiniFrame.Server;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class PhotinoServerExtensions {
+public static class InfiniFrameServerExtensions {
 
-    public static PhotinoServer MapPhotinoJsEndpoints(this PhotinoServer server) {
+    public static InfiniFrameServer MapPhotinoJsEndpoints(this InfiniFrameServer server) {
         server.WebApp.MapGet("/_content/InfiniLore.InfiniFrame.Js/InfiniLore.Photino.js", requestDelegate: async context => {
-            Assembly assembly = typeof(PhotinoJsAssemblyEntry).Assembly;
+            Assembly assembly = typeof(InfiniFrameJsAssemblyEntry).Assembly;
             const string resourceName = "InfiniLore.InfiniFrame.Js.wwwroot.InfiniLore.Photino.js";
 
             await using Stream? stream = assembly.GetManifestResourceStream(resourceName);
@@ -30,8 +28,8 @@ public static class PhotinoServerExtensions {
         return server;
     }
 
-    public static IPhotinoWindowBuilder GetAttachedWindowBuilder(this PhotinoServer server) {
-        var builder = PhotinoWindowBuilder.Create();
+    public static IInfiniFrameWindowBuilder GetAttachedWindowBuilder(this InfiniFrameServer server) {
+        var builder = InfiniFrameWindowBuilder.Create();
         builder.Configuration.StartUrl = server.BaseUrl;
 
         return builder;

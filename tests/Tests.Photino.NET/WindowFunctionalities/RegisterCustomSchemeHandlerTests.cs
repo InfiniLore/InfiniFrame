@@ -20,7 +20,7 @@ public class RegisterCustomSchemeHandlerTests {
     [Test]
     public async Task Builder() {
         // Arrange
-        var builder = PhotinoWindowBuilder.Create();
+        var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
@@ -46,13 +46,13 @@ public class RegisterCustomSchemeHandlerTests {
     public async Task Window() {
         // Arrange
         using var windowUtility = WindowTestUtility.Create();
-        IInfiniWindow window = windowUtility.Window;
+        IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
         window.RegisterCustomSchemeHandler("app", EmptyHandler);
 
         // Assert
-        var windowCasted = window as PhotinoWindow;
+        var windowCasted = window as InfiniFrameWindow;
         Dictionary<string, NetCustomSchemeDelegate?>? customSchemes = windowCasted?.CustomSchemes;
         await Assert.That(customSchemes)
             .IsNotNull()
@@ -70,10 +70,10 @@ public class RegisterCustomSchemeHandlerTests {
             builder => builder
                 .RegisterCustomSchemeHandler("app", EmptyHandler)
         );
-        IInfiniWindow window = windowUtility.Window;
+        IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        var windowCasted = window as PhotinoWindow;
+        var windowCasted = window as InfiniFrameWindow;
         Dictionary<string, NetCustomSchemeDelegate?>? customSchemes = windowCasted?.CustomSchemes;
         await Assert.That(customSchemes)
             .IsNotNull()
