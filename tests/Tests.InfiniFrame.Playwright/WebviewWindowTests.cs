@@ -2,12 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Playwright;
-using Tests.InfiniFrame.Playwright.Utility;
 using Tests.Shared;
+using Tests.InfiniFrame.Playwright.Utility;
 
 namespace Tests.InfiniFrame.Playwright;
-using Tests.InfiniFrame.Playwright.Utility;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

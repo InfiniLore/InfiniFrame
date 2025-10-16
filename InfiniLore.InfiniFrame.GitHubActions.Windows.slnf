@@ -10,7 +10,7 @@
             "src\\InfiniLore.InfiniFrame.Native\\InfiniLore.InfiniFrame.Native.proj",
             
             "tests\\Tests.InfiniFrame\\Tests.InfiniFrame.csproj",
-            "tests\\Tests.Shared.InfiniFrame\\Tests.Shared.InfiniFrame.csproj"
+            "tests\\Tests.Shared\\Tests.Shared.csproj"
         ]
     }
 }

@@ -11,7 +11,7 @@
             
             "tests\\Tests.InfiniFrame\\Tests.InfiniFrame.csproj",
             "tests\\Tests.InfiniFrame.Playwright\\Tests.InfiniFrame.Playwright.csproj",
-            "tests\\Tests.Shared.InfiniFrame\\Tests.Shared.InfiniFrame.csproj"
+            "tests\\Tests.Shared\\Tests.Shared.csproj"
         ]
     }
 }

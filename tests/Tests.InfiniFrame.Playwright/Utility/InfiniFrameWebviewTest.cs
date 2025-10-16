@@ -15,7 +15,7 @@ public abstract class InfiniFrameWebviewTest : PageTest {
 
     /// <summary>
     /// Asynchronously retrieves a page object for the specified relative URL.
-    /// Relative to the root of the Photino application.
+    /// Relative to the root of the InfiniFrame application.
     /// </summary>
     /// <param name="relativeUrl">The relative URL of the page to retrieve.</param>
     /// <returns>An asynchronously resolved task containing the page object for the specified URL.</returns>
@@ -33,7 +33,7 @@ public abstract class InfiniFrameWebviewTest : PageTest {
 
     /// <summary>
     /// Asynchronously retrieves a browser context object for the specified relative URL.
-    /// Relative to the root of the Photino application.
+    /// Relative to the root of the InfiniFrame application.
     /// </summary>
     /// <param name="relativeUrl">The relative URL of the browser context to retrieve.</param>
     /// <returns>An asynchronously resolved task containing the browser context object for the specified URL.</returns>
