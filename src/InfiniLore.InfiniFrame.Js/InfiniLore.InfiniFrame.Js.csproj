@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniLore.Photino.Net"/>
-        <InternalsVisibleTo Include="InfiniLore.Photino.Net.Server"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame.Server"/>
     </ItemGroup>
 
     <ItemGroup>

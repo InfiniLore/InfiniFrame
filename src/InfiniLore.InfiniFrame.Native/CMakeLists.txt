@@ -144,7 +144,7 @@ if(WIN32)
     )
 
     # Resource file
-    target_sources(${PROJECT_NAME} PRIVATE InfiniFrame.Native.rc)
+    target_sources(${PROJECT_NAME} PRIVATE Photino.Native.rc)
 
     # Copy webview2loader to output
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
