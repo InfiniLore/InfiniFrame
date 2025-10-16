@@ -28,9 +28,9 @@
 
     <Target Name="BuildFrontend" BeforeTargets="Build">
         <Message Text="Installing npm packages" Importance="high"/>
-        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)/Source/Photino.Vue"/>
+        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)/Source/InfiniFrame.Vue"/>
         <Message Text="Building frontend with npm..." Importance="high"/>
-        <Exec Command="npm run vue-build" WorkingDirectory="$(ProjectDir)/Source/Photino.Vue"/>
+        <Exec Command="npm run vue-build" WorkingDirectory="$(ProjectDir)/Source/InfiniFrame.Vue"/>
     </Target>
 
 </Project>

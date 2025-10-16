@@ -1,12 +1,12 @@
 {
-  "name": "photino-vue",
+  "name": "InfiniFrame-vue",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "vue.fullscreen-dev": "vite",
-    "vue.fullscreen-build": "vue-tsc -b && vite build",
-    "vue.fullscreen-preview": "vite preview"
+    "vue-dev": "vite",
+    "vue-build": "vue-tsc -b && vite build",
+    "vue-preview": "vite preview"
   },
   "dependencies": {
     "vue": "^3.5.21"

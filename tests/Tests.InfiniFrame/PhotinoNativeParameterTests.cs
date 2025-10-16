@@ -10,9 +10,9 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class PhotinoNativeParameterTests {
+public class IInfiniFrameNativeParameterTests {
     
-    // This test only fails if the PhotinoNativeParameters C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.
+    // This test only fails if the IInfiniFrameNativeParameters C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.
     [Test]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]

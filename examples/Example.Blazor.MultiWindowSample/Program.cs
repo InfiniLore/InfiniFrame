@@ -1,11 +1,18 @@
-﻿using Example.Blazor.MultiWindowSample.Components;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using Example.Blazor.MultiWindowSample.Components;
+using InfiniLore.InfiniFrame;
 using InfiniLore.InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Example.Blazor.MultiWindowSample;
-static class Program {
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public static class Program {
 
-    private static readonly List<IPhotinoWindow> Windows = new List<IPhotinoWindow>();
+    private static readonly List<IInfiniFrameWindow> Windows = new();
 
     [STAThread]
     private static void Main(string[] args) {
@@ -38,7 +45,7 @@ static class Program {
         // customize a window
         
         Windows.Add(
-            PhotinoWindowBuilder.Create()
+            InfiniFrameWindowBuilder.Create()
                 .SetTitle(windowCreationArgs.Title)
                 .SetStartUrl(windowCreationArgs.HtmlPath)
                 .RegisterWindowCreatedHandler((_, _) => Task.Run(() => CreateWindows(appBuilder, windowsToCreate))) 
@@ -57,7 +64,7 @@ static class Program {
     }
 
     private static void CloseAllWindows() {
-        foreach (IPhotinoWindow window in Windows) {
+        foreach (IInfiniFrameWindow window in Windows) {
             window.Close();
         }
     }

@@ -1,4 +1,5 @@
-﻿using InfiniLore.InfiniFrame.Blazor;
+﻿using InfiniLore.InfiniFrame;
+using InfiniLore.InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -24,7 +25,7 @@ public static class Program {
         // register the root component and selector
         appBuilder.RootComponents.Add<App>("app");
 
-        appBuilder.WithPhotinoWindowBuilder(builder => {
+        appBuilder.WithInfiniFrameWindowBuilder(builder => {
             builder
                 // .SetTransparent(true)
                 .SetChromeless(true)

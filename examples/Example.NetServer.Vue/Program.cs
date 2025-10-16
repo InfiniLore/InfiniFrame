@@ -1,20 +1,21 @@
 ﻿using InfiniLore.InfiniFrame;
+using InfiniLore.InfiniFrame.Server;
 using System.Drawing;
 
 namespace Example.NetServer.Vue;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
-        photinoServerBuilder.UsePort(5173, 100);
+        var infiniFrameServerBuilder = InfiniFrameServerBuilder.Create("wwwroot", args);
+        infiniFrameServerBuilder.UsePort(5173, 100);
 
-        PhotinoServer photinoServer = photinoServerBuilder.Build();
-        photinoServer.Run();
+        InfiniFrameServer infiniFrameServer = infiniFrameServerBuilder.Build();
+        infiniFrameServer.Run();
 
-        IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
+        IInfiniFrameWindowBuilder windowBuilder = infiniFrameServer.GetAttachedWindowBuilder()
             .Center()
             .SetUseOsDefaultSize(false)
-            .SetTitle("InfiniLore Photino.NET VUE Sample")
+            .SetTitle("InfiniLore InfiniFrame.NET VUE Sample")
             .SetSize(new Size(800, 600))
             .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) => {
                 contentType = "text/javascript";
@@ -34,7 +35,7 @@ public static class Program {
                 window.SendWebMessage(response);
             });
 
-        IPhotinoWindow window = windowBuilder.Build();
+        IInfiniFrameWindow window = windowBuilder.Build();
 
         window.WaitForClose();
     }

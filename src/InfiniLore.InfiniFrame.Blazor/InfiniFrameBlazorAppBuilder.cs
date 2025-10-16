@@ -49,7 +49,7 @@ public class InfiniFrameBlazorAppBuilder {
         return appBuilder;
     }
 
-    public InfiniFrameBlazorAppBuilder WithPhotinoWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {
+    public InfiniFrameBlazorAppBuilder WithInfiniFrameWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {
         windowBuilder.Invoke(WindowBuilder);
         return this;
     }
