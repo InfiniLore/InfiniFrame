@@ -145,7 +145,16 @@ jobs:
                 run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf --configuration Release --no-restore
+                run: |
+                    # Build native project first
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                        --configuration Release `
+                        --no-restore
+                    
+                    # Then build the rest of the solution
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf `
+                        --configuration Release `
+                        --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
@@ -314,9 +323,15 @@ jobs:
 
             -   name: Build (Release)
                 run: |
+                    # Build native project first
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                        --configuration Release `
+                        --no-restore
+                    
+                    # Then build the rest of the solution
                     dotnet build InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
-                      --configuration Release `
-                      --no-restore
+                        --configuration Release `
+                        --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
