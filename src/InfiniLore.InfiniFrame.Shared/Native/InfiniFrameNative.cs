@@ -221,7 +221,7 @@ public static partial class InfiniFrameNative {
     internal static partial IntPtr ShowSaveFile(IntPtr inst, string title, string defaultPath, string[] filters, int filtersCount);
 
     [LibraryImport(DllName, EntryPoint = Photino_ShowMessage, SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial PhotinoDialogResult ShowMessage(IntPtr inst, string title, string text, PhotinoDialogButtons buttons, PhotinoDialogIcon icon);
+    internal static partial InfiniFrameDialogResult ShowMessage(IntPtr inst, string title, string text, InfiniFrameDialogButtons buttons, InfiniFrameDialogIcon icon);
     #endregion
 
     #region Overloads
@@ -258,7 +258,7 @@ public static partial class InfiniFrameNative {
 
     internal static void GetTitle(IntPtr instance, out string title) {
         IntPtr ptr = GetTitle(instance);
-        title = Marshal.PtrToStringAuto(ptr) ?? string.Empty;// The way on how photino works internally is that the title is always an empty string when we set it to null on our end.
+        title = Marshal.PtrToStringAuto(ptr) ?? string.Empty;// The way on how infiniFrame works internally is that the title is always an empty string when we set it to null on our end.
     }
     #endregion
 }

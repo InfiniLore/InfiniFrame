@@ -57,7 +57,7 @@ public class InfiniFrameBlazorApp(
         }
         catch (Exception e) {
             var logger = provider.GetService<ILogger<InfiniFrameBlazorApp>>();
-            logger?.LogError(e, "Error disposing of PhotinoBlazorApp");
+            logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
         }
 
         GC.SuppressFinalize(this);

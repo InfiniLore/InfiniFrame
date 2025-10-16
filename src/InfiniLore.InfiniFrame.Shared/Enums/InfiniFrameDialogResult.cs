@@ -2,7 +2,7 @@
 /// <summary>
 ///     Represents the result of a dialog interaction.
 /// </summary>
-public enum PhotinoDialogResult {
+public enum InfiniFrameDialogResult {
     /// <summary>
     ///     Represents the "Cancel" result of a dialog.
     /// </summary>

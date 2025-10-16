@@ -3,7 +3,7 @@ namespace InfiniLore.InfiniFrame;
 ///     Defines options for a dialog
 /// </summary>
 [Flags]
-public enum PhotinoDialogOptions : byte {
+public enum InfiniFrameDialogOptions : byte {
     /// <summary>
     ///     Represents no options for the dialog.
     /// </summary>

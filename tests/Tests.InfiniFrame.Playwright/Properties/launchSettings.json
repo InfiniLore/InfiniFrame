@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Tests.Photino.Playwright": {
+    "Tests.InfiniFrame.Playwright": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

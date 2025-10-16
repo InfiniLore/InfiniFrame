@@ -28,22 +28,22 @@ public class InfiniFrameServerTestUtility : IDisposable {
         
         var windowThread = new Thread(() => {
             try {
-                var photinoServerBuilder = InfiniFrameServerBuilder.Create();
-                serverBuilder?.Invoke(photinoServerBuilder);
+                var infiniFrameServerBuilder = InfiniFrameServerBuilder.Create();
+                serverBuilder?.Invoke(infiniFrameServerBuilder);
 
-                InfiniFrameServer photinoServer = photinoServerBuilder.Build();
+                InfiniFrameServer infiniFrameServer = infiniFrameServerBuilder.Build();
                 
-                photinoServer.MapInfiniFrameJsEndpoints();
-                photinoServer.Run();
+                infiniFrameServer.MapInfiniFrameJsEndpoints();
+                infiniFrameServer.Run();
 
-                IInfiniFrameWindowBuilder wb = photinoServer.GetAttachedWindowBuilder();
+                IInfiniFrameWindowBuilder wb = infiniFrameServer.GetAttachedWindowBuilder();
                 windowBuilder?.Invoke(wb);
                 
                 IInfiniFrameWindow window = wb.Build();
                 
                 utility = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
                     Window = window,
-                    Server = photinoServer
+                    Server = infiniFrameServer
                 };
                 
                 // Signal that creation is complete

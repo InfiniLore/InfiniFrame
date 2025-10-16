@@ -26,9 +26,9 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         if (provider is null) return Configuration.ToParameters();
 
         var config = provider.GetService<IConfiguration>();
-        var photinoConfiguration = config?.Get<IInfiniFrameWindowConfiguration>();
+        var infiniFrameConfiguration = config?.Get<IInfiniFrameWindowConfiguration>();
 
-        return photinoConfiguration?.ToParameters() ?? Configuration.ToParameters();
+        return infiniFrameConfiguration?.ToParameters() ?? Configuration.ToParameters();
     }
 
     private ILogger<InfiniFrameWindow> GetDefaultLogger() {

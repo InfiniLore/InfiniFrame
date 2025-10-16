@@ -6,7 +6,7 @@ namespace InfiniLore.InfiniFrame.Server;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-/// The PhotinoServer class enables users to host their web projects in
+/// The InfiniFrameServer class enables users to host their web projects in
 /// a static, local file server to prevent CORS and other issues.
 /// </summary>
 public class InfiniFrameServer {

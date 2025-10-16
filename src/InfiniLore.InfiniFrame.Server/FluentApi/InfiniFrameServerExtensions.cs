@@ -11,9 +11,9 @@ namespace InfiniLore.InfiniFrame.Server;
 public static class InfiniFrameServerExtensions {
 
     public static InfiniFrameServer MapInfiniFrameJsEndpoints(this InfiniFrameServer server) {
-        server.WebApp.MapGet("/_content/InfiniLore.InfiniFrame.Js/InfiniLore.Photino.js", requestDelegate: async context => {
+        server.WebApp.MapGet("/_content/InfiniLore.InfiniFrame.Js/InfiniLore.InfiniFrame.js", requestDelegate: async context => {
             Assembly assembly = typeof(InfiniFrameJsAssemblyEntry).Assembly;
-            const string resourceName = "InfiniLore.InfiniFrame.Js.wwwroot.InfiniLore.Photino.js";
+            const string resourceName = "InfiniLore.InfiniFrame.Js.wwwroot.InfiniLore.InfiniFrame.js";
 
             await using Stream? stream = assembly.GetManifestResourceStream(resourceName);
             if (stream == null) {

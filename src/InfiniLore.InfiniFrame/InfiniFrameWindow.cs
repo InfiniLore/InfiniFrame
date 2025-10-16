@@ -94,7 +94,7 @@ public sealed class InfiniFrameWindow(
     ///     Gets a unique GUID to identify the native window.
     /// </summary>
     /// <remarks>
-    ///     This property is not currently used by the Photino framework.
+    ///     This property is not currently used by the InfiniFrame framework.
     /// </remarks>
     public Guid Id { get; } = Guid.NewGuid();
 
@@ -335,7 +335,7 @@ public sealed class InfiniFrameWindow(
 
     /// <summary>
     ///     Gets or sets the native window title.
-    ///     Default is "Photino".
+    ///     Default is "InfiniFrame".
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string Title => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetTitle) ?? string.Empty;
@@ -618,13 +618,13 @@ public sealed class InfiniFrameWindow(
     /// </exception>
     /// <param name="title">Title of the dialog</param>
     /// <param name="text">Text of the dialog</param>
-    /// <param name="buttons">Available interaction buttons <see cref="PhotinoDialogButtons" /></param>
-    /// <param name="icon">Icon of the dialog <see cref="PhotinoDialogButtons" /></param>
+    /// <param name="buttons">Available interaction buttons <see cref="InfiniFrameDialogButtons" /></param>
+    /// <param name="icon">Icon of the dialog <see cref="InfiniFrameDialogButtons" /></param>
     /// <returns>
-    ///     <see cref="PhotinoDialogResult" />
+    ///     <see cref="InfiniFrameDialogResult" />
     /// </returns>
-    public PhotinoDialogResult ShowMessage(string title, string? text, PhotinoDialogButtons buttons = PhotinoDialogButtons.Ok, PhotinoDialogIcon icon = PhotinoDialogIcon.Info) {
-        var result = PhotinoDialogResult.Cancel;
+    public InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info) {
+        var result = InfiniFrameDialogResult.Cancel;
         Invoke(() => result = InfiniFrameNative.ShowMessage(InstanceHandle, title, text ?? string.Empty, buttons, icon));
         return result;
     }

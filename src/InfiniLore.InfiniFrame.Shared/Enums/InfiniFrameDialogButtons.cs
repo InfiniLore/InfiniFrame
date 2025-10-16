@@ -2,7 +2,7 @@ namespace InfiniLore.InfiniFrame;
 /// <summary>
 ///     Represents the types of buttons that can be displayed in a Photino-dialog.
 /// </summary>
-public enum PhotinoDialogButtons {
+public enum InfiniFrameDialogButtons {
     /// <summary>
     ///     Represents a dialog with an OK button.
     /// </summary>
