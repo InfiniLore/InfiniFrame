@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.Js</PackageId>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="InfiniLore.Photino.Net"/>
+        <InternalsVisibleTo Include="InfiniLore.Photino.Net.Server"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="wwwroot/InfiniLore.Photino.js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\InfiniLore.InfiniFrame.Shared\InfiniLore.InfiniFrame.Shared.csproj" />
+    </ItemGroup>
+
+</Project>

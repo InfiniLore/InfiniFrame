@@ -1,0 +1,177 @@
+﻿@using InfiniLore.Photino.Js
+@using InfiniLore.InfiniFrame.NET
+@using Microsoft.AspNetCore.Components.Web
+
+@namespace InfiniLore.Photino.Blazor
+
+@inherits ComponentBase
+@implements IDisposable
+
+@inject IPhotinoWindow PhotinoWindow
+@inject IInfiniWindowJs InfiniWindowJs 
+
+@* ReSharper disable CSharpWarnings::CS8974 *@
+@if (!_hidden) {
+    <div @ref="_thumbReference"
+         style="position: absolute; z-index: @ZIndex; left: @_left; top: @_top; width: @_width; height: @_height; cursor: @_cursor;"
+         onpointerdown="@OnPointerDown"
+         onpointerup="@OnPointerUp"
+         onpointermove="@OnPointerMove"
+    >
+        @* ReSharper restore CSharpWarnings::CS8974 *@
+    </div>
+}
+
+@code {
+    [EditorRequired, Parameter] public ResizeOrigin ResizeThumb { get; set; }
+    [Parameter] public int ResizeArea { get; set; } = ResizeAreaValue;
+    [Parameter] public int ZIndex { get; set; } = ZIndexValue;
+    internal const int ZIndexValue = 1000;
+    internal const int ResizeAreaValue = 10;
+
+    private ElementReference _thumbReference;
+    private bool _suppressRender;
+    private bool _isGrabbing;
+    private bool _hidden;
+    
+    private string _left = string.Empty;
+    private string _top = string.Empty;
+    private string _width = string.Empty;
+    private string _height = string.Empty;
+    private string _cursor = string.Empty;
+
+    protected override void OnParametersSet() {
+        base.OnParametersSet();
+        
+        UpdateStyleFields();
+    }
+
+    protected override bool ShouldRender() {
+        if (!base.ShouldRender()) return false;
+
+        // Reset every time to ensure we don't render until we're ready.
+        if (!_suppressRender) return true;
+
+        _suppressRender = false;
+        return false;
+    }
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+
+        PhotinoWindow.Events.WindowMaximized += OnMaximized;
+        PhotinoWindow.Events.WindowRestored += OnRestored;
+    }
+
+    public void Dispose() {
+        PhotinoWindow.Events.WindowMaximized -= OnMaximized;
+        PhotinoWindow.Events.WindowRestored -= OnRestored;
+    }
+
+    private void OnMaximized(object? sender, EventArgs eventArgs) {
+        _hidden = true;
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void OnRestored(object? sender, EventArgs eventArgs) {
+        _hidden = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateStyleFields() {
+        switch (ResizeThumb) {
+            case ResizeOrigin.TopLeft: {
+                _width = $"{ResizeArea}px";
+                _height = $"{ResizeArea}px";
+                _left = "0";
+                _top = "0";
+                _cursor = "nw-resize";
+                return;
+            }
+
+            case ResizeOrigin.Top: {
+                _width = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
+                _height = $"{ResizeArea}px";
+                _left = $"{ResizeArea}px";
+                _top = "0";
+                _cursor = "n-resize";
+                return;
+            }
+
+            case ResizeOrigin.TopRight: {
+                _width = $"{ResizeArea}px";
+                _height = $"{ResizeArea}px";
+                _left = $"calc(100% - {ResizeArea}px)";
+                _top = "0";
+                _cursor = "ne-resize";
+                return;
+            }
+
+            case ResizeOrigin.Right: {
+                _width = $"{ResizeArea}px";
+                _height = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
+                _left = $"calc(100% - {ResizeArea}px)";
+                _top = $"{ResizeArea}px";
+                _cursor = "e-resize";
+                return;
+            }
+
+            case ResizeOrigin.BottomRight: {
+                _width = $"{ResizeArea}px";
+                _height = $"{ResizeArea}px";
+                _left = $"calc(100% - {ResizeArea}px)";
+                _top = $"calc(100% - {ResizeArea}px)";
+                _cursor = "se-resize";
+                return;
+            }
+
+            case ResizeOrigin.Bottom: {
+                _width = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
+                _height = $"{ResizeArea}px";
+                _left = $"{ResizeArea}px";
+                _top = $"calc(100% - {ResizeArea}px)";
+                _cursor = "s-resize";
+                return;
+            }
+
+            case ResizeOrigin.BottomLeft: {
+                _width = $"{ResizeArea}px";
+                _height = $"{ResizeArea}px";
+                _left = "0";
+                _top = $"calc(100% - {ResizeArea}px)";
+                _cursor = "sw-resize";
+                return;
+            }
+
+            case ResizeOrigin.Left: {
+                _width = $"{ResizeArea}px";
+                _height = $"calc(100% - {ResizeArea}px - {ResizeArea}px)";
+                _left = "0";
+                _top = $"{ResizeArea}px";
+                _cursor = "w-resize";
+                return;
+            }
+
+            default: throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private async Task OnPointerDown(PointerEventArgs args) {
+        // Because we do change the whole view, we need to rerender render.
+        _isGrabbing = true;
+        await InfiniWindowJs.SetPointerCaptureAsync(_thumbReference, args.PointerId);
+    }
+
+    private async Task OnPointerUp(PointerEventArgs args) {
+        // Because we do change the whole view, we need to rerender render.
+        _isGrabbing = false;
+        await InfiniWindowJs.ReleasePointerCaptureAsync(_thumbReference, args.PointerId);
+    }
+
+    private void OnPointerMove(PointerEventArgs args) {
+        _suppressRender = true;
+        if (!_isGrabbing) return;
+
+        PhotinoWindow.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
+    }
+}

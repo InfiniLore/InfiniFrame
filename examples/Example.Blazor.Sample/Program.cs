@@ -1,4 +1,4 @@
-﻿using InfiniLore.Photino.Blazor;
+﻿using InfiniLore.InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;

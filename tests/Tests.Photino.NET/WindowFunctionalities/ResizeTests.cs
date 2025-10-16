@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniLore.Photino.NET;
+using InfiniLore.InfiniFrame.NET;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.Photino;

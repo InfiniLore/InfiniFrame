@@ -3,8 +3,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace Tests.Shared.Photino;
-using InfiniLore.Photino.NET;
-using InfiniLore.Photino.NET.Server;
+using InfiniLore.InfiniFrame.NET;
+using InfiniLore.InfiniFrame.NET.Server;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
