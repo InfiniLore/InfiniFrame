@@ -1,13 +1,13 @@
 <Solution>
   <Folder Name="/.dev-tools/">
     <File Path=".gitignore" />
-    <File Path="InfiniLore.Photino.GitHubActions.slnf" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.slnf" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="Directory.Packages.props" />
-    <File Path="InfiniLore.Photino.GitHubActions.Linux.slnf" />
-    <File Path="InfiniLore.Photino.GitHubActions.Windows.slnf" />
-    <File Path="InfiniLore.Photino.GitHubActions.MacOs.slnf" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.Linux.slnf" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.Windows.slnf" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\release.yml" />

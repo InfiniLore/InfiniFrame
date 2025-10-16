@@ -27,7 +27,7 @@
 
     /* Modules */
     "module": "commonjs",                                  /* Specify what module code is generated. */
-    "rootDir": "./src/InfiniLore.Photino.Js/TsSource/",                                /* Specify the root folder within your source files. */
+    "rootDir": "./src/InfiniLore.InfiniFrame.Js/TsSource/",                                /* Specify the root folder within your source files. */
     // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
@@ -111,7 +111,7 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "./src/InfiniLore.Photino.Js/TsSource/**/*.ts" // Include all .ts files in this directory
+    "./src/InfiniLore.InfiniFrame.Js/TsSource/**/*.ts" // Include all .ts files in this directory
   ],
   "exclude": [
     "node_modules"

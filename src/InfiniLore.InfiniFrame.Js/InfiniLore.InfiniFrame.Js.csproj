@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="wwwroot/InfiniLore.Photino.js"/>
+        <EmbeddedResource Include="wwwroot/InfiniLore.InfiniFrame.js"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -1,5 +1,5 @@
 {
-  "name": "infinilore.photino",
+  "name": "infinilore.infiniframe",
   "version": "0.1.0",
   "scripts": {
     "production:build": "npx webpack --env production=true",
