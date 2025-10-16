@@ -1,15 +1,19 @@
-﻿using InfiniLore.Photino.NET;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using System.Collections.Immutable;
 using System.Drawing;
 
-namespace InfiniLore.Photino.Utilities;
-using InfiniLore.Photino.Native;
-
+namespace InfiniLore.InfiniFrame.Utilities;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 internal static class MonitorsUtility {
-    public static ImmutableArray<Monitor> GetMonitors(IPhotinoWindow window) {
+    public static ImmutableArray<Monitor> GetMonitors(IInfiniWindow window) {
         ImmutableArray<Monitor>.Builder builder = ImmutableArray.CreateBuilder<Monitor>();
 
-        PhotinoNative.GetAllMonitors(window.InstanceHandle, Callback);
+        InfiniFrameNative.GetAllMonitors(window.InstanceHandle, Callback);
         return builder.ToImmutable();
 
         int Callback(in NativeMonitor monitor) {
@@ -73,9 +77,9 @@ internal static class MonitorsUtility {
         return true;
     }
 
-    public static bool TryGetCurrentWindowAndMonitor(IPhotinoWindow window, out Rectangle windowRect, out Monitor monitor) {
+    public static bool TryGetCurrentWindowAndMonitor(IInfiniWindow window, out Rectangle windowRect, out Monitor monitor) {
         ImmutableArray<Monitor> monitors = GetMonitors(window);
-        PhotinoNative.GetWindowRectangle(window.InstanceHandle, out windowRect);
+        InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out windowRect);
         return TryGetCurrentMonitor(monitors, windowRect, out monitor);
     }
 }

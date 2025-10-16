@@ -3,7 +3,6 @@
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.NET.Server</PackageId>
         <OutputType>Library</OutputType>
-        <RootNamespace>InfiniLore.Photino.NET.Server</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using InfiniLore.InfiniFrame.NET;
 using System.Drawing;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.Photino.Native;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ public class LocationTests {
         await Assert.That(builder.Configuration.Left).IsEqualTo(Left);
         await Assert.That(builder.Configuration.Top).IsEqualTo(Top);
         
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.Left).IsEqualTo(Left);
         await Assert.That(configParameters.Top).IsEqualTo(Top);
     }
@@ -37,7 +37,7 @@ public class LocationTests {
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
-        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration {
+        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration {
             Left = Left,
             Top = Top,
             UseOsDefaultLocation = false,
@@ -54,7 +54,7 @@ public class LocationTests {
         await Assert.That(builder.Configuration.UseOsDefaultLocation).IsEqualTo(false);
         await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
         
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
     

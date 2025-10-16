@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using InfiniLore.InfiniFrame.NET;
 using System.Drawing;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.Photino.Native;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ public class MinSizeTests {
         await Assert.That(builder.Configuration.MinWidth).IsEqualTo(Width);
         await Assert.That(builder.Configuration.MinHeight).IsEqualTo(Height);
 
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.MinWidth).IsEqualTo(Width);
         await Assert.That(configParameters.MinHeight).IsEqualTo(Height);
     }

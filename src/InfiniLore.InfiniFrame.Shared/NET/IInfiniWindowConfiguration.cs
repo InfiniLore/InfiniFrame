@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniLore.Photino.Native;
+using InfiniLore.InfiniFrame.Native;
 
 namespace InfiniLore.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -49,5 +49,5 @@ public interface IInfiniWindowConfiguration : IInfiniWindowBase {
     new int Zoom { get; set; }
     new bool ZoomEnabled { get; set; }
 
-    PhotinoNativeParameters ToParameters();
+    InfiniFrameNativeParameters ToParameters();
 }

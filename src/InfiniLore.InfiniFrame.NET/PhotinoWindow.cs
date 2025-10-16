@@ -1,10 +1,10 @@
+using InfiniLore.InfiniFrame.Native;
+using InfiniLore.InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using InfiniLore.Photino.Native;
-using InfiniLore.Photino.Utilities;
 
 namespace InfiniLore.InfiniFrame.NET;
 using InfiniLore.InfiniFrame;
@@ -21,7 +21,7 @@ public sealed class PhotinoWindow(
     public IntPtr NativeType => WindowType.Value;
 
     public IntPtr InstanceHandle { get; private set; }
-    public PhotinoNativeParameters StartupParameters;
+    public InfiniFrameNativeParameters StartupParameters;
 
     ILogger<IInfiniWindow> IInfiniWindow.Logger => logger;
 
@@ -50,7 +50,7 @@ public sealed class PhotinoWindow(
     /// <exception cref="System.PlatformNotSupportedException">Thrown when accessed from a non-Windows platform.</exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public IntPtr WindowHandle => OperatingSystem.IsWindows()
-        ? InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetWindowHandlerWin32)
+        ? InvokeUtilities.InvokeAndReturn(this, InfiniFrameNative.GetWindowHandlerWin32)
         : IntPtr.Zero;
 
     /// <summary>
@@ -85,7 +85,7 @@ public sealed class PhotinoWindow(
     ///     An ApplicationException is thrown if the window hasn't been initialized yet.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public uint ScreenDpi => InvokeUtilities.InvokeAndReturn(this, PhotinoNative.GetScreenDpi);
+    public uint ScreenDpi => InvokeUtilities.InvokeAndReturn(this, InfiniFrameNative.GetScreenDpi);
 
     /// <summary>
     ///     Gets a unique GUID to identify the native window.
@@ -117,48 +117,48 @@ public sealed class PhotinoWindow(
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool Transparent => OperatingSystem.IsWindows()
         ? StartupParameters.Transparent// on windows it can only be set at startup
-        : InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTransparentEnabled);
+        : InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetTransparentEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's context menu.
     ///     By default, this is set to true.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool ContextMenuEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetContextMenuEnabled);
+    public bool ContextMenuEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetContextMenuEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's developer tools.
     ///     By default, this is set to true.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool DevToolsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetDevToolsEnabled);
+    public bool DevToolsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetDevToolsEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool MediaAutoplayEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMediaAutoplayEnabled);
+    public bool MediaAutoplayEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMediaAutoplayEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? UserAgent => InvokeUtilities.InvokeAndReturn<string?>(this, PhotinoNative.GetUserAgent);
+    public string? UserAgent => InvokeUtilities.InvokeAndReturn<string?>(this, InfiniFrameNative.GetUserAgent);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool FileSystemAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetFileSystemAccessEnabled);
+    public bool FileSystemAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFileSystemAccessEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool WebSecurityEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetWebSecurityEnabled);
+    public bool WebSecurityEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetWebSecurityEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool JavascriptClipboardAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetJavascriptClipboardAccessEnabled);
+    public bool JavascriptClipboardAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetJavascriptClipboardAccessEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool MediaStreamEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMediaStreamEnabled);
+    public bool MediaStreamEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMediaStreamEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool SmoothScrollingEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetSmoothScrollingEnabled);
+    public bool SmoothScrollingEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetSmoothScrollingEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool IgnoreCertificateErrorsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetIgnoreCertificateErrorsEnabled);
+    public bool IgnoreCertificateErrorsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetIgnoreCertificateErrorsEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool NotificationsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetNotificationsEnabled);
+    public bool NotificationsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetNotificationsEnabled);
 
     /// <summary>
     ///     This property returns or sets the fullscreen status of the window.
@@ -166,21 +166,21 @@ public sealed class PhotinoWindow(
     ///     By default, this is set to false.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool FullScreen => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetFullScreen);
+    public bool FullScreen => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFullScreen);
 
     /// <summary>
     ///     Gets whether the native browser control grants all requests for access to local resources
     ///     such as the user's camera and microphone. By default, this is set to true.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool GrantBrowserPermissions => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetGrantBrowserPermissions);
+    public bool GrantBrowserPermissions => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetGrantBrowserPermissions);
 
     /// <summary>
     ///     Gets or Sets the Height property of the native window in pixels.
     ///     The default value is 0.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Height => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetHeight);
+    public int Height => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetHeight);
 
     /// <summary>
     ///     Gets or sets the icon file for the native window title bar.
@@ -193,7 +193,7 @@ public sealed class PhotinoWindow(
     ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Point Location => InvokeUtilities.InvokeAndReturn<Point>(this, PhotinoNative.GetPosition);
+    public Point Location => InvokeUtilities.InvokeAndReturn<Point>(this, InfiniFrameNative.GetPosition);
 
     /// <summary>
     ///     Gets or sets the native window Left (X) coordinate in pixels.
@@ -201,14 +201,14 @@ public sealed class PhotinoWindow(
     ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Left => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetLeft);
+    public int Left => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetLeft);
 
     /// <summary>
     ///     Gets or sets whether the native window is maximized.
     ///     Default is false.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Maximized => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMaximized);
+    public bool Maximized => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMaximized);
 
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
     public Size MaxSize {
@@ -230,7 +230,7 @@ public sealed class PhotinoWindow(
     ///     Default is false.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Minimized => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetMinimized);
+    public bool Minimized => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMinimized);
 
     ///<summary>Gets or set the minimum size of the native window in pixels.</summary>
     public Size MinSize {
@@ -252,14 +252,14 @@ public sealed class PhotinoWindow(
     ///     Default is true.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Resizable => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetResizable);
+    public bool Resizable => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetResizable);
 
     /// <summary>
     ///     Gets or sets the native window Size. This represents the width and the height of the window in pixels.
     ///     The default Size is 0,0.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size Size => InvokeUtilities.InvokeAndReturn<Size>(this, PhotinoNative.GetSize);
+    public Size Size => InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetSize);
 
     /// <summary>
     ///     Gets or sets platform-specific initialization parameters for the native browser control on startup.
@@ -335,28 +335,28 @@ public sealed class PhotinoWindow(
     ///     Default is "Photino".
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, PhotinoNative.GetTitle) ?? string.Empty;
+    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetTitle) ?? string.Empty;
 
     /// <summary>
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
     ///     Default is 0.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Top => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetTop);
+    public int Top => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetTop);
 
     /// <summary>
     ///     Gets or sets whether the native window is always at the top of the z-order.
     ///     Default is false.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool TopMost => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetTopmost);
+    public bool TopMost => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetTopmost);
 
     /// <summary>
     ///     Gets or Sets the native window width in pixels.
     ///     Default is 0.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Width => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetWidth);
+    public int Width => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetWidth);
 
     /// <summary>
     ///     Gets or sets the native browser control <see cref="PhotinoWindow.Zoom" />.
@@ -364,10 +364,10 @@ public sealed class PhotinoWindow(
     /// </summary>
     /// <example>100 = 100%, 50 = 50%</example>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Zoom => InvokeUtilities.InvokeAndReturn<int>(this, PhotinoNative.GetZoom);
+    public int Zoom => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetZoom);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool ZoomEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, PhotinoNative.GetZoomEnabled);
+    public bool ZoomEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetZoomEnabled);
     #endregion
 
     public void Initialize() {
@@ -382,7 +382,7 @@ public sealed class PhotinoWindow(
             ? parent.InstanceHandle
             : IntPtr.Zero;
 
-        if (!PhotinoNativeParametersValidator.Validate(StartupParameters, logger)) {
+        if (!InfiniFrameNativeParametersValidator.Validate(StartupParameters, logger)) {
             logger.LogCritical("Startup Parameters Are Not Valid, please check the logs");
             throw new ArgumentException("Startup Parameters Are Not Valid, please check the logs");
         }
@@ -392,11 +392,11 @@ public sealed class PhotinoWindow(
         //All C++ exceptions will bubble up to here.
         try {
             if (OperatingSystem.IsWindows())
-                Invoke(() => PhotinoNative.RegisterWin32(NativeType));
+                Invoke(() => InfiniFrameNative.RegisterWin32(NativeType));
             else if (OperatingSystem.IsMacOS())
-                Invoke(() => PhotinoNative.RegisterMac());
+                Invoke(() => InfiniFrameNative.RegisterMac());
 
-            Invoke(() => InstanceHandle = PhotinoNative.Constructor(ref StartupParameters));
+            Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(ref StartupParameters));
         }
         catch (Exception ex) {
             int lastError = 0;
@@ -420,7 +420,7 @@ public sealed class PhotinoWindow(
     public void Invoke(Action workItem) {
         // If we're already on the UI thread, no need to dispatch
         if (Environment.CurrentManagedThreadId == ManagedThreadId) workItem();
-        else PhotinoNative.Invoke(InstanceHandle, workItem.Invoke);
+        else InfiniFrameNative.Invoke(InstanceHandle, workItem.Invoke);
     }
 
     /// <summary>
@@ -439,7 +439,7 @@ public sealed class PhotinoWindow(
 
         try {
             logger.LogDebug("Starting message loop. There can only be 1 message loop for all windows.");
-            Invoke(() => PhotinoNative.WaitForExit(InstanceHandle));
+            Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
         }
         catch (Exception ex) {
             int lastError = 0;
@@ -460,7 +460,7 @@ public sealed class PhotinoWindow(
     public void Close() {
         logger.LogDebug(".Close()");
         Events.OnWindowClosingRequested();
-        Invoke(() => PhotinoNative.Close(InstanceHandle));
+        Invoke(() => InfiniFrameNative.Close(InstanceHandle));
     }
 
     /// <summary>
@@ -475,13 +475,13 @@ public sealed class PhotinoWindow(
     /// <param name="message">Message as string</param>
     public void SendWebMessage(string message) {
         logger.LogDebug(".SendWebMessage({Message})", message);
-        Invoke(() => PhotinoNative.SendWebMessage(InstanceHandle, message));
+        Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
     }
 
     public async Task SendWebMessageAsync(string message) {
         await Task.Run(() => {
             logger.LogDebug(".SendWebMessage({Message})", message);
-            Invoke(() => PhotinoNative.SendWebMessage(InstanceHandle, message));
+            Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
         });
     }
 
@@ -496,7 +496,7 @@ public sealed class PhotinoWindow(
     /// <param name="body">The text of the notification</param>
     public void SendNotification(string title, string body) {
         logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
-        Invoke(() => PhotinoNative.ShowNotification(InstanceHandle, title, body));
+        Invoke(() => InfiniFrameNative.ShowNotification(InstanceHandle, title, body));
     }
 
     /// <summary>
@@ -583,7 +583,7 @@ public sealed class PhotinoWindow(
         string[] nativeFilters = GetNativeFilters(filters);
 
         Invoke(() => {
-            IntPtr ptrResult = PhotinoNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length);
+            IntPtr ptrResult = InfiniFrameNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length);
             result = Marshal.PtrToStringAuto(ptrResult);
         });
 
@@ -622,7 +622,7 @@ public sealed class PhotinoWindow(
     /// </returns>
     public PhotinoDialogResult ShowMessage(string title, string? text, PhotinoDialogButtons buttons = PhotinoDialogButtons.Ok, PhotinoDialogIcon icon = PhotinoDialogIcon.Info) {
         var result = PhotinoDialogResult.Cancel;
-        Invoke(() => result = PhotinoNative.ShowMessage(InstanceHandle, title, text ?? string.Empty, buttons, icon));
+        Invoke(() => result = InfiniFrameNative.ShowMessage(InstanceHandle, title, text ?? string.Empty, buttons, icon));
         return result;
     }
 
@@ -643,7 +643,7 @@ public sealed class PhotinoWindow(
         string[] nativeFilters = GetNativeFilters(filters, foldersOnly);
 
         Invoke(() => {
-            IntPtr ptrResults = foldersOnly ? PhotinoNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out int resultCount) : PhotinoNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount);
+            IntPtr ptrResults = foldersOnly ? InfiniFrameNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out int resultCount) : InfiniFrameNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount);
 
             if (resultCount == 0) return;
 
@@ -694,7 +694,7 @@ public sealed class PhotinoWindow(
 
         scheme = scheme.ToLower();
 
-        PhotinoNative.AddCustomSchemeName(InstanceHandle, scheme);
+        InfiniFrameNative.AddCustomSchemeName(InstanceHandle, scheme);
 
         customSchemes.TryAdd(scheme, null);
         customSchemes[scheme] += handler;

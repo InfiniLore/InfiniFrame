@@ -1,10 +1,16 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static InfiniLore.Photino.Native.NativeDll;
+using static InfiniLore.InfiniFrame.Native.NativeDll;
 
-namespace InfiniLore.Photino.Native;
-public static partial class PhotinoNative {
+namespace InfiniLore.InfiniFrame.Native;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public static partial class InfiniFrameNative {
     #region Register
     // ReSharper disable once UnusedMethodReturnValue.Local
     [LibraryImport(DllName, EntryPoint = Photino_register_win32, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -20,7 +26,7 @@ public static partial class PhotinoNative {
     //Not useful to use LibraryImport when passing a user-defined type.
     //See https://stackoverflow.com/questions/77770231/libraryimport-the-type-is-not-supported-by-source-generated-p-invokes
     [DllImport(DllName, EntryPoint = Photino_ctor, CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Ansi)]
-    internal static extern IntPtr Constructor(ref PhotinoNativeParameters parameters);
+    internal static extern IntPtr Constructor(ref InfiniFrameNativeParameters parameters);
     #pragma warning restore SYSLIB1054
 
     [LibraryImport(DllName, EntryPoint = Photino_dtor), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

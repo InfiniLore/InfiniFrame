@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using InfiniLore.InfiniFrame.Native;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.InfiniFrame.NET;
 using InfiniLore.InfiniFrame;
-using InfiniLore.Photino.Native;
 
 public class PhotinoWindowBuilder : IInfiniWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
@@ -18,7 +18,7 @@ public class PhotinoWindowBuilder : IInfiniWindowBuilder {
 
     public static PhotinoWindowBuilder Create() => new();
 
-    private PhotinoNativeParameters GetParameters(IServiceProvider? provider = null) {
+    private InfiniFrameNativeParameters GetParameters(IServiceProvider? provider = null) {
         if (provider is null) return Configuration.ToParameters();
 
         var config = provider.GetService<IConfiguration>();
@@ -51,7 +51,7 @@ public class PhotinoWindowBuilder : IInfiniWindowBuilder {
         Events.WebMessageReceived += MessageHandlers.Handle;
 
         //These are for the callbacks from C++ to C#.
-        PhotinoNativeParameters startupParameters = GetParameters(provider);
+        InfiniFrameNativeParameters startupParameters = GetParameters(provider);
         startupParameters.ClosingHandler = Events.OnWindowClosing;
         startupParameters.ResizedHandler = Events.OnSizeChanged;
         startupParameters.MaximizedHandler = Events.OnMaximized;

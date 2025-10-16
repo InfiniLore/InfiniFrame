@@ -4,7 +4,7 @@ using System.Drawing;
 // ReSharper disable once CheckNamespace
 namespace InfiniLore.InfiniFrame;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
-public static class PhotinoWindowEventsExtensions {
+public static class InfiniWindowEventsExtensions {
     /// <summary>
     ///     Registers user-defined handler methods to receive callbacks from the native builder when its location changes.
     /// </summary>

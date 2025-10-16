@@ -1,10 +1,16 @@
-﻿using System.Runtime.InteropServices;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino.Native;
+namespace InfiniLore.InfiniFrame.Native;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 // These are the parameter names that are passed to Photino.Native.
 // DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
+public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParameters> {
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
     ///     initialized. Default is none.
@@ -228,7 +234,7 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
     [MarshalAs(UnmanagedType.I4)] internal int Size;
 
     // ReSharper disable once ConvertIfStatementToReturnStatement
-    public bool Equals(PhotinoNativeParameters other) {
+    public bool Equals(InfiniFrameNativeParameters other) {
         // Handlers are not checked because they are set by the constructor and are not user-configurable.
         // && ClosingHandler.Equals(other.ClosingHandler)
         // && FocusInHandler.Equals(other.FocusInHandler)
@@ -289,7 +295,7 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         return false;
     }
 
-    public override bool Equals(object? obj) => obj is PhotinoNativeParameters other && Equals(other);
+    public override bool Equals(object? obj) => obj is InfiniFrameNativeParameters other && Equals(other);
 
     public override int GetHashCode() {
         var hashCode = new HashCode();
@@ -346,7 +352,7 @@ public struct PhotinoNativeParameters : IEquatable<PhotinoNativeParameters> {
         hashCode.Add(Size);
         return hashCode.ToHashCode();
     }
-    public static bool operator ==(PhotinoNativeParameters left, PhotinoNativeParameters right) => left.Equals(right);
+    public static bool operator ==(InfiniFrameNativeParameters left, InfiniFrameNativeParameters right) => left.Equals(right);
 
-    public static bool operator !=(PhotinoNativeParameters left, PhotinoNativeParameters right) => !(left == right);
+    public static bool operator !=(InfiniFrameNativeParameters left, InfiniFrameNativeParameters right) => !(left == right);
 }

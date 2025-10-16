@@ -1,12 +1,17 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
+using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino.Utilities;
-using InfiniLore.Photino.Native;
-
-internal static class PhotinoNativeParametersValidator {
+namespace InfiniLore.InfiniFrame.Utilities;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+internal static class InfiniFrameNativeParametersValidator {
     // ReSharper disable once InvertIf
-    public static bool Validate(PhotinoNativeParameters parameters, ILogger logger) {
+    public static bool Validate(InfiniFrameNativeParameters parameters, ILogger logger) {
         bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         string? startUrl = parameters.StartUrl;
         string? startString = parameters.StartString;

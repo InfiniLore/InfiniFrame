@@ -1,8 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
+
 namespace Tests.Photino.NET;
-using InfiniLore.Photino.Native;
 using System.Runtime.InteropServices;
 using Tests.Shared.Photino;
 
@@ -20,7 +21,7 @@ public class PhotinoNativeParameterTests {
         IntPtr[] customSchemeNames = new IntPtr[16];
         customSchemeNames[0] =  Marshal.StringToHGlobalAnsi("NAME");
         
-        var parameters = new PhotinoNativeParameters {
+        var parameters = new InfiniFrameNativeParameters {
             StartString = "this is a string",
             StartUrl = "https://www.transgenderinfo.be/",
             Title = "This is a title" ,
@@ -61,12 +62,12 @@ public class PhotinoNativeParameterTests {
             SmoothScrollingEnabled = true,
             IgnoreCertificateErrorsEnabled = true ,
             NotificationsEnabled = true,
-            Size = Marshal.SizeOf<PhotinoNativeParameters>(),
+            Size = Marshal.SizeOf<InfiniFrameNativeParameters>(),
             ZoomEnabled = true ,
         };
 
         // Act
-        PhotinoNativeParameters newParameters = InfiniWindowNative.NativeParametersReturnAsIs(ref parameters);
+        InfiniFrameNativeParameters newParameters = InfiniWindowNative.NativeParametersReturnAsIs(ref parameters);
 
         // Assert
         for (int i = 0; i < parameters.CustomSchemeNames.Length; i++)

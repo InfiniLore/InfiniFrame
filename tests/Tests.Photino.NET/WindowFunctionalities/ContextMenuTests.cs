@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using InfiniLore.InfiniFrame.NET;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.Photino.Native;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ public class ContextMenuTests {
         // Assert
         await Assert.That(builder.Configuration.ContextMenuEnabled).IsEqualTo(state);
 
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.ContextMenuEnabled).IsEqualTo(state);
     }
     

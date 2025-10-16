@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using InfiniLore.InfiniFrame.NET;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.Photino.Native;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ public class HeightTests {
         // Assert
         await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
 
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.Height).IsEqualTo(Height);
     }
 
@@ -34,7 +34,7 @@ public class HeightTests {
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
-        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration {
+        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration {
             Height = Height,
             UseOsDefaultSize = false,
             Centered = false
@@ -49,7 +49,7 @@ public class HeightTests {
         await Assert.That(builder.Configuration.UseOsDefaultSize).IsEqualTo(false);
         await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
 
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
     

@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using InfiniLore.InfiniFrame.NET;
 using System.Drawing;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.Photino.Native;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ public class MaxSizeTests {
         await Assert.That(builder.Configuration.MaxWidth).IsEqualTo(Width);
         await Assert.That(builder.Configuration.MaxHeight).IsEqualTo(Height);
 
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.MaxWidth).IsEqualTo(Width);
         await Assert.That(configParameters.MaxHeight).IsEqualTo(Height);
     }

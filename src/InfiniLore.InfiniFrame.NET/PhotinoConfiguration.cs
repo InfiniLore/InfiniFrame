@@ -1,8 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
+
 namespace InfiniLore.InfiniFrame.NET;
-using InfiniLore.Photino.Native;
 using System.Runtime.InteropServices;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -50,13 +51,13 @@ public class PhotinoConfiguration : IPhotinoConfiguration {
     public int Zoom { get; set; } = 100;
     public bool ZoomEnabled { get; set; } = true;
 
-    public PhotinoNativeParameters ToParameters() {
+    public InfiniFrameNativeParameters ToParameters() {
         IntPtr[] customSchemeNameArray = new IntPtr[16];
         for (int i = 0; i < CustomSchemeNames.Count; i++) {
             customSchemeNameArray[i] = Marshal.StringToHGlobalAnsi(CustomSchemeNames[i]);
         }
 
-        return new PhotinoNativeParameters {
+        return new InfiniFrameNativeParameters {
             BrowserControlInitParameters = BrowserControlInitParameters,
             CenterOnInitialize = Centered,
             Chromeless = Chromeless,
@@ -81,7 +82,7 @@ public class PhotinoConfiguration : IPhotinoConfiguration {
             NotificationRegistrationId = NotificationRegistrationId,
             NotificationsEnabled = NotificationsEnabled,
             Resizable = Resizable,
-            Size = Marshal.SizeOf<PhotinoNativeParameters>(),
+            Size = Marshal.SizeOf<InfiniFrameNativeParameters>(),
             SmoothScrollingEnabled = SmoothScrollingEnabled,
             StartString = StartString,
             StartUrl = StartUrl,

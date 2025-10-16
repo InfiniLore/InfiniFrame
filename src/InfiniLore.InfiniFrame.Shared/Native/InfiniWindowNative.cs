@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using static InfiniLore.Photino.Native.NativeDll;
 using System.Runtime.InteropServices;
+using static InfiniLore.InfiniFrame.Native.NativeDll;
 
-namespace InfiniLore.Photino.Native;
+namespace InfiniLore.InfiniFrame.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,11 +17,11 @@ public static class InfiniWindowNative {
         SetLastError = true,
         CharSet = CharSet.Ansi
     )]
-    private static extern void NativeParametersReturnAsIs(ref PhotinoNativeParameters parameters, out IntPtr newParameters);
+    private static extern void NativeParametersReturnAsIs(ref InfiniFrameNativeParameters parameters, out IntPtr newParameters);
     #pragma warning restore SYSLIB1054
 
-    internal static PhotinoNativeParameters NativeParametersReturnAsIs(ref PhotinoNativeParameters parameters) {
+    internal static InfiniFrameNativeParameters NativeParametersReturnAsIs(ref InfiniFrameNativeParameters parameters) {
         NativeParametersReturnAsIs(ref parameters, out IntPtr newParameters);
-        return Marshal.PtrToStructure<PhotinoNativeParameters>(newParameters);
+        return Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParameters);
     }
 }

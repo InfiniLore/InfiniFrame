@@ -1,6 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 
-namespace InfiniLore.Photino.Utilities;
+namespace InfiniLore.InfiniFrame.Utilities;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class IconFileUtilities {
     public static bool IsValidIconFile([NotNullWhen(true)] string? filePath) {
         if (string.IsNullOrWhiteSpace(filePath)) return false;

@@ -1,8 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
+
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.Photino.Native;
 using InfiniLore.InfiniFrame.NET;
 using Tests.Shared.Photino;
 
@@ -25,7 +26,7 @@ public class BrowserControlInitParametersTests {
         // Assert
         await Assert.That(builder.Configuration.BrowserControlInitParameters).IsEqualTo(parameter);
 
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.BrowserControlInitParameters).IsEqualTo(parameter);
     }
 }

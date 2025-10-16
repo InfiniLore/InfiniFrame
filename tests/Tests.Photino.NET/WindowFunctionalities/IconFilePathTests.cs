@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using InfiniLore.InfiniFrame.NET;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.Photino.Native;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ public class IconFilePathTests {
     public async Task Builder() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
-        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration() {
+        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration() {
             IconFilePath = IconFilePath
         }.ToParameters();
         
@@ -34,7 +34,7 @@ public class IconFilePathTests {
     public async Task Builder_ShouldNotSetInvalidIconFilePath() {
         // Arrange
         var builder = PhotinoWindowBuilder.Create();
-        PhotinoNativeParameters expectedConfigParameters = new PhotinoConfiguration().ToParameters();
+        InfiniFrameNativeParameters expectedConfigParameters = new PhotinoConfiguration().ToParameters();
         
         // Act
         builder.SetIconFile(InvalidIconFilePath);

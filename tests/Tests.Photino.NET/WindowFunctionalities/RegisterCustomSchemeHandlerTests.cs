@@ -1,9 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
+
 namespace Tests.Photino.NET.WindowFunctionalities;
 using InfiniLore.InfiniFrame;
-using InfiniLore.Photino.Native;
 using InfiniLore.InfiniFrame.NET;
 using System.Runtime.InteropServices;
 using Tests.Shared.Photino;
@@ -28,7 +29,7 @@ public class RegisterCustomSchemeHandlerTests {
         // Assert
         await Assert.That(builder.Configuration.CustomSchemeNames).Contains("app");
 
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         
         IntPtr target = Marshal.StringToHGlobalAnsi("app");
         try {

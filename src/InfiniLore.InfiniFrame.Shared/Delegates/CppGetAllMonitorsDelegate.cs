@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using InfiniLore.InfiniFrame.Native;
+using System.Runtime.InteropServices;
 
 namespace InfiniLore.InfiniFrame;
 //These are sent in during the request

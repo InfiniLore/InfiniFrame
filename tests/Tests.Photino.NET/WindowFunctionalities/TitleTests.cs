@@ -1,10 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame.Native;
 using InfiniLore.InfiniFrame.NET;
 
 namespace Tests.Photino.NET.WindowFunctionalities;
-using InfiniLore.Photino.Native;
 using Tests.Shared.Photino;
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ public class TitleTests {
         if (title is null) await Assert.That(builder.Configuration.Title).IsEqualTo(string.Empty);
         else await Assert.That(builder.Configuration.Title).IsEqualTo(title);
         
-        PhotinoNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         if (title is null) await Assert.That(configParameters.Title).IsEqualTo(string.Empty);
         else await Assert.That(configParameters.Title).IsEqualTo(title);
     }
