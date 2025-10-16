@@ -141,21 +141,21 @@ jobs:
                         fonts-liberation \
                         xfonts-base
 
-            -   name: Restore dependencies (cached)
+            -   name: Restore dependencies
                 run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
-            -   name: Build (Release) (cached)
+            -   name: Build (Release)
                 run: |
                     # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
-                        --configuration Release \
-                        --no-restore \
-                        /p:SolutionDir=$GITHUB_WORKSPACE/
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir=$GITHUB_WORKSPACE/
                     
                     # Then build the rest of the solution
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf `
-                        --configuration Release \
-                        --no-restore
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
+                      --configuration Release \
+                      --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
@@ -435,7 +435,7 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-build-
 
-            -   name: Restore dependencies (cached)
+            -   name: Restore dependencies
                 run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
                 
             -   name: Build native
@@ -445,7 +445,7 @@ jobs:
                         --no-restore \
                         /p:SolutionDir=$GITHUB_WORKSPACE/
 
-            -   name: Build (Release) (cached)
+            -   name: Build (Release)
                 run: dotnet build InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
 
             -   name: Verify Native DLLs for testing
