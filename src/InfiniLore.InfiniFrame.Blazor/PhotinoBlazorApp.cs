@@ -1,6 +1,4 @@
-using InfiniLore.InfiniFrame;
 using InfiniLore.Photino.Blazor;
-using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

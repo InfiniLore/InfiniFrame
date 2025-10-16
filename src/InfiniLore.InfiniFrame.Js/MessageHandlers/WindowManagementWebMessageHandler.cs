@@ -1,6 +1,10 @@
-﻿using InfiniLore.Photino.NET;
-
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniLore.InfiniFrame.Js.MessageHandlers;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class WindowManagementWebMessageHandler {
     private const string WindowMinimize = HandlerNames.InfiniWindowPrefix + "window:minimize";
     private const string WindowMaximize = HandlerNames.InfiniWindowPrefix + "window:maximize";

@@ -9,7 +9,7 @@ namespace InfiniLore.InfiniFrame.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniWindowJs(IJSRuntime jsRuntime, ILogger<InfiniWindowJs> logger) : IInfiniWindowJs {
+public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) : IInfiniFrameJs {
     public async Task SetPointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default) {
         try {
             await jsRuntime.InvokeVoidAsync("infiniWindow.setPointerCapture", ct, elementReference, pointerId);

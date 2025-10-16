@@ -1,5 +1,4 @@
-﻿using InfiniLore.InfiniFrame;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Tests.Shared.Photino;
 using Monitor=InfiniLore.Photino.Monitor;
 

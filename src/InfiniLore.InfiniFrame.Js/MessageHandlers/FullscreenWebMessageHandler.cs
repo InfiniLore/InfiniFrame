@@ -1,6 +1,10 @@
-﻿using InfiniLore.Photino.NET;
-
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniLore.InfiniFrame.Js.MessageHandlers;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class FullscreenWebMessageHandler {
     private const string FullscreenEnter = HandlerNames.InfiniWindowPrefix + "fullscreen:enter";
     private const string FullscreenExit = HandlerNames.InfiniWindowPrefix + "fullscreen:exit";

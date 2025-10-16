@@ -1,6 +1,5 @@
 ﻿using Example.Blazor.MultiWindowSample.Components;
 using InfiniLore.InfiniFrame.Blazor;
-using InfiniLore.Photino.NET;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Example.Blazor.MultiWindowSample;

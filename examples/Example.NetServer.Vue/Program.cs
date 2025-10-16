@@ -1,5 +1,4 @@
 ﻿using InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame.Server;
 using System.Drawing;
 
 namespace Example.NetServer.Vue;

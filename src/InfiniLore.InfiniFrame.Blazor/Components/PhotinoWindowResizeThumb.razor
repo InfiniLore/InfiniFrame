@@ -1,5 +1,5 @@
-﻿@using InfiniLore.Photino.Js
-@using InfiniLore.InfiniFrame
+﻿@using InfiniLore.InfiniFrame
+@using InfiniLore.InfiniFrame.Js
 @using Microsoft.AspNetCore.Components.Web
 
 @namespace InfiniLore.Photino.Blazor
@@ -8,7 +8,7 @@
 @implements IDisposable
 
 @inject IPhotinoWindow PhotinoWindow
-@inject IInfiniWindowJs InfiniWindowJs
+@inject IInfiniFrameJs InfiniWindowJs
 
 @* ReSharper disable CSharpWarnings::CS8974 *@
 @if (!_hidden) {

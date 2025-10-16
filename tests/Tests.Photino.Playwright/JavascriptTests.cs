@@ -6,8 +6,6 @@ using Tests.Photino.Playwright.Utility;
 using Tests.Shared.Photino;
 
 namespace Tests.Photino.Playwright;
-using InfiniLore.Photino.NET;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

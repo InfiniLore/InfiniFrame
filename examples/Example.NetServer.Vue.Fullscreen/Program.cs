@@ -1,7 +1,4 @@
-﻿using InfiniLore.Photino.Js.MessageHandlers;
-using InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame.Server;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace Example.NetServer.Vue.Fullscreen;
 public static class Program {

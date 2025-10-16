@@ -1,9 +1,8 @@
-﻿using InfiniLore.InfiniFrame;
+﻿using InfiniLore.InfiniFrame.Js;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
 namespace InfiniLore.InfiniFrame.Blazor;
-using InfiniLore.Photino.Js;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -29,7 +28,7 @@ public class PhotinoBlazorAppBuilder {
                 var handler = sp.GetRequiredService<PhotinoHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(PhotinoWebViewManager.AppBaseUri) };
             })
-            .AddScoped<IInfiniWindowJs, InfiniWindowJs>()
+            .AddScoped<IInfiniFrameJs, InfiniWindowJs>()
             .AddSingleton<IPhotinoWebViewManager, PhotinoWebViewManager>()
             .AddSingleton<IPhotinoJsComponentConfiguration, PhotinoJsComponentConfiguration>()
             .AddSingleton<Dispatcher, PhotinoDispatcher>()
