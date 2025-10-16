@@ -32,25 +32,25 @@ jobs:
                     dotnet-version: '9.x'
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.Photino.GitHubActions.slnf
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.slnf
 
             -   name: Build
-                run: dotnet build InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore
+                run: dotnet build InfiniLore.InfiniFrame.GitHubActions.slnf --configuration Release --no-restore
             
             # Ensure that the tests must pass 
             # The job will fail automatically if any test fails because `dotnet test` exits with a non-zero code
             -   name: Run tests
-                run: dotnet test InfiniLore.Photino.GitHubActions.slnf --configuration Release --no-restore --no-build
+                run: dotnet test InfiniLore.InfiniFrame.GitHubActions.slnf --configuration Release --no-restore --no-build
 
             -   name: Publish to NuGet
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
                 run: |
                     dotnet nuget push src/InfiniLore.InfiniFrame.Blazor/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
-                    dotnet nuget push src/InfiniLore.Photino.Js/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
-                    dotnet nuget push src/InfiniLore.Photino.NET/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
-                    dotnet nuget push src/InfiniLore.Photino.NET.Server/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
-                    dotnet nuget push src/InfiniLore.Photino.Shared/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                    dotnet nuget push src/InfiniLore.InfiniFrame.Js/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                    dotnet nuget push src/InfiniLore.InfiniFrame/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                    dotnet nuget push src/InfiniLore.InfiniFrame.Server/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+                    dotnet nuget push src/InfiniLore.InfiniFrame.Shared/bin/Release/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
 
 #            - name: Create GitHub Release
 #              uses: softprops/action-gh-release@v2

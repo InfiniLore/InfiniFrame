@@ -142,17 +142,17 @@ jobs:
                         xfonts-base
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.Linux.slnf --configuration Release --no-restore
+                run: dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf --configuration Release --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.so"
+                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.so"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniLore.Photino.Native.so NOT found in test output!"
+                        echo "ERROR: InfiniLore.InfiniFrame.Native.so NOT found in test output!"
                         exit 1
                     fi
                 
@@ -221,7 +221,7 @@ jobs:
                     timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || echo "Window manager not responding"
                     
                     echo "=== Running Tests ==="
-                    dotnet test InfiniLore.Photino.GitHubActions.Linux.slnf \
+                    dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore
@@ -310,21 +310,21 @@ jobs:
                     cmakeVersion: "4.0.0"
             
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
-                    dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    $nativeDll = "tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dll"
-                    $webView2 = "tests/Tests.Photino.NET/bin/Release/net9.0/WebView2Loader.dll"
+                    $nativeDll = "tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dll"
+                    $webView2 = "tests/Tests.InfiniFrame/bin/Release/net9.0/WebView2Loader.dll"
                     
                     if (-Not (Test-Path $nativeDll)) {
-                        Write-Host "ERROR: InfiniLore.Photino.Native.dll NOT found in test output!"
+                        Write-Host "ERROR: InfiniLore.InfiniFrame.Native.dll NOT found in test output!"
                         Exit 1
                     }
                     
@@ -338,7 +338,7 @@ jobs:
             -   name: Run tests
                 run: |
                     echo "Running tests on Windows..."
-                    dotnet test InfiniLore.Photino.GitHubActions.Windows.slnf `
+                    dotnet test InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore
@@ -419,24 +419,24 @@ jobs:
                         ${{ runner.os }}-build-
 
             -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
                 
             -   name: Build native
                 run: |
-                    dotnet build src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.proj \
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
                         --configuration Release \
                         --no-restore \
                         /p:SolutionDir=$GITHUB_WORKSPACE/
 
             -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.MacOs.slnf --configuration Release --no-restore
+                run: dotnet build InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dylib"
+                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dylib"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniLore.Photino.Native.dylib  NOT found in test output!"
+                        echo "ERROR: InfiniLore.InfiniFrame.Native.dylib  NOT found in test output!"
                         exit 1
                     fi
                     
@@ -459,7 +459,7 @@ jobs:
                     echo "=== Running Tests ==="
 
                     # Run tests
-                    dotnet test InfiniLore.Photino.GitHubActions.MacOs.slnf \
+                    dotnet test InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
