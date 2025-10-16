@@ -37,14 +37,14 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     public bool SmoothScrollingEnabled { get; set; } = true;
     public string? StartString { get; set; }
     public string? StartUrl { get; set; }
-    public string? TemporaryFilesPath { get; set; } = Path.Combine(Path.GetTempPath(), "photino");
-    public string Title { get; set; } = "Photino";
+    public string? TemporaryFilesPath { get; set; } = Path.Combine(Path.GetTempPath(), "infiniframe");
+    public string Title { get; set; } = "InfiniFrame";
     public int Top { get; set; }
     public bool TopMost { get; set; }
     public bool Transparent { get; set; }
     public bool UseOsDefaultLocation { get; set; } = true;
     public bool UseOsDefaultSize { get; set; } = true;
-    public string? UserAgent { get; set; } = "Photino WebView";
+    public string? UserAgent { get; set; } = "InfiniFrame WebView";
     public bool WebSecurityEnabled { get; set; } = true;
     public int Width { get; set; }
     public int Zoom { get; set; } = 100;
