@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.InfiniFrame.NET;
-using InfiniLore.Photino;
+using InfiniLore.InfiniFrame;
 using InfiniLore.Photino.Native;
 
 public class PhotinoWindowBuilder : IPhotinoWindowBuilder {

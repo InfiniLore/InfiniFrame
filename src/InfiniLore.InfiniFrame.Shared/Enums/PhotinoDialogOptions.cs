@@ -1,4 +1,4 @@
-namespace InfiniLore.Photino;
+namespace InfiniLore.InfiniFrame;
 /// <summary>
 ///     Defines options for a dialog
 /// </summary>

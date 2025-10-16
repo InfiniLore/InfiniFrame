@@ -1,6 +1,6 @@
 ﻿
 cmake_minimum_required(VERSION 4.0)
-project(InfiniLore.Photino.Native VERSION 1.0 LANGUAGES CXX)
+project(InfiniLore.InfiniFrame.Native VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -83,7 +83,7 @@ if(WIN32)
 
     # Set output directory to match MSBuild expectations
     set_target_properties(${PROJECT_NAME} PROPERTIES
-            OUTPUT_NAME "InfiniLore.Photino.Native"
+            OUTPUT_NAME "InfiniLore.InfiniFrame.Native"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
     )
 
@@ -144,7 +144,7 @@ if(WIN32)
     )
 
     # Resource file
-    target_sources(${PROJECT_NAME} PRIVATE Photino.Native.rc)
+    target_sources(${PROJECT_NAME} PRIVATE InfiniFrame.Native.rc)
 
     # Copy webview2loader to output
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -169,7 +169,7 @@ elseif(APPLE)
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
             PREFIX ""
-            OUTPUT_NAME "InfiniLore.Photino.Native"
+            OUTPUT_NAME "InfiniLore.InfiniFrame.Native"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
             OSX_ARCHITECTURES "x86_64;arm64"
     )
@@ -201,7 +201,7 @@ elseif(UNIX)
     endif()
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
-            OUTPUT_NAME "InfiniLore.Photino.Native"
+            OUTPUT_NAME "InfiniLore.InfiniFrame.Native"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
             PREFIX ""  # removes the 'lib' prefix
     )

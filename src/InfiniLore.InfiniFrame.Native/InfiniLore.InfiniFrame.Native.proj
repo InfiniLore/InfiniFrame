@@ -33,7 +33,7 @@
 
     <!-- Build target -->
     <Target Name="Build">
-        <Message Text="Building InfiniLore.Photino.Native ($(Configuration)|$(Platform))" Importance="High" />
+        <Message Text="Building InfiniLore.InfiniFrame.Native ($(Configuration)|$(Platform))" Importance="High" />
 
         <!-- Create build folder -->
         <MakeDir Directories="$(CMakeBuildDir)" />

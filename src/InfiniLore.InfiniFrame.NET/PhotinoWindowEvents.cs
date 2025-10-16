@@ -4,7 +4,7 @@
 using System.Drawing;
 
 namespace InfiniLore.InfiniFrame.NET;
-using InfiniLore.Photino;
+using InfiniLore.InfiniFrame;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

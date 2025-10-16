@@ -1,4 +1,4 @@
-namespace InfiniLore.Photino;
+namespace InfiniLore.InfiniFrame;
 /// <summary>
 ///     Represents the icons that can be used in a Photino dialog.
 /// </summary>

@@ -1,4 +1,4 @@
-﻿namespace InfiniLore.Photino;
+﻿namespace InfiniLore.InfiniFrame;
 /// <summary>
 ///     Represents the result of a dialog interaction.
 /// </summary>

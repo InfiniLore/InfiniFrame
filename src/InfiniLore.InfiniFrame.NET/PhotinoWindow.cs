@@ -7,7 +7,7 @@ using InfiniLore.Photino.Native;
 using InfiniLore.Photino.Utilities;
 
 namespace InfiniLore.InfiniFrame.NET;
-using InfiniLore.Photino;
+using InfiniLore.InfiniFrame;
 using Monitor=System.Threading.Monitor;
 
 public sealed class PhotinoWindow(

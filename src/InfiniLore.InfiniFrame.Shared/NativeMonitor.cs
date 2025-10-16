@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino;
+namespace InfiniLore.InfiniFrame;
 /// <summary>
 ///     The <c>NativeMonitor</c> structure is used for communicating information about the monitor setup
 ///     to and from native system calls. This structure is defined in a sequential layout for direct,

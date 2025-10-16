@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino;
+namespace InfiniLore.InfiniFrame;
 /// <summary>
 ///     Represents a 2D rectangle in a native (integer-based) coordinate system.
 /// </summary>

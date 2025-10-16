@@ -1,4 +1,4 @@
-namespace InfiniLore.Photino;
+namespace InfiniLore.InfiniFrame;
 /// <summary>
 ///     Represents the types of buttons that can be displayed in a Photino-dialog.
 /// </summary>

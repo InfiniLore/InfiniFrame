@@ -1,5 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 
-namespace InfiniLore.Photino;
+namespace InfiniLore.InfiniFrame;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
 public delegate byte CppClosingDelegate();

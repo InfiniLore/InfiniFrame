@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <RootNamespace>InfiniLore.Photino</RootNamespace>
+        <RootNamespace>InfiniLore.InfiniFrame</RootNamespace>
 
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
         <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
@@ -21,12 +21,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniLore.Photino.Js"/>
-        <InternalsVisibleTo Include="InfiniLore.Photino.Net"/>
-        <InternalsVisibleTo Include="InfiniLore.Photino.Net.Server"/>
-        <InternalsVisibleTo Include="InfiniLore.Photino.Blazor"/>
-        <InternalsVisibleTo Include="Tests.Photino.NET"/>
-        <InternalsVisibleTo Include="Tests.Photino.Playwright"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame.Js"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame.Net"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame.Net.Server"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame.Blazor"/>
+        <InternalsVisibleTo Include="Tests.InfiniFrame.NET"/>
+        <InternalsVisibleTo Include="Tests.InfiniFrame.Playwright"/>
     </ItemGroup>
 
     <ItemGroup>
