@@ -73,8 +73,8 @@ jobs:
         steps:
             -   uses: actions/checkout@v5
                 with:
-                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
-
+                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}            
+            
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
                 with:
@@ -311,7 +311,8 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v5
                 with:
-                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
+
 
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
@@ -408,7 +409,8 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v5
                 with:
-                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
+
 
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
@@ -517,7 +519,7 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v5
                 with:
-                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
