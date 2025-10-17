@@ -49,7 +49,7 @@ set(HEADER_FILES
         Photino.Mac.WindowDelegate.h
         Photino.Mac.UrlSchemeHandler.h
         Dependencies/wintoastlib.h
-        json.hpp
+        Dependencies/json.hpp
         resource.h
 )
 
