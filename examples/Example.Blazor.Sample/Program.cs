@@ -1,12 +1,17 @@
-﻿using InfiniLore.InfiniFrame;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame;
 using InfiniLore.InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-
-namespace Example.Blazor.Sample;
 using System.Drawing;
 
+namespace Example.Blazor.Sample;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
     [STAThread]
     private static void Main(string[] args) {
@@ -28,7 +33,7 @@ public static class Program {
         appBuilder.WithInfiniFrameWindowBuilder(builder => {
             builder
                 // .SetTransparent(true)
-                .SetChromeless(true)
+                // .SetChromeless(true)
                 // .SetResizable(true)
                 .SetIconFile("favicon.ico")
                 // .Center()

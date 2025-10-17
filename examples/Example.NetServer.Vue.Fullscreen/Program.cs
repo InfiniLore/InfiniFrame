@@ -1,9 +1,15 @@
-﻿using InfiniLore.InfiniFrame;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame;
 using InfiniLore.InfiniFrame.Js.MessageHandlers;
 using InfiniLore.InfiniFrame.Server;
 using System.Drawing;
 
 namespace Example.NetServer.Vue.Fullscreen;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {

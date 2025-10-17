@@ -1,8 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniLore.InfiniFrame;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class InfiniWindowEventsExtensions {
     /// <summary>

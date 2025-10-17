@@ -1,8 +1,13 @@
-using InfiniLore.InfiniFrame.Blazor;
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.InfiniFrame.Blazor;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorApp(
     IServiceProvider provider,
     RootComponentList rootComponents,
