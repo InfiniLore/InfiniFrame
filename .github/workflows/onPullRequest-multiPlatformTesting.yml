@@ -422,30 +422,21 @@ jobs:
                     cmakeVersion: "4.0.0"
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
-                    # Build native project first
                     dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
                         /p:SolutionDir=$GITHUB_WORKSPACE/
 
-                    # Then build the rest of the solution
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
                         --configuration Release `
                         --no-restore
-                    
-                    dotnet build tests/Tests.InfiniFrame.Playwright/Tests.InfiniFrame.Playwright.csproj `
-                        --configuration Release
 
             -   name: Ensure browsers are installed for Playwright
-                run: |
-                    dotnet tool install --global Microsoft.Playwright.CLI
-                    playwright install
-                    
-                    pwsh bin/Debug/net9.0/playwright.ps1 install
+                run: pwsh bin/Debug/net9.0/playwright.ps1 install
 
             -   name: Run Playwright tests (.NET)
                 run: |

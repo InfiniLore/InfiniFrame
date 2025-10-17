@@ -1,51 +1,51 @@
 <Solution>
-    <Folder Name="/.dev-tools/">
-        <File Path=".gitignore"/>
-        <File Path="InfiniLore.InfiniFrame.GitHubActions.slnf"/>
-        <File Path="README.md"/>
-        <File Path=".editorconfig"/>
-        <File Path="Directory.Packages.props"/>
-        <File Path="InfiniLore.InfiniFrame.GitHubActions.Linux.slnf"/>
-        <File Path="InfiniLore.InfiniFrame.GitHubActions.Windows.slnf"/>
-        <File Path="InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf"/>
-    </Folder>
-    <Folder Name="/.dev-tools/github/">
-        <File Path=".github\workflows\release.yml"/>
-        <File Path=".github\workflows\workflow-todo.yml"/>
-        <File Path=".github\workflows\onPullRequest-multiPlatformTesting.yml"/>
-        <File Path=".github\workflows\onPullRequest-pendingCheck.yml"/>
-    </Folder>
-    <Folder Name="/.dev-tools/py/">
-        <File Path="dev\bump_version.py"/>
-    </Folder>
-    <Folder Name="/.dev-tools/web/">
-        <File Path="package.json"/>
-        <File Path="tsconfig.json"/>
-        <File Path="webpack.config.js"/>
-    </Folder>
-    <Folder Name="/example/">
-        <Project Path="examples\Example.Blazor.MultiWindowSample\Example.Blazor.MultiWindowSample.csproj"/>
-        <Project Path="examples\Example.Blazor.Sample\Example.Blazor.Sample.csproj"/>
-        <Project Path="examples\Example.NetServer.React\Example.NetServer.React.csproj"/>
-        <Project Path="examples\Example.NetServer.Vue.Fullscreen\Example.NetServer.Vue.Fullscreen.csproj"/>
-        <Project Path="examples\Example.NetServer.Vue\Example.NetServer.Vue.csproj"/>
-        <File Path="examples\Directory.Build.props"/>
-    </Folder>
-    <Folder Name="/src/">
-        <Project Path="src\InfiniLore.InfiniFrame.Blazor\InfiniLore.InfiniFrame.Blazor.csproj"/>
-        <Project Path="src\InfiniLore.InfiniFrame.Js\InfiniLore.InfiniFrame.Js.csproj"/>
-        <Project Path="src\InfiniLore.InfiniFrame.Server\InfiniLore.InfiniFrame.Server.csproj"/>
-        <Project Path="src\InfiniLore.InfiniFrame.Shared\InfiniLore.InfiniFrame.Shared.csproj"/>
-        <Project Path="src\InfiniLore.InfiniFrame\InfiniLore.InfiniFrame.csproj"/>
-        <File Path="src\Directory.Build.props"/>
-    </Folder>
-    <Folder Name="/src/cpp/">
-        <Project Path="src\InfiniLore.InfiniFrame.Native\InfiniLore.InfiniFrame.Native.proj"
-                 Type="845B7716-6F03-4D02-8E86-79F95485B5D7"/>
-    </Folder>
-    <Folder Name="/tests/">
-        <Project Path="tests\Tests.InfiniFrame.Playwright\Tests.InfiniFrame.Playwright.csproj"/>
-        <Project Path="tests\Tests.InfiniFrame\Tests.InfiniFrame.csproj"/>
-        <Project Path="tests\Tests.Shared\Tests.Shared.csproj"/>
-    </Folder>
+  <Folder Name="/.dev-tools/">
+    <File Path=".gitignore" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.slnf" />
+    <File Path="README.md" />
+    <File Path=".editorconfig" />
+    <File Path="Directory.Packages.props" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.Linux.slnf" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.Windows.slnf" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/">
+    <File Path=".github\workflows\release.yml" />
+    <File Path=".github\workflows\workflow-todo.yml" />
+    <File Path=".github\workflows\onPullRequest-multiPlatformTesting.yml" />
+    <File Path=".github\workflows\onPullRequest-pendingCheck.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/py/">
+    <File Path="dev\bump_version.py" />
+  </Folder>
+  <Folder Name="/.dev-tools/web/">
+    <File Path="package.json" />
+    <File Path="tsconfig.json" />
+    <File Path="webpack.config.js" />
+  </Folder>
+  <Folder Name="/example/">
+    <Project Path="examples\Example.Blazor.MultiWindowSample\Example.Blazor.MultiWindowSample.csproj" />
+    <Project Path="examples\Example.Blazor.Sample\Example.Blazor.Sample.csproj" />
+    <Project Path="examples\Example.NetServer.React\Example.NetServer.React.csproj" />
+    <Project Path="examples\Example.NetServer.Vue.Fullscreen\Example.NetServer.Vue.Fullscreen.csproj" />
+    <Project Path="examples\Example.NetServer.Vue\Example.NetServer.Vue.csproj" />
+    <File Path="examples\Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src\InfiniLore.InfiniFrame.Blazor\InfiniLore.InfiniFrame.Blazor.csproj" />
+    <Project Path="src\InfiniLore.InfiniFrame.Js\InfiniLore.InfiniFrame.Js.csproj" />
+    <Project Path="src\InfiniLore.InfiniFrame.Server\InfiniLore.InfiniFrame.Server.csproj" />
+    <Project Path="src\InfiniLore.InfiniFrame.Shared\InfiniLore.InfiniFrame.Shared.csproj" />
+    <Project Path="src\InfiniLore.InfiniFrame\InfiniLore.InfiniFrame.csproj" />
+    <File Path="src\Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/cpp/">
+    <Project Path="src\InfiniLore.InfiniFrame.Native\InfiniLore.InfiniFrame.Native.proj" Type="845B7716-6F03-4D02-8E86-79F95485B5D7" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests\Tests.InfiniFrame.Playwright\Tests.InfiniFrame.Playwright.csproj" />
+    <Project Path="tests\Tests.InfiniFrame\Tests.InfiniFrame.csproj" />
+    <Project Path="tests\Tests.Shared\Tests.Shared.csproj" />
+  </Folder>
 </Solution>
