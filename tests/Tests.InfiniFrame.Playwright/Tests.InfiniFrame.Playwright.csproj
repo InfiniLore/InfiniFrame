@@ -27,6 +27,33 @@
         <Folder Include="Sources\infiniframe-playwright-vue\src\assets\"/>
     </ItemGroup>
 
+    <Target Name="EnsureNativeDlls" AfterTargets="Build">
+        <ItemGroup>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')"/>
+            <NativeDlls Include="$(NativeOutputDir)/WebView2Loader.dll"
+                        Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')"/>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')"/>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.InfiniFrame.Native.dll')"
+                 Text="✅ Copied InfiniLore.InfiniFrame.Native.dll into test output" Importance="High"/>
+
+        <Message Condition="Exists('$(OutDir)/WebView2Loader.dll')"
+                 Text="✅ Copied WebView2Loader.dll into test output" Importance="High"/>
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.InfiniFrame.Native.so')"
+                 Text="✅ Copied InfiniLore.InfiniFrame.Native.so into test output" Importance="High"/>
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.InfiniFrame.Native.dylib')"
+                 Text="✅ Copied InfiniLore.InfiniFrame.Native.dylib into test output" Importance="High"/>
+    </Target>
+
     <Target Name="BuildFrontend" BeforeTargets="Build">
         <Message Text="Installing npm packages" Importance="high"/>
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)/Sources/infiniframe-playwright-vue"/>
