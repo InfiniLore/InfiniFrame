@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <libnotify/notify.h>
 #include <dlfcn.h>	//for dynamically calling functions from shared libraries
-#include "json.hpp"
+#include "Dependencies/json.hpp"
 using json = nlohmann::json;
 
 /* --- PRINTF_BINARY_FORMAT macro's --- */

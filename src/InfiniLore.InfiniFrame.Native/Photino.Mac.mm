@@ -9,7 +9,7 @@
 #include "Photino.Mac.NavigationDelegate.h"
 #include <vector>
 
-#include "json.hpp"
+#include "Dependencies/json.hpp"
 
 using json = nlohmann::json;
 
