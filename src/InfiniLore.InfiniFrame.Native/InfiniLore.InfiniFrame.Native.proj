@@ -10,11 +10,11 @@
         <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
 
         <!-- Force default platform to x64 if AnyCPU or empty -->
-        <Platform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</Platform>
+        <CMakePlatform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</CMakePlatform>
 
         <!-- map to CMake architecture -->
-        <CMakeArch Condition="'$(Platform)'=='x64'">x64</CMakeArch>
-        <CMakeArch Condition="'$(Platform)'=='arm64'">ARM64</CMakeArch>
+        <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
+        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">ARM64</CMakeArch>
         
         <!-- Fallback in case none matched -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
@@ -33,7 +33,7 @@
 
     <!-- Build target -->
     <Target Name="Build">
-        <Message Text="Building InfiniLore.InfiniFrame.Native ($(Configuration)|$(Platform))" Importance="High" />
+        <Message Text="Building InfiniLore.InfiniFrame.Native ($(Configuration)|$(CMakePlatform))" Importance="High" />
 
         <!-- Create build folder -->
         <MakeDir Directories="$(CMakeBuildDir)" />
