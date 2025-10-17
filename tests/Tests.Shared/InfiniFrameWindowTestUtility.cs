@@ -9,25 +9,25 @@ namespace Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
-    
-    private InfiniFrameWindowTestUtility() { }
+
+    private InfiniFrameWindowTestUtility() {}
 
     public static InfiniFrameWindowTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
         var windowBuilder = InfiniFrameWindowBuilder.Create();
-        
+
         windowBuilder.SetStartUrl("https://localhost/");
-        
+
         builder?.Invoke(windowBuilder);
 
-        var utility =  new InfiniFrameWindowTestUtility {
+        var utility = new InfiniFrameWindowTestUtility {
             Window = windowBuilder.Build()
         };
 
         _ = Task.Run(utility.Window.WaitForClose);
 
-        return utility; 
+        return utility;
     }
-    
+
     public void Dispose() {
         try {
             Window.Close();
@@ -36,7 +36,7 @@ public class InfiniFrameWindowTestUtility : IDisposable {
             // Ignore
         }
         finally {
-            GC.SuppressFinalize(this);    
+            GC.SuppressFinalize(this);
         }
     }
 }

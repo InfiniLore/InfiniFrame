@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using InfiniLore.InfiniFrame.Blazor.Utils;
 
 namespace InfiniLore.InfiniFrame.Blazor;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

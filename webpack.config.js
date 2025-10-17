@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = (env, args) => {
     const isProduction = env?.production === true;
-    
+
     return {
         mode: isProduction ? 'production' : 'development',
         devtool: isProduction ? false : 'inline-source-map',
@@ -25,6 +25,6 @@ module.exports = (env, args) => {
                     exclude: /node_modules/
                 }
             ]
-        }   
+        }
     }
 };

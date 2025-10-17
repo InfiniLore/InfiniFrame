@@ -12,12 +12,7 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TitleTests {
 
-    [Test]
-    [Arguments("")]
-    [Arguments(null)]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
+    [Test, Arguments(""), Arguments(null), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
     public async Task Builder(string? title) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -28,20 +23,13 @@ public class TitleTests {
         // Assert
         if (title is null) await Assert.That(builder.Configuration.Title).IsEqualTo(string.Empty);
         else await Assert.That(builder.Configuration.Title).IsEqualTo(title);
-        
+
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         if (title is null) await Assert.That(configParameters.Title).IsEqualTo(string.Empty);
         else await Assert.That(configParameters.Title).IsEqualTo(title);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments("")]
-    [Arguments(null)]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
+
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(""), Arguments(null), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
     public async Task Window(string? title) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -55,14 +43,7 @@ public class TitleTests {
         else await Assert.That(window.Title).IsEqualTo(title);
     }
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments("")]
-    [Arguments(null)]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(""), Arguments(null), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
     public async Task FullIntegration(string? title) {
         // Arrange
 
@@ -77,5 +58,5 @@ public class TitleTests {
         if (title is null) await Assert.That(window.Title).IsEmpty();
         else await Assert.That(window.Title).IsEqualTo(title);
     }
-    
+
 }

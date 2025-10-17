@@ -7,7 +7,8 @@
 
 @if (_forecasts is null) {
     <p><em>Loading...</em></p>
-} else {
+}
+else {
     <table class="table">
         <thead>
         <tr>
@@ -45,10 +46,7 @@
 
         public string? Summary { get; set; }
 
-        public int TemperatureF {
-            get {
-                return 32 + (int)(TemperatureC / 0.5556);
-            }
-        }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
+
 }

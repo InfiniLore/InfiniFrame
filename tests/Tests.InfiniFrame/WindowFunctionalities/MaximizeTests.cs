@@ -12,9 +12,7 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class MaximizeTests {
 
-    [Test]
-    [Arguments(true)]
-    [Arguments(false)]
+    [Test, Arguments(true), Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -28,15 +26,11 @@ public class MaximizeTests {
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.Maximized).IsEqualTo(state);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments(true)]
-    [Arguments(false)]
+
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
     public async Task Window(bool state) {
         SkipUtility.SkipOnLinux(state);
-        
+
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -47,13 +41,8 @@ public class MaximizeTests {
         // Assert
         await Assert.That(window.Maximized).IsEqualTo(state);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments(true)]
-    [Arguments(false)]
+
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux, NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
     public async Task Window_Toggle(bool state) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -67,14 +56,10 @@ public class MaximizeTests {
         await Assert.That(window.Maximized).IsEqualTo(!state);
     }
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments(true)]
-    [Arguments(false)]
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
     public async Task FullIntegration(bool state) {
         SkipUtility.SkipOnLinux(state);
-        
+
         // Arrange
 
         // Act
@@ -87,5 +72,5 @@ public class MaximizeTests {
         // Assert
         await Assert.That(window.Maximized).IsEqualTo(state);
     }
-    
+
 }

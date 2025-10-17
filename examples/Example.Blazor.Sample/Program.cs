@@ -8,7 +8,7 @@ namespace Example.Blazor.Sample;
 using System.Drawing;
 
 public static class Program {
-    [STAThread] 
+    [STAThread]
     private static void Main(string[] args) {
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
 
@@ -43,7 +43,7 @@ public static class Program {
         });
 
         InfiniFrameBlazorApp app = appBuilder.Build();
-        
+
         app.Run();
     }
 }

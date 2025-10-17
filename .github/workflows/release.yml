@@ -6,7 +6,7 @@ on:
         tags:
             - 'v*.*.*' # Match version tags like v1.0.0
 
-jobs:   
+jobs:
     publish:
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && github.event.base_ref == 'refs/heads/master')
         
@@ -14,7 +14,7 @@ jobs:
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v5
-                
+
             -   name: Install Node.js
                 uses: actions/setup-node@v5
                 with:

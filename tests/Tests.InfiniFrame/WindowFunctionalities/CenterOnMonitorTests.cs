@@ -12,10 +12,7 @@ using Tests.Shared;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterOnMonitorTests {
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -30,11 +27,11 @@ public class CenterOnMonitorTests {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
             Size size = windowRect.Size;
-            centerX = monitor.MonitorArea.Width/2  - size.Width / 2;
-            centerY = monitor.MonitorArea.Height/2 - size.Height / 2;
+            centerX = monitor.MonitorArea.Width / 2 - size.Width / 2;
+            centerY = monitor.MonitorArea.Height / 2 - size.Height / 2;
         });
-        
+
         await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));
     }
-    
+
 }

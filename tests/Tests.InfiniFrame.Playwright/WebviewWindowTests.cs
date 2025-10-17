@@ -10,13 +10,12 @@ namespace Tests.InfiniFrame.Playwright;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebviewWindowTests : InfiniFrameWebviewTest {
-    
-    [Test]
-    [NotInParallel(ParallelControl.Playwright)]
+
+    [Test, NotInParallel(ParallelControl.Playwright)]
     public async Task Title_ShouldBeExpectedValue() {
         // Arrange
         IPage page = await GetRootPageAsync();
-        
+
         // Act
         string title = await page.TitleAsync();
 

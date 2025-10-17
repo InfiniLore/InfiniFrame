@@ -2,10 +2,11 @@
 #pragma once
 #include "Photino.h"
 
-@interface WindowDelegate : NSObject <NSWindowDelegate>
+@ interface WindowDelegate : NSObject<NSWindowDelegate>
 {
     @public
-        Photino * photino;
+    Photino * photino;
+
 }
-@end
+@ end
 #endif

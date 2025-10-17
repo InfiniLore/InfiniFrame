@@ -165,7 +165,7 @@ jobs:
                         echo "ERROR: InfiniLore.InfiniFrame.Native.so NOT found in test output!"
                         exit 1
                     fi
-                
+                    
                     echo "✅ All native DLLs present"
 
             -   name: Start desktop environment and run tests
@@ -235,7 +235,7 @@ jobs:
                         --configuration Release \
                         --no-build \
                         --no-restore
-                    
+
             -   name: Display test logs on failure
                 if: failure()
                 run: |
@@ -261,15 +261,15 @@ jobs:
                     echo "=== All files in TestResults directories ==="
                     find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
 
-            - name: Upload test results as artifact
-              if: failure()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: test-logs
-                  path: |
-                      **/TestResults/*.log
-                      **/TestResults/*.trx
-            
+            -   name: Upload test results as artifact
+                if: failure()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: test-logs
+                    path: |
+                        **/TestResults/*.log
+                        **/TestResults/*.trx
+
             -   name: Update Linux status
                 if: always()
                 env:
@@ -308,17 +308,17 @@ jobs:
                 uses: actions/checkout@v5
                 with:
                     ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
-                    
+
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
-                    
+
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
                 with:
                     cmakeVersion: "4.0.0"
-            
+
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
 
@@ -437,7 +437,7 @@ jobs:
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
-                
+
             -   name: Build native
                 run: |
                     dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \

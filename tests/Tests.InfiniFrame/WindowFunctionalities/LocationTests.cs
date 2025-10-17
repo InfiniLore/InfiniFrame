@@ -14,25 +14,25 @@ using Tests.Shared;
 public class LocationTests {
     private const int Left = 10;
     private const int Top = 20;
-    
+
     [Test]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        
+
         // Act
         builder.SetUseOsDefaultLocation(true);
         builder.SetLocation(Left, Top);
-        
+
         // Assert
         await Assert.That(builder.Configuration.Left).IsEqualTo(Left);
         await Assert.That(builder.Configuration.Top).IsEqualTo(Top);
-        
+
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.Left).IsEqualTo(Left);
         await Assert.That(configParameters.Top).IsEqualTo(Top);
     }
-    
+
     [Test]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
@@ -43,25 +43,22 @@ public class LocationTests {
             UseOsDefaultLocation = false,
             Centered = false
         }.ToParameters();
-        
+
         // Act
         builder.SetUseOsDefaultLocation(true);
         builder.SetLocation(Left, Top);
-        
+
         // Assert
         await Assert.That(builder.Configuration.Left).IsEqualTo(Left);
         await Assert.That(builder.Configuration.Top).IsEqualTo(Top);
         await Assert.That(builder.Configuration.UseOsDefaultLocation).IsEqualTo(false);
         await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
-        
+
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -73,11 +70,8 @@ public class LocationTests {
         // Assert
         await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_AsPoint() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -89,9 +83,8 @@ public class LocationTests {
         // Assert
         await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
+
+    [Test, SkipUtility.SkipOnMacOs]
     public async Task FullIntegration() {
         // Arrange
 
@@ -100,7 +93,7 @@ public class LocationTests {
             builder => builder.SetLocation(Left, Top)
         );
         IInfiniFrameWindow window = windowUtility.Window;
-        
+
         // Assert
         await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
     }

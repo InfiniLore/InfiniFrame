@@ -17,24 +17,24 @@ public:
         this->_window = window;
     }
 
-    void toastActivated() const
+    void toastActivated() const override
     {
-        ShowWindow(this->_window->getHwnd(), SW_SHOW);    // Make the window visible if it was hidden
+        ShowWindow(this->_window->getHwnd(), SW_SHOW); // Make the window visible if it was hidden
         ShowWindow(this->_window->getHwnd(), SW_RESTORE); // Next, restore it if it was minimized
-        SetForegroundWindow(this->_window->getHwnd());    // Finally, activate the window
+        SetForegroundWindow(this->_window->getHwnd()); // Finally, activate the window
     }
 
-    void toastActivated(int actionIndex) const
+    void toastActivated(int actionIndex) const override
     {
         //
     }
 
-    void toastDismissed(WinToastDismissalReason state) const
+    void toastDismissed(WinToastDismissalReason state) const override
     {
         //
     }
 
-    void toastFailed() const
+    void toastFailed() const override
     {
         //
     }

@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniLore.InfiniFrame.Blazor;
-
 public class InfiniFrameBlazorApp(
     IServiceProvider provider,
     RootComponentList rootComponents,

@@ -27,10 +27,8 @@ public class MinWidthTests {
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.MinWidth).IsEqualTo(MinWidth);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -43,9 +41,7 @@ public class MinWidthTests {
         await Assert.That(window.MinWidth).IsEqualTo(500);
     }
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 

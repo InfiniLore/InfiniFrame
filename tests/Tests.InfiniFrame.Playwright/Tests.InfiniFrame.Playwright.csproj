@@ -7,24 +7,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="TUnit" />
-      <PackageReference Include="TUnit.Playwright" />
+        <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Playwright"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Tests.Shared\Tests.Shared.csproj" />
+        <ProjectReference Include="..\Tests.Shared\Tests.Shared.csproj"/>
     </ItemGroup>
-    
+
     <ItemGroup>
         <_ContentIncludedByDefault Remove="wwwroot\index.html"/>
         <EmbeddedResource Include="wwwroot\**"/>
-        <None Include="wwwroot\**"> 
+        <None Include="wwwroot\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <Folder Include="Sources\infiniFrame-playwright-vue\src\assets\" />
+        <Folder Include="Sources\infiniFrame-playwright-vue\src\assets\"/>
     </ItemGroup>
 
     <Target Name="BuildFrontend" BeforeTargets="Build">

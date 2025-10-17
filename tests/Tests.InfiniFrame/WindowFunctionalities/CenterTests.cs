@@ -14,9 +14,7 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterTests {
 
-    [Test]
-    [Arguments(true)]
-    [Arguments(false)]
+    [Test, Arguments(true), Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -30,11 +28,8 @@ public class CenterTests {
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.CenterOnInitialize).IsEqualTo(state);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -49,19 +44,14 @@ public class CenterTests {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
             Size size = windowRect.Size;
-            centerX = monitor.MonitorArea.Width/2  - size.Width / 2;
-            centerY = monitor.MonitorArea.Height/2 - size.Height / 2;
+            centerX = monitor.MonitorArea.Width / 2 - size.Width / 2;
+            centerY = monitor.MonitorArea.Height / 2 - size.Height / 2;
         });
-        
+
         await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));
     }
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments(true)]
-    [Arguments(false)]
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
     public async Task FullIntegration(bool state) {
         // Arrange
 
@@ -78,12 +68,12 @@ public class CenterTests {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
             Size size = windowRect.Size;
-            centerX = monitor.MonitorArea.Width/2  - size.Width / 2;
-            centerY = monitor.MonitorArea.Height/2 - size.Height / 2;
+            centerX = monitor.MonitorArea.Width / 2 - size.Width / 2;
+            centerY = monitor.MonitorArea.Height / 2 - size.Height / 2;
         });
-        
+
         if (state) await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));
         else await Assert.That(window.Location).IsNotEqualTo(new Point(centerX, centerY));
     }
-    
+
 }

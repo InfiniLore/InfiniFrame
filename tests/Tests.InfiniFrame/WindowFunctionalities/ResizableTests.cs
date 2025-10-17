@@ -12,9 +12,7 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class Resizable {
 
-    [Test]
-    [Arguments(true)]
-    [Arguments(false)]
+    [Test, Arguments(true), Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -28,12 +26,8 @@ public class Resizable {
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters.Resizable).IsEqualTo(state);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments(true)]
-    [Arguments(false)]
+
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
     public async Task Window(bool state) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -47,11 +41,7 @@ public class Resizable {
         await Assert.That(foundState).IsEqualTo(state);
     }
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments(true)]
-    [Arguments(false)]
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
     public async Task FullIntegration(bool state) {
         // Arrange
 
@@ -61,10 +51,10 @@ public class Resizable {
                 .SetResizable(state)
         );
         IInfiniFrameWindow window = windowUtility.Window;
-        
+
         // Assert
         bool foundState = window.Resizable;
         await Assert.That(foundState).IsEqualTo(state);
     }
-    
+
 }

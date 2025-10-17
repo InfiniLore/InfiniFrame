@@ -16,7 +16,7 @@ public class RegisterCustomSchemeHandlerTests {
         s2 = null;
         return null;
     }
-    
+
     [Test]
     public async Task Builder() {
         // Arrange
@@ -29,20 +29,19 @@ public class RegisterCustomSchemeHandlerTests {
         await Assert.That(builder.Configuration.CustomSchemeNames).Contains("app");
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
-        
+
         IntPtr target = Marshal.StringToHGlobalAnsi("app");
         try {
             bool found = configParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
             await Assert.That(found).IsTrue();
-        } finally {
-            Marshal.FreeHGlobal(target); // free the temp pointer
+        }
+        finally {
+            Marshal.FreeHGlobal(target);// free the temp pointer
         }
     }
-    
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -59,9 +58,7 @@ public class RegisterCustomSchemeHandlerTests {
             .ContainsKey("app");
     }
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 

@@ -11,72 +11,69 @@ using Tests.Shared;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class IInfiniFrameNativeParameterTests {
-    
+
     // This test only fails if the IInfiniFrameNativeParameters C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.
-    [Test]
-    [SkipUtility.SkipOnLinux]
-    [SkipUtility.SkipOnMacOs]
+    [Test, SkipUtility.SkipOnLinux, SkipUtility.SkipOnMacOs]
     public async Task ReturnAsIsIsValid() {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];
-        customSchemeNames[0] =  Marshal.StringToHGlobalAnsi("NAME");
-        
+        customSchemeNames[0] = Marshal.StringToHGlobalAnsi("NAME");
+
         var parameters = new InfiniFrameNativeParameters {
             StartString = "this is a string",
             StartUrl = "https://www.transgenderinfo.be/",
-            Title = "This is a title" ,
-            WindowIconFile = "icon.ico" ,
-            TemporaryFilesPath = "temp" ,
-            UserAgent = "agent name" ,
-            BrowserControlInitParameters = "some params" ,
-            NotificationRegistrationId = "some id" ,
-            NativeParent = 87654321 ,
+            Title = "This is a title",
+            WindowIconFile = "icon.ico",
+            TemporaryFilesPath = "temp",
+            UserAgent = "agent name",
+            BrowserControlInitParameters = "some params",
+            NotificationRegistrationId = "some id",
+            NativeParent = 87654321,
             CustomSchemeNames = customSchemeNames,
-            Left = 23165 ,
-            Top = 1654 ,
-            Width =  655466,
-            Height = 4546584 ,
-            Zoom = 80 ,
-            MinWidth = 465 ,
+            Left = 23165,
+            Top = 1654,
+            Width = 655466,
+            Height = 4546584,
+            Zoom = 80,
+            MinWidth = 465,
             MinHeight = 489,
-            MaxWidth = 854879 ,
-            MaxHeight = 8798 ,
-            CenterOnInitialize = true ,
+            MaxWidth = 854879,
+            MaxHeight = 8798,
+            CenterOnInitialize = true,
             Chromeless = true,
-            Transparent = true ,
-            ContextMenuEnabled = true ,
-            DevToolsEnabled = true ,
+            Transparent = true,
+            ContextMenuEnabled = true,
+            DevToolsEnabled = true,
             FullScreen = true,
             Maximized = true,
             Minimized = true,
             Resizable = true,
             Topmost = true,
-            UseOsDefaultLocation = true ,
+            UseOsDefaultLocation = true,
             UseOsDefaultSize = true,
-            GrantBrowserPermissions = true ,
+            GrantBrowserPermissions = true,
             MediaAutoplayEnabled = true,
             FileSystemAccessEnabled = true,
             WebSecurityEnabled = true,
-            JavascriptClipboardAccessEnabled = true ,
+            JavascriptClipboardAccessEnabled = true,
             MediaStreamEnabled = true,
             SmoothScrollingEnabled = true,
-            IgnoreCertificateErrorsEnabled = true ,
+            IgnoreCertificateErrorsEnabled = true,
             NotificationsEnabled = true,
             Size = Marshal.SizeOf<InfiniFrameNativeParameters>(),
-            ZoomEnabled = true ,
+            ZoomEnabled = true
         };
 
         // Act
         InfiniFrameNativeParameters newParameters = InfiniWindowNative.NativeParametersReturnAsIs(ref parameters);
 
         // Assert
-        for (int i = 0; i < parameters.CustomSchemeNames.Length; i++)
-        {
+        for (int i = 0; i < parameters.CustomSchemeNames.Length; i++) {
             string? expected = Marshal.PtrToStringAnsi(parameters.CustomSchemeNames[i]);
-            string? actual   = Marshal.PtrToStringAnsi(newParameters.CustomSchemeNames[i]);
+            string? actual = Marshal.PtrToStringAnsi(newParameters.CustomSchemeNames[i]);
             await Assert.That(actual).IsEqualTo(expected);
         }
-        
+
         await Assert.That(parameters.StartString).IsEqualTo(newParameters.StartString);
         await Assert.That(parameters.StartUrl).IsEqualTo(newParameters.StartUrl);
         await Assert.That(parameters.Title).IsEqualTo(newParameters.Title);

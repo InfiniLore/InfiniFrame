@@ -51,11 +51,8 @@ public class WidthTests {
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -68,10 +65,7 @@ public class WidthTests {
         await Assert.That(window.Width).IsEqualTo(500);
     }
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 
@@ -86,11 +80,8 @@ public class WidthTests {
         // Assert
         await Assert.That(window.Width).IsEqualTo(500);
     }
-    
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+
+    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_WithChromelessToGetSmallestWidth() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
@@ -103,9 +94,7 @@ public class WidthTests {
         await Assert.That(window.Width).IsEqualTo(Width);
     }
 
-    [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration_WithChromelessToGetSmallestWidth() {
         // Arrange
 

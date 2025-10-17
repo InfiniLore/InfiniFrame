@@ -40,9 +40,9 @@ public static class Program {
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
-        
+
         IInfiniFrameWindow window = windowBuilder.Build();
-        
+
         window.WaitForClose();
     }
 }

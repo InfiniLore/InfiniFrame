@@ -11,7 +11,7 @@ public static class Program {
         infiniFrameServerBuilder.UsePort(5172, 100);
 
         InfiniFrameServer infiniFrameServer = infiniFrameServerBuilder.Build();
-        
+
         infiniFrameServer.MapInfiniFrameJsEndpoints();
 
         infiniFrameServer.Run();
@@ -22,24 +22,22 @@ public static class Program {
             // .SetUseOsDefaultSize(false)
             .SetTitle("InfiniLore InfiniFrame.NET VUE Sample")
             .SetSize(new Size(800, 600))
-            .SetLocation(1000,0)
+            .SetLocation(1000, 0)
             .SetBrowserControlInitParameters("--remote-debugging-port=9222")
-            
             .RegisterFullScreenWebMessageHandler()
             .RegisterOpenExternalTargetWebMessageHandler()
             .RegisterTitleChangedWebMessageHandler()
             .RegisterWindowManagementWebMessageHandler()
-            
             .RegisterWebMessageReceivedHandler((sender, message) => {
                 if (sender is not IInfiniFrameWindow window) return;
 
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
-        
+
         IInfiniFrameWindow window = windowBuilder.Build();
         // window.SetLocation(new Point(1000,0));
-        
+
         window.WaitForClose();
         infiniFrameServer.Stop();
     }

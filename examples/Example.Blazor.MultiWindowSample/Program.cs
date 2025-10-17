@@ -17,15 +17,15 @@ public static class Program {
     [STAThread]
     private static void Main(string[] args) {
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
-        
+
         // register services
         appBuilder.Services.AddLogging();
-        
+
         CreateWindows(appBuilder,
-        new Queue<WindowCreationArgs>(new[] {
-            new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
-            new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
-        })
+            new Queue<WindowCreationArgs>(new[] {
+                new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
+                new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
+            })
         );
     }
 
@@ -43,12 +43,12 @@ public static class Program {
         InfiniFrameBlazorApp app = appBuilder.Build();
 
         // customize a window
-        
+
         Windows.Add(
             InfiniFrameWindowBuilder.Create()
                 .SetTitle(windowCreationArgs.Title)
                 .SetStartUrl(windowCreationArgs.HtmlPath)
-                .RegisterWindowCreatedHandler((_, _) => Task.Run(() => CreateWindows(appBuilder, windowsToCreate))) 
+                .RegisterWindowCreatedHandler((_, _) => Task.Run(() => CreateWindows(appBuilder, windowsToCreate)))
                 .RegisterWindowClosingHandler((_, _) => {
                     CloseAllWindows();
                     return false;

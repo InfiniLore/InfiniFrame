@@ -8,7 +8,6 @@
             "src\\InfiniLore.InfiniFrame.Server\\InfiniLore.InfiniFrame.Server.csproj",
             "src\\InfiniLore.InfiniFrame.Shared\\InfiniLore.InfiniFrame.Shared.csproj",
             "src\\InfiniLore.InfiniFrame.Native\\InfiniLore.InfiniFrame.Native.proj",
-            
             "tests\\Tests.InfiniFrame\\Tests.InfiniFrame.csproj",
             "tests\\Tests.InfiniFrame.Playwright\\Tests.InfiniFrame.Playwright.csproj",
             "tests\\Tests.Shared\\Tests.Shared.csproj"
