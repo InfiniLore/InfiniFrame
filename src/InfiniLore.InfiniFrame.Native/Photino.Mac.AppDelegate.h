@@ -2,9 +2,8 @@
 #pragma once
 #include <Cocoa/Cocoa.h>
 
-@ interface AppDelegate : NSObject<NSApplicationDelegate, NSWindowDelegate, NSUserNotificationCenterDelegate>{
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate, NSUserNotificationCenterDelegate> {
     NSWindow * window;
-
 }
-@ end
+@end
 #endif

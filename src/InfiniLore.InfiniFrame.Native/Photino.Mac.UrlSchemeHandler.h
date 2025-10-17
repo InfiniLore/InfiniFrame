@@ -2,10 +2,9 @@
 #pragma once
 #include "Photino.h"
 
-@ interface UrlSchemeHandler : NSObject<WKURLSchemeHandler>{
+@interface UrlSchemeHandler : NSObject <WKURLSchemeHandler> {
     @public
     WebResourceRequestedCallback requestHandler;
-
 }
-@ end
+@end
 #endif

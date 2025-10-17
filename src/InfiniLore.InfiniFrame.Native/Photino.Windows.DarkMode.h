@@ -8,14 +8,12 @@ void EnableDarkMode(HWND hwnd, bool enable) noexcept;
 void RefreshNonClientArea(HWND hwnd) noexcept;
 [[nodiscard]] bool IsColorSchemeChange(LPARAM l_param) noexcept;
 
-enum IMMERSIVE_HC_CACHE_MODE
-{
+enum IMMERSIVE_HC_CACHE_MODE {
     IHCM_USE_CACHED_VALUE = 0,
     IHCM_REFRESH = 1,
 };
 
-enum PreferredAppMode
-{
+enum PreferredAppMode {
     Default = 0,
     AllowDark = 1,
     ForceDark = 2,
@@ -23,8 +21,7 @@ enum PreferredAppMode
     Max = 4,
 };
 
-enum WINDOWCOMPOSITIONATTRIB
-{
+enum WINDOWCOMPOSITIONATTRIB {
     WCA_UNDEFINED = 0,
     WCA_NCRENDERING_ENABLED = 1,
     WCA_NCRENDERING_POLICY = 2,
@@ -55,8 +52,7 @@ enum WINDOWCOMPOSITIONATTRIB
     WCA_LAST = 27,
 };
 
-struct WINDOWCOMPOSITIONATTRIBDATA
-{
+struct WINDOWCOMPOSITIONATTRIBDATA {
     WINDOWCOMPOSITIONATTRIB Attrib;
     PVOID pvData;
     SIZE_T cbData;

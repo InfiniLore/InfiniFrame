@@ -4,7 +4,7 @@
     <!-- Cross-platform Visual Studio placeholder for CMake -->
     <PropertyGroup>
         <RestoreProjectStyle>None</RestoreProjectStyle>
-
+        
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
         <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
         <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
@@ -15,61 +15,61 @@
         <!-- map to CMake architecture -->
         <CMakeArch Condition="'$(Platform)'=='x64'">x64</CMakeArch>
         <CMakeArch Condition="'$(Platform)'=='arm64'">ARM64</CMakeArch>
-
+        
         <!-- Fallback in case none matched -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
 
         <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
-
+        
         <!-- Output all binaries to a fixed path under the solution -->
         <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)</NativeOutputDir>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Include all project files for VS Solution Explorer -->
-        <None Include="CMakeLists.txt"/>
-        <None Include="**/*.*" Exclude="CMakeLists.txt;"/>
+        <None Include="CMakeLists.txt" />
+        <None Include="**/*.*" Exclude="CMakeLists.txt;" />
     </ItemGroup>
 
     <!-- Build target -->
     <Target Name="Build">
-        <Message Text="Building InfiniLore.InfiniFrame.Native ($(Configuration)|$(Platform))" Importance="High"/>
+        <Message Text="Building InfiniLore.InfiniFrame.Native ($(Configuration)|$(Platform))" Importance="High" />
 
         <!-- Create build folder -->
-        <MakeDir Directories="$(CMakeBuildDir)"/>
+        <MakeDir Directories="$(CMakeBuildDir)" />
 
         <!-- Windows -->
-        <Exec Condition="$(IsWindows)" Command="cmake -B $(CMakeBuildDir) -S . -A $(CMakeArch)"/>
-        <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)"/>
-
+        <Exec Condition="$(IsWindows)" Command="cmake -B $(CMakeBuildDir) -S . -A $(CMakeArch)" />
+        <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
+        
         <!-- Linux -->
-        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)"/>
-        <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)"/>
+        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)" />
+        <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
 
         <!-- macOS -->
-        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S ."/>
-        <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)"/>
+        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S ." />
+        <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
 
         <!-- Copy native binaries -->
-        <MakeDir Directories="$(NativeOutputDir)"/>
+        <MakeDir Directories="$(NativeOutputDir)" />
 
         <ItemGroup>
-            <NativeBinaries Include="$(CMakeBuildDir)/**/*.dll;$(CMakeBuildDir)/**/*.so;$(CMakeBuildDir)/**/*.dylib"/>
+            <NativeBinaries Include="$(CMakeBuildDir)/**/*.dll;$(CMakeBuildDir)/**/*.so;$(CMakeBuildDir)/**/*.dylib" />
         </ItemGroup>
 
         <Copy SourceFiles="@(NativeBinaries)"
               DestinationFolder="$(NativeOutputDir)"
-              SkipUnchangedFiles="true"/>
+              SkipUnchangedFiles="true" />
 
-        <Message Text="Copied @(NativeBinaries->'%(Filename)%(Extension)') to $(NativeOutputDir)" Importance="High"/>
+        <Message Text="Copied @(NativeBinaries->'%(Filename)%(Extension)') to $(NativeOutputDir)" Importance="High" />
     </Target>
 
     <!-- Clean target -->
     <Target Name="Clean">
-        <Message Text="Cleaning build directory: $(CMakeBuildDir)" Importance="High"/>
-        <RemoveDir Directories="$(CMakeBuildDir)"/>
-        <Message Text="Cleaning artifact directory: $(SolutionDir)artifacts/native/" Importance="High"/>
-        <RemoveDir Directories="$(SolutionDir)artifacts/native/"/>
+        <Message Text="Cleaning build directory: $(CMakeBuildDir)" Importance="High" />
+        <RemoveDir Directories="$(CMakeBuildDir)" />
+        <Message Text="Cleaning artifact directory: $(SolutionDir)artifacts/native/" Importance="High" />
+        <RemoveDir Directories="$(SolutionDir)artifacts/native/" />
     </Target>
 
     <!-- Restore target -->

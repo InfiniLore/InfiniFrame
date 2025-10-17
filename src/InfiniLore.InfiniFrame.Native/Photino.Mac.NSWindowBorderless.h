@@ -2,8 +2,8 @@
 #pragma once
 #include "Photino.h"
 
-@ interface NSWindowBorderless : NSWindow
-    {
-    }
-@ end
+@interface NSWindowBorderless : NSWindow
+{
+}
+@end
 #endif
