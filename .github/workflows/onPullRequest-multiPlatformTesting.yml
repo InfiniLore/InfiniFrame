@@ -458,12 +458,8 @@ jobs:
                     Write-Host "✅ All native DLLs present"
 
             -   name: Run Playwright tests (.NET)
-                run: |
-                    echo "Running tests on Windows..."
-                    dotnet test InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore
+                working-directory: tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/
+                run: .\Tests.InfiniFrame.Playwright.exe
 
             -   name: Upload Playwright test results
                 if: always()
