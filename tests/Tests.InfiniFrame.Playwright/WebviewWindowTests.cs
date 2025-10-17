@@ -20,6 +20,6 @@ public class WebviewWindowTests : InfiniFrameWebviewTest {
         string title = await page.TitleAsync();
 
         // Assert
-        await Assert.That(title).IsEqualTo("Photino Playwright Vue");
+        await Assert.That(title).IsEqualTo("InfiniFrame Playwright Vue");
     }
 }
