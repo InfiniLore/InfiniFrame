@@ -10,16 +10,16 @@ on:
                 description: 'Run Windows GUI tests'
                 type: boolean
                 default: true
+            run_windows_playwright:
+                description: 'Run Windows Playwright tests'
+                type: boolean
+                default: false
             run_linux:
                 description: 'Run Linux GUI tests'
                 type: boolean
                 default: false
             run_macos:
                 description: 'Run macOS GUI tests'
-                type: boolean
-                default: false
-            run_windows_playwright:
-                description: 'Run Windows Playwright tests'
                 type: boolean
                 default: false
 
