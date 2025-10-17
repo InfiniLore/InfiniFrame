@@ -95,7 +95,7 @@ PhotinoDialog::~PhotinoDialog()
 }
 
 template<typename T>
-T* Create(HRESULT* hResult, AutoString title, AutoString defaultPath)
+T* Create(HRESULT* hResult, AutoString title, const AutoString defaultPath)
 {
 	static_assert(std::is_base_of<IFileDialog, T>::value, "T must inherit from IFileDialog");
 	T* pfd = nullptr;
@@ -173,7 +173,7 @@ AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount)
 	return nullptr;
 }
 
-AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath, bool multiSelect, AutoString* filters, int filterCount, int* resultCount)
+AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount)
 {
 	HRESULT hr;
 	title = _window->ToUTF16String(title);
@@ -204,7 +204,7 @@ AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath
 	return nullptr;
 }
 
-AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount)
+AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, const bool multiSelect, int* resultCount)
 {
 	HRESULT hr;	
 	title = _window->ToUTF16String(title);
@@ -233,7 +233,7 @@ AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPa
 	return nullptr;
 }
 
-AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, int filterCount, AutoString defaultFileName)
+AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, const int filterCount, AutoString defaultFileName)
 {
 	HRESULT hr;
 	title = _window->ToUTF16String(title);
@@ -276,7 +276,7 @@ AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath,
 	return nullptr;
 }
 
-DialogResult PhotinoDialog::ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon)
+DialogResult PhotinoDialog::ShowMessage(AutoString title, AutoString text, const DialogButtons buttons, const DialogIcon icon)
 {
 	title = _window->ToUTF16String(title);
 	text = _window->ToUTF16String(text);

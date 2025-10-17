@@ -4,11 +4,13 @@
 #include <Windows.h>
 #include <wil/com.h>
 #include <WebView2.h>
-typedef wchar_t *AutoString;
+typedef wchar_t* AutoString;
+typedef const wchar_t* AutoStringConst;
 class WinToastHandler;
 #else
 // AutoString for macOS/Linux
-typedef char *AutoString;
+typedef char* AutoString;
+typedef const chat* AutoStringConst;
 #endif
 
 #ifdef __APPLE__
@@ -129,7 +131,7 @@ private:
 	ClosingCallback _closingCallback;
 	FocusInCallback _focusInCallback;
 	FocusOutCallback _focusOutCallback;
-	std::vector<AutoString> _customSchemeNames;
+	std::vector<AutoStringConst> _customSchemeNames;
 	WebResourceRequestedCallback _customSchemeCallback;
 
 	AutoString _startUrl;
@@ -168,7 +170,6 @@ private:
 	bool EnsureWebViewIsInstalled();
 	bool InstallWebView2();
 	void AttachWebView();
-	bool ToWide(PhotinoInitParams* params);
 	
 #elif __linux__
 	// GtkWidget* _window;
@@ -239,7 +240,7 @@ public:
 	static void Register();
 #endif
 
-	Photino(PhotinoInitParams *initParams);
+    explicit Photino(PhotinoInitParams *initParams);
 	~Photino();
 
 	PhotinoDialog *GetDialog() const { return _dialog; };
@@ -300,57 +301,56 @@ public:
 	void CloseWebView();
 
 	// Callbacks
-	void AddCustomSchemeName(AutoString scheme) { _customSchemeNames.push_back((AutoString)scheme); };
+	void AddCustomSchemeName(const AutoStringConst scheme) { _customSchemeNames.push_back(scheme); }
 	void GetAllMonitors(GetAllMonitorsCallback callback);
-	void SetClosingCallback(ClosingCallback callback) { _closingCallback = callback; }
-	void SetFocusInCallback(FocusInCallback callback) { _focusInCallback = callback; }
-	void SetFocusOutCallback(FocusOutCallback callback) { _focusOutCallback = callback; }
-	void SetMovedCallback(MovedCallback callback) { _movedCallback = callback; }
-	void SetResizedCallback(ResizedCallback callback) { _resizedCallback = callback; }
-	void SetMaximizedCallback(MaximizedCallback callback) { _maximizedCallback = callback; }
-	void SetRestoredCallback(RestoredCallback callback) { _restoredCallback = callback; }
-	void SetMinimizedCallback(MinimizedCallback callback) { _minimizedCallback = callback; }
+	void SetClosingCallback(const ClosingCallback callback) { _closingCallback = callback; }
+	void SetFocusInCallback(const FocusInCallback callback) { _focusInCallback = callback; }
+	void SetFocusOutCallback(const FocusOutCallback callback) { _focusOutCallback = callback; }
+	void SetMovedCallback(const MovedCallback callback) { _movedCallback = callback; }
+	void SetResizedCallback(const ResizedCallback callback) { _resizedCallback = callback; }
+	void SetMaximizedCallback(const MaximizedCallback callback) { _maximizedCallback = callback; }
+	void SetRestoredCallback(const RestoredCallback callback) { _restoredCallback = callback; }
+	void SetMinimizedCallback(const MinimizedCallback callback) { _minimizedCallback = callback; }
 
 	void Invoke(ACTION callback);
-	bool InvokeClose()
-	{
-		if (_closingCallback)
-			return _closingCallback();
-		else
-			return false;
-	}
-	void InvokeFocusIn()
-	{
+
+    [[nodiscard]] bool InvokeClose() const
+    {
+        return _closingCallback && _closingCallback();
+    }
+
+	void InvokeFocusIn() const
+    {
 		if (_focusInCallback)
 			return _focusInCallback();
 	}
-	void InvokeFocusOut()
-	{
+	void InvokeFocusOut() const
+    {
 		if (_focusOutCallback)
 			return _focusOutCallback();
 	}
-	void InvokeMove(int x, int y)
-	{
+	void InvokeMove(const int x, const int y) const
+    {
 		if (_movedCallback)
 			_movedCallback(x, y);
 	}
-	void InvokeResize(int width, int height)
-	{
+	void InvokeResize(const int width, const int height) const
+    {
 		if (_resizedCallback)
 			_resizedCallback(width, height);
 	}
-	void InvokeMaximized()
-	{
+	void InvokeMaximized() const
+    {
 		if (_maximizedCallback)
 			return _maximizedCallback();
 	}
-	void InvokeRestored()
-	{
+	void InvokeRestored() const
+    {
 		if (_restoredCallback)
 			return _restoredCallback();
 	}
-	void InvokeMinimized()
-	{
+	void InvokeMinimized() const
+    {
 		if (_minimizedCallback)
 			return _minimizedCallback();
 	}

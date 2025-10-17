@@ -58,7 +58,7 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 	// It makes xlib thread safe.
 	// Needed for get_position.
 	XInitThreads();
-	gtk_init(0, NULL);
+	gtk_init(nullptr, nullptr);
 	notify_init(initParams->Title);
 
 	if (initParams->Size != sizeof(PhotinoInitParams))
@@ -71,52 +71,52 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 	}
 
 	_windowTitle = new char[256];
-	if (initParams->Title != NULL)
+	if (initParams->Title != nullptr)
 		strcpy(_windowTitle, initParams->Title);
 	else
 		_windowTitle[0] = 0;
 
-	_startUrl = NULL;
-	if (initParams->StartUrl != NULL)
+	_startUrl = nullptr;
+	if (initParams->StartUrl != nullptr)
 	{
 		_startUrl = new char[2048];
-		if (_startUrl == NULL)
+		if (_startUrl == nullptr)
 			exit(0);
 		strcpy(_startUrl, initParams->StartUrl);
 	}
 
-	_startString = NULL;
-	if (initParams->StartString != NULL)
+	_startString = nullptr;
+	if (initParams->StartString != nullptr)
 	{
 		_startString = new char[strlen(initParams->StartString) + 1];
-		if (_startString == NULL)
+		if (_startString == nullptr)
 			exit(0);
 		strcpy(_startString, initParams->StartString);
 	}
 
-	_temporaryFilesPath = NULL;
-	if (initParams->TemporaryFilesPath != NULL)
+	_temporaryFilesPath = nullptr;
+	if (initParams->TemporaryFilesPath != nullptr)
 	{
 		_temporaryFilesPath = new char[256];
-		if (_temporaryFilesPath == NULL)
+		if (_temporaryFilesPath == nullptr)
 			exit(0);
 		strcpy(_temporaryFilesPath, initParams->TemporaryFilesPath);
 	}
 
-	_userAgent = NULL;
-	if (initParams->UserAgent != NULL)
+	_userAgent = nullptr;
+	if (initParams->UserAgent != nullptr)
 	{
 		_userAgent = new char[strlen(initParams->UserAgent) + 1];
-		if (_userAgent == NULL)
+		if (_userAgent == nullptr)
 			exit(0);
 		strcpy(_userAgent, initParams->UserAgent);
 	}
 
-	_browserControlInitParameters = NULL;
-	if (initParams->BrowserControlInitParameters != NULL)
+	_browserControlInitParameters = nullptr;
+	if (initParams->BrowserControlInitParameters != nullptr)
 	{
 		_browserControlInitParameters = new char[strlen(initParams->BrowserControlInitParameters) + 1];
-		if (_browserControlInitParameters == NULL)
+		if (_browserControlInitParameters == nullptr)
 			exit(0);
 		strcpy(_browserControlInitParameters, initParams->BrowserControlInitParameters);
 	}
@@ -156,7 +156,7 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 	// copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)
 	{
-		if (initParams->CustomSchemeNames[i] != NULL)
+		if (initParams->CustomSchemeNames[i] != nullptr)
 		{
 			char *name = new char[50];
 			strcpy(name, initParams->CustomSchemeNames[i]);
@@ -200,7 +200,7 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 	if (initParams->Chromeless)
 		gtk_window_set_decorated(GTK_WINDOW(_window), false);
 
-	if (initParams->WindowIconFile != NULL && strlen(initParams->WindowIconFile) > 0)
+	if (initParams->WindowIconFile != nullptr && strlen(initParams->WindowIconFile) > 0)
 		Photino::SetIconFile(initParams->WindowIconFile);
 
 	if (initParams->CenterOnInitialize)
@@ -218,7 +218,7 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 	if (initParams->Topmost)
 		Photino::SetTopmost(true);
 
-	if (_parent == NULL)
+	if (_parent == nullptr)
 	{
 		g_signal_connect(G_OBJECT(_window), "destroy",
 						 G_CALLBACK(+[](GtkWidget *w, gpointer arg)
@@ -299,7 +299,7 @@ void Photino::Center()
 	GdkRectangle screen = {0};
 
 	GdkDisplay *d = gdk_display_get_default();
-	if (d == NULL)
+	if (d == nullptr)
 	{
 		GtkWidget *dialog = gtk_message_dialog_new(
 			nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "gdk_display_get_default() returned NULL");
@@ -309,10 +309,10 @@ void Photino::Center()
 	}
 
 	GdkMonitor *m = gdk_display_get_primary_monitor(d);
-	if (m == NULL)
+	if (m == nullptr)
 	{
 		m = gdk_display_get_monitor(d, 0); // Attempt to get the first monitor
-        if (m == NULL)
+        if (m == nullptr)
         {
 			GtkWidget *dialog = gtk_message_dialog_new(
 				nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "gdk_display_get_primary_monitor() returned NULL");
@@ -502,12 +502,12 @@ void Photino::GetZoom(int *zoom)
 	*zoom = (int)rawValue;
 }
 
-void Photino::NavigateToString(AutoString content)
+void Photino::NavigateToString(const AutoString content)
 {
-	webkit_web_view_load_html(WEBKIT_WEB_VIEW(_webview), content, NULL);
+	webkit_web_view_load_html(WEBKIT_WEB_VIEW(_webview), content, nullptr);
 }
 
-void Photino::NavigateToUrl(AutoString url)
+void Photino::NavigateToUrl(const AutoString url)
 {
 	webkit_web_view_load_uri(WEBKIT_WEB_VIEW(_webview), url);
 }
@@ -561,13 +561,13 @@ std::string escape_json(const std::string &s)
 	return o.str();
 }
 
-static void webview_eval_finished(GObject *object, GAsyncResult *result, gpointer userdata)
+static void webview_eval_finished(GObject *object, GAsyncResult *result, const gpointer userdata)
 {
 	InvokeJSWaitInfo *waitInfo = (InvokeJSWaitInfo *)userdata;
 	waitInfo->isCompleted = true;
 }
 
-void Photino::SendWebMessage(AutoString message)
+void Photino::SendWebMessage(const AutoString message)
 {
 	std::string js;
 	js.append("__dispatchMessageCallback(\"");
@@ -576,16 +576,16 @@ void Photino::SendWebMessage(AutoString message)
 
 	InvokeJSWaitInfo invokeJsWaitInfo = {};
 
-	webkit_web_view_run_javascript(WEBKIT_WEB_VIEW(_webview), js.c_str(), NULL, webview_eval_finished, &invokeJsWaitInfo);
+	webkit_web_view_run_javascript(WEBKIT_WEB_VIEW(_webview), js.c_str(), nullptr, webview_eval_finished, &invokeJsWaitInfo);
 	// Todo: Replace deprecated webkit_web_view_run_javascript webkit_web_view_evaluate_javascript
 
 	while (!invokeJsWaitInfo.isCompleted)
 	{
-		g_main_context_iteration(NULL, TRUE);
+		g_main_context_iteration(nullptr, TRUE);
 	}
 }
 
-void Photino::SetContextMenuEnabled(bool enabled)
+void Photino::SetContextMenuEnabled(const bool enabled)
 {
 	_contextMenuEnabled = enabled;
 }
@@ -595,14 +595,14 @@ void Photino::SetZoomEnabled(bool enabled)
     //! Not implemented (supported?) on Linux
 }
 
-void Photino::SetDevToolsEnabled(bool enabled)
+void Photino::SetDevToolsEnabled(const bool enabled)
 {
 	_devToolsEnabled = enabled;
 	WebKitSettings *settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(_webview));
 	webkit_settings_set_enable_developer_extras(settings, _devToolsEnabled);
 }
 
-void Photino::SetFullScreen(bool fullScreen)
+void Photino::SetFullScreen(const bool fullScreen)
 {
 	if (fullScreen)
 		gtk_window_fullscreen(GTK_WINDOW(_window));
@@ -612,12 +612,12 @@ void Photino::SetFullScreen(bool fullScreen)
 	_isFullScreen = fullScreen;
 }
 
-void Photino::SetIconFile(AutoString filename)
+void Photino::SetIconFile(const AutoString filename)
 {
-	gtk_window_set_icon_from_file(GTK_WINDOW(_window), filename, NULL);
+	gtk_window_set_icon_from_file(GTK_WINDOW(_window), filename, nullptr);
 }
 
-void Photino::SetMinimized(bool minimized)
+void Photino::SetMinimized(const bool minimized)
 {
 	if (minimized)
 		gtk_window_iconify(GTK_WINDOW(_window));
@@ -625,7 +625,7 @@ void Photino::SetMinimized(bool minimized)
 		gtk_window_deiconify(GTK_WINDOW(_window));
 }
 
-void Photino::SetMaximized(bool maximized)
+void Photino::SetMaximized(const bool maximized)
 {
 	_isFullScreen = maximized;
 	if (maximized)
@@ -634,62 +634,62 @@ void Photino::SetMaximized(bool maximized)
 		gtk_window_unmaximize(GTK_WINDOW(_window));
 }
 
-void Photino::SetPosition(int x, int y)
+void Photino::SetPosition(const int x, const int y)
 {
 	gtk_window_move(GTK_WINDOW(_window), x, y);
 }
 
-void Photino::SetResizable(bool resizable)
+void Photino::SetResizable(const bool resizable)
 {
 	gtk_window_set_resizable(GTK_WINDOW(_window), resizable);
 }
 
-void Photino::SetMinSize(int width, int height)
+void Photino::SetMinSize(const int width, const int height)
 {
     _hints.min_width = width;
     _hints.min_height = height;
 
     gtk_window_set_geometry_hints(
 		GTK_WINDOW(_window),
-		NULL,
+        nullptr,
 		&_hints,
 		(GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
 }
 
-void Photino::SetMaxSize(int width, int height)
+void Photino::SetMaxSize(const int width, const int height)
 {	
     _hints.max_width = width;
     _hints.max_height = height;
 
     gtk_window_set_geometry_hints(
 		GTK_WINDOW(_window),
-		NULL,
+        nullptr,
 		&_hints,
 		(GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
 }
 
-void Photino::SetSize(int width, int height)
+void Photino::SetSize(const int width, const int height)
 {
 	gtk_window_resize(GTK_WINDOW(_window), width, height);
 }
 
-void Photino::SetTitle(AutoString title)
+void Photino::SetTitle(const AutoString title)
 {
 	gtk_window_set_title(GTK_WINDOW(_window), title);
 }
 
-void Photino::SetTopmost(bool topmost)
+void Photino::SetTopmost(const bool topmost)
 {
 	gtk_window_set_keep_above(GTK_WINDOW(_window), topmost);
 }
 
-void Photino::SetZoom(int zoom)
+void Photino::SetZoom(const int zoom)
 {
 	double newZoom = zoom / 100.0;
 	webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(_webview), newZoom);
 }
 
-void Photino::SetTransparentEnabled(bool enabled)
+void Photino::SetTransparentEnabled(const bool enabled)
 {
 	_transparentEnabled = enabled;
 
@@ -713,11 +713,11 @@ void Photino::SetTransparentEnabled(bool enabled)
 	}
 }
 
-void Photino::ShowNotification(AutoString title, AutoString message)
+void Photino::ShowNotification(const AutoString title, const AutoString message)
 {
 	NotifyNotification *notification = notify_notification_new(title, message, nullptr);
 	notify_notification_set_icon_from_pixbuf(notification, gtk_window_get_icon(GTK_WINDOW(_window)));
-	notify_notification_show(notification, NULL);
+	notify_notification_show(notification, nullptr);
 	g_object_unref(G_OBJECT(notification));
 }
 
@@ -727,7 +727,7 @@ void Photino::WaitForExit()
 }
 
 // Callbacks
-void Photino::GetAllMonitors(GetAllMonitorsCallback callback)
+void Photino::GetAllMonitors(const GetAllMonitorsCallback callback)
 {
 	if (callback)
 	{
@@ -747,7 +747,7 @@ void Photino::GetAllMonitors(GetAllMonitorsCallback callback)
 	}
 }
 
-static gboolean invokeCallback(gpointer data)
+static gboolean invokeCallback(const gpointer data)
 {
 	InvokeWaitInfo *waitInfo = (InvokeWaitInfo *)data;
 	waitInfo->callback();
@@ -759,7 +759,7 @@ static gboolean invokeCallback(gpointer data)
 	return false;
 }
 
-void Photino::Invoke(ACTION callback)
+void Photino::Invoke(const ACTION callback)
 {
 	InvokeWaitInfo waitInfo = {};
 	waitInfo.callback = callback;
@@ -773,7 +773,7 @@ void Photino::Invoke(ACTION callback)
 }
 
 // Private methods
-void HandleWebMessage(WebKitUserContentManager *contentManager, WebKitJavascriptResult *jsResult, gpointer arg)
+void HandleWebMessage(WebKitUserContentManager *contentManager, WebKitJavascriptResult *jsResult, const gpointer arg)
 {
 	JSCValue *jsValue = webkit_javascript_result_get_js_value(jsResult);
 	if (jsc_value_is_string(jsValue))
@@ -793,7 +793,7 @@ void Photino::Show(bool isAlreadyShown)
 	if (!_webview)
 	{
 		struct sigaction old_action;
-		sigaction(SIGCHLD, NULL, &old_action);
+		sigaction(SIGCHLD, nullptr, &old_action);
 		WebKitUserContentManager *contentManager = webkit_user_content_manager_new();
 		_webview = webkit_web_view_new_with_user_content_manager(contentManager);
 
@@ -817,7 +817,7 @@ void Photino::Show(bool isAlreadyShown)
 			"		window.__receiveMessageCallbacks.push(callback);"
 			"	}"
 			"};",
-			WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES, WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, NULL, NULL);
+			WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES, WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, nullptr, nullptr);
 		webkit_user_content_manager_add_script(contentManager, script);
 		webkit_user_script_unref(script);
 
@@ -825,9 +825,9 @@ void Photino::Show(bool isAlreadyShown)
 						 G_CALLBACK(HandleWebMessage), (void *)_webMessageReceivedCallback);
 		webkit_user_content_manager_register_script_message_handler(contentManager, "Photinointerop");
 
-		if (_startUrl != NULL)
+		if (_startUrl != nullptr)
 			Photino::NavigateToUrl(_startUrl);
-		else if (_startString != NULL)
+		else if (_startString != nullptr)
 			Photino::NavigateToString(_startString);
 		else
 		{
@@ -837,7 +837,7 @@ void Photino::Show(bool isAlreadyShown)
 			gtk_widget_destroy(dialog);
 			exit(0);
 		}
-		sigaction(SIGCHLD, &old_action, NULL);
+		sigaction(SIGCHLD, &old_action, nullptr);
 	}
 
 	gtk_widget_show_all(_window);
@@ -916,7 +916,7 @@ void Photino::set_webkit_settings()
 		// "hardware_acceleration_policy", WEBKIT_HARDWARE_ACCELERATION_POLICY_ALWAYS,	// default: WEBKIT_HARDWARE_ACCELERATION_POLICY_ALWAYS
 		NULL); // NULL terminates the list
 
-	if (_browserControlInitParameters != NULL && strlen(_browserControlInitParameters) > 0)
+	if (_browserControlInitParameters != nullptr && strlen(_browserControlInitParameters) > 0)
 		Photino::set_webkit_customsettings(settings);		//if any custom init parameters were passed, set them now.
 
 	WebKitWebsiteDataManager* manager = webkit_web_view_get_website_data_manager(WEBKIT_WEB_VIEW(_webview));
@@ -981,7 +981,7 @@ void Photino::set_webkit_customsettings(WebKitSettings* settings)
 	}
 }
 
-gboolean on_configure_event(GtkWidget *widget, GdkEvent *event, gpointer self)
+gboolean on_configure_event(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
 	if (event->type == GDK_CONFIGURE)
 	{
@@ -1004,7 +1004,7 @@ gboolean on_configure_event(GtkWidget *widget, GdkEvent *event, gpointer self)
 	return FALSE;
 }
 
-gboolean on_window_state_event(GtkWidget *widget, GdkEventWindowState *event, gpointer self)
+gboolean on_window_state_event(GtkWidget *widget, GdkEventWindowState *event, const gpointer self)
 {
 	Photino *instance = ((Photino *)self);
 	if (event->new_window_state & GDK_WINDOW_STATE_MAXIMIZED)
@@ -1022,20 +1022,20 @@ gboolean on_window_state_event(GtkWidget *widget, GdkEventWindowState *event, gp
 	return TRUE;
 }
 
-gboolean on_widget_deleted(GtkWidget *widget, GdkEvent *event, gpointer self)
+gboolean on_widget_deleted(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
 	Photino *instance = ((Photino *)self);
 	return instance->InvokeClose();
 }
 
-gboolean on_focus_in_event(GtkWidget *widget, GdkEvent *event, gpointer self)
+gboolean on_focus_in_event(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
 	Photino *instance = ((Photino *)self);
 	instance->InvokeFocusIn();
 	return FALSE;
 }
 
-gboolean on_focus_out_event(GtkWidget *widget, GdkEvent *event, gpointer self)
+gboolean on_focus_out_event(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
 	Photino *instance = ((Photino *)self);
 	instance->InvokeFocusOut();
@@ -1043,7 +1043,7 @@ gboolean on_focus_out_event(GtkWidget *widget, GdkEvent *event, gpointer self)
 }
 
 gboolean on_webview_context_menu(WebKitWebView *web_view, GtkWidget *default_menu,
-								 WebKitHitTestResult *hit_test_result, gboolean triggered_with_keyboard, gpointer self)
+								 WebKitHitTestResult *hit_test_result, gboolean triggered_with_keyboard, const gpointer self)
 {
 	Photino *instance = ((Photino *)self);
 	return !instance->_contextMenuEnabled;
@@ -1060,7 +1060,7 @@ gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest 
 	return FALSE;
 }
 
-void HandleCustomSchemeRequest(WebKitURISchemeRequest *request, gpointer user_data)
+void HandleCustomSchemeRequest(WebKitURISchemeRequest *request, const gpointer user_data)
 {
 	WebResourceRequestedCallback webResourceRequestedCallback = (WebResourceRequestedCallback)user_data;
 
@@ -1068,7 +1068,7 @@ void HandleCustomSchemeRequest(WebKitURISchemeRequest *request, gpointer user_da
 	int numBytes;
 	AutoString contentType;
 	void *dotNetResponse = webResourceRequestedCallback((AutoString)uri, &numBytes, &contentType);
-	GInputStream *stream = g_memory_input_stream_new_from_data(dotNetResponse, numBytes, NULL);
+	GInputStream *stream = g_memory_input_stream_new_from_data(dotNetResponse, numBytes, nullptr);
 	webkit_uri_scheme_request_finish(request, (GInputStream *)stream, -1, contentType);
 	g_object_unref(stream);
 	delete[] contentType;
@@ -1080,7 +1080,7 @@ void Photino::AddCustomSchemeHandlers()
 	for (const auto &value : _customSchemeNames)
 	{
 		webkit_web_context_register_uri_scheme(
-			context, value, (WebKitURISchemeRequestCallback)HandleCustomSchemeRequest, (void *)_customSchemeCallback, NULL);
+			context, value, (WebKitURISchemeRequestCallback)HandleCustomSchemeRequest, (void *)_customSchemeCallback, nullptr);
 	}
 }
 
