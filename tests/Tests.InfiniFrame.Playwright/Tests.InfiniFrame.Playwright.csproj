@@ -5,6 +5,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+
         <!-- Force default platform to x64 if AnyCPU or empty -->
         <Platform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</Platform>
 
