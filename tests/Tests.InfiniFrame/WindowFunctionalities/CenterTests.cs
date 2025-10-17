@@ -14,7 +14,9 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterTests {
 
-    [Test, Arguments(true), Arguments(false)]
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,7 +31,10 @@ public class CenterTests {
         await Assert.That(configParameters.CenterOnInitialize).IsEqualTo(state);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -51,7 +56,12 @@ public class CenterTests {
         await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state) {
         // Arrange
 

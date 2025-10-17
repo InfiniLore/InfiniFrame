@@ -28,7 +28,9 @@ public class MinHeightTests {
         await Assert.That(configParameters.MinHeight).IsEqualTo(MinHeight);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -41,7 +43,9 @@ public class MinHeightTests {
         await Assert.That(window.MinHeight).IsEqualTo(500);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 

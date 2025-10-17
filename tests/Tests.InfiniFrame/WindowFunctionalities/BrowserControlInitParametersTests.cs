@@ -12,7 +12,9 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class BrowserControlInitParametersTests {
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();

@@ -12,7 +12,9 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TopMostTests {
 
-    [Test, Arguments(true), Arguments(false)]
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -27,7 +29,12 @@ public class TopMostTests {
         await Assert.That(configParameters.Topmost).IsEqualTo(state);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux, NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window(bool state) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -40,7 +47,12 @@ public class TopMostTests {
         await Assert.That(window.TopMost).IsEqualTo(state);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux, NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state) {
         // Arrange
 

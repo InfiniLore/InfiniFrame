@@ -8,7 +8,9 @@ public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task InstanceHandle_IsDefined() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -20,7 +22,9 @@ public class WindowTests {
         await Assert.That(window.InstanceHandle).IsNotDefault();
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task WindowHandle_IsDefined() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -34,7 +38,9 @@ public class WindowTests {
         else await Assert.That(handle).IsEqualTo(IntPtr.Zero);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Monitors_IsNotEmpty() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -47,7 +53,9 @@ public class WindowTests {
         await Assert.That(monitors).IsNotEmpty();
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task NativeType_IsDefined() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -59,7 +67,9 @@ public class WindowTests {
         await Assert.That(window.NativeType).IsNotDefault();
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Close_IsDefined() {
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();

@@ -12,7 +12,9 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class DevToolsTests {
 
-    [Test, Arguments(true), Arguments(false)]
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -27,7 +29,12 @@ public class DevToolsTests {
         await Assert.That(configParameters.DevToolsEnabled).IsEqualTo(state);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection"), NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window(bool state) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -41,7 +48,12 @@ public class DevToolsTests {
         await Assert.That(foundState).IsEqualTo(state);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection"), NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state) {
         // Arrange
 

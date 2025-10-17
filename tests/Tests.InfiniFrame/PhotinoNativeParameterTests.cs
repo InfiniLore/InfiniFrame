@@ -13,7 +13,9 @@ using Tests.Shared;
 public class IInfiniFrameNativeParameterTests {
 
     // This test only fails if the IInfiniFrameNativeParameters C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.
-    [Test, SkipUtility.SkipOnLinux, SkipUtility.SkipOnMacOs]
+    [Test]
+    [SkipUtility.SkipOnLinux]
+    [SkipUtility.SkipOnMacOs]
     public async Task ReturnAsIsIsValid() {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];

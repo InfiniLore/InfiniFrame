@@ -58,7 +58,10 @@ public class LocationTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]   
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -71,7 +74,10 @@ public class LocationTests {
         await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_AsPoint() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -84,7 +90,8 @@ public class LocationTests {
         await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
     }
 
-    [Test, SkipUtility.SkipOnMacOs]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
     public async Task FullIntegration() {
         // Arrange
 

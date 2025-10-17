@@ -12,7 +12,10 @@ using Tests.Shared;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterOnCurrentMonitorTests {
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();

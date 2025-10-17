@@ -41,7 +41,9 @@ public class RegisterCustomSchemeHandlerTests {
     }
 
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -58,7 +60,9 @@ public class RegisterCustomSchemeHandlerTests {
             .ContainsKey("app");
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 

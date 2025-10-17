@@ -12,7 +12,13 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class OffsetTests {
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame), Arguments(0, 0), Arguments(100, 100), Arguments(-100, -100)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(0, 0)]
+    [Arguments(100, 100)]
+    [Arguments(-100, -100)]
     public async Task Window(int x, int y) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -28,7 +34,13 @@ public class OffsetTests {
         await Assert.That(location.Y).IsEqualTo(initialLocation.Y + y);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame), Arguments(0, 0), Arguments(100, 100), Arguments(-100, -100)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(0, 0)]
+    [Arguments(100, 100)]
+    [Arguments(-100, -100)]
     public async Task Window_AsPoint(int x, int y) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -44,7 +56,13 @@ public class OffsetTests {
         await Assert.That(location.Y).IsEqualTo(initialLocation.Y + y);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame), Arguments(0, 0), Arguments(100, 100), Arguments(-100, -100)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(0, 0)]
+    [Arguments(100, 100)]
+    [Arguments(-100, -100)]
     public async Task Window_AsDouble(double x, double y) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();

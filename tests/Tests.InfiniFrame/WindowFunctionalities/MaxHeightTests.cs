@@ -28,7 +28,9 @@ public class MaxHeightTests {
         await Assert.That(configParameters.MaxHeight).IsEqualTo(MaxHeight);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -41,7 +43,9 @@ public class MaxHeightTests {
         await Assert.That(window.MaxHeight).IsEqualTo(500);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 

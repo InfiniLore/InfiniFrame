@@ -29,7 +29,8 @@ public class HeightTests {
         await Assert.That(configParameters.Height).IsEqualTo(Height);
     }
 
-    [Test, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -52,7 +53,10 @@ public class HeightTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -65,7 +69,9 @@ public class HeightTests {
         await Assert.That(window.Height).IsEqualTo(500);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 
@@ -81,7 +87,10 @@ public class HeightTests {
         await Assert.That(window.Height).IsEqualTo(500);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_WithChromelessToGetSmallestHeight() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
@@ -94,7 +103,9 @@ public class HeightTests {
         await Assert.That(window.Height).IsEqualTo(Height);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration_WithChromelessToGetSmallestHeight() {
         // Arrange
 

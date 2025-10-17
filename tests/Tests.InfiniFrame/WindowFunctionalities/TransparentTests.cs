@@ -12,7 +12,9 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TransparentTests {
 
-    [Test, Arguments(true), Arguments(false)]
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -27,7 +29,12 @@ public class TransparentTests {
         await Assert.That(configParameters.Transparent).IsEqualTo(state);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux("For some reason the tets environment doesnt support transparency"), NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux("For some reason the tets environment doesnt support transparency")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window(bool state) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -41,7 +48,11 @@ public class TransparentTests {
         await Assert.That(window.Transparent).IsEqualTo(state);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(true), Arguments(false)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state) {
         // Arrange
 

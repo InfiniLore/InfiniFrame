@@ -28,7 +28,9 @@ public class MaxWidthTests {
         await Assert.That(configParameters.MaxWidth).IsEqualTo(MaxWidth);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -41,7 +43,9 @@ public class MaxWidthTests {
         await Assert.That(window.MaxWidth).IsEqualTo(500);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 

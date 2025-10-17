@@ -57,7 +57,10 @@ public class SizeTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -70,7 +73,10 @@ public class SizeTests {
         await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_AsSize() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -83,7 +89,9 @@ public class SizeTests {
         await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 
@@ -99,7 +107,10 @@ public class SizeTests {
         await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, SkipUtility.SkipOnMacOs, SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement), NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_WithChromelessToGetSmallestSize() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
@@ -112,7 +123,9 @@ public class SizeTests {
         await Assert.That(window.Size).IsEqualTo(new Size(Width, Height));
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration_WithChromelessToGetSmallestSize() {
         // Arrange
 

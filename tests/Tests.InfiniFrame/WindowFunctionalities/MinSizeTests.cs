@@ -32,7 +32,9 @@ public class MinSizeTests {
         await Assert.That(configParameters.MinHeight).IsEqualTo(Height);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -45,7 +47,9 @@ public class MinSizeTests {
         await Assert.That(window.MinSize).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_AsSize() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -58,7 +62,9 @@ public class MinSizeTests {
         await Assert.That(window.MinSize).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 

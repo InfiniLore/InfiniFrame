@@ -44,7 +44,9 @@ public class IconFilePathTests {
         await Assert.That(builder.Configuration.ToParameters()).IsEqualTo(expectedConfigParameters);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -57,7 +59,9 @@ public class IconFilePathTests {
         await Assert.That(window.IconFilePath).IsEqualTo(IconFilePath);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_ShouldNotSetInvalidIconFilePath() {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -70,7 +74,9 @@ public class IconFilePathTests {
         await Assert.That(window.IconFilePath).IsEqualTo(null);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame)]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 

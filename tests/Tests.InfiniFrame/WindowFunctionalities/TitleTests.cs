@@ -12,7 +12,12 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TitleTests {
 
-    [Test, Arguments(""), Arguments(null), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
+    [Test]
+    [Arguments("")]
+    [Arguments(null)]
+    [Arguments("InfiniWindow")]
+    [Arguments("Ω")]
+    [Arguments("🏳️‍⚧️")]
     public async Task Builder(string? title) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,7 +34,14 @@ public class TitleTests {
         else await Assert.That(configParameters.Title).IsEqualTo(title);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(""), Arguments(null), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments("")]
+    [Arguments(null)]
+    [Arguments("InfiniWindow")]
+    [Arguments("Ω")]
+    [Arguments("🏳️‍⚧️")]
     public async Task Window(string? title) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
@@ -43,7 +55,14 @@ public class TitleTests {
         else await Assert.That(window.Title).IsEqualTo(title);
     }
 
-    [Test, SkipUtility.SkipOnMacOs, NotInParallel(ParallelControl.InfiniFrame), Arguments(""), Arguments(null), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments("")]
+    [Arguments(null)]
+    [Arguments("InfiniWindow")]
+    [Arguments("Ω")]
+    [Arguments("🏳️‍⚧️")]
     public async Task FullIntegration(string? title) {
         // Arrange
 
