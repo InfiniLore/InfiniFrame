@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSharedSettings">
+    <configurations>
+      <configuration PROFILE_NAME="DebugWindows" ENABLED="true" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="ReleaseWindows" ENABLED="true" CONFIG_NAME="Release" />
+      <configuration PROFILE_NAME="DebugLinux" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="WSL" />
+    </configurations>
+  </component>
+</project>
