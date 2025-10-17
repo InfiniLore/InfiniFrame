@@ -18,6 +18,10 @@ on:
                 description: 'Run macOS GUI tests'
                 type: boolean
                 default: false
+            run_windows_playwright:
+                description: 'Run Windows Playwright tests'
+                type: boolean
+                default: false
 
 jobs:
     mark-pending:
@@ -393,6 +397,103 @@ jobs:
                         -Body $body `
                         -ContentType "application/json"
 
+    windows-playwright:
+        if: ${{ github.event.inputs.run_windows_playwright == 'true' }}
+        needs: mark-pending
+        name: Test Playwright - Windows
+        runs-on: windows-latest
+        permissions:
+            statuses: write
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+                with:
+                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+
+            -   name: Setup .NET 9 SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: '9.x'
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+                with:
+                    cmakeVersion: "4.0.0"
+
+            -   name: Restore dependencies
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+
+            -   name: Build (Release)
+                run: |
+                    # Build native project first
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                        --configuration Release `
+                        --no-restore `
+                        /p:SolutionDir=$GITHUB_WORKSPACE/
+
+                    # Then build the rest of the solution
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
+                        --configuration Release `
+                        --no-restore
+                    
+                    dotnet build tests/Tests.InfiniFrame.Playwright/Tests.InfiniFrame.Playwright.csproj `
+                        --configuration Release
+
+            -   name: Ensure browsers are installed for Playwright
+                run: |
+                    dotnet tool install --global Microsoft.Playwright.CLI
+                    playwright install
+                    
+                    pwsh bin/Debug/net9.0/playwright.ps1 install
+
+            -   name: Run Playwright tests (.NET)
+                run: |
+                    echo "Running Playwright tests on Windows..."
+                    dotnet test tests/Tests.InfiniFrame.Playwright/Tests.InfiniFrame.Playwright.csproj `
+                        --configuration Release `
+                        --no-build `
+                        --no-restore
+
+            -   name: Upload Playwright test results
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: playwright-test-results
+                    path: tests/Tests.InfiniFrame.Playwright/TestResults
+
+            -   name: Update Windows Playwright status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if ("${{ job.status }}" -eq "success") {
+                        $STATUS = "success"
+                        $DESCRIPTION = "Windows Playwright tests passed"
+                    } else {
+                        $STATUS = "failure"
+                        $DESCRIPTION = "Windows Playwright tests failed"
+                    }
+
+                    $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+                    $body = @{
+                        state = $STATUS
+                        context = "Manual MultiPlatform CI - Windows Playwright"
+                        description = $DESCRIPTION
+                        target_url = $WORKFLOW_URL
+                    } | ConvertTo-Json
+
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" `
+                        -Method POST `
+                        -Headers @{
+                            "Authorization" = "Bearer $env:GITHUB_TOKEN"
+                            "Accept" = "application/vnd.github+json"
+                        } `
+                        -Body $body `
+                        -ContentType "application/json"
+    
+    
     # ---------------------------------------------------------------------------------------
     # macOS
     # ---------------------------------------------------------------------------------------
