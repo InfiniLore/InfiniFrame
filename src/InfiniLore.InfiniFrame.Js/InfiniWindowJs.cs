@@ -12,7 +12,7 @@ namespace InfiniLore.InfiniFrame.Js;
 public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) : IInfiniFrameJs {
     public async Task SetPointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default) {
         try {
-            await jsRuntime.InvokeVoidAsync("infiniWindow.setPointerCapture", ct, elementReference, pointerId);
+            await jsRuntime.InvokeVoidAsync("infiniFrame.setPointerCapture", ct, elementReference, pointerId);
         }
         catch (Exception ex) {
             logger.LogError(ex, "Something went wrong during setPointerCapture");
@@ -21,7 +21,7 @@ public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) 
 
     public async Task ReleasePointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default) {
         try {
-            await jsRuntime.InvokeVoidAsync("infiniWindow.releasePointerCapture", ct, elementReference, pointerId);
+            await jsRuntime.InvokeVoidAsync("infiniFrame.releasePointerCapture", ct, elementReference, pointerId);
         }
         catch (Exception ex) {
             logger.LogError(ex, "Something went wrong during releasePointerCapture");

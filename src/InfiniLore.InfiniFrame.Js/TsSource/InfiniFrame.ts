@@ -1,13 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniWindow} from "./Contracts/IInfiniWindow";
+import {IInfiniFrame} from "./Contracts/IInfiniFrame";
 import {IHostMessaging, SendToHostMessageId} from "./Contracts/IHostMessaging";
 import HostMessaging from "./HostMessaging";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniWindow implements IInfiniWindow {
+export class InfiniFrame implements IInfiniFrame {
     HostMessaging: IHostMessaging = new HostMessaging();
 
     // Overload to make a dev's life easier instead of having to go to the HostMessaging class
@@ -24,4 +24,4 @@ export class InfiniWindow implements IInfiniWindow {
     }
 }
 
-export default InfiniWindow
+export default InfiniFrame

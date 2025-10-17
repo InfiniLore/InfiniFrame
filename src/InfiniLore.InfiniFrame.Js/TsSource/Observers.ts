@@ -12,7 +12,7 @@ export function getTitleObserver(): MutationObserver {
     return new MutationObserver((mutations, _) => {
         mutations.forEach((mutation) => {
             if (mutation.type !== "childList") return;
-            window.infiniWindow.HostMessaging.sendMessageToHost(SendToHostMessageIds.titleChange, document.title);
+            window.infiniFrame.HostMessaging.sendMessageToHost(SendToHostMessageIds.titleChange, document.title);
         })
     })
 }

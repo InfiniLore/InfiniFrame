@@ -1,11 +1,18 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniLore.InfiniFrame.Js.MessageHandlers;
+namespace InfiniLore.InfiniFrame.Js.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class RegisterWindowCreatedUtilities {
+public static class RegisterWindowCreatedUtility {
+    public static void RegisterMessageHandler(IInfiniFrameWindowBuilder builder, string messageId, Action<IInfiniFrameWindow, string?> handler) {
+        builder.MessageHandlers.RegisterMessageHandler(messageId, handler);
+    }
+    public static void RegisterMessageHandler(IInfiniFrameWindowBuilder builder, string messageId, Action<IInfiniFrameWindow> handler) {
+        builder.MessageHandlers.RegisterMessageHandler(messageId, (w, _) => handler(w));
+    }
+    
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
         builder.Events.WindowCreated += (sender, args) => {
             if (sender is not IInfiniFrameWindow window) return;

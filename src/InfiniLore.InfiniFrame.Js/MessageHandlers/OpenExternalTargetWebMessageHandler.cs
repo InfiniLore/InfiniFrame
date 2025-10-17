@@ -3,18 +3,16 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using static InfiniLore.InfiniFrame.Js.Utilities.RegisterWindowCreatedUtility;
 
 namespace InfiniLore.InfiniFrame.Js.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class OpenExternalTargetWebMessageHandler {
-    private const string OpenExternal = HandlerNames.InfiniWindowPrefix + "open:external";
-    private const string RegisterOpenExternal = HandlerNames.InfiniWindowPrefix + "register:open:external";
-
     public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.MessageHandlers.RegisterMessageHandler(OpenExternal, HandleWebMessage);
-        RegisterWindowCreatedUtilities.RegisterWindowCreatedWebMessage(builder, RegisterOpenExternal);
+        RegisterMessageHandler(builder,HandlerNames.OpenExternal, HandleWebMessage);
+        RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterOpenExternal);
         return builder;
     }
 

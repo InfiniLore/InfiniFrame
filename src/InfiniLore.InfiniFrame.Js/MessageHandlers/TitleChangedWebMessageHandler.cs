@@ -2,18 +2,16 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.Logging;
+using static InfiniLore.InfiniFrame.Js.Utilities.RegisterWindowCreatedUtility;
 
 namespace InfiniLore.InfiniFrame.Js.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class TitleChangedWebMessageHandler {
-    private const string TitleChanged = HandlerNames.InfiniWindowPrefix + "title:change";
-    private const string RegisterTitleChange = HandlerNames.InfiniWindowPrefix + "register:title:change";
-
     public static T RegisterTitleChangedWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.MessageHandlers.RegisterMessageHandler(TitleChanged, HandleWebMessage);
-        RegisterWindowCreatedUtilities.RegisterWindowCreatedWebMessage(builder, RegisterTitleChange);
+        RegisterMessageHandler(builder, HandlerNames.TitleChanged, HandleWebMessage);
+        RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterTitleChange);
         return builder;
     }
 

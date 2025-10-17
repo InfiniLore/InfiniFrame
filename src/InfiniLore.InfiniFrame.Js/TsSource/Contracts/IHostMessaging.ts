@@ -5,19 +5,21 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+const infiniFrame : string = "__infiniframe";
+
 export const SendToHostMessageIds = {
-    titleChange: "__infiniWindow:title:change",
-    fullscreenEnter: "__infiniWindow:fullscreen:enter",
-    fullscreenExit: "__infiniWindow:fullscreen:exit",
-    openExternalLink: "__infiniWindow:open:external",
-    windowClose: "__infiniWindow:window:close",
+    titleChange: `${infiniFrame}:title:change`,
+    fullscreenEnter: `${infiniFrame}:fullscreen:enter`,
+    fullscreenExit: `${infiniFrame}:fullscreen:exit`,
+    openExternalLink: `${infiniFrame}:open:external`,
+    windowClose: `${infiniFrame}:window:close`,
 }
 
 export const ReceiveFromHostMessageIds = {
-    registerOpenExternal: "__infiniWindow:register:open:external",
-    registerFullscreenChange: "__infiniWindow:register:fullscreen:change",
-    registerTitleChange: "__infiniWindow:register:title:change",
-    registerWindowClose: "__infiniWindow:register:window:close",
+    registerOpenExternal: `${infiniFrame}:register:open:external`,
+    registerFullscreenChange: `${infiniFrame}:register:fullscreen:change`,
+    registerTitleChange: `${infiniFrame}:register:title:change`,
+    registerWindowClose: `${infiniFrame}:register:window:close`,
 }
 
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];

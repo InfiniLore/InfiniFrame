@@ -1,23 +1,27 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using static InfiniLore.InfiniFrame.Js.Utilities.RegisterWindowCreatedUtility;
+
 namespace InfiniLore.InfiniFrame.Js.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class FullscreenWebMessageHandler {
-    private const string FullscreenEnter = HandlerNames.InfiniWindowPrefix + "fullscreen:enter";
-    private const string FullscreenExit = HandlerNames.InfiniWindowPrefix + "fullscreen:exit";
-    private const string FullscreenToggle = HandlerNames.InfiniWindowPrefix + "fullscreen:toggle";
-
-    private const string RegisterFullScreenChange = HandlerNames.InfiniWindowPrefix + "register:fullscreen:change";
-
     public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.MessageHandlers.RegisterMessageHandler(FullscreenEnter, handler: static (window, _) => window.SetFullScreen(true));
-        builder.MessageHandlers.RegisterMessageHandler(FullscreenExit, handler: static (window, _) => window.SetFullScreen(false));
-        builder.MessageHandlers.RegisterMessageHandler(FullscreenToggle, handler: static (window, _) => window.SetFullScreen(!window.FullScreen));
-
-        RegisterWindowCreatedUtilities.RegisterWindowCreatedWebMessage(builder, RegisterFullScreenChange);
+        RegisterMessageHandler(builder,
+            HandlerNames.FullscreenEnter,
+            static window => window.SetFullScreen(true));
+        
+        RegisterMessageHandler(builder,
+            HandlerNames.FullscreenExit,
+            static window => window.SetFullScreen(false));
+        
+        RegisterMessageHandler(builder,
+            HandlerNames.FullscreenToggle,
+            static window => window.SetFullScreen(!window.FullScreen));
+        
+        RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterFullScreenChange);
         return builder;
     }
 }

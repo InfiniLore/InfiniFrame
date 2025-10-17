@@ -20,7 +20,7 @@ public class JavascriptTests : InfiniFrameWebviewTest {
         // Act
         bool isInitialized = await page.EvaluateAsync<bool>(
             // lang=javascript 
-            "() => window.infiniWindow !== undefined && window.infiniWindow !== null"
+            "() => window.infiniFrame !== undefined && window.infiniFrame !== null"
         );
 
         // Assert
@@ -37,7 +37,7 @@ public class JavascriptTests : InfiniFrameWebviewTest {
         // Act
         await page.EvaluateAsync(
             // lang=javascript 
-            $"() => window.infiniWindow.sendMessageToHost('__infiniWindow:title:change', '{newTitle}')"
+            $"() => window.infiniFrame.sendMessageToHost('__infiniframe:title:change', '{newTitle}')"
         );
         string updatedTitle = await WaitForStateChangeAsync(originalTitle, stateProvider: () => GlobalPlaywrightContext.Window.Title);
 
