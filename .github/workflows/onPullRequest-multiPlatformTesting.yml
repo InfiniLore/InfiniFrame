@@ -436,6 +436,7 @@ jobs:
                         --no-restore
 
             -   name: Ensure browsers are installed for Playwright
+                working-directory: tests/Tests.InfiniFrame.Playwright
                 run: pwsh bin/Debug/net9.0/playwright.ps1 install
 
             -   name: Run Playwright tests (.NET)
