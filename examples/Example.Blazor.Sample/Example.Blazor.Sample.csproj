@@ -14,7 +14,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniLore.Photino.Blazor\InfiniLore.Photino.Blazor.csproj"/>
+        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame.Blazor\InfiniLore.InfiniFrame.Blazor.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -32,7 +32,7 @@
     <ItemGroup>
         <PackageReference Include="Serilog"/>
         <PackageReference Include="Serilog.AspNetCore"/>
-        <PackageReference Include="Serilog.Sinks.Async" />
+        <PackageReference Include="Serilog.Sinks.Async"/>
         <PackageReference Include="Serilog.Sinks.Console"/>
     </ItemGroup>
 </Project>

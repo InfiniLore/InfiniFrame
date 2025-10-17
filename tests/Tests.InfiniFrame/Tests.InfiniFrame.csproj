@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+
+        <!-- Force default platform to x64 if AnyCPU or empty -->
+        <CMakePlatform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</CMakePlatform>
+
+        <!-- map to CMake architecture -->
+        <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
+        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">ARM64</CMakeArch>
+
+        <!-- Fallback in case none matched -->
+        <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
+
+        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="TUnit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame\InfiniLore.InfiniFrame.csproj"/>
+        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame.Shared\InfiniLore.InfiniFrame.Shared.csproj"/>
+        <ProjectReference Include="..\Tests.Shared\Tests.Shared.csproj"/>
+    </ItemGroup>
+
+    <Target Name="EnsureNativeDlls" AfterTargets="Build">
+        <ItemGroup>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')"/>
+            <NativeDlls Include="$(NativeOutputDir)/WebView2Loader.dll"
+                        Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')"/>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')"/>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib"
+                        Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.InfiniFrame.Native.dll')"
+                 Text="✅ Copied InfiniLore.InfiniFrame.Native.dll into test output" Importance="High"/>
+
+        <Message Condition="Exists('$(OutDir)/WebView2Loader.dll')"
+                 Text="✅ Copied WebView2Loader.dll into test output" Importance="High"/>
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.InfiniFrame.Native.so')"
+                 Text="✅ Copied InfiniLore.InfiniFrame.Native.so into test output" Importance="High"/>
+
+        <Message Condition="Exists('$(OutDir)/InfiniLore.InfiniFrame.Native.dylib')"
+                 Text="✅ Copied InfiniLore.InfiniFrame.Native.dylib into test output" Importance="High"/>
+    </Target>
+
+    <ItemGroup>
+        <Content Include="..\..\assets\favicon.ico">
+            <Link>Assets\favicon.ico</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+</Project>

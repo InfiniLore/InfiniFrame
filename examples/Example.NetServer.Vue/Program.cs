@@ -1,23 +1,23 @@
-﻿using InfiniLore.Photino.NET;
-using InfiniLore.Photino.NET.Server;
+﻿using InfiniLore.InfiniFrame;
+using InfiniLore.InfiniFrame.Server;
 using System.Drawing;
 
 namespace Example.NetServer.Vue;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
-        photinoServerBuilder.UsePort(5173, 100);
+        var infiniFrameServerBuilder = InfiniFrameServerBuilder.Create("wwwroot", args);
+        infiniFrameServerBuilder.UsePort(5173, 100);
 
-        PhotinoServer photinoServer = photinoServerBuilder.Build();
-        photinoServer.Run();
+        InfiniFrameServer infiniFrameServer = infiniFrameServerBuilder.Build();
+        infiniFrameServer.Run();
 
-        IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
+        IInfiniFrameWindowBuilder windowBuilder = infiniFrameServer.GetAttachedWindowBuilder()
             .Center()
             .SetUseOsDefaultSize(false)
-            .SetTitle("InfiniLore Photino.NET VUE Sample")
+            .SetTitle("InfiniLore InfiniFrame.NET VUE Sample")
             .SetSize(new Size(800, 600))
-            .RegisterCustomSchemeHandler("app", (object _, string _, string _, out string? contentType) => {
+            .RegisterCustomSchemeHandler("app", handler: (object _, string _, string _, out string? contentType) => {
                 contentType = "text/javascript";
                 return new MemoryStream(
                     """
@@ -30,12 +30,12 @@ public static class Program {
                 );
             })
             .RegisterWebMessageReceivedHandler((sender, message) => {
-                var window = (PhotinoWindow)sender!;
+                var window = (InfiniFrameWindow)sender!;
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
 
-        IPhotinoWindow window = windowBuilder.Build();
+        IInfiniFrameWindow window = windowBuilder.Build();
 
         window.WaitForClose();
     }

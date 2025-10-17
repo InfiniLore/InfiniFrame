@@ -1,22 +1,28 @@
-﻿using InfiniLore.Photino.NET;
-using InfiniLore.Photino.NET.Server;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniLore.InfiniFrame;
+using InfiniLore.InfiniFrame.Server;
 using System.Drawing;
 
 namespace Example.NetServer.React;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        var photinoServerBuilder = PhotinoServerBuilder.Create("wwwroot", args);
-        photinoServerBuilder.UsePort(5174, 100);
+        var serverBuilder = InfiniFrameServerBuilder.Create("wwwroot", args);
+        serverBuilder.UsePort(5174, 100);
 
-        PhotinoServer photinoServer = photinoServerBuilder.Build();
-        photinoServer.Run();
+        InfiniFrameServer infiniFrameServer = serverBuilder.Build();
+        infiniFrameServer.Run();
 
-        IPhotinoWindowBuilder windowBuilder = photinoServer.GetAttachedWindowBuilder()
+        IInfiniFrameWindowBuilder windowBuilder = infiniFrameServer.GetAttachedWindowBuilder()
             .SetUseOsDefaultSize(false)
             .SetResizable(true)
             .Center()
-            .SetTitle("InfiniLore Photino.NET REACT Sample")
+            .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
             .SetSize(new Size(800, 600))
             .RegisterCustomSchemeHandler("app", handler: (object _, string _, string _, out string? contentType) => {
                 contentType = "text/javascript";
@@ -30,13 +36,13 @@ public static class Program {
                         """u8.ToArray());
             })
             .RegisterWebMessageReceivedHandler((sender, message) => {
-                var window = (PhotinoWindow)sender!;
+                var window = (InfiniFrameWindow)sender!;
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
-        
-        IPhotinoWindow window = windowBuilder.Build();
-        
+
+        IInfiniFrameWindow window = windowBuilder.Build();
+
         window.WaitForClose();
     }
 }

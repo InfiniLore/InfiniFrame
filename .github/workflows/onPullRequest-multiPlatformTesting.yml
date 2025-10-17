@@ -10,6 +10,10 @@ on:
                 description: 'Run Windows GUI tests'
                 type: boolean
                 default: true
+            run_windows_playwright:
+                description: 'Run Windows Playwright tests'
+                type: boolean
+                default: false
             run_linux:
                 description: 'Run Linux GUI tests'
                 type: boolean
@@ -62,15 +66,15 @@ jobs:
     linux-gui:
         if: ${{ github.event.inputs.run_linux == 'true' }}
         needs: mark-pending
-        name: Build & Test - Linux
+        name: Test - Linux
         runs-on: ubuntu-latest
         permissions:
             statuses: write
         steps:
             -   uses: actions/checkout@v5
                 with:
-                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
-
+                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}            
+            
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
                 with:
@@ -141,21 +145,31 @@ jobs:
                         fonts-liberation \
                         xfonts-base
 
-            -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+            -   name: Restore dependencies
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
-            -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.Linux.slnf --configuration Release --no-restore
+            -   name: Build (Release)
+                run: |
+                    # Build native project first
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir=$GITHUB_WORKSPACE/
+                    
+                    # Then build the rest of the solution
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
+                      --configuration Release \
+                      --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.so"
+                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.so"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniLore.Photino.Native.so NOT found in test output!"
+                        echo "ERROR: InfiniLore.InfiniFrame.Native.so NOT found in test output!"
                         exit 1
                     fi
-                
+                    
                     echo "✅ All native DLLs present"
 
             -   name: Start desktop environment and run tests
@@ -221,11 +235,11 @@ jobs:
                     timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || echo "Window manager not responding"
                     
                     echo "=== Running Tests ==="
-                    dotnet test InfiniLore.Photino.GitHubActions.Linux.slnf \
+                    dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore
-                    
+
             -   name: Display test logs on failure
                 if: failure()
                 run: |
@@ -251,15 +265,15 @@ jobs:
                     echo "=== All files in TestResults directories ==="
                     find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
 
-            - name: Upload test results as artifact
-              if: failure()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: test-logs
-                  path: |
-                      **/TestResults/*.log
-                      **/TestResults/*.trx
-            
+            -   name: Upload test results as artifact
+                if: failure()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: test-logs
+                    path: |
+                        **/TestResults/*.log
+                        **/TestResults/*.trx
+
             -   name: Update Linux status
                 if: always()
                 env:
@@ -288,7 +302,7 @@ jobs:
     windows-gui:
         if: ${{ github.event.inputs.run_windows == 'true' }}
         needs: mark-pending
-        name: Build & Test - Windows
+        name: Test - Windows
         runs-on: windows-latest
         permissions:
             statuses: write
@@ -297,34 +311,42 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v5
                 with:
-                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
-                    
+                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
+
+
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
-                    
+
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
                 with:
                     cmakeVersion: "4.0.0"
-            
+
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.Photino.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
-                    dotnet build InfiniLore.Photino.GitHubActions.Windows.slnf `
-                      --configuration Release `
-                      --no-restore
+                    # Build native project first
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                        --configuration Release `
+                        --no-restore `
+                        /p:SolutionDir=$GITHUB_WORKSPACE/
+                    
+                    # Then build the rest of the solution
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
+                        --configuration Release `
+                        --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    $nativeDll = "tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dll"
-                    $webView2 = "tests/Tests.Photino.NET/bin/Release/net9.0/WebView2Loader.dll"
+                    $nativeDll = "tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dll"
+                    $webView2 = "tests/Tests.InfiniFrame/bin/Release/net9.0/WebView2Loader.dll"
                     
                     if (-Not (Test-Path $nativeDll)) {
-                        Write-Host "ERROR: InfiniLore.Photino.Native.dll NOT found in test output!"
+                        Write-Host "ERROR: InfiniLore.InfiniFrame.Native.dll NOT found in test output!"
                         Exit 1
                     }
                     
@@ -338,7 +360,7 @@ jobs:
             -   name: Run tests
                 run: |
                     echo "Running tests on Windows..."
-                    dotnet test InfiniLore.Photino.GitHubActions.Windows.slnf `
+                    dotnet test InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore
@@ -355,7 +377,6 @@ jobs:
                         $STATUS = "failure"
                         $DESCRIPTION = "Windows tests failed"
                     }
-                    
                     
                     # Construct the workflow run URL
                     $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -376,13 +397,116 @@ jobs:
                         -Body $body `
                         -ContentType "application/json"
 
+    windows-playwright:
+        if: ${{ github.event.inputs.run_windows_playwright == 'true' }}
+        needs: mark-pending
+        name: Test - Windows Playwright
+        runs-on: windows-latest
+        permissions:
+            statuses: write
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v5
+                with:
+                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
+
+
+            -   name: Setup .NET 9 SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: '9.x'
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+                with:
+                    cmakeVersion: "4.0.0"
+
+            -   name: Restore dependencies
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
+
+            -   name: Build (Release)
+                run: |
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                        --configuration Release `
+                        --no-restore `
+                        /p:SolutionDir=$GITHUB_WORKSPACE/
+
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
+                        --configuration Release `
+                        --no-restore
+
+            -   name: Ensure browsers are installed for Playwright
+                working-directory: tests/Tests.InfiniFrame.Playwright
+                run: pwsh bin/Release/net9.0/playwright.ps1 install --with-deps
+
+            -   name: Verify Native DLLs for testing
+                run: |
+                    $nativeDll = "tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dll"
+                    $webView2 = "tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/WebView2Loader.dll"
+                    
+                    if (-Not (Test-Path $nativeDll)) {
+                        Write-Host "ERROR: InfiniLore.InfiniFrame.Native.dll NOT found in test output!"
+                        Exit 1
+                    }
+                    
+                    if (-Not (Test-Path $webView2)) {
+                        Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
+                        Exit 1
+                    }
+                    
+                    Write-Host "✅ All native DLLs present"
+
+            -   name: Run Playwright tests (.NET)
+                working-directory: tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/
+                run: .\Tests.InfiniFrame.Playwright.exe
+
+            -   name: Upload Playwright test results
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: playwright-test-results
+                    path: tests/Tests.InfiniFrame.Playwright/TestResults
+
+            -   name: Update Windows Playwright status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if ("${{ job.status }}" -eq "success") {
+                        $STATUS = "success"
+                        $DESCRIPTION = "Windows Playwright tests passed"
+                    } else {
+                        $STATUS = "failure"
+                        $DESCRIPTION = "Windows Playwright tests failed"
+                    }
+
+                    $WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+                    $body = @{
+                        state = $STATUS
+                        context = "Manual MultiPlatform CI - Windows Playwright"
+                        description = $DESCRIPTION
+                        target_url = $WORKFLOW_URL
+                    } | ConvertTo-Json
+
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" `
+                        -Method POST `
+                        -Headers @{
+                            "Authorization" = "Bearer $env:GITHUB_TOKEN"
+                            "Accept" = "application/vnd.github+json"
+                        } `
+                        -Body $body `
+                        -ContentType "application/json"
+    
+    
     # ---------------------------------------------------------------------------------------
     # macOS
     # ---------------------------------------------------------------------------------------
     macos-gui:
         if: ${{ github.event.inputs.run_macos == 'true' }}
         needs: mark-pending
-        name: Build & Test - macOS
+        name: Test - macOS
         runs-on: macos-latest
         permissions:
             statuses: write
@@ -391,7 +515,7 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v5
                 with:
-                    ref: refs/pull/${{ github.event.inputs.pr_number }}/merge
+                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
@@ -418,25 +542,25 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-build-
 
-            -   name: Restore dependencies (cached)
-                run: dotnet restore InfiniLore.Photino.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
-                
+            -   name: Restore dependencies
+                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
+
             -   name: Build native
                 run: |
-                    dotnet build src/InfiniLore.Photino.Native/InfiniLore.Photino.Native.proj \
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
                         --configuration Release \
                         --no-restore \
                         /p:SolutionDir=$GITHUB_WORKSPACE/
 
-            -   name: Build (Release) (cached)
-                run: dotnet build InfiniLore.Photino.GitHubActions.MacOs.slnf --configuration Release --no-restore
+            -   name: Build (Release)
+                run: dotnet build InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.Photino.NET/bin/Release/net9.0/InfiniLore.Photino.Native.dylib"
+                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dylib"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniLore.Photino.Native.dylib  NOT found in test output!"
+                        echo "ERROR: InfiniLore.InfiniFrame.Native.dylib  NOT found in test output!"
                         exit 1
                     fi
                     
@@ -459,7 +583,7 @@ jobs:
                     echo "=== Running Tests ==="
 
                     # Run tests
-                    dotnet test InfiniLore.Photino.GitHubActions.MacOs.slnf \
+                    dotnet test InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \

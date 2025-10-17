@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniLore.Photino.Blazor\InfiniLore.Photino.Blazor.csproj"/>
+        <ProjectReference Include="..\..\src\InfiniLore.InfiniFrame.Blazor\InfiniLore.InfiniFrame.Blazor.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

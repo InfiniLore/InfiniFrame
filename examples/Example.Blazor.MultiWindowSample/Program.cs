@@ -1,30 +1,36 @@
-﻿using Example.Blazor.MultiWindowSample.Components;
-using InfiniLore.Photino.Blazor;
-using InfiniLore.Photino.NET;
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using Example.Blazor.MultiWindowSample.Components;
+using InfiniLore.InfiniFrame;
+using InfiniLore.InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Example.Blazor.MultiWindowSample;
-static class Program {
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public static class Program {
 
-    private static readonly List<IPhotinoWindow> Windows = new List<IPhotinoWindow>();
+    private static readonly List<IInfiniFrameWindow> Windows = new();
 
     [STAThread]
     private static void Main(string[] args) {
-        var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
-        
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
+
         // register services
         appBuilder.Services.AddLogging();
-        
+
         CreateWindows(appBuilder,
-        new Queue<WindowCreationArgs>(new[] {
-            new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
-            new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
-        })
+            new Queue<WindowCreationArgs>(new[] {
+                new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
+                new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
+            })
         );
     }
 
     private static void CreateWindows(
-        PhotinoBlazorAppBuilder appBuilder,
+        InfiniFrameBlazorAppBuilder appBuilder,
         Queue<WindowCreationArgs> windowsToCreate
     ) {
         if (!windowsToCreate.TryDequeue(out WindowCreationArgs? windowCreationArgs)) {
@@ -34,15 +40,15 @@ static class Program {
         // register the root component and selector
         appBuilder.RootComponents.Add(windowCreationArgs.RootComponentType, "app");
 
-        PhotinoBlazorApp app = appBuilder.Build();
+        InfiniFrameBlazorApp app = appBuilder.Build();
 
         // customize a window
-        
+
         Windows.Add(
-            PhotinoWindowBuilder.Create()
+            InfiniFrameWindowBuilder.Create()
                 .SetTitle(windowCreationArgs.Title)
                 .SetStartUrl(windowCreationArgs.HtmlPath)
-                .RegisterWindowCreatedHandler((_, _) => Task.Run(() => CreateWindows(appBuilder, windowsToCreate))) 
+                .RegisterWindowCreatedHandler((_, _) => Task.Run(() => CreateWindows(appBuilder, windowsToCreate)))
                 .RegisterWindowClosingHandler((_, _) => {
                     CloseAllWindows();
                     return false;
@@ -58,7 +64,7 @@ static class Program {
     }
 
     private static void CloseAllWindows() {
-        foreach (IPhotinoWindow window in Windows) {
+        foreach (IInfiniFrameWindow window in Windows) {
             window.Close();
         }
     }

@@ -1,0 +1,111 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <RootNamespace>InfiniLore.InfiniFrame</RootNamespace>
+
+        <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
+        <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
+        <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
+
+        <!-- Force default platform to x64 if AnyCPU or empty -->
+        <CMakePlatform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</CMakePlatform>
+
+        <!-- map to CMake architecture -->
+        <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
+        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">ARM64</CMakeArch>
+
+        <!-- Fallback in case none matched -->
+        <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
+
+        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)/</CMakeBuildDir>
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)/</NativeOutputDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame.Js"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame.Server"/>
+        <InternalsVisibleTo Include="InfiniLore.InfiniFrame.Blazor"/>
+        <InternalsVisibleTo Include="Tests.InfiniFrame"/>
+        <InternalsVisibleTo Include="Tests.InfiniFrame.Playwright"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Options"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\InfiniLore.InfiniFrame.Native\InfiniLore.InfiniFrame.Native.proj"/>
+    </ItemGroup>
+
+    <!-- Windows -->
+    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')">
+        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll"
+                 PackagePath="runtimes/win-x64/native/InfiniLore.InfiniFrame.Native.dll"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/win-x64/native/InfiniLore.InfiniFrame.Native.dll</Link>
+            <TargetPath>InfiniLore.InfiniFrame.Native.dll</TargetPath>
+        </Content>
+
+        <Content Include="$(NativeOutputDir)/WebView2Loader.dll"
+                 Pack="true"
+                 PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/win-x64/native/WebView2Loader.dll</Link>
+            <TargetPath>WebView2Loader.dll</TargetPath>
+        </Content>
+    </ItemGroup>
+
+    <!-- Linux -->
+    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')">
+        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so"
+                 PackagePath="runtimes/linux-x64/native/InfiniLore.InfiniFrame.Native.so"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <!-- macOS -->
+    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')">
+        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib"
+                 PackagePath="runtimes/osx-x64/native/InfiniLore.InfiniFrame.Native.dylib"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <Target Name="CheckNativeDlls" AfterTargets="Build">
+        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.dll in $(NativeOutputDir)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.dll not found at $(NativeOutputDir)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')"
+                 Text="✅ Found WebView2Loader.dll in $(NativeOutputDir)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(NativeOutputDir)/WebView2Loader.dll')"
+                 Text="❌ WebView2Loader.dll not found at $(NativeOutputDir)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.so in $(NativeOutputDir)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.so not found at $(NativeOutputDir)!"
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.dylib in $(NativeOutputDir)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.dylib not found at $(NativeOutputDir)!"
+                 Importance="High"/>
+    </Target>
+
+</Project>

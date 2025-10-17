@@ -1,0 +1,15 @@
+﻿{
+    "solution": {
+        "path": "InfiniLore.InfiniFrame.slnx",
+        "projects": [
+            "src\\InfiniLore.InfiniFrame.Blazor\\InfiniLore.InfiniFrame.Blazor.csproj",
+            "src\\InfiniLore.InfiniFrame.Js\\InfiniLore.InfiniFrame.Js.csproj",
+            "src\\InfiniLore.InfiniFrame\\InfiniLore.InfiniFrame.csproj",
+            "src\\InfiniLore.InfiniFrame.Server\\InfiniLore.InfiniFrame.Server.csproj",
+            "src\\InfiniLore.InfiniFrame.Shared\\InfiniLore.InfiniFrame.Shared.csproj",
+            "src\\InfiniLore.InfiniFrame.Native\\InfiniLore.InfiniFrame.Native.proj",
+            "tests\\Tests.InfiniFrame.Playwright\\Tests.InfiniFrame.Playwright.csproj",
+            "tests\\Tests.Shared\\Tests.Shared.csproj"
+        ]
+    }
+}

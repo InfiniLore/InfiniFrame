@@ -1,12 +1,13 @@
-# InfiniLore.Photino
+# InfiniLore.InfiniFrame
 
 A rework of
 the [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server)
-and [Photino.Blazor](https://github.com/tryphotino/photino.Blazor) and [Photino.Native](https://github.com/tryphotino/photino.Native) projects, to make them more modern and easier to use
+and [InfiniFrame.Blazor](https://github.com/tryphotino/InfiniFrame.Blazor)
+and [Photino.Native](https://github.com/tryphotino/photino.Native) projects, to make them more modern and easier to use
 within a DI container.
 
 This project is mainly meant to be used as a dependency for Infinilore, so my goals are focused on that, but it should
-be possible to use this as a replacement for the original `Photino.NET`, `Photino.NET.Server` and `Photino.Blazor`
+be possible to use this as a replacement for the original `Photino.NET`, `Photino.NET.Server` and `InfiniFrame.Blazor`
 projects, minding the breaking changes mentioned below.
 
 This project is not affected with- or endorsed by the original authors of Photino.
@@ -19,7 +20,8 @@ This project is currently in a *very early stage of converting the old code base
 
 ## Breaking changes
 
-Although most of the original API has been kept as is, the introduction of the builder pattern, switching to a more loosely defined fluent-api style and other changes, have brought many breaking changes to the codebase.
+Although most of the original API has been kept as is, the introduction of the builder pattern, switching to a more
+loosely defined fluent-api style and other changes, have brought many breaking changes to the codebase.
 
 Some changes so far, have been described below:
 
@@ -42,7 +44,7 @@ Some changes so far, have been described below:
   properties allowed for.
 
 **Photino.NET.Server changes**
- 
+
 - `PhotinoServer(webRootFolder:...)` is no longer hard coded to depend on starting from the `Resources/` folder and is
   now fully configurable and has the default value of `wwwroot`.
 - `PhotinoServer.CreateStaticFileServer()` is completely replaced by a combination of `PhotinoServerBuilder.Create()`
@@ -53,6 +55,7 @@ Some changes so far, have been described below:
 ---
 
 ## Building and running
+
 For building and running the project, you will need to have the .NET 9 SDK installed.
 You will also need to add the [nuget cli tool](https://www.nuget.org/downloads) to your PATH.
 
@@ -63,11 +66,15 @@ dependencies first.
 
 ## Repo history
 
-This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of the [Photino.Blazor](https://github.com/tryphotino/photino.Blazor) and [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server) repositories were merged into this.
+This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of
+the [InfiniFrame.Blazor](https://github.com/tryphotino/InfiniFrame.Blazor)
+and [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server) repositories were merged into this.
 By merging the histories, it was possible to ease development a lot, especially whilst also preserving the original
 commit history and attribution from the contributors of Photino.
 
-This was also done for the [Photino.Native](https://github.com/tryphotino/photino.Native) library, but given the extensive work that had already been done, git was seemingly unable to fully merge the commit history without losing the original commit history.
+This was also done for the [Photino.Native](https://github.com/tryphotino/photino.Native) library, but given the
+extensive work that had already been done, git was seemingly unable to fully merge the commit history without losing the
+original commit history.
 
 ## License
 

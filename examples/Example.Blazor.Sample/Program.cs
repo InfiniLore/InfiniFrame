@@ -1,16 +1,16 @@
-﻿using InfiniLore.Photino.Blazor;
+﻿using InfiniLore.InfiniFrame;
+using InfiniLore.InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using InfiniLore.Photino.NET;
 
 namespace Example.Blazor.Sample;
 using System.Drawing;
 
 public static class Program {
-    [STAThread] 
+    [STAThread]
     private static void Main(string[] args) {
-        var appBuilder = PhotinoBlazorAppBuilder.CreateDefault(args);
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
 
         appBuilder.Services.AddLogging(config => {
             config.ClearProviders();
@@ -25,7 +25,7 @@ public static class Program {
         // register the root component and selector
         appBuilder.RootComponents.Add<App>("app");
 
-        appBuilder.WithPhotinoWindowBuilder(builder => {
+        appBuilder.WithInfiniFrameWindowBuilder(builder => {
             builder
                 // .SetTransparent(true)
                 .SetChromeless(true)
@@ -34,7 +34,7 @@ public static class Program {
                 // .Center()
                 // .SetUseOsDefaultSize(true)
                 // .SetUseOsDefaultLocation(true);
-                // .SetTitle("InfiniLore Photino.Blazor Sample")
+                // .SetTitle("InfiniLore InfiniFrame.Blazor Sample")
                 .SetLocation(new Point(100, 100))
                 .SetSize(new Size(800, 600))
                 // .SetMaxSize(new Size(800, 600))
@@ -42,8 +42,8 @@ public static class Program {
                 ;
         });
 
-        PhotinoBlazorApp app = appBuilder.Build();
-        
+        InfiniFrameBlazorApp app = appBuilder.Build();
+
         app.Run();
     }
 }
