@@ -460,7 +460,7 @@ jobs:
             -   name: Run Playwright tests (.NET)
                 run: |
                     echo "Running Playwright tests on Windows..."
-                    dotnet test tests/Tests.InfiniFrame.Playwright/Tests.InfiniFrame.Playwright.csproj `
+                    dotnet run tests/Tests.InfiniFrame.Playwright/Tests.InfiniFrame.Playwright.csproj `
                         --configuration Release `
                         --no-build `
                         --no-restore
