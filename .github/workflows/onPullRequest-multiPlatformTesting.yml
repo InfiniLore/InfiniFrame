@@ -66,7 +66,7 @@ jobs:
     linux-gui:
         if: ${{ github.event.inputs.run_linux == 'true' }}
         needs: mark-pending
-        name: Build & Test - Linux
+        name: Test - Linux
         runs-on: ubuntu-latest
         permissions:
             statuses: write
@@ -302,7 +302,7 @@ jobs:
     windows-gui:
         if: ${{ github.event.inputs.run_windows == 'true' }}
         needs: mark-pending
-        name: Build & Test - Windows
+        name: Test - Windows
         runs-on: windows-latest
         permissions:
             statuses: write
@@ -400,7 +400,7 @@ jobs:
     windows-playwright:
         if: ${{ github.event.inputs.run_windows_playwright == 'true' }}
         needs: mark-pending
-        name: Test Playwright - Windows
+        name: Test - Windows Playwright
         runs-on: windows-latest
         permissions:
             statuses: write
@@ -500,7 +500,7 @@ jobs:
     macos-gui:
         if: ${{ github.event.inputs.run_macos == 'true' }}
         needs: mark-pending
-        name: Build & Test - macOS
+        name: Test - macOS
         runs-on: macos-latest
         permissions:
             statuses: write
