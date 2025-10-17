@@ -2,8 +2,8 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="DebugWindows" ENABLED="true" CONFIG_NAME="Debug" />
-      <configuration PROFILE_NAME="ReleaseWindows" ENABLED="true" CONFIG_NAME="Release" />
+      <configuration PROFILE_NAME="DebugWindows" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Visual Studio" />
+      <configuration PROFILE_NAME="ReleaseWindows" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Visual Studio" />
       <configuration PROFILE_NAME="DebugLinux" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="WSL" />
       <configuration PROFILE_NAME="ReleaseLinux" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="WSL" />
     </configurations>
