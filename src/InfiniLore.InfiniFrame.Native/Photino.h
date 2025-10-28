@@ -213,11 +213,11 @@ public:
 #ifdef _WIN32
 	static void Register(HINSTANCE hInstance);
 	static void SetWebView2RuntimePath(AutoString pathToWebView2);
-	HWND getHwnd();
-	void RefitContent();
-	void FocusWebView2();
-	void NotifyWebView2WindowMove();
-	void GetNotificationsEnabled(bool* enabled);
+	HWND getHwnd() const;
+	void RefitContent() const;
+	void FocusWebView2() const;
+	void NotifyWebView2WindowMove() const;
+	void GetNotificationsEnabled(bool* enabled) const;
 	AutoString ToUTF16String(AutoString source);
 	AutoString ToUTF8String(AutoString source);
 	int _minWidth;
@@ -246,58 +246,58 @@ public:
 	PhotinoDialog *GetDialog() const { return _dialog; };
 
 	void Center();
-	void ClearBrowserAutoFill();
-	void Close();
+	void ClearBrowserAutoFill() const;
+	void Close() const;
 
-	void GetTransparentEnabled(bool *enabled);
-	void GetContextMenuEnabled(bool *enabled);
-	void GetZoomEnabled(bool *enabled);
-	void GetDevToolsEnabled(bool *enabled);
-	void GetFullScreen(bool *fullScreen);
-	void GetGrantBrowserPermissions(bool *grant);
-	AutoString GetUserAgent();
-	void GetMediaAutoplayEnabled(bool* enabled);
-	void GetFileSystemAccessEnabled(bool* enabled);
-	void GetWebSecurityEnabled(bool* enabled);
-	void GetJavascriptClipboardAccessEnabled(bool* enabled);
-	void GetMediaStreamEnabled(bool* enabled);
-	void GetSmoothScrollingEnabled(bool* enabled);
-	AutoString GetIconFileName();
-	void GetMaximized(bool *isMaximized);
-	void GetMinimized(bool *isMinimized);
-	void GetPosition(int *x, int *y);
-	void GetResizable(bool *resizable);
-	unsigned int GetScreenDpi();
-	void GetSize(int *width, int *height);
-	AutoString GetTitle();
-	void GetTopmost(bool *topmost);
-	void GetZoom(int *zoom);
-	void GetIgnoreCertificateErrorsEnabled(bool* enabled);
+	void GetTransparentEnabled(bool *enabled) const;
+	void GetContextMenuEnabled(bool *enabled) const;
+	void GetZoomEnabled(bool *enabled) const;
+	void GetDevToolsEnabled(bool *enabled) const;
+	void GetFullScreen(bool *fullScreen) const;
+	void GetGrantBrowserPermissions(bool *grant) const;
+	AutoString GetUserAgent() const;
+	void GetMediaAutoplayEnabled(bool* enabled) const;
+	void GetFileSystemAccessEnabled(bool* enabled) const;
+	void GetWebSecurityEnabled(bool* enabled) const;
+	void GetJavascriptClipboardAccessEnabled(bool* enabled) const;
+	void GetMediaStreamEnabled(bool* enabled) const;
+	void GetSmoothScrollingEnabled(bool* enabled) const;
+	AutoString GetIconFileName() const;
+	void GetMaximized(bool *isMaximized) const;
+	void GetMinimized(bool *isMinimized) const;
+	void GetPosition(int *x, int *y) const;
+	void GetResizable(bool *resizable) const;
+	unsigned int GetScreenDpi() const;
+	void GetSize(int *width, int *height) const;
+	AutoString GetTitle() const;
+	void GetTopmost(bool *topmost) const;
+	void GetZoom(int *zoom) const;
+	void GetIgnoreCertificateErrorsEnabled(bool* enabled) const;
 
 	void NavigateToString(AutoString content);
 	void NavigateToUrl(AutoString url);
-	void Restore(); // required anymore?backward compat?
+	void Restore() const; // required anymore?backward compat?
 	void SendWebMessage(AutoString message);
 
-	void SetTransparentEnabled(bool enabled);
-	void SetContextMenuEnabled(bool enabled);
-	void SetZoomEnabled(bool enabled);
-	void SetDevToolsEnabled(bool enabled);
+	void SetTransparentEnabled(bool enabled) const;
+	void SetContextMenuEnabled(bool enabled) const;
+	void SetZoomEnabled(bool enabled) const;
+	void SetDevToolsEnabled(bool enabled) const;
 	void SetIconFile(AutoString filename);
 	void SetFullScreen(bool fullScreen);
-	void SetMaximized(bool maximized);
+	void SetMaximized(bool maximized) const;
 	void SetMaxSize(int width, int height);
-	void SetMinimized(bool minimized);
+	void SetMinimized(bool minimized) const;
 	void SetMinSize(int width, int height);
-	void SetPosition(int x, int y);
-	void SetResizable(bool resizable);
-	void SetSize(int width, int height);
+	void SetPosition(int x, int y) const;
+	void SetResizable(bool resizable) const;
+	void SetSize(int width, int height) const;
 	void SetTitle(AutoString title);
-	void SetTopmost(bool topmost);
-	void SetZoom(int zoom);
+	void SetTopmost(bool topmost) const;
+	void SetZoom(int zoom) const;
 
 	void ShowNotification(AutoString title, AutoString message);
-	void WaitForExit();
+	void WaitForExit() const;
 	void CloseWebView();
 
 	// Callbacks
@@ -312,7 +312,7 @@ public:
 	void SetRestoredCallback(const RestoredCallback callback) { _restoredCallback = callback; }
 	void SetMinimizedCallback(const MinimizedCallback callback) { _minimizedCallback = callback; }
 
-	void Invoke(ACTION callback);
+	void Invoke(ACTION callback) const;
 
     [[nodiscard]] bool InvokeClose() const
     {
