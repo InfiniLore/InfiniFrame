@@ -264,9 +264,9 @@ public static partial class InfiniFrameNative {
         title = Marshal.PtrToStringAuto(ptr) ?? string.Empty;// The way on how infiniFrame works internally is that the title is always an empty string when we set it to null on our end.
     }
     
-    internal static void GetIconFileName(IntPtr instance, out string? iconFileName) {
+    internal static void GetIconFileName(IntPtr instance, out string iconFileName) {
         IntPtr ptr = GetIconFileName(instance);
-        iconFileName = Marshal.PtrToStringAuto(ptr);
+        iconFileName = Marshal.PtrToStringAuto(ptr) ?? string.Empty;
     }
     #endregion
 }

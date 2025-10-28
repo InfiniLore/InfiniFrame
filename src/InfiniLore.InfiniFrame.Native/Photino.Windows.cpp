@@ -271,12 +271,12 @@ Photino::Photino(PhotinoInitParams* initParams)
 	);
 	hwndToPhotino[_hWnd] = this;
 
-    _iconFileName = new wchar_t[256];
+    _iconFileName = nullptr;
 	if (initParams->WindowIconFile != nullptr)
 	{
 	    AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
-	    wcscpy_s(_iconFileName, 256, wWindowIconFile);
-		SetIconFile(wWindowIconFile);
+		wcscpy_s(_iconFileName, 256, wWindowIconFile);
+		// SetIconFile(_iconFileName);
 	}
 
 	if (initParams->CenterOnInitialize)
@@ -329,10 +329,10 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 {
 	switch (uMsg)
 	{
-	case WM_CREATE: 
+	case WM_CREATE:
 	{
 		EnableDarkMode(hwnd, true);
-		if (IsDarkModeEnabled()) 
+		if (IsDarkModeEnabled())
 			RefreshNonClientArea(hwnd);
 		break;
 	}
@@ -355,7 +355,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 
 		return 0;
 	}
-	case WM_SETTINGCHANGE: 
+	case WM_SETTINGCHANGE:
 	{
 		if (IsColorSchemeChange(lParam))
 			SendMessageW(hwnd, WM_THEMECHANGED, 0, 0);
@@ -396,11 +396,11 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	case WM_ACTIVATE:
 	{
 		Photino* Photino = hwndToPhotino[hwnd];
-		if (LOWORD(wParam) == WA_INACTIVE) 
+		if (LOWORD(wParam) == WA_INACTIVE)
 		{
 			Photino->InvokeFocusOut();
 		}
-		else 
+		else
 		{
 			Photino->FocusWebView2();
 			Photino->InvokeFocusIn();
@@ -462,7 +462,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 		if (Photino->_minWidth > 0)
 			mmi->ptMinTrackSize.x = Photino->_minWidth;
 		if (Photino->_minHeight > 0)
-			mmi->ptMinTrackSize.y = Photino->_minHeight;	
+			mmi->ptMinTrackSize.y = Photino->_minHeight;
 		if (Photino->_maxWidth < INT_MAX)
 			mmi->ptMaxTrackSize.x = Photino->_maxWidth;
 		if (Photino->_maxHeight < INT_MAX)
@@ -658,7 +658,7 @@ void Photino::GetNotificationsEnabled(bool* enabled) const
 
 AutoString Photino::GetIconFileName() const
 {
-	return this->_iconFileName;
+	return _iconFileName;
 }
 
 void Photino::GetMaximized(bool* isMaximized) const
@@ -796,7 +796,7 @@ void Photino::SetFullScreen(const bool fullScreen)
 		HMONITOR monitor = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
 		MONITORINFO monitorInfo = { sizeof(monitorInfo) };
 
-		if (GetMonitorInfoW(monitor, &monitorInfo)) 
+		if (GetMonitorInfoW(monitor, &monitorInfo))
 		{
 			RECT rc = monitorInfo.rcMonitor;
 			SetPosition(rc.left, rc.top);
@@ -821,19 +821,21 @@ void Photino::SetFullScreen(const bool fullScreen)
 	}
 }
 
-void Photino::SetIconFile(const AutoString filename)
+void Photino::SetIconFile(AutoString filename)
 {
-	HICON iconSmall = (HICON)LoadImage(nullptr, filename, IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
-	HICON iconBig = (HICON)LoadImage(nullptr, filename, IMAGE_ICON, 32, 32, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
+	filename = ToUTF16String(filename);
+	wcscpy_s(_iconFileName, 256, filename);
+
+	HICON iconSmall = (HICON)LoadImage(nullptr, _iconFileName, IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
+	HICON iconBig   = (HICON)LoadImage(nullptr, _iconFileName, IMAGE_ICON, 32, 32, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
 
 	if (iconSmall && iconBig)
 	{
 		SendMessage(_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
 		SendMessage(_hWnd, WM_SETICON, ICON_BIG, (LPARAM)iconBig);
 	}
-
-	this->_iconFileName = filename;
 }
+
 
 void Photino::SetMinimized(const bool minimized) const
 {
@@ -1037,7 +1039,7 @@ AutoString Photino::ToUTF16String(const AutoString source)
 {
 	AutoString response;
 	std::wstring* wideBuffer = new std::wstring();
-	int inLen = (int)strlen((char*)source);	
+	int inLen = (int)strlen((char*)source);
 	int result = MultiByteToWideChar(CP_UTF8, 0, (char*)source, inLen, nullptr, 0);
 	if (result < 0)
 	{
@@ -1062,13 +1064,13 @@ void Photino::AttachWebView()
 	//https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49&viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
 	//https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
 	//Add together all 7 special startup strings, plus the generic one passed by the user to make one big string. Try not to duplicate anything. Separate with spaces.
-	
+
 	std::wstring startupString = L"";
 	if (_userAgent != nullptr && wcslen(_userAgent) > 0)
 		startupString += L"--user-agent=\"" + std::wstring(_userAgent) + L"\" ";
-	if (_mediaAutoplayEnabled) 
+	if (_mediaAutoplayEnabled)
 		startupString += L"--autoplay-policy=no-user-gesture-required ";
-	if (_fileSystemAccessEnabled) 
+	if (_fileSystemAccessEnabled)
 		startupString += L"--allow-file-access-from-files ";
 	if (!_webSecurityEnabled)
 		startupString += L"--disable-web-security ";
