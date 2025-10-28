@@ -1,42 +1,50 @@
 #ifndef TOASTHANDLER_H
 #define TOASTHANDLER_H
+#include <WinUser.h>
 #include "Photino.h"
 #include "Dependencies/wintoastlib.h"
-#include <WinUser.h>
 
 using namespace WinToastLib;
 
-class WinToastHandler : public IWinToastHandler
+class WinToastHandler final : public IWinToastHandler
 {
 private:
     Photino* _window;
 
 public:
-    WinToastHandler(Photino* window)
+    explicit WinToastHandler(Photino* window)
+        : _window(window) {}
+
+    // Plain activation
+    void toastActivated() const override
     {
-        this->_window = window;
+        ShowWindow(this->_window->getHwnd(), SW_SHOW);
+        ShowWindow(this->_window->getHwnd(), SW_RESTORE);
+        SetForegroundWindow(this->_window->getHwnd());
     }
 
-    void toastActivated() const
+    // Activation with action index
+    void toastActivated(int actionIndex) const override
     {
-        ShowWindow(this->_window->getHwnd(), SW_SHOW);    // Make the window visible if it was hidden
-        ShowWindow(this->_window->getHwnd(), SW_RESTORE); // Next, restore it if it was minimized
-        SetForegroundWindow(this->_window->getHwnd());    // Finally, activate the window
+        // Handle specific action index if needed
+        toastActivated(); // For now handling as default
     }
 
-    void toastActivated(int actionIndex) const
+    // Activation with string response
+    void toastActivated(std::wstring response) const override
     {
-        //
+        // Handle string response if needed
+        toastActivated(); // For now handling as default
     }
 
-    void toastDismissed(WinToastDismissalReason state) const
+    void toastDismissed(WinToastDismissalReason state) const override
     {
-        //
+        // Optional handling
     }
 
-    void toastFailed() const
+    void toastFailed() const override
     {
-        //
+        // Optional handling
     }
 };
 #endif
