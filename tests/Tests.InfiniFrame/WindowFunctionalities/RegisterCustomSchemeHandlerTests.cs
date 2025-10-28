@@ -56,8 +56,8 @@ public class RegisterCustomSchemeHandlerTests {
         var windowCasted = window as InfiniFrameWindow;
         Dictionary<string, NetCustomSchemeDelegate?>? customSchemes = windowCasted?.CustomSchemes;
         await Assert.That(customSchemes!)
-            .IsNotNull()
-            .And.ContainsKey("app");
+            .ContainsKey("app")
+            .IsNotNull();
     }
 
     [Test]
@@ -77,7 +77,7 @@ public class RegisterCustomSchemeHandlerTests {
         var windowCasted = window as InfiniFrameWindow;
         Dictionary<string, NetCustomSchemeDelegate?>? customSchemes = windowCasted?.CustomSchemes;
         await Assert.That(customSchemes!)
-            .IsNotNull()
-            .And.ContainsKey("app");
+            .ContainsKey("app")
+            .IsNotNull();
     }
 }
