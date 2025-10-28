@@ -10,7 +10,7 @@ class WinToastHandler;
 #else
 // AutoString for macOS/Linux
 typedef char* AutoString;
-typedef const chat* AutoStringConst;
+typedef const char* AutoStringConst;
 #endif
 
 #ifdef __APPLE__
