@@ -19,7 +19,7 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     public bool FullScreen { get; set; }
     public bool GrantBrowserPermissions { get; set; } = true;
     public int Height { get; set; }
-    public string IconFilePath { get; set; } = string.Empty;
+    public string? IconFilePath { get; set; }
     public bool IgnoreCertificateErrorsEnabled { get; set; } = true;
     public bool JavascriptClipboardAccessEnabled { get; set; } = true;
     public int Left { get; set; }

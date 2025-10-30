@@ -271,10 +271,12 @@ Photino::Photino(PhotinoInitParams* initParams)
 	);
 	hwndToPhotino[_hWnd] = this;
 
+    _iconFileName = new wchar_t[256];
 	if (initParams->WindowIconFile != nullptr)
 	{
-		AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
-		Photino::SetIconFile(wWindowIconFile);
+	    AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
+	    wcscpy_s(_iconFileName, 256, wWindowIconFile);
+		SetIconFile(wWindowIconFile);
 	}
 
 	if (initParams->CenterOnInitialize)

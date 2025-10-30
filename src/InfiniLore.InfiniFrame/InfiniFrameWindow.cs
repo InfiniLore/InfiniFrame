@@ -189,8 +189,7 @@ public sealed class InfiniFrameWindow(
     ///     Gets or sets the icon file for the native window title bar.
     ///     The file must be located on the local machine and cannot be a URL. The default is none.
     /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string IconFilePath => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetIconFileName);
+    public string? IconFilePath => InvokeUtilities.InvokeAndReturn<string?>(this, InfiniFrameNative.GetIconFileName);
 
     /// <summary>
     ///     Gets or sets the native window Left (X) and Top coordinates (Y) in pixels.
@@ -339,7 +338,7 @@ public sealed class InfiniFrameWindow(
     ///     Default is "InfiniFrame".
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetTitle);
+    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetTitle) ?? string.Empty;
 
     /// <summary>
     ///     Gets or sets the native window Top (Y) coordinate in pixels.
