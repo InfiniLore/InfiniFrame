@@ -189,7 +189,7 @@ jobs:
                         +extension RANDR \
                         +extension RENDER \
                         -nolisten tcp \
-                        -noreset &
+                        -noreset &> xvfb.log &
                     
                     export DISPLAY=:99
                     export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
@@ -212,7 +212,7 @@ jobs:
                     
                     # Start Mutter
                     echo "Starting Mutter window manager..."
-                    mutter --x11 --replace --sm-disable &
+                    mutter --x11 --replace --sm-disable &> mutter.log &
                     
                     timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
                         echo "❌ Mutter failed to start or crashed."
@@ -249,6 +249,10 @@ jobs:
             -   name: Display test logs on failure
                 if: failure()
                 run: |
+                    echo "=== Xvfb/Mutter logs ==="
+                    cat xvfb.log
+                    cat mutter.log
+    
                     echo "=== Test Run Failed - Displaying Logs ==="
                     
                     # Function to strip ANSI escape codes for readability
