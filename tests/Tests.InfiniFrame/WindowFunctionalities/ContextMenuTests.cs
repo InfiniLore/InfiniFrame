@@ -13,6 +13,7 @@ using Tests.Shared;
 public class ContextMenuTests {
 
     [Test]
+    [DisplayName($"{nameof(ContextMenuTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Builder(bool state) {
@@ -30,6 +31,7 @@ public class ContextMenuTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(ContextMenuTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -49,6 +51,7 @@ public class ContextMenuTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(ContextMenuTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
     [NotInParallel(ParallelControl.InfiniFrame)]

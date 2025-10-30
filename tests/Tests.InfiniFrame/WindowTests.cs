@@ -15,6 +15,7 @@ public class WindowTests {
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
+    [DisplayName($"{nameof(WindowTests)}.{nameof(InstanceHandle_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task InstanceHandle_IsDefined() {
@@ -29,6 +30,7 @@ public class WindowTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WindowTests)}.{nameof(WindowHandle_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task WindowHandle_IsDefined() {
@@ -45,6 +47,7 @@ public class WindowTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WindowTests)}.{nameof(Monitors_IsNotEmpty)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Monitors_IsNotEmpty() {
@@ -60,6 +63,7 @@ public class WindowTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WindowTests)}.{nameof(NativeType_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task NativeType_IsDefined() {
@@ -74,6 +78,7 @@ public class WindowTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WindowTests)}.{nameof(Close_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Close_IsDefined() {

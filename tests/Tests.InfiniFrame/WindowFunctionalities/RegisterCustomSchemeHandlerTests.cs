@@ -18,6 +18,7 @@ public class RegisterCustomSchemeHandlerTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -39,9 +40,9 @@ public class RegisterCustomSchemeHandlerTests {
             Marshal.FreeHGlobal(target);// free the temp pointer
         }
     }
-
-
+    
     [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
@@ -61,6 +62,7 @@ public class RegisterCustomSchemeHandlerTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {

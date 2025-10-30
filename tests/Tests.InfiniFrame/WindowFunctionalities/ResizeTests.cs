@@ -12,6 +12,7 @@ using Tests.Shared;
 public class ResizeTests {
 
     [Test]
+    [DisplayName($"{nameof(ResizeTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]

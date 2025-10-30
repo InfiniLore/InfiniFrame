@@ -15,6 +15,7 @@ public class IconFilePathTests {
     private const string InvalidIconFilePath = "invalid.ico";
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -31,6 +32,7 @@ public class IconFilePathTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Builder_ShouldNotSetInvalidIconFilePath)}")]
     public async Task Builder_ShouldNotSetInvalidIconFilePath() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -45,6 +47,7 @@ public class IconFilePathTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
@@ -61,6 +64,7 @@ public class IconFilePathTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Window_ShouldNotSetInvalidIconFilePath)}")]   
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_ShouldNotSetInvalidIconFilePath() {
@@ -76,6 +80,7 @@ public class IconFilePathTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {

@@ -14,6 +14,7 @@ public class MinWidthTests {
     private const int MinWidth = 20;
 
     [Test]
+    [DisplayName($"{nameof(MinWidthTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,6 +30,7 @@ public class MinWidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MinWidthTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
@@ -44,6 +46,7 @@ public class MinWidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MinWidthTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {

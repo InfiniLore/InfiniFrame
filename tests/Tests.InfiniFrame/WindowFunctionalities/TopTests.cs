@@ -14,6 +14,7 @@ public class TopTests {
     private const int Top = 20;
 
     [Test]
+    [DisplayName($"{nameof(TopTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,6 +30,7 @@ public class TopTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TopTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
@@ -54,6 +56,7 @@ public class TopTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TopTests)}.{nameof(Window)}")]   
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -70,6 +73,7 @@ public class TopTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TopTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]

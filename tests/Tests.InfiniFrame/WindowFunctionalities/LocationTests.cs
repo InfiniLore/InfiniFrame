@@ -16,6 +16,7 @@ public class LocationTests {
     private const int Top = 20;
 
     [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -34,6 +35,7 @@ public class LocationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -59,6 +61,7 @@ public class LocationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(Window)}")]   
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]   
@@ -75,6 +78,7 @@ public class LocationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(Window_AsPoint)}")]  
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -91,6 +95,7 @@ public class LocationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
     public async Task FullIntegration() {
         // Arrange

@@ -13,6 +13,7 @@ using Tests.Shared;
 public class OffsetTests {
 
     [Test]
+    [DisplayName($"{nameof(OffsetTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -35,6 +36,7 @@ public class OffsetTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsPoint)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -57,6 +59,7 @@ public class OffsetTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsDouble)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
