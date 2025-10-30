@@ -25,7 +25,7 @@ public interface IInfiniFrameWindowConfiguration : IInfiniFrameWindowBase {
     new bool FullScreen { get; set; }
     new bool GrantBrowserPermissions { get; set; }
     new int Height { get; set; }
-    new string? IconFilePath { get; set; }
+    new string IconFilePath { get; set; }
     new int Left { get; set; }
     new int Top { get; set; }
     new bool Maximized { get; set; }

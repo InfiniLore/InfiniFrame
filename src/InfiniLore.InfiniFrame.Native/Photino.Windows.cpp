@@ -271,6 +271,7 @@ Photino::Photino(PhotinoInitParams* initParams)
 	);
 	hwndToPhotino[_hWnd] = this;
 
+    _iconFileName = new wchar_t[255];
 	if (initParams->WindowIconFile != nullptr)
 	{
 		AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
@@ -657,7 +658,7 @@ void Photino::GetNotificationsEnabled(bool* enabled)
 
 AutoString Photino::GetIconFileName()
 {
-	return this->_iconFileName;
+	return _iconFileName;
 }
 
 void Photino::GetMaximized(bool* isMaximized)
@@ -831,7 +832,14 @@ void Photino::SetIconFile(const AutoString filename)
 		SendMessage(_hWnd, WM_SETICON, ICON_BIG, (LPARAM)iconBig);
 	}
 
-	this->_iconFileName = filename;
+    if (const AutoStringConst wFilename = ToUTF16String(filename); wcslen(wFilename) > 255)
+    {
+        for (int i = 0; i < 256; i++)
+            _iconFileName[i] = wFilename[i];
+        _iconFileName[255] = 0;
+    }
+    else
+        wcscpy_s(_iconFileName, 255, wFilename);
 }
 
 void Photino::SetMinimized(const bool minimized)

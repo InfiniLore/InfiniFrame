@@ -176,6 +176,11 @@ extern "C"
 		instance->GetZoom(zoom);
 	}
 
+    EXPORTED AutoString Photino_GetIconFileName(Photino* instance)
+	{
+	    return instance->GetIconFileName();
+	}
+
 	EXPORTED void Photino_NavigateToString(Photino* instance, const AutoString content)
 	{
 		instance->NavigateToString(content);

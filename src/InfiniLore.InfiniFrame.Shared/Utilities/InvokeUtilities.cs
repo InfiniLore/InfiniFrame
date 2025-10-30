@@ -17,10 +17,10 @@ internal static class InvokeUtilities {
         return value;
     }
 
-    public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, FuncWithOut<T> callback) {
+    public static T InvokeAndReturn<T>(IInfiniFrameWindow window, FuncWithOut<T> callback) {
         T? value = default;
         window.Invoke(() => callback(window.InstanceHandle, out value));
-        return value;
+        return value!;
     }
 
     internal delegate void FuncWithOut<T>(IntPtr handle, out T value);

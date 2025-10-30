@@ -20,7 +20,7 @@ public interface IInfiniFrameWindowBase {
     bool FullScreen { get; }
     bool GrantBrowserPermissions { get; }
     int Height { get; }
-    string? IconFilePath { get; internal set; }
+    string IconFilePath { get; }
     int Left { get; }
     int Top { get; }
     bool Maximized { get; }

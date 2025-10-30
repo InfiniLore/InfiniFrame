@@ -40,7 +40,7 @@ public class IconFilePathTests {
         builder.SetIconFile(InvalidIconFilePath);
 
         // Assert
-        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(null);
+        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(string.Empty);
         await Assert.That(builder.Configuration.ToParameters()).IsEqualTo(expectedConfigParameters);
     }
 
@@ -56,7 +56,8 @@ public class IconFilePathTests {
         window.SetIconFile(IconFilePath);
 
         // Assert
-        await Assert.That(window.IconFilePath).IsEqualTo(IconFilePath);
+        string foundPath = window.IconFilePath;
+        await Assert.That(foundPath).IsEqualTo(IconFilePath);
     }
 
     [Test]
@@ -71,7 +72,7 @@ public class IconFilePathTests {
         window.SetIconFile(InvalidIconFilePath);
 
         // Assert
-        await Assert.That(window.IconFilePath).IsEqualTo(null);
+        await Assert.That(window.IconFilePath).IsEqualTo(string.Empty);
     }
 
     [Test]

@@ -117,6 +117,9 @@ public static partial class InfiniFrameNative {
 
     [DllImport(DllName, EntryPoint = Photino_GetZoomEnabled, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
     internal static extern void GetZoomEnabled(IntPtr instance, out bool zoomEnabled);
+    
+    [LibraryImport(DllName, EntryPoint = Photino_GetIconFileName, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial IntPtr GetIconFileName(IntPtr instance);
     #endregion
 
     #region MARSHAL CALLS FROM Non-UI Thread to UI Thread
@@ -259,6 +262,11 @@ public static partial class InfiniFrameNative {
     internal static void GetTitle(IntPtr instance, out string title) {
         IntPtr ptr = GetTitle(instance);
         title = Marshal.PtrToStringAuto(ptr) ?? string.Empty;// The way on how infiniFrame works internally is that the title is always an empty string when we set it to null on our end.
+    }
+    
+    internal static void GetIconFileName(IntPtr instance, out string iconFileName) {
+        IntPtr ptr = GetIconFileName(instance);
+        iconFileName = Marshal.PtrToStringAuto(ptr) ?? string.Empty;
     }
     #endregion
 }
