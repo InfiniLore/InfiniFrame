@@ -271,11 +271,10 @@ Photino::Photino(PhotinoInitParams* initParams)
 	);
 	hwndToPhotino[_hWnd] = this;
 
-    _iconFileName = new wchar_t[255];
+    _iconFileName = new wchar_t[256];
 	if (initParams->WindowIconFile != nullptr)
 	{
-		AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
-		SetIconFile(wWindowIconFile);
+		SetIconFile(initParams->WindowIconFile);
 	}
 		
 
@@ -823,23 +822,21 @@ void Photino::SetFullScreen(const bool fullScreen)
 
 void Photino::SetIconFile(const AutoString filename)
 {
-	HICON iconSmall = (HICON)LoadImage(nullptr, filename, IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
-	HICON iconBig = (HICON)LoadImage(nullptr, filename, IMAGE_ICON, 32, 32, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
+    std::wstring wideFilename = ToUTF16String(filename);
+    wcscpy_s(_iconFileName, 255, wideFilename.c_str());
+    if (wideFilename.empty()) return;
+    
+    // Load icons from file
+    HICON iconSmall = (HICON)LoadImageW(nullptr, wideFilename.c_str(),
+        IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
+    HICON iconBig = (HICON)LoadImageW(nullptr, wideFilename.c_str(),
+        IMAGE_ICON, 32, 32, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
 
-	if (iconSmall && iconBig)
-	{
-		SendMessage(_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
-		SendMessage(_hWnd, WM_SETICON, ICON_BIG, (LPARAM)iconBig);
-	}
-
-    if (const AutoStringConst wFilename = ToUTF16String(filename); wcslen(wFilename) > 255)
+    if (iconSmall && iconBig)
     {
-        for (int i = 0; i < 256; i++)
-            _iconFileName[i] = wFilename[i];
-        _iconFileName[255] = 0;
+        SendMessageW(_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
+        SendMessageW(_hWnd, WM_SETICON, ICON_BIG, (LPARAM)iconBig);
     }
-    else
-        wcscpy_s(_iconFileName, 255, wFilename);
 }
 
 void Photino::SetMinimized(const bool minimized)

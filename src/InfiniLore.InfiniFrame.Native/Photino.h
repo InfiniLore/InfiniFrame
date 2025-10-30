@@ -262,7 +262,7 @@ public:
 	void GetJavascriptClipboardAccessEnabled(bool* enabled);
 	void GetMediaStreamEnabled(bool* enabled);
 	void GetSmoothScrollingEnabled(bool* enabled);
-	AutoString GetIconFileName();
+	AutoString GetIconFileName() const;
 	void GetMaximized(bool *isMaximized);
 	void GetMinimized(bool *isMinimized);
 	void GetPosition(int *x, int *y);

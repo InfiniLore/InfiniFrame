@@ -502,6 +502,11 @@ void Photino::GetZoom(int *zoom)
 	*zoom = (int)rawValue;
 }
 
+AutoString Photino::GetIconFileName() const
+{
+    return _iconFileName;
+}
+
 void Photino::NavigateToString(const AutoString content)
 {
 	webkit_web_view_load_html(WEBKIT_WEB_VIEW(_webview), content, nullptr);
@@ -615,6 +620,10 @@ void Photino::SetFullScreen(const bool fullScreen)
 void Photino::SetIconFile(const AutoString filename)
 {
 	gtk_window_set_icon_from_file(GTK_WINDOW(_window), filename, nullptr);
+
+    // Store filename internally (UTF-8)
+    strncpy(_iconFileName, filename, 255);
+    _iconFileName[255] = '\0';
 }
 
 void Photino::SetMinimized(const bool minimized)
