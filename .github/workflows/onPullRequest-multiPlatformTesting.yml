@@ -244,7 +244,9 @@ jobs:
                     dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
-                        --no-restore
+                        --no-restore \
+                        --logger "trx;LogFileName=TestResults/TestResults.trx" \
+                        --logger "console;verbosity=detailed"
 
             -   name: Display test logs on failure
                 if: failure()
