@@ -566,29 +566,47 @@ std::string escape_json(const std::string &s)
 	return o.str();
 }
 
-static void webview_eval_finished(GObject *object, GAsyncResult *result, const gpointer userdata)
+static void webview_eval_finished_new(GObject *object, GAsyncResult *result, gpointer userdata)
 {
-	InvokeJSWaitInfo *waitInfo = (InvokeJSWaitInfo *)userdata;
-	waitInfo->isCompleted = true;
+    InvokeJSWaitInfo* waitInfo = (InvokeJSWaitInfo*)userdata;
+    GError* error = nullptr;
+    webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
+
+    if (error)
+    {
+        g_warning("JavaScript evaluation failed: %s", error->message);
+        g_error_free(error);
+    }
+
+    waitInfo->isCompleted = true;
 }
 
 void Photino::SendWebMessage(const AutoString message)
 {
-	std::string js;
-	js.append("__dispatchMessageCallback(\"");
-	js.append(escape_json(message));
-	js.append("\")");
+    std::string js;
+    js.append("__dispatchMessageCallback(\"");
+    js.append(escape_json(message));
+    js.append("\")");
 
-	InvokeJSWaitInfo invokeJsWaitInfo = {};
+    InvokeJSWaitInfo invokeJsWaitInfo = {};
 
-	webkit_web_view_run_javascript(WEBKIT_WEB_VIEW(_webview), js.c_str(), nullptr, webview_eval_finished, &invokeJsWaitInfo);
-	// Todo: Replace deprecated webkit_web_view_run_javascript webkit_web_view_evaluate_javascript
+    webkit_web_view_evaluate_javascript(
+        WEBKIT_WEB_VIEW(_webview),
+        js.c_str(),                 // script
+        -1,                         // length (-1 means null-terminated)
+        nullptr,                    // world_name (default JS world)
+        nullptr,                    // source_uri (optional, can be NULL)
+        nullptr,                    // GCancellable
+        webview_eval_finished_new,  // callback
+        &invokeJsWaitInfo           // user_data
+    );
 
-	while (!invokeJsWaitInfo.isCompleted)
-	{
-		g_main_context_iteration(nullptr, TRUE);
-	}
+    // Wait for JS to finish
+    while (!invokeJsWaitInfo.isCompleted){
+        g_main_context_iteration(nullptr, TRUE);
+    }
 }
+
 
 void Photino::SetContextMenuEnabled(const bool enabled)
 {

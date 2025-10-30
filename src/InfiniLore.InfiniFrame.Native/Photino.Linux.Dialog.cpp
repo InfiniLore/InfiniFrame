@@ -11,14 +11,17 @@ void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount)
 {
     for (int i = 0; i < filterCount; i++) {
         GtkFileFilter *filter = gtk_file_filter_new();
-        char *name = strtok(filters[i], "|");
+
+        char* filterCopy = g_strdup(filters[i]); // Copy the string
+        const char* name = strtok(filterCopy, "|");
         gtk_file_filter_set_name(filter, name);
-        char *patterns = strtok(nullptr, "|");
+        const char* patterns = strtok(nullptr, "|");
         while (patterns != nullptr) {
             gtk_file_filter_add_pattern(filter, patterns);
             patterns = strtok(nullptr, ";");
         }
         gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+        g_free(filterCopy); // Free the duplicated string
     }
 }
 
@@ -54,7 +57,7 @@ AutoString* ShowDialog(const DialogType type, const AutoString title, const Auto
     }
     if (type == SaveFile) {
         gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog), TRUE);
-        gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), defaultFileName);
+        if (defaultFileName != nullptr) gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), defaultFileName);
     }
     if (type == OpenFile || type == SaveFile) {
         AddFilters(dialog, filters, filterCount);
