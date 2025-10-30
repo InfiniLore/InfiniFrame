@@ -208,14 +208,10 @@ jobs:
                         exit 1
                     }
                     
-                    # Start GNOME settings daemon
-                    gnome-settings-daemon &
-                    sleep 2
-                    
-                    # Start Mutter window manager
-                    echo "Starting Mutter window manager..."
-                    mutter --replace &
-                    sleep 8
+                    # Start a minimal GNOME session with Mutter
+                    echo "Starting minimal GNOME/Mutter session..."
+                    gnome-session --session=gnome-classic --disable-acceleration-check &
+                    sleep 10  # give time for WM to initialize
                     
                     # Verify setup
                     echo "=== Environment Status ==="
