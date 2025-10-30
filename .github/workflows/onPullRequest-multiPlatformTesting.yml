@@ -242,7 +242,7 @@ jobs:
                     # Run tests
                     echo "=== Running Tests ==="
                     dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
-                        --configuration Release \
+                        --configuration Debug \
                         --no-build \
                         --no-restore \
                         --logger "trx;LogFileName=TestResults/TestResults.trx" \
