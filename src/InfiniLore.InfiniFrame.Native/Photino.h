@@ -192,7 +192,7 @@ private:
 	int _preMaximizedYPosition;
 
 	void AttachWebView();
-	void AddCustomScheme(AutoString scheme, WebResourceRequestedCallback requestHandler);
+    void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
 
 	void SetUserAgent(AutoString userAgent);
 
