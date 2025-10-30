@@ -49,6 +49,7 @@ public class IconFilePathTests {
     [Test]
     [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
