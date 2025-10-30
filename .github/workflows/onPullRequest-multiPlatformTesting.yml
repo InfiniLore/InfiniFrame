@@ -212,7 +212,7 @@ jobs:
                     
                     # Start Mutter
                     echo "Starting Mutter window manager..."
-                    mutter --x11 --replace --sm-disable --no-clutter &
+                    mutter --x11 --replace --sm-disable &
                     
                     timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
                         echo "❌ Mutter failed to start or crashed."
