@@ -495,7 +495,7 @@ void Photino::GetZoom(int* zoom)
 	*zoom = (int)rawValue;
 }
 
-AutoString Photino::GetIconFileName()
+AutoString Photino::GetIconFileName() const
 {
     return _iconFileName;
 }
@@ -884,7 +884,7 @@ void Photino::Invoke(ACTION callback)
 }
 
 //private methods
-void Photino::AddCustomScheme(AutoString scheme, WebResourceRequestedCallback requestHandler)
+void Photino::AddCustomScheme(const AutoString scheme, WebResourceRequestedCallback requestHandler)
 {
     // Note that this can only be done *before* the WKWebView is instantiated, so we only let this
     // get called from the options callback in the constructor

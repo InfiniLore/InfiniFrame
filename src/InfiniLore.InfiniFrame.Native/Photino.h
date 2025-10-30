@@ -1,4 +1,5 @@
 #pragma once
+#include "Photino.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -224,6 +225,7 @@ public:
 	int _minHeight;
 	int _maxWidth;
 	int _maxHeight;
+    wchar_t* GetIconFileName();
 #elif __linux__
 	void set_webkit_settings();
 	void set_webkit_customsettings(WebKitSettings* settings);
