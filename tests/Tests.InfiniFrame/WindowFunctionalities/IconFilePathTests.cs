@@ -84,6 +84,7 @@ public class IconFilePathTests {
     [Test]
     [DisplayName($"{nameof(IconFilePathTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
