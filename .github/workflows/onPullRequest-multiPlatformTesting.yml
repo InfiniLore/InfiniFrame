@@ -238,9 +238,9 @@ jobs:
                     echo "Session: $XDG_SESSION_DESKTOP"
                     echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
                     xdpyinfo | head -3 || true
-            
-            -   name: Run Tests
-                run: |
+                    
+                    # Run tests
+                    echo "=== Running Tests ==="
                     dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
