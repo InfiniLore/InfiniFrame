@@ -406,11 +406,6 @@ void Photino::GetSmoothScrollingEnabled(bool* enabled)
 	*enabled = this->_smoothScrollingEnabled;
 }
 
-AutoString Photino::GetIconFileName()
-{
-    return this->_iconFileName;
-}
-
 void Photino::GetIgnoreCertificateErrorsEnabled(bool* enabled)
 {
 	*enabled = this->_ignoreCertificateErrorsEnabled;
@@ -620,8 +615,6 @@ void Photino::SetFullScreen(const bool fullScreen)
 void Photino::SetIconFile(const AutoString filename)
 {
 	gtk_window_set_icon_from_file(GTK_WINDOW(_window), filename, nullptr);
-    
-    _iconFileName = filename;
 }
 
 void Photino::SetMinimized(const bool minimized)

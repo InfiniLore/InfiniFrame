@@ -419,6 +419,7 @@ public static class InfiniWindowExtensions {
             return window;
         }
 
+        window.IconFilePath = iconFilePath;
         window.Invoke(() => InfiniFrameNative.SetIconFile(window.InstanceHandle, iconFilePath));
         return window;
     }

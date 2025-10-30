@@ -226,11 +226,6 @@ extern "C"
 		instance->SetIconFile(filename);
 	}
 
-    EXPORTED AutoString Photino_GetIconFileName(Photino* instance)
-	{
-	    return instance->GetIconFileName();
-	}
-
 	EXPORTED void Photino_SetMaximized(Photino* instance, const bool maximized)
 	{
 		instance->SetMaximized(maximized);
@@ -291,7 +286,7 @@ extern "C"
 		instance->WaitForExit();
 	}
 
-    
+
 
 	//Dialog
 	EXPORTED AutoString* Photino_ShowOpenFile(Photino* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount) {
@@ -350,8 +345,6 @@ extern "C"
 		instance->Invoke(callback);
 	}
 
-
-    // InfiniWindowTests
     EXPORTED void InfiniWindowTests_NativeParametersReturnAsIs(const PhotinoInitParams* params, PhotinoInitParams** new_params)
 	{
         *new_params = new PhotinoInitParams();

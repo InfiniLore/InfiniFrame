@@ -73,6 +73,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         window.MinHeight = startupParameters.MinHeight;
         window.MinWidth = startupParameters.MinWidth;
 
+        window.IconFilePath = startupParameters.WindowIconFile;
+
         window.Events = Events.DefineSender(window);
         window.MessageHandlers = MessageHandlers;
         window.Initialize();

@@ -276,14 +276,7 @@ Photino::Photino(PhotinoInitParams* initParams)
 		AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
 		Photino::SetIconFile(wWindowIconFile);
 	}
-
-    _iconFileName = new wchar_t[256];
-    if (initParams->WindowIconFile != nullptr)
-    {
-        AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
-        wcscpy_s(_iconFileName, 256, wWindowIconFile);
-        Photino::SetIconFile(wWindowIconFile);
-    }
+		
 
 	if (initParams->CenterOnInitialize)
 		Photino::Center();
@@ -325,7 +318,7 @@ Photino::~Photino()
 	if (_notificationsEnabled && _toastHandler != nullptr) delete _toastHandler;
 }
 
-HWND Photino::getHwnd() const
+HWND Photino::getHwnd()
 {
 	return _hWnd;
 }
@@ -569,13 +562,13 @@ void Photino::Center()
 	SetPosition(left, top);
 }
 
-void Photino::Close() const
+void Photino::Close()
 {
 	PostMessage(_hWnd, WM_CLOSE, NULL, NULL);
 }
 
 
-void Photino::GetTransparentEnabled(bool* enabled) const
+void Photino::GetTransparentEnabled(bool* enabled)
 {
 	ICoreWebView2Controller2* controller2;
 	_webviewController->QueryInterface(&controller2);
@@ -584,102 +577,102 @@ void Photino::GetTransparentEnabled(bool* enabled) const
 	*enabled = backgroundColor.A == 0;
 }
 
-void Photino::GetContextMenuEnabled(bool* enabled) const
+void Photino::GetContextMenuEnabled(bool* enabled)
 {
 	ICoreWebView2Settings* settings;
 	HRESULT r = _webviewWindow->get_Settings(&settings);
 	settings->get_AreDefaultContextMenusEnabled((BOOL*)enabled);
 }
 
-void Photino::GetZoomEnabled(bool* enabled) const
+void Photino::GetZoomEnabled(bool* enabled)
 {
     ICoreWebView2Settings* settings;
     HRESULT r = _webviewWindow->get_Settings(&settings);
     settings->get_IsZoomControlEnabled((BOOL*)enabled);
 }
 
-void Photino::GetDevToolsEnabled(bool* enabled) const
+void Photino::GetDevToolsEnabled(bool* enabled)
 {
 	ICoreWebView2Settings* settings;
 	HRESULT r = _webviewWindow->get_Settings(&settings);
 	settings->get_AreDevToolsEnabled((BOOL*)enabled);
 }
 
-void Photino::GetFullScreen(bool* fullScreen) const
+void Photino::GetFullScreen(bool* fullScreen)
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	if (lStyles & WS_POPUP) *fullScreen = true;
 	else *fullScreen = false;
 }
 
-void Photino::GetGrantBrowserPermissions(bool* grant) const
+void Photino::GetGrantBrowserPermissions(bool* grant)
 {
 	*grant = _grantBrowserPermissions;
 }
 
-AutoString Photino::GetUserAgent() const
+AutoString Photino::GetUserAgent()
 {
 	return this->_userAgent;
 }
 
-void Photino::GetMediaAutoplayEnabled(bool* enabled) const
+void Photino::GetMediaAutoplayEnabled(bool* enabled)
 {
 	*enabled = this->_mediaAutoplayEnabled;
 }
 
-void Photino::GetFileSystemAccessEnabled(bool* enabled) const
+void Photino::GetFileSystemAccessEnabled(bool* enabled)
 {
 	*enabled = this->_fileSystemAccessEnabled;
 }
 
-void Photino::GetWebSecurityEnabled(bool* enabled) const
+void Photino::GetWebSecurityEnabled(bool* enabled)
 {
 	*enabled = this->_webSecurityEnabled;
 }
 
-void Photino::GetJavascriptClipboardAccessEnabled(bool* enabled) const
+void Photino::GetJavascriptClipboardAccessEnabled(bool* enabled)
 {
 	*enabled = this->_javascriptClipboardAccessEnabled;
 }
 
-void Photino::GetMediaStreamEnabled(bool* enabled) const
+void Photino::GetMediaStreamEnabled(bool* enabled)
 {
 	*enabled = this->_mediaStreamEnabled;
 }
 
-void Photino::GetSmoothScrollingEnabled(bool* enabled) const
+void Photino::GetSmoothScrollingEnabled(bool* enabled)
 {
 	*enabled = this->_smoothScrollingEnabled;
 }
 
-void Photino::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
+void Photino::GetIgnoreCertificateErrorsEnabled(bool* enabled)
 {
 	*enabled = this->_ignoreCertificateErrorsEnabled;
 }
 
-void Photino::GetNotificationsEnabled(bool* enabled) const
+void Photino::GetNotificationsEnabled(bool* enabled)
 {
 	*enabled = this->_notificationsEnabled;
 }
 
-AutoString Photino::GetIconFileName() const
+AutoString Photino::GetIconFileName()
 {
 	return this->_iconFileName;
 }
 
-void Photino::GetMaximized(bool* isMaximized) const
+void Photino::GetMaximized(bool* isMaximized)
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	if (lStyles & WS_MAXIMIZE) *isMaximized = true;
 }
 
-void Photino::GetMinimized(bool* isMinimized) const
+void Photino::GetMinimized(bool* isMinimized)
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	if (lStyles & WS_MINIMIZE) *isMinimized = true;
 }
 
-void Photino::GetPosition(int* x, int* y) const
+void Photino::GetPosition(int* x, int* y)
 {
 	RECT rect = {};
 	GetWindowRect(_hWnd, &rect);
@@ -687,18 +680,18 @@ void Photino::GetPosition(int* x, int* y) const
 	if (y) *y = rect.top;
 }
 
-void Photino::GetResizable(bool* resizable) const
+void Photino::GetResizable(bool* resizable)
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	if (lStyles & WS_THICKFRAME) *resizable = true;
 }
 
-unsigned int Photino::GetScreenDpi() const
+unsigned int Photino::GetScreenDpi()
 {
 	return GetDpiForWindow(_hWnd);
 }
 
-void Photino::GetSize(int* width, int* height) const
+void Photino::GetSize(int* width, int* height)
 {
 	RECT rect = {};
 	GetWindowRect(_hWnd, &rect);
@@ -706,7 +699,7 @@ void Photino::GetSize(int* width, int* height) const
 	if (height) *height = rect.bottom - rect.top;
 }
 
-AutoString Photino::GetTitle() const
+AutoString Photino::GetTitle()
 {
 	//int titleLength = GetWindowTextLength(_hWnd) + 1;
 	//wchar_t* title = new wchar_t[titleLength];
@@ -715,14 +708,14 @@ AutoString Photino::GetTitle() const
 	return _windowTitle;
 }
 
-void Photino::GetTopmost(bool* topmost) const
+void Photino::GetTopmost(bool* topmost)
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	if (lStyles & WS_EX_TOPMOST) *topmost = true;
 	else *topmost = false;
 }
 
-void Photino::GetZoom(int* zoom) const
+void Photino::GetZoom(int* zoom)
 {
 	double rawValue = 0;
 	_webviewController->get_ZoomFactor(&rawValue);
@@ -744,7 +737,7 @@ void Photino::NavigateToUrl(AutoString url)
 	_webviewWindow->Navigate(url);
 }
 
-void Photino::Restore() const
+void Photino::Restore()
 {
 	ShowWindow(_hWnd, SW_RESTORE);
 }
@@ -756,7 +749,7 @@ void Photino::SendWebMessage(AutoString message)
 }
 
 
-void Photino::SetTransparentEnabled(const bool enabled) const
+void Photino::SetTransparentEnabled(const bool enabled)
 {
 	ICoreWebView2Controller2* controller2;
 	_webviewController->QueryInterface(&controller2);
@@ -767,7 +760,7 @@ void Photino::SetTransparentEnabled(const bool enabled) const
 	_webviewWindow->Reload();
 }
 
-void Photino::SetContextMenuEnabled(const bool enabled) const
+void Photino::SetContextMenuEnabled(const bool enabled)
 {
 	ICoreWebView2Settings* settings;
 	HRESULT r = _webviewWindow->get_Settings(&settings);
@@ -775,7 +768,7 @@ void Photino::SetContextMenuEnabled(const bool enabled) const
 	_webviewWindow->Reload();
 }
 
-void Photino::SetZoomEnabled(const bool enabled) const
+void Photino::SetZoomEnabled(const bool enabled)
 {
     ICoreWebView2Settings* settings;
     HRESULT r = _webviewWindow->get_Settings(&settings);
@@ -783,7 +776,7 @@ void Photino::SetZoomEnabled(const bool enabled) const
     _webviewWindow->Reload();
 }
 
-void Photino::SetDevToolsEnabled(const bool enabled) const
+void Photino::SetDevToolsEnabled(const bool enabled)
 {
 	ICoreWebView2Settings* settings;
 	HRESULT r = _webviewWindow->get_Settings(&settings);
@@ -841,7 +834,7 @@ void Photino::SetIconFile(const AutoString filename)
 	this->_iconFileName = filename;
 }
 
-void Photino::SetMinimized(const bool minimized) const
+void Photino::SetMinimized(const bool minimized)
 {
 	if (minimized)
 		ShowWindow(_hWnd, SW_MINIMIZE);
@@ -862,7 +855,7 @@ void Photino::SetMinSize(const int width, const int height)
 		SetSize(currWidth, _minHeight);
 }
 
-void Photino::SetMaximized(const bool maximized) const
+void Photino::SetMaximized(const bool maximized)
 {
 	if (maximized)
 		ShowWindow(_hWnd, SW_MAXIMIZE);
@@ -883,12 +876,12 @@ void Photino::SetMaxSize(const int width, const int height)
 		SetSize(currWidth, _maxHeight);
 }
 
-void Photino::SetPosition(const int x, const int y) const
+void Photino::SetPosition(const int x, const int y)
 {
 	SetWindowPos(_hWnd, HWND_TOP, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
-void Photino::SetResizable(const bool resizable) const
+void Photino::SetResizable(const bool resizable)
 {
 	LONG_PTR style = GetWindowLongPtr(_hWnd, GWL_STYLE);
 	if (resizable) style |= WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
@@ -896,7 +889,7 @@ void Photino::SetResizable(const bool resizable) const
 	SetWindowLongPtr(_hWnd, GWL_STYLE, style);
 }
 
-void Photino::SetSize(const int width, const int height) const
+void Photino::SetSize(const int width, const int height)
 {
 	SetWindowPos(_hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
 }
@@ -921,7 +914,7 @@ void Photino::SetTitle(AutoString title)
 	}
 }
 
-void Photino::SetTopmost(const bool topmost) const
+void Photino::SetTopmost(const bool topmost)
 {
 	LONG_PTR style = GetWindowLongPtr(_hWnd, GWL_STYLE);
 	if (topmost) style |= WS_EX_TOPMOST;
@@ -930,7 +923,7 @@ void Photino::SetTopmost(const bool topmost) const
 	SetWindowPos(_hWnd, topmost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
-void Photino::SetZoom(const int zoom) const
+void Photino::SetZoom(const int zoom)
 {
 	double newZoom = zoom / 100.0;
 	HRESULT r = _webviewController->put_ZoomFactor(newZoom);
@@ -956,7 +949,7 @@ void Photino::ShowNotification(AutoString title, AutoString body)
 	}
 }
 
-void Photino::WaitForExit() const
+void Photino::WaitForExit()
 {
 	messageLoopRootWindowHandle = _hWnd;
 
@@ -1004,7 +997,7 @@ void Photino::GetAllMonitors(GetAllMonitorsCallback callback)
 	}
 }
 
-void Photino::Invoke(ACTION callback) const
+void Photino::Invoke(ACTION callback)
 {
 	InvokeWaitInfo waitInfo = {};
 	PostMessage(_hWnd, WM_USER_INVOKE, (WPARAM)callback, (LPARAM)&waitInfo);
@@ -1275,7 +1268,7 @@ bool Photino::InstallWebView2()
 	return false;
 }
 
-void Photino::RefitContent() const
+void Photino::RefitContent()
 {
 	if (_webviewController)
 	{
@@ -1285,7 +1278,7 @@ void Photino::RefitContent() const
 	}
 }
 
-void Photino::FocusWebView2() const
+void Photino::FocusWebView2()
 {
 	if (_webviewController)
 	{
@@ -1293,7 +1286,7 @@ void Photino::FocusWebView2() const
 	}
 }
 
-void Photino::NotifyWebView2WindowMove() const
+void Photino::NotifyWebView2WindowMove()
 {
 	if (_webviewController)
 	{
@@ -1302,7 +1295,7 @@ void Photino::NotifyWebView2WindowMove() const
 	}
 }
 
-void Photino::ClearBrowserAutoFill() const
+void Photino::ClearBrowserAutoFill()
 {
 	if (!_webviewWindow)
 		return;
