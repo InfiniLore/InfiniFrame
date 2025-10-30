@@ -172,6 +172,7 @@ jobs:
                     
                     echo "✅ All native DLLs present"
 
+
             -   name: Start desktop environment and run tests
                 run: |
                     echo "Starting desktop environment..."
@@ -180,6 +181,7 @@ jobs:
                     eval $(dbus-launch --sh-syntax)
                     
                     # Start Xvfb
+                    echo "Launching Xvfb..."
                     Xvfb :99 \
                         -screen 0 1920x1080x24 \
                         -ac \
@@ -204,31 +206,38 @@ jobs:
                     # Wait for X server
                     echo "Waiting for X server..."
                     timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
-                        echo "X server failed to start"
+                        echo "❌ X server failed to start."
                         exit 1
                     }
                     
-                    # Start a minimal GNOME session with Mutter
-                    echo "Starting minimal GNOME/Mutter session..."
-                    gnome-session --session=gnome-classic --disable-acceleration-check &
-                    sleep 10  # give time for WM to initialize
+                    # Start Mutter
+                    echo "Starting Mutter window manager..."
+                    mutter --x11 --no-x11-vsync --replace --sm-disable --no-clutter &
                     
+                    timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
+                        echo "❌ Mutter failed to start or crashed."
+                        echo "=== Diagnostic: X11 info ==="
+                        xdpyinfo | head -3 || echo "xdpyinfo failed"
+                        echo "=== Diagnostic: D-Bus ==="
+                        echo "$DBUS_SESSION_BUS_ADDRESS"
+                        exit 1
+                    }
+                    
+                    echo "✅ Mutter is running:"
+                    ps aux | grep "[m]utter" || echo "❌ Mutter missing unexpectedly"
+                    
+                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "✅ Window manager responding" || {
+                        echo "❌ Window manager not responding"
+                        exit 1
+                    }
+                                    
                     # Verify setup
                     echo "=== Environment Status ==="
                     echo "Display: $DISPLAY"
                     echo "Desktop: $XDG_CURRENT_DESKTOP"
                     echo "Session: $XDG_SESSION_DESKTOP"
                     echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
-                    
-                    echo "X11 info:"
-                    xdpyinfo | head -3 || echo "xdpyinfo failed"
-                    
-                    echo "Window manager:"
-                    ps aux | grep mutter | grep -v grep || echo "Mutter not found"
-                    
-                    # Test window capabilities
-                    echo "Testing window manager capabilities..."
-                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || echo "Window manager not responding"
+                    xdpyinfo | head -3 || true
                     
                     echo "=== Running Tests ==="
                     dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
