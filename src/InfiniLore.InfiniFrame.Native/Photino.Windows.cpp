@@ -271,16 +271,22 @@ Photino::Photino(PhotinoInitParams* initParams)
 	);
 	hwndToPhotino[_hWnd] = this;
 
-    _iconFileName = new wchar_t[256];
 	if (initParams->WindowIconFile != nullptr)
 	{
-	    AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
-	    wcscpy_s(_iconFileName, 256, wWindowIconFile);
-		SetIconFile(wWindowIconFile);
+		AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
+		Photino::SetIconFile(wWindowIconFile);
 	}
 
+    _iconFileName = new wchar_t[256];
+    if (initParams->WindowIconFile != nullptr)
+    {
+        AutoString wWindowIconFile = ToUTF16String(initParams->WindowIconFile);
+        wcscpy_s(_iconFileName, 256, wWindowIconFile);
+        Photino::SetIconFile(wWindowIconFile);
+    }
+
 	if (initParams->CenterOnInitialize)
-		Center();
+		Photino::Center();
 
 	if (initParams->Minimized)
 		SetMinimized(true);
@@ -307,7 +313,7 @@ Photino::Photino(PhotinoInitParams* initParams)
 	_dialog = new PhotinoDialog(this);
 
 	bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
-	Show(isAlreadyShown);
+	Photino::Show(isAlreadyShown);
 }
 
 Photino::~Photino()
@@ -1347,8 +1353,8 @@ void Photino::Show(const bool isAlreadyShown)
 	// until the window is shown.
 	if (!_webviewController)
 	{
-		if (wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath)) > 0 || EnsureWebViewIsInstalled())
-			AttachWebView();
+		if (wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath)) > 0 || Photino::EnsureWebViewIsInstalled())
+			Photino::AttachWebView();
 		else
 			exit(0);
 	}
