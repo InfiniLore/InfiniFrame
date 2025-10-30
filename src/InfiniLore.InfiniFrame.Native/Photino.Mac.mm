@@ -884,7 +884,7 @@ void Photino::Invoke(ACTION callback)
 }
 
 //private methods
-void Photino::AddCustomScheme(const AutoString scheme, WebResourceRequestedCallback requestHandler)
+void Photino::AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler)
 {
     // Note that this can only be done *before* the WKWebView is instantiated, so we only let this
     // get called from the options callback in the constructor
