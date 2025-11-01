@@ -13,6 +13,7 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterOnMonitorTests {
     [Test]
+    [DisplayName($"{nameof(CenterOnMonitorTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]

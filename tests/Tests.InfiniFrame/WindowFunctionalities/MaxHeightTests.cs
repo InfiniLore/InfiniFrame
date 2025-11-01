@@ -14,6 +14,7 @@ public class MaxHeightTests {
     private const int MaxHeight = 20;
 
     [Test]
+    [DisplayName($"{nameof(MaxHeightTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,6 +30,7 @@ public class MaxHeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MaxHeightTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
@@ -44,6 +46,7 @@ public class MaxHeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MaxHeightTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {

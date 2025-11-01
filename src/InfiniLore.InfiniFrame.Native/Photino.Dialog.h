@@ -50,7 +50,7 @@ public:
 
 	AutoString *ShowOpenFile(AutoString title, AutoString defaultPath, bool multiSelect, AutoString *filters, int filterCount, int *resultCount);
 	AutoString *ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int *resultCount);
-	AutoString ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, int filterCount, AutoString defaultFileName = NULL);
+	AutoString ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, int filterCount, AutoString defaultFileName = nullptr);
 	DialogResult ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon);
 
 protected:

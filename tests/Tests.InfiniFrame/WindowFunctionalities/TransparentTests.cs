@@ -13,6 +13,7 @@ using Tests.Shared;
 public class TransparentTests {
 
     [Test]
+    [DisplayName($"{nameof(TransparentTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Builder(bool state) {
@@ -30,6 +31,7 @@ public class TransparentTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TransparentTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux("For some reason the tets environment doesnt support transparency")]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -49,6 +51,7 @@ public class TransparentTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TransparentTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]

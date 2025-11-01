@@ -13,6 +13,7 @@ using Tests.Shared;
 public class BrowserControlInitParametersTests {
 
     [Test]
+    [DisplayName($"{nameof(BrowserControlInitParametersTests)}.{nameof(Builder)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     public async Task Builder() {

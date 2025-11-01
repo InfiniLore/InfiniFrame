@@ -15,6 +15,7 @@ using Tests.Shared;
 public class MoveWithinCurrentMonitorAreaTests {
 
     [Test]
+    [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -44,6 +45,7 @@ public class MoveWithinCurrentMonitorAreaTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window_AsPoint)}")] 
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -73,6 +75,7 @@ public class MoveWithinCurrentMonitorAreaTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window_AsDouble)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]

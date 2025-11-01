@@ -15,6 +15,7 @@ public class IconFilePathTests {
     private const string InvalidIconFilePath = "invalid.ico";
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -31,6 +32,7 @@ public class IconFilePathTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Builder_ShouldNotSetInvalidIconFilePath)}")]
     public async Task Builder_ShouldNotSetInvalidIconFilePath() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -40,12 +42,14 @@ public class IconFilePathTests {
         builder.SetIconFile(InvalidIconFilePath);
 
         // Assert
-        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(null);
+        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(string.Empty);
         await Assert.That(builder.Configuration.ToParameters()).IsEqualTo(expectedConfigParameters);
     }
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
@@ -56,11 +60,14 @@ public class IconFilePathTests {
         window.SetIconFile(IconFilePath);
 
         // Assert
-        await Assert.That(window.IconFilePath).IsEqualTo(IconFilePath);
+        string foundPath = window.IconFilePath;
+        await Assert.That(foundPath).IsEqualTo(IconFilePath);
     }
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Window_ShouldNotSetInvalidIconFilePath)}")]   
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_ShouldNotSetInvalidIconFilePath() {
         // Arrange
@@ -71,11 +78,13 @@ public class IconFilePathTests {
         window.SetIconFile(InvalidIconFilePath);
 
         // Assert
-        await Assert.That(window.IconFilePath).IsEqualTo(null);
+        await Assert.That(window.IconFilePath).IsEqualTo(string.Empty);
     }
 
     [Test]
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange

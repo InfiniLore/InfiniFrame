@@ -15,6 +15,7 @@ using Tests.Shared;
 public class CenterTests {
 
     [Test]
+    [DisplayName($"{nameof(CenterTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Builder(bool state) {
@@ -32,6 +33,7 @@ public class CenterTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(CenterTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -57,6 +59,7 @@ public class CenterTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(CenterTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]

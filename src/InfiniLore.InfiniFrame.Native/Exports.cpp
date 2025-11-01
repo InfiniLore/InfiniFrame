@@ -10,7 +10,7 @@
 extern "C"
 {
 #ifdef _WIN32
-	EXPORTED void Photino_register_win32(HINSTANCE hInstance)
+	EXPORTED void Photino_register_win32(const HINSTANCE hInstance)
 	{
 		Photino::Register(hInstance);
 	}
@@ -20,7 +20,7 @@ extern "C"
 		return instance->getHwnd();
 	}
 
-	EXPORTED void Photino_setWebView2RuntimePath_win32(Photino* instance, AutoString webView2RuntimePath)
+	EXPORTED void Photino_setWebView2RuntimePath_win32(Photino* instance, const AutoString webView2RuntimePath)
 	{
 		Photino::SetWebView2RuntimePath(webView2RuntimePath);
 	}
@@ -176,12 +176,17 @@ extern "C"
 		instance->GetZoom(zoom);
 	}
 
-	EXPORTED void Photino_NavigateToString(Photino* instance, AutoString content)
+    EXPORTED AutoString Photino_GetIconFileName(Photino* instance)
+	{
+	    return instance->GetIconFileName();
+	}
+
+	EXPORTED void Photino_NavigateToString(Photino* instance, const AutoString content)
 	{
 		instance->NavigateToString(content);
 	}
 
-	EXPORTED void Photino_NavigateToUrl(Photino* instance, AutoString url)
+	EXPORTED void Photino_NavigateToUrl(Photino* instance, const AutoString url)
 	{
 		instance->NavigateToUrl(url);
 	}
@@ -191,92 +196,92 @@ extern "C"
 		instance->Restore();
 	}
 
-	EXPORTED void Photino_SendWebMessage(Photino* instance, AutoString message)
+	EXPORTED void Photino_SendWebMessage(Photino* instance, const AutoString message)
 	{
 		instance->SendWebMessage(message);
 	}
 
-	EXPORTED void Photino_SetTransparentEnabled(Photino* instance, bool enabled)
+	EXPORTED void Photino_SetTransparentEnabled(Photino* instance, const bool enabled)
 	{
 		instance->SetTransparentEnabled(enabled);
 	}
 
-	EXPORTED void Photino_SetContextMenuEnabled(Photino* instance, bool enabled)
+	EXPORTED void Photino_SetContextMenuEnabled(Photino* instance, const bool enabled)
 	{
 		instance->SetContextMenuEnabled(enabled);
 	}
 
-    EXPORTED void Photino_SetZoomEnabled(Photino* instance, bool enabled)
+    EXPORTED void Photino_SetZoomEnabled(Photino* instance, const bool enabled)
 	{
 	    instance->SetZoomEnabled(enabled);
 	}
 
-	EXPORTED void Photino_SetDevToolsEnabled(Photino* instance, bool enabled)
+	EXPORTED void Photino_SetDevToolsEnabled(Photino* instance, const bool enabled)
 	{
 		instance->SetDevToolsEnabled(enabled);
 	}
 
-	EXPORTED void Photino_SetFullScreen(Photino* instance, bool fullScreen)
+	EXPORTED void Photino_SetFullScreen(Photino* instance, const bool fullScreen)
 	{
 		instance->SetFullScreen(fullScreen);
 	}
 
-	EXPORTED void Photino_SetIconFile(Photino* instance, AutoString filename)
+	EXPORTED void Photino_SetIconFile(Photino* instance, const AutoString filename)
 	{
 		instance->SetIconFile(filename);
 	}
 
-	EXPORTED void Photino_SetMaximized(Photino* instance, bool maximized)
+	EXPORTED void Photino_SetMaximized(Photino* instance, const bool maximized)
 	{
 		instance->SetMaximized(maximized);
 	}
 
-	EXPORTED void Photino_SetMaxSize(Photino* instance, int width, int height)
+	EXPORTED void Photino_SetMaxSize(Photino* instance, const int width, const int height)
 	{
 		instance->SetMaxSize(width, height);
 	}
 
-	EXPORTED void Photino_SetMinimized(Photino* instance, bool minimized)
+	EXPORTED void Photino_SetMinimized(Photino* instance, const bool minimized)
 	{
 		instance->SetMinimized(minimized);
 	}
 
-	EXPORTED void Photino_SetMinSize(Photino* instance, int width, int height)
+	EXPORTED void Photino_SetMinSize(Photino* instance, const int width, const int height)
 	{
 		instance->SetMinSize(width, height);
 	}
 
-	EXPORTED void Photino_SetPosition(Photino* instance, int x, int y)
+	EXPORTED void Photino_SetPosition(Photino* instance, const int x, const int y)
 	{
 		instance->SetPosition(x, y);
 	}
 
-	EXPORTED void Photino_SetResizable(Photino* instance, bool resizable)
+	EXPORTED void Photino_SetResizable(Photino* instance, const bool resizable)
 	{
 		instance->SetResizable(resizable);
 	}
 
-	EXPORTED void Photino_SetSize(Photino* instance, int width, int height)
+	EXPORTED void Photino_SetSize(Photino* instance, const int width, const int height)
 	{
 		instance->SetSize(width, height);
 	}
 
-	EXPORTED void Photino_SetTitle(Photino* instance, AutoString title)
+	EXPORTED void Photino_SetTitle(Photino* instance, const AutoString title)
 	{
 		instance->SetTitle(title);
 	}
 
-	EXPORTED void Photino_SetTopmost(Photino* instance, bool topmost)
+	EXPORTED void Photino_SetTopmost(Photino* instance, const bool topmost)
 	{
 		instance->SetTopmost(topmost);
 	}
 
-	EXPORTED void Photino_SetZoom(Photino* instance, int zoom)
+	EXPORTED void Photino_SetZoom(Photino* instance, const int zoom)
 	{
 		instance->SetZoom(zoom);
 	}
 	
-	EXPORTED void Photino_ShowNotification(Photino* instance, AutoString title, AutoString body)
+	EXPORTED void Photino_ShowNotification(Photino* instance, const AutoString title, const AutoString body)
 	{
 		instance->ShowNotification(title, body);
 	}
@@ -289,58 +294,58 @@ extern "C"
 
 
 	//Dialog
-	EXPORTED AutoString* Photino_ShowOpenFile(Photino* inst, AutoString title, AutoString defaultPath, bool multiSelect, AutoString* filters, int filterCount, int* resultCount) {
+	EXPORTED AutoString* Photino_ShowOpenFile(Photino* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount) {
 		return inst->GetDialog()->ShowOpenFile(title, defaultPath, multiSelect, filters, filterCount, resultCount);
 	}
-	EXPORTED AutoString* Photino_ShowOpenFolder(Photino* inst, AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount) {
+	EXPORTED AutoString* Photino_ShowOpenFolder(Photino* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount) {
 		return inst->GetDialog()->ShowOpenFolder(title, defaultPath, multiSelect, resultCount);
 	}
-	EXPORTED AutoString Photino_ShowSaveFile(Photino* inst, AutoString title, AutoString defaultPath, AutoString* filters, int filterCount, AutoString defaultFileName = NULL) {
+	EXPORTED AutoString Photino_ShowSaveFile(Photino* inst, const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName = nullptr) {
 		return inst->GetDialog()->ShowSaveFile(title, defaultPath, filters, filterCount, defaultFileName);
 	}
-	EXPORTED DialogResult Photino_ShowMessage(Photino* inst, AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon) {
+	EXPORTED DialogResult Photino_ShowMessage(Photino* inst, const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon) {
 		return inst->GetDialog()->ShowMessage(title, text, buttons, icon);
 	}
 
 
 
 	//Callbacks
-	EXPORTED void Photino_AddCustomSchemeName(Photino* instance, AutoString scheme)
+	EXPORTED void Photino_AddCustomSchemeName(Photino* instance, const AutoString scheme)
 	{
 		instance->AddCustomSchemeName(scheme);
 	}
 
-	EXPORTED void Photino_GetAllMonitors(Photino* instance, GetAllMonitorsCallback callback)
+	EXPORTED void Photino_GetAllMonitors(Photino* instance, const GetAllMonitorsCallback callback)
 	{
 		instance->GetAllMonitors(callback);
 	}
 
-	EXPORTED void Photino_SetClosingCallback(Photino* instance, ClosingCallback callback)
+	EXPORTED void Photino_SetClosingCallback(Photino* instance, const ClosingCallback callback)
 	{
 		instance->SetClosingCallback(callback);
 	}
 
-	EXPORTED void Photino_SetFocusInCallback(Photino* instance, FocusInCallback callback)
+	EXPORTED void Photino_SetFocusInCallback(Photino* instance, const FocusInCallback callback)
 	{
 		instance->SetFocusInCallback(callback);
 	}
 
-	EXPORTED void Photino_SetFocusOutCallback(Photino* instance, FocusOutCallback callback)
+	EXPORTED void Photino_SetFocusOutCallback(Photino* instance, const FocusOutCallback callback)
 	{
 		instance->SetFocusOutCallback(callback);
 	}
 
-	EXPORTED void Photino_SetMovedCallback(Photino* instance, MovedCallback callback)
+	EXPORTED void Photino_SetMovedCallback(Photino* instance, const MovedCallback callback)
 	{
 		instance->SetMovedCallback(callback);
 	}
 
-	EXPORTED void Photino_SetResizedCallback(Photino* instance, ResizedCallback callback)
+	EXPORTED void Photino_SetResizedCallback(Photino* instance, const ResizedCallback callback)
 	{
 		instance->SetResizedCallback(callback);
 	}
 
-	EXPORTED void Photino_Invoke(Photino* instance, ACTION callback)
+	EXPORTED void Photino_Invoke(Photino* instance, const ACTION callback)
 	{
 		instance->Invoke(callback);
 	}

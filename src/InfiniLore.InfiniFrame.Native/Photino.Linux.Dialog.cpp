@@ -7,22 +7,25 @@ enum DialogType {
     SaveFile
 };
 
-void AddFilters(GtkWidget* dialog, AutoString* filters, int filterCount)
+void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount)
 {
     for (int i = 0; i < filterCount; i++) {
         GtkFileFilter *filter = gtk_file_filter_new();
-        char *name = strtok(filters[i], "|");
+
+        char* filterCopy = g_strdup(filters[i]); // Copy the string
+        const char* name = strtok(filterCopy, "|");
         gtk_file_filter_set_name(filter, name);
-        char *patterns = strtok(NULL, "|");
-        while (patterns != NULL) {
+        const char* patterns = strtok(nullptr, "|");
+        while (patterns != nullptr) {
             gtk_file_filter_add_pattern(filter, patterns);
-            patterns = strtok(NULL, ";");
+            patterns = strtok(nullptr, ";");
         }
         gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+        g_free(filterCopy); // Free the duplicated string
     }
 }
 
-AutoString* ShowDialog(DialogType type, AutoString title, AutoString defaultPath, bool multiSelect, AutoString* filters, int filterCount, int* resultCount, AutoString defaultFileName = NULL) {
+AutoString* ShowDialog(const DialogType type, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount, const AutoString defaultFileName = nullptr) {
     GtkFileChooserAction action;
     const char* buttonText;
     switch (type) {
@@ -41,12 +44,12 @@ AutoString* ShowDialog(DialogType type, AutoString title, AutoString defaultPath
     }
 
     GtkWidget* dialog = gtk_file_chooser_dialog_new(
-        title, NULL, action,
+        title, nullptr, action,
         "_Cancel", GTK_RESPONSE_CANCEL, 
         buttonText, GTK_RESPONSE_ACCEPT,
         NULL);
 
-    if (defaultPath != NULL) {
+    if (defaultPath != nullptr) {
         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), defaultPath);
     }
     if (type == OpenFile || type == OpenFolder) {
@@ -54,7 +57,7 @@ AutoString* ShowDialog(DialogType type, AutoString title, AutoString defaultPath
     }
     if (type == SaveFile) {
         gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog), TRUE);
-        gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), defaultFileName);
+        if (defaultFileName != nullptr) gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), defaultFileName);
     }
     if (type == OpenFile || type == SaveFile) {
         AddFilters(dialog, filters, filterCount);
@@ -67,7 +70,7 @@ AutoString* ShowDialog(DialogType type, AutoString title, AutoString defaultPath
             *resultCount = 0;
 
         gtk_widget_destroy(dialog);
-        return NULL;
+        return nullptr;
     }
 
     if (type == OpenFile || type == OpenFolder) {
@@ -93,24 +96,24 @@ PhotinoDialog::PhotinoDialog() {}
 
 PhotinoDialog::~PhotinoDialog() {}
 
-AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath, bool multiSelect, AutoString* filters, int filterCount, int* resultCount)
+AutoString* PhotinoDialog::ShowOpenFile(const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount)
 {
     return ShowDialog(OpenFile, title, defaultPath, multiSelect, filters, filterCount, resultCount);
 }
 
-AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount)
+AutoString* PhotinoDialog::ShowOpenFolder(const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount)
 {
-    return ShowDialog(OpenFolder, title, defaultPath, multiSelect, NULL, 0, resultCount);
+    return ShowDialog(OpenFolder, title, defaultPath, multiSelect, nullptr, 0, resultCount);
 }
 
-AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, int filterCount, AutoString defaultFileName)
+AutoString PhotinoDialog::ShowSaveFile(const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName)
 {
-    char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, NULL, defaultFileName);
-    if (result != NULL) return result[0];
-    return NULL;
+    char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
+    if (result != nullptr) return result[0];
+    return nullptr;
 }
 
-DialogResult PhotinoDialog::ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon)
+DialogResult PhotinoDialog::ShowMessage(const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon)
 {
     GtkWidget* dialog;
     GtkMessageType type;

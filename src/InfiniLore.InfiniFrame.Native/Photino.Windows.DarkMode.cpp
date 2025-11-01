@@ -128,14 +128,14 @@ bool IsDarkModeEnabled() noexcept {
     return (ShouldAppsUseDarkMode() == TRUE) && !IsHighContrast();
 }
 
-void EnableDarkMode(HWND hwnd, bool enable) noexcept {
+void EnableDarkMode(const HWND hwnd, const bool enable) noexcept {
     if (AllowDarkModeForWindow == nullptr) {
         return;
     }
     AllowDarkModeForWindow(hwnd, enable ? TRUE : FALSE);
 }
 
-void RefreshNonClientArea(HWND hwnd) noexcept {
+void RefreshNonClientArea(const HWND hwnd) noexcept {
     if (IsDarkModeAllowedForWindow == nullptr ||
         ShouldAppsUseDarkMode == nullptr) {
         return;
@@ -154,7 +154,7 @@ void RefreshNonClientArea(HWND hwnd) noexcept {
     }
 }
 
-bool IsColorSchemeChange(LPARAM l_param) noexcept {
+bool IsColorSchemeChange(const LPARAM l_param) noexcept {
     bool return_value = false;
     if (l_param > 0 && CompareStringOrdinal(reinterpret_cast<LPCWCH>(l_param),
                                             -1,

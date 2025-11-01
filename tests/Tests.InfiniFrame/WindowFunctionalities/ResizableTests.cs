@@ -10,9 +10,10 @@ using Tests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class Resizable {
+public class ResizableTests {
 
     [Test]
+    [DisplayName($"{nameof(ResizableTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Builder(bool state) {
@@ -30,6 +31,7 @@ public class Resizable {
     }
 
     [Test]
+    [DisplayName($"{nameof(ResizableTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]
@@ -48,6 +50,7 @@ public class Resizable {
     }
 
     [Test]
+    [DisplayName($"{nameof(ResizableTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]

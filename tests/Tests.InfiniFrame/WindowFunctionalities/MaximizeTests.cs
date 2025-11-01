@@ -13,6 +13,7 @@ using Tests.Shared;
 public class MaximizeTests {
 
     [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Builder(bool state) {
@@ -30,6 +31,7 @@ public class MaximizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]
@@ -49,6 +51,7 @@ public class MaximizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window_Toggle)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -68,6 +71,7 @@ public class MaximizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]

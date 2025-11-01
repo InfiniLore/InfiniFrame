@@ -172,6 +172,7 @@ jobs:
                     
                     echo "✅ All native DLLs present"
 
+
             -   name: Start desktop environment and run tests
                 run: |
                     echo "Starting desktop environment..."
@@ -180,6 +181,7 @@ jobs:
                     eval $(dbus-launch --sh-syntax)
                     
                     # Start Xvfb
+                    echo "Launching Xvfb..."
                     Xvfb :99 \
                         -screen 0 1920x1080x24 \
                         -ac \
@@ -187,7 +189,7 @@ jobs:
                         +extension RANDR \
                         +extension RENDER \
                         -nolisten tcp \
-                        -noreset &
+                        -noreset &> xvfb.log &
                     
                     export DISPLAY=:99
                     export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
@@ -204,45 +206,55 @@ jobs:
                     # Wait for X server
                     echo "Waiting for X server..."
                     timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
-                        echo "X server failed to start"
+                        echo "❌ X server failed to start."
                         exit 1
                     }
                     
-                    # Start GNOME settings daemon
-                    gnome-settings-daemon &
-                    sleep 2
-                    
-                    # Start Mutter window manager
+                    # Start Mutter
                     echo "Starting Mutter window manager..."
-                    mutter --replace &
-                    sleep 8
+                    mutter --x11 --replace --sm-disable &> mutter.log &
                     
+                    timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
+                        echo "❌ Mutter failed to start or crashed."
+                        echo "=== Diagnostic: X11 info ==="
+                        xdpyinfo | head -3 || echo "xdpyinfo failed"
+                        echo "=== Diagnostic: D-Bus ==="
+                        echo "$DBUS_SESSION_BUS_ADDRESS"
+                        exit 1
+                    }
+                    
+                    echo "✅ Mutter is running:"
+                    ps aux | grep "[m]utter" || echo "❌ Mutter missing unexpectedly"
+                    
+                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "✅ Window manager responding" || {
+                        echo "❌ Window manager not responding"
+                        exit 1
+                    }
+                                    
                     # Verify setup
                     echo "=== Environment Status ==="
                     echo "Display: $DISPLAY"
                     echo "Desktop: $XDG_CURRENT_DESKTOP"
                     echo "Session: $XDG_SESSION_DESKTOP"
                     echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
+                    xdpyinfo | head -3 || true
                     
-                    echo "X11 info:"
-                    xdpyinfo | head -3 || echo "xdpyinfo failed"
-                    
-                    echo "Window manager:"
-                    ps aux | grep mutter | grep -v grep || echo "Mutter not found"
-                    
-                    # Test window capabilities
-                    echo "Testing window manager capabilities..."
-                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || echo "Window manager not responding"
-                    
+                    # Run tests
                     echo "=== Running Tests ==="
                     dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
-                        --no-restore
+                        --no-restore \
+                        --logger "trx;LogFileName=TestResults/TestResults.trx" \
+                        --logger "console;verbosity=detailed"
 
             -   name: Display test logs on failure
                 if: failure()
                 run: |
+                    echo "=== Xvfb/Mutter logs ==="
+                    cat xvfb.log
+                    cat mutter.log
+    
                     echo "=== Test Run Failed - Displaying Logs ==="
                     
                     # Function to strip ANSI escape codes for readability

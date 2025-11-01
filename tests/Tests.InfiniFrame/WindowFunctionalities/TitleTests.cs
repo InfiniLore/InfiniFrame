@@ -13,6 +13,7 @@ using Tests.Shared;
 public class TitleTests {
 
     [Test]
+    [DisplayName($"{nameof(TitleTests)}.{nameof(Builder)}")]
     [Arguments("")]
     [Arguments(null)]
     [Arguments("InfiniWindow")]
@@ -35,6 +36,7 @@ public class TitleTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TitleTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments("")]
@@ -56,6 +58,7 @@ public class TitleTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments("")]

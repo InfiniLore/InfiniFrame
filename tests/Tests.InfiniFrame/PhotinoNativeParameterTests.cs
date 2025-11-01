@@ -14,6 +14,7 @@ public class IInfiniFrameNativeParameterTests {
 
     // This test only fails if the IInfiniFrameNativeParameters C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.
     [Test]
+    [DisplayName($"{nameof(IInfiniFrameNativeParameterTests)}.{nameof(ReturnAsIsIsValid)}")]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
     public async Task ReturnAsIsIsValid() {

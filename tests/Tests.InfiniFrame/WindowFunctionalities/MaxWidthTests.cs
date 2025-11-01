@@ -14,6 +14,7 @@ public class MaxWidthTests {
     private const int MaxWidth = 20;
 
     [Test]
+    [DisplayName($"{nameof(MaxWidthTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,6 +30,7 @@ public class MaxWidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MaxWidthTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
@@ -44,6 +46,7 @@ public class MaxWidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MaxWidthTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {

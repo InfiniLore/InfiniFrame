@@ -60,6 +60,7 @@ internal static class NativeDll {
     internal const string Photino_SetTitle = nameof(Photino_SetTitle);
     internal const string Photino_SetTopmost = nameof(Photino_SetTopmost);
     internal const string Photino_SetIconFile = nameof(Photino_SetIconFile);
+    internal const string Photino_GetIconFileName = nameof(Photino_GetIconFileName);
     internal const string Photino_SetZoom = nameof(Photino_SetZoom);
     internal const string Photino_Center = nameof(Photino_Center);
     internal const string Photino_ClearBrowserAutoFill = nameof(Photino_ClearBrowserAutoFill);

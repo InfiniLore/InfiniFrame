@@ -13,6 +13,7 @@ using Tests.Shared;
 public class FullScreenTests {
 
     [Test]
+    [DisplayName($"{nameof(FullScreenTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Builder(bool state) {
@@ -30,6 +31,7 @@ public class FullScreenTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(FullScreenTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]
@@ -47,6 +49,7 @@ public class FullScreenTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(FullScreenTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]
