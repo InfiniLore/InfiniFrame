@@ -43,11 +43,39 @@ jobs:
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
+        
+            # ---------------- Linux/macOS dependencies ----------------
+            -   name: Install GTK3 (Linux)
+                if: matrix.os == 'ubuntu-latest'
+                run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev pkg-config
 
-            -   name: Build (Release)
-                shell: bash
-                run: dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj --configuration Release --output ./publish/${{ matrix.os }}-${{ matrix.arch }} --no-restore /p:SolutionDir=$GITHUB_WORKSPACE/
+            -   name: Install GTK3 (macOS)
+                if: matrix.os == 'macos-latest'
+                run: brew install gtk+3 pkg-config
             
+            # ---------------- Build Native Project ----------------
+            -   name: Build InfiniFrame.Native
+                shell: bash
+                run: |
+                    if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+                        dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
+                            --configuration Release `
+                            --output ".\publish\windows-latest-${{ matrix.arch }}" `
+                            --no-restore `
+                            -p:SolutionDir="$PWD"
+                    elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+                        dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                            --configuration Release \
+                            --output "./publish/ubuntu-latest-${{ matrix.arch }}" \
+                            --no-restore \
+                            -p:SolutionDir="$PWD"
+                    elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+                        dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                            --configuration Release \
+                            --output "./publish/macos-latest-${{ matrix.arch }}" \
+                            --no-restore \
+                            -p:SolutionDir="$PWD"
+    
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
