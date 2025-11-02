@@ -57,30 +57,33 @@ jobs:
             -   name: Build InfiniFrame.Native (Windows)
                 if: matrix.os == 'windows-latest'
                 shell: pwsh
-                run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
-                    --configuration Release `
-                    --output ".\publish\${{ matrix.os }}-${{ matrix.arch }}" `
-                    --no-restore `
-                    -p:SolutionDir="$GITHUB_WORKSPACE"
+                run: |
+                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
+                        --configuration Release `
+                        --output ".\publish\${{ matrix.os }}-${{ matrix.arch }}" `
+                        --no-restore `
+                        -p:SolutionDir="$GITHUB_WORKSPACE"
             
             # ---------------- Build Linux ----------------
             -   name: Build InfiniFrame.Native (Linux)
                 if: matrix.os == 'ubuntu-latest'
-                run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
-                    --configuration Release \
-                    --output "./publish/${{ matrix.os }}-${{ matrix.arch }}" \
-                    --no-restore \
-                    /p:SolutionDir="$GITHUB_WORKSPACE"
+                run: |
+                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                        --configuration Release \
+                        --output "./publish/${{ matrix.os }}-${{ matrix.arch }}" \
+                        --no-restore \
+                        /p:SolutionDir="$GITHUB_WORKSPACE"
             
             # ---------------- Build macOS ----------------
             -   name: Build InfiniFrame.Native (macOS)
                 if: matrix.os == 'macos-latest'
-                run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
-                    --configuration Release \
-                    --output "./publish/${{ matrix.os }}-${{ matrix.arch }}" \
-                    --no-restore \
-                    /p:SolutionDir="$GITHUB_WORKSPACE"
-    
+                run: |
+                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                        --configuration Release \
+                        --output "./publish/${{ matrix.os }}-${{ matrix.arch }}" \
+                        --no-restore \
+                        /p:SolutionDir="$GITHUB_WORKSPACE"
+            
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
