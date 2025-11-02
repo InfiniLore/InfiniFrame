@@ -59,9 +59,9 @@ jobs:
                 shell: pwsh
                 run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
                     --configuration Release `
-                    --output ".\publish\windows-latest-${{ matrix.arch }}" `
+                    --output ".\publish\${{ matrix.os }}-${{ matrix.arch }}" `
                     --no-restore `
-                    -p:SolutionDir="$PWD"
+                    -p:SolutionDir="$GITHUB_WORKSPACE"
             
             # ---------------- Build Linux ----------------
             -   name: Build InfiniFrame.Native (Linux)
@@ -69,9 +69,9 @@ jobs:
                 shell: bash
                 run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                     --configuration Release \
-                    --output "./publish/ubuntu-latest-${{ matrix.arch }}" \
+                    --output "./publish/${{ matrix.os }}-${{ matrix.arch }}" \
                     --no-restore \
-                    /p:SolutionDir="$PWD"
+                    /p:SolutionDir="$GITHUB_WORKSPACE"
             
             # ---------------- Build macOS ----------------
             -   name: Build InfiniFrame.Native (macOS)
@@ -79,9 +79,9 @@ jobs:
                 shell: bash
                 run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                     --configuration Release \
-                    --output "./publish/macos-latest-${{ matrix.arch }}" \
+                    --output "./publish/${{ matrix.os }}-${{ matrix.arch }}" \
                     --no-restore \
-                    /p:SolutionDir="$PWD"
+                    /p:SolutionDir="$GITHUB_WORKSPACE"
     
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
