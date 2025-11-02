@@ -53,7 +53,7 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=$GITHUB_WORKSPACE/
-
+            
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
