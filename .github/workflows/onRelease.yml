@@ -45,6 +45,7 @@ jobs:
                 uses: lukka/get-cmake@latest
 
             -   name: Build (Release)
+                shell: bash
                 run: |
                     # Build native project first
                     dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
