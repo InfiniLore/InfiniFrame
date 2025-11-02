@@ -53,28 +53,35 @@ jobs:
                 if: matrix.os == 'macos-latest'
                 run: brew install gtk+3 pkg-config
             
-            # ---------------- Build Native Project ----------------
-            -   name: Build InfiniFrame.Native
+            # ---------------- Build Windows ----------------
+            -   name: Build InfiniFrame.Native (Windows)
+                if: matrix.os == 'windows-latest'
+                shell: pwsh
+                run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
+                    --configuration Release `
+                    --output ".\publish\windows-latest-${{ matrix.arch }}" `
+                    --no-restore `
+                    -p:SolutionDir="$PWD"
+            
+            # ---------------- Build Linux ----------------
+            -   name: Build InfiniFrame.Native (Linux)
+                if: matrix.os == 'ubuntu-latest'
                 shell: bash
-                run: |
-                    if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-                        dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
-                            --configuration Release `
-                            --output ".\publish\windows-latest-${{ matrix.arch }}" `
-                            --no-restore `
-                            -p:SolutionDir="$PWD"
-                    elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-                        dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
-                            --configuration Release \
-                            --output "./publish/ubuntu-latest-${{ matrix.arch }}" \
-                            --no-restore \
-                            -p:SolutionDir="$PWD"
-                    elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-                        dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
-                            --configuration Release \
-                            --output "./publish/macos-latest-${{ matrix.arch }}" \
-                            --no-restore \
-                            -p:SolutionDir="$PWD"
+                run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                    --configuration Release \
+                    --output "./publish/ubuntu-latest-${{ matrix.arch }}" \
+                    --no-restore \
+                    -p:SolutionDir="$PWD"
+            
+            # ---------------- Build macOS ----------------
+            -   name: Build InfiniFrame.Native (macOS)
+                if: matrix.os == 'macos-latest'
+                shell: bash
+                run: dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                    --configuration Release \
+                    --output "./publish/macos-latest-${{ matrix.arch }}" \
+                    --no-restore \
+                    -p:SolutionDir="$PWD"
     
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
