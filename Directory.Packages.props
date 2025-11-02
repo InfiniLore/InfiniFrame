@@ -13,9 +13,9 @@
     <PackageVersion Include="Serilog" Version="4.3.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
-    <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageVersion Include="TUnit" Version="0.86.5" />
-    <PackageVersion Include="TUnit.Core" Version="0.86.5" />
-    <PackageVersion Include="TUnit.Playwright" Version="0.86.5" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.0" />
+    <PackageVersion Include="TUnit" Version="0.90.6" />
+    <PackageVersion Include="TUnit.Core" Version="0.90.6" />
+    <PackageVersion Include="TUnit.Playwright" Version="0.90.6" />
   </ItemGroup>
 </Project>
