@@ -47,7 +47,15 @@ jobs:
             # ---------------- Linux/macOS dependencies ----------------
             -   name: Install GTK3 (Linux)
                 if: matrix.os == 'ubuntu-latest'
-                run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev pkg-config
+                run: | 
+                    sudo apt-get update
+                    sudo apt install -y  \
+                        libgtk-3-dev \
+                        libwebkit2gtk-4.1-dev \
+                        libssl-dev \
+                        libcurl4-openssl-dev \
+                        zlib1g-dev \
+                        libnotify-dev
 
             -   name: Install GTK3 (macOS)
                 if: matrix.os == 'macos-latest'
