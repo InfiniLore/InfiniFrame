@@ -14,6 +14,7 @@ public class WidthTests {
     private const int Width = 20;
 
     [Test]
+    [DisplayName($"{nameof(WidthTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -30,6 +31,7 @@ public class WidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WidthTests)}.{nameof(Builder_ShouldOverwriteOsDefaultSizeAndCentered)}")]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -53,6 +55,7 @@ public class WidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WidthTests)}.{nameof(Window)}")]  
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -69,6 +72,7 @@ public class WidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WidthTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -88,6 +92,7 @@ public class WidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WidthTests)}.{nameof(Window_WithChromelessToGetSmallestWidth)}")] 
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -104,6 +109,7 @@ public class WidthTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WidthTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestWidth)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration_WithChromelessToGetSmallestWidth() {

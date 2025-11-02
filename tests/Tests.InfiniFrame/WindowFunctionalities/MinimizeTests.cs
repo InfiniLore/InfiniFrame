@@ -13,6 +13,7 @@ using Tests.Shared;
 public class MinimizeTests {
 
     [Test]
+    [DisplayName($"{nameof(MinimizeTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Builder(bool state) {
@@ -30,6 +31,7 @@ public class MinimizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MinimizeTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]
@@ -49,6 +51,7 @@ public class MinimizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MinimizeTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]

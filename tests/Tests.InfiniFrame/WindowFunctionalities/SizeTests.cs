@@ -16,6 +16,7 @@ public class SizeTests {
     private const int Height = 20;
 
     [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -33,6 +34,7 @@ public class SizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Builder_ShouldOverwriteOsDefaultSizeAndCentered)}")]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -58,6 +60,7 @@ public class SizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -74,6 +77,7 @@ public class SizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Window_AsSize)}")] 
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -90,6 +94,7 @@ public class SizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
@@ -108,6 +113,7 @@ public class SizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Window_WithChromelessToGetSmallestSize)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -124,6 +130,7 @@ public class SizeTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestSize)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration_WithChromelessToGetSmallestSize() {

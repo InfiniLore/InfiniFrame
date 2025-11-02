@@ -223,6 +223,9 @@ Photino::Photino(PhotinoInitParams* initParams)
     
     // Set Window options
     SetTitle(_windowTitle);
+    
+    _iconFileName = new char[256];
+	_iconFileName[0] = '\0';
     if (initParams->WindowIconFile != NULL && initParams->WindowIconFile[0] != '\0')
 		Photino::SetIconFile(initParams->WindowIconFile);
 
@@ -492,6 +495,11 @@ void Photino::GetZoom(int* zoom)
 	*zoom = (int)rawValue;
 }
 
+AutoString Photino::GetIconFileName() const
+{
+    return _iconFileName;
+}
+
 void Photino::NavigateToString(AutoString content)
 {
     [_webview loadHTMLString: [NSString stringWithUTF8String: content] baseURL: nil];
@@ -621,11 +629,19 @@ void Photino::SetZoomEnabled(bool enabled)
 
 void Photino::SetIconFile(AutoString filename)
 {
-	NSString* path = [NSString stringWithUTF8String: filename];
+   // Set the NSWindow icon
+    NSString* path = [NSString stringWithUTF8String: filename];
     NSImage* icon = [[NSImage alloc] initWithContentsOfFile: path];
     if (icon != nil)
         [[_window standardWindowButton: NSWindowDocumentIconButton] setImage:icon];
+
+    // Store the path internally for retrieval later
+    if (_iconFileName == nullptr) _iconFileName = new char[256];
+    
+    strncpy(_iconFileName, filename, 255);
+    _iconFileName[255] = '\0';
 }
+
 
 void Photino::SetFullScreen(bool fullScreen)
 {
@@ -868,7 +884,7 @@ void Photino::Invoke(ACTION callback)
 }
 
 //private methods
-void Photino::AddCustomScheme(AutoString scheme, WebResourceRequestedCallback requestHandler)
+void Photino::AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler)
 {
     // Note that this can only be done *before* the WKWebView is instantiated, so we only let this
     // get called from the options callback in the constructor

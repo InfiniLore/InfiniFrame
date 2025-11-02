@@ -13,6 +13,7 @@ using Tests.Shared;
 public class TopMostTests {
 
     [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Builder(bool state) {
@@ -30,6 +31,7 @@ public class TopMostTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -48,6 +50,7 @@ public class TopMostTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]

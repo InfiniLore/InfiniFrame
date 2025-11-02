@@ -14,6 +14,7 @@ public class MinHeightTests {
     private const int MinHeight = 20;
 
     [Test]
+    [DisplayName($"{nameof(MinHeightTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,6 +30,7 @@ public class MinHeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MinHeightTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
@@ -44,6 +46,7 @@ public class MinHeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MinHeightTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {

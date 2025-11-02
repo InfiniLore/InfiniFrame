@@ -14,6 +14,7 @@ public class HeightTests {
     private const int Height = 20;
 
     [Test]
+    [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -30,6 +31,7 @@ public class HeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(HeightTests)}.{nameof(Builder_ShouldOverwriteOsDefaultSizeAndCentered)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
@@ -54,6 +56,7 @@ public class HeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(HeightTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -70,6 +73,7 @@ public class HeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
@@ -88,6 +92,7 @@ public class HeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(HeightTests)}.{nameof(Window_WithChromelessToGetSmallestHeight)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -104,6 +109,7 @@ public class HeightTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestHeight)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration_WithChromelessToGetSmallestHeight() {

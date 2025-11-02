@@ -18,6 +18,7 @@ public class RegisterCustomSchemeHandlerTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder)}")]
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -39,9 +40,9 @@ public class RegisterCustomSchemeHandlerTests {
             Marshal.FreeHGlobal(target);// free the temp pointer
         }
     }
-
-
+    
     [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
@@ -55,12 +56,13 @@ public class RegisterCustomSchemeHandlerTests {
         // Assert
         var windowCasted = window as InfiniFrameWindow;
         Dictionary<string, NetCustomSchemeDelegate?>? customSchemes = windowCasted?.CustomSchemes;
-        await Assert.That(customSchemes)
-            .IsNotNull()
-            .ContainsKey("app");
+        await Assert.That(customSchemes!)
+            .ContainsKey("app")
+            .IsNotNull();
     }
 
     [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
@@ -76,8 +78,8 @@ public class RegisterCustomSchemeHandlerTests {
         // Assert
         var windowCasted = window as InfiniFrameWindow;
         Dictionary<string, NetCustomSchemeDelegate?>? customSchemes = windowCasted?.CustomSchemes;
-        await Assert.That(customSchemes)
-            .IsNotNull()
-            .ContainsKey("app");
+        await Assert.That(customSchemes!)
+            .ContainsKey("app")
+            .IsNotNull();
     }
 }
