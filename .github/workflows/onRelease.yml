@@ -71,7 +71,7 @@ jobs:
                     --configuration Release \
                     --output "./publish/ubuntu-latest-${{ matrix.arch }}" \
                     --no-restore \
-                    -p:SolutionDir="$PWD"
+                    /p:SolutionDir="$PWD"
             
             # ---------------- Build macOS ----------------
             -   name: Build InfiniFrame.Native (macOS)
@@ -81,7 +81,7 @@ jobs:
                     --configuration Release \
                     --output "./publish/macos-latest-${{ matrix.arch }}" \
                     --no-restore \
-                    -p:SolutionDir="$PWD"
+                    /p:SolutionDir="$PWD"
     
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
