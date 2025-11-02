@@ -46,13 +46,7 @@ jobs:
 
             -   name: Build (Release)
                 shell: bash
-                run: |
-                    # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
-                      --output ./publish/${{ matrix.os }}-${{ matrix.arch }} \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
+                run: dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj --configuration Release --output ./publish/${{ matrix.os }}-${{ matrix.arch }} --no-restore /p:SolutionDir=$GITHUB_WORKSPACE/
             
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
