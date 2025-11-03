@@ -56,7 +56,7 @@ jobs:
         
             # ---------------- Linux/macOS dependencies ----------------
             -   name: Install GTK3 (Linux)
-                if: matrix.os == 'ubuntu-latest'
+                if:  startsWith(matrix.os, 'ubuntu')
                 run: | 
                     sudo apt-get update
                     sudo apt install -y  \
@@ -68,12 +68,12 @@ jobs:
                         libnotify-dev
 
             -   name: Install GTK3 (macOS)
-                if: matrix.os == 'macos-latest'
+                if: startsWith(matrix.os, 'macos')
                 run: brew install gtk+3 pkg-config
             
             # ---------------- Build Windows ----------------
             -   name: Build InfiniFrame.Native (Windows)
-                if: matrix.os == 'windows-latest'
+                if: startsWith(matrix.os, 'windows')
                 shell: pwsh
                 run: |
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
