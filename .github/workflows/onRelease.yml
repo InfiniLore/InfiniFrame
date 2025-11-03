@@ -114,7 +114,7 @@ jobs:
                 uses: actions/upload-artifact@v5
                 with:
                     name: ${{ matrix.libName }}-${{ matrix.arch }}
-                    path: ${{github.workspace}}/artifacts/native/${{ matrix.arch }}/Release/**
+                    path: ${{github.workspace}}/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
     
     release:
         name: Create GitHub Release
