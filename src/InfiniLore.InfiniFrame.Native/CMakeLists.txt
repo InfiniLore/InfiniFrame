@@ -88,7 +88,7 @@ if(WIN32)
     )
 
     # WebView2 package configuration
-    set(WEBVIEW2_VERSION "1.0.3537.50" CACHE STRING "WebView2 version")
+    set(WEBVIEW2_VERSION "1.0.3595.46" CACHE STRING "WebView2 version")
 
     set(WEBVIEW2_BASE_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native")
     set(WEBVIEW2_DLL_SOURCE "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2Loader.dll")
