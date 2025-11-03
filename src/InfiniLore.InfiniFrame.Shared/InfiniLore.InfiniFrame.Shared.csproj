@@ -15,11 +15,21 @@
     
         <!-- Fallback -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
+        
+        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
+        <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
+        <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
+        <CMakeOSDir Condition="'$(IsMac)'=='true'">osx</CMakeOSDir>
 
-        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)/</CMakeBuildDir>
-        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)/</NativeOutputDir>
-        <NativeOutputDirX64>$(SolutionDir)artifacts/native/x64/$(Configuration)/</NativeOutputDirX64>
-        <NativeOutputDirArm64>$(SolutionDir)artifacts/native/arm64/$(Configuration)/</NativeOutputDirArm64>
+        <!-- Output all binaries to a fixed path under the solution -->
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+        
+        <LinuxX64>$(SolutionDir)artifacts/native/linux/x64/$(Configuration)/</LinuxX64>
+        <LinuxArm64>$(SolutionDir)artifacts/native/linux/arm64/$(Configuration)/</LinuxArm64>
+        <MacOsX64>$(SolutionDir)artifacts/native/osx/x64/$(Configuration)/</MacOsX64>
+        <MacOsArm64>$(SolutionDir)artifacts/native/osx/arm64/$(Configuration)/</MacOsArm64>
+        <WindowsX64>$(SolutionDir)artifacts/native/osx/x64/$(Configuration)/</WindowsX64>
+        <WindowsArm64>$(SolutionDir)artifacts/native/osx/arm64/$(Configuration)/</WindowsArm64>
     </PropertyGroup>
 
     <ItemGroup>
@@ -42,8 +52,8 @@
     </ItemGroup>
 
     <!-- Windows -->
-    <ItemGroup Condition="Exists('$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.dll')">
-        <Content Include="$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.dll"
+    <ItemGroup Condition="Exists('$(WindowsX64)/InfiniLore.InfiniFrame.Native.dll')">
+        <Content Include="$(WindowsX64)/InfiniLore.InfiniFrame.Native.dll"
                  PackagePath="runtimes/win-x64/native/InfiniLore.InfiniFrame.Native.dll"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -51,7 +61,7 @@
             <TargetPath>InfiniLore.InfiniFrame.Native.dll</TargetPath>
         </Content>
 
-        <Content Include="$(NativeOutputDirX64)/WebView2Loader.dll"
+        <Content Include="$(WindowsX64)/WebView2Loader.dll"
                  Pack="true"
                  PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -60,8 +70,8 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup Condition="Exists('$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.dll')">
-        <Content Include="$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.dll"
+    <ItemGroup Condition="Exists('$(WindowsArm64)/InfiniLore.InfiniFrame.Native.dll')">
+        <Content Include="$(WindowsArm64)/InfiniLore.InfiniFrame.Native.dll"
                  PackagePath="runtimes/win-arm64/native/InfiniLore.InfiniFrame.Native.dll"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -69,7 +79,7 @@
             <TargetPath>InfiniLore.InfiniFrame.Native.dll</TargetPath>
         </Content>
 
-        <Content Include="$(NativeOutputDirArm64)/WebView2Loader.dll"
+        <Content Include="$(WindowsArm64)/WebView2Loader.dll"
                  Pack="true"
                  PackagePath="runtimes/win-arm64/native/WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -79,8 +89,8 @@
     </ItemGroup>
 
     <!-- Linux -->
-    <ItemGroup Condition="Exists('$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.so')">
-        <Content Include="$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.so"
+    <ItemGroup Condition="Exists('$(LinuxX64)/InfiniLore.InfiniFrame.Native.so')">
+        <Content Include="$(LinuxX64)/InfiniLore.InfiniFrame.Native.so"
                  PackagePath="runtimes/linux-x64/native/InfiniLore.InfiniFrame.Native.so"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -88,8 +98,8 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup Condition="Exists('$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.so')">
-        <Content Include="$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.so"
+    <ItemGroup Condition="Exists('$(LinuxArm64)/InfiniLore.InfiniFrame.Native.so')">
+        <Content Include="$(LinuxArm64)/InfiniLore.InfiniFrame.Native.so"
                  PackagePath="runtimes/linux-arm64/native/InfiniLore.InfiniFrame.Native.so"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -98,8 +108,8 @@
     </ItemGroup>
 
     <!-- macOS -->
-    <ItemGroup Condition="Exists('$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.dylib')">
-        <Content Include="$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.dylib"
+    <ItemGroup Condition="Exists('$(MacOsX64)/InfiniLore.InfiniFrame.Native.dylib')">
+        <Content Include="$(MacOsX64)/InfiniLore.InfiniFrame.Native.dylib"
                  PackagePath="runtimes/osx-x64/native/InfiniLore.InfiniFrame.Native.dylib"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -107,8 +117,8 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup Condition="Exists('$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.dylib')">
-        <Content Include="$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.dylib"
+    <ItemGroup Condition="Exists('$(MacOsArm64)/InfiniLore.InfiniFrame.Native.dylib')">
+        <Content Include="$(MacOsArm64)/InfiniLore.InfiniFrame.Native.dylib"
                  PackagePath="runtimes/osx-arm64/native/InfiniLore.InfiniFrame.Native.dylib"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>

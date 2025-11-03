@@ -10,7 +10,10 @@
 
         <CMakePlatform>$(Platform)</CMakePlatform>
         <CMakePlatform Condition="'$(CMakePlatform)'=='' Or '$(CMakePlatform)'=='AnyCPU' Or '$(CMakePlatform)'=='Any CPU'">x64</CMakePlatform>
-    
+        <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
+        <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
+        <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
+
         <!-- Map to CMake architecture -->
         <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
         <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">arm64</CMakeArch>
@@ -19,7 +22,12 @@
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
 
         <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
-        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+        <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
+        <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
+        <CMakeOSDir Condition="'$(IsMac)'=='true'">osx</CMakeOSDir>
+
+        <!-- Output all binaries to a fixed path under the solution -->
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
     </PropertyGroup>
 
     <ItemGroup>
