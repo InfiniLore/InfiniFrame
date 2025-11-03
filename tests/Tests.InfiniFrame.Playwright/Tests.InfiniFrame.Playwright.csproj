@@ -13,7 +13,7 @@
 
         <!-- map to CMake architecture -->
         <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
-        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">ARM64</CMakeArch>
+        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">arm64</CMakeArch>
 
         <!-- Fallback in case none matched -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
