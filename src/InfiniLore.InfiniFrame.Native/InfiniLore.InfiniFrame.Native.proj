@@ -72,16 +72,19 @@
         <RemoveDir Directories="$(SolutionDir)artifacts/native/" />
     </Target>
 
-    <!-- Restore target -->
-    <Target Name="Restore">
-        <Message Text="Skipping restore for native project." Importance="High"/>
-    </Target>
-    
     <Target Name="Rebuild" DependsOnTargets="Clean;Build">
         <Message Text="Rebuilding native project (Clean + Build)..." Importance="High" />
     </Target>
+
+    <!-- Skipped Tragets -->
+    <Target Name="Restore">
+        <Message Text="Skipping restore for native project." Importance="High"/>
+    </Target>
+
+    <Target Name="Pack">
+        <Message Text="Skipping pack for native project." Importance="High"/>
+    </Target>
     
-    <!-- Restore target -->
     <Target Name="VSTest">
         <Message Text="Skipping VSTest for native project." Importance="High"/>
     </Target>
