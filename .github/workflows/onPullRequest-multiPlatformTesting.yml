@@ -99,17 +99,6 @@ jobs:
                     key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
                     restore-keys: |
                         ${{ runner.os }}-nuget-
-            
-            # Cache .NET build output
-            -   name: Cache .NET build
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        **/bin
-                        **/obj
-                    key: ${{ runner.os }}-build-${{ hashFiles('**/*.cs', '**/*.csproj', '**/*.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-build-
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest

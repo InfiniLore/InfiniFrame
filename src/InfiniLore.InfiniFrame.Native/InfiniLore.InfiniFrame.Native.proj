@@ -9,20 +9,23 @@
         <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
         <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
 
-        <!-- Force default platform to x64 if AnyCPU or empty -->
-        <CMakePlatform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</CMakePlatform>
+        <CMakePlatform>$(Platform)</CMakePlatform>
+        <CMakePlatform Condition="'$(CMakePlatform)'=='' Or '$(CMakePlatform)'=='AnyCPU' Or '$(CMakePlatform)'=='Any CPU'">x64</CMakePlatform>
 
-        <!-- map to CMake architecture -->
+        <!-- Map to CMake architecture -->
         <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
-        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">ARM64</CMakeArch>
-        
-        <!-- Fallback in case none matched -->
+        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">arm64</CMakeArch>
+
+        <!-- Fallback -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
 
         <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
+        <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
+        <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
+        <CMakeOSDir Condition="'$(IsMac)'=='true'">osx</CMakeOSDir>
         
         <!-- Output all binaries to a fixed path under the solution -->
-        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -72,16 +75,19 @@
         <RemoveDir Directories="$(SolutionDir)artifacts/native/" />
     </Target>
 
-    <!-- Restore target -->
-    <Target Name="Restore">
-        <Message Text="Skipping restore for native project." Importance="High"/>
-    </Target>
-    
     <Target Name="Rebuild" DependsOnTargets="Clean;Build">
         <Message Text="Rebuilding native project (Clean + Build)..." Importance="High" />
     </Target>
+
+    <!-- Skipped Tragets -->
+    <Target Name="Restore">
+        <Message Text="Skipping restore for native project." Importance="High"/>
+    </Target>
+
+    <Target Name="Pack">
+        <Message Text="Skipping pack for native project." Importance="High"/>
+    </Target>
     
-    <!-- Restore target -->
     <Target Name="VSTest">
         <Message Text="Skipping VSTest for native project." Importance="High"/>
     </Target>

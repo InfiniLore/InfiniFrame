@@ -16,9 +16,25 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [ubuntu-latest, windows-latest, macos-latest]
-                arch: [x64, arm64]
-        
+                include:
+                    - os: ubuntu-latest
+                      arch: x64
+                      libName: linux
+                    - os: ubuntu-24.04-arm
+                      arch: arm64
+                      libName: linux
+                    - os: windows-latest
+                      arch: x64
+                      libName: windows
+                    - os: windows-11-arm
+                      arch: arm64
+                      libName: windows
+                    - os: macos-15-intel
+                      arch: x64
+                      libName: osx
+                    - os: macos-latest
+                      arch: arm64
+                      libName: osx
         env:
             DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
             DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -41,70 +57,231 @@ jobs:
                     key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
                     restore-keys: ${{ runner.os }}-nuget-
 
-            -   name: Build (Release)
-                run: |
-                    # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
-                      --output ./publish/${{ matrix.os }}-${{ matrix.arch }} \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+        
+            # ---------------- Linux/macOS dependencies ----------------
+            -   name: Install GTK3 (Linux)
+                if: startsWith(matrix.os, 'ubuntu')
+                run: | 
+                    sudo apt-get update
+                    sudo apt install -y  \
+                        libgtk-3-dev \
+                        libwebkit2gtk-4.1-dev \
+                        libssl-dev \
+                        libcurl4-openssl-dev \
+                        zlib1g-dev \
+                        libnotify-dev
 
+            -   name: Install GTK3 (macOS)
+                if: startsWith(matrix.os, 'macos')
+                run: |
+                    brew list gtk+3 >/dev/null 2>&1 || brew install gtk+3
+                    brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
+            
+            # ---------------- Build Windows ----------------
+            -   name: Build InfiniFrame.Native (Windows)
+                if: startsWith(matrix.os, 'windows')
+                shell: pwsh
+                run: |
+                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
+                        --configuration Release `
+                        --no-restore `
+                        -p:SolutionDir="${{github.workspace}}/" `
+                        -p:Platform=${{ matrix.arch }}
+            
+            # ---------------- Build Linux ----------------
+            -   name: Build InfiniFrame.Native (Linux)
+                if: startsWith(matrix.os, 'ubuntu')
+                run: |
+                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                        --configuration Release \
+                        --no-restore \
+                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:Platform=${{ matrix.arch }}
+            
+            # ---------------- Build macOS ----------------
+            -   name: Build InfiniFrame.Native (macOS)
+                if: startsWith(matrix.os, 'macos')
+                run: |
+                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                        --configuration Release \
+                        --no-restore \
+                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:Platform=${{ matrix.arch }}
+                    
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
-                    name: app-${{ matrix.os }}-${{ matrix.arch }}
-                    path: publish/${{ matrix.os }}-${{ matrix.arch }}
+                    name: ${{ matrix.libName }}-${{ matrix.arch }}
+                    path: ${{github.workspace}}/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
     
-#    release:
-#        name: Create GitHub Release
-#        runs-on: ubuntu-latest
-#        needs: build
-#        if: startsWith(github.ref, 'refs/tags/v')
-#        steps:
-#            -   name: Download build artifacts
-#                uses: actions/download-artifact@v6
-#                with:
-#                    path: dist
-#
-#            -   name: Zip builds
-#                run: |
-#                    mkdir release
-#                    for dir in dist/*; do
-#                        name=$(basename "$dir")
-#                        zip -r "release/$name.zip" "$dir"
-#                    done
-#
-#            -   name: Create GitHub Release
-#                uses: softprops/action-gh-release@v2
-#                with:
-#                    files: release/*.zip
-#                    generate_release_notes: true
-#    
-#    nuget:
-#        name: Publish to NuGet
-#        runs-on: ubuntu-latest
-#        needs: build
-#        if: startsWith(github.ref, 'refs/tags/v')
-#        steps:
-#            -   name: Checkout repository
-#                uses: actions/checkout@v5
-#
-#            -   name: Setup .NET
-#                uses: actions/setup-dotnet@v5
-#                with:
-#                    dotnet-version: '9.0.x'
-#
-#            -   name: Build (for NuGet)
-#                run: dotnet pack --configuration Release -o ./nupkgs
-#              
-#            -   name: Upload NuGet packages as debug artifact
-#                uses: actions/upload-artifact@v5
-#                with:
-#                    name: nuget-packages-${{ github.ref_name }}
-#                    path: ./nupkgs/*.nupkg
+    release:
+        name: Create GitHub Release
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            -   uses: actions/checkout@v5
+                with:
+                    fetch-depth: 0
 
-#            - name: Push to NuGet
-#              run: dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-#              env:
-#                  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+            -   name: Setup .NET 9 SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: '9.x'
+            
+            # Cache APT packages to avoid re-downloading
+            -   name: Cache APT packages
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        /var/cache/apt/archives
+                        /var/lib/apt/lists
+                    key: ${{ runner.os }}-apt-${{ hashFiles('**/OnRelease.yml') }}
+                    restore-keys: |
+                        ${{ runner.os }}-apt-
+            
+            # Cache .NET packages
+            -   name: Cache .NET packages
+                uses: actions/cache@v4
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-nuget-
+                        
+            -   name: Download build artifacts
+                uses: actions/download-artifact@v6
+                with:
+                    path: artifacts/native
+
+            -   name: Recreate folder structure for 
+                run: |
+                    mkdir -p artifacts/native/windows/x64/Release
+                    mkdir -p artifacts/native/windows/arm64/Release
+                    mkdir -p artifacts/native/linux/x64/Release
+                    mkdir -p artifacts/native/linux/arm64/Release
+                    mkdir -p artifacts/native/osx/x64/Release
+                    mkdir -p artifacts/native/osx/arm64/Release
+                    
+                    # Move files into the correct structure
+                    mv artifacts/native/windows-x64/* artifacts/native/windows/x64/Release/ 2>/dev/null || true
+                    mv artifacts/native/windows-arm64/* artifacts/native/windows/arm64/Release/ 2>/dev/null || true
+                    mv artifacts/native/linux-x64/* artifacts/native/linux/x64/Release/ 2>/dev/null || true
+                    mv artifacts/native/linux-arm64/* artifacts/native/linux/arm64/Release/ 2>/dev/null || true
+                    mv artifacts/native/osx-x64/* artifacts/native/osx/x64/Release/ 2>/dev/null || true
+                    mv artifacts/native/osx-arm64/* artifacts/native/osx/arm64/Release/ 2>/dev/null || true
+                    
+            -   name: Verify native artifacts
+                run: |
+                    echo "Checking native build artifacts..."
+                    EXPECTED_ARTIFACTS=(
+                      "windows/x64/Release/InfiniLore.InfiniFrame.Native.dll"
+                      "windows/x64/Release/WebView2Loader.dll"
+                      "windows/arm64/Release/InfiniLore.InfiniFrame.Native.dll"
+                      "windows/arm64/Release/WebView2Loader.dll"
+                      "linux/x64/Release/InfiniLore.InfiniFrame.Native.so"
+                      "linux/arm64/Release/InfiniLore.InfiniFrame.Native.so"
+                      "osx/x64/Release/InfiniLore.InfiniFrame.Native.dylib"
+                      "osx/arm64/Release/InfiniLore.InfiniFrame.Native.dylib"
+                    )
+                    
+                    MISSING=0
+                    for file in "${EXPECTED_ARTIFACTS[@]}"; do
+                      if [ ! -f "./artifacts/native/$file" ]; then
+                        echo "❌ Missing artifact: $file"
+                        MISSING=$((MISSING+1))
+                      else
+                        echo "✅ Found: $file"
+                      fi
+                    done
+                    
+                    if [ $MISSING -gt 0 ]; then
+                      echo "❌ $MISSING artifact(s) missing! Aborting."
+                      exit 1
+                    fi
+                    
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+
+            -   name: Install Required Packages
+                run: |
+                    sudo apt-get update
+                    sudo apt install -y  \
+                        libgtk-3-dev \
+                        libwebkit2gtk-4.1-dev \
+                        libssl-dev \
+                        libcurl4-openssl-dev \
+                        zlib1g-dev \
+                        libnotify-dev
+            
+            -   name: build dotnet
+                run: |
+                    dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir=${{github.workspace}}/
+                    
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Pack.slnf \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir=${{github.workspace}}/
+                    
+            -   name: pack
+                run: |                    
+                    dotnet pack InfiniLore.InfiniFrame.GitHubActions.Pack.slnf --configuration Release -o ./release
+
+            -   name: Upload NuGet packages as artifact
+                uses: actions/upload-artifact@v5
+                with:
+                    name: nuget-packages-${{ github.ref_name }}
+                    path: ./release/*.nupkg
+                    
+            -   name: Verify native libraries in Shared NuGet package
+                run: |
+                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
+    
+                    if [ -z "$PACKAGE" ]; then
+                        echo "❌ No Shared package found in ./release !"
+                        exit 1
+                    fi
+                    
+                    # List of expected native files in all runtimes
+                    EXPECTED=(
+                      "runtimes/win-x64/native/InfiniLore.InfiniFrame.Native.dll"
+                      "runtimes/win-x64/native/WebView2Loader.dll"
+                      "runtimes/win-arm64/native/InfiniLore.InfiniFrame.Native.dll"
+                      "runtimes/win-arm64/native/WebView2Loader.dll"
+                      "runtimes/linux-x64/native/InfiniLore.InfiniFrame.Native.so"
+                      "runtimes/linux-arm64/native/InfiniLore.InfiniFrame.Native.so"
+                      "runtimes/osx-x64/native/InfiniLore.InfiniFrame.Native.dylib"
+                      "runtimes/osx-arm64/native/InfiniLore.InfiniFrame.Native.dylib"
+                    )
+                    
+                    MISSING=0
+                    for f in "${EXPECTED[@]}"; do
+                      if ! unzip -l "$PACKAGE" | grep -q "$f"; then
+                        echo "❌ Missing $f in $PACKAGE"
+                        MISSING=$((MISSING+1))
+                      else
+                        echo "✅ Found $f"
+                      fi
+                    done
+                    
+                    if [ $MISSING -gt 0 ]; then
+                      echo "❌ $MISSING native file(s) missing in Shared package! Aborting."
+                      exit 1
+                    fi
+
+            -   name: Create GitHub Release
+                uses: softprops/action-gh-release@v2
+                with:
+                    generate_release_notes: true
+                    files: ./release/*.nupkg
+
+            -   name: Push to NuGet
+                run: dotnet nuget push "./release/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+                env:
+                    NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

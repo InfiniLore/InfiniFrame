@@ -6,18 +6,30 @@
         <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
         <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
 
-        <!-- Force default platform to x64 if AnyCPU or empty -->
-        <CMakePlatform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</CMakePlatform>
-
-        <!-- map to CMake architecture -->
+        <CMakePlatform>$(Platform)</CMakePlatform>
+        <CMakePlatform Condition="'$(CMakePlatform)'=='' Or '$(CMakePlatform)'=='AnyCPU' Or '$(CMakePlatform)'=='Any CPU'">x64</CMakePlatform>
+    
+        <!-- Map to CMake architecture -->
         <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
-        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">ARM64</CMakeArch>
-
-        <!-- Fallback in case none matched -->
+        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">arm64</CMakeArch>
+    
+        <!-- Fallback -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
+        
+        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
+        <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
+        <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
+        <CMakeOSDir Condition="'$(IsMac)'=='true'">osx</CMakeOSDir>
 
-        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)/</CMakeBuildDir>
-        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)/</NativeOutputDir>
+        <!-- Output all binaries to a fixed path under the solution -->
+        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+        
+        <LinuxX64>$(SolutionDir)artifacts/native/linux/x64/$(Configuration)/</LinuxX64>
+        <LinuxArm64>$(SolutionDir)artifacts/native/linux/arm64/$(Configuration)/</LinuxArm64>
+        <MacOsX64>$(SolutionDir)artifacts/native/osx/x64/$(Configuration)/</MacOsX64>
+        <MacOsArm64>$(SolutionDir)artifacts/native/osx/arm64/$(Configuration)/</MacOsArm64>
+        <WindowsX64>$(SolutionDir)artifacts/native/windows/x64/$(Configuration)/</WindowsX64>
+        <WindowsArm64>$(SolutionDir)artifacts/native/windows/arm64/$(Configuration)/</WindowsArm64>
     </PropertyGroup>
 
     <ItemGroup>
@@ -40,8 +52,8 @@
     </ItemGroup>
 
     <!-- Windows -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')">
-        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll"
+    <ItemGroup Condition="Exists('$(WindowsX64)/InfiniLore.InfiniFrame.Native.dll')">
+        <Content Include="$(WindowsX64)/InfiniLore.InfiniFrame.Native.dll"
                  PackagePath="runtimes/win-x64/native/InfiniLore.InfiniFrame.Native.dll"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -49,7 +61,7 @@
             <TargetPath>InfiniLore.InfiniFrame.Native.dll</TargetPath>
         </Content>
 
-        <Content Include="$(NativeOutputDir)/WebView2Loader.dll"
+        <Content Include="$(WindowsX64)/WebView2Loader.dll"
                  Pack="true"
                  PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -58,9 +70,27 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup Condition="Exists('$(WindowsArm64)/InfiniLore.InfiniFrame.Native.dll')">
+        <Content Include="$(WindowsArm64)/InfiniLore.InfiniFrame.Native.dll"
+                 PackagePath="runtimes/win-arm64/native/InfiniLore.InfiniFrame.Native.dll"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/win-arm64/native/InfiniLore.InfiniFrame.Native.dll</Link>
+            <TargetPath>InfiniLore.InfiniFrame.Native.dll</TargetPath>
+        </Content>
+
+        <Content Include="$(WindowsArm64)/WebView2Loader.dll"
+                 Pack="true"
+                 PackagePath="runtimes/win-arm64/native/WebView2Loader.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/win-arm64/native/WebView2Loader.dll</Link>
+            <TargetPath>WebView2Loader.dll</TargetPath>
+        </Content>
+    </ItemGroup>
+
     <!-- Linux -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')">
-        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so"
+    <ItemGroup Condition="Exists('$(LinuxX64)/InfiniLore.InfiniFrame.Native.so')">
+        <Content Include="$(LinuxX64)/InfiniLore.InfiniFrame.Native.so"
                  PackagePath="runtimes/linux-x64/native/InfiniLore.InfiniFrame.Native.so"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -68,9 +98,18 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup Condition="Exists('$(LinuxArm64)/InfiniLore.InfiniFrame.Native.so')">
+        <Content Include="$(LinuxArm64)/InfiniLore.InfiniFrame.Native.so"
+                 PackagePath="runtimes/linux-arm64/native/InfiniLore.InfiniFrame.Native.so"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
     <!-- macOS -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')">
-        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib"
+    <ItemGroup Condition="Exists('$(MacOsX64)/InfiniLore.InfiniFrame.Native.dylib')">
+        <Content Include="$(MacOsX64)/InfiniLore.InfiniFrame.Native.dylib"
                  PackagePath="runtimes/osx-x64/native/InfiniLore.InfiniFrame.Native.dylib"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -78,34 +117,75 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup Condition="Exists('$(MacOsArm64)/InfiniLore.InfiniFrame.Native.dylib')">
+        <Content Include="$(MacOsArm64)/InfiniLore.InfiniFrame.Native.dylib"
+                 PackagePath="runtimes/osx-arm64/native/InfiniLore.InfiniFrame.Native.dylib"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
     <Target Name="CheckNativeDlls" AfterTargets="Build">
-        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')"
-                 Text="✅ Found InfiniLore.InfiniFrame.Native.dll in $(NativeOutputDir)"
-                 Importance="High"/>
-        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')"
-                 Text="❌ InfiniLore.InfiniFrame.Native.dll not found at $(NativeOutputDir)! Tests may fail."
-                 Importance="High"/>
+        <Message Text="=== x64 ===" Importance="High" />
 
-        <Message Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')"
-                 Text="✅ Found WebView2Loader.dll in $(NativeOutputDir)"
-                 Importance="High"/>
-        <Message Condition="!Exists('$(NativeOutputDir)/WebView2Loader.dll')"
-                 Text="❌ WebView2Loader.dll not found at $(NativeOutputDir)! Tests may fail."
-                 Importance="High"/>
+        <Message Condition="Exists('$(WindowsX64)/InfiniLore.InfiniFrame.Native.dll')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.dll in $(WindowsX64)"
+                 Importance="High" />
+        <Message Condition="!Exists('$(WindowsX64)/InfiniLore.InfiniFrame.Native.dll')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.dll not found at $(WindowsX64)! Tests may fail."
+                 Importance="High" />
 
-        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')"
-                 Text="✅ Found InfiniLore.InfiniFrame.Native.so in $(NativeOutputDir)"
-                 Importance="High"/>
-        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')"
-                 Text="❌ InfiniLore.InfiniFrame.Native.so not found at $(NativeOutputDir)!"
-                 Importance="High"/>
+        <Message Condition="Exists('$(WindowsX64)/WebView2Loader.dll')"
+                 Text="✅ Found WebView2Loader.dll in $(WindowsX64)"
+                 Importance="High" />
+        <Message Condition="!Exists('$(WindowsX64)/WebView2Loader.dll')"
+                 Text="❌ WebView2Loader.dll not found at $(WindowsX64)! Tests may fail."
+                 Importance="High" />
 
-        <Message Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')"
-                 Text="✅ Found InfiniLore.InfiniFrame.Native.dylib in $(NativeOutputDir)"
-                 Importance="High"/>
-        <Message Condition="!Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')"
-                 Text="❌ InfiniLore.InfiniFrame.Native.dylib not found at $(NativeOutputDir)!"
-                 Importance="High"/>
+        <Message Condition="Exists('$(LinuxX64)/InfiniLore.InfiniFrame.Native.so')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.so in $(LinuxX64)"
+                 Importance="High" />
+        <Message Condition="!Exists('$(LinuxX64)/InfiniLore.InfiniFrame.Native.so')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.so not found at $(LinuxX64)! Tests may fail."
+                 Importance="High" />
+
+        <Message Condition="Exists('$(MacOsX64)/InfiniLore.InfiniFrame.Native.dylib')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.dylib in $(MacOsX64)"
+                 Importance="High" />
+        <Message Condition="!Exists('$(MacOsX64)/InfiniLore.InfiniFrame.Native.dylib')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.dylib not found at $(MacOsX64)! Tests may fail."
+                 Importance="High" />
+
+        <Message Text="=== arm64 ===" Importance="High" />
+
+        <Message Condition="Exists('$(WindowsArm64)/InfiniLore.InfiniFrame.Native.dll')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.dll in $(WindowsArm64)"
+                 Importance="High" />
+        <Message Condition="!Exists('$(WindowsArm64)/InfiniLore.InfiniFrame.Native.dll')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.dll not found at $(WindowsArm64)! Tests may fail."
+                 Importance="High" />
+
+        <Message Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')"
+                 Text="✅ Found WebView2Loader.dll in $(WindowsArm64)"
+                 Importance="High" />
+        <Message Condition="!Exists('$(WindowsArm64)/WebView2Loader.dll')"
+                 Text="❌ WebView2Loader.dll not found at $(WindowsArm64)! Tests may fail."
+                 Importance="High" />
+
+        <Message Condition="Exists('$(LinuxArm64)/InfiniLore.InfiniFrame.Native.so')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.so in $(LinuxArm64)"
+                 Importance="High" />
+        <Message Condition="!Exists('$(LinuxArm64)/InfiniLore.InfiniFrame.Native.so')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.so not found at $(LinuxArm64)! Tests may fail."
+                 Importance="High" />
+
+        <Message Condition="Exists('$(MacOsArm64)/InfiniLore.InfiniFrame.Native.dylib')"
+                 Text="✅ Found InfiniLore.InfiniFrame.Native.dylib in $(MacOsArm64)"
+                 Importance="High" />
+        <Message Condition="!Exists('$(MacOsArm64)/InfiniLore.InfiniFrame.Native.dylib')"
+                 Text="❌ InfiniLore.InfiniFrame.Native.dylib not found at $(MacOsArm64)! Tests may fail."
+                 Importance="High" />
     </Target>
 
 </Project>
