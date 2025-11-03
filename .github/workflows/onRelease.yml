@@ -120,7 +120,7 @@ jobs:
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
-                    name: ${{ matrix.libName }}/${{ matrix.arch }}/Release
+                    name: ${{ matrix.libName }}-${{ matrix.arch }}
                     path: ${{github.workspace}}/artifacts/native/${{ matrix.arch }}/Release/**
     
     release:
@@ -155,6 +155,23 @@ jobs:
                 uses: actions/download-artifact@v6
                 with:
                     path: artifacts/native
+
+            -   name: Recreate folder structure for 
+                run: |
+                    mkdir -p artifacts/native/windows/x64/Release
+                    mkdir -p artifacts/native/windows/arm64/Release
+                    mkdir -p artifacts/native/linux/x64/Release
+                    mkdir -p artifacts/native/linux/arm64/Release
+                    mkdir -p artifacts/native/osx/x64/Release
+                    mkdir -p artifacts/native/osx/arm64/Release
+                    
+                    # Move files into the correct structure
+                    mv artifacts/native/windows-x64/* artifacts/native/windows/x64/Release/ 2>/dev/null || true
+                    mv artifacts/native/windows-arm64/* artifacts/native/windows/arm64/Release/ 2>/dev/null || true
+                    mv artifacts/native/ubuntu-latest-x64/* artifacts/native/linux/x64/Release/ 2>/dev/null || true
+                    mv artifacts/native/ubuntu-24.04-arm-arm64/* artifacts/native/linux/arm64/Release/ 2>/dev/null || true
+                    mv artifacts/native/macos-15-intel-x64/* artifacts/native/osx/x64/Release/ 2>/dev/null || true
+                    mv artifacts/native/macos-latest-arm64/* artifacts/native/osx/arm64/Release/ 2>/dev/null || true
 
             -   name: List native artifacts
                 run: |
