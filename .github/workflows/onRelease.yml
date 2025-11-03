@@ -220,6 +220,6 @@ jobs:
 #                    files: ./release/*.nupkg
 #
 #            -   name: Push to NuGet
-#                run: dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+#                run: dotnet nuget push "./release/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 #                env:
 #                    NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
