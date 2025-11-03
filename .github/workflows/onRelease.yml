@@ -19,16 +19,22 @@ jobs:
                 include:
                     - os: ubuntu-latest
                       arch: x64
+                      libName: linux
                     - os: ubuntu-24.04-arm
                       arch: arm64
+                      libName: linux
                     - os: windows-latest
                       arch: x64
+                      libName: windows
                     - os: windows-11-arm
                       arch: arm64
+                      libName: windows
                     - os: macos-15-intel
                       arch: x64
+                      libName: osx
                     - os: macos-latest
                       arch: arm64
+                      libName: osx
         env:
             DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
             DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -114,8 +120,8 @@ jobs:
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
-                    name: app-${{ matrix.os }}-${{ matrix.arch }}
-                    path: ${{github.workspace}}/artifacts/native/${{ matrix.arch }}/Release
+                    name: ${{ matrix.libName }}/${{ matrix.arch }}/Release
+                    path: ${{github.workspace}}/artifacts/native/${{ matrix.arch }}/Release/**
     
     release:
         name: Create GitHub Release
