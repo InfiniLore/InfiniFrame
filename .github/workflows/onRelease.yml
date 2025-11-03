@@ -238,6 +238,37 @@ jobs:
                 with:
                     name: nuget-packages-${{ github.ref_name }}
                     path: ./release/*.nupkg
+                    
+            -   name: Verify native libraries in Shared NuGet package
+                run: |
+                    PACKAGE="./release/InfiniLore.InfiniFrame.Shared.0.1.0-preview.3.nupkg"
+                    
+                    # List of expected native files in all runtimes
+                    EXPECTED=(
+                      "runtimes/win-x64/native/InfiniLore.InfiniFrame.Native.dll"
+                      "runtimes/win-x64/native/WebView2Loader.dll"
+                      "runtimes/win-arm64/native/InfiniLore.InfiniFrame.Native.dll"
+                      "runtimes/win-arm64/native/WebView2Loader.dll"
+                      "runtimes/linux-x64/native/InfiniLore.InfiniFrame.Native.so"
+                      "runtimes/linux-arm64/native/InfiniLore.InfiniFrame.Native.so"
+                      "runtimes/osx-x64/native/InfiniLore.InfiniFrame.Native.dylib"
+                      "runtimes/osx-arm64/native/InfiniLore.InfiniFrame.Native.dylib"
+                    )
+                    
+                    MISSING=0
+                    for f in "${EXPECTED[@]}"; do
+                      if ! unzip -l "$PACKAGE" | grep -q "$f"; then
+                        echo "❌ Missing $f in $PACKAGE"
+                        MISSING=$((MISSING+1))
+                      else
+                        echo "✅ Found $f"
+                      fi
+                    done
+                    
+                    if [ $MISSING -gt 0 ]; then
+                      echo "❌ $MISSING native file(s) missing in Shared package! Aborting."
+                      exit 1
+                    fi
 
 #            -   name: Create GitHub Release
 #                uses: softprops/action-gh-release@v2
