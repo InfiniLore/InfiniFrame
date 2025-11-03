@@ -103,7 +103,7 @@ jobs:
                 uses: actions/upload-artifact@v5
                 with:
                     name: app-${{ matrix.os }}-${{ matrix.arch }}
-                    path: artifacts/native/${{ matrix.arch }}/Release
+                    path: src/InfiniLore.InfiniFrame.Native/artifacts/native/${{ matrix.arch }}/Release
     
 #    release:
 #        name: Create GitHub Release
