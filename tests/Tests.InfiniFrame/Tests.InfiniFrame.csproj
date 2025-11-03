@@ -8,14 +8,14 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
 
-        <!-- Force default platform to x64 if AnyCPU or empty -->
-        <CMakePlatform Condition="'$(Platform)'=='' Or '$(Platform)'=='AnyCPU' Or '$(Platform)'=='Any CPU'">x64</CMakePlatform>
-
-        <!-- map to CMake architecture -->
+        <CMakePlatform>$(Platform)</CMakePlatform>
+        <CMakePlatform Condition="'$(CMakePlatform)'=='' Or '$(CMakePlatform)'=='AnyCPU' Or '$(CMakePlatform)'=='Any CPU'">x64</CMakePlatform>
+    
+        <!-- Map to CMake architecture -->
         <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
         <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">arm64</CMakeArch>
-
-        <!-- Fallback in case none matched -->
+    
+        <!-- Fallback -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
 
         <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
