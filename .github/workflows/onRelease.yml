@@ -201,11 +201,11 @@ jobs:
                 run: |                    
                     dotnet pack InfiniLore.InfiniFrame.GitHubActions.Pack.slnf --configuration Release -o ./release
 
-            -   name: Create GitHub Release
-                uses: softprops/action-gh-release@v2
+            -   name: Upload NuGet packages as artifact
+                uses: actions/upload-artifact@v5
                 with:
-                    files: release/*.zip
-                    generate_release_notes: true
+                    name: nuget-packages-${{ github.ref_name }}
+                    path: ./release/*.nupkg
 
 #    nuget:
 #        name: Publish to NuGet
