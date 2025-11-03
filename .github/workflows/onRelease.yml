@@ -69,7 +69,7 @@ jobs:
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
                         --configuration Release `
                         --no-restore `
-                        -p:SolutionDir="$GITHUB_WORKSPACE" `
+                        -p:SolutionDir="${{github.workspace}}/" `
                         -p:Platform=${{ matrix.arch }}
             
             # ---------------- Build Linux ----------------
@@ -79,7 +79,7 @@ jobs:
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
-                        /p:SolutionDir="$GITHUB_WORKSPACE" \
+                        /p:SolutionDir="${{github.workspace}}/" \
                         /p:Platform=${{ matrix.arch }}
             
             # ---------------- Build macOS ----------------
@@ -89,14 +89,14 @@ jobs:
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
-                        /p:SolutionDir="$GITHUB_WORKSPACE" \
+                        /p:SolutionDir="${{github.workspace}}/" \
                         /p:Platform=${{ matrix.arch }}
 
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
                     name: app-${{ matrix.os }}-${{ matrix.arch }}
-                    path: src/InfiniLore.InfiniFrame.Native/artifacts/native/${{ matrix.arch }}/Release
+                    path: ${{github.workspace}}/artifacts/native/${{ matrix.arch }}/Release
     
 #    release:
 #        name: Create GitHub Release
