@@ -144,7 +144,7 @@ jobs:
                     path: |
                         /var/cache/apt/archives
                         /var/lib/apt/lists
-                    key: ${{ runner.os }}-apt-${{ hashFiles('**/onPullRequest-multiPlatformTesting.yml') }}
+                    key: ${{ runner.os }}-apt-${{ hashFiles('**/OnRelease.yml') }}
                     restore-keys: |
                         ${{ runner.os }}-apt-
             
