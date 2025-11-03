@@ -128,6 +128,9 @@ jobs:
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
             
             -   name: build dotnet
                 run: |
