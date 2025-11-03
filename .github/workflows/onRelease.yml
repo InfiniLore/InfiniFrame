@@ -136,6 +136,26 @@ jobs:
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: '9.x'
+            
+            # Cache APT packages to avoid re-downloading
+            -   name: Cache APT packages
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        /var/cache/apt/archives
+                        /var/lib/apt/lists
+                    key: ${{ runner.os }}-apt-${{ hashFiles('**/onPullRequest-multiPlatformTesting.yml') }}
+                    restore-keys: |
+                        ${{ runner.os }}-apt-
+            
+            # Cache .NET packages
+            -   name: Cache .NET packages
+                uses: actions/cache@v4
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-nuget-
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
