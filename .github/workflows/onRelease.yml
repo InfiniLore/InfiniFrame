@@ -102,6 +102,13 @@ jobs:
                         /p:SolutionDir="${{github.workspace}}/" \
                         /p:Platform=${{ matrix.arch }}
 
+            -   name: Debug list everything
+                run: |
+                    echo "=== Workspace contents ==="
+                    ls -R .
+                    echo "=== Expected path ==="
+                    ls -R ${{github.workspace}}/artifacts/native || true
+                    
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
