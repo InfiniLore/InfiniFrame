@@ -144,20 +144,6 @@ jobs:
                         libcurl4-openssl-dev \
                         zlib1g-dev \
                         libnotify-dev
-            
-            -   name: build dotnet
-                run: |
-                    dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
-
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=${{github.workspace}}/
-                    
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Pack.slnf \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=${{github.workspace}}/
                     
             -   name: Download build artifacts
                 uses: actions/download-artifact@v6
@@ -196,6 +182,20 @@ jobs:
                       echo "❌ $MISSING artifact(s) missing! Aborting."
                       exit 1
                     fi
+
+            -   name: build dotnet
+                run: |
+                    dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir=${{github.workspace}}/
+                    
+                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Pack.slnf \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir=${{github.workspace}}/
                     
             -   name: pack
                 run: |                    
