@@ -133,6 +133,17 @@ jobs:
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
+                
+            -   name: Install Required Packages
+                run: |
+                    sudo apt-get update
+                    sudo apt install -y  \
+                        libgtk-3-dev \
+                        libwebkit2gtk-4.1-dev \
+                        libssl-dev \
+                        libcurl4-openssl-dev \
+                        zlib1g-dev \
+                        libnotify-dev
             
             -   name: build dotnet
                 run: |
