@@ -43,11 +43,11 @@
         <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
         
         <!-- Linux -->
-        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_SYSTEM_PROCESSOR=$(CMakeArch)" />
+        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)" />
         <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
 
         <!-- macOS -->
-        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_SYSTEM_PROCESSOR=$(CMakeArch)" />
+        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S ." />
         <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
 
         <!-- Copy native binaries -->
