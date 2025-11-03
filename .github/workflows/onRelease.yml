@@ -68,7 +68,6 @@ jobs:
                 run: |
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
                         --configuration Release `
-                        --output ".\publish\${{ matrix.os }}-${{ matrix.arch }}" `
                         --no-restore `
                         -p:SolutionDir="$GITHUB_WORKSPACE"
             
@@ -78,7 +77,6 @@ jobs:
                 run: |
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                         --configuration Release \
-                        --output "./publish/${{ matrix.os }}-${{ matrix.arch }}" \
                         --no-restore \
                         /p:SolutionDir="$GITHUB_WORKSPACE"
             
@@ -88,12 +86,11 @@ jobs:
                 run: |
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                         --configuration Release \
-                        --output "./publish/${{ matrix.os }}-${{ matrix.arch }}" \
                         --no-restore \
                         /p:SolutionDir="$GITHUB_WORKSPACE"
 
-            -   name: Check publish folder
-                run: ls -R publish || echo "No files generated"
+            -   name: List artifacts
+                run: ls -R src/artifacts || echo "No artifacts found"
 
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
