@@ -92,13 +92,6 @@ jobs:
                         /p:SolutionDir="$GITHUB_WORKSPACE" \
                         /p:Platform=${{ matrix.arch }}
 
-            -   name: List everyting
-                run: |
-                    echo "=== Workspace contents ==="
-                    ls -R .
-                    echo "=== Expected path ==="
-                    ls -R artifacts || true
-
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
