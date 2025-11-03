@@ -69,7 +69,9 @@ jobs:
 
             -   name: Install GTK3 (macOS)
                 if: startsWith(matrix.os, 'macos')
-                run: brew install gtk+3 pkg-config
+                run: |
+                    brew list gtk+3 >/dev/null 2>&1 || brew install gtk+3
+                    brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
             
             # ---------------- Build Windows ----------------
             -   name: Build InfiniFrame.Native (Windows)
