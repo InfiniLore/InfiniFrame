@@ -115,31 +115,39 @@ jobs:
                     name: app-${{ matrix.os }}-${{ matrix.arch }}
                     path: ${{github.workspace}}/artifacts/native/${{ matrix.arch }}/Release
     
-#    release:
-#        name: Create GitHub Release
-#        runs-on: ubuntu-latest
-#        needs: build
-#        if: startsWith(github.ref, 'refs/tags/v')
-#        steps:
-#            -   name: Download build artifacts
-#                uses: actions/download-artifact@v6
-#                with:
-#                    path: dist
-#
-#            -   name: Zip builds
-#                run: |
-#                    mkdir release
-#                    for dir in dist/*; do
-#                        name=$(basename "$dir")
-#                        zip -r "release/$name.zip" "$dir"
-#                    done
-#
-#            -   name: Create GitHub Release
-#                uses: softprops/action-gh-release@v2
-#                with:
-#                    files: release/*.zip
-#                    generate_release_notes: true
-#    
+    release:
+        name: Create GitHub Release
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            -   uses: actions/checkout@v5
+                with:
+                    fetch-depth: 0
+
+            -   name: Setup .NET 9 SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: '9.x'
+                    
+            -   name: Download build artifacts
+                uses: actions/download-artifact@v6
+                with:
+                    path: artifacts/native
+
+            -   name: List native artifacts
+                run: |
+                    ls -R artifacts/native
+                    
+            -   name: pack
+                run: |
+                    dotnet pack InfiniLore.InfiniFrame.GitHubActions.Pack.slnf --configuration Release -o ./release
+
+            -   name: Create GitHub Release
+                uses: softprops/action-gh-release@v2
+                with:
+                    files: release/*.zip
+                    generate_release_notes: true
+
 #    nuget:
 #        name: Publish to NuGet
 #        runs-on: ubuntu-latest

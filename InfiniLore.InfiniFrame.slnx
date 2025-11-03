@@ -9,6 +9,7 @@
     <File Path="InfiniLore.InfiniFrame.GitHubActions.Windows.slnf" />
     <File Path="InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf" />
     <File Path="InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf" />
+    <File Path="InfiniLore.InfiniFrame.GitHubActions.Pack.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\workflow-todo.yml" />
