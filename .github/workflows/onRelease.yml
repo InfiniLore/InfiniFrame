@@ -56,7 +56,7 @@ jobs:
         
             # ---------------- Linux/macOS dependencies ----------------
             -   name: Install GTK3 (Linux)
-                if:  startsWith(matrix.os, 'ubuntu')
+                if: startsWith(matrix.os, 'ubuntu')
                 run: | 
                     sudo apt-get update
                     sudo apt install -y  \
@@ -84,7 +84,7 @@ jobs:
             
             # ---------------- Build Linux ----------------
             -   name: Build InfiniFrame.Native (Linux)
-                if: matrix.os == 'ubuntu-latest'
+                if: startsWith(matrix.os, 'ubuntu')
                 run: |
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                         --configuration Release \
@@ -94,7 +94,7 @@ jobs:
             
             # ---------------- Build macOS ----------------
             -   name: Build InfiniFrame.Native (macOS)
-                if: matrix.os == 'macos-latest'
+                if: startsWith(matrix.os, 'macos')
                 run: |
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                         --configuration Release \
