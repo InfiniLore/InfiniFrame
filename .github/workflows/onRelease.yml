@@ -69,7 +69,8 @@ jobs:
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
                         --configuration Release `
                         --no-restore `
-                        -p:SolutionDir="$GITHUB_WORKSPACE"
+                        -p:SolutionDir="$GITHUB_WORKSPACE" `
+                        -p:Platform=${{ matrix.arch }}
             
             # ---------------- Build Linux ----------------
             -   name: Build InfiniFrame.Native (Linux)
@@ -78,7 +79,8 @@ jobs:
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
-                        /p:SolutionDir="$GITHUB_WORKSPACE"
+                        /p:SolutionDir="$GITHUB_WORKSPACE" \
+                        /p:Platform=${{ matrix.arch }}
             
             # ---------------- Build macOS ----------------
             -   name: Build InfiniFrame.Native (macOS)
@@ -87,10 +89,15 @@ jobs:
                     dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
-                        /p:SolutionDir="$GITHUB_WORKSPACE"
+                        /p:SolutionDir="$GITHUB_WORKSPACE" \
+                        /p:Platform=${{ matrix.arch }}
 
-            -   name: List artifacts
-                run: ls -R src/artifacts || echo "No artifacts found"
+            -   name: List everyting
+                run: |
+                    echo "=== Workspace contents ==="
+                    ls -R .
+                    echo "=== Expected path ==="
+                    ls -R artifacts || true
 
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
