@@ -18,6 +18,8 @@
 
         <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)/</CMakeBuildDir>
         <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeArch)/$(Configuration)/</NativeOutputDir>
+        <NativeOutputDirX64>$(SolutionDir)artifacts/native/x64/$(Configuration)/</NativeOutputDirX64>
+        <NativeOutputDirArm64>$(SolutionDir)artifacts/native/arm64/$(Configuration)/</NativeOutputDirArm64>
     </PropertyGroup>
 
     <ItemGroup>
@@ -40,8 +42,8 @@
     </ItemGroup>
 
     <!-- Windows -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll')">
-        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dll"
+    <ItemGroup Condition="Exists('$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.dll')">
+        <Content Include="$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.dll"
                  PackagePath="runtimes/win-x64/native/InfiniLore.InfiniFrame.Native.dll"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -49,7 +51,7 @@
             <TargetPath>InfiniLore.InfiniFrame.Native.dll</TargetPath>
         </Content>
 
-        <Content Include="$(NativeOutputDir)/WebView2Loader.dll"
+        <Content Include="$(NativeOutputDirX64)/WebView2Loader.dll"
                  Pack="true"
                  PackagePath="runtimes/win-x64/native/WebView2Loader.dll">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -58,9 +60,27 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup Condition="Exists('$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.dll')">
+        <Content Include="$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.dll"
+                 PackagePath="runtimes/win-arm64/native/InfiniLore.InfiniFrame.Native.dll"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/win-arm64/native/InfiniLore.InfiniFrame.Native.dll</Link>
+            <TargetPath>InfiniLore.InfiniFrame.Native.dll</TargetPath>
+        </Content>
+
+        <Content Include="$(NativeOutputDirArm64)/WebView2Loader.dll"
+                 Pack="true"
+                 PackagePath="runtimes/win-arm64/native/WebView2Loader.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Link>runtimes/win-arm64/native/WebView2Loader.dll</Link>
+            <TargetPath>WebView2Loader.dll</TargetPath>
+        </Content>
+    </ItemGroup>
+
     <!-- Linux -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so')">
-        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.so"
+    <ItemGroup Condition="Exists('$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.so')">
+        <Content Include="$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.so"
                  PackagePath="runtimes/linux-x64/native/InfiniLore.InfiniFrame.Native.so"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -68,10 +88,28 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup Condition="Exists('$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.so')">
+        <Content Include="$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.so"
+                 PackagePath="runtimes/linux-arm64/native/InfiniLore.InfiniFrame.Native.so"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
     <!-- macOS -->
-    <ItemGroup Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')">
-        <Content Include="$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib"
+    <ItemGroup Condition="Exists('$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.dylib')">
+        <Content Include="$(NativeOutputDirX64)/InfiniLore.InfiniFrame.Native.dylib"
                  PackagePath="runtimes/osx-x64/native/InfiniLore.InfiniFrame.Native.dylib"
+                 Pack="true">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup Condition="Exists('$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.dylib')">
+        <Content Include="$(NativeOutputDirArm64)/InfiniLore.InfiniFrame.Native.dylib"
+                 PackagePath="runtimes/osx-arm64/native/InfiniLore.InfiniFrame.Native.dylib"
                  Pack="true">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
