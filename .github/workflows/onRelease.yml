@@ -109,13 +109,6 @@ jobs:
                         --no-restore \
                         /p:SolutionDir="${{github.workspace}}/" \
                         /p:Platform=${{ matrix.arch }}
-
-            -   name: Debug list everything
-                run: |
-                    echo "=== Workspace contents ==="
-                    ls -R .
-                    echo "=== Expected path ==="
-                    ls -R ${{github.workspace}}/artifacts/native || true
                     
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
@@ -178,10 +171,6 @@ jobs:
                     mv artifacts/native/linux-arm64/* artifacts/native/linux/arm64/Release/ 2>/dev/null || true
                     mv artifacts/native/osx-x64/* artifacts/native/osx/x64/Release/ 2>/dev/null || true
                     mv artifacts/native/osx-arm64/* artifacts/native/osx/arm64/Release/ 2>/dev/null || true
-
-            -   name: List native artifacts
-                run: |
-                    ls -R artifacts/native
                     
             -   name: Verify native artifacts
                 run: |
