@@ -2,6 +2,11 @@ name: Release to Nuget
 
 on:
     workflow_dispatch:
+        inputs:
+            publish_to_nuget:
+                description: 'Publish to NuGet after building'
+                type: boolean
+                default: true
     push:
         tags:
             - 'v*.*.*'
@@ -61,11 +66,11 @@ jobs:
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
-        
+            
             # ---------------- Linux/macOS dependencies ----------------
             -   name: Install GTK3 (Linux)
                 if: startsWith(matrix.os, 'ubuntu')
-                run: | 
+                run: |
                     sudo apt-get update
                     sudo apt install -y  \
                         libgtk-3-dev \
@@ -280,12 +285,14 @@ jobs:
                     fi
 
             -   name: Create GitHub Release
+                if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
                 uses: softprops/action-gh-release@v2
                 with:
                     generate_release_notes: true
                     files: ./release/*.nupkg
-
+        
             -   name: Push to NuGet
+                if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
                 run: dotnet nuget push "./release/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
