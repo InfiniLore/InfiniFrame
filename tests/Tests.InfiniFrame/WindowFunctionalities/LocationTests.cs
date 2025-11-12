@@ -97,6 +97,7 @@ public class LocationTests {
     [Test]
     [DisplayName($"{nameof(LocationTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task FullIntegration() {
         // Arrange
 
