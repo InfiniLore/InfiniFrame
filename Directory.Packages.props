@@ -3,14 +3,6 @@
     <!-- Enable central package management, https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-  <!-- .NET 10 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
-  </ItemGroup>
   <!-- .NET 9 -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="9.0.10" />
@@ -19,6 +11,14 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.10" />
   </ItemGroup>
+    <!-- .NET 10 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
+    </ItemGroup>
   <!-- Common packages for all frameworks -->
   <ItemGroup>
     <PackageVersion Include="IInfiniFrame.Native" Version="4.0.22" />

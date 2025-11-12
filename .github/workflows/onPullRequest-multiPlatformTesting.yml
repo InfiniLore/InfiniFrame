@@ -235,9 +235,7 @@ jobs:
                     dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
-                        --no-restore \
-                        --logger "trx;LogFileName=TestResults/TestResults.trx" \
-                        --logger "console;verbosity=detailed"
+                        --no-restore
 
             -   name: Display test logs on failure
                 if: failure()
@@ -596,7 +594,6 @@ jobs:
                         --configuration Release \
                         --no-build \
                         --no-restore \
-                        --logger "console;verbosity=detailed"
 
             -   name: Update macOS status
                 if: always()
