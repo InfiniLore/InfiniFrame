@@ -87,12 +87,16 @@
     <Target Name="Pack">
         <Message Text="Skipping pack for native project." Importance="High"/>
     </Target>
+
+    <Target Name="InvokeTestingPlatform">
+        <Message Text="Skipping VSTest for native project." Importance="High"/>
+    </Target>
     
     <Target Name="VSTest">
         <Message Text="Skipping VSTest for native project." Importance="High"/>
     </Target>
     
-    <Target Name="MTP">
+    <Target Name="_MTPBuild">
         <Message Text="Skipping VSTest for native project." Importance="High"/>
     </Target>
 </Project>
