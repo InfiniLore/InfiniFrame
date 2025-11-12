@@ -78,7 +78,9 @@ jobs:
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: '9.x'
+                    dotnet-version: |
+                        9.x
+                        10.x
             
             # Cache APT packages to avoid re-downloading
             -   name: Cache APT packages
@@ -318,7 +320,9 @@ jobs:
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: '9.x'
+                    dotnet-version: |
+                        9.x
+                        10.x
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
@@ -416,7 +420,9 @@ jobs:
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: '9.x'
+                    dotnet-version: |
+                        9.x
+                        10.x
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
@@ -521,7 +527,9 @@ jobs:
             -   name: Setup .NET 9 SDK
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: '9.x'
+                    dotnet-version: |
+                        9.x
+                        10.x
             
             # Cache .NET packages
             -   name: Cache .NET packages
