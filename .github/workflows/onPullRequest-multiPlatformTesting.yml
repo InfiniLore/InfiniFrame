@@ -232,7 +232,7 @@ jobs:
                     
                     # Run tests
                     echo "=== Running Tests ==="
-                    dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
+                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
@@ -365,7 +365,7 @@ jobs:
             -   name: Run tests
                 run: |
                     echo "Running tests on Windows..."
-                    dotnet test InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
+                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore
@@ -592,7 +592,7 @@ jobs:
                     echo "=== Running Tests ==="
 
                     # Run tests
-                    dotnet test InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf \
+                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
