@@ -427,6 +427,17 @@ jobs:
                 with:
                     cmakeVersion: "4.0.0"
 
+            -   name: Install WebView2 Runtime
+                shell: pwsh
+                run: |
+                    Write-Host "Downloading WebView2 Runtime..."
+                    $url = "https://go.microsoft.com/fwlink/p/?LinkId=2124703"
+                    $installer = "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
+                    Invoke-WebRequest -Uri $url -OutFile $installer
+                    Write-Host "Installing WebView2 Runtime..."
+                    Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
+                    Write-Host "WebView2 Runtime installed"
+
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
 
