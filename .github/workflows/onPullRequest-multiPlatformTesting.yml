@@ -464,25 +464,42 @@ jobs:
                     Write-Host "Playwright installation complete"
 
             -   name: Verify Native DLLs for testing
+                shell: pwsh
                 run: |
-                    $nativeDll = "tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dll"
-                    $webView2 = "tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/WebView2Loader.dll"
-                    
-                    if (-Not (Test-Path $nativeDll)) {
-                        Write-Host "ERROR: InfiniLore.InfiniFrame.Native.dll NOT found in test output!"
+                    $frameworks = @("net9.0", "net10.0")
+                    $requiredDlls = @(
+                        "InfiniLore.InfiniFrame.Native.dll",
+                        "WebView2Loader.dll"
+                    )
+
+                    $allFound = $true
+
+                    foreach ($framework in $frameworks) {
+                        Write-Host "Checking $framework..."
+                        $binPath = "tests/Tests.InfiniFrame.Playwright/bin/Release/$framework"
+
+                        foreach ($dll in $requiredDlls) {
+                            $fullPath = Join-Path $binPath $dll
+
+                            if (-Not (Test-Path $fullPath)) {
+                                Write-Host "❌ ERROR: $dll NOT found in $framework output!" -ForegroundColor Red
+                                $allFound = $false
+                            } else {
+                                Write-Host "✅ $dll found" -ForegroundColor Green
+                            }
+                        }
+                    }
+
+                    if (-Not $allFound) {
+                        Write-Host "❌ Some native DLLs are missing!" -ForegroundColor Red
                         Exit 1
                     }
-                    
-                    if (-Not (Test-Path $webView2)) {
-                        Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
-                        Exit 1
-                    }
-                    
-                    Write-Host "✅ All native DLLs present"
+
+                    Write-Host "✅ All native DLLs present for all frameworks" -ForegroundColor Green
 
             -   name: Run Playwright tests (.NET)
-                working-directory: tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/
-                run: .\Tests.InfiniFrame.Playwright.exe
+                working-directory: tests/Tests.InfiniFrame.Playwright/
+                run: dotnet test --configuration Release --no-build --no-restore
 
             -   name: Upload Playwright test results
                 if: always()
