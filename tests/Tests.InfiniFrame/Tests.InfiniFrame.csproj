@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
+        
+        <TargetDir Condition="'$(TargetDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\</TargetDir>
 
         <CMakePlatform>$(Platform)</CMakePlatform>
         <CMakePlatform Condition="'$(CMakePlatform)'=='' Or '$(CMakePlatform)'=='AnyCPU' Or '$(CMakePlatform)'=='Any CPU'">x64</CMakePlatform>
@@ -52,7 +53,10 @@
                         Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')"/>
         </ItemGroup>
 
-        <Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+        <Copy Condition="@(NativeDlls->Count()) > 0"
+              SourceFiles="@(NativeDlls)"
+              DestinationFolder="$(TargetDir)"
+              SkipUnchangedFiles="true" />
 
         <Message Condition="Exists('$(OutDir)/InfiniLore.InfiniFrame.Native.dll')"
                  Text="✅ Copied InfiniLore.InfiniFrame.Native.dll into test output" Importance="High"/>

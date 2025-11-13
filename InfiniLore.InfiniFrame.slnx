@@ -5,6 +5,7 @@
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
     <File Path="InfiniLore.InfiniFrame.GitHubActions.Linux.slnf" />
     <File Path="InfiniLore.InfiniFrame.GitHubActions.Windows.slnf" />
     <File Path="InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf" />
@@ -42,7 +43,7 @@
     <File Path="src\Directory.Build.props" />
   </Folder>
   <Folder Name="/src/cpp/">
-    <Project Path="src\InfiniLore.InfiniFrame.Native\InfiniLore.InfiniFrame.Native.proj" Type="845B7716-6F03-4D02-8E86-79F95485B5D7" />
+    <Project Path="src\InfiniLore.InfiniFrame.Native\InfiniLore.InfiniFrame.Native.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d7" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests\Tests.InfiniFrame.Playwright\Tests.InfiniFrame.Playwright.csproj" />

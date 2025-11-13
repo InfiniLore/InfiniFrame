@@ -17,6 +17,7 @@ public class IInfiniFrameNativeParameterTests {
     [DisplayName($"{nameof(IInfiniFrameNativeParameterTests)}.{nameof(ReturnAsIsIsValid)}")]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task ReturnAsIsIsValid() {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];

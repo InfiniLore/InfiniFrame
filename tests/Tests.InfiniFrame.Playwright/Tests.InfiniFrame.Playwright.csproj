@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
+        
+        <TargetDir Condition="'$(TargetDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\</TargetDir>
 
         <CMakePlatform>$(Platform)</CMakePlatform>
         <CMakePlatform Condition="'$(CMakePlatform)'=='' Or '$(CMakePlatform)'=='AnyCPU' Or '$(CMakePlatform)'=='Any CPU'">x64</CMakePlatform>
@@ -63,7 +64,10 @@
                         Condition="Exists('$(NativeOutputDir)/InfiniLore.InfiniFrame.Native.dylib')"/>
         </ItemGroup>
 
-        <Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+        <Copy Condition="@(NativeDlls->Count()) > 0"
+              SourceFiles="@(NativeDlls)"
+              DestinationFolder="$(TargetDir)"
+              SkipUnchangedFiles="true" />
 
         <Message Condition="Exists('$(OutDir)/InfiniLore.InfiniFrame.Native.dll')"
                  Text="✅ Copied InfiniLore.InfiniFrame.Native.dll into test output" Importance="High"/>
@@ -80,9 +84,9 @@
 
     <Target Name="BuildFrontend" BeforeTargets="Build">
         <Message Text="Installing npm packages" Importance="high"/>
-        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)/Sources/infiniframe-playwright-vue"/>
+        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
         <Message Text="Building frontend with npm..." Importance="high"/>
-        <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)/Sources/infiniframe-playwright-vue"/>
+        <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
     </Target>
 
 </Project>

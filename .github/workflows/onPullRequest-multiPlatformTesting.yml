@@ -75,10 +75,12 @@ jobs:
                 with:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}            
             
-            -   name: Setup .NET 9 SDK
+            -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: '9.x'
+                    dotnet-version: |
+                        9.x
+                        10.x
             
             # Cache APT packages to avoid re-downloading
             -   name: Cache APT packages
@@ -230,12 +232,10 @@ jobs:
                     
                     # Run tests
                     echo "=== Running Tests ==="
-                    dotnet test InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
+                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
-                        --no-restore \
-                        --logger "trx;LogFileName=TestResults/TestResults.trx" \
-                        --logger "console;verbosity=detailed"
+                        --no-restore
 
             -   name: Display test logs on failure
                 if: failure()
@@ -268,7 +268,7 @@ jobs:
 
             -   name: Upload test results as artifact
                 if: failure()
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v5
                 with:
                     name: test-logs
                     path: |
@@ -315,10 +315,12 @@ jobs:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
 
-            -   name: Setup .NET 9 SDK
+            -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: '9.x'
+                    dotnet-version: |
+                        9.x
+                        10.x
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
@@ -361,7 +363,7 @@ jobs:
             -   name: Run tests
                 run: |
                     echo "Running tests on Windows..."
-                    dotnet test InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
+                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore
@@ -413,15 +415,28 @@ jobs:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
 
-            -   name: Setup .NET 9 SDK
+            -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: '9.x'
+                    dotnet-version: |
+                        9.x
+                        10.x
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
                 with:
                     cmakeVersion: "4.0.0"
+
+            -   name: Install WebView2 Runtime
+                shell: pwsh
+                run: |
+                    Write-Host "Downloading WebView2 Runtime..."
+                    $url = "https://go.microsoft.com/fwlink/p/?LinkId=2124703"
+                    $installer = "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
+                    Invoke-WebRequest -Uri $url -OutFile $installer
+                    Write-Host "Installing WebView2 Runtime..."
+                    Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
+                    Write-Host "WebView2 Runtime installed"
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
@@ -436,35 +451,76 @@ jobs:
                     dotnet build InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
                         --configuration Release `
                         --no-restore
-
-            -   name: Ensure browsers are installed for Playwright
-                working-directory: tests/Tests.InfiniFrame.Playwright
-                run: pwsh bin/Release/net9.0/playwright.ps1 install --with-deps
+            -   name: Get Playwright version
+                id: playwright-version
+                shell: pwsh
+                run: |
+                    # Ensure Playwright is available
+                    npm install -g playwright
+                    $versionOutput = npx playwright --version
+                    # Extract just the version number
+                    $version = $versionOutput -replace '^Version\s+', ''
+                    Write-Host "Playwright version: $version"
+                    echo "version=$version" >> $env:GITHUB_OUTPUT
+        
+            -   name: Cache Playwright browsers
+                id: cache-playwright
+                uses: actions/cache@v4
+                with:
+                    path: ${{ runner.os == 'Windows' && '~\AppData\Local\ms-playwright' || '~/.cache/ms-playwright' }}
+                    key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+                    restore-keys: |
+                        playwright-${{ runner.os }}-
+        
+            -   name: Install Playwright browsers
+                if: steps.cache-playwright.outputs.cache-hit != 'true'
+                shell: pwsh
+                run: |
+                    Write-Host "Cache miss - Installing Playwright browsers..."
+                    npx playwright install --with-deps
+                    Write-Host "Playwright installation complete"
 
             -   name: Verify Native DLLs for testing
+                shell: pwsh
                 run: |
-                    $nativeDll = "tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dll"
-                    $webView2 = "tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/WebView2Loader.dll"
-                    
-                    if (-Not (Test-Path $nativeDll)) {
-                        Write-Host "ERROR: InfiniLore.InfiniFrame.Native.dll NOT found in test output!"
+                    $frameworks = @("net9.0", "net10.0")
+                    $requiredDlls = @(
+                        "InfiniLore.InfiniFrame.Native.dll",
+                        "WebView2Loader.dll"
+                    )
+
+                    $allFound = $true
+
+                    foreach ($framework in $frameworks) {
+                        Write-Host "Checking $framework..."
+                        $binPath = "tests/Tests.InfiniFrame.Playwright/bin/Release/$framework"
+
+                        foreach ($dll in $requiredDlls) {
+                            $fullPath = Join-Path $binPath $dll
+
+                            if (-Not (Test-Path $fullPath)) {
+                                Write-Host "❌ ERROR: $dll NOT found in $framework output!" -ForegroundColor Red
+                                $allFound = $false
+                            } else {
+                                Write-Host "✅ $dll found" -ForegroundColor Green
+                            }
+                        }
+                    }
+
+                    if (-Not $allFound) {
+                        Write-Host "❌ Some native DLLs are missing!" -ForegroundColor Red
                         Exit 1
                     }
-                    
-                    if (-Not (Test-Path $webView2)) {
-                        Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
-                        Exit 1
-                    }
-                    
-                    Write-Host "✅ All native DLLs present"
+
+                    Write-Host "✅ All native DLLs present for all frameworks" -ForegroundColor Green
 
             -   name: Run Playwright tests (.NET)
-                working-directory: tests/Tests.InfiniFrame.Playwright/bin/Release/net9.0/
-                run: .\Tests.InfiniFrame.Playwright.exe
+                working-directory: tests/Tests.InfiniFrame.Playwright/
+                run: dotnet test --configuration Release --no-build --no-restore
 
             -   name: Upload Playwright test results
                 if: always()
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v5
                 with:
                     name: playwright-test-results
                     path: tests/Tests.InfiniFrame.Playwright/TestResults
@@ -518,10 +574,12 @@ jobs:
                 with:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
-            -   name: Setup .NET 9 SDK
+            -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: '9.x'
+                    dotnet-version: |
+                        9.x
+                        10.x
             
             # Cache .NET packages
             -   name: Cache .NET packages
@@ -584,11 +642,10 @@ jobs:
                     echo "=== Running Tests ==="
 
                     # Run tests
-                    dotnet test InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf \
+                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
-                        --logger "console;verbosity=detailed"
 
             -   name: Update macOS status
                 if: always()
