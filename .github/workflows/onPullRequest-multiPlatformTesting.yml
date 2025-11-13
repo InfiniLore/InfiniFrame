@@ -441,12 +441,27 @@ jobs:
                         --configuration Release `
                         --no-restore
 
-            -   name: Ensure browsers are installed for Playwright
-                working-directory: tests/Tests.InfiniFrame.Playwright
+            -   name: Get Playwright version
+                id: playwright-version
                 shell: pwsh
                 run: |
-                    bin/Release/net9.0/playwright.ps1 install --with-deps
-                    bin/Release/net10.0/playwright.ps1 install --with-deps
+                    $version = npx playwright --version
+                    echo "version=$version" >> $env:GITHUB_OUTPUT
+
+            -   name: Cache Playwright browsers
+                id: cache-playwright
+                uses: actions/cache@v4
+                with:
+                    path: ~\AppData\Local\ms-playwright
+                    key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+            -   name: Install Playwright browsers
+                if: steps.cache-playwright.outputs.cache-hit != 'true'
+                shell: pwsh
+                run: |
+                    Write-Host "Installing Playwright browsers..."
+                    npx playwright install --with-deps
+                    Write-Host "Playwright installation complete"
 
             -   name: Verify Native DLLs for testing
                 run: |
