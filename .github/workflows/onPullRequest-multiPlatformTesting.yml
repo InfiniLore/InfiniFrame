@@ -443,7 +443,10 @@ jobs:
 
             -   name: Ensure browsers are installed for Playwright
                 working-directory: tests/Tests.InfiniFrame.Playwright
-                run: pwsh bin/Release/net9.0/playwright.ps1 install --with-deps
+                shell: pwsh
+                run: |
+                    bin/Release/net9.0/playwright.ps1 install --with-deps
+                    bin/Release/net10.0/playwright.ps1 install --with-deps
 
             -   name: Verify Native DLLs for testing
                 run: |
