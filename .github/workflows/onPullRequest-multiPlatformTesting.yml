@@ -451,26 +451,32 @@ jobs:
                     dotnet build InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
                         --configuration Release `
                         --no-restore
-
             -   name: Get Playwright version
                 id: playwright-version
                 shell: pwsh
                 run: |
-                    $version = npx playwright --version
+                    # Ensure Playwright is available
+                    npm install -g playwright
+                    $versionOutput = npx playwright --version
+                    # Extract just the version number
+                    $version = $versionOutput -replace '^Version\s+', ''
+                    Write-Host "Playwright version: $version"
                     echo "version=$version" >> $env:GITHUB_OUTPUT
-
+        
             -   name: Cache Playwright browsers
                 id: cache-playwright
                 uses: actions/cache@v4
                 with:
-                    path: ~\AppData\Local\ms-playwright
+                    path: ${{ runner.os == 'Windows' && '~\AppData\Local\ms-playwright' || '~/.cache/ms-playwright' }}
                     key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-
+                    restore-keys: |
+                        playwright-${{ runner.os }}-
+        
             -   name: Install Playwright browsers
                 if: steps.cache-playwright.outputs.cache-hit != 'true'
                 shell: pwsh
                 run: |
-                    Write-Host "Installing Playwright browsers..."
+                    Write-Host "Cache miss - Installing Playwright browsers..."
                     npx playwright install --with-deps
                     Write-Host "Playwright installation complete"
 
