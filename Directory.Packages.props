@@ -7,20 +7,17 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="[9.0.11, 10.0.0)" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="[9.0.11, 10.0.0)" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="[9.0.11, 10.0.0)" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="[9.0.11, 10.0.0)" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="[9.0.11, 10.0.0)" />
   </ItemGroup>
     <!-- .NET 10 -->
     <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
         <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
         <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.0" />
-        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
-        <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
-        <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
     </ItemGroup>
   <!-- Common packages for all frameworks -->
   <ItemGroup>
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />
     <PackageVersion Include="Serilog" Version="4.3.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
