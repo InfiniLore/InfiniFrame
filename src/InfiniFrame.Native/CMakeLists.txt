@@ -67,8 +67,8 @@ if(WIN32)
 
     # define architecture - map CMAKE values to MSBuild expected values
     if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
-        set(ARCH_DIR "ARM64")
-        set(OUTPUT_ARCH_DIR "ARM64")
+        set(ARCH_DIR "arm64")
+        set(OUTPUT_ARCH_DIR "arm64")
     elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
         set(ARCH_DIR "x64")
         set(OUTPUT_ARCH_DIR "x64")
