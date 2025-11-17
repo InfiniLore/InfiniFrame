@@ -66,7 +66,7 @@ jobs:
     linux-gui:
         if: ${{ github.event.inputs.run_linux == 'true' }}
         needs: mark-pending
-        name: Test - ${{ matrix.os }} / ${{ matrix.arch }}
+        name: Test - Linux/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
         strategy:
             fail-fast: false
@@ -313,7 +313,7 @@ jobs:
     windows-gui:
         if: ${{ github.event.inputs.run_windows == 'true' }}
         needs: mark-pending
-        name: Test - ${{ matrix.os }} / ${{ matrix.arch }}
+        name: Test - Windows/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
         strategy:
             fail-fast: false
@@ -583,7 +583,7 @@ jobs:
     macos-gui:
         if: ${{ github.event.inputs.run_macos == 'true' }}
         needs: mark-pending
-        name: Test - ${{ matrix.os }} / ${{ matrix.arch }}
+        name: Test - macOS/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
         strategy:
             fail-fast: false
