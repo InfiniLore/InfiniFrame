@@ -142,7 +142,7 @@ jobs:
             -   name: Build (Release)
                 run: |
                     # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj \
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=$GITHUB_WORKSPACE/
@@ -154,10 +154,10 @@ jobs:
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.so"
+                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniFrame.Native.so"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniLore.InfiniFrame.Native.so NOT found in test output!"
+                        echo "ERROR: InfiniFrame.Native.so NOT found in test output!"
                         exit 1
                     fi
                     
@@ -333,7 +333,7 @@ jobs:
             -   name: Build (Release)
                 run: |
                     # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
                         /p:SolutionDir=$GITHUB_WORKSPACE/
@@ -345,11 +345,11 @@ jobs:
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    $nativeDll = "tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dll"
+                    $nativeDll = "tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniFrame.Native.dll"
                     $webView2 = "tests/Tests.InfiniFrame/bin/Release/net9.0/WebView2Loader.dll"
                     
                     if (-Not (Test-Path $nativeDll)) {
-                        Write-Host "ERROR: InfiniLore.InfiniFrame.Native.dll NOT found in test output!"
+                        Write-Host "ERROR: InfiniFrame.Native.dll NOT found in test output!"
                         Exit 1
                     }
                     
@@ -443,7 +443,7 @@ jobs:
 
             -   name: Build (Release)
                 run: |
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
                         /p:SolutionDir=$GITHUB_WORKSPACE/
@@ -485,7 +485,7 @@ jobs:
                 run: |
                     $frameworks = @("net9.0", "net10.0")
                     $requiredDlls = @(
-                        "InfiniLore.InfiniFrame.Native.dll",
+                        "InfiniFrame.Native.dll",
                         "WebView2Loader.dll"
                     )
 
@@ -606,7 +606,7 @@ jobs:
 
             -   name: Build native
                 run: |
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
+                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj \
                         --configuration Release \
                         --no-restore \
                         /p:SolutionDir=$GITHUB_WORKSPACE/
@@ -616,10 +616,10 @@ jobs:
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dylib"
+                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniFrame.Native.dylib"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniLore.InfiniFrame.Native.dylib  NOT found in test output!"
+                        echo "ERROR: InfiniFrame.Native.dylib  NOT found in test output!"
                         exit 1
                     fi
                     

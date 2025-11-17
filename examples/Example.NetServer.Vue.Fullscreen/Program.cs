@@ -1,9 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame.Js.MessageHandlers;
-using InfiniLore.InfiniFrame.Server;
+using InfiniFrame;
+using InfiniFrame.Js.MessageHandlers;
+using InfiniFrame.Server;
 using System.Drawing;
 
 namespace Example.NetServer.Vue.Fullscreen;

@@ -1,0 +1,114 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Native;
+using InfiniFrame;
+using System.Drawing;
+
+namespace InfiniFrameTests.WindowFunctionalities;
+using InfiniFrameTests.Shared;
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class LocationTests {
+    private const int Left = 10;
+    private const int Top = 20;
+
+    [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(Builder)}")]
+    public async Task Builder() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        builder.SetUseOsDefaultLocation(true);
+        builder.SetLocation(Left, Top);
+
+        // Assert
+        await Assert.That(builder.Configuration.Left).IsEqualTo(Left);
+        await Assert.That(builder.Configuration.Top).IsEqualTo(Top);
+
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        await Assert.That(configParameters.Left).IsEqualTo(Left);
+        await Assert.That(configParameters.Top).IsEqualTo(Top);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
+    public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration {
+            Left = Left,
+            Top = Top,
+            UseOsDefaultLocation = false,
+            Centered = false
+        }.ToParameters();
+
+        // Act
+        builder.SetUseOsDefaultLocation(true);
+        builder.SetLocation(Left, Top);
+
+        // Assert
+        await Assert.That(builder.Configuration.Left).IsEqualTo(Left);
+        await Assert.That(builder.Configuration.Top).IsEqualTo(Top);
+        await Assert.That(builder.Configuration.UseOsDefaultLocation).IsEqualTo(false);
+        await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
+
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(Window)}")]   
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]   
+    public async Task Window() {
+        // Arrange
+        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Act
+        window.SetLocation(Left, Top);
+
+        // Assert
+        await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
+    }
+
+    [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(Window_AsPoint)}")]  
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    public async Task Window_AsPoint() {
+        // Arrange
+        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Act
+        window.SetLocation(new Point(Left, Top));
+
+        // Assert
+        await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
+    }
+
+    [Test]
+    [DisplayName($"{nameof(LocationTests)}.{nameof(FullIntegration)}")] 
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    public async Task FullIntegration() {
+        // Arrange
+
+        // Act
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+            builder => builder.SetLocation(Left, Top)
+        );
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Assert
+        await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
+    }
+}

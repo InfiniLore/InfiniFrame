@@ -29,7 +29,7 @@
     /* Modules */
     "module": "commonjs",
     /* Specify what module code is generated. */
-    "rootDir": "./src/InfiniLore.InfiniFrame.Js/TsSource/",
+    "rootDir": "./src/InfiniFrame.Js/TsSource/",
     /* Specify the root folder within your source files. */
     // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
@@ -62,7 +62,7 @@
     /* Create source map files for emitted JavaScript files. */
     // "inlineSourceMap": true,                          /* Include sourcemap files inside the emitted JavaScript. */
     // "noEmit": true,                                   /* Disable emitting files from a compilation. */
-    // "outFile": "./wwwroot/InfiniLoreBlazor.js", /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
+    // "outFile": "./wwwroot/lazor.js", /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
     // "outDir": "./",                                   /* Specify an output folder for all emitted files. */
     "removeComments": true,
     /* Disable emitting comments. */
@@ -122,7 +122,7 @@
     /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "./src/InfiniLore.InfiniFrame.Js/TsSource/**/*.ts"
+    "./src/InfiniFrame.Js/TsSource/**/*.ts"
     // Include all .ts files in this directory
   ],
   "exclude": [

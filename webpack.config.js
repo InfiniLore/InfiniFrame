@@ -8,11 +8,11 @@ module.exports = (env, args) => {
         mode: isProduction ? 'production' : 'development',
         devtool: isProduction ? false : 'inline-source-map',
         entry: {
-            main: "./src/InfiniLore.InfiniFrame.Js/TsSource/Index.ts",
+            main: "./src/InfiniFrame.Js/TsSource/Index.ts",
         },
         output: {
-            path: path.resolve(__dirname, './src/InfiniLore.InfiniFrame.Js/wwwroot'),
-            filename: "InfiniLore.InfiniFrame.js", // <--- Will be compiled to this single file
+            path: path.resolve(__dirname, './src/InfiniFrame.Js/wwwroot'),
+            filename: "InfiniFrame.js", // <--- Will be compiled to this single file
         },
         resolve: {
             extensions: [".ts", ".tsx", ".js"],
