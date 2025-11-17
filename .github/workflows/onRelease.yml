@@ -22,24 +22,24 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - os: ubuntu-latest
-                      arch: x64
-                      libName: linux
-                    - os: ubuntu-24.04-arm
-                      arch: arm64
-                      libName: linux
-                    - os: windows-latest
-                      arch: x64
-                      libName: windows
-                    - os: windows-11-arm
-                      arch: arm64
-                      libName: windows
-                    - os: macos-15-intel
-                      arch: x64
-                      libName: osx
-                    - os: macos-latest
-                      arch: arm64
-                      libName: osx
+                    -   os: ubuntu-latest
+                        arch: x64
+                        libName: linux
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        libName: linux
+                    -   os: windows-latest
+                        arch: x64
+                        libName: windows
+                    -   os: windows-11-arm
+                        arch: arm64
+                        libName: windows
+                    -   os: macos-15-intel
+                        arch: x64
+                        libName: osx
+                    -   os: macos-latest
+                        arch: arm64
+                        libName: osx
         env:
             DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
             DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -66,7 +66,7 @@ jobs:
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
-            
+
             -   name: Install GTK3 (Linux)
                 if: startsWith(matrix.os, 'ubuntu')
                 run: |
@@ -93,7 +93,7 @@ jobs:
                         --no-restore \
                         /p:SolutionDir="${{ github.workspace }}/" \
                         /p:Platform=${{ matrix.arch }}
-                    
+
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
                 with:
@@ -135,13 +135,13 @@ jobs:
                     key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
                     restore-keys: |
                         ${{ runner.os }}-nuget-
-                        
+
             -   name: Download build artifacts
                 uses: actions/download-artifact@v6
                 with:
                     path: artifacts/native
 
-            -   name: Recreate folder structure for 
+            -   name: Recreate folder structure for
                 run: |
                     mkdir -p artifacts/native/windows/x64/Release
                     mkdir -p artifacts/native/windows/arm64/Release
@@ -157,7 +157,7 @@ jobs:
                     mv artifacts/native/linux-arm64/* artifacts/native/linux/arm64/Release/ 2>/dev/null || true
                     mv artifacts/native/osx-x64/* artifacts/native/osx/x64/Release/ 2>/dev/null || true
                     mv artifacts/native/osx-arm64/* artifacts/native/osx/arm64/Release/ 2>/dev/null || true
-                    
+
             -   name: Verify native artifacts
                 run: |
                     echo "Checking native build artifacts..."
@@ -186,10 +186,10 @@ jobs:
                       echo "❌ $MISSING artifact(s) missing! Aborting."
                       exit 1
                     fi
-                    
+
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
-            
+
             -   name: build dotnet
                 run: |
                     dotnet restore InfiniFrame.GitHubActions.Pack.slnf /p:NoWarn=NU1503
@@ -198,9 +198,9 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{github.workspace}}/
-                    
+
             -   name: pack
-                run: |                    
+                run: |
                     dotnet pack InfiniFrame.GitHubActions.Pack.slnf --configuration Release -o ./release
 
             -   name: Upload NuGet packages as artifact
@@ -208,12 +208,12 @@ jobs:
                 with:
                     name: nuget-packages-${{ github.ref_name }}
                     path: ./release/*.nupkg
-                    
+
             -   name: Verify native libraries in Shared NuGet package
                 run: |
                     # Find the Shared package, this has to be the PACKAGE ID name and not the namespace name!
                     PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
-    
+                    
                     if [ -z "$PACKAGE" ]; then
                         echo "❌ No Shared package found in ./release !"
                         exit 1
@@ -247,15 +247,15 @@ jobs:
                     fi
 
             -   name: Create GitHub Release
-                if:  github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
+                if: github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
                 uses: softprops/action-gh-release@v2
                 with:
                     generate_release_notes: true
                     files: ./release/*.nupkg
                     prerelease: ${{ contains(github.ref_name, 'preview') }}
-        
+
             -   name: Push to NuGet
-                if:  github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
+                if: github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
                 run: dotnet nuget push "./release/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

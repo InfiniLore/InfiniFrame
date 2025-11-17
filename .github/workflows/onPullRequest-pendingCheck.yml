@@ -25,12 +25,12 @@ jobs:
                     Manual MultiPlatform CI - Windows/arm64
                     Manual MultiPlatform CI - macOS/x64
                     Manual MultiPlatform CI - macOS/arm64"
-  
+                    
                     # Join lines with |
                     contexts="${contexts//$'\n'/|}"
                     
                     echo "contexts=$contexts" >> "$GITHUB_OUTPUT"
-            
+
             -   name: Cancel pending statuses on older commits
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
