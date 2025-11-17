@@ -19,17 +19,13 @@ jobs:
             -   name: Define context list
                 id: define-contexts
                 run: |
-                    contexts="$(
-                      cat << 'EOF'
-                      Manual MultiPlatform CI - Linux/x64
-                      Manual MultiPlatform CI - Linux/arm64
-                      Manual MultiPlatform CI - Windows/x64
-                      Manual MultiPlatform CI - Windows/arm64
-                      Manual MultiPlatform CI - macOS/x64
-                      Manual MultiPlatform CI - macOS/arm64
-                      EOF
-                    )"
-                    
+                    contexts="Manual MultiPlatform CI - Linux/x64
+                    Manual MultiPlatform CI - Linux/arm64
+                    Manual MultiPlatform CI - Windows/x64
+                    Manual MultiPlatform CI - Windows/arm64
+                    Manual MultiPlatform CI - macOS/x64
+                    Manual MultiPlatform CI - macOS/arm64"
+  
                     # Join lines with |
                     contexts="${contexts//$'\n'/|}"
                     
