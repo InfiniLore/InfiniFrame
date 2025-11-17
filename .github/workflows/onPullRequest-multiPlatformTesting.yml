@@ -358,8 +358,7 @@ jobs:
                     # Then build the rest of the solution
                     dotnet build InfiniFrame.GitHubActions.Windows.slnf `
                         --configuration Release `
-                        --no-restore `
-                        -p:Platform=${{ matrix.arch }}
+                        --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
