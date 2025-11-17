@@ -94,18 +94,18 @@ jobs:
                     path: |
                         /var/cache/apt/archives
                         /var/lib/apt/lists
-                    key: ${{ runner.os }}-apt-${{ hashFiles('**/onPullRequest-multiPlatformTesting.yml') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-apt-${{ hashFiles('**/onPullRequest-multiPlatformTesting.yml') }}
                     restore-keys: |
-                        ${{ runner.os }}-apt-
+                        ${{ matrix.os }}-${{ matrix.arch }}-apt-
             
             # Cache .NET packages
             -   name: Cache .NET packages
                 uses: actions/cache@v4
                 with:
                     path: ~/.nuget/packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
                     restore-keys: |
-                        ${{ runner.os }}-nuget-
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
@@ -613,20 +613,9 @@ jobs:
                 uses: actions/cache@v4
                 with:
                     path: ~/.nuget/packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
                     restore-keys: |
-                        ${{ runner.os }}-nuget-
-            
-            # Cache .NET build output
-            -   name: Cache .NET build
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        **/bin
-                        **/obj
-                    key: ${{ runner.os }}-build-${{ hashFiles('**/*.cs', '**/*.csproj', '**/*.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-build-
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503

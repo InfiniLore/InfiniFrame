@@ -79,7 +79,7 @@
         <Message Text="Rebuilding native project (Clean + Build)..." Importance="High" />
     </Target>
 
-    <!-- Skipped Tragets -->
+    <!-- Skipped Targets -->
     <Target Name="Restore">
         <Message Text="Skipping restore for native project." Importance="High"/>
     </Target>
