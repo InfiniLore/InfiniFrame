@@ -1,4 +1,4 @@
-# InfiniLore.InfiniFrame
+# InfiniFrame
 
 A rework of
 the [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server)

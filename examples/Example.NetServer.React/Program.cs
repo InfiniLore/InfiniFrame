@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame.Server;
+using InfiniFrame;
+using InfiniFrame.Server;
 using System.Drawing;
 
 namespace Example.NetServer.React;

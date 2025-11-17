@@ -1,0 +1,13 @@
+﻿{
+    "solution": {
+        "path": "InfiniFrame.slnx",
+        "projects": [
+            "src\\InfiniFrame.Blazor\\InfiniFrame.Blazor.csproj",
+            "src\\InfiniFrame.Js\\InfiniFrame.Js.csproj",
+            "src\\InfiniFrame\\InfiniFrame.csproj",
+            "src\\InfiniFrame.Server\\InfiniFrame.Server.csproj",
+            "src\\InfiniFrame.Shared\\InfiniFrame.Shared.csproj",
+            "src\\InfiniFrame.Native\\InfiniFrame.Native.proj"
+        ]
+    }
+}

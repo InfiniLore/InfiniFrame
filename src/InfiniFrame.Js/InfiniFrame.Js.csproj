@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.Js</PackageId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="InfiniFrame"/>
+        <InternalsVisibleTo Include="InfiniFrame.Server"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="wwwroot/InfiniFrame.js"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
+    </ItemGroup>
+
+</Project>

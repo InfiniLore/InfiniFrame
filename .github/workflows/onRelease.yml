@@ -91,7 +91,7 @@ jobs:
                 if: startsWith(matrix.os, 'windows')
                 shell: pwsh
                 run: |
-                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" `
+                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" `
                         --configuration Release `
                         --no-restore `
                         -p:SolutionDir="${{github.workspace}}/" `
@@ -101,7 +101,7 @@ jobs:
             -   name: Build InfiniFrame.Native (Linux)
                 if: startsWith(matrix.os, 'ubuntu')
                 run: |
-                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
                         /p:SolutionDir="${{github.workspace}}/" \
@@ -111,7 +111,7 @@ jobs:
             -   name: Build InfiniFrame.Native (macOS)
                 if: startsWith(matrix.os, 'macos')
                 run: |
-                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj" \
+                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
                         /p:SolutionDir="${{github.workspace}}/" \
@@ -185,14 +185,14 @@ jobs:
                 run: |
                     echo "Checking native build artifacts..."
                     EXPECTED_ARTIFACTS=(
-                      "windows/x64/Release/InfiniLore.InfiniFrame.Native.dll"
+                      "windows/x64/Release/InfiniFrame.Native.dll"
                       "windows/x64/Release/WebView2Loader.dll"
-                      "windows/arm64/Release/InfiniLore.InfiniFrame.Native.dll"
+                      "windows/arm64/Release/InfiniFrame.Native.dll"
                       "windows/arm64/Release/WebView2Loader.dll"
-                      "linux/x64/Release/InfiniLore.InfiniFrame.Native.so"
-                      "linux/arm64/Release/InfiniLore.InfiniFrame.Native.so"
-                      "osx/x64/Release/InfiniLore.InfiniFrame.Native.dylib"
-                      "osx/arm64/Release/InfiniLore.InfiniFrame.Native.dylib"
+                      "linux/x64/Release/InfiniFrame.Native.so"
+                      "linux/arm64/Release/InfiniFrame.Native.so"
+                      "osx/x64/Release/InfiniFrame.Native.dylib"
+                      "osx/arm64/Release/InfiniFrame.Native.dylib"
                     )
                     
                     MISSING=0
@@ -226,21 +226,21 @@ jobs:
             
             -   name: build dotnet
                 run: |
-                    dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+                    dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{github.workspace}}/
                     
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Pack.slnf \
+                    dotnet build InfiniFrame.GitHubActions.Pack.slnf \
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{github.workspace}}/
                     
             -   name: pack
                 run: |                    
-                    dotnet pack InfiniLore.InfiniFrame.GitHubActions.Pack.slnf --configuration Release -o ./release
+                    dotnet pack InfiniFrame.GitHubActions.Pack.slnf --configuration Release -o ./release
 
             -   name: Upload NuGet packages as artifact
                 uses: actions/upload-artifact@v5
@@ -250,6 +250,7 @@ jobs:
                     
             -   name: Verify native libraries in Shared NuGet package
                 run: |
+                    # Find the Shared package, this has to be the PACKAGE ID name and not the namespace name!
                     PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
     
                     if [ -z "$PACKAGE" ]; then
@@ -259,14 +260,14 @@ jobs:
                     
                     # List of expected native files in all runtimes
                     EXPECTED=(
-                      "runtimes/win-x64/native/InfiniLore.InfiniFrame.Native.dll"
+                      "runtimes/win-x64/native/InfiniFrame.Native.dll"
                       "runtimes/win-x64/native/WebView2Loader.dll"
-                      "runtimes/win-arm64/native/InfiniLore.InfiniFrame.Native.dll"
+                      "runtimes/win-arm64/native/InfiniFrame.Native.dll"
                       "runtimes/win-arm64/native/WebView2Loader.dll"
-                      "runtimes/linux-x64/native/InfiniLore.InfiniFrame.Native.so"
-                      "runtimes/linux-arm64/native/InfiniLore.InfiniFrame.Native.so"
-                      "runtimes/osx-x64/native/InfiniLore.InfiniFrame.Native.dylib"
-                      "runtimes/osx-arm64/native/InfiniLore.InfiniFrame.Native.dylib"
+                      "runtimes/linux-x64/native/InfiniFrame.Native.so"
+                      "runtimes/linux-arm64/native/InfiniFrame.Native.so"
+                      "runtimes/osx-x64/native/InfiniFrame.Native.dylib"
+                      "runtimes/osx-arm64/native/InfiniFrame.Native.dylib"
                     )
                     
                     MISSING=0
@@ -285,7 +286,7 @@ jobs:
                     fi
 
             -   name: Create GitHub Release
-                if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
+                if: github.ref == 'refs/heads/core' && ( github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget))
                 uses: softprops/action-gh-release@v2
                 with:
                     generate_release_notes: true
@@ -293,7 +294,7 @@ jobs:
                     prerelease: ${{ contains(github.ref_name, 'preview') }}
         
             -   name: Push to NuGet
-                if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
+                if: github.ref == 'refs/heads/core' && ( github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget))
                 run: dotnet nuget push "./release/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

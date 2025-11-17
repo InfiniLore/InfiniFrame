@@ -19,8 +19,18 @@ jobs:
             -   name: Define context list
                 id: define-contexts
                 run: |
-                    echo "contexts=Manual MultiPlatform CI - Linux|Manual MultiPlatform CI - Windows|Manual MultiPlatform CI - macOS" >> $GITHUB_OUTPUT
-
+                    contexts="Manual MultiPlatform CI - Linux/x64
+                    Manual MultiPlatform CI - Linux/arm64
+                    Manual MultiPlatform CI - Windows/x64
+                    Manual MultiPlatform CI - Windows/arm64
+                    Manual MultiPlatform CI - macOS/x64
+                    Manual MultiPlatform CI - macOS/arm64"
+  
+                    # Join lines with |
+                    contexts="${contexts//$'\n'/|}"
+                    
+                    echo "contexts=$contexts" >> "$GITHUB_OUTPUT"
+            
             -   name: Cancel pending statuses on older commits
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

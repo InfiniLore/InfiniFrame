@@ -30,35 +30,30 @@ jobs:
         permissions:
             statuses: write
         steps:
-            -   name: Set pending status
+            -   name: Set pending status for all arch/platforms
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    echo "Posting pending status for Manual MultiPlatform CI"
+                    echo "Posting pending statuses for all Manual MultiPlatform CI contexts"
                     
-                    # Construct the workflow url
                     WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     
-                    # Post status for Linux
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"Linux tests\", \"target_url\": \"$WORKFLOW_URL\"}"
-
-                    # Post status for Windows  
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Windows\",\"description\":\"Windows tests\", \"target_url\": \"$WORKFLOW_URL\"}"
-
-                    # Post status for macOS
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"macOS tests\", \"target_url\": \"$WORKFLOW_URL\"}"
+                    OS_LIST=("Linux" "Windows" "macOS")
+                    ARCHES=("x64" "arm64")
+                    
+                    for OS in "${OS_LIST[@]}"; do
+                      for ARCH in "${ARCHES[@]}"; do
+                          CONTEXT="Manual MultiPlatform CI - ${OS}/${ARCH}"
+                          DESCRIPTION="${OS}/${ARCH} tests"
+                          echo "Setting pending: $CONTEXT"
+                    
+                          curl -X POST \
+                            -H "Authorization: Bearer $GITHUB_TOKEN" \
+                            -H "Accept: application/vnd.github+json" \
+                            "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+                            -d "{\"state\":\"pending\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
+                      done
+                    done
     
     # ------------------------------------------------------------------------------------------------------------------
     # Linux (Full Desktop Environment)
@@ -66,8 +61,18 @@ jobs:
     linux-gui:
         if: ${{ github.event.inputs.run_linux == 'true' }}
         needs: mark-pending
-        name: Test - Linux
-        runs-on: ubuntu-latest
+        name: Test - Linux/${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: ubuntu-latest
+                      arch: x64
+                      libName: linux
+                    - os: ubuntu-24.04-arm
+                      arch: arm64
+                      libName: linux
         permissions:
             statuses: write
         steps:
@@ -89,18 +94,18 @@ jobs:
                     path: |
                         /var/cache/apt/archives
                         /var/lib/apt/lists
-                    key: ${{ runner.os }}-apt-${{ hashFiles('**/onPullRequest-multiPlatformTesting.yml') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-apt-${{ hashFiles('**/onPullRequest-multiPlatformTesting.yml') }}
                     restore-keys: |
-                        ${{ runner.os }}-apt-
+                        ${{ matrix.os }}-${{ matrix.arch }}-apt-
             
             # Cache .NET packages
             -   name: Cache .NET packages
                 uses: actions/cache@v4
                 with:
                     path: ~/.nuget/packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
                     restore-keys: |
-                        ${{ runner.os }}-nuget-
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
@@ -137,27 +142,28 @@ jobs:
                         xfonts-base
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
                     # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+                        --configuration Release \
+                        --no-restore \
+                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:Platform=${{ matrix.arch }}
                     
                     # Then build the rest of the solution
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
-                      --configuration Release \
-                      --no-restore
+                    dotnet build InfiniFrame.GitHubActions.Linux.slnf \
+                        --configuration Release \
+                        --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.so"
+                    nativeSo="tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.so"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniLore.InfiniFrame.Native.so NOT found in test output!"
+                        echo "ERROR: InfiniFrame.Native.so NOT found in test output!"
                         exit 1
                     fi
                     
@@ -232,7 +238,7 @@ jobs:
                     
                     # Run tests
                     echo "=== Running Tests ==="
-                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
+                    dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore
@@ -295,7 +301,7 @@ jobs:
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - Linux/${{ matrix.arch }}\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
 
     # ------------------------------------------------------------------------------------------------------------------
     # Windows
@@ -303,8 +309,18 @@ jobs:
     windows-gui:
         if: ${{ github.event.inputs.run_windows == 'true' }}
         needs: mark-pending
-        name: Test - Windows
-        runs-on: windows-latest
+        name: Test - Windows/${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: windows-latest
+                      arch: x64
+                      libName: windows
+                    - os: windows-11-arm
+                      arch: arm64
+                      libName: windows
         permissions:
             statuses: write
 
@@ -328,28 +344,29 @@ jobs:
                     cmakeVersion: "4.0.0"
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
                     # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
-                        /p:SolutionDir=$GITHUB_WORKSPACE/
+                        -p:SolutionDir="${{github.workspace}}/" `
+                        -p:Platform=${{ matrix.arch }}
                     
                     # Then build the rest of the solution
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
+                    dotnet build InfiniFrame.GitHubActions.Windows.slnf `
                         --configuration Release `
                         --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    $nativeDll = "tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dll"
-                    $webView2 = "tests/Tests.InfiniFrame/bin/Release/net9.0/WebView2Loader.dll"
+                    $nativeDll = "tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dll"
+                    $webView2 = "tests/InfiniFrameTests/bin/Release/net9.0/WebView2Loader.dll"
                     
                     if (-Not (Test-Path $nativeDll)) {
-                        Write-Host "ERROR: InfiniLore.InfiniFrame.Native.dll NOT found in test output!"
+                        Write-Host "ERROR: InfiniFrame.Native.dll NOT found in test output!"
                         Exit 1
                     }
                     
@@ -363,10 +380,10 @@ jobs:
             -   name: Run tests
                 run: |
                     echo "Running tests on Windows..."
-                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore
+                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
+                        --configuration Release `
+                        --no-build `
+                        --no-restore
 
             -   name: Update Windows status
                 if: always()
@@ -386,7 +403,7 @@ jobs:
                     
                     $body = @{
                         state = $STATUS
-                        context = "Manual MultiPlatform CI - Windows"
+                        context = "Manual MultiPlatform CI - Windows/${{ matrix.arch }}"
                         description = $DESCRIPTION
                         target_url = $WORKFLOW_URL
                     } | ConvertTo-Json
@@ -439,16 +456,16 @@ jobs:
                     Write-Host "WebView2 Runtime installed"
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj `
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
                         /p:SolutionDir=$GITHUB_WORKSPACE/
 
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
+                    dotnet build InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
                         --configuration Release `
                         --no-restore
             -   name: Get Playwright version
@@ -485,7 +502,7 @@ jobs:
                 run: |
                     $frameworks = @("net9.0", "net10.0")
                     $requiredDlls = @(
-                        "InfiniLore.InfiniFrame.Native.dll",
+                        "InfiniFrame.Native.dll",
                         "WebView2Loader.dll"
                     )
 
@@ -493,7 +510,7 @@ jobs:
 
                     foreach ($framework in $frameworks) {
                         Write-Host "Checking $framework..."
-                        $binPath = "tests/Tests.InfiniFrame.Playwright/bin/Release/$framework"
+                        $binPath = "tests/InfiniFrameTests.Playwright/bin/Release/$framework"
 
                         foreach ($dll in $requiredDlls) {
                             $fullPath = Join-Path $binPath $dll
@@ -515,7 +532,7 @@ jobs:
                     Write-Host "✅ All native DLLs present for all frameworks" -ForegroundColor Green
 
             -   name: Run Playwright tests (.NET)
-                working-directory: tests/Tests.InfiniFrame.Playwright/
+                working-directory: tests/InfiniFrameTests.Playwright/
                 run: dotnet test --configuration Release --no-build --no-restore
 
             -   name: Upload Playwright test results
@@ -523,7 +540,7 @@ jobs:
                 uses: actions/upload-artifact@v5
                 with:
                     name: playwright-test-results
-                    path: tests/Tests.InfiniFrame.Playwright/TestResults
+                    path: tests/InfiniFrameTests.Playwright/TestResults
 
             -   name: Update Windows Playwright status
                 if: always()
@@ -563,8 +580,18 @@ jobs:
     macos-gui:
         if: ${{ github.event.inputs.run_macos == 'true' }}
         needs: mark-pending
-        name: Test - macOS
-        runs-on: macos-latest
+        name: Test - macOS/${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: macos-15-intel
+                      arch: x64
+                      libName: osx
+                    - os: macos-latest
+                      arch: arm64
+                      libName: osx
         permissions:
             statuses: write
         
@@ -586,40 +613,30 @@ jobs:
                 uses: actions/cache@v4
                 with:
                     path: ~/.nuget/packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
                     restore-keys: |
-                        ${{ runner.os }}-nuget-
-            
-            # Cache .NET build output
-            -   name: Cache .NET build
-                uses: actions/cache@v4
-                with:
-                    path: |
-                        **/bin
-                        **/obj
-                    key: ${{ runner.os }}-build-${{ hashFiles('**/*.cs', '**/*.csproj', '**/*.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-build-
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
 
             -   name: Build native
                 run: |
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniLore.InfiniFrame.Native.proj \
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
                         --configuration Release \
                         --no-restore \
-                        /p:SolutionDir=$GITHUB_WORKSPACE/
+                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:Platform=${{ matrix.arch }}
 
             -   name: Build (Release)
-                run: dotnet build InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
+                run: dotnet build InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
-                    nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniLore.InfiniFrame.Native.dylib"
+                    nativeSo="tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dylib"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniLore.InfiniFrame.Native.dylib  NOT found in test output!"
+                        echo "ERROR: InfiniFrame.Native.dylib NOT found in test output!"
                         exit 1
                     fi
                     
@@ -642,7 +659,7 @@ jobs:
                     echo "=== Running Tests ==="
 
                     # Run tests
-                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf \
+                    dotnet test --solution InfiniFrame.GitHubActions.MacOs.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \
@@ -667,7 +684,7 @@ jobs:
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - macOS/${{ matrix.arch }}\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
 
     # ---------------------------------------------------------------------------------------
     # Handle skipped platforms
@@ -683,32 +700,31 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    # Construct the workflow run URL
                     WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     
-                    # Mark Linux as skipped if not enabled
-                    if [[ "${{ github.event.inputs.run_linux }}" != "true" ]]; then
-                        curl -X POST \
-                          -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github+json" \
-                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - Linux","description":"skipped","target_url":"$WORKFLOW_URL"}'
-                    fi
+                    # Declare supported OS/arch combinations
+                    declare -A OS_INPUT_MAP=(
+                      ["Linux"]="${{ github.event.inputs.run_linux }}"
+                      ["Windows"]="${{ github.event.inputs.run_windows }}"
+                      ["macOS"]="${{ github.event.inputs.run_macos }}"
+                    )
                     
-                    # Mark Windows as skipped if not enabled
-                    if [[ "${{ github.event.inputs.run_windows }}" != "true" ]]; then
-                        curl -X POST \
-                          -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github+json" \
-                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - Windows","description":"skipped","target_url":"$WORKFLOW_URL"}'
-                    fi
+                    ARCHES=("x64" "arm64")
                     
-                    # Mark macOS as skipped if not enabled
-                    if [[ "${{ github.event.inputs.run_macos }}" != "true" ]]; then
-                        curl -X POST \
-                          -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github+json" \
-                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - macOS","description":"skipped","target_url":"$WORKFLOW_URL"}'
-                    fi
+                    for OS in "${!OS_INPUT_MAP[@]}"; do
+                      # Check if OS is enabled
+                      if [[ "${OS_INPUT_MAP[$OS]}" != "true" ]]; then
+                          # If OS is disabled, skip all its architectures
+                          for ARCH in "${ARCHES[@]}"; do
+                              CONTEXT="Manual MultiPlatform CI - ${OS}/${ARCH}"
+                              echo "Marking $CONTEXT as skipped"
+                    
+                              curl -X POST \
+                                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                                -H "Accept: application/vnd.github+json" \
+                                "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+                                -d "{\"state\":\"success\",\"context\":\"$CONTEXT\",\"description\":\"skipped\",\"target_url\":\"$WORKFLOW_URL\"}"
+                          done
+                      fi
+                    done
+    

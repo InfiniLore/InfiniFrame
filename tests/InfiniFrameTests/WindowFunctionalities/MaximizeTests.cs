@@ -1,0 +1,95 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Native;
+using InfiniFrame;
+
+namespace InfiniFrameTests.WindowFunctionalities;
+using InfiniFrameTests.Shared;
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class MaximizeTests {
+
+    [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Builder)}")]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Builder(bool state) {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        builder.SetMaximized(state);
+
+        // Assert
+        await Assert.That(builder.Configuration.Maximized).IsEqualTo(state);
+
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        await Assert.That(configParameters.Maximized).IsEqualTo(state);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window)}")]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Window(bool state) {
+        SkipUtility.SkipOnLinux(state);
+
+        // Arrange
+        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Act
+        window.SetMaximized(state);
+
+        // Assert
+        await Assert.That(window.Maximized).IsEqualTo(state);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window_Toggle)}")]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Window_Toggle(bool state) {
+        // Arrange
+        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Act
+        window.SetMaximized(state);
+        window.ToggleMaximized();
+
+        // Assert
+        await Assert.That(window.Maximized).IsEqualTo(!state);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(FullIntegration)}")]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task FullIntegration(bool state) {
+        SkipUtility.SkipOnLinux(state);
+
+        // Arrange
+
+        // Act
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+            builder => builder
+                .SetMaximized(state)
+        );
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Assert
+        await Assert.That(window.Maximized).IsEqualTo(state);
+    }
+
+}

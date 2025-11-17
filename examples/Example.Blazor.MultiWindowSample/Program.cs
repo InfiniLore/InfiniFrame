@@ -2,8 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Example.Blazor.MultiWindowSample.Components;
-using InfiniLore.InfiniFrame;
-using InfiniLore.InfiniFrame.Blazor;
+using InfiniFrame;
+using InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Example.Blazor.MultiWindowSample;

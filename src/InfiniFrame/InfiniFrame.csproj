@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame</PackageId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="InfiniFrameTests"/>
+        <InternalsVisibleTo Include="InfiniFrameTests.Playwright"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\InfiniFrame.Js\InfiniFrame.Js.csproj" />
+        <ProjectReference Include="..\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
+    </ItemGroup>
+
+</Project>
