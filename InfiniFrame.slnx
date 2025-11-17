@@ -1,15 +1,15 @@
 <Solution>
   <Folder Name="/.dev-tools/">
     <File Path=".gitignore" />
-    <File Path="InfiniLore.InfiniFrame.GitHubActions.slnf" />
+    <File Path="InfiniFrame.GitHubActions.WindowsPlaywright.slnf" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="global.json" />
-    <File Path="InfiniLore.InfiniFrame.GitHubActions.Linux.slnf" />
-    <File Path="InfiniLore.InfiniFrame.GitHubActions.Windows.slnf" />
-    <File Path="InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf" />
-    <File Path="InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf" />
-    <File Path="InfiniLore.InfiniFrame.GitHubActions.Pack.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Linux.slnf" />
+    <File Path="InfiniFrame.GitHubActions.MacOs.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Pack.slnf" />
+    <File Path="InfiniFrame.GitHubActions.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Windows.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\workflow-todo.yml" />

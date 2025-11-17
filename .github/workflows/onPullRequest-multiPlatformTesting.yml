@@ -137,18 +137,18 @@ jobs:
                         xfonts-base
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
                     # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj \
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=$GITHUB_WORKSPACE/
                     
                     # Then build the rest of the solution
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
+                    dotnet build InfiniFrame.GitHubActions.Linux.slnf \
                       --configuration Release \
                       --no-restore
 
@@ -232,7 +232,7 @@ jobs:
                     
                     # Run tests
                     echo "=== Running Tests ==="
-                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Linux.slnf \
+                    dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore
@@ -328,18 +328,18 @@ jobs:
                     cmakeVersion: "4.0.0"
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
                     # Build native project first
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj `
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
                         /p:SolutionDir=$GITHUB_WORKSPACE/
                     
                     # Then build the rest of the solution
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
+                    dotnet build InfiniFrame.GitHubActions.Windows.slnf `
                         --configuration Release `
                         --no-restore
 
@@ -363,7 +363,7 @@ jobs:
             -   name: Run tests
                 run: |
                     echo "Running tests on Windows..."
-                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.Windows.slnf `
+                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore
@@ -439,16 +439,16 @@ jobs:
                     Write-Host "WebView2 Runtime installed"
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
 
             -   name: Build (Release)
                 run: |
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj `
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
                         /p:SolutionDir=$GITHUB_WORKSPACE/
 
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
+                    dotnet build InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
                         --configuration Release `
                         --no-restore
             -   name: Get Playwright version
@@ -602,17 +602,17 @@ jobs:
                         ${{ runner.os }}-build-
 
             -   name: Restore dependencies
-                run: dotnet restore InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
 
             -   name: Build native
                 run: |
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj \
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
                         --configuration Release \
                         --no-restore \
                         /p:SolutionDir=$GITHUB_WORKSPACE/
 
             -   name: Build (Release)
-                run: dotnet build InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
+                run: dotnet build InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
@@ -642,7 +642,7 @@ jobs:
                     echo "=== Running Tests ==="
 
                     # Run tests
-                    dotnet test --solution InfiniLore.InfiniFrame.GitHubActions.MacOs.slnf \
+                    dotnet test --solution InfiniFrame.GitHubActions.MacOs.slnf \
                         --configuration Release \
                         --no-build \
                         --no-restore \

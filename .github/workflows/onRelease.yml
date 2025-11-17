@@ -91,7 +91,7 @@ jobs:
                 if: startsWith(matrix.os, 'windows')
                 shell: pwsh
                 run: |
-                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj" `
+                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" `
                         --configuration Release `
                         --no-restore `
                         -p:SolutionDir="${{github.workspace}}/" `
@@ -101,7 +101,7 @@ jobs:
             -   name: Build InfiniFrame.Native (Linux)
                 if: startsWith(matrix.os, 'ubuntu')
                 run: |
-                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj" \
+                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
                         /p:SolutionDir="${{github.workspace}}/" \
@@ -111,7 +111,7 @@ jobs:
             -   name: Build InfiniFrame.Native (macOS)
                 if: startsWith(matrix.os, 'macos')
                 run: |
-                    dotnet build "src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj" \
+                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
                         /p:SolutionDir="${{github.workspace}}/" \
@@ -226,21 +226,21 @@ jobs:
             
             -   name: build dotnet
                 run: |
-                    dotnet restore InfiniLore.InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+                    dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
-                    dotnet build src/InfiniLore.InfiniFrame.Native/InfiniFrame.Native.proj \
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{github.workspace}}/
                     
-                    dotnet build InfiniLore.InfiniFrame.GitHubActions.Pack.slnf \
+                    dotnet build InfiniFrame.GitHubActions.Pack.slnf \
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{github.workspace}}/
                     
             -   name: pack
                 run: |                    
-                    dotnet pack InfiniLore.InfiniFrame.GitHubActions.Pack.slnf --configuration Release -o ./release
+                    dotnet pack InfiniFrame.GitHubActions.Pack.slnf --configuration Release -o ./release
 
             -   name: Upload NuGet packages as artifact
                 uses: actions/upload-artifact@v5
@@ -250,7 +250,7 @@ jobs:
                     
             -   name: Verify native libraries in Shared NuGet package
                 run: |
-                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
+                    PACKAGE=$(ls ./release/InfiniFrame.Shared.*.nupkg | head -n 1)
     
                     if [ -z "$PACKAGE" ]; then
                         echo "❌ No Shared package found in ./release !"
