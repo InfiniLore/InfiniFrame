@@ -63,6 +63,8 @@ jobs:
         needs: mark-pending
         name: Test - Linux/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
+        env: 
+            Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
             matrix:
@@ -310,6 +312,8 @@ jobs:
         needs: mark-pending
         name: Test - Windows/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
+        env:
+            Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
             matrix:
@@ -580,6 +584,8 @@ jobs:
         needs: mark-pending
         name: Test - macOS/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
+        env:
+            Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
             matrix:
