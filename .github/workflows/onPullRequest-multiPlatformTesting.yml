@@ -358,7 +358,8 @@ jobs:
                     # Then build the rest of the solution
                     dotnet build InfiniFrame.GitHubActions.Windows.slnf `
                         --configuration Release `
-                        --no-restore
+                        --no-restore `
+                        -p:Platform=${{ matrix.arch }}
 
             -   name: Verify Native DLLs for testing
                 run: |
@@ -381,9 +382,10 @@ jobs:
                 run: |
                     echo "Running tests on Windows..."
                     dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore
+                        --configuration Release `
+                        --no-build `
+                        --no-restore `
+                        -p:Platform=${{ matrix.arch }}
 
             -   name: Update Windows status
                 if: always()
