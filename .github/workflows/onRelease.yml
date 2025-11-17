@@ -286,7 +286,7 @@ jobs:
                     fi
 
             -   name: Create GitHub Release
-                if: github.ref == 'refs/heads/core' && ( github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget))
+                if:  github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
                 uses: softprops/action-gh-release@v2
                 with:
                     generate_release_notes: true
@@ -294,7 +294,7 @@ jobs:
                     prerelease: ${{ contains(github.ref_name, 'preview') }}
         
             -   name: Push to NuGet
-                if: github.ref == 'refs/heads/core' && ( github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget))
+                if:  github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget)
                 run: dotnet nuget push "./release/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
