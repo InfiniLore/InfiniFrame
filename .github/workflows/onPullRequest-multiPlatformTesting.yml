@@ -66,8 +66,18 @@ jobs:
     linux-gui:
         if: ${{ github.event.inputs.run_linux == 'true' }}
         needs: mark-pending
-        name: Test - Linux
-        runs-on: ubuntu-latest
+        name: Test - ${{ matrix.os }} / ${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: ubuntu-latest
+                      arch: x64
+                      libName: linux
+                    - os: ubuntu-24.04-arm
+                      arch: arm64
+                      libName: linux
         permissions:
             statuses: write
         steps:
@@ -295,7 +305,7 @@ jobs:
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - Linux/${{ matrix.arch }}\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
 
     # ------------------------------------------------------------------------------------------------------------------
     # Windows
@@ -303,8 +313,18 @@ jobs:
     windows-gui:
         if: ${{ github.event.inputs.run_windows == 'true' }}
         needs: mark-pending
-        name: Test - Windows
-        runs-on: windows-latest
+        name: Test - ${{ matrix.os }} / ${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: windows-latest
+                      arch: x64
+                      libName: windows
+                    - os: windows-11-arm
+                      arch: arm64
+                      libName: windows
         permissions:
             statuses: write
 
@@ -386,7 +406,7 @@ jobs:
                     
                     $body = @{
                         state = $STATUS
-                        context = "Manual MultiPlatform CI - Windows"
+                        context = "Manual MultiPlatform CI - Windows/${{ matrix.arch }}"
                         description = $DESCRIPTION
                         target_url = $WORKFLOW_URL
                     } | ConvertTo-Json
@@ -563,8 +583,18 @@ jobs:
     macos-gui:
         if: ${{ github.event.inputs.run_macos == 'true' }}
         needs: mark-pending
-        name: Test - macOS
-        runs-on: macos-latest
+        name: Test - ${{ matrix.os }} / ${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: macos-15-intel
+                      arch: x64
+                      libName: osx
+                    - os: macos-latest
+                      arch: arm64
+                      libName: osx
         permissions:
             statuses: write
         
@@ -667,7 +697,7 @@ jobs:
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
                       https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
+                      -d "{\"state\":\"$STATUS\",\"context\":\"Manual MultiPlatform CI - macOS/${{ matrix.arch }}\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
 
     # ---------------------------------------------------------------------------------------
     # Handle skipped platforms
