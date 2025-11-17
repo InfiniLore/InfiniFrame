@@ -67,7 +67,6 @@ jobs:
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
             
-            # ---------------- Linux/macOS dependencies ----------------
             -   name: Install GTK3 (Linux)
                 if: startsWith(matrix.os, 'ubuntu')
                 run: |
@@ -85,36 +84,14 @@ jobs:
                 run: |
                     brew list gtk+3 >/dev/null 2>&1 || brew install gtk+3
                     brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
-            
-            # ---------------- Build Windows ----------------
-            -   name: Build InfiniFrame.Native (Windows)
-                if: startsWith(matrix.os, 'windows')
-                shell: pwsh
-                run: |
-                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" `
-                        --configuration Release `
-                        --no-restore `
-                        -p:SolutionDir="${{github.workspace}}/" `
-                        -p:Platform=${{ matrix.arch }}
-            
-            # ---------------- Build Linux ----------------
-            -   name: Build InfiniFrame.Native (Linux)
-                if: startsWith(matrix.os, 'ubuntu')
+
+            -   name: Build InfiniFrame.Native
+                shell: bash
                 run: |
                     dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
-                        /p:SolutionDir="${{github.workspace}}/" \
-                        /p:Platform=${{ matrix.arch }}
-            
-            # ---------------- Build macOS ----------------
-            -   name: Build InfiniFrame.Native (macOS)
-                if: startsWith(matrix.os, 'macos')
-                run: |
-                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
-                        --configuration Release \
-                        --no-restore \
-                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:SolutionDir="${{ github.workspace }}/" \
                         /p:Platform=${{ matrix.arch }}
                     
             -   name: Upload build artifact
@@ -132,7 +109,7 @@ jobs:
                 with:
                     fetch-depth: 0
 
-            -   name: Setup .NET 9 SDK
+            -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |

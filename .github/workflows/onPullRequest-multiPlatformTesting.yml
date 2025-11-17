@@ -330,7 +330,6 @@ jobs:
                 with:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
-
             -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
                 with:
