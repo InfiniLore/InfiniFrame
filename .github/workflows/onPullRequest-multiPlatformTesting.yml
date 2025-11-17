@@ -63,9 +63,6 @@ jobs:
         needs: mark-pending
         name: Test - Linux/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
-        env: 
-            Configuration: Release
-            Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
             matrix:
@@ -151,14 +148,15 @@ jobs:
                 run: |
                     # Build native project first
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
+                        --configuration Release \
+                        --no-restore \
+                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:Platform=${{ matrix.arch }}
                     
                     # Then build the rest of the solution
                     dotnet build InfiniFrame.GitHubActions.Linux.slnf \
-                      --configuration Release \
-                      --no-restore
+                        --configuration Release \
+                        --no-restore
 
             -   name: Verify Native DLLs for testing
                 run: |
@@ -313,9 +311,6 @@ jobs:
         needs: mark-pending
         name: Test - Windows/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
-        env:
-            Configuration: Release
-            Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
             matrix:
@@ -357,7 +352,8 @@ jobs:
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
-                        /p:SolutionDir=$GITHUB_WORKSPACE/
+                        -p:SolutionDir="${{github.workspace}}/" `
+                        -p:Platform=${{ matrix.arch }}
                     
                     # Then build the rest of the solution
                     dotnet build InfiniFrame.GitHubActions.Windows.slnf `
@@ -586,9 +582,6 @@ jobs:
         needs: mark-pending
         name: Test - macOS/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
-        env:
-            Configuration: Release
-            Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
             matrix:
@@ -643,7 +636,8 @@ jobs:
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
                         --configuration Release \
                         --no-restore \
-                        /p:SolutionDir=$GITHUB_WORKSPACE/
+                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:Platform=${{ matrix.arch }}
 
             -   name: Build (Release)
                 run: dotnet build InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
