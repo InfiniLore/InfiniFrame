@@ -7,7 +7,7 @@
             "src\\InfiniFrame\\InfiniFrame.csproj",
             "src\\InfiniFrame.Server\\InfiniFrame.Server.csproj",
             "src\\InfiniFrame.Shared\\InfiniFrame.Shared.csproj",
-            "src\\InfiniFrame.Native\\InfiniFrame.Native.proj",
+
             "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
             "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj"
         ]
