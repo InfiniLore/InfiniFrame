@@ -153,14 +153,16 @@ jobs:
                 run: |
                     # Build native project first
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
+                        --configuration Release \
+                        --no-restore
+                        /p:SolutionDir="${{github.workspace}}/"
                     
                     # Then build the rest of the solution
                     dotnet build InfiniFrame.GitHubActions.Linux.slnf \
-                      --configuration Release \
-                      --no-restore
+                        --configuration Release \
+                        --no-restore
+                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:Platform=${{ matrix.arch }}
 
             -   name: Verify Native DLLs for testing
                 run: |
@@ -356,12 +358,14 @@ jobs:
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                         --configuration Release `
                         --no-restore `
-                        /p:SolutionDir=$GITHUB_WORKSPACE/
+                        -p:SolutionDir="${{github.workspace}}/" 
                     
                     # Then build the rest of the solution
                     dotnet build InfiniFrame.GitHubActions.Windows.slnf `
                         --configuration Release `
                         --no-restore
+                        -p:SolutionDir="${{github.workspace}}/" `
+                        -p:Platform=${{ matrix.arch }}
 
             -   name: Verify Native DLLs for testing
                 run: |
@@ -638,8 +642,9 @@ jobs:
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
                         --configuration Release \
-                        --no-restore \
-                        /p:SolutionDir=$GITHUB_WORKSPACE/
+                        --no-restore
+                        /p:SolutionDir="${{github.workspace}}/" \
+                        /p:Platform=${{ matrix.arch }}
 
             -   name: Build (Release)
                 run: dotnet build InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
