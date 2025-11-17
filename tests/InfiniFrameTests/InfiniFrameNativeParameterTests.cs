@@ -10,13 +10,13 @@ using InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class IInfiniFrameNativeParameterTests {
+public class InfiniFrameNativeParameterTests {
 
-    // This test only fails if the IInfiniFrameNativeParameters C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.
+    // This test only fails if the InfiniFrameNativeParameterTests C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.
     [Test]
-    [DisplayName($"{nameof(IInfiniFrameNativeParameterTests)}.{nameof(ReturnAsIsIsValid)}")]
-    [SkipUtility.SkipOnLinux]
-    [SkipUtility.SkipOnMacOs]
+    [DisplayName($"{nameof(InfiniFrameNativeParameterTests)}.{nameof(ReturnAsIsIsValid)}")]
+    // [SkipUtility.SkipOnLinux]
+    // [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task ReturnAsIsIsValid() {
         // Arrange
