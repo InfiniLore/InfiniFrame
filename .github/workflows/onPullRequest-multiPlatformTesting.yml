@@ -619,7 +619,7 @@ jobs:
                     nativeSo="tests/Tests.InfiniFrame/bin/Release/net9.0/InfiniFrame.Native.dylib"
 
                     if [ ! -f "$nativeSo" ]; then
-                        echo "ERROR: InfiniFrame.Native.dylib  NOT found in test output!"
+                        echo "ERROR: InfiniFrame.Native.dylib NOT found in test output!"
                         exit 1
                     fi
                     

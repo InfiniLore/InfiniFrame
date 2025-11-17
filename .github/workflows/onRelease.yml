@@ -250,7 +250,8 @@ jobs:
                     
             -   name: Verify native libraries in Shared NuGet package
                 run: |
-                    PACKAGE=$(ls ./release/InfiniFrame.Shared.*.nupkg | head -n 1)
+                    # Find the Shared package, this has to be the PACKAGE ID name and not the namespace name!
+                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
     
                     if [ -z "$PACKAGE" ]; then
                         echo "❌ No Shared package found in ./release !"
