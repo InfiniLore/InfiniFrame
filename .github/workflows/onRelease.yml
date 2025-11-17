@@ -212,26 +212,10 @@ jobs:
                     
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
-
-            -   name: Install Required Packages
-                run: |
-                    sudo apt-get update
-                    sudo apt install -y  \
-                        libgtk-3-dev \
-                        libwebkit2gtk-4.1-dev \
-                        libssl-dev \
-                        libcurl4-openssl-dev \
-                        zlib1g-dev \
-                        libnotify-dev
             
             -   name: build dotnet
                 run: |
-                    dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
-
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=${{github.workspace}}/
+                    dotnet restore InfiniFrame.GitHubActions.Pack.slnf /p:NoWarn=NU1503
                     
                     dotnet build InfiniFrame.GitHubActions.Pack.slnf \
                       --configuration Release \
