@@ -9,7 +9,7 @@ namespace InfiniFrame.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 // These are the parameter names that are passed to Photino.Native.
 // DO NOT CHANGE THEM.
-[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParameters> {
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
