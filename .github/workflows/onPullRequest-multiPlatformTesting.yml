@@ -30,35 +30,30 @@ jobs:
         permissions:
             statuses: write
         steps:
-            -   name: Set pending status
+            -   name: Set pending status for all arch/platforms
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    echo "Posting pending status for Manual MultiPlatform CI"
+                    echo "Posting pending statuses for all Manual MultiPlatform CI contexts"
                     
-                    # Construct the workflow url
                     WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     
-                    # Post status for Linux
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Linux\",\"description\":\"Linux tests\", \"target_url\": \"$WORKFLOW_URL\"}"
-
-                    # Post status for Windows  
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - Windows\",\"description\":\"Windows tests\", \"target_url\": \"$WORKFLOW_URL\"}"
-
-                    # Post status for macOS
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                      -d "{\"state\":\"pending\",\"context\":\"Manual MultiPlatform CI - macOS\",\"description\":\"macOS tests\", \"target_url\": \"$WORKFLOW_URL\"}"
+                    OS_LIST=("Linux" "Windows" "macOS")
+                    ARCHES=("x64" "arm64")
+                    
+                    for OS in "${OS_LIST[@]}"; do
+                      for ARCH in "${ARCHES[@]}"; do
+                          CONTEXT="Manual MultiPlatform CI - ${OS}/${ARCH}"
+                          DESCRIPTION="${OS}/${ARCH} tests"
+                          echo "Setting pending: $CONTEXT"
+                    
+                          curl -X POST \
+                            -H "Authorization: Bearer $GITHUB_TOKEN" \
+                            -H "Accept: application/vnd.github+json" \
+                            "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+                            -d "{\"state\":\"pending\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
+                      done
+                    done
     
     # ------------------------------------------------------------------------------------------------------------------
     # Linux (Full Desktop Environment)
@@ -718,32 +713,31 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
-                    # Construct the workflow run URL
                     WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     
-                    # Mark Linux as skipped if not enabled
-                    if [[ "${{ github.event.inputs.run_linux }}" != "true" ]]; then
-                        curl -X POST \
-                          -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github+json" \
-                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - Linux","description":"skipped","target_url":"$WORKFLOW_URL"}'
-                    fi
+                    # Declare supported OS/arch combinations
+                    declare -A OS_INPUT_MAP=(
+                      ["Linux"]="${{ github.event.inputs.run_linux }}"
+                      ["Windows"]="${{ github.event.inputs.run_windows }}"
+                      ["macOS"]="${{ github.event.inputs.run_macos }}"
+                    )
                     
-                    # Mark Windows as skipped if not enabled
-                    if [[ "${{ github.event.inputs.run_windows }}" != "true" ]]; then
-                        curl -X POST \
-                          -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github+json" \
-                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - Windows","description":"skipped","target_url":"$WORKFLOW_URL"}'
-                    fi
+                    ARCHES=("x64" "arm64")
                     
-                    # Mark macOS as skipped if not enabled
-                    if [[ "${{ github.event.inputs.run_macos }}" != "true" ]]; then
-                        curl -X POST \
-                          -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github+json" \
-                          https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-                          -d '{"state":"success","context":"Manual MultiPlatform CI - macOS","description":"skipped","target_url":"$WORKFLOW_URL"}'
-                    fi
+                    for OS in "${!OS_INPUT_MAP[@]}"; do
+                      # Check if OS is enabled
+                      if [[ "${OS_INPUT_MAP[$OS]}" != "true" ]]; then
+                          # If OS is disabled, skip all its architectures
+                          for ARCH in "${ARCHES[@]}"; do
+                              CONTEXT="Manual MultiPlatform CI - ${OS}/${ARCH}"
+                              echo "Marking $CONTEXT as skipped"
+                    
+                              curl -X POST \
+                                -H "Authorization: Bearer $GITHUB_TOKEN" \
+                                -H "Accept: application/vnd.github+json" \
+                                "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+                                -d "{\"state\":\"success\",\"context\":\"$CONTEXT\",\"description\":\"skipped\",\"target_url\":\"$WORKFLOW_URL\"}"
+                          done
+                      fi
+                    done
+    
