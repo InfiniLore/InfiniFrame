@@ -64,6 +64,7 @@ jobs:
         name: Test - Linux/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
         env: 
+            Configuration: Release
             Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
@@ -313,6 +314,7 @@ jobs:
         name: Test - Windows/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
         env:
+            Configuration: Release
             Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
@@ -585,6 +587,7 @@ jobs:
         name: Test - macOS/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
         env:
+            Configuration: Release
             Platform: ${{ matrix.arch }}
         strategy:
             fail-fast: false
