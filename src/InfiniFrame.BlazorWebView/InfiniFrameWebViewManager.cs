@@ -4,6 +4,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Blazor;
+using InfiniFrame.BlazorWebView.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView;
@@ -12,10 +14,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
-using InfiniFrame.Blazor.Utils;
-using InfiniFrame;
 
-namespace InfiniFrame.Blazor;
+namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

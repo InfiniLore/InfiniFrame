@@ -4,11 +4,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\InfiniFrame\InfiniFrame.csproj" />
     </ItemGroup>
 

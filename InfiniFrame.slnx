@@ -28,8 +28,8 @@
   </Folder>
   <Folder Name="/example/">
     <Project Path="examples/InfiniFrameExample.BlazorWebApplication/InfiniFrameExample.BlazorWebApplication.csproj" />
-    <Project Path="examples\Example.Blazor.MultiWindowSample\Example.Blazor.MultiWindowSample.csproj" />
-    <Project Path="examples\Example.Blazor.Sample\Example.Blazor.Sample.csproj" />
+    <Project Path="examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/InfiniFrameExample.BlazorWebView.MultiWindowSample.csproj" />
+    <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
     <Project Path="examples\Example.NetServer.React\Example.NetServer.React.csproj" />
     <Project Path="examples\Example.NetServer.Vue.Fullscreen\Example.NetServer.Vue.Fullscreen.csproj" />
     <Project Path="examples\Example.NetServer.Vue\Example.NetServer.Vue.csproj" />
@@ -37,6 +37,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
+    <Project Path="src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj" />
     <Project Path="src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
     <Project Path="src/InfiniFrame.Server/InfiniFrame.Server.csproj" />
     <Project Path="src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />

@@ -1,13 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Blazor;
+namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameSynchronizationWorkItem {
-    public SendOrPostCallback? Callback;
-    public ExecutionContext? ExecutionContext;
-    public object? StateObject;
-    public InfiniFrameSynchronizationContext? SynchronizationContext;
+public class InfiniFrameSynchronizationState {
+    public readonly Lock Lock = new();
+    public Task Task { get; set; } = Task.CompletedTask;
+
+    public override string ToString() => $"{{ Busy: {!Task.IsCompleted}, Pending Task: {Task} }}";
 }

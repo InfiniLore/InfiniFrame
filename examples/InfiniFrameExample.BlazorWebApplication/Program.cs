@@ -4,8 +4,10 @@
 using InfiniFrame;
 using InfiniFrame.Server;
 using InfiniFrameExample.BlazorWebApplication.Components;
+using InfiniFrameExample.BlazorWebApplication.Components.Pages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -38,6 +40,22 @@ public static class Program {
         appBuilder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
+        appBuilder.Services.AddHttpClient("ServerApi", (sp, client) => {
+            var config = sp.GetRequiredService<IConfiguration>();
+
+            // Prefer ASPNETCORE_URLS, then "urls", then a fallback
+            string? urls = config["ASPNETCORE_URLS"]
+                ?? config["urls"]
+                ?? "http://localhost:5000";
+
+            string baseUrl = urls
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .First();
+
+            client.BaseAddress = new Uri(baseUrl);
+        });
+        appBuilder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerApi"));
+
         appBuilder.WebHost.UseStaticWebAssets();
 
         InfiniFrameWindowBuilder windowBuilder = builder.Window;
@@ -62,6 +80,7 @@ public static class Program {
         InfiniFrameWebApplication app = builder.Build();
         WebApplication webApp = app.WebApp;
 
+        webApp.UseDefaultFiles();
         webApp.UseAntiforgery();
         webApp.MapStaticAssets();
         webApp.MapRazorComponents<App>()

@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Components;
 using System.Collections;
 
-namespace InfiniFrame.Blazor;
+namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

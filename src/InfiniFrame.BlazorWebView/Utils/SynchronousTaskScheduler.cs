@@ -1,13 +1,18 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Blazor;
+namespace InfiniFrame.BlazorWebView.Utils;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameSynchronizationState {
-    public readonly Lock Lock = new();
-    public Task Task { get; set; } = Task.CompletedTask;
+internal class SynchronousTaskScheduler : TaskScheduler {
+    public override int MaximumConcurrencyLevel => 1;
 
-    public override string ToString() => $"{{ Busy: {!Task.IsCompleted}, Pending Task: {Task} }}";
+    protected override void QueueTask(Task task) {
+        TryExecuteTask(task);
+    }
+
+    protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => TryExecuteTask(task);
+
+    protected override IEnumerable<Task> GetScheduledTasks() => Enumerable.Empty<Task>();
 }

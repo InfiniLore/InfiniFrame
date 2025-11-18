@@ -1,12 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Example.Blazor.MultiWindowSample.Components;
+using InfiniFrameExample.BlazorWebView.MultiWindowSample.Components;
 using InfiniFrame;
 using InfiniFrame.Blazor;
+using InfiniFrame.BlazorWebView;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Example.Blazor.MultiWindowSample;
+namespace InfiniFrameExample.BlazorWebView.MultiWindowSample;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
