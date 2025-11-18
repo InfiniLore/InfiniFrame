@@ -33,9 +33,7 @@ public static class Program {
         InfiniFrameBlazorAppBuilder appBuilder,
         Queue<WindowCreationArgs> windowsToCreate
     ) {
-        if (!windowsToCreate.TryDequeue(out WindowCreationArgs? windowCreationArgs)) {
-            return;
-        }
+        if (!windowsToCreate.TryDequeue(out WindowCreationArgs? windowCreationArgs)) return;
 
         // register the root component and selector
         appBuilder.RootComponents.Add(windowCreationArgs.RootComponentType, "app");
@@ -43,7 +41,6 @@ public static class Program {
         InfiniFrameBlazorApp app = appBuilder.Build();
 
         // customize a window
-
         Windows.Add(
             InfiniFrameWindowBuilder.Create()
                 .SetTitle(windowCreationArgs.Title)
