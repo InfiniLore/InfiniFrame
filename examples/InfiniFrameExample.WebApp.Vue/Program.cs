@@ -17,7 +17,6 @@ public static class Program {
         WebApplicationBuilder appBuilder = builder.WebApp;
 
         appBuilder.WebHost.UseStaticWebAssets();
-        // appBuilder.Services.AddScoped<IJSRuntime, WebViewJsRuntime>();
 
         builder.Window
             .Center()
@@ -42,7 +41,6 @@ public static class Program {
 
         application.WebApp.UseDefaultFiles();
         application.WebApp.UseStaticFiles();
-        application.WebApp.MapInfiniFrameJsEndpoints();
 
         application.Run();
     }

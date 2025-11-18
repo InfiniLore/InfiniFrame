@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js.MessageHandlers;
-using InfiniFrame.WebServer;
 using InfiniFrameTests.Shared;
 
 namespace InfiniFrameTests.Playwright.Utility;
@@ -13,16 +12,17 @@ namespace InfiniFrameTests.Playwright.Utility;
 public static class GlobalPlaywrightContext {
     private static InfiniFrameServerTestUtility Utility { get; set; } = null!;
     public static IInfiniFrameWindow Window => Utility.Window;
-    public static InfiniFrameServer Server => Utility.Server;
+    public static WebApplication WebApplication => Utility.WebApplication;
 
     #if NET9_0
-    private const int ServerPort = 9000;// Cannot be the same as the debug port
+    private const string ServerPort = "9000";// Cannot be the same as the debug port
     private const string PlaywrightDevtoolsPort = "9222";
     #elif NET10_0
-    private const int ServerPort = 9010;// Cannot be the same as the debug port
+    private const string ServerPort = "9010";// Cannot be the same as the debug port
     private const string PlaywrightDevtoolsPort = "9232";
     #endif
-    
+
+    private const string ServerUrl = "http://127.0.0.1:" + ServerPort;
     private const string PlaywrightConnectionString = "http://127.0.0.1:" + PlaywrightDevtoolsPort;
     public static readonly Uri PlaywrightConnectionUri = new(PlaywrightConnectionString);
 
@@ -32,12 +32,14 @@ public static class GlobalPlaywrightContext {
     [Before(Assembly)]
     public static void BeforeAll(AssemblyHookContext _) {
         Utility = InfiniFrameServerTestUtility.Create(
-            serverBuilder: static serverBuilder => serverBuilder
-                .UsePort(ServerPort),
+            appBuilder: static serverBuilder => serverBuilder
+                .WebHost.UseUrls(ServerUrl),
             windowBuilder: static windowBuilder => windowBuilder
+                .SetStartUrl(ServerUrl)
                 .SetTitle(InfiniFrameWindowTitle)
                 .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
                 .RegisterFullScreenWebMessageHandler()
+                .RegisterOpenExternalTargetWebMessageHandler()
                 .RegisterTitleChangedWebMessageHandler()
         );
     }

@@ -14,7 +14,7 @@ public class InfiniFrameWebApplication {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public static InfiniFrameWebApplicationBuilder CreateBuilder(string[] args) {
+    public static InfiniFrameWebApplicationBuilder CreateBuilder(params string[] args) {
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder(args);
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         

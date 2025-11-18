@@ -44,7 +44,6 @@ public static class Program {
 
         application.WebApp.UseDefaultFiles();
         application.WebApp.UseStaticFiles();
-        application.WebApp.MapInfiniFrameJsEndpoints();
 
         application.Run();
     }
