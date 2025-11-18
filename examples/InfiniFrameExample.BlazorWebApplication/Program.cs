@@ -2,7 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Server;
+using InfiniFrame.Js;
+using InfiniFrame.WebServer;
 using InfiniFrameExample.BlazorWebApplication.Components;
 using InfiniFrameExample.BlazorWebApplication.Components.Pages;
 using Microsoft.AspNetCore.Builder;
@@ -56,6 +57,8 @@ public static class Program {
         });
         appBuilder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerApi"));
 
+        appBuilder.Services.AddInfiniFrameJs();
+        
         appBuilder.WebHost.UseStaticWebAssets();
 
         InfiniFrameWindowBuilder windowBuilder = builder.Window;

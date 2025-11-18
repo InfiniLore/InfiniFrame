@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Js;
 
-namespace InfiniFrame.Server;
+namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,11 +19,9 @@ public class InfiniFrameWebApplication {
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         
         webAppBuilder.Services
-            .AddScoped<IInfiniFrameJs, InfiniFrameJs>()
             .AddSingleton<IInfiniFrameWindowBuilder>(windowBuilder)
             .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
             ;
-        
 
         // Prefer ASPNETCORE_URLS, then "urls", then hard-coded fallback
         string? configuredUrls = webAppBuilder.Configuration["ASPNETCORE_URLS"]

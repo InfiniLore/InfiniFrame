@@ -3,7 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js.MessageHandlers;
-using InfiniFrame.Server;
+using InfiniFrame.WebServer;
+using Microsoft.JSInterop;
 using System.Drawing;
 
 namespace Example.NetServer.Vue.Fullscreen;
@@ -13,16 +14,13 @@ namespace Example.NetServer.Vue.Fullscreen;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        var infiniFrameServerBuilder = InfiniFrameServerBuilder.Create("wwwroot", args);
-        infiniFrameServerBuilder.UsePort(5172, 100);
+        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
+        WebApplicationBuilder appBuilder = builder.WebApp;
 
-        InfiniFrameServer infiniFrameServer = infiniFrameServerBuilder.Build();
+        appBuilder.WebHost.UseStaticWebAssets();
+        // appBuilder.Services.AddScoped<IJSRuntime, WebViewJsRuntime>();
 
-        infiniFrameServer.MapInfiniFrameJsEndpoints();
-
-        infiniFrameServer.Run();
-
-        IInfiniFrameWindowBuilder windowBuilder = infiniFrameServer.GetAttachedWindowBuilder()
+        builder.Window
             .Center()
             // .SetTransparent(true)
             // .SetUseOsDefaultSize(false)
@@ -40,11 +38,13 @@ public static class Program {
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
+        
+        InfiniFrameWebApplication application = builder.Build();
 
-        IInfiniFrameWindow window = windowBuilder.Build();
-        // window.SetLocation(new Point(1000,0));
+        application.WebApp.UseDefaultFiles();
+        application.WebApp.UseStaticFiles();
+        application.WebApp.MapInfiniFrameJsEndpoints();
 
-        window.WaitForClose();
-        infiniFrameServer.Stop();
+        application.Run();
     }
 }

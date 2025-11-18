@@ -39,8 +39,8 @@
     <Project Path="src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
     <Project Path="src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj" />
     <Project Path="src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
-    <Project Path="src/InfiniFrame.Server/InfiniFrame.Server.csproj" />
     <Project Path="src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+    <Project Path="src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
     <Project Path="src/InfiniFrame/InfiniFrame.csproj" />
     <File Path="Directory.Packages.props" />
     <File Path="src\Directory.Build.props" />

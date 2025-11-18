@@ -36,7 +36,7 @@
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniFrame.Js"/>
         <InternalsVisibleTo Include="InfiniFrame"/>
-        <InternalsVisibleTo Include="InfiniFrame.Server"/>
+        <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
         <InternalsVisibleTo Include="InfiniFrame.Blazor"/>
         <InternalsVisibleTo Include="InfiniFrameTests"/>
         <InternalsVisibleTo Include="InfiniFrameTests.Playwright"/>

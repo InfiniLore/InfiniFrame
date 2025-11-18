@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js.MessageHandlers;
-using InfiniFrame.Server;
+using InfiniFrame.WebServer;
 using InfiniFrameTests.Shared;
 
 namespace InfiniFrameTests.Playwright.Utility;

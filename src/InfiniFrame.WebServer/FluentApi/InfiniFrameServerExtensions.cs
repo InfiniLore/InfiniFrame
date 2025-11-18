@@ -2,17 +2,16 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Js;
-using InfiniFrame;
 using System.Reflection;
 
-namespace InfiniFrame.Server;
+namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniFrameServerExtensions {
 
-    public static InfiniFrameServer MapInfiniFrameJsEndpoints(this InfiniFrameServer server) {
-        server.WebApp.MapGet("/_content/InfiniFrame.Js/InfiniFrame.js", requestDelegate: async context => {
+    public static WebApplication MapInfiniFrameJsEndpoints(this WebApplication webApplication) {
+        webApplication.MapGet("/_content/InfiniFrame.Js/InfiniFrame.js", requestDelegate: async context => {
             Assembly assembly = typeof(InfiniFrameJsAssemblyEntry).Assembly;
             const string resourceName = "InfiniFrame.Js.wwwroot.InfiniFrame.js";
 
@@ -27,7 +26,7 @@ public static class InfiniFrameServerExtensions {
             await stream.CopyToAsync(context.Response.Body);
         });
 
-        return server;
+        return webApplication;
     }
 
     public static IInfiniFrameWindowBuilder GetAttachedWindowBuilder(this InfiniFrameServer server) {

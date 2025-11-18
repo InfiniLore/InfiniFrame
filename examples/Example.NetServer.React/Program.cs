@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Server;
+using InfiniFrame.WebServer;
 using System.Drawing;
 
 namespace Example.NetServer.React;

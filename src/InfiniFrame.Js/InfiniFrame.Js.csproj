@@ -6,7 +6,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniFrame"/>
-        <InternalsVisibleTo Include="InfiniFrame.Server"/>
+        <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
     </ItemGroup>
 
     <ItemGroup>

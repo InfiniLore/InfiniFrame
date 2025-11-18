@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Server;
+using InfiniFrame.WebServer;
 
 namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ public class InfiniFrameServerTestUtility : IDisposable {
 
                 InfiniFrameServer infiniFrameServer = infiniFrameServerBuilder.Build();
 
-                infiniFrameServer.MapInfiniFrameJsEndpoints();
+                infiniFrameServer.WebApp.MapInfiniFrameJsEndpoints();
                 infiniFrameServer.Run();
 
                 IInfiniFrameWindowBuilder wb = infiniFrameServer.GetAttachedWindowBuilder();

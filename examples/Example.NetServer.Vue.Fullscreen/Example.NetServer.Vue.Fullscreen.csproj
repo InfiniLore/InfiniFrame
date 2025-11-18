@@ -8,8 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniFrame.Server\InfiniFrame.Server.csproj" />
+        <ProjectReference Include="..\..\src\InfiniFrame.WebServer\InfiniFrame.WebServer.csproj" />
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView"/>
     </ItemGroup>
 
     <ItemGroup>
