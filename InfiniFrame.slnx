@@ -27,6 +27,7 @@
     <File Path="webpack.config.js" />
   </Folder>
   <Folder Name="/example/">
+    <Project Path="examples/InfiniFrameExample.BlazorWebApplication/InfiniFrameExample.BlazorWebApplication.csproj" />
     <Project Path="examples\Example.Blazor.MultiWindowSample\Example.Blazor.MultiWindowSample.csproj" />
     <Project Path="examples\Example.Blazor.Sample\Example.Blazor.Sample.csproj" />
     <Project Path="examples\Example.NetServer.React\Example.NetServer.React.csproj" />

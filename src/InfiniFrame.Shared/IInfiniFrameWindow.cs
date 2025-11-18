@@ -33,6 +33,7 @@ public interface IInfiniFrameWindow : IInfiniFrameWindowBase {
 
     void Invoke(Action workItem);
     void WaitForClose();
+    Task WaitForCloseAsync();
     void Close();
     void SendWebMessage(string message);
     Task SendWebMessageAsync(string message);

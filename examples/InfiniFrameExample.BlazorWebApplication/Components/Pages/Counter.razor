@@ -1,0 +1,22 @@
+﻿@page "/counter"
+@using InfiniFrame
+@inject IInfiniFrameWindow Window
+@inject ILogger<Counter> Logger
+@rendermode InteractiveServer
+
+<h1>Counter</h1>
+
+<p>Current count: @_currentCount</p>
+
+<button class="btn btn-primary" @onclick="@(_ => IncrementCount())">Click me</button>
+
+@code {
+    private int _currentCount;
+
+    private void IncrementCount() {
+        _currentCount++;
+
+        Window.CenterOnMonitor();
+        Logger.LogWarning("{a}", Window.ZoomEnabled);
+    }
+}
