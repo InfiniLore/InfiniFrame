@@ -83,9 +83,13 @@ public static class Program {
         InfiniFrameWebApplication app = builder.Build();
         WebApplication webApp = app.WebApp;
 
+        webApp.UseRouting();
+
         webApp.UseDefaultFiles();
+        webApp.UseStaticFiles();
         webApp.UseAntiforgery();
         webApp.MapStaticAssets();
+
         webApp.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 

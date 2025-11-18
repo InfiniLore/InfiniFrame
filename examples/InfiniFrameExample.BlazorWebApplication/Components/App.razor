@@ -14,12 +14,12 @@
     
     <link rel="icon" type="image/ico" href="favicon.ico"/>
     
-    <HeadOutlet/>
+    <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
-<Routes/>
-<script src="_framework/blazor.server.js"></script>
+<Routes @rendermode="InteractiveServer" />
+<script src="_framework/blazor.web.js"></script>
 <script src="_content/InfiniLore.InfiniFrame.Js/InfiniFrame.js"></script>
 </body>
 
