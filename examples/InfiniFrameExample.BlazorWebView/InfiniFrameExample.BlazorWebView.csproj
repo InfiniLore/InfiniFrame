@@ -35,4 +35,20 @@
         <PackageReference Include="Serilog.Sinks.Async"/>
         <PackageReference Include="Serilog.Sinks.Console"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Layouts\MainLayout.razor" />
+      <UpToDateCheckInput Remove="Layouts\NavMenu.razor" />
+      <UpToDateCheckInput Remove="Pages\Counter.razor" />
+      <UpToDateCheckInput Remove="Pages\FetchData.razor" />
+      <UpToDateCheckInput Remove="Pages\Index.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Layouts\MainLayout.razor" />
+      <AdditionalFiles Include="Components\Layouts\NavMenu.razor" />
+      <AdditionalFiles Include="Components\Pages\Counter.razor" />
+      <AdditionalFiles Include="Components\Pages\FetchData.razor" />
+      <AdditionalFiles Include="Components\Pages\Index.razor" />
+    </ItemGroup>
 </Project>

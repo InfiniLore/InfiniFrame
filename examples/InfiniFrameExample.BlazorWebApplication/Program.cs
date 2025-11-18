@@ -45,7 +45,7 @@ public static class Program {
             var config = sp.GetRequiredService<IConfiguration>();
 
             // Prefer ASPNETCORE_URLS, then "urls", then a fallback
-            string? urls = config["ASPNETCORE_URLS"]
+            string urls = config["ASPNETCORE_URLS"]
                 ?? config["urls"]
                 ?? "http://localhost:5000";
 
