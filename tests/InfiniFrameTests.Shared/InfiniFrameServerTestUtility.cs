@@ -2,7 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Server;
+using InfiniFrame.WebServer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 
 namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,7 +12,7 @@ namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameServerTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
-    public required InfiniFrameServer Server { get; init; }
+    public required WebApplication WebApplication { get; init; }
     private readonly Thread _windowThread;
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -19,38 +21,36 @@ public class InfiniFrameServerTestUtility : IDisposable {
     }
 
     public static InfiniFrameServerTestUtility Create(
-        Action<InfiniFrameServerBuilder>? serverBuilder = null,
+        Action<WebApplicationBuilder>? appBuilder = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null
     ) {
         var creationSignal = new ManualResetEventSlim();
         InfiniFrameServerTestUtility? utility = null;
         Exception? creationException = null;
-
+        
         var windowThread = new Thread(() => {
             try {
-                var infiniFrameServerBuilder = InfiniFrameServerBuilder.Create();
-                serverBuilder?.Invoke(infiniFrameServerBuilder);
-
-                InfiniFrameServer infiniFrameServer = infiniFrameServerBuilder.Build();
-
-                infiniFrameServer.MapInfiniFrameJsEndpoints();
-                infiniFrameServer.Run();
-
-                IInfiniFrameWindowBuilder wb = infiniFrameServer.GetAttachedWindowBuilder();
-                windowBuilder?.Invoke(wb);
-
-                IInfiniFrameWindow window = wb.Build();
-
+                InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+                builder.WebApp.WebHost.UseStaticWebAssets();
+                
+                appBuilder?.Invoke(builder.WebApp);
+                
+                windowBuilder?.Invoke(builder.Window);
+        
+                InfiniFrameWebApplication application = builder.Build();
+                application.WebApp.UseDefaultFiles();
+                application.WebApp.MapStaticAssets();
+                
                 utility = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
-                    Window = window,
-                    Server = infiniFrameServer
+                    Window = application.Window,
+                    WebApplication = application.WebApp
                 };
 
                 // Signal that creation is complete
                 creationSignal.Set();
 
                 // Run the message loop on this thread
-                window.WaitForClose();
+                application.Run();
             }
             catch (Exception ex) {
                 creationException = ex;
@@ -89,7 +89,7 @@ public class InfiniFrameServerTestUtility : IDisposable {
                     _windowThread.Interrupt();
                 }
 
-                Server.Stop();
+                WebApplication.StopAsync(_cancellationTokenSource.Token).Wait();
             }
 
             _cancellationTokenSource.Dispose();

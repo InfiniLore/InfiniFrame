@@ -15,6 +15,7 @@
   </ItemGroup>
   <!-- Common packages for all frameworks -->
   <ItemGroup>
+    <PackageVersion Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.85.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.0" />

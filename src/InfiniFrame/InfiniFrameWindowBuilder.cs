@@ -26,9 +26,14 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         if (provider is null) return Configuration.ToParameters();
 
         var config = provider.GetService<IConfiguration>();
-        var infiniFrameConfiguration = config?.Get<IInfiniFrameWindowConfiguration>();
-
-        return infiniFrameConfiguration?.ToParameters() ?? Configuration.ToParameters();
+        IConfigurationSection? section = config?.GetSection("InfiniFrame");
+        
+        IInfiniFrameWindowConfiguration configuration = Configuration;
+        if (section.Exists()) {
+            configuration = section.Get<InfiniFrameWindowConfiguration>() ?? Configuration;
+        }
+        
+        return configuration.ToParameters();
     }
 
     private ILogger<InfiniFrameWindow> GetDefaultLogger() {

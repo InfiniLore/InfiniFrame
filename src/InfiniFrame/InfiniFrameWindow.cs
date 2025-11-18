@@ -459,6 +459,8 @@ public sealed class InfiniFrameWindow(
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
     }
+    
+    public Task WaitForCloseAsync() => Task.Run(WaitForClose);
 
     /// <summary>
     ///     Closes the native window.
