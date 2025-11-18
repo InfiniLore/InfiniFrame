@@ -20,6 +20,8 @@ public class InfiniFrameWebApplication {
             .AddSingleton<IInfiniFrameWindowBuilder>(windowBuilder)
             .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
             ;
+        
+        webAppBuilder.WebHost.UseStaticWebAssets();
 
         // Prefer ASPNETCORE_URLS, then "urls", then hard-coded fallback
         string? configuredUrls = webAppBuilder.Configuration["ASPNETCORE_URLS"]

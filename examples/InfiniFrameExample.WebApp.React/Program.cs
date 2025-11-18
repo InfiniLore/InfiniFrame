@@ -14,9 +14,7 @@ public static class Program {
     public static void Main(string[] args) {
         InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
         WebApplicationBuilder appBuilder = builder.WebApp;
-
-        appBuilder.WebHost.UseStaticWebAssets();
-
+        
         builder.Window
             .SetUseOsDefaultSize(false)
             .SetResizable(true)
@@ -42,8 +40,8 @@ public static class Program {
         
         InfiniFrameWebApplication application = builder.Build();
 
-        application.WebApp.UseDefaultFiles();
         application.WebApp.UseStaticFiles();
+        application.WebApp.MapStaticAssets();
 
         application.Run();
     }

@@ -79,7 +79,6 @@ public static class Program {
 
         webApp.UseRouting();
 
-        webApp.UseDefaultFiles();
         webApp.UseAntiforgery();
         webApp.MapStaticAssets();
 
