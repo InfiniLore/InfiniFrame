@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrameExample.BlazorWebView.MultiWindowSample.Components;
 using InfiniFrame;
-using InfiniFrame.Blazor;
 using InfiniFrame.BlazorWebView;
 using Microsoft.Extensions.DependencyInjection;
 

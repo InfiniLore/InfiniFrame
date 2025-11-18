@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using static InfiniFrame.Js.Utilities.RegisterWindowCreatedUtility;

@@ -5,12 +5,6 @@ using InfiniFrame;
 using InfiniFrame.Js;
 using InfiniFrame.WebServer;
 using InfiniFrameExample.BlazorWebApplication.Components;
-using InfiniFrameExample.BlazorWebApplication.Components.Pages;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Drawing;
 
@@ -86,7 +80,6 @@ public static class Program {
         webApp.UseRouting();
 
         webApp.UseDefaultFiles();
-        webApp.UseStaticFiles();
         webApp.UseAntiforgery();
         webApp.MapStaticAssets();
 
