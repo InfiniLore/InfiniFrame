@@ -4,10 +4,9 @@
 using InfiniFrame;
 using InfiniFrame.Js.MessageHandlers;
 using InfiniFrame.WebServer;
-using Microsoft.JSInterop;
 using System.Drawing;
 
-namespace Example.NetServer.Vue.Fullscreen;
+namespace InfiniFrameExample.WebApp.Vue;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

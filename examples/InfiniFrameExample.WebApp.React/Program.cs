@@ -5,23 +5,23 @@ using InfiniFrame;
 using InfiniFrame.WebServer;
 using System.Drawing;
 
-namespace Example.NetServer.Vue;
+namespace InfiniFrameExample.WebApp.React;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        var infiniFrameServerBuilder = InfiniFrameServerBuilder.Create("wwwroot", args);
-        infiniFrameServerBuilder.UsePort(5173, 100);
+        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
+        WebApplicationBuilder appBuilder = builder.WebApp;
 
-        InfiniFrameServer infiniFrameServer = infiniFrameServerBuilder.Build();
-        infiniFrameServer.Run();
+        appBuilder.WebHost.UseStaticWebAssets();
 
-        IInfiniFrameWindowBuilder windowBuilder = infiniFrameServer.GetAttachedWindowBuilder()
-            .Center()
+        builder.Window
             .SetUseOsDefaultSize(false)
-            .SetTitle("InfiniLore InfiniFrame.NET VUE Sample")
+            .SetResizable(true)
+            .Center()
+            .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
             .SetSize(new Size(800, 600))
             .RegisterCustomSchemeHandler("app", handler: (object _, string _, string _, out string? contentType) => {
                 contentType = "text/javascript";
@@ -32,17 +32,20 @@ public static class Program {
                                 alert(`🎉 Dynamically inserted JavaScript.`);
                             }, 1000);
                         })();
-                        """u8.ToArray()
-                );
+                        """u8.ToArray());
             })
             .RegisterWebMessageReceivedHandler((sender, message) => {
                 var window = (InfiniFrameWindow)sender!;
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
+        
+        InfiniFrameWebApplication application = builder.Build();
 
-        IInfiniFrameWindow window = windowBuilder.Build();
+        application.WebApp.UseDefaultFiles();
+        application.WebApp.UseStaticFiles();
+        application.WebApp.MapInfiniFrameJsEndpoints();
 
-        window.WaitForClose();
+        application.Run();
     }
 }
