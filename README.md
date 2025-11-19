@@ -10,7 +10,7 @@ This project is mainly meant to be used as a dependency for Infinilore, so my go
 be possible to use this as a replacement for the original `Photino.NET`, `Photino.NET.Server` and `Photino.Blazor`
 projects, minding the breaking changes mentioned below.
 
-This project is not affected with- or endorsed by the original authors of Photino.
+This project is not affiliated with- or endorsed by the original authors of Photino.
 
 ---
 
