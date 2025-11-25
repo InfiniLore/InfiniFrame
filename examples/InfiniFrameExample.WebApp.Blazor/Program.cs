@@ -4,11 +4,11 @@
 using InfiniFrame;
 using InfiniFrame.Js;
 using InfiniFrame.WebServer;
-using InfiniFrameExample.BlazorWebApplication.Components;
+using InfiniFrameExample.WebApp.Blazor.Components;
 using Serilog;
 using System.Drawing;
 
-namespace InfiniFrameExample.BlazorWebApplication;
+namespace InfiniFrameExample.WebApp.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
