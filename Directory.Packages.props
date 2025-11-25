@@ -3,11 +3,11 @@
     <!-- Enable central package management, https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-    <!-- .NET 8 -->
-    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-        <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="[8.0.22, 9.0.0)" />
-        <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="[8.0.22, 9.0.0)" />
-    </ItemGroup>
+  <!-- .NET 8 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="[8.0.22, 9.0.0)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="[8.0.22, 9.0.0)" />
+  </ItemGroup>
   <!-- .NET 9 -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="[9.0.11, 10.0.0)" />
@@ -28,8 +28,8 @@
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageVersion Include="TUnit" Version="1.2.3" />
-    <PackageVersion Include="TUnit.Core" Version="1.2.3" />
-    <PackageVersion Include="TUnit.Playwright" Version="1.2.3" />
+    <PackageVersion Include="TUnit" Version="1.2.11" />
+    <PackageVersion Include="TUnit.Core" Version="1.2.11" />
+    <PackageVersion Include="TUnit.Playwright" Version="1.2.11" />
   </ItemGroup>
 </Project>
