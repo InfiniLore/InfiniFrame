@@ -13,7 +13,7 @@ public static class Program {
     [STAThread]
     public static void Main(string[] args) {
         InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
-        WebApplicationBuilder appBuilder = builder.WebApp;
+        // WebApplicationBuilder appBuilder = builder.WebApp;
         
         builder.Window
             .SetUseOsDefaultSize(false)
@@ -21,7 +21,7 @@ public static class Program {
             .Center()
             .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
             .SetSize(new Size(800, 600))
-            .RegisterCustomSchemeHandler("app", handler: (object _, string _, string _, out string? contentType) => {
+            .RegisterCustomSchemeHandler("app", handler: (_, _, _, out contentType) => {
                 contentType = "text/javascript";
                 return new MemoryStream(
                     """
