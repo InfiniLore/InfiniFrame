@@ -92,8 +92,8 @@ jobs:
                     dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
                         --configuration Release \
                         --no-restore \
-                        /p:SolutionDir="${{ github.workspace }}/" \
-                        /p:Platform=${{ matrix.arch }}
+                        -p:SolutionDir="${{ github.workspace }}/" \
+                        -p:Platform=${{ matrix.arch }}
 
             -   name: Upload build artifact
                 uses: actions/upload-artifact@v5
