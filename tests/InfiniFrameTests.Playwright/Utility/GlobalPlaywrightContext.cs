@@ -1,9 +1,12 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+﻿
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js.MessageHandlers;
 using InfiniFrameTests.Shared;
+using System.Net;
+using System.Net.Sockets;
 
 namespace InfiniFrameTests.Playwright.Utility;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,23 +17,23 @@ public static class GlobalPlaywrightContext {
     public static IInfiniFrameWindow Window => Utility.Window;
     public static WebApplication WebApplication => Utility.WebApplication;
     
-    #if NET8_0
-    private const string ServerPort = "9000";// Cannot be the same as the debug port
-    private const string PlaywrightDevtoolsPort = "9222";
-    #elif NET9_0
-    private const string ServerPort = "9010";// Cannot be the same as the debug port
-    private const string PlaywrightDevtoolsPort = "9232";
-    #elif NET10_0
-    private const string ServerPort = "9020";// Cannot be the same as the debug port
-    private const string PlaywrightDevtoolsPort = "9242";
-    #endif
+    private static readonly int ServerPort = GetAvailablePort();
+    private static readonly int PlaywrightDevtoolsPort = GetAvailablePort();
 
-    private const string ServerUrl = "http://127.0.0.1:" + ServerPort;
-    private const string PlaywrightConnectionString = "http://127.0.0.1:" + PlaywrightDevtoolsPort;
+    private static readonly string ServerUrl = $"http://127.0.0.1:{ServerPort}";
+    private static readonly string PlaywrightConnectionString = $"http://127.0.0.1:{PlaywrightDevtoolsPort}";
     public static readonly Uri PlaywrightConnectionUri = new(PlaywrightConnectionString);
 
     public const string InfiniFrameWindowTitle = "InfiniFrame Playwright";
     public const string VueDocumentTitle = "InfiniFrame Playwright Vue";
+
+    private static int GetAvailablePort() {
+        using TcpListener listener = new(IPAddress.Loopback, 0);
+        listener.Start();
+        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+        listener.Stop();
+        return port;
+    }
 
     [Before(Assembly)]
     public static void BeforeAll(AssemblyHookContext _) {
@@ -51,5 +54,4 @@ public static class GlobalPlaywrightContext {
     public static void AfterAll(AssemblyHookContext _) {
         Utility.Dispose();
     }
-
 }
