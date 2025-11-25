@@ -27,9 +27,9 @@
     <File Path="webpack.config.js" />
   </Folder>
   <Folder Name="/example/">
-    <Project Path="examples/InfiniFrameExample.BlazorWebApplication/InfiniFrameExample.BlazorWebApplication.csproj" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/InfiniFrameExample.BlazorWebView.MultiWindowSample.csproj" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
+    <Project Path="examples/InfiniFrameExample.WebApp.Blazor/InfiniFrameExample.WebApp.Blazor.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.React/InfiniFrameExample.WebApp.React.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.Vue/InfiniFrameExample.WebApp.Vue.csproj" />
     <File Path="examples\Directory.Build.props" />

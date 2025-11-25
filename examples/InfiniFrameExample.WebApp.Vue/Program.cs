@@ -14,7 +14,7 @@ public static class Program {
     [STAThread]
     public static void Main(string[] args) {
         InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
-        WebApplicationBuilder appBuilder = builder.WebApp;
+        // WebApplicationBuilder appBuilder = builder.WebApp;
 
         builder.Window
             .Center()

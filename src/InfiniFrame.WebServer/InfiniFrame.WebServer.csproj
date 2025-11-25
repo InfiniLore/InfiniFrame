@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <PackageId>InfiniLore.InfiniFrame.Server</PackageId>
+        <PackageId>InfiniLore.InfiniFrame.WebServer</PackageId>
         <OutputType>Library</OutputType>
     </PropertyGroup>
 
