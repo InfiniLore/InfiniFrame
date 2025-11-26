@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js;
+using InfiniFrame.Js.MessageHandlers;
 using InfiniFrame.WebServer;
 using InfiniFrameExample.WebApp.Blazor.Components;
 using Serilog;
@@ -67,6 +68,7 @@ public static class Program {
             // .SetTitle("InfiniLore InfiniFrame.Blazor Sample")
             .SetLocation(new Point(100, 100))
             .SetSize(new Size(800, 600))
+            .RegisterOpenExternalTargetWebMessageHandler()
             // .SetMaxSize(new Size(800, 600))
             // .SetMinSize(new Size(600, 400))
             ;
