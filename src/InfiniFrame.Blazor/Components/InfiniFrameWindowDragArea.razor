@@ -1,16 +1,23 @@
-﻿@using InfiniFrame.Js
+﻿@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Imports
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@using InfiniFrame.Js
 @using InfiniFrame.Native
 @using Microsoft.AspNetCore.Components.Web
 @using System.Drawing
 
 @namespace InfiniFrame.Blazor
-
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Descriptors
+@* ------------------------------------------------------------------------------------------------------------------ *@
 @inherits ComponentBase
 @implements IDisposable
 
 @inject IInfiniFrameWindow PhotinoWindow
 @inject IInfiniFrameJs InfiniWindowJs
-
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Html
+@* ------------------------------------------------------------------------------------------------------------------ *@
 @* ReSharper disable CSharpWarnings::CS8974 *@
 <div
     @ref="_dragArea"
@@ -24,7 +31,9 @@
     @* ReSharper restore CSharpWarnings::CS8974 *@
     @ChildContent
 </div>
-
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Code
+@* ------------------------------------------------------------------------------------------------------------------ *@
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? ExtraAttributes { get; set; }

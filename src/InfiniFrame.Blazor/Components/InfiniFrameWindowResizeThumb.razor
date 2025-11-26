@@ -1,15 +1,22 @@
-﻿@using InfiniFrame
+﻿@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Imports
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@using InfiniFrame
 @using InfiniFrame.Js
 @using Microsoft.AspNetCore.Components.Web
 
-@namespace InfiniFrame.Blazor.Components
-
+@namespace InfiniFrame.Blazor
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Descriptors
+@* ------------------------------------------------------------------------------------------------------------------ *@
 @inherits ComponentBase
 @implements IDisposable
 
 @inject IInfiniFrameWindow PhotinoWindow
 @inject IInfiniFrameJs InfiniWindowJs
-
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Html
+@* ------------------------------------------------------------------------------------------------------------------ *@
 @* ReSharper disable CSharpWarnings::CS8974 *@
 @if (!_hidden) {
     <div @ref="_thumbReference"
@@ -21,7 +28,9 @@
         @* ReSharper restore CSharpWarnings::CS8974 *@
     </div>
 }
-
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Code
+@* ------------------------------------------------------------------------------------------------------------------ *@
 @code {
     [EditorRequired, Parameter] public ResizeOrigin ResizeThumb { get; set; }
     [Parameter] public int ResizeArea { get; set; } = ResizeAreaValue;

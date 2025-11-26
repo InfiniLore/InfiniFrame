@@ -1,6 +1,15 @@
-﻿@using InfiniFrame
-@namespace InfiniFrame.Blazor.Components
+﻿@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Imports
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@using InfiniFrame
+@namespace InfiniFrame.Blazor
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Descriptors
+@* ------------------------------------------------------------------------------------------------------------------ *@
 
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Html
+@* ------------------------------------------------------------------------------------------------------------------ *@
 <InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Top"/>
 <InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Right"/>
 <InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.Bottom"/>
@@ -10,6 +19,9 @@
 <InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.BottomRight"/>
 <InfiniFrameWindowResizeThumb ResizeArea="@ResizeArea" ZIndex="@ZIndex" ResizeThumb="ResizeOrigin.BottomLeft"/>
 
+@* ------------------------------------------------------------------------------------------------------------------ *@
+@* Code
+@* ------------------------------------------------------------------------------------------------------------------ *@
 @code {
     [Parameter] public int ZIndex { get; set; } = InfiniFrameWindowResizeThumb.ZIndexValue;
     [Parameter] public int ResizeArea { get; set; } = InfiniFrameWindowResizeThumb.ResizeAreaValue;
