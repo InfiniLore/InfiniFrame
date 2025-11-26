@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -10,11 +10,6 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\InfiniFrame.WebServer\InfiniFrame.WebServer.csproj" />
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -29,13 +24,6 @@
 
     <ItemGroup>
         <Folder Include="Source\"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <_ContentIncludedByDefault Remove="wwwroot\assets\index-6D1d22Ve.css"/>
-        <_ContentIncludedByDefault Remove="wwwroot\assets\index-CsvMUBM9.js"/>
-        <_ContentIncludedByDefault Remove="wwwroot\index.html"/>
-        <_ContentIncludedByDefault Remove="wwwroot\vite.svg"/>
     </ItemGroup>
 
     <Target Name="BuildFrontend" BeforeTargets="Build">

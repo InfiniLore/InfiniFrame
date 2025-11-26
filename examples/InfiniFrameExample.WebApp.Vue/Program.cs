@@ -25,15 +25,16 @@ public static class Program {
             .SetLocation(1000, 0)
             .SetBrowserControlInitParameters("--remote-debugging-port=9222")
             .RegisterFullScreenWebMessageHandler()
-            .RegisterOpenExternalTargetWebMessageHandler()
-            .RegisterTitleChangedWebMessageHandler()
-            .RegisterWindowManagementWebMessageHandler()
-            .RegisterWebMessageReceivedHandler((sender, message) => {
-                if (sender is not IInfiniFrameWindow window) return;
+            // .RegisterOpenExternalTargetWebMessageHandler()
+            // .RegisterTitleChangedWebMessageHandler()
+            // .RegisterWindowManagementWebMessageHandler()
+            // .RegisterWebMessageReceivedHandler((sender, message) => {
+                // if (sender is not IInfiniFrameWindow window) return;
 
-                string response = $"Received message: \"{message}\"";
-                window.SendWebMessage(response);
-            });
+                // string response = $"Received message: \"{message}\"";
+                // window.SendWebMessage(response);
+            // })
+            ;
         
         InfiniFrameWebApplication application = builder.Build();
 
