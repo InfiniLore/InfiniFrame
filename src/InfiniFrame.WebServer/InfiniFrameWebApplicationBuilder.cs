@@ -20,7 +20,7 @@ public class InfiniFrameWebApplicationBuilder {
 
         return new InfiniFrameWebApplication {
             WebApp = webApp,
-            LazyWindow = new Lazy<IInfiniFrameWindow>(() => webApp.Services.GetRequiredService<IInfiniFrameWindow>())
+            Window = webApp.Services.GetRequiredService<IInfiniFrameWindow>()
         };
     }
 }
