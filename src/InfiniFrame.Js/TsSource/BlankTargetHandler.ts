@@ -16,7 +16,7 @@ function isExternalLink(url: string): boolean {
 
 export async function blankTargetHandler(e: MouseEvent) {
     let el = e.target as HTMLElement | null;
-    
+
     while (el && el !== document.body) {
         if (el.tagName?.toLowerCase() !== "a") {
             el = el.parentElement;
@@ -30,7 +30,9 @@ export async function blankTargetHandler(e: MouseEvent) {
         }
 
         const target = anchor.getAttribute("target");
-        if (!(target === "_blank" || anchor.hasAttribute("data-external") || isExternalLink(anchor.href))) {
+        const shouldHandle = target === "_blank" || anchor.hasAttribute("data-external") || isExternalLink(anchor.href);
+
+        if (!shouldHandle) {
             el = el.parentElement;
             continue;
         }
