@@ -7,7 +7,9 @@ namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebApplication {
     public required WebApplication WebApp { get; init; }
-    public required IInfiniFrameWindow Window { get; init; }
+    
+    public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
+    public IInfiniFrameWindow Window => LazyWindow.Value;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -38,7 +40,7 @@ public class InfiniFrameWebApplication {
             Window = windowBuilder
         };
     }
-
+    
     public void Run() {
         var thread = new Thread(WebApp.Run);
         thread.Start();
