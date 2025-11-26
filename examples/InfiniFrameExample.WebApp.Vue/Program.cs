@@ -33,7 +33,8 @@ public static class Program {
 
                 string response = $"Received message: \"{message}\"";
                 window.SendWebMessage(response);
-            });
+            })
+            ;
         
         InfiniFrameWebApplication application = builder.Build();
 

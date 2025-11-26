@@ -2,19 +2,16 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PlatformTarget>x64</PlatformTarget>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\InfiniFrame.WebServer\InfiniFrame.WebServer.csproj" />
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView"/>
     </ItemGroup>
 
     <ItemGroup>
