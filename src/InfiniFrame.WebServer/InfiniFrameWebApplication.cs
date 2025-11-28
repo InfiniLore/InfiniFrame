@@ -10,45 +10,28 @@ public class InfiniFrameWebApplication {
     public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
     public IInfiniFrameWindow Window => LazyWindow.Value;
 
+    private Thread? _webAppThread;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public static InfiniFrameWebApplicationBuilder CreateBuilder(params string[] args) {
-        WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder(args);
-        var windowBuilder = InfiniFrameWindowBuilder.Create();
-        
-        webAppBuilder.Services
-            .AddSingleton<IInfiniFrameWindowBuilder>(windowBuilder)
-            .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
-            ;
-        
-        webAppBuilder.WebHost.UseStaticWebAssets();
-
-        // Prefer ASPNETCORE_URLS, then "urls", then hard-coded fallback
-        string? configuredUrls = webAppBuilder.Configuration["ASPNETCORE_URLS"]
-            ?? webAppBuilder.Configuration["urls"];
-
-        // If there are multiple URLs (e.g. "https://localhost:7210;http://localhost:5210"), picks the first
-        string? startUrl = configuredUrls?
-            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .FirstOrDefault();
-        windowBuilder.Configuration.StartUrl = startUrl;
-
-        return new InfiniFrameWebApplicationBuilder {
-            WebApp = webAppBuilder,
-            Window = windowBuilder
-        };
-    }
+    public static InfiniFrameWebApplicationBuilder CreateBuilder(params string[] args)
+        => new InfiniFrameWebApplicationBuilder {
+            WebApp = WebApplication.CreateBuilder(args),
+            Window = InfiniFrameWindowBuilder.Create()
+        }.Initialize();
 
     public void Run() {
-        var thread = new Thread(WebApp.Run);
-        thread.Start();
-        
+        _webAppThread = new Thread(WebApp.Run);
+        _webAppThread.Start();
+
         Window.WaitForClose();
     }
 
     public void Stop() {
         _ = WebApp.StopAsync();
+        _webAppThread?.Join();
+        
         Window.Close();
     }
 }
