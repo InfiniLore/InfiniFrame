@@ -24,7 +24,7 @@ public interface IInfiniFrameWindowEvents {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    IInfiniFrameWindowEvents DefineSender<T>(T sender) where T : class;
+    IInfiniFrameWindowEvents DefineSender(IInfiniFrameWindow sender);
 
     void InvokeOnLocationChanged(int left, int top);
     void InvokeOnSizeChanged(int width, int height);
