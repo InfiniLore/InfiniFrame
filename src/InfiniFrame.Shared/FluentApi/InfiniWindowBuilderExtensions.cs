@@ -343,6 +343,20 @@ public static class InfiniWindowBuilderExtensions {
         }
 
         /// <summary>
+        /// Enables or disables the zoom functionality for the browser control.
+        /// </summary>
+        /// <param name="isEnabled">
+        /// A boolean value indicating whether zoom functionality should be enabled (true) or disabled (false).
+        /// </param>
+        /// <returns>
+        /// The builder instance for method chaining.
+        /// </returns>
+        public T SetZoomEnabled(bool isEnabled) {
+            builder.Configuration.ZoomEnabled = isEnabled;
+            return builder;
+        }
+
+        /// <summary>
         /// Sets the start URL for the browser control at initialization.
         /// </summary>
         /// <param name="url">The URL to be set as the start URL. Can be null if no start URL is desired.</param>

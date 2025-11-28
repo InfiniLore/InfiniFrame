@@ -7,10 +7,20 @@ namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowTestUtility : IDisposable {
+public class InfiniFrameWindowTestUtility {
+    public static IInfiniFrameWindow ParentWindow { get; private set; } = null!;
+    
     public required IInfiniFrameWindow Window { get; init; }
-
+    public static List<InfiniFrameWindowTestUtility> Utilities { get; } = new();
+    
     private InfiniFrameWindowTestUtility() {}
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    public static void DefineParentWindow(IInfiniFrameWindow parentWindow) {
+        ParentWindow = parentWindow;
+    }
 
     public static InfiniFrameWindowTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
         var windowBuilder = InfiniFrameWindowBuilder.Create();
@@ -35,10 +45,11 @@ public class InfiniFrameWindowTestUtility : IDisposable {
 
         _ = Task.Run(utility.Window.WaitForClose);
 
+        Utilities.Add(utility);
         return utility;
     }
 
-    public void Dispose() {
+    public void Cleanup() {
         try {
             Window.Close();
         }

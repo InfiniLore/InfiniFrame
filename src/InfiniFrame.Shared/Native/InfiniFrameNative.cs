@@ -191,8 +191,8 @@ public static partial class InfiniFrameNative {
     [LibraryImport(DllName, EntryPoint = Photino_SetZoom, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void SetZoom(IntPtr instance, int zoom);
 
-    [DllImport(DllName, EntryPoint = Photino_SetZoomEnabled, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-    internal static extern void SetZoomEnabled(IntPtr instance, bool zoomEnabled);
+    [LibraryImport(DllName, EntryPoint = Photino_SetZoomEnabled, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void SetZoomEnabled(IntPtr instance, [MarshalAs(UnmanagedType.Bool)] bool zoomEnabled);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_SetFocused, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void SetFocused(IntPtr instance);
