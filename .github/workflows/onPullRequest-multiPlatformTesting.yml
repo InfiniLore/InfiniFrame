@@ -237,7 +237,20 @@ jobs:
                     dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
                       --configuration Release \
                       --no-build \
-                      --no-restore
+                      --no-restore \
+                      --framework net8.0
+                    
+                    dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework net9.0
+                    
+                    dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework net10.0
 
             -   name: Display test logs on failure
                 if: failure()
@@ -371,13 +384,32 @@ jobs:
                     
                     Write-Host "✅ All native DLLs present"
 
-            -   name: Run tests
+            -   name: Run tests NET 8.0
                 run: |
                     echo "Running tests on Windows..."
                     dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
                       --configuration Release `
                       --no-build `
-                      --no-restore
+                      --no-restore `
+                      --framework net8.0
+
+            -   name: Run tests NET 9.0
+                run: |
+                    echo "Running tests on Windows..."
+                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --framework net9.0
+
+            -   name: Run tests NET 10.0
+                run: |
+                    echo "Running tests on Windows..."
+                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --framework net10.0
 
             -   name: Update Windows status
                 if: always()
@@ -649,7 +681,20 @@ jobs:
                     dotnet test --solution InfiniFrame.GitHubActions.MacOs.slnf \
                       --configuration Release \
                       --no-build \
-                      --no-restore
+                      --no-restore \
+                      --framework net8.0
+                    
+                    dotnet test --solution InfiniFrame.GitHubActions.MacOs.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework net9.0
+                    
+                    dotnet test --solution InfiniFrame.GitHubActions.MacOs.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework net10.0
 
             -   name: Update macOS status
                 if: always()
