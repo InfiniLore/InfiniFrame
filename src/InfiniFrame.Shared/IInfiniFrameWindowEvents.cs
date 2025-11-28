@@ -23,16 +23,16 @@ public interface IInfiniFrameWindowEvents {
 
     IInfiniFrameWindowEvents DefineSender<T>(T sender) where T : class;
 
-    void OnLocationChanged(int left, int top);
-    void OnSizeChanged(int width, int height);
-    void OnFocusIn();
-    void OnMaximized();
-    void OnRestored();
-    void OnFocusOut();
-    void OnMinimized();
-    void OnWebMessageReceived(string message);
-    void OnWindowClosingRequested();
-    byte OnWindowClosing();
-    void OnWindowCreating();
-    void OnWindowCreated();
+    void InvokeOnLocationChanged(int left, int top);
+    void InvokeOnSizeChanged(int width, int height);
+    void InvokeOnFocusIn();
+    void InvokeOnMaximized();
+    void InvokeOnRestored();
+    void InvokeOnFocusOut();
+    void InvokeOnMinimized();
+    void InvokeOnWebMessageReceived(string message);
+    void InvokeOnWindowClosingRequested();
+    byte InvokeOnWindowClosing();
+    void InvokeOnWindowCreating();
+    void InvokeOnWindowCreated();
 }

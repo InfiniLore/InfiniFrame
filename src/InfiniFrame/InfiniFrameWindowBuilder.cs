@@ -61,15 +61,15 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         //These are for the callbacks from C++ to C#.
         InfiniFrameNativeParameters startupParameters = GetParameters(provider);
-        startupParameters.ClosingHandler = Events.OnWindowClosing;
-        startupParameters.ResizedHandler = Events.OnSizeChanged;
-        startupParameters.MaximizedHandler = Events.OnMaximized;
-        startupParameters.RestoredHandler = Events.OnRestored;
-        startupParameters.MinimizedHandler = Events.OnMinimized;
-        startupParameters.MovedHandler = Events.OnLocationChanged;
-        startupParameters.FocusInHandler = Events.OnFocusIn;
-        startupParameters.FocusOutHandler = Events.OnFocusOut;
-        startupParameters.WebMessageReceivedHandler = Events.OnWebMessageReceived;
+        startupParameters.ClosingHandler = Events.InvokeOnWindowClosing;
+        startupParameters.ResizedHandler = Events.InvokeOnSizeChanged;
+        startupParameters.MaximizedHandler = Events.InvokeOnMaximized;
+        startupParameters.RestoredHandler = Events.InvokeOnRestored;
+        startupParameters.MinimizedHandler = Events.InvokeOnMinimized;
+        startupParameters.MovedHandler = Events.InvokeOnLocationChanged;
+        startupParameters.FocusInHandler = Events.InvokeOnFocusIn;
+        startupParameters.FocusOutHandler = Events.InvokeOnFocusOut;
+        startupParameters.WebMessageReceivedHandler = Events.InvokeOnWebMessageReceived;
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
         window.StartupParameters = startupParameters;
 

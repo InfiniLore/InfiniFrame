@@ -9,9 +9,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindow : IInfiniFrameWindowBase {
+public interface IInfiniFrameWindow : IInfiniFrameWindowBase, IHasInfiniFrameEvents {
     internal ILogger<IInfiniFrameWindow> Logger { get; }
-    IInfiniFrameWindowEvents Events { get; }
     IInfiniFrameWindowMessageHandlers MessageHandlers { get; }
 
     IntPtr InstanceHandle { get; }

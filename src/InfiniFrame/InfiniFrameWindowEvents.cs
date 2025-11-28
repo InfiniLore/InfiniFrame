@@ -34,7 +34,7 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     /// </summary>
     /// <param name="left">Position from left in pixels</param>
     /// <param name="top">Position from top in pixels</param>
-    public void OnLocationChanged(int left, int top) {
+    public void InvokeOnLocationChanged(int left, int top) {
         var location = new Point(left, top);
         WindowLocationChanged?.Invoke(Sender, location);
     }
@@ -42,7 +42,7 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window's size changes.
     /// </summary>
-    public void OnSizeChanged(int width, int height) {
+    public void InvokeOnSizeChanged(int width, int height) {
         var size = new Size(width, height);
         WindowSizeChanged?.Invoke(Sender, size);
     }
@@ -50,7 +50,7 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window focuses in.
     /// </summary>
-    public void OnFocusIn() {
+    public void InvokeOnFocusIn() {
         WindowFocusIn?.Invoke(Sender, EventArgs.Empty);
     }
 
@@ -58,46 +58,46 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window is maximized.
     /// </summary>
-    public void OnMaximized() {
+    public void InvokeOnMaximized() {
         WindowMaximized?.Invoke(Sender, EventArgs.Empty);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window is restored.
     /// </summary>
-    public void OnRestored() {
+    public void InvokeOnRestored() {
         WindowRestored?.Invoke(Sender, EventArgs.Empty);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window focuses out.
     /// </summary>
-    public void OnFocusOut() {
+    public void InvokeOnFocusOut() {
         WindowFocusOut?.Invoke(Sender, EventArgs.Empty);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window is minimized.
     /// </summary>
-    public void OnMinimized() {
+    public void InvokeOnMinimized() {
         WindowMinimized?.Invoke(Sender, EventArgs.Empty);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window sends a message.
     /// </summary>
-    public void OnWebMessageReceived(string message) {
+    public void InvokeOnWebMessageReceived(string message) {
         WebMessageReceived?.Invoke(Sender, message);
     }
 
-    public void OnWindowClosingRequested() {
+    public void InvokeOnWindowClosingRequested() {
         WindowClosingRequested?.Invoke(Sender, EventArgs.Empty);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window is about to close.
     /// </summary>
-    public byte OnWindowClosing() {
+    public byte InvokeOnWindowClosing() {
         //C++ handles bool values as a single byte, C# uses 4 bytes
         byte noClose = 0;
         bool? doNotClose = WindowClosing?.Invoke(Sender, null);
@@ -110,14 +110,14 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     /// <summary>
     ///     Invokes registered user-defined handler methods before the native window is created.
     /// </summary>
-    public void OnWindowCreating() {
+    public void InvokeOnWindowCreating() {
         WindowCreating?.Invoke(Sender, EventArgs.Empty);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods after the native window is created.
     /// </summary>
-    public void OnWindowCreated() {
+    public void InvokeOnWindowCreated() {
         WindowCreated?.Invoke(Sender, EventArgs.Empty);
     }
 

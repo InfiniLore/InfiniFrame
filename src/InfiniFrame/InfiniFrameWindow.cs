@@ -396,7 +396,7 @@ public sealed class InfiniFrameWindow(
             throw new ArgumentException("Startup Parameters Are Not Valid, please check the logs");
         }
 
-        Events.OnWindowCreating();
+        Events.InvokeOnWindowCreating();
 
         //All C++ exceptions will bubble up to here.
         try {
@@ -416,7 +416,7 @@ public sealed class InfiniFrameWindow(
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
 
-        Events.OnWindowCreated();
+        Events.InvokeOnWindowCreated();
     }
 
     /// <summary>
@@ -470,7 +470,7 @@ public sealed class InfiniFrameWindow(
     /// </exception>
     public void Close() {
         logger.LogDebug(".Close()");
-        Events.OnWindowClosingRequested();
+        Events.InvokeOnWindowClosingRequested();
         Invoke(() => InfiniFrameNative.Close(InstanceHandle));
     }
 
