@@ -13,7 +13,7 @@ namespace InfiniFrameTests.Playwright.Utility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class GlobalPlaywrightContext {
-    private static InfiniFrameServerTestUtility Utility { get; set; } = null!;
+    internal static InfiniFrameServerTestUtility Utility { get; set; } = null!;
     public static IInfiniFrameWindow Window => Utility.Window;
     public static WebApplication WebApplication => Utility.WebApplication;
     
@@ -48,6 +48,9 @@ public static class GlobalPlaywrightContext {
                 .RegisterOpenExternalTargetWebMessageHandler()
                 .RegisterTitleChangedWebMessageHandler()
         );
+        
+        // Give a bit more time for the window to fully initialize
+        Thread.Sleep(2000);
     }
 
     [After(Assembly)]

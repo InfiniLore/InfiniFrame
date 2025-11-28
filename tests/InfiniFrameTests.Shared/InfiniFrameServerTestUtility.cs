@@ -13,60 +13,59 @@ namespace InfiniFrameTests.Shared;
 public class InfiniFrameServerTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
     public required WebApplication WebApplication { get; init; }
-    private readonly Thread _windowThread;
+    private Thread? _windowThread;
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-    private InfiniFrameServerTestUtility(Thread windowThread) {
-        _windowThread = windowThread;
-    }
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public static InfiniFrameServerTestUtility Create(
         Action<WebApplicationBuilder>? appBuilder = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null
     ) {
         var creationSignal = new ManualResetEventSlim();
+        var readySignal = new ManualResetEventSlim();
         InfiniFrameServerTestUtility? utility = null;
         Exception? creationException = null;
-        
+
         var windowThread = new Thread(() => {
             try {
                 InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
                 builder.WebApp.WebHost.UseStaticWebAssets();
-                
+
                 appBuilder?.Invoke(builder.WebApp);
-                
+
                 windowBuilder?.Invoke(builder.Window);
-        
+
                 InfiniFrameWebApplication application = builder.Build();
-                application.WebApp.UseDefaultFiles();
-                
-                
-                #if NET9_0_OR_GREATER
-                application.WebApp.MapStaticAssets();
+
+                application.WebApp.Lifetime.ApplicationStarted.Register(() => readySignal.Set());
+
+                #if NET8_0
+                application.WebApp.UseStaticFiles();
                 #else
                 application.WebApp.UseStaticFiles();
+                application.WebApp.MapStaticAssets();
                 #endif
-                
-                
-                utility = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
+
+                utility = new InfiniFrameServerTestUtility {
                     Window = application.Window,
                     WebApplication = application.WebApp
                 };
 
-                // Signal that creation is complete
                 creationSignal.Set();
-
-                // Run the message loop on this thread
                 application.Run();
             }
             catch (Exception ex) {
                 creationException = ex;
                 creationSignal.Set();
+                readySignal.Set();
             }
         }) {
-            IsBackground = false// Keep the thread alive
+            IsBackground = false
         };
 
+        
         // Set apartment state for Windows compatibility
         if (OperatingSystem.IsWindows()) windowThread.SetApartmentState(ApartmentState.STA);
         windowThread.Start();
@@ -76,9 +75,12 @@ public class InfiniFrameServerTestUtility : IDisposable {
 
         if (creationException != null) throw new InvalidOperationException("Failed to create window and server", creationException);
         if (utility == null) throw new InvalidOperationException("Window utility was not created");
-
-        // Give a bit more time for the window to fully initialize
-        Thread.Sleep(2000);
+        utility!._windowThread = windowThread;
+        
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (!readySignal.Wait(TimeSpan.FromSeconds(10))) {
+            throw new TimeoutException("Web application failed to start within the timeout period");
+        }
 
         return utility;
     }
@@ -88,21 +90,18 @@ public class InfiniFrameServerTestUtility : IDisposable {
             if (!_cancellationTokenSource.IsCancellationRequested) {
                 _cancellationTokenSource.Cancel();
 
+                WebApplication.StopAsync(_cancellationTokenSource.Token).Wait(TimeSpan.FromSeconds(5));
                 Window.Close();
 
-                // Give the window thread time to close gracefully
-                if (!_windowThread.Join(TimeSpan.FromSeconds(5))) {
-                    // Force abort if it doesn't close gracefully
+                if (_windowThread is not null && !_windowThread.Join(TimeSpan.FromSeconds(5))) {
                     _windowThread.Interrupt();
                 }
-
-                WebApplication.StopAsync(_cancellationTokenSource.Token).Wait();
             }
 
             _cancellationTokenSource.Dispose();
         }
         catch (Exception) {
-            // Ignore
+            // Ignore cleanup exceptions
         }
         finally {
             GC.SuppressFinalize(this);

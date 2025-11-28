@@ -22,6 +22,8 @@ public class InfiniFrameWebApplication {
         }.Initialize();
 
     public void Run() {
+        // WebApp.Lifetime.ApplicationStopping.Register(Stop);
+        
         _webAppThread = new Thread(WebApp.Run);
         _webAppThread.Start();
 
@@ -30,7 +32,10 @@ public class InfiniFrameWebApplication {
 
     public void Stop() {
         _ = WebApp.StopAsync();
-        _webAppThread?.Join();
+        
+        if (_webAppThread is not null && !_webAppThread.Join(TimeSpan.FromSeconds(5))) {
+            _webAppThread.Interrupt();
+        }
         
         Window.Close();
     }

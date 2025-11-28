@@ -29,7 +29,9 @@ public class InfiniFrameWebApplicationBuilder {
         string? startUrl = configuredUrls?
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .FirstOrDefault();
-        Window.SetStartUrl(startUrl);
+        
+        if (startUrl is not null) Window.SetStartUrl(startUrl);
+        
         return this;
     }
     
