@@ -21,7 +21,7 @@ public class InfiniFrameWebApplicationBuilder {
         
         WebApp.WebHost.UseStaticWebAssets();
 
-        // Prefer ASPNETCORE_URLS, then "urls", then hard-coded fallback
+        // Prefer ASPNETCORE_URLS, then "urls" else it has to be set by the dev themselves
         string? configuredUrls = WebApp.Configuration["ASPNETCORE_URLS"]
             ?? WebApp.Configuration["urls"];
 
