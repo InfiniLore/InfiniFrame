@@ -10,7 +10,9 @@ namespace InfiniFrameTests.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 public class GlobalTestSetup {
     [Before(Assembly)]
-    public static void BeforeAll(AssemblyHookContext __) {
+    public static void BeforeAll(AssemblyHookContext context) {
+        if (OperatingSystem.IsMacOS()) return;
+        
         // We need a parent window for all tests to be started in a correct manner
         var windowBuilder = InfiniFrameWindowBuilder.Create();
 
@@ -33,6 +35,8 @@ public class GlobalTestSetup {
     
     [After(Assembly)]
     public static void AfterAll(AssemblyHookContext _) {
+        if (OperatingSystem.IsMacOS()) return;
+        
         foreach (InfiniFrameWindowTestUtility utility in InfiniFrameWindowTestUtility.Utilities) {
             utility.Cleanup();
         }
