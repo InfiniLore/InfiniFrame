@@ -2,30 +2,26 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using System.Collections.Concurrent;
 
 namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowTestUtility {
-    public static IInfiniFrameWindow ParentWindow { get; private set; } = null!;
-    
     public required IInfiniFrameWindow Window { get; init; }
-    public static List<InfiniFrameWindowTestUtility> Utilities { get; } = new();
-    
+    public static ConcurrentBag<InfiniFrameWindowTestUtility> Utilities { get; } = new();
+    private Task? _windowTask;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
+
     private InfiniFrameWindowTestUtility() {}
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public static void DefineParentWindow(IInfiniFrameWindow parentWindow) {
-        ParentWindow = parentWindow;
-    }
-
     public static InfiniFrameWindowTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
         var windowBuilder = InfiniFrameWindowBuilder.Create();
 
-        // windowBuilder.SetStartUrl("https://localhost/");
         windowBuilder.SetStartString("""
             <!DOCTYPE html>
             <html>
@@ -40,10 +36,10 @@ public class InfiniFrameWindowTestUtility {
         builder?.Invoke(windowBuilder);
 
         var utility = new InfiniFrameWindowTestUtility {
-            Window = windowBuilder.Build()
+            Window = windowBuilder.Build(parent: Utilities.ElementAtOrDefault(0)?.Window)
         };
 
-        _ = Task.Run(utility.Window.WaitForClose);
+        utility._windowTask = Task.Run(utility.Window.WaitForClose, utility._cancellationTokenSource.Token);
 
         Utilities.Add(utility);
         return utility;
@@ -52,12 +48,11 @@ public class InfiniFrameWindowTestUtility {
     public void Cleanup() {
         try {
             Window.Close();
+            _cancellationTokenSource.Cancel();
+            _windowTask?.Wait(TimeSpan.FromSeconds(1));
         }
         catch (Exception) {
             // Ignore
-        }
-        finally {
-            GC.SuppressFinalize(this);
         }
     }
 }
