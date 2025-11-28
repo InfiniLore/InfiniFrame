@@ -15,7 +15,17 @@ public class InfiniFrameWindowTestUtility : IDisposable {
     public static InfiniFrameWindowTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
         var windowBuilder = InfiniFrameWindowBuilder.Create();
 
-        windowBuilder.SetStartUrl("https://localhost/");
+        // windowBuilder.SetStartUrl("https://localhost/");
+        windowBuilder.SetStartString("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+            </head>
+            <body>
+            </body>
+            </html>
+            """);
 
         builder?.Invoke(windowBuilder);
 

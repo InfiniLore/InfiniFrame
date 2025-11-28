@@ -40,7 +40,7 @@ public class MinimizeTests {
         SkipUtility.SkipOnLinux(state);
 
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -62,7 +62,7 @@ public class MinimizeTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetMinimized(state)
         );

@@ -20,7 +20,7 @@ public class WindowTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task InstanceHandle_IsDefined() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -35,7 +35,7 @@ public class WindowTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task WindowHandle_IsDefined() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -52,7 +52,7 @@ public class WindowTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Monitors_IsNotEmpty() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -68,7 +68,7 @@ public class WindowTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task NativeType_IsDefined() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act

@@ -67,7 +67,7 @@ public class LocationTests {
     [NotInParallel(ParallelControl.InfiniFrame)]   
     public async Task Window() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -84,7 +84,7 @@ public class LocationTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_AsPoint() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -103,7 +103,7 @@ public class LocationTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder.SetLocation(Left, Top)
         );
         IInfiniFrameWindow window = windowUtility.Window;

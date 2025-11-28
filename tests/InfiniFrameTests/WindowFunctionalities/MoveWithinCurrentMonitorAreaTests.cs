@@ -24,7 +24,7 @@ public class MoveWithinCurrentMonitorAreaTests {
     [Arguments(-100, -100, 0, 0)]
     public async Task Window(int x, int y, int expectedX, int expectedY) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -54,7 +54,7 @@ public class MoveWithinCurrentMonitorAreaTests {
     [Arguments(-100, -100, 0, 0)]
     public async Task Window_AsPoint(int x, int y, int expectedX, int expectedY) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -84,7 +84,7 @@ public class MoveWithinCurrentMonitorAreaTests {
     [Arguments(-100, -100, 0, 0)]
     public async Task Window_AsDouble(double x, double y, int expectedX, int expectedY) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act

@@ -17,6 +17,9 @@
         _currentCount++;
 
         Window.CenterOnCurrentMonitor();
-        Logger.LogWarning("{a}", Window.ZoomEnabled);
+
+        Logger.LogWarning("zoom : {a}", Window.Zoom);
+        Window.SetZoom(Window.Zoom + 5);
+        Logger.LogWarning("zoom new : {a}", Window.Zoom);
     }
 }

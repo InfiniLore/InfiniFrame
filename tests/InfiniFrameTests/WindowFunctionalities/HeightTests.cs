@@ -62,7 +62,7 @@ public class HeightTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -80,7 +80,7 @@ public class HeightTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
                 .SetHeight(500)
@@ -98,7 +98,7 @@ public class HeightTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_WithChromelessToGetSmallestHeight() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
+        var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -116,7 +116,7 @@ public class HeightTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
                 .SetHeight(Height)

@@ -39,7 +39,7 @@ public class TransparentTests {
     [Arguments(false)]
     public async Task Window(bool state) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -60,7 +60,7 @@ public class TransparentTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetTransparent(state)
         );

@@ -16,7 +16,7 @@ namespace InfiniFrame;
 public sealed class InfiniFrameWindow(
     Dictionary<string, NetCustomSchemeDelegate?> customSchemes,
     ILogger<InfiniFrameWindow> logger,
-    InfiniFrameWindow? parent = null
+    IInfiniFrameWindow? parent = null
 ) : IInfiniFrameWindow {
 
     //Pointers to the type and instance.

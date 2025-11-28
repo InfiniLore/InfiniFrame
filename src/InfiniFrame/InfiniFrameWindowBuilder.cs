@@ -47,14 +47,15 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         }).CreateLogger<InfiniFrameWindow>();
     }
 
-    public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
+    public IInfiniFrameWindow Build(IServiceProvider? provider = null, IInfiniFrameWindow? parent = null) {
         #pragma warning disable CA2208
         if (CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(nameof(CustomSchemeHandlers), "Maximum number of custom scheme handlers is 16.");
         #pragma warning restore CA2208
 
         var window = new InfiniFrameWindow(
             CustomSchemeHandlers,
-            provider?.GetService<ILogger<InfiniFrameWindow>>() ?? GetDefaultLogger()
+            provider?.GetService<ILogger<InfiniFrameWindow>>() ?? GetDefaultLogger(),
+            parent
         );
 
         Events.WebMessageReceived += MessageHandlers.Handle;

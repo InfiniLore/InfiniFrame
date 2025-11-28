@@ -35,7 +35,7 @@ public class MaxHeightTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -53,7 +53,7 @@ public class MaxHeightTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetMaxHeight(500)
         );

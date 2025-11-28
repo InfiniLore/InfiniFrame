@@ -58,7 +58,7 @@ public class ResizeTests {
     [Arguments(-10, 10, ResizeOrigin.Left)]
     public async Task Window(int widthOffset, int heightOffset, ResizeOrigin origin) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
         Point originalLocation = window.Location;
         Size originalSize = window.Size;

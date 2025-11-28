@@ -62,7 +62,7 @@ public class LeftTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -81,7 +81,7 @@ public class LeftTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetLeft(Left)
         );

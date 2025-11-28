@@ -1,75 +1,66 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
 using InfiniFrame;
+using InfiniFrame.Native;
+using InfiniFrameTests.Shared;
 
 namespace InfiniFrameTests.WindowFunctionalities;
-using InfiniFrameTests.Shared;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class DevToolsTests {
-
+public class ZoomTests {
     [Test]
-    [DisplayName($"{nameof(DevToolsTests)}.{nameof(Builder)}")]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Builder(bool state) {
+    [DisplayName($"{nameof(ZoomTests)}.{nameof(Builder)}")]
+    [MatrixDataSource]
+    public async Task Builder([MatrixRange<int>(0, 200, 10)] int zoom) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        builder.SetDevToolsEnabled(state);
+        builder.SetZoom(zoom);
 
         // Assert
-        await Assert.That(builder.Configuration.DevToolsEnabled).IsEqualTo(state);
+        await Assert.That(builder.Configuration.Zoom).IsEqualTo(zoom);
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
-        await Assert.That(configParameters.DevToolsEnabled).IsEqualTo(state);
+        await Assert.That(configParameters.Zoom).IsEqualTo(zoom);
     }
 
     [Test]
-    [DisplayName($"{nameof(DevToolsTests)}.{nameof(Window)}")]
+    [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Window(bool state) {
+    [MatrixDataSource]
+    public async Task Window([MatrixRange<int>(10, 200, 10)] int zoom) {
         // Arrange
         var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        window.SetDevToolsEnabled(state);
+        window.SetZoom(zoom);
 
         // Assert
-        bool foundState = window.DevToolsEnabled;
-        await Assert.That(foundState).IsEqualTo(state);
+        await Assert.That(window.Zoom).IsEqualTo(zoom);
     }
 
     [Test]
-    [DisplayName($"{nameof(DevToolsTests)}.{nameof(FullIntegration)}")]
+    [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task FullIntegration(bool state) {
+    [MatrixDataSource]
+    public async Task FullIntegration([MatrixRange<int>(10, 200, 10)] int zoom) {
         // Arrange
 
         // Act
         var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
-                .SetDevToolsEnabled(state)
+                .SetZoom(zoom)
         );
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        bool foundState = window.DevToolsEnabled;
-        await Assert.That(foundState).IsEqualTo(state);
+        await Assert.That(window.Zoom).IsEqualTo(zoom);
     }
-
 }

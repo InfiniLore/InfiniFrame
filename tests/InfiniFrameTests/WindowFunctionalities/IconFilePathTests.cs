@@ -53,7 +53,7 @@ public class IconFilePathTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -71,7 +71,7 @@ public class IconFilePathTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_ShouldNotSetInvalidIconFilePath() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -90,7 +90,7 @@ public class IconFilePathTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder.SetIconFile(IconFilePath)
         );
         IInfiniFrameWindow window = windowUtility.Window;

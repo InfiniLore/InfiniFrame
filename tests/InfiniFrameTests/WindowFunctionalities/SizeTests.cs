@@ -66,7 +66,7 @@ public class SizeTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -83,7 +83,7 @@ public class SizeTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_AsSize() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -101,7 +101,7 @@ public class SizeTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
                 .SetSize(400, 500)
@@ -119,7 +119,7 @@ public class SizeTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_WithChromelessToGetSmallestSize() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
+        var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -137,7 +137,7 @@ public class SizeTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
                 .SetSize(Width, Height)

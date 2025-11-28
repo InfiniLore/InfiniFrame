@@ -39,7 +39,7 @@ public class ContextMenuTests {
     [Arguments(false)]
     public async Task Window(bool state) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act

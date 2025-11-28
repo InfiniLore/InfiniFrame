@@ -46,7 +46,7 @@ public class TitleTests {
     [Arguments("🏳️‍⚧️")]
     public async Task Window(string? title) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -70,7 +70,7 @@ public class TitleTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetTitle(title)
         );

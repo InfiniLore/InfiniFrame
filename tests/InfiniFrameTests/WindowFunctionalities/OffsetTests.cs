@@ -22,7 +22,7 @@ public class OffsetTests {
     [Arguments(-100, -100)]
     public async Task Window(int x, int y) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 
@@ -45,7 +45,7 @@ public class OffsetTests {
     [Arguments(-100, -100)]
     public async Task Window_AsPoint(int x, int y) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 
@@ -68,7 +68,7 @@ public class OffsetTests {
     [Arguments(-100, -100)]
     public async Task Window_AsDouble(double x, double y) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 

@@ -40,7 +40,7 @@ public class MaximizeTests {
         SkipUtility.SkipOnLinux(state);
 
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -59,7 +59,7 @@ public class MaximizeTests {
     [Arguments(false)]
     public async Task Window_Toggle(bool state) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -82,7 +82,7 @@ public class MaximizeTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetMaximized(state)
         );

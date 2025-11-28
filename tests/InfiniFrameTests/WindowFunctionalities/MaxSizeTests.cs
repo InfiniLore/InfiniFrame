@@ -32,6 +32,25 @@ public class MaxSizeTests {
         await Assert.That(configParameters.MaxWidth).IsEqualTo(Width);
         await Assert.That(configParameters.MaxHeight).IsEqualTo(Height);
     }
+    
+    [Test]
+    [DisplayName($"{nameof(MaxSizeTests)}.{nameof(Builder)}")]
+    public async Task Builder_AsSize() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        builder.SetMaxSize(new Size(Width, Height));
+
+        // Assert
+        await Assert.That(builder.Configuration.MaxWidth).IsEqualTo(Width);
+        await Assert.That(builder.Configuration.MaxHeight).IsEqualTo(Height);
+
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        await Assert.That(configParameters.MaxWidth).IsEqualTo(Width);
+        await Assert.That(configParameters.MaxHeight).IsEqualTo(Height);
+    }
+    
 
     [Test]
     [DisplayName($"{nameof(MaxSizeTests)}.{nameof(Window)}")]
@@ -39,7 +58,7 @@ public class MaxSizeTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -55,7 +74,7 @@ public class MaxSizeTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Window_AsSize() {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -73,7 +92,7 @@ public class MaxSizeTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
                 .SetMaxSize(400, 500)

@@ -16,5 +16,5 @@ public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    IInfiniFrameWindow Build(IServiceProvider? provider = null);
+    IInfiniFrameWindow Build(IServiceProvider? provider = null, IInfiniFrameWindow? parent = null);
 }

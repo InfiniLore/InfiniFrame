@@ -8,7 +8,7 @@ using InfiniFrameTests.Shared;
 using System.Net;
 using System.Net.Sockets;
 
-namespace InfiniFrameTests.Playwright.Utility;
+namespace InfiniFrameTests.Playwright.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
