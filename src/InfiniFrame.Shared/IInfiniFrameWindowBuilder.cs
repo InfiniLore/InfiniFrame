@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents{
+public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents {
     bool UseDefaultLogger { get; set; }
 
     IInfiniFrameWindowConfiguration Configuration { get; }
@@ -13,5 +13,8 @@ public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents{
 
     Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     IInfiniFrameWindow Build(IServiceProvider? provider = null);
 }

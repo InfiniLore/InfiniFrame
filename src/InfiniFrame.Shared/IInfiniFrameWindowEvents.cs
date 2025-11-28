@@ -21,6 +21,9 @@ public interface IInfiniFrameWindowEvents {
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     IInfiniFrameWindowEvents DefineSender<T>(T sender) where T : class;
 
     void InvokeOnLocationChanged(int left, int top);

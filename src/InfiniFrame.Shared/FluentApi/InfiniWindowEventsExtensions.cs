@@ -17,7 +17,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Registers user-defined handler methods to receive callbacks from the native builder when its location changes.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterLocationChangedHandler(EventHandler<Point> handler) {
@@ -29,7 +29,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Registers user-defined handler methods to receive callbacks from the native builder when its size changes.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterSizeChangedHandler(EventHandler<Size> handler) {
@@ -42,7 +42,7 @@ public static class InfiniWindowEventsExtensions {
         ///     in.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterFocusInHandler(EventHandler handler) {
@@ -54,7 +54,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Registers user-defined handler methods to receive callbacks from the native builder when it is maximized.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterMaximizedHandler(EventHandler handler) {
@@ -66,7 +66,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Registers user-defined handler methods to receive callbacks from the native builder when it is restored.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterRestoredHandler(EventHandler handler) {
@@ -79,7 +79,7 @@ public static class InfiniWindowEventsExtensions {
         ///     out.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterFocusOutHandler(EventHandler handler) {
@@ -91,7 +91,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Registers user-defined handler methods to receive callbacks from the native builder when it is minimized.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterMinimizedHandler(EventHandler handler) {
@@ -103,7 +103,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Registers user-defined handler methods to receive callbacks from the native builder when it sends a message.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <remarks>
         ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
@@ -118,7 +118,7 @@ public static class InfiniWindowEventsExtensions {
         /// Registers user-defined handler methods to receive callbacks from the native builder before the window is closed through the native api calls.
         /// </summary>
         /// <returns>
-        /// Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        /// Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterWindowClosingRequestedHandler(EventHandler handler) {
@@ -132,7 +132,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Handler can return true to prevent the builder from closing.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="NetClosingDelegate" /></param>
         public T RegisterWindowClosingHandler(NetClosingDelegate handler) {
@@ -144,7 +144,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Registers user-defined handler methods to receive callbacks before the native builder is created.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="EventHandler" /></param>
         public T RegisterWindowCreatingHandler(EventHandler handler) {
@@ -156,7 +156,7 @@ public static class InfiniWindowEventsExtensions {
         ///     Registers user-defined handler methods to receive callbacks after the native builder is created.
         /// </summary>
         /// <returns>
-        ///     Returns the current <see cref="IInfiniFrameWindowBase" /> instance.
+        ///     Returns the current <see cref="IHasInfiniFrameProperties" /> instance.
         /// </returns>
         /// <param name="handler"><see cref="NetClosingDelegate" /></param>
         public T RegisterWindowCreatedHandler(EventHandler handler) {

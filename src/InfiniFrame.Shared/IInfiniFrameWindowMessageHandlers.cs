@@ -8,6 +8,9 @@ namespace InfiniFrame;
 public interface IInfiniFrameWindowMessageHandlers {
     bool IsEmpty { get; }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     void RegisterMessageHandler(string messageId, Action<IInfiniFrameWindow, string?> handler);
     void Handle(object? sender, string? message);
 }

@@ -7,7 +7,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowConfiguration : IInfiniFrameWindowBase {
+public interface IInfiniFrameWindowConfiguration : IHasInfiniFrameProperties {
     bool Centered { get; set; }
     new bool Chromeless { get; set; }
     new bool Transparent { get; set; }
@@ -49,5 +49,8 @@ public interface IInfiniFrameWindowConfiguration : IInfiniFrameWindowBase {
     new int Zoom { get; set; }
     new bool ZoomEnabled { get; set; }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     InfiniFrameNativeParameters ToParameters();
 }

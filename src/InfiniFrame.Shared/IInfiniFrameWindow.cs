@@ -9,7 +9,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindow : IInfiniFrameWindowBase, IHasInfiniFrameEvents {
+public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrameEvents {
     internal ILogger<IInfiniFrameWindow> Logger { get; }
     IInfiniFrameWindowMessageHandlers MessageHandlers { get; }
 
@@ -30,6 +30,9 @@ public interface IInfiniFrameWindow : IInfiniFrameWindowBase, IHasInfiniFrameEve
     Rectangle CachedPreMaximizedBounds { get; internal set; }
     bool Focused { get; }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     void Invoke(Action workItem);
     void WaitForClose();
     Task WaitForCloseAsync();

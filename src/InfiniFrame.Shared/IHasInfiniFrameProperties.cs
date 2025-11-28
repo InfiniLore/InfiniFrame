@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBase {
+public interface IHasInfiniFrameProperties {
     bool Chromeless { get; }
     bool Transparent { get; }
     bool ContextMenuEnabled { get; }
