@@ -4,7 +4,6 @@
 using InfiniFrame;
 using InfiniFrameTests.Shared;
 using System.Collections.Immutable;
-using Monitor=InfiniFrame.Monitor;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -56,7 +55,7 @@ public class WindowTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        ImmutableArray<Monitor> monitors = window.Monitors;
+        ImmutableArray<InfiniMonitor> monitors = window.Monitors;
 
         // Assert
         await Assert.That(monitors).IsNotEmpty();

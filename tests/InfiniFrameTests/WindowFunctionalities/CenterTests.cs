@@ -48,7 +48,7 @@ public class CenterTests {
         int centerX = 0;
         int centerY = 0;
         window.Invoke(() => {
-            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor);
             Size size = windowRect.Size;
             centerX = monitor.MonitorArea.Width / 2 - size.Width / 2;
             centerY = monitor.MonitorArea.Height / 2 - size.Height / 2;
@@ -78,7 +78,7 @@ public class CenterTests {
         int centerX = 0;
         int centerY = 0;
         window.Invoke(() => {
-            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor);
             Size size = windowRect.Size;
             centerX = monitor.MonitorArea.Width / 2 - size.Width / 2;
             centerY = monitor.MonitorArea.Height / 2 - size.Height / 2;

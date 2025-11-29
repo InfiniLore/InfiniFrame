@@ -5,7 +5,6 @@ using InfiniFrame;
 using InfiniFrame.Utilities;
 using InfiniFrameTests.Shared;
 using System.Drawing;
-using Monitor=InfiniFrame.Monitor;
 
 namespace InfiniFrameTests.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -33,7 +32,7 @@ public class MoveWithinCurrentMonitorAreaTests {
         int offsetX = 0;
         int offsetY = 0;
         window.Invoke(() => {
-            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out _, out Monitor monitor);
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out _, out InfiniMonitor monitor);
             offsetX = monitor.MonitorArea.X;
             offsetY = monitor.MonitorArea.Y;
         });
@@ -63,7 +62,7 @@ public class MoveWithinCurrentMonitorAreaTests {
         int offsetX = 0;
         int offsetY = 0;
         window.Invoke(() => {
-            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out _, out Monitor monitor);
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out _, out InfiniMonitor monitor);
             offsetX = monitor.MonitorArea.X;
             offsetY = monitor.MonitorArea.Y;
         });
@@ -93,7 +92,7 @@ public class MoveWithinCurrentMonitorAreaTests {
         int offsetX = 0;
         int offsetY = 0;
         window.Invoke(() => {
-            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out _, out Monitor monitor);
+            MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out _, out InfiniMonitor monitor);
             offsetX = monitor.MonitorArea.X;
             offsetY = monitor.MonitorArea.Y;
         });

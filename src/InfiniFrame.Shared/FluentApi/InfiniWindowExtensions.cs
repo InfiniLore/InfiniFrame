@@ -99,11 +99,11 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T CenterOnCurrentMonitor() {
             window.Invoke(() => {
-                ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
+                ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
                 InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
 
                 // TODO think about proper unhappy flow here
-                if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out Monitor monitor)) return;
+                if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out InfiniMonitor monitor)) return;
 
                 Rectangle area = monitor.MonitorArea;
 
@@ -125,7 +125,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T CenterOnMonitor(int monitorIndex) {
             window.Invoke(() => {
-                ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
+                ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
 
                 if (monitorIndex < 0 || monitorIndex >= monitors.Length) {
                     window.Logger.LogWarning("Monitor index {MonitorIndex} is out of range. Available monitors: {Monitors}", monitorIndex, monitors.Length);
@@ -154,7 +154,7 @@ public static class InfiniWindowExtensions {
         /// <param name="top">Position from top in pixels</param>
         public T MoveWithinCurrentMonitorArea(int left, int top) {
             window.Invoke(() => {
-                MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor);
+                MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor);
                 int horizontalWindowEdge = left + windowRect.Width;
                 int verticalWindowEdge = top + windowRect.Height;
 
@@ -347,12 +347,12 @@ public static class InfiniWindowExtensions {
 
             if (fullScreen) {
                 window.Invoke(() => {
-                    ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
+                    ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
                     InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int top);
                     InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height);
 
                     window.CachedPreFullScreenBounds = new Rectangle(left, top, width, height);
-                    if (!MonitorsUtility.TryGetCurrentMonitor(monitors, window.CachedPreFullScreenBounds, out Monitor currentMonitor)) {
+                    if (!MonitorsUtility.TryGetCurrentMonitor(monitors, window.CachedPreFullScreenBounds, out InfiniMonitor currentMonitor)) {
                         window.Logger.LogError("Failed to get current monitor, defaulting to simple fullscreen call");
                         InfiniFrameNative.SetFullScreen(window.InstanceHandle, true);
                         return;
@@ -554,7 +554,7 @@ public static class InfiniWindowExtensions {
                     return;
                 }
 
-                if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor)) {
+                if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor)) {
                     window.Logger.LogWarning("Monitor {Monitor} not found", monitor);
                     return;
                 }
@@ -598,7 +598,7 @@ public static class InfiniWindowExtensions {
 
                 // TODO test on other OS?
                 // If the window is chromeless then we need to manually register the maximize size else it will just fullscreen
-                if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out Monitor monitor)) {
+                if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor)) {
                     window.Logger.LogWarning("Monitor {Monitor} not found", monitor);
                     return;
                 }

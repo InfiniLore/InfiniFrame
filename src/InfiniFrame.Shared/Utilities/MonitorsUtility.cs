@@ -10,19 +10,19 @@ namespace InfiniFrame.Utilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class MonitorsUtility {
-    public static ImmutableArray<Monitor> GetMonitors(IInfiniFrameWindow window) {
-        ImmutableArray<Monitor>.Builder builder = ImmutableArray.CreateBuilder<Monitor>();
+    public static ImmutableArray<InfiniMonitor> GetMonitors(IInfiniFrameWindow window) {
+        ImmutableArray<InfiniMonitor>.Builder builder = ImmutableArray.CreateBuilder<InfiniMonitor>();
 
         InfiniFrameNative.GetAllMonitors(window.InstanceHandle, Callback);
         return builder.ToImmutable();
 
         int Callback(in NativeMonitor monitor) {
-            builder.Add(new Monitor(monitor.Monitor, monitor.Work, monitor.Scale));
+            builder.Add(new InfiniMonitor(monitor.Monitor, monitor.Work, monitor.Scale));
             return 1;
         }
     }
 
-    public static bool TryGetCurrentMonitor(ImmutableArray<Monitor> monitors, Rectangle windowBounds, out Monitor monitor) {
+    public static bool TryGetCurrentMonitor(ImmutableArray<InfiniMonitor> monitors, Rectangle windowBounds, out InfiniMonitor monitor) {
         monitor = default;
         if (monitors.IsDefaultOrEmpty) return false;
 
@@ -34,7 +34,7 @@ internal static class MonitorsUtility {
         long bestOverlap = 0;
 
         for (int i = 0; i < monitors.Length; i++) {
-            Monitor m = monitors[i];
+            InfiniMonitor m = monitors[i];
 
             Rectangle intersection = Rectangle.Intersect(m.MonitorArea, windowBounds);
             long overlap = 0;
@@ -62,7 +62,7 @@ internal static class MonitorsUtility {
         // No overlap at all: fallback to the nearest monitor by center distance
         var windowCenter = new Point(windowBounds.Left + windowBounds.Width / 2, windowBounds.Top + windowBounds.Height / 2);
         double bestDistSq = double.MaxValue;
-        foreach (Monitor m in monitors) {
+        foreach (InfiniMonitor m in monitors) {
             Rectangle r = m.MonitorArea;
             var monitorCenter = new Point(r.Left + r.Width / 2, r.Top + r.Height / 2);
             double dx = monitorCenter.X - windowCenter.X;
@@ -77,8 +77,8 @@ internal static class MonitorsUtility {
         return true;
     }
 
-    public static bool TryGetCurrentWindowAndMonitor(IInfiniFrameWindow window, out Rectangle windowRect, out Monitor monitor) {
-        ImmutableArray<Monitor> monitors = GetMonitors(window);
+    public static bool TryGetCurrentWindowAndMonitor(IInfiniFrameWindow window, out Rectangle windowRect, out InfiniMonitor monitor) {
+        ImmutableArray<InfiniMonitor> monitors = GetMonitors(window);
         InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out windowRect);
         return TryGetCurrentMonitor(monitors, windowRect, out monitor);
     }

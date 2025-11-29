@@ -68,7 +68,7 @@ public sealed class InfiniFrameWindow(
     ///     A read-only list of Monitor objects representing information about each display monitor.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public ImmutableArray<Monitor> Monitors => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors);
+    public ImmutableArray<InfiniMonitor> Monitors => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors);
 
     /// <summary>
     ///     Retrieves the primary monitor information from the native window instance.
@@ -79,7 +79,7 @@ public sealed class InfiniFrameWindow(
     ///     available monitors.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Monitor MainMonitor => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors)[0];
+    public InfiniMonitor MainMonitor => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors)[0];
 
     /// <summary>
     ///     Gets the dots per inch (DPI) for the primary display from the native window.

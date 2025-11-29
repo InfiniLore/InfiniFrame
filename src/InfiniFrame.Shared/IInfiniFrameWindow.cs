@@ -16,8 +16,8 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
     IntPtr NativeType { get; }
-    ImmutableArray<Monitor> Monitors { get; }
-    Monitor MainMonitor { get; }
+    ImmutableArray<InfiniMonitor> Monitors { get; }
+    InfiniMonitor MainMonitor { get; }
     uint ScreenDpi { get; }
     Guid Id { get; }
     Point Location { get; }
