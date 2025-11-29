@@ -554,6 +554,21 @@ public static class InfiniWindowBuilderExtensions {
         /// </return>
         public T SetMaxSize(Size size)
             => SetMaxSize(builder, size.Width, size.Height);
+
+        /// <summary>
+        /// Enables or disables the zoom functionality in the browser window.
+        /// </summary>
+        /// <param name="zoomEnabled">
+        /// A boolean value indicating whether zoom functionality should be enabled.
+        /// Pass true to enable zooming functionality, or false to disable it.
+        /// </param>
+        /// <return>
+        /// Returns the modified builder instance to allow for method chaining.
+        /// </return>
+        public T SetZoomEnabled(bool zoomEnabled) {
+            builder.Configuration.ZoomEnabled = zoomEnabled;
+            return builder;
+        }
     }
 
 }
