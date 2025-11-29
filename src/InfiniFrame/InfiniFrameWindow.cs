@@ -458,6 +458,9 @@ public sealed class InfiniFrameWindow(
             logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
+        finally {
+            MessageLoopState.ReleaseState();
+        }
     }
     
     public Task WaitForCloseAsync() => Task.Run(WaitForClose);

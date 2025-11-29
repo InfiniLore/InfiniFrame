@@ -40,13 +40,12 @@ public class InfiniFrameServerTestUtility : IDisposable {
                 InfiniFrameWebApplication application = builder.Build();
                 application.WebApp.UseDefaultFiles();
                 
-                
-                #if NET9_0_OR_GREATER
-                application.WebApp.MapStaticAssets();
+                #if NET8_0
+                application.WebApp.UseStaticFiles();
                 #else
                 application.WebApp.UseStaticFiles();
+                application.WebApp.MapStaticAssets();
                 #endif
-                
                 
                 utility = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
                     Window = application.Window,

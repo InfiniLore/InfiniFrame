@@ -934,11 +934,10 @@ void Photino::SetTopmost(const bool topmost)
 
 void Photino::SetZoom(const int zoom)
 {
-	double newZoom = zoom / 100.0;
-	HRESULT r = _webviewController->put_ZoomFactor(newZoom);
-	//wchar_t msg[50];
-	//swprintf(msg, 50, L"newZoom: %f", newZoom);
-	//MessageBox(nullptr, msg, L"Setter", MB_OK);
+    if (zoom < 25 || zoom > 500) return;
+
+    const double newZoom = zoom / 100.0;
+    _webviewController->put_ZoomFactor(newZoom);
 }
 
 void Photino::SetFocused()

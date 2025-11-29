@@ -23,7 +23,7 @@ public class CenterOnMonitorTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        window.CenterOnMonitor();
+        window.CenterOnMonitor(0);
 
         // Assert
         int centerX = 0;

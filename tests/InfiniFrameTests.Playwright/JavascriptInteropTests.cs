@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrameTests.Playwright.Utility;
 using InfiniFrame;
+using InfiniFrameTests.Playwright.TestUtility;
 using Microsoft.Playwright;
 using InfiniFrameTests.Shared;
 
