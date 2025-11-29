@@ -48,6 +48,7 @@
     <Project Path="src/InfiniFrame.Native/InfiniFrame.Native.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d7" />
   </Folder>
   <Folder Name="/tests/">
+    <File Path="tests/Directory.Build.props" />
     <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
     <Project Path="tests/InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     <Project Path="tests/InfiniFrameTests/InfiniFrameTests.csproj" />
