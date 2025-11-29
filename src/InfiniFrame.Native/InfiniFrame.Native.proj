@@ -3,6 +3,8 @@
 
     <!-- Cross-platform Visual Studio placeholder for CMake -->
     <PropertyGroup>
+        <TargetFramework>native</TargetFramework>
+        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
         <RestoreProjectStyle>None</RestoreProjectStyle>
         
         <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
