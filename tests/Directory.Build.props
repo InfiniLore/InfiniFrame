@@ -1,11 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Project>
     <PropertyGroup>
-        <TargetFrameworks>net8;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <!-- Ensure tests run via dotnet (DLL) rather than native apphost to avoid Linux/arm64 host issues -->
+        <UseAppHost>false</UseAppHost>
     </PropertyGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <!-- Pin Test SDK explicitly for consistent behavior across TFMs/runtimes -->
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    </ItemGroup>
 </Project>
