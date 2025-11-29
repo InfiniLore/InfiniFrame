@@ -97,35 +97,33 @@ public static class InfiniWindowExtensions {
         /// <returns>
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
-        public T CenterOnCurrentMonitor()
-            => CenterOnMonitor(window, -1);
+        public T CenterOnCurrentMonitor() {
+            window.Invoke(() => {
+                ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
+                InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
+
+                // TODO think about proper unhappy flow here
+                if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out Monitor monitor)) return;
+
+                Rectangle area = monitor.MonitorArea;
+
+                var newLocation = new Point(area.X + area.Width / 2 - rectangle.Width / 2, area.Y + area.Height / 2 - rectangle.Height / 2);
+                InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
+            });
+            
+            return window;
+        }
 
         /// <summary>
         /// Centers the specified <see cref="IInfiniFrameWindow" /> on a monitor.
         /// </summary>
         /// <param name="monitorIndex">
         /// The index of the monitor on which the window should be centered.
-        /// Use -1 for the current monitor, or specify a zero-based index for a specific monitor.
         /// </param>
         /// <returns>
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
         public T CenterOnMonitor(int monitorIndex) {
-            if (monitorIndex <= -1) {
-                window.Invoke(() => {
-                    ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
-                    InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
-
-                    // TODO think about proper unhappy flow here
-                    if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out Monitor monitor)) return;
-
-                    Rectangle area = monitor.MonitorArea;
-
-                    var newLocation = new Point(area.X + area.Width / 2 - rectangle.Width / 2, area.Y + area.Height / 2 - rectangle.Height / 2);
-                    InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
-                });
-            }
-
             window.Invoke(() => {
                 ImmutableArray<Monitor> monitors = MonitorsUtility.GetMonitors(window);
 
