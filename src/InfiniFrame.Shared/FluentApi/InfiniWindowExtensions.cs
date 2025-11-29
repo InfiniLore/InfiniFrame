@@ -22,9 +22,6 @@ public static class InfiniWindowExtensions {
         /// <returns>
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
-        /// <remarks>
-        ///     Load() or LoadString() must be called before a native window is initialized.
-        /// </remarks>
         /// <param name="uri">A Uri pointing to the file or the URL to load.</param>
         public T Load(Uri uri) {
             window.Logger.LogDebug(".Load({uri})", uri);
@@ -38,9 +35,6 @@ public static class InfiniWindowExtensions {
         /// <returns>
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
-        /// <remarks>
-        ///     Load() or LoadString() must be called before a native window is initialized.
-        /// </remarks>
         /// <param name="path">A path pointing to the resource to load.</param>
         public T Load(string path) {
             window.Logger.LogDebug(".Load({Path})", path);
@@ -75,10 +69,6 @@ public static class InfiniWindowExtensions {
         /// <returns>
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
-        /// <remarks>
-        ///     Used to load HTML into the browser control directly.
-        ///     Load() or LoadString() must be called before a native window is initialized.
-        /// </remarks>
         /// <param name="content">Raw content (such as HTML)</param>
         public T LoadRawString(string content) {
             string shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 47), "...") : content;
@@ -92,9 +82,6 @@ public static class InfiniWindowExtensions {
         /// <summary>
         ///     Centers the native window on the primary display.
         /// </summary>
-        /// <remarks>
-        ///     If called prior to window initialization, overrides Left (X) and Top (Y) properties.
-        /// </remarks>
         /// <returns>
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
@@ -110,9 +97,6 @@ public static class InfiniWindowExtensions {
         /// <returns>
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
-        /// <remarks>
-        /// If the window spans multiple monitors, it will be centered on the monitor containing the largest portion of the window.
-        /// </remarks>
         public T CenterOnCurrentMonitor()
             => CenterOnMonitor(window, -1);
 
