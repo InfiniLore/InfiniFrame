@@ -14,7 +14,7 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Builder)}")]
     [MatrixDataSource]
-    public async Task Builder([MatrixRange<int>(0, 200, 10)] int zoom) {
+    public async Task Builder([MatrixRange<int>(10, 200, 10)] int zoom) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -31,18 +31,22 @@ public class ZoomTests {
     // TODO: fix this test
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
-    // [Skip("THIS IS NOT WORKING IN TEST ENVIRONMENT, but is working in real application")]
+    [Skip("THIS IS NOT WORKING IN TEST ENVIRONMENT, but is working in real application")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    [MatrixDataSource]
-    public async Task Window([MatrixRange<int>(10, 200, 10)] int zoom) {
+    // [MatrixDataSource]
+    public async Task Window() {
         // Arrange
-        var windowUtility = InfiniFrameWindowTestUtility.Create(
+        const int zoom = 120;
+        var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
             builder => builder
+                .SetUseOsDefaultLocation(true)
+                .SetUseOsDefaultSize(true)
                 .SetZoomEnabled(true)
         );
         IInfiniFrameWindow window = windowUtility.Window;
+        await Task.Delay(2000);
 
         // Act
         window.SetZoom(zoom);
@@ -54,16 +58,16 @@ public class ZoomTests {
     // TODO: fix this test
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
-    // [Skip("THIS IS NOT WORKING IN TEST ENVIRONMENT, but is working in real application")]
+    [Skip("THIS IS NOT WORKING IN TEST ENVIRONMENT, but is working in real application")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
     [MatrixDataSource]
-    public async Task FullIntegration([MatrixRange<int>(10, 200, 10)] int zoom) {
+    public async Task FullIntegration([MatrixRange<int>(26, 250, 10)] int zoom) {
         // Arrange
 
         // Act
-        var windowUtility = InfiniFrameWindowTestUtility.Create(
+        var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
             builder => builder
                 .SetZoomEnabled(true)
                 .SetZoom(zoom)

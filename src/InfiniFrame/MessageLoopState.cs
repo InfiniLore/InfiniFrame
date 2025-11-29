@@ -25,4 +25,10 @@ internal static class MessageLoopState {
             return true;
         }
     }
+    
+    public static void ReleaseState() {
+        lock (Lock) {
+            IsStarted = false;
+        }
+    }
 }

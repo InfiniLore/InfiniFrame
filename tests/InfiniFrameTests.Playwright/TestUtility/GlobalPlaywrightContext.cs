@@ -48,6 +48,8 @@ public static class GlobalPlaywrightContext {
                 .RegisterOpenExternalTargetWebMessageHandler()
                 .RegisterTitleChangedWebMessageHandler()
         );
+        
+        Thread.Sleep(TimeSpan.FromSeconds(5));
     }
 
     [After(Assembly)]
