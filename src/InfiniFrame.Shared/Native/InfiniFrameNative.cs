@@ -91,8 +91,8 @@ public static partial class InfiniFrameNative {
     [LibraryImport(DllName, EntryPoint = Photino_GetPosition, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void GetPosition(IntPtr instance, out int x, out int y);
 
-    [DllImport(DllName, EntryPoint = Photino_GetResizable, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-    internal static extern void GetResizable(IntPtr instance, out bool resizable);
+    [LibraryImport(DllName, EntryPoint = Photino_GetResizable, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void GetResizable(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool resizable);
 
     [LibraryImport(DllName, EntryPoint = Photino_GetScreenDpi, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial uint GetScreenDpi(IntPtr instance);
@@ -109,20 +109,20 @@ public static partial class InfiniFrameNative {
     [LibraryImport(DllName, EntryPoint = Photino_GetZoom, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void GetZoom(IntPtr instance, out int zoom);
 
-    [DllImport(DllName, EntryPoint = Photino_GetMaximized, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-    internal static extern void GetMaximized(IntPtr instance, out bool maximized);
+    [LibraryImport(DllName, EntryPoint = Photino_GetMaximized, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void GetMaximized(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool maximized);
 
-    [DllImport(DllName, EntryPoint = Photino_GetMinimized, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-    internal static extern void GetMinimized(IntPtr instance, out bool minimized);
+    [LibraryImport(DllName, EntryPoint = Photino_GetMinimized, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    public static partial void GetMinimized(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool minimized);
 
-    [DllImport(DllName, EntryPoint = Photino_GetZoomEnabled, CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-    internal static extern void GetZoomEnabled(IntPtr instance, out bool zoomEnabled);
+    [LibraryImport(DllName, EntryPoint = Photino_GetZoomEnabled, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void GetZoomEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool zoomEnabled);
     
     [LibraryImport(DllName, EntryPoint = Photino_GetIconFileName, SetLastError = true, StringMarshalling = StringMarshalling.Utf16), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial IntPtr GetIconFileName(IntPtr instance);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_GetFocused, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial void GetFocused(IntPtr instance, [MarshalAs(UnmanagedType.Bool)] out bool isFocused);
+    internal static partial void GetFocused(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool isFocused);
     #endregion
 
     #region MARSHAL CALLS FROM Non-UI Thread to UI Thread
