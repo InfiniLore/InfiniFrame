@@ -2,11 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Playwright;
+using TUnit.Engine.Exceptions;
 using TUnit.Playwright;
 
-namespace InfiniFrameTests.Playwright.Utility;
-using TUnit.Engine.Exceptions;
-
+namespace InfiniFrameTests.Playwright.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
