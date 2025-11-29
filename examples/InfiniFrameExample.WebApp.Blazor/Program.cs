@@ -76,8 +76,10 @@ public static class Program {
         // -------------------------------------------------------------------------------------------------------------
         // App
         // -------------------------------------------------------------------------------------------------------------
-        InfiniFrameWebApplication app = builder.Build();
-        WebApplication webApp = app.WebApp;
+        InfiniFrameWebApplication application = builder.Build();
+        application.UseAutoServerClose();
+        
+        WebApplication webApp = application.WebApp;
 
         webApp.UseRouting();
 
@@ -87,6 +89,6 @@ public static class Program {
         webApp.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 
-        app.Run();
+        application.Run();
     }
 }

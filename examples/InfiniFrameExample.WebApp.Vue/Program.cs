@@ -38,6 +38,8 @@ public static class Program {
         
         InfiniFrameWebApplication application = builder.Build();
 
+        application.UseAutoServerClose();
+        
         application.WebApp.UseStaticFiles();
         application.WebApp.MapStaticAssets();
 
