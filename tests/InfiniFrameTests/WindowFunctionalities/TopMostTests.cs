@@ -1,8 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
 using InfiniFrame;
+using InfiniFrame.Native;
 
 namespace InfiniFrameTests.WindowFunctionalities;
 using InfiniFrameTests.Shared;

@@ -1,14 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
 using InfiniFrame.Native;
 using InfiniFrame.Utilities;
+using InfiniFrameTests.Shared;
+using System.Drawing;
 
 namespace InfiniFrameTests.WindowFunctionalities;
-using global::InfiniFrame;
-using System.Drawing;
-using InfiniFrameTests.Shared;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

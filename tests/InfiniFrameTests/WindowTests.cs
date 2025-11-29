@@ -2,8 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Collections.Immutable;
 using InfiniFrameTests.Shared;
+using System.Collections.Immutable;
 using Monitor=InfiniFrame.Monitor;
 
 namespace InfiniFrameTests;

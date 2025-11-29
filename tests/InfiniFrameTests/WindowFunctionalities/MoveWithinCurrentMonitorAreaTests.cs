@@ -3,12 +3,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Utilities;
+using InfiniFrameTests.Shared;
 using System.Drawing;
 using Monitor=InfiniFrame.Monitor;
 
 namespace InfiniFrameTests.WindowFunctionalities;
-using InfiniFrameTests.Shared;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

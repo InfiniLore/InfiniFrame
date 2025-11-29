@@ -4,8 +4,8 @@
 using InfiniFrame.Native;
 
 namespace InfiniFrameTests;
-using System.Runtime.InteropServices;
 using InfiniFrameTests.Shared;
+using System.Runtime.InteropServices;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
