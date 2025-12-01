@@ -77,7 +77,7 @@ jobs:
         permissions:
             statuses: write
         steps:
-            -   uses: actions/checkout@v5
+            -   uses: actions/checkout@v6
                 with:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
@@ -320,7 +320,7 @@ jobs:
         
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v5
+                uses: actions/checkout@v6
                 with:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
@@ -420,7 +420,7 @@ jobs:
         
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v5
+                uses: actions/checkout@v6
                 with:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
@@ -586,7 +586,7 @@ jobs:
         
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v5
+                uses: actions/checkout@v6
                 with:
                     ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
 
