@@ -1,7 +1,6 @@
 ﻿#!/usr/bin/env python3
 import sys
 import xml.etree.ElementTree as Et
-import subprocess
 from pathlib import Path
 
 # Adjust the path to be relative from the dev directory
@@ -69,21 +68,8 @@ def main():
     # keep XML formatting tidy
     tree.write(FILE, encoding="utf-8", xml_declaration=True)
 
-    tag = f"v{new_version}"
-    msg = f"VersionBump : {tag}"
-
-    # Commit and tag
-    subprocess.run(["git", "add", str(FILE)], check=True)
-    subprocess.run(["git", "commit", "-m", msg], check=True)
-    subprocess.run(["git", "tag", tag], check=True)
-
-    # Push commit and tag
-    subprocess.run(["git", "push"], check=True)
-    subprocess.run(["git", "push", "origin", tag], check=True)
-
     print(f"Bumped version: {old_version} → {new_version}")
-    print(f"Committed with message: {msg}")
-    print(f"Created and pushed tag: {tag}")
+    print(new_version)  # Output for GitHub Actions to capture
 
 if __name__ == "__main__":
     main()
