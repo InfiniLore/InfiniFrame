@@ -32,12 +32,13 @@ jobs:
         outputs:
             new_version: ${{ steps.bump.outputs.version }}
             tag_name: ${{ steps.bump.outputs.tag }}
-        
+
         steps:
             -   name: Checkout
                 uses: actions/checkout@v6
                 with:
                     fetch-depth: 0
+                    token: ${{ secrets.RELEASE_TOKEN }}
 
             -   name: Setup Python
                 uses: actions/setup-python@v6
@@ -55,7 +56,7 @@ jobs:
                     cd dev
                     VERSION=$(python bump_version.py ${{ inputs.version_bump }} | tail -n 1)
                     TAG="v${VERSION}"
-                    
+
                     echo "version=$VERSION" >> $GITHUB_OUTPUT
                     echo "tag=$TAG" >> $GITHUB_OUTPUT
                     echo "Bumped to version: $VERSION (tag: $TAG)"
@@ -65,11 +66,8 @@ jobs:
                     git add src/Directory.Build.props
                     git commit -m "VersionBump : ${{ steps.bump.outputs.tag }}"
                     git tag ${{ steps.bump.outputs.tag }}
-                    
-                    # Push using the GITHUB_TOKEN with proper authentication
-                    git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
-                    git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ${{ steps.bump.outputs.tag }}
-
+                    git push origin HEAD:${{ github.ref_name }}
+                    git push origin ${{ steps.bump.outputs.tag }}
     # ------------------------------------------------------------------------------------------------------------------
     # Run multi-platform tests first
     # ------------------------------------------------------------------------------------------------------------------
