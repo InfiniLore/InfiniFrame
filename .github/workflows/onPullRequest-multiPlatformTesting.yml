@@ -2,6 +2,28 @@ name: MultiPlatform Testing
 
 on:
     workflow_call:
+        inputs:
+            pr_number:
+                description: 'PR number to test'
+                type: string
+                default: ''
+                required: false
+            run_windows:
+                description: 'Run Windows GUI tests'
+                type: boolean
+                default: true
+            run_windows_playwright:
+                description: 'Run Windows Playwright tests'
+                type: boolean
+                default: false
+            run_linux:
+                description: 'Run Linux GUI tests'
+                type: boolean
+                default: true
+            run_macos:
+                description: 'Run macOS GUI tests'
+                type: boolean
+                default: true
     workflow_dispatch:
         inputs:
             pr_number:
