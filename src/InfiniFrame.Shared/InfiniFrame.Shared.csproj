@@ -31,6 +31,8 @@
         <MacOsArm64>$(SolutionDir)artifacts/native/osx/arm64/$(Configuration)/</MacOsArm64>
         <WindowsX64>$(SolutionDir)artifacts/native/windows/x64/$(Configuration)/</WindowsX64>
         <WindowsArm64>$(SolutionDir)artifacts/native/windows/arm64/$(Configuration)/</WindowsArm64>
+
+        <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -46,6 +48,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Options"/>
