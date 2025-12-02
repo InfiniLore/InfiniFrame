@@ -134,36 +134,36 @@ jobs:
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
-
-            -   name: Install desktop environment and dependencies
-                run: |
-                    sudo apt-get update
-                    
-                    export DEBIAN_FRONTEND=noninteractive
-                    sudo apt-get install -y \
-                      gnome-shell \
-                      gnome-session \
-                      gnome-settings-daemon \
-                      mutter \
-                      xvfb \
-                      x11-utils \
-                      x11-xserver-utils \
-                      dbus-x11 \
-                      at-spi2-core \
-                      gsettings-desktop-schemas \
-                      libnotify4 \
-                      libnotify-dev \
-                      libwebkit2gtk-4.1-dev \
-                      libgtk-3-dev \
-                      libglib2.0-dev \
-                      libgdk-pixbuf2.0-dev \
-                      libpango1.0-dev \
-                      libatk1.0-dev \
-                      libharfbuzz-dev \
-                      libepoxy-dev \
-                      libx11-dev \
-                      fonts-liberation \
-                      xfonts-base
+                
+                # Cache and install APT packages
+            -   name: Cache and install desktop environment
+                uses: awalsh128/cache-apt-pkgs-action@latest
+                with:
+                    packages: >
+                        gnome-shell
+                        gnome-session
+                        gnome-settings-daemon
+                        mutter
+                        xvfb
+                        x11-utils
+                        x11-xserver-utils
+                        dbus-x11
+                        at-spi2-core
+                        gsettings-desktop-schemas
+                        libnotify4
+                        libnotify-dev
+                        libwebkit2gtk-4.1-dev
+                        libgtk-3-dev
+                        libglib2.0-dev
+                        libgdk-pixbuf2.0-dev
+                        libpango1.0-dev
+                        libatk1.0-dev
+                        libharfbuzz-dev
+                        libepoxy-dev
+                        libx11-dev
+                        fonts-liberation
+                        xfonts-base
+                    version: 1.0
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
