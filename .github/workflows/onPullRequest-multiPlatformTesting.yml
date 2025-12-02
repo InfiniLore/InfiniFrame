@@ -83,7 +83,7 @@ jobs:
     # Linux (Full Desktop Environment)
     # ------------------------------------------------------------------------------------------------------------------
     linux-gui:
-        if: ${{ github.event.inputs.run_linux == 'true' }}
+        if: ${{ inputs.run_linux == true }}
         needs: mark-pending
         name: Test - Linux/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
@@ -102,7 +102,7 @@ jobs:
         steps:
             -   uses: actions/checkout@v6
                 with:
-                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
+                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
 
             -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
@@ -324,7 +324,7 @@ jobs:
     # Windows
     # ------------------------------------------------------------------------------------------------------------------
     windows-gui:
-        if: ${{ github.event.inputs.run_windows == 'true' }}
+        if: ${{ inputs.run_windows == true }}
         needs: mark-pending
         name: Test - Windows/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
@@ -345,7 +345,7 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v6
                 with:
-                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
+                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
 
             -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
@@ -434,7 +434,7 @@ jobs:
                       -ContentType "application/json"
     
     windows-playwright:
-        if: ${{ github.event.inputs.run_windows_playwright == 'true' }}
+        if: ${{ inputs.run_windows_playwright == true }}
         needs: mark-pending
         name: Test - Windows Playwright
         runs-on: windows-latest
@@ -445,7 +445,7 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v6
                 with:
-                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
+                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
 
             -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
@@ -505,7 +505,7 @@ jobs:
                         playwright-${{ runner.os }}-
 
             -   name: Install Playwright browsers
-                if: steps.cache-playwright.outputs.cache-hit != 'true'
+                if: steps.cache-playwright.outputs.cache-hit != true
                 shell: pwsh
                 run: |
                     Write-Host "Cache miss - Installing Playwright browsers..."
@@ -590,7 +590,7 @@ jobs:
     # macOS
     # ------------------------------------------------------------------------------------------------------------------
     macos-gui:
-        if: ${{ github.event.inputs.run_macos == 'true' }}
+        if: ${{ inputs.run_macos == true }}
         needs: mark-pending
         name: Test - macOS/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
@@ -611,7 +611,7 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v6
                 with:
-                    ref: ${{ github.event.inputs.pr_number != '' && github.event.inputs.pr_number != null && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || github.ref }}
+                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
 
             -   name: Setup .NET SDK
                 uses: actions/setup-dotnet@v5
@@ -710,9 +710,9 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     declare -A OS_INPUT_MAP=(
-                      ["Linux"]="${{ github.event.inputs.run_linux }}"
-                      ["Windows"]="${{ github.event.inputs.run_windows }}"
-                      ["macOS"]="${{ github.event.inputs.run_macos }}"
+                      ["Linux"]="${{ inputs.run_linux }}"
+                      ["Windows"]="${{ inputs.run_windows }}"
+                      ["macOS"]="${{ inputs.run_macos }}"
                     )
                     
                     ARCHES=("x64" "arm64")
