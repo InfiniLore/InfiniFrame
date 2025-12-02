@@ -21,6 +21,7 @@ on:
 permissions:
     contents: write
     packages: write
+    statuses: write
 
 jobs:
     # ------------------------------------------------------------------------------------------------------------------
@@ -71,7 +72,6 @@ jobs:
         name: Run Multi-Platform Tests
         needs: bump-version
         uses: ./.github/workflows/onPullRequest-multiPlatformTesting.yml
-    
     
     # ------------------------------------------------------------------------------------------------------------------
     # Build multi-architecture binaries
