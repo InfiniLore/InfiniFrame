@@ -156,6 +156,15 @@ if(WIN32)
     )
 
 elseif(APPLE)
+    # Determine architecture for macOS
+    if(CMAKE_OSX_ARCHITECTURES MATCHES "arm64" OR CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+        set(OUTPUT_ARCH_DIR "arm64")
+    else()
+        set(OUTPUT_ARCH_DIR "x64")
+    endif()
+    
+    message(STATUS "macOS build - Architecture: ${OUTPUT_ARCH_DIR}")
+    
     # macOS build - automatically copy all common .cpp files to .mm for Objective-C++ compilation
     set(COMMON_SOURCES_MM)
     foreach(CPP_FILE ${COMMON_SOURCES})
@@ -166,6 +175,7 @@ elseif(APPLE)
             set(MM_FILE ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.mm)
             configure_file(${CPP_FILE} ${MM_FILE} COPYONLY)
             list(APPEND COMMON_SOURCES_MM ${MM_FILE})
+            message(STATUS "  Copied ${CPP_FILE} -> ${MM_FILE}")
         endif()
     endforeach()
 
@@ -184,6 +194,8 @@ elseif(APPLE)
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
             OSX_ARCHITECTURES "x86_64;arm64"
     )
+    
+    message(STATUS "Output directory: ${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}")
 
     # Link macOS frameworks
     target_link_libraries(${PROJECT_NAME} PRIVATE
