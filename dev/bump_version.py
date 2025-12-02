@@ -4,7 +4,8 @@ import xml.etree.ElementTree as Et
 import subprocess
 from pathlib import Path
 
-FILE : Path = Path("../src/Directory.Build.props")
+# Adjust the path to be relative from the dev directory
+FILE = Path(__file__).parent.parent / "src" / "Directory.Build.props"
 
 def bump(version: str, part: str) -> str:
     """
@@ -48,6 +49,11 @@ def main():
         sys.exit(1)
 
     part = sys.argv[1].lower()
+
+    if not FILE.exists():
+        print(f"Error: File not found: {FILE}")
+        sys.exit(1)
+
     tree = Et.parse(FILE)
     root = tree.getroot()
 
@@ -72,16 +78,12 @@ def main():
     subprocess.run(["git", "tag", tag], check=True)
 
     # Push commit and tag
-    subprocess.run(["git", "push"], check=True, stderr=subprocess.DEVNULL)
+    subprocess.run(["git", "push"], check=True)
     subprocess.run(["git", "push", "origin", tag], check=True)
 
     print(f"Bumped version: {old_version} → {new_version}")
     print(f"Committed with message: {msg}")
     print(f"Created and pushed tag: {tag}")
-
-    print(f"Bumped version: {old_version} → {new_version}")
-    print(f"Committed with message: {msg}")
-    print(f"Created tag: {tag}")
 
 if __name__ == "__main__":
     main()

@@ -1,24 +1,73 @@
+
 name: Release to Nuget
 
 on:
     workflow_dispatch:
         inputs:
+            version_bump:
+                description: 'Version bump type'
+                required: true
+                type: choice
+                options:
+                    - major
+                    - minor
+                    - patch
+                    - preview
             publish_to_nuget:
                 description: 'Publish to NuGet after building'
                 type: boolean
                 default: true
-    push:
-        tags:
-            - 'v*.*.*'
 
 jobs:
+    # ------------------------------------------------------------------------------------------------------------------
+    # Bump version, commit, and tag
+    # ------------------------------------------------------------------------------------------------------------------
+    bump-version:
+        name: Bump Version
+        runs-on: ubuntu-latest
+        outputs:
+            new_version: ${{ steps.bump.outputs.version }}
+            tag_name: ${{ steps.bump.outputs.tag }}
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    fetch-depth: 0
+                    token: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Setup Python
+                uses: actions/setup-python@v6
+                with:
+                    python-version: '3.x'
+
+            -   name: Configure Git
+                run: |
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            -   name: Bump version
+                id: bump
+                run: |
+                    cd dev
+                    python bump_version.py ${{ inputs.version_bump }}
+                    
+                    # Extract the new version and tag from git
+                    TAG=$(git describe --tags --abbrev=0)
+                    VERSION=${TAG#v}
+                    
+                    echo "version=$VERSION" >> $GITHUB_OUTPUT
+                    echo "tag=$TAG" >> $GITHUB_OUTPUT
+                    echo "Bumped to version: $VERSION (tag: $TAG)"
+
     # ------------------------------------------------------------------------------------------------------------------
     # Run multi-platform tests first
     # ------------------------------------------------------------------------------------------------------------------
     run-tests:
         name: Run Multi-Platform Tests
+        needs: bump-version
         uses: ./.github/workflows/onPullRequest-multiPlatformTesting.yml
-        
+    
     
     # ------------------------------------------------------------------------------------------------------------------
     # Build multi-architecture binaries
@@ -26,7 +75,7 @@ jobs:
     build:
         name: Build ${{ matrix.os }} / ${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
-        needs: run-tests
+        needs: [bump-version, run-tests]
         strategy:
             fail-fast: false
             matrix:
@@ -58,6 +107,7 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@v6
                 with:
+                    ref: ${{ needs.bump-version.outputs.tag_name }}
                     fetch-depth: 0
 
             -   name: Setup .NET SDK
@@ -117,12 +167,13 @@ jobs:
     release:
         name: Create GitHub Release
         runs-on: ubuntu-latest
-        needs: build
+        needs: [bump-version, build]
 
         steps:
             -   name: Checkout
                 uses: actions/checkout@v6
                 with:
+                    ref: ${{ needs.bump-version.outputs.tag_name }}
                     fetch-depth: 0
 
             -   name: Setup .NET SDK
@@ -237,7 +288,7 @@ jobs:
             -   name: Upload NuGet packages as artifact
                 uses: actions/upload-artifact@v5
                 with:
-                    name: nuget-packages-${{ github.ref_name }}
+                    name: nuget-packages-${{ needs.bump-version.outputs.tag_name }}
                     path: ./release/*.nupkg
 
             -   name: Verify native libraries in Shared NuGet package
@@ -277,15 +328,16 @@ jobs:
                     fi
 
             -   name: Create GitHub Release
-                if: github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget )
                 uses: softprops/action-gh-release@v2
                 with:
+                    tag_name: ${{ needs.bump-version.outputs.tag_name }}
+                    name: Release ${{ needs.bump-version.outputs.new_version }}
                     generate_release_notes: true
                     files: ./release/*.nupkg
-                    prerelease: ${{ contains(github.ref_name, 'preview') }}
+                    prerelease: ${{ contains(needs.bump-version.outputs.new_version, 'preview') }}
 
             -   name: Push to NuGet
-                if: github.event_name == 'push' || ( github.event_name == 'workflow_dispatch' && inputs.publish_to_nuget )
+                if: inputs.publish_to_nuget
                 env:
                     NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
                 run: |
