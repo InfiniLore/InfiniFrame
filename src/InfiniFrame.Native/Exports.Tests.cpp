@@ -7,21 +7,21 @@
 #endif
 
 #ifdef _WIN32
-    inline AutoString duplicateString(const AutoStringConst str) {
-        if (str == nullptr) return nullptr;
-        const size_t len = wcslen(str);
-        auto* copy = new wchar_t[len + 1];
-        wcscpy_s(copy, len + 1, str);
-        return copy;
-    }
+inline AutoString duplicateString(const AutoStringConst str) {
+    if (str == nullptr) return nullptr;
+    const size_t len = wcslen(str);
+    auto* copy = new wchar_t[len + 1];
+    wcscpy_s(copy, len + 1, str);
+    return copy;
+}
 #else
-    inline AutoString duplicateString(const AutoString str) {
-        if (str == nullptr) return nullptr;
-        const size_t len = strlen(str);
-        const auto copy = new char[len + 1];
-        strcpy(copy, str);
-        return copy;
-    }
+inline AutoString duplicateString(AutoStringConst str) {
+    if (str == nullptr) return nullptr;
+    const size_t len = strlen(str);
+    auto copy = new char[len + 1];
+    strcpy(copy, str);
+    return copy;
+}
 #endif
 
 extern "C"
