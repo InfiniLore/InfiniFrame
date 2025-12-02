@@ -39,8 +39,15 @@ public class InfiniFrameWebApplication {
     /// Returns the current instance of <see cref="InfiniFrameWebApplication"/> to enable method chaining.
     /// </returns>
     public InfiniFrameWebApplication UseAutoServerClose() {
-        Window.RegisterWindowClosingHandler((_,_) => ClosingHandler());
-        Window.RegisterWindowClosingRequestedHandler((_,_) => ClosingHandler());
+        if (LazyWindow.IsValueCreated) {
+            Window.RegisterWindowClosingHandler((_,_) => ClosingHandler());
+            Window.RegisterWindowClosingRequestedHandler((_,_) => ClosingHandler());
+            return this;    
+        }
+
+        var builder = WebApp.Services.GetRequiredService<IInfiniFrameWindowBuilder>();
+        builder.RegisterWindowClosingHandler((_,_) => ClosingHandler());
+        builder.RegisterWindowClosingRequestedHandler((_,_) => ClosingHandler());
         return this;
         
         bool ClosingHandler() {
