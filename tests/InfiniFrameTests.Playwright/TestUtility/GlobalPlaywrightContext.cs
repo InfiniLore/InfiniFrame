@@ -13,9 +13,9 @@ namespace InfiniFrameTests.Playwright.TestUtility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class GlobalPlaywrightContext {
-    private static InfiniFrameServerTestUtility Utility { get; set; } = null!;
-    public static IInfiniFrameWindow Window => Utility.Window;
-    public static WebApplication WebApplication => Utility.WebApplication;
+    private static InfiniFrameServerTestUtility? Utility { get; set; }
+    public static IInfiniFrameWindow Window => Utility!.Window;
+    public static WebApplication WebApplication => Utility!.WebApplication;
     
     private static readonly int ServerPort = GetAvailablePort();
     private static readonly int PlaywrightDevtoolsPort = GetAvailablePort();
@@ -54,6 +54,6 @@ public static class GlobalPlaywrightContext {
 
     [After(Assembly)]
     public static void AfterAll(AssemblyHookContext _) {
-        Utility.Dispose();
+        Utility?.Dispose();
     }
 }

@@ -48,7 +48,8 @@ public class JavascriptTests : InfiniFrameWebviewTest {
         GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.InfiniFrameWindowTitle);
     }
 
-    [Test, Skip("`window.close()` although supported by the library cannot be tested without killing the entire test process."), NotInParallel(ParallelControl.Playwright)]
+    [Test] 
+    [Skip("`window.close()` although supported by the library cannot be tested without killing the entire test process.")] [NotInParallel(ParallelControl.Playwright)]
     public async Task WindowClose() {
         // Arrange
         IPage page = await GetRootPageAsync();
