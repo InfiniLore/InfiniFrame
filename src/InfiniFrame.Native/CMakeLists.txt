@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Source files common to all platforms
 set(COMMON_SOURCES
         Exports.cpp
+        Exports.Tests.cpp
 )
 
 # Windows-specific sources

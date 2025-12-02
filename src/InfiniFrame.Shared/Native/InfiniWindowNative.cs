@@ -14,8 +14,7 @@ public static class InfiniWindowNative {
         DllName,
         EntryPoint = InfiniWindowTests_NativeParametersReturnAsIs,
         CallingConvention = CallingConvention.Cdecl,
-        SetLastError = true,
-        CharSet = CharSet.Auto// Add this to match the struct
+        SetLastError = true
     )]
     private static extern void NativeParametersReturnAsIs(
         [In] ref InfiniFrameNativeParameters parameters,

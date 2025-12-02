@@ -10,7 +10,8 @@ namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameNativeParameterTests {
 
-    // This test only fails if the InfiniFrameNativeParameterTests C# struct is wrongly defined and has parameters in the wrong order, compared the the struct on the c++ side.
+    // This test should onl fails if the InfiniFrameNativeParameterTests C# struct is wrongly defined
+    // and has parameters in the wrong order, compared to the struct on the c++ side.
     [Test]
     [DisplayName($"{nameof(InfiniFrameNativeParameterTests)}.{nameof(ReturnAsIsIsValid)}")]
     // [SkipUtility.SkipOnLinux]
