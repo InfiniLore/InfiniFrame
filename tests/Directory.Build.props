@@ -7,5 +7,7 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
 </Project>

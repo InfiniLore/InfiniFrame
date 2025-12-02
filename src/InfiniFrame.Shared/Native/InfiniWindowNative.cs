@@ -14,14 +14,29 @@ public static class InfiniWindowNative {
         DllName,
         EntryPoint = InfiniWindowTests_NativeParametersReturnAsIs,
         CallingConvention = CallingConvention.Cdecl,
-        SetLastError = true,
-        CharSet = CharSet.Ansi
+        SetLastError = true
     )]
-    private static extern void NativeParametersReturnAsIs(ref InfiniFrameNativeParameters parameters, out IntPtr newParameters);
+    private static extern void NativeParametersReturnAsIs(
+        [In] ref InfiniFrameNativeParameters parameters,
+        out IntPtr newParameters
+    );
     #pragma warning restore SYSLIB1054
 
     internal static InfiniFrameNativeParameters NativeParametersReturnAsIs(ref InfiniFrameNativeParameters parameters) {
-        NativeParametersReturnAsIs(ref parameters, out IntPtr newParameters);
-        return Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParameters);
+        NativeParametersReturnAsIs(ref parameters, out IntPtr newParametersPtr);
+
+        if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
+
+        try {
+            // Marshal with explicit type to ensure proper handling
+            var result = Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
+
+            // Don't free the pointer - the C++ side allocated it with 'new' 
+            // and should manage its lifetime, or you need a corresponding delete call
+            return result;
+        }
+        catch (Exception ex) {
+            throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
+        }
     }
 }
