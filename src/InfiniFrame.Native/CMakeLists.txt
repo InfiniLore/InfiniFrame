@@ -156,13 +156,6 @@ if(WIN32)
     )
 
 elseif(APPLE)
-    # Determine architecture for macOS
-    if(CMAKE_OSX_ARCHITECTURES MATCHES "arm64" OR CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-        set(OUTPUT_ARCH_DIR "arm64")
-    else()
-        set(OUTPUT_ARCH_DIR "x64")
-    endif()
-
     # macOS build - copy .cpp files to .mm for Objective-C++ compilation
     configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
     configure_file(Exports.Tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.Tests.mm COPYONLY)
@@ -180,7 +173,7 @@ elseif(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
             PREFIX ""
             OUTPUT_NAME "InfiniFrame.Native"
-            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
+            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
             OSX_ARCHITECTURES "x86_64;arm64"
     )
 
