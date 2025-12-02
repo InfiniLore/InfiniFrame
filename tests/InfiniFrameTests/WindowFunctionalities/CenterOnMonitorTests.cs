@@ -30,8 +30,8 @@ public class CenterOnMonitorTests {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor);
             Size size = windowRect.Size;
-            centerX = monitor.MonitorArea.X + monitor.MonitorArea.Width / 2 - size.Width / 2;
-            centerY = monitor.MonitorArea.Y + monitor.MonitorArea.Height / 2 - size.Height / 2;
+            centerX = monitor.MonitorArea.Width / 2 - size.Width / 2;
+            centerY = monitor.MonitorArea.Height / 2 - size.Height / 2;
         });
 
         await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));

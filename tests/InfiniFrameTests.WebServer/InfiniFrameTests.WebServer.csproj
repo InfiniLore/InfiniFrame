@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-        <PlatformTarget>x64</PlatformTarget>
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
 
         <TargetDir Condition="'$(TargetDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\</TargetDir>
 
