@@ -63,38 +63,38 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     internal IntPtr NativeParent;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppClosingDelegate ClosingHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppClosingDelegate? ClosingHandler;
 
     ///<summary>SET BY PHOTINOWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppFocusInDelegate FocusInHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppFocusInDelegate? FocusInHandler;
 
     ///<summary>SET BY PHOTINOWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppFocusOutDelegate FocusOutHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppFocusOutDelegate? FocusOutHandler;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppResizedDelegate ResizedHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppResizedDelegate? ResizedHandler;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppMaximizedDelegate MaximizedHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppMaximizedDelegate? MaximizedHandler;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppRestoredDelegate RestoredHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppRestoredDelegate? RestoredHandler;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppMinimizedDelegate MinimizedHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppMinimizedDelegate? MinimizedHandler;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppMovedDelegate MovedHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppMovedDelegate? MovedHandler;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebMessageReceivedDelegate WebMessageReceivedHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebMessageReceivedDelegate? WebMessageReceivedHandler;
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
     internal IntPtr[] CustomSchemeNames;
 
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
-    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebResourceRequestedDelegate CustomSchemeHandler;
+    [MarshalAs(UnmanagedType.FunctionPtr)] internal CppWebResourceRequestedDelegate? CustomSchemeHandler;
 
     ///<summary>OPTIONAL: Initial window position in pixels. Default is 0. Can be overridden with UseOsDefaultLocation.</summary>
     [MarshalAs(UnmanagedType.I4)] internal int Left;
