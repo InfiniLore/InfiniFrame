@@ -2,6 +2,8 @@ name: Release to Nuget
 
 on:
     workflow_dispatch:
+        branches:
+            - core
         inputs:
             version_bump:
                 description: 'Version bump type'
@@ -29,6 +31,7 @@ jobs:
     bump-version:
         name: Bump Version
         runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/core'
         outputs:
             new_version: ${{ steps.bump.outputs.version }}
             tag_name: ${{ steps.bump.outputs.tag }}
