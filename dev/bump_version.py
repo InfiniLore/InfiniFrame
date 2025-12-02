@@ -1,10 +1,18 @@
 ﻿#!/usr/bin/env python3
 import sys
+import re
 import xml.etree.ElementTree as Et
 from pathlib import Path
 
 # Adjust the path to be relative from the dev directory
 FILE = Path(__file__).parent.parent / "src" / "Directory.Build.props"
+
+def validate_version(version: str) -> bool:
+    """
+    Validate version format: major.minor.patch or major.minor.patch-preview.number
+    """
+    pattern = r'^\d+\.\d+\.\d+(-preview\.\d+)?$'
+    return re.match(pattern, version) is not None
 
 def bump(version: str, part: str) -> str:
     """
@@ -43,8 +51,8 @@ def bump(version: str, part: str) -> str:
     return new_version
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: bump_version.py [major|minor|patch|preview]")
+    if len(sys.argv) < 2:
+        print("Usage: bump_version.py [major|minor|patch|preview|custom] [custom_version]")
         sys.exit(1)
 
     part = sys.argv[1].lower()
@@ -62,7 +70,20 @@ def main():
         sys.exit(1)
 
     old_version = version_elem.text.strip()
-    new_version = bump(old_version, part)
+
+    # Handle custom version
+    if part == "custom":
+        if len(sys.argv) < 3:
+            print("Error: custom version must be provided")
+            sys.exit(1)
+
+        new_version = sys.argv[2]
+        if not validate_version(new_version):
+            print(f"Error: Invalid version format '{new_version}'. Expected format: X.Y.Z or X.Y.Z-preview.N")
+            sys.exit(1)
+    else:
+        new_version = bump(old_version, part)
+
     version_elem.text = new_version
 
     # keep XML formatting tidy

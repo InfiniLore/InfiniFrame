@@ -2,8 +2,6 @@ name: Release to Nuget
 
 on:
     workflow_dispatch:
-        branches:
-            - core
         inputs:
             version_bump:
                 description: 'Version bump type'
@@ -14,6 +12,11 @@ on:
                     - minor
                     - patch
                     - preview
+                    - custom
+            custom_version:
+                description: 'Custom version (only used if "custom" is selected, e.g., 1.0.0 or 1.0.0-preview.1)'
+                required: false
+                type: string
             publish_to_nuget:
                 description: 'Publish to NuGet after building'
                 type: boolean
@@ -57,7 +60,15 @@ jobs:
                 id: bump
                 run: |
                     cd dev
-                    VERSION=$(python bump_version.py ${{ inputs.version_bump }} | tail -n 1)
+                    if [ "${{ inputs.version_bump }}" == "custom" ]; then
+                        if [ -z "${{ inputs.custom_version }}" ]; then
+                            echo "Error: custom_version is required when version_bump is 'custom'"
+                            exit 1
+                        fi
+                        VERSION=$(python bump_version.py custom "${{ inputs.custom_version }}" | tail -n 1)
+                    else
+                        VERSION=$(python bump_version.py ${{ inputs.version_bump }} | tail -n 1)
+                    fi
                     TAG="v${VERSION}"
 
                     echo "version=$VERSION" >> $GITHUB_OUTPUT
