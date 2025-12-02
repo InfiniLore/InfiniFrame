@@ -21,104 +21,114 @@ public class InfiniFrameNativeParameterTests {
     public async Task ReturnAsIsIsValid() {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];
-        customSchemeNames[0] = Marshal.StringToHGlobalAnsi("NAME");
+        IntPtr namePtr = IntPtr.Zero;
 
-        var parameters = new InfiniFrameNativeParameters {
-            StartString = "this is a string",
-            StartUrl = "https://www.transgenderinfo.be/",
-            Title = "This is a title",
-            WindowIconFile = "icon.ico",
-            TemporaryFilesPath = "temp",
-            UserAgent = "agent name",
-            BrowserControlInitParameters = "some params",
-            NotificationRegistrationId = "some id",
-            NativeParent = 87654321,
-            CustomSchemeNames = customSchemeNames,
-            Left = 23165,
-            Top = 1654,
-            Width = 655466,
-            Height = 4546584,
-            Zoom = 80,
-            MinWidth = 465,
-            MinHeight = 489,
-            MaxWidth = 854879,
-            MaxHeight = 8798,
-            CenterOnInitialize = true,
-            Chromeless = true,
-            Transparent = true,
-            ContextMenuEnabled = true,
-            DevToolsEnabled = true,
-            FullScreen = true,
-            Maximized = true,
-            Minimized = true,
-            Resizable = true,
-            Topmost = true,
-            UseOsDefaultLocation = true,
-            UseOsDefaultSize = true,
-            GrantBrowserPermissions = true,
-            MediaAutoplayEnabled = true,
-            FileSystemAccessEnabled = true,
-            WebSecurityEnabled = true,
-            JavascriptClipboardAccessEnabled = true,
-            MediaStreamEnabled = true,
-            SmoothScrollingEnabled = true,
-            IgnoreCertificateErrorsEnabled = true,
-            NotificationsEnabled = true,
-            Size = Marshal.SizeOf<InfiniFrameNativeParameters>(),
-            ZoomEnabled = true
-        };
+        try {
+            namePtr = Marshal.StringToHGlobalAnsi("NAME");
+            customSchemeNames[0] = namePtr;
 
-        // Act
-        InfiniFrameNativeParameters newParameters = InfiniWindowNative.NativeParametersReturnAsIs(ref parameters);
+            var parameters = new InfiniFrameNativeParameters {
+                StartString = "this is a string",
+                StartUrl = "https://www.transgenderinfo.be/",
+                Title = "This is a title",
+                WindowIconFile = "icon.ico",
+                TemporaryFilesPath = "temp",
+                UserAgent = "agent name",
+                BrowserControlInitParameters = "some params",
+                NotificationRegistrationId = "some id",
+                NativeParent = 87654321,
+                CustomSchemeNames = customSchemeNames,
+                Left = 23165,
+                Top = 1654,
+                Width = 655466,
+                Height = 4546584,
+                Zoom = 80,
+                MinWidth = 465,
+                MinHeight = 489,
+                MaxWidth = 854879,
+                MaxHeight = 8798,
+                CenterOnInitialize = true,
+                Chromeless = true,
+                Transparent = true,
+                ContextMenuEnabled = true,
+                DevToolsEnabled = true,
+                FullScreen = true,
+                Maximized = true,
+                Minimized = true,
+                Resizable = true,
+                Topmost = true,
+                UseOsDefaultLocation = true,
+                UseOsDefaultSize = true,
+                GrantBrowserPermissions = true,
+                MediaAutoplayEnabled = true,
+                FileSystemAccessEnabled = true,
+                WebSecurityEnabled = true,
+                JavascriptClipboardAccessEnabled = true,
+                MediaStreamEnabled = true,
+                SmoothScrollingEnabled = true,
+                IgnoreCertificateErrorsEnabled = true,
+                NotificationsEnabled = true,
+                Size = Marshal.SizeOf<InfiniFrameNativeParameters>(),
+                ZoomEnabled = true
+            };
 
-        // Assert
-        for (int i = 0; i < parameters.CustomSchemeNames.Length; i++) {
-            string? expected = Marshal.PtrToStringAnsi(parameters.CustomSchemeNames[i]);
-            string? actual = Marshal.PtrToStringAnsi(newParameters.CustomSchemeNames[i]);
-            await Assert.That(actual).IsEqualTo(expected);
+            // Act
+            InfiniFrameNativeParameters newParameters = InfiniWindowNative.NativeParametersReturnAsIs(ref parameters);
+
+            // Assert
+            for (int i = 0; i < parameters.CustomSchemeNames.Length; i++) {
+                string? expected = Marshal.PtrToStringAnsi(parameters.CustomSchemeNames[i]);
+                string? actual = Marshal.PtrToStringAnsi(newParameters.CustomSchemeNames[i]);
+                await Assert.That(actual).IsEqualTo(expected);
+            }
+
+            await Assert.That(newParameters.StartString).IsEqualTo(parameters.StartString);
+            await Assert.That(newParameters.StartUrl).IsEqualTo(parameters.StartUrl);
+            await Assert.That(newParameters.Title).IsEqualTo(parameters.Title);
+            await Assert.That(newParameters.WindowIconFile).IsEqualTo(parameters.WindowIconFile);
+            await Assert.That(newParameters.TemporaryFilesPath).IsEqualTo(parameters.TemporaryFilesPath);
+            await Assert.That(newParameters.UserAgent).IsEqualTo(parameters.UserAgent);
+            await Assert.That(newParameters.BrowserControlInitParameters).IsEqualTo(parameters.BrowserControlInitParameters);
+            await Assert.That(newParameters.NotificationRegistrationId).IsEqualTo(parameters.NotificationRegistrationId);
+            await Assert.That(newParameters.NativeParent).IsEqualTo(parameters.NativeParent);
+            await Assert.That(newParameters.Left).IsEqualTo(parameters.Left);
+            await Assert.That(newParameters.Top).IsEqualTo(parameters.Top);
+            await Assert.That(newParameters.Width).IsEqualTo(parameters.Width);
+            await Assert.That(newParameters.Height).IsEqualTo(parameters.Height);
+            await Assert.That(newParameters.Zoom).IsEqualTo(parameters.Zoom);
+            await Assert.That(newParameters.MinWidth).IsEqualTo(parameters.MinWidth);
+            await Assert.That(newParameters.MinHeight).IsEqualTo(parameters.MinHeight);
+            await Assert.That(newParameters.MaxWidth).IsEqualTo(parameters.MaxWidth);
+            await Assert.That(newParameters.MaxHeight).IsEqualTo(parameters.MaxHeight);
+            await Assert.That(newParameters.CenterOnInitialize).IsEqualTo(parameters.CenterOnInitialize);
+            await Assert.That(newParameters.Chromeless).IsEqualTo(parameters.Chromeless);
+            await Assert.That(newParameters.Transparent).IsEqualTo(parameters.Transparent);
+            await Assert.That(newParameters.ContextMenuEnabled).IsEqualTo(parameters.ContextMenuEnabled);
+            await Assert.That(newParameters.DevToolsEnabled).IsEqualTo(parameters.DevToolsEnabled);
+            await Assert.That(newParameters.FullScreen).IsEqualTo(parameters.FullScreen);
+            await Assert.That(newParameters.Maximized).IsEqualTo(parameters.Maximized);
+            await Assert.That(newParameters.Minimized).IsEqualTo(parameters.Minimized);
+            await Assert.That(newParameters.Resizable).IsEqualTo(parameters.Resizable);
+            await Assert.That(newParameters.Topmost).IsEqualTo(parameters.Topmost);
+            await Assert.That(newParameters.UseOsDefaultLocation).IsEqualTo(parameters.UseOsDefaultLocation);
+            await Assert.That(newParameters.UseOsDefaultSize).IsEqualTo(parameters.UseOsDefaultSize);
+            await Assert.That(newParameters.GrantBrowserPermissions).IsEqualTo(parameters.GrantBrowserPermissions);
+            await Assert.That(newParameters.MediaAutoplayEnabled).IsEqualTo(parameters.MediaAutoplayEnabled);
+            await Assert.That(newParameters.FileSystemAccessEnabled).IsEqualTo(parameters.FileSystemAccessEnabled);
+            await Assert.That(newParameters.WebSecurityEnabled).IsEqualTo(parameters.WebSecurityEnabled);
+            await Assert.That(newParameters.JavascriptClipboardAccessEnabled).IsEqualTo(parameters.JavascriptClipboardAccessEnabled);
+            await Assert.That(newParameters.MediaStreamEnabled).IsEqualTo(parameters.MediaStreamEnabled);
+            await Assert.That(newParameters.SmoothScrollingEnabled).IsEqualTo(parameters.SmoothScrollingEnabled);
+            await Assert.That(newParameters.IgnoreCertificateErrorsEnabled).IsEqualTo(parameters.IgnoreCertificateErrorsEnabled);
+            await Assert.That(newParameters.NotificationsEnabled).IsEqualTo(parameters.NotificationsEnabled);
+            await Assert.That(newParameters.Size).IsEqualTo(parameters.Size);
+            await Assert.That(newParameters.ZoomEnabled).IsEqualTo(parameters.ZoomEnabled);
         }
-
-        await Assert.That(parameters.StartString).IsEqualTo(newParameters.StartString);
-        await Assert.That(parameters.StartUrl).IsEqualTo(newParameters.StartUrl);
-        await Assert.That(parameters.Title).IsEqualTo(newParameters.Title);
-        await Assert.That(parameters.WindowIconFile).IsEqualTo(newParameters.WindowIconFile);
-        await Assert.That(parameters.TemporaryFilesPath).IsEqualTo(newParameters.TemporaryFilesPath);
-        await Assert.That(parameters.UserAgent).IsEqualTo(newParameters.UserAgent);
-        await Assert.That(parameters.BrowserControlInitParameters).IsEqualTo(newParameters.BrowserControlInitParameters);
-        await Assert.That(parameters.NotificationRegistrationId).IsEqualTo(newParameters.NotificationRegistrationId);
-        await Assert.That(parameters.NativeParent).IsEqualTo(newParameters.NativeParent);
-        // await Assert.That(parameters.CustomSchemeNames).IsEqualTo(newParameters.CustomSchemeNames);
-        await Assert.That(parameters.Left).IsEqualTo(newParameters.Left);
-        await Assert.That(parameters.Top).IsEqualTo(newParameters.Top);
-        await Assert.That(parameters.Width).IsEqualTo(newParameters.Width);
-        await Assert.That(parameters.Height).IsEqualTo(newParameters.Height);
-        await Assert.That(parameters.Zoom).IsEqualTo(newParameters.Zoom);
-        await Assert.That(parameters.MinWidth).IsEqualTo(newParameters.MinWidth);
-        await Assert.That(parameters.MinHeight).IsEqualTo(newParameters.MinHeight);
-        await Assert.That(parameters.MaxWidth).IsEqualTo(newParameters.MaxWidth);
-        await Assert.That(parameters.MaxHeight).IsEqualTo(newParameters.MaxHeight);
-        await Assert.That(parameters.CenterOnInitialize).IsEqualTo(newParameters.CenterOnInitialize);
-        await Assert.That(parameters.Chromeless).IsEqualTo(newParameters.Chromeless);
-        await Assert.That(parameters.Transparent).IsEqualTo(newParameters.Transparent);
-        await Assert.That(parameters.ContextMenuEnabled).IsEqualTo(newParameters.ContextMenuEnabled);
-        await Assert.That(parameters.DevToolsEnabled).IsEqualTo(newParameters.DevToolsEnabled);
-        await Assert.That(parameters.FullScreen).IsEqualTo(newParameters.FullScreen);
-        await Assert.That(parameters.Maximized).IsEqualTo(newParameters.Maximized);
-        await Assert.That(parameters.Minimized).IsEqualTo(newParameters.Minimized);
-        await Assert.That(parameters.Resizable).IsEqualTo(newParameters.Resizable);
-        await Assert.That(parameters.Topmost).IsEqualTo(newParameters.Topmost);
-        await Assert.That(parameters.UseOsDefaultLocation).IsEqualTo(newParameters.UseOsDefaultLocation);
-        await Assert.That(parameters.UseOsDefaultSize).IsEqualTo(newParameters.UseOsDefaultSize);
-        await Assert.That(parameters.GrantBrowserPermissions).IsEqualTo(newParameters.GrantBrowserPermissions);
-        await Assert.That(parameters.MediaAutoplayEnabled).IsEqualTo(newParameters.MediaAutoplayEnabled);
-        await Assert.That(parameters.FileSystemAccessEnabled).IsEqualTo(newParameters.FileSystemAccessEnabled);
-        await Assert.That(parameters.WebSecurityEnabled).IsEqualTo(newParameters.WebSecurityEnabled);
-        await Assert.That(parameters.JavascriptClipboardAccessEnabled).IsEqualTo(newParameters.JavascriptClipboardAccessEnabled);
-        await Assert.That(parameters.MediaStreamEnabled).IsEqualTo(newParameters.MediaStreamEnabled);
-        await Assert.That(parameters.SmoothScrollingEnabled).IsEqualTo(newParameters.SmoothScrollingEnabled);
-        await Assert.That(parameters.IgnoreCertificateErrorsEnabled).IsEqualTo(newParameters.IgnoreCertificateErrorsEnabled);
-        await Assert.That(parameters.NotificationsEnabled).IsEqualTo(newParameters.NotificationsEnabled);
-        await Assert.That(parameters.Size).IsEqualTo(newParameters.Size);
-        await Assert.That(parameters.ZoomEnabled).IsEqualTo(newParameters.ZoomEnabled);
+        finally {
+            // Clean up allocated memory
+            if (namePtr != IntPtr.Zero) {
+                Marshal.FreeHGlobal(namePtr);
+            }
+        }
     }
 }
