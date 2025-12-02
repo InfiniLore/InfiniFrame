@@ -1,5 +1,4 @@
-﻿
-#include "Photino.h"
+﻿#include "Photino.h"
 
 #ifdef _WIN32
 #define EXPORTED __declspec(dllexport)

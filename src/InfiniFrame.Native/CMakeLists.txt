@@ -156,11 +156,21 @@ if(WIN32)
     )
 
 elseif(APPLE)
-    # macOS build - copy Exports.cpp to Exports.mm for Objective-C++ compilation
-    configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
+    # macOS build - automatically copy all common .cpp files to .mm for Objective-C++ compilation
+    set(COMMON_SOURCES_MM)
+    foreach(CPP_FILE ${COMMON_SOURCES})
+        get_filename_component(FILE_NAME ${CPP_FILE} NAME_WE)
+        get_filename_component(FILE_EXT ${CPP_FILE} EXT)
+
+        if(FILE_EXT STREQUAL ".cpp")
+            set(MM_FILE ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.mm)
+            configure_file(${CPP_FILE} ${MM_FILE} COPYONLY)
+            list(APPEND COMMON_SOURCES_MM ${MM_FILE})
+        endif()
+    endforeach()
 
     add_library(${PROJECT_NAME} SHARED
-            ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm
+            ${COMMON_SOURCES_MM}
             ${MAC_SOURCES}
             ${HEADER_FILES}
     )
