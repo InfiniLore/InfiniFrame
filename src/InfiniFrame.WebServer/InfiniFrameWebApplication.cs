@@ -52,7 +52,7 @@ public class InfiniFrameWebApplication {
         
         bool ClosingHandler() {
             try {
-                // I hate this setup but for now it is the only way to gracefully stop the web app as far as I know
+                // I hate this setup, but for now it is the only way to gracefully stop the web app as far as I know
                 _ = Task.Run(() => {
                     StopWebApp();
                     return Task.CompletedTask;
