@@ -13,11 +13,19 @@ on:
 
 jobs:
     # ------------------------------------------------------------------------------------------------------------------
+    # Run multi-platform tests first
+    # ------------------------------------------------------------------------------------------------------------------
+    run-tests:
+        name: Run Multi-Platform Tests
+        uses: ./.github/workflows/onPullRequest-multiPlatformTesting.yml
+    
+    # ------------------------------------------------------------------------------------------------------------------
     # Build multi-architecture binaries
     # ------------------------------------------------------------------------------------------------------------------
     build:
         name: Build ${{ matrix.os }} / ${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
+        needs: run-tests
         strategy:
             fail-fast: false
             matrix:
