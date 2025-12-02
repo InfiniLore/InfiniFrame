@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-        
+
         <TargetDir Condition="'$(TargetDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\</TargetDir>
 
         <CMakePlatform>$(Platform)</CMakePlatform>
@@ -13,7 +13,7 @@
         <!-- Map to CMake architecture -->
         <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
         <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">arm64</CMakeArch>
-    
+
         <!-- Fallback -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
 
@@ -27,6 +27,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="NSubstitute" />
         <PackageReference Include="TUnit"/>
     </ItemGroup>
 

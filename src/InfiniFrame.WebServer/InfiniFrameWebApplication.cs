@@ -49,22 +49,32 @@ public class InfiniFrameWebApplication {
         builder.RegisterWindowClosingHandler((_,_) => ClosingHandler());
         builder.RegisterWindowClosingRequestedHandler((_,_) => ClosingHandler());
         return this;
-        
+    
         bool ClosingHandler() {
-            try {
-                // I hate this setup but for now it is the only way to gracefully stop the web app as far as I know
-                _ = Task.Run(() => {
-                    StopWebApp();
-                    return Task.CompletedTask;
-                });
-            }
-            catch (Exception e) {
-                Window.Logger.LogError(e, "Error stopping web app");
-            }
+            // Start web app shutdown in background - don't block UI thread
+            Task.Run(async () => {
+                try {
+                    await WebApp.StopAsync();
+                    
+                    if (_webAppThread is null) return;
+                    if (_webAppThread.Join(TimeSpan.FromSeconds(5))) return;
+                    
+                    _webAppThread.Interrupt();
+                }
+                catch (Exception e) {
+                    Window.Logger.LogError(e, "Error stopping web app");
+                }
+            });
+            // return false else the window will be not be closed (see old Photino code why)
             return false;
         }
     }
 
+    /// <summary>
+    /// Stops the web application and closes the associated application window.
+    /// This method ensures that both the server instance and the user interface
+    /// are gracefully terminated.
+    /// </summary>
     public void Stop() {
         StopWebApp();
         Window.Close();
