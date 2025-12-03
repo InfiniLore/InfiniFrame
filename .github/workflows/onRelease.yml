@@ -387,3 +387,13 @@ jobs:
                       --api-key "$NUGET_API_KEY" \
                       --source https://api.nuget.org/v3/index.json \
                       --skip-duplicate
+
+            -   name: Push to GitHub Packages
+                if: inputs.publish_to_nuget
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    dotnet nuget push "./release/*.nupkg" \
+                        --api-key "$GITHUB_TOKEN" \
+                        --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+                        --skip-duplicate
