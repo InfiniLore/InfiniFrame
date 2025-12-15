@@ -250,7 +250,7 @@ jobs:
                 uses: lukka/get-cmake@latest
 
             -   name: Download build artifacts
-                uses: actions/download-artifact@v6
+                uses: actions/download-artifact@v7
                 with:
                     path: artifacts/native
 
