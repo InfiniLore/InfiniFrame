@@ -145,7 +145,7 @@ jobs:
 
             # Cache NuGet packages
             -   name: Cache NuGet packages
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ${{ startsWith(matrix.os, 'windows') && '~\.nuget\packages' || '~/.nuget/packages' }}
                     key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
@@ -157,7 +157,7 @@ jobs:
 
             # Cache CMake build
             -   name: Cache CMake build
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: |
                         src/InfiniFrame.Native/build
@@ -183,7 +183,7 @@ jobs:
             # Cache Homebrew packages (macOS only)
             -   name: Cache Homebrew packages
                 if: startsWith(matrix.os, 'macos')
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: |
                         ~/Library/Caches/Homebrew
@@ -239,7 +239,7 @@ jobs:
 
             # Cache .NET packages
             -   name: Cache .NET packages
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ~/.nuget/packages
                     key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}

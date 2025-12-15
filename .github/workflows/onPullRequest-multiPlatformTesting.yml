@@ -116,7 +116,7 @@ jobs:
             
             # Cache .NET packages
             -   name: Cache .NET packages
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ~/.nuget/packages
                     key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
@@ -128,7 +128,7 @@ jobs:
 
             # Cache CMake build
             -   name: Cache CMake build
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: |
                         src/InfiniFrame.Native/build
@@ -360,7 +360,7 @@ jobs:
 
             # Cache .NET packages
             -   name: Cache .NET packages
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ~\.nuget\packages
                     key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
@@ -374,7 +374,7 @@ jobs:
 
             # Cache CMake build
             -   name: Cache CMake build
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: |
                         src\InfiniFrame.Native\build
@@ -490,7 +490,7 @@ jobs:
 
             # Cache .NET packages
             -   name: Cache .NET packages
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ~\.nuget\packages
                     key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
@@ -504,7 +504,7 @@ jobs:
 
             # Cache CMake build
             -   name: Cache CMake build
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: |
                         src\InfiniFrame.Native\build
@@ -516,7 +516,7 @@ jobs:
             # Cache WebView2 installer
             -   name: Cache WebView2 installer
                 id: cache-webview2
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ${{ env.TEMP }}\MicrosoftEdgeWebview2Setup.exe
                     key: webview2-installer-${{ runner.os }}
@@ -540,7 +540,7 @@ jobs:
 
             # Cache npm global packages
             -   name: Cache npm global packages
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ~\AppData\Roaming\npm
                     key: ${{ runner.os }}-npm-global-${{ hashFiles('**/package*.json') }}
@@ -573,7 +573,7 @@ jobs:
 
             -   name: Cache Playwright browsers
                 id: cache-playwright
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ~\AppData\Local\ms-playwright
                     key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
@@ -700,7 +700,7 @@ jobs:
             
             # Cache .NET packages
             -   name: Cache .NET packages
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: ~/.nuget/packages
                     key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
@@ -709,7 +709,7 @@ jobs:
 
             # Cache CMake build
             -   name: Cache CMake build
-                uses: actions/cache@v4
+                uses: actions/cache@v5
                 with:
                     path: |
                         src/InfiniFrame.Native/build
