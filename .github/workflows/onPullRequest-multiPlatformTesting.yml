@@ -294,7 +294,7 @@ jobs:
 
             -   name: Upload test results as artifact
                 if: failure()
-                uses: actions/upload-artifact@v5
+                uses: actions/upload-artifact@v6
                 with:
                     name: test-logs-linux-${{ matrix.arch }}
                     path: |
@@ -427,7 +427,7 @@ jobs:
 
             -   name: Upload test results as artifact
                 if: failure()
-                uses: actions/upload-artifact@v5
+                uses: actions/upload-artifact@v6
                 with:
                     name: test-logs-windows-${{ matrix.arch }}
                     path: |
@@ -628,7 +628,7 @@ jobs:
 
             -   name: Upload Playwright test results
                 if: always()
-                uses: actions/upload-artifact@v5
+                uses: actions/upload-artifact@v6
                 with:
                     name: playwright-test-results
                     path: tests/InfiniFrameTests.Playwright/TestResults
@@ -764,7 +764,7 @@ jobs:
 
             -   name: Upload test results as artifact
                 if: failure()
-                uses: actions/upload-artifact@v5
+                uses: actions/upload-artifact@v6
                 with:
                     name: test-logs-macos-${{ matrix.arch }}
                     path: |
