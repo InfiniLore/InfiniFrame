@@ -32,7 +32,6 @@ public class ZoomTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    // [MatrixDataSource]
     public async Task Window() {
         // Arrange
         const int zoom = 120;
