@@ -89,15 +89,34 @@ if(WIN32)
     )
 
     # WebView2 package configuration
-    set(WEBVIEW2_VERSION "1.0.3595.46" CACHE STRING "WebView2 version")
+    set(WEBVIEW2_VERSION "1.0.3650.58" CACHE STRING "WebView2 version")
 
-    set(WEBVIEW2_BASE_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native")
+    # Prefer local packages folder, fall back to user NuGet cache (useful on CI/agents)
+    set(WEBVIEW2_BASE_DIR "")
+    set(WEBVIEW2_BASE_DIR_CANDIDATES
+            "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native"
+            "$ENV{USERPROFILE}/.nuget/packages/microsoft.web.webview2/${WEBVIEW2_VERSION}/build/native"
+    )
+    foreach(_cand IN LISTS WEBVIEW2_BASE_DIR_CANDIDATES)
+        if(EXISTS "${_cand}/include/WebView2.h")
+            set(WEBVIEW2_BASE_DIR "${_cand}")
+            break()
+        endif()
+    endforeach()
+
+    if(NOT WEBVIEW2_BASE_DIR)
+        message(FATAL_ERROR "WebView2 headers not found. Looked in: ${WEBVIEW2_BASE_DIR_CANDIDATES}")
+    endif()
+
     set(WEBVIEW2_DLL_SOURCE "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2Loader.dll")
     set(WEBVIEW2_LIB "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib")
 
+    if(NOT EXISTS "${WEBVIEW2_LIB}")
+        message(FATAL_ERROR "WebView2 loader static lib not found at ${WEBVIEW2_LIB}")
+    endif()
+
     # WIL package configuration
     set(WINIMPL_VERSION "1.0.250325.1" CACHE STRING "Windows Implementation Library version")
-
     set(WINIMPL_BASE_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}")
 
     # Include directories

@@ -99,4 +99,5 @@
     <Target Name="_MTPBuild">
         <Message Text="Skipping VSTest for native project." Importance="High"/>
     </Target>
+    
 </Project>
