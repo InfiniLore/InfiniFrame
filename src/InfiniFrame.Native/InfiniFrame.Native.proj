@@ -34,12 +34,6 @@
         <None Include="**/*.*" Exclude="CMakeLists.txt;" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Reference Include="Microsoft.Web.WebView2.Core, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL, ContentType=WindowsRuntime">
-        <HintPath>..\..\packages\Microsoft.Web.WebView2.1.0.3650.58\lib\Microsoft.Web.WebView2.Core.winmd</HintPath>
-      </Reference>
-    </ItemGroup>
-
     <!-- Build target -->
     <Target Name="Build">
         <Message Text="Building InfiniFrame.Native ($(Configuration)|$(CMakePlatform))" Importance="High" />
@@ -106,12 +100,4 @@
         <Message Text="Skipping VSTest for native project." Importance="High"/>
     </Target>
     
-    <Import Project="..\..\packages\Microsoft.Web.WebView2.1.0.3650.58\build\Microsoft.Web.WebView2.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebView2.1.0.3650.58\build\Microsoft.Web.WebView2.targets')" />
-    
-    <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-      <PropertyGroup>
-        <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
-      </PropertyGroup>
-      <Error Condition="!Exists('..\..\packages\Microsoft.Web.WebView2.1.0.3650.58\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Web.WebView2.1.0.3650.58\build\Microsoft.Web.WebView2.targets'))" />
-    </Target>
 </Project>
