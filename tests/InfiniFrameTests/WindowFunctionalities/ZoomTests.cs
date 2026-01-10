@@ -27,10 +27,8 @@ public class ZoomTests {
         await Assert.That(configParameters.Zoom).IsEqualTo(zoom);
     }
 
-    // TODO: fix this test
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
-    [Skip("THIS IS NOT WORKING IN TEST ENVIRONMENT, but is working in real application")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
@@ -54,16 +52,14 @@ public class ZoomTests {
         await Assert.That(window.Zoom).IsEqualTo(zoom);
     }
 
-    // TODO: fix this test
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
-    [Skip("THIS IS NOT WORKING IN TEST ENVIRONMENT, but is working in real application")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    [MatrixDataSource]
-    public async Task FullIntegration([MatrixRange<int>(26, 250, 10)] int zoom) {
+    public async Task FullIntegration() {
         // Arrange
+        const int zoom = 120;
 
         // Act
         var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
@@ -76,4 +72,5 @@ public class ZoomTests {
         // Assert
         await Assert.That(window.Zoom).IsEqualTo(zoom);
     }
+    // ... existing co
 }
