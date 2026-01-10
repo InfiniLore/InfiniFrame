@@ -32,7 +32,8 @@ public class ZoomTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    public async Task Window() {
+    [Timeout(10000)]
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         const int zoom = 120;
         var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
@@ -42,7 +43,7 @@ public class ZoomTests {
                 .SetZoomEnabled(true)
         );
         IInfiniFrameWindow window = windowUtility.Window;
-        await Task.Delay(2000);
+        await Task.Delay(2000, timeoutToken);
 
         // Act
         window.SetZoom(zoom);
@@ -56,7 +57,8 @@ public class ZoomTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    public async Task FullIntegration() {
+    [Timeout(10000)]
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
         const int zoom = 120;
 
@@ -71,5 +73,4 @@ public class ZoomTests {
         // Assert
         await Assert.That(window.Zoom).IsEqualTo(zoom);
     }
-    // ... existing co
 }
