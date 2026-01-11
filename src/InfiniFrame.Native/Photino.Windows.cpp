@@ -774,10 +774,17 @@ void Photino::SetContextMenuEnabled(const bool enabled)
 
 void Photino::SetZoomEnabled(const bool enabled)
 {
-    ICoreWebView2Settings* settings;
-    HRESULT r = _webviewWindow->get_Settings(&settings);
-    settings->put_IsZoomControlEnabled(enabled);
-    _webviewWindow->Reload();
+    ComPtr<ICoreWebView2Settings> settings;
+
+    HRESULT hr = _webviewWindow->get_Settings(&settings);
+    if (FAILED(hr) || !settings)  return;
+
+    hr = settings->put_IsZoomControlEnabled(enabled);
+    if (FAILED(hr)) return;
+
+    // Reload only if truly needed; otherwise omit this call in the future.
+    hr = _webviewWindow->Reload();
+    FAILED(hr);
 }
 
 void Photino::SetDevToolsEnabled(const bool enabled)
@@ -935,9 +942,11 @@ void Photino::SetTopmost(const bool topmost)
 void Photino::SetZoom(const int zoom)
 {
     if (zoom < 25 || zoom > 500) return;
+    if (!_webviewController) return;
 
     const double newZoom = zoom / 100.0;
-    _webviewController->put_ZoomFactor(newZoom);
+    HRESULT hr = _webviewController->put_ZoomFactor(newZoom);
+    if (FAILED(hr)) return;
 }
 
 void Photino::SetFocused()
@@ -1130,20 +1139,27 @@ void Photino::AttachWebView()
 				if (envResult != S_OK) { return envResult; }
 
 				env->CreateCoreWebView2Controller(_hWnd, Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-					[&](const HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+				[this](const HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+                        if (FAILED(result) || !controller) return result;
 
-						if (result != S_OK) { return result; }
+                        HRESULT hr = controller->QueryInterface(&_webviewController);
+                        if (FAILED(hr) || !_webviewController) return hr;
 
-						HRESULT envResult = controller->QueryInterface(&_webviewController);
-						if (envResult != S_OK) { return envResult; }
-						_webviewController->get_CoreWebView2(&_webviewWindow);
+                        hr = _webviewController->get_CoreWebView2(&_webviewWindow);
+                        if (FAILED(hr) || !_webviewWindow) return hr;
 
-						ICoreWebView2Settings* Settings;
-						_webviewWindow->get_Settings(&Settings);
-						Settings->put_AreHostObjectsAllowed(TRUE);
-						Settings->put_IsScriptEnabled(TRUE);
-						Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
-						Settings->put_IsWebMessageEnabled(TRUE);
+                        ComPtr<ICoreWebView2Settings> settings;
+                        hr = _webviewWindow->get_Settings(&settings);
+                        if (FAILED(hr) || !settings) return hr;
+
+                        hr = settings->put_AreHostObjectsAllowed(TRUE);
+                        if (FAILED(hr)) return hr;
+                        hr = settings->put_IsScriptEnabled(TRUE);
+                        if (FAILED(hr)) return hr;
+                        hr = settings->put_AreDefaultScriptDialogsEnabled(TRUE);
+                        if (FAILED(hr)) return hr;
+                        hr = settings->put_IsWebMessageEnabled(TRUE);
+                        if (FAILED(hr)) return hr;
 
 						EventRegistrationToken webMessageToken;
 						_webviewWindow->AddScriptToExecuteOnDocumentCreated(L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };", nullptr);

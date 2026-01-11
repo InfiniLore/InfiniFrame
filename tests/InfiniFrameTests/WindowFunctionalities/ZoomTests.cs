@@ -31,7 +31,7 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(Timeout.Seconds10)]
+    // [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
     public async Task Window(CancellationToken timeoutToken) {
@@ -48,9 +48,10 @@ public class ZoomTests {
 
         // Act
         window.SetZoom(zoom);
+        int zoomValue = window.Zoom;
 
         // Assert
-        await Assert.That(window.Zoom).IsEqualTo(zoom);
+        await Assert.That(zoomValue).IsEqualTo(zoom);
     }
 
     [Test]

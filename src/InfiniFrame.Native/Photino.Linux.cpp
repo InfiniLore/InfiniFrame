@@ -617,7 +617,7 @@ void Photino::SetContextMenuEnabled(const bool enabled)
 	_contextMenuEnabled = enabled;
 }
 
-void Photino::SetZoomEnabled(bool enabled)
+void Photino::SetZoomEnabled(const bool enabled)
 {
     //! Not implemented (supported?) on Linux
 }
