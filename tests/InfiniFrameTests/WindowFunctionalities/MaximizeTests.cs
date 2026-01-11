@@ -31,11 +31,12 @@ public class MaximizeTests {
 
     [Test]
     [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task Window(bool state) {
+    public async Task Window(bool state, CancellationToken timeoutToken) {
         SkipUtility.SkipOnLinux(state);
 
         // Arrange
@@ -51,12 +52,13 @@ public class MaximizeTests {
 
     [Test]
     [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window_Toggle)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task Window_Toggle(bool state) {
+    public async Task Window_Toggle(bool state, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -71,11 +73,12 @@ public class MaximizeTests {
 
     [Test]
     [DisplayName($"{nameof(MaximizeTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task FullIntegration(bool state) {
+    public async Task FullIntegration(bool state, CancellationToken timeoutToken) {
         SkipUtility.SkipOnLinux(state);
 
         // Arrange

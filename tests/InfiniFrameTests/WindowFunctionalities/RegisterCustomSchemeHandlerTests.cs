@@ -42,9 +42,10 @@ public class RegisterCustomSchemeHandlerTests {
     
     [Test]
     [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -62,9 +63,10 @@ public class RegisterCustomSchemeHandlerTests {
 
     [Test]
     [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
 
         // Act

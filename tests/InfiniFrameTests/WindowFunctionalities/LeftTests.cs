@@ -56,10 +56,11 @@ public class LeftTests {
 
     [Test]
     [DisplayName($"{nameof(LeftTests)}.{nameof(Window)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -73,10 +74,11 @@ public class LeftTests {
 
     [Test]
     [DisplayName($"{nameof(LeftTests)}.{nameof(FullIntegration)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
 
         // Act

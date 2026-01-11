@@ -47,10 +47,11 @@ public class IconFilePathTests {
 
     [Test]
     [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Window)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -64,11 +65,12 @@ public class IconFilePathTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Window_ShouldNotSetInvalidIconFilePath)}")]   
+    [DisplayName($"{nameof(IconFilePathTests)}.{nameof(Window_ShouldNotSetInvalidIconFilePath)}")] 
+    [NotInParallel(ParallelControl.InfiniFrame)]  
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window_ShouldNotSetInvalidIconFilePath() {
+    public async Task Window_ShouldNotSetInvalidIconFilePath(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -82,10 +84,11 @@ public class IconFilePathTests {
 
     [Test]
     [DisplayName($"{nameof(IconFilePathTests)}.{nameof(FullIntegration)}")] 
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
 
         // Act

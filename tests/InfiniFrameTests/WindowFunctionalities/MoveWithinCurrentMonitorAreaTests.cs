@@ -14,13 +14,14 @@ public class MoveWithinCurrentMonitorAreaTests {
 
     [Test]
     [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(0, 0, 0, 0)]
     [Arguments(100, 100, 100, 100)]
     [Arguments(-100, -100, 0, 0)]
-    public async Task Window(int x, int y, int expectedX, int expectedY) {
+    public async Task Window(int x, int y, int expectedX, int expectedY, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -44,13 +45,14 @@ public class MoveWithinCurrentMonitorAreaTests {
 
     [Test]
     [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window_AsPoint)}")] 
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(0, 0, 0, 0)]
     [Arguments(100, 100, 100, 100)]
     [Arguments(-100, -100, 0, 0)]
-    public async Task Window_AsPoint(int x, int y, int expectedX, int expectedY) {
+    public async Task Window_AsPoint(int x, int y, int expectedX, int expectedY, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -74,13 +76,14 @@ public class MoveWithinCurrentMonitorAreaTests {
 
     [Test]
     [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window_AsDouble)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(0, 0, 0, 0)]
     [Arguments(100, 100, 100, 100)]
     [Arguments(-100, -100, 0, 0)]
-    public async Task Window_AsDouble(double x, double y, int expectedX, int expectedY) {
+    public async Task Window_AsDouble(double x, double y, int expectedX, int expectedY, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;

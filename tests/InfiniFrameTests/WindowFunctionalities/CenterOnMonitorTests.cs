@@ -13,10 +13,11 @@ namespace InfiniFrameTests.WindowFunctionalities;
 public class CenterOnMonitorTests {
     [Test]
     [DisplayName($"{nameof(CenterOnMonitorTests)}.{nameof(Window)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;

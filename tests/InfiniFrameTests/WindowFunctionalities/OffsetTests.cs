@@ -13,13 +13,14 @@ public class OffsetTests {
 
     [Test]
     [DisplayName($"{nameof(OffsetTests)}.{nameof(Window)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window(int x, int y) {
+    public async Task Window(int x, int y, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -36,13 +37,14 @@ public class OffsetTests {
 
     [Test]
     [DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsPoint)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window_AsPoint(int x, int y) {
+    public async Task Window_AsPoint(int x, int y, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -59,13 +61,14 @@ public class OffsetTests {
 
     [Test]
     [DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsDouble)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window_AsDouble(double x, double y) {
+    public async Task Window_AsDouble(double x, double y, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;

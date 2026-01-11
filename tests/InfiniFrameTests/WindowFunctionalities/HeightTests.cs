@@ -56,10 +56,11 @@ public class HeightTests {
 
     [Test]
     [DisplayName($"{nameof(HeightTests)}.{nameof(Window)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -73,9 +74,10 @@ public class HeightTests {
 
     [Test]
     [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
 
         // Act
@@ -92,10 +94,11 @@ public class HeightTests {
 
     [Test]
     [DisplayName($"{nameof(HeightTests)}.{nameof(Window_WithChromelessToGetSmallestHeight)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]    
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window_WithChromelessToGetSmallestHeight() {
+    public async Task Window_WithChromelessToGetSmallestHeight(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
         IInfiniFrameWindow window = windowUtility.Window;
@@ -109,9 +112,10 @@ public class HeightTests {
 
     [Test]
     [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestHeight)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration_WithChromelessToGetSmallestHeight() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task FullIntegration_WithChromelessToGetSmallestHeight(CancellationToken timeoutToken) {
         // Arrange
 
         // Act

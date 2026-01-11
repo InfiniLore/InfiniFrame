@@ -34,9 +34,10 @@ public class MinSizeTests {
 
     [Test]
     [DisplayName($"{nameof(MinSizeTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -50,9 +51,10 @@ public class MinSizeTests {
 
     [Test]
     [DisplayName($"{nameof(MinSizeTests)}.{nameof(Window_AsSize)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window_AsSize() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task Window_AsSize(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -66,9 +68,10 @@ public class MinSizeTests {
 
     [Test]
     [DisplayName($"{nameof(MinSizeTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
 
         // Act

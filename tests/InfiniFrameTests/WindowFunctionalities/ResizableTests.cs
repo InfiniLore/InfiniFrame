@@ -31,11 +31,12 @@ public class ResizableTests {
 
     [Test]
     [DisplayName($"{nameof(ResizableTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task Window(bool state) {
+    public async Task Window(bool state, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -50,11 +51,12 @@ public class ResizableTests {
 
     [Test]
     [DisplayName($"{nameof(ResizableTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task FullIntegration(bool state) {
+    public async Task FullIntegration(bool state, CancellationToken timeoutToken) {
         // Arrange
 
         // Act

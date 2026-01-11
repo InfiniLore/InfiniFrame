@@ -12,8 +12,9 @@ namespace InfiniFrameTests.WindowFunctionalities;
 public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Builder)}")]
+    [Timeout(Timeout.Seconds10)]
     [MatrixDataSource]
-    public async Task Builder([MatrixRange<int>(10, 200, 10)] int zoom) {
+    public async Task Builder([MatrixRange<int>(10, 200, 10)] int zoom, CancellationToken timeoutToken) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -30,9 +31,9 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    [Timeout(10000)]
     public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         const int zoom = 120;
@@ -55,9 +56,9 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    [Timeout(10000)]
     public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
         const int zoom = 120;

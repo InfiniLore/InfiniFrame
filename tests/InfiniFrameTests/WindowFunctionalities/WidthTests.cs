@@ -55,10 +55,11 @@ public class WidthTests {
 
     [Test]
     [DisplayName($"{nameof(WidthTests)}.{nameof(Window)}")]  
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -72,10 +73,11 @@ public class WidthTests {
 
     [Test]
     [DisplayName($"{nameof(WidthTests)}.{nameof(FullIntegration)}")] 
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
 
         // Act
@@ -92,10 +94,11 @@ public class WidthTests {
 
     [Test]
     [DisplayName($"{nameof(WidthTests)}.{nameof(Window_WithChromelessToGetSmallestWidth)}")] 
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window_WithChromelessToGetSmallestWidth() {
+    public async Task Window_WithChromelessToGetSmallestWidth(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
         IInfiniFrameWindow window = windowUtility.Window;
@@ -109,9 +112,10 @@ public class WidthTests {
 
     [Test]
     [DisplayName($"{nameof(WidthTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestWidth)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration_WithChromelessToGetSmallestWidth() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task FullIntegration_WithChromelessToGetSmallestWidth(CancellationToken timeoutToken) {
         // Arrange
 
         // Act

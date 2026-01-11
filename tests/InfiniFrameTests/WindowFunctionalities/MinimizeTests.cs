@@ -31,11 +31,12 @@ public class MinimizeTests {
 
     [Test]
     [DisplayName($"{nameof(MinimizeTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task Window(bool state) {
+    public async Task Window(bool state, CancellationToken timeoutToken) {
         SkipUtility.SkipOnLinux(state);
 
         // Arrange
@@ -51,11 +52,12 @@ public class MinimizeTests {
 
     [Test]
     [DisplayName($"{nameof(MinimizeTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task FullIntegration(bool state) {
+    public async Task FullIntegration(bool state, CancellationToken timeoutToken) {
         SkipUtility.SkipOnLinux(state);
 
         // Arrange

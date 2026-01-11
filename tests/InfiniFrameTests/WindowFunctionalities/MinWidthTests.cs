@@ -30,9 +30,10 @@ public class MinWidthTests {
 
     [Test]
     [DisplayName($"{nameof(MinWidthTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -46,9 +47,10 @@ public class MinWidthTests {
 
     [Test]
     [DisplayName($"{nameof(MinWidthTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
 
         // Act

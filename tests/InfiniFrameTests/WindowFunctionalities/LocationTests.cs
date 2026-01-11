@@ -61,10 +61,11 @@ public class LocationTests {
 
     [Test]
     [DisplayName($"{nameof(LocationTests)}.{nameof(Window)}")]   
+    [NotInParallel(ParallelControl.InfiniFrame)]  
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]   
-    public async Task Window() {
+    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)] 
+    public async Task Window(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -78,10 +79,11 @@ public class LocationTests {
 
     [Test]
     [DisplayName($"{nameof(LocationTests)}.{nameof(Window_AsPoint)}")]  
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window_AsPoint() {
+    public async Task Window_AsPoint(CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -95,10 +97,11 @@ public class LocationTests {
 
     [Test]
     [DisplayName($"{nameof(LocationTests)}.{nameof(FullIntegration)}")] 
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    public async Task FullIntegration(CancellationToken timeoutToken) {
         // Arrange
 
         // Act

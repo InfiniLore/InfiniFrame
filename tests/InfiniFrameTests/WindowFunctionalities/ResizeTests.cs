@@ -13,9 +13,10 @@ public class ResizeTests {
 
     [Test]
     [DisplayName($"{nameof(ResizeTests)}.{nameof(Window)}")]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(0, 0, ResizeOrigin.TopLeft)]
     [Arguments(0, 0, ResizeOrigin.Top)]
     [Arguments(0, 0, ResizeOrigin.TopRight)]
@@ -56,7 +57,7 @@ public class ResizeTests {
     [Arguments(-10, 10, ResizeOrigin.Bottom)]
     [Arguments(-10, 10, ResizeOrigin.BottomLeft)]
     [Arguments(-10, 10, ResizeOrigin.Left)]
-    public async Task Window(int widthOffset, int heightOffset, ResizeOrigin origin) {
+    public async Task Window(int widthOffset, int heightOffset, ResizeOrigin origin, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;

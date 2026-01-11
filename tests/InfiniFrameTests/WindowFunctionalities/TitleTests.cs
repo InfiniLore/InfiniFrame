@@ -36,14 +36,15 @@ public class TitleTests {
 
     [Test]
     [DisplayName($"{nameof(TitleTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
     [Arguments("")]
     [Arguments(null)]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
-    public async Task Window(string? title) {
+    public async Task Window(string? title, CancellationToken timeoutToken) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create();
         IInfiniFrameWindow window = windowUtility.Window;
@@ -58,14 +59,15 @@ public class TitleTests {
 
     [Test]
     [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(Timeout.Seconds10)]
+    [SkipUtility.SkipOnMacOs]
     [Arguments("")]
     [Arguments(null)]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
-    public async Task FullIntegration(string? title) {
+    public async Task FullIntegration(string? title, CancellationToken timeoutToken) {
         // Arrange
 
         // Act
