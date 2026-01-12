@@ -491,7 +491,6 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_USER_INVOKE:
 	{
-		auto* callback = reinterpret_cast<std::function<void()>*>(wParam);
 		InvokeWaitInfo* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
 
 		// Verify if waitInfo is still in _pendingInvokes to avoid use-after-free
@@ -508,16 +507,15 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 
 		if (isValid)
 		{
-			if (callback && *callback)
+			if (waitInfo->callback)
 			{
 				try {
-					(*callback)();
+					(waitInfo->callback)();
 				} catch (...) {
 					// Prevent crashes from managed-to-native callback exceptions
 				}
 			}
 
-			if (waitInfo)
 			{
 				std::lock_guard<std::mutex> guard(waitInfo->mutex);
 				waitInfo->isCompleted = true;
@@ -1214,6 +1212,7 @@ void Photino::Invoke(std::function<void()> callback)
 
 	InvokeWaitInfo waitInfo;
 	waitInfo.isCompleted = false;
+	waitInfo.callback = callback;
 
 	{
 		std::lock_guard<std::mutex> lock(_invokeMutex);
@@ -1225,7 +1224,7 @@ void Photino::Invoke(std::function<void()> callback)
 
 		_pendingInvokes.push_back(&waitInfo);
 
-		if (!PostMessage(_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(&callback), reinterpret_cast<LPARAM>(&waitInfo)))
+		if (!PostMessage(_hWnd, WM_USER_INVOKE, 0, reinterpret_cast<LPARAM>(&waitInfo)))
 		{
 			_pendingInvokes.erase(std::remove(_pendingInvokes.begin(), _pendingInvokes.end(), &waitInfo), _pendingInvokes.end());
 			if (callback) callback();
@@ -1325,7 +1324,7 @@ void Photino::AttachWebView()
 
 	HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(runtimePath, _temporaryFilesPath, options.Get(),
 		Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-			[&](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
+			[this](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
 				if (result != S_OK) { return result; }
 				HRESULT envResult = env->QueryInterface(&_webviewEnvironment);
 				if (envResult != S_OK) { return envResult; }
@@ -1356,7 +1355,7 @@ void Photino::AttachWebView()
 						EventRegistrationToken webMessageToken;
 						_webviewWindow->AddScriptToExecuteOnDocumentCreated(L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };", nullptr);
 						_webviewWindow->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>(
-							[&](ICoreWebView2* webview, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
+							[this](ICoreWebView2* webview, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
 								wil::unique_cotaskmem_string message;
 								args->TryGetWebMessageAsString(&message);
 								_webMessageReceivedCallback(message.get());
@@ -1366,7 +1365,7 @@ void Photino::AttachWebView()
 						EventRegistrationToken webResourceRequestedToken;
 						_webviewWindow->AddWebResourceRequestedFilter(L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
 						_webviewWindow->add_WebResourceRequested(Callback<ICoreWebView2WebResourceRequestedEventHandler>(
-							[&](ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args)
+							[this](ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args)
 							{
 								ICoreWebView2WebResourceRequest* req;
 								args->get_Request(&req);
@@ -1408,7 +1407,7 @@ void Photino::AttachWebView()
 						EventRegistrationToken permissionRequestedToken;
 						_webviewWindow->add_PermissionRequested(
 							Callback<ICoreWebView2PermissionRequestedEventHandler>(
-								[&](ICoreWebView2* sender, ICoreWebView2PermissionRequestedEventArgs* args)	-> HRESULT {
+								[this](ICoreWebView2* sender, ICoreWebView2PermissionRequestedEventArgs* args)	-> HRESULT {
 									if (_grantBrowserPermissions)
 										args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
 									return S_OK;

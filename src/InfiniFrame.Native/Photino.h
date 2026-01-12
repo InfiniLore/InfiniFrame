@@ -41,6 +41,7 @@ struct InvokeWaitInfo
 	bool isCompleted;
 	std::mutex mutex;
 	std::condition_variable cv;
+	std::function<void()> callback;
 };
 
 struct Monitor
@@ -246,6 +247,7 @@ public:
 	int _maxHeight;
     wchar_t* GetIconFileName();
 #elif __linux__
+	static void Register(AutoString title);
 	void set_webkit_settings();
 	void set_webkit_customsettings(WebKitSettings* settings);
 	GtkWidget *_window;

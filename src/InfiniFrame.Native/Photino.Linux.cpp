@@ -45,13 +45,20 @@ gboolean on_webview_context_menu(WebKitWebView *web_view,
 								 gpointer user_data);
 gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest *request, gpointer user_data);
 
-Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
+void Photino::Register(const AutoString title)
 {
-	// It makes xlib thread safe.
-	// Needed for get_position.
+	static bool registered = false;
+	if (registered) return;
+
 	XInitThreads();
 	gtk_init(nullptr, nullptr);
-	notify_init(initParams->Title);
+	notify_init(title);
+	registered = true;
+}
+
+Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
+{
+	Photino::Register(initParams->Title);
 
 	if (initParams->Size != sizeof(PhotinoInitParams))
 	{
@@ -808,31 +815,44 @@ void Photino::GetAllMonitors(const GetAllMonitorsCallback callback)
 }
 
 struct LinuxInvokeParams {
-	std::function<void()>* callback;
+	Photino* instance;
 	InvokeWaitInfo* waitInfo;
 };
 
 static gboolean invokeCallback(const gpointer data)
 {
 	LinuxInvokeParams* params = reinterpret_cast<LinuxInvokeParams*>(data);
-	std::function<void()>* callback = params->callback;
+	Photino* photino = params->instance;
 	InvokeWaitInfo* waitInfo = params->waitInfo;
 
-	if (callback && *callback)
+	bool isValid = false;
 	{
-		try {
-			(*callback)();
-		} catch (...) {
+		std::lock_guard<std::mutex> lock(photino->_invokeMutex);
+		auto it = std::find(photino->_pendingInvokes.begin(), photino->_pendingInvokes.end(), waitInfo);
+		if (it != photino->_pendingInvokes.end())
+		{
+			isValid = true;
 		}
 	}
 
-	if (waitInfo)
+	if (isValid)
 	{
-		std::lock_guard<std::mutex> guard(waitInfo->mutex);
-		waitInfo->isCompleted = true;
-		waitInfo->cv.notify_all();
+		if (waitInfo->callback)
+		{
+			try {
+				(waitInfo->callback)();
+			} catch (...) {
+			}
+		}
+
+		{
+			std::lock_guard<std::mutex> guard(waitInfo->mutex);
+			waitInfo->isCompleted = true;
+			waitInfo->cv.notify_all();
+		}
 	}
 
+	delete params;
 	return false;
 }
 
@@ -845,6 +865,7 @@ void Photino::Invoke(std::function<void()> callback)
 {
 	InvokeWaitInfo waitInfo;
 	waitInfo.isCompleted = false;
+	waitInfo.callback = callback;
 
 	{
 		std::lock_guard<std::mutex> lock(_invokeMutex);
@@ -856,8 +877,10 @@ void Photino::Invoke(std::function<void()> callback)
 		_pendingInvokes.push_back(&waitInfo);
 	}
 
-	LinuxInvokeParams params = { &callback, &waitInfo };
-	gdk_threads_add_idle(invokeCallback, &params);
+	LinuxInvokeParams* params = new LinuxInvokeParams();
+	params->instance = this;
+	params->waitInfo = &waitInfo;
+	gdk_threads_add_idle(invokeCallback, params);
 
 	// Block until the callback is actually executed and completed or window closes
 	std::unique_lock<std::mutex> uLock(waitInfo.mutex);
