@@ -417,13 +417,35 @@ jobs:
                     
                     Write-Host "✅ All native DLLs present"
 
-            -   name: Run tests
+            -   name: Run tests (net8.0)
                 run: |
-                    echo "Running tests on Windows..."
+                    echo "Running .NET 8 tests on Windows..."
                     dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
                       --configuration Release `
+                      --framework net8.0 `
                       --no-build `
-                      --no-restore
+                      --no-restore `
+                      -- --report-trx
+
+            -   name: Run tests (net9.0)
+                run: |
+                    echo "Running .NET 9 tests on Windows..."
+                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
+                      --configuration Release `
+                      --framework net9.0 `
+                      --no-build `
+                      --no-restore `
+                      -- --report-trx
+
+            -   name: Run tests (net10.0)
+                run: |
+                    echo "Running .NET 10 tests on Windows..."
+                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
+                      --configuration Release `
+                      --framework net10.0 `
+                      --no-build `
+                      --no-restore `
+                      -- --report-trx
 
             -   name: Upload test results as artifact
                 if: failure()
