@@ -266,10 +266,6 @@ Photino::Photino(PhotinoInitParams* initParams)
 		_hInstance, //Instance handle
 		this        //Additional application data
 	);
-	{
-		std::lock_guard<std::mutex> lock(hwndToPhotinoMutex);
-		hwndToPhotino[_hWnd] = this;
-	}
 
     _iconFileName = new wchar_t[256];
 	if (initParams->WindowIconFile != nullptr)
@@ -341,10 +337,28 @@ HWND Photino::getHwnd()
 LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam)
 {
 	Photino* photino = nullptr;
+
+	if (uMsg == WM_NCCREATE)
 	{
+		CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
+		photino = (Photino*)cs->lpCreateParams;
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)photino);
+		
+		std::lock_guard<std::mutex> lock(hwndToPhotinoMutex);
+		hwndToPhotino[hwnd] = photino;
+	}
+	else
+	{
+		photino = (Photino*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+	}
+
+	if (photino == nullptr)
+	{
+		// Fallback for any messages before WM_NCCREATE or if GWLP_USERDATA is not set
 		std::lock_guard<std::mutex> lock(hwndToPhotinoMutex);
 		photino = hwndToPhotino[hwnd];
 	}
+
 	if (photino == nullptr)
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 
@@ -468,6 +482,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 		{
 			std::lock_guard<std::mutex> lock(hwndToPhotinoMutex);
 			hwndToPhotino.erase(hwnd);
+			SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
 		}
 		if (hwnd == rootHwnd)
 			PostQuitMessage(0);
@@ -476,8 +491,8 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_USER_INVOKE:
 	{
-		ACTION callback = (ACTION)wParam;
-		InvokeWaitInfo* waitInfo = (InvokeWaitInfo*)lParam;
+		auto* callback = reinterpret_cast<std::function<void()>*>(wParam);
+		InvokeWaitInfo* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
 
 		// Verify if waitInfo is still in _pendingInvokes to avoid use-after-free
 		bool isValid = false;
@@ -493,10 +508,10 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 
 		if (isValid)
 		{
-			if (callback)
+			if (callback && *callback)
 			{
 				try {
-					callback();
+					(*callback)();
 				} catch (...) {
 					// Prevent crashes from managed-to-native callback exceptions
 				}
@@ -622,32 +637,66 @@ void Photino::Close()
 
 void Photino::GetTransparentEnabled(bool* enabled)
 {
-	ICoreWebView2Controller2* controller2;
-	_webviewController->QueryInterface(&controller2);
-	COREWEBVIEW2_COLOR backgroundColor;
-	controller2->get_DefaultBackgroundColor(&backgroundColor);
-	*enabled = backgroundColor.A == 0;
+	Invoke([this, enabled]() {
+		if (!_webviewController) { *enabled = _transparentEnabled; return; }
+		wil::com_ptr<ICoreWebView2Controller2> controller2;
+		_webviewController.query_to(&controller2);
+		if (controller2)
+		{
+			COREWEBVIEW2_COLOR backgroundColor;
+			if (SUCCEEDED(controller2->get_DefaultBackgroundColor(&backgroundColor)))
+				_transparentEnabled = backgroundColor.A == 0;
+		}
+		*enabled = _transparentEnabled;
+	});
 }
 
 void Photino::GetContextMenuEnabled(bool* enabled)
 {
-	ICoreWebView2Settings* settings;
-	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->get_AreDefaultContextMenusEnabled((BOOL*)enabled);
+	Invoke([this, enabled]() {
+		if (!_webviewWindow) { *enabled = _contextMenuEnabled; return; }
+		ComPtr<ICoreWebView2Settings> settings;
+		HRESULT hr = _webviewWindow->get_Settings(&settings);
+		if (SUCCEEDED(hr) && settings)
+		{
+			BOOL val;
+			if (SUCCEEDED(settings->get_AreDefaultContextMenusEnabled(&val)))
+				_contextMenuEnabled = val != 0;
+		}
+		*enabled = _contextMenuEnabled;
+	});
 }
 
 void Photino::GetZoomEnabled(bool* enabled)
 {
-    ICoreWebView2Settings* settings;
-    HRESULT r = _webviewWindow->get_Settings(&settings);
-    settings->get_IsZoomControlEnabled((BOOL*)enabled);
+	Invoke([this, enabled]() {
+		if (!_webviewWindow) { *enabled = _zoomEnabled; return; }
+		ComPtr<ICoreWebView2Settings> settings;
+		HRESULT hr = _webviewWindow->get_Settings(&settings);
+		if (SUCCEEDED(hr) && settings)
+		{
+			BOOL val;
+			if (SUCCEEDED(settings->get_IsZoomControlEnabled(&val)))
+				_zoomEnabled = val != 0;
+		}
+		*enabled = _zoomEnabled;
+	});
 }
 
 void Photino::GetDevToolsEnabled(bool* enabled)
 {
-	ICoreWebView2Settings* settings;
-	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->get_AreDevToolsEnabled((BOOL*)enabled);
+	Invoke([this, enabled]() {
+		if (!_webviewWindow) { *enabled = _devToolsEnabled; return; }
+		ComPtr<ICoreWebView2Settings> settings;
+		HRESULT hr = _webviewWindow->get_Settings(&settings);
+		if (SUCCEEDED(hr) && settings)
+		{
+			BOOL val;
+			if (SUCCEEDED(settings->get_AreDevToolsEnabled(&val)))
+				_devToolsEnabled = val != 0;
+		}
+		*enabled = _devToolsEnabled;
+	});
 }
 
 void Photino::GetFullScreen(bool* fullScreen)
@@ -704,7 +753,9 @@ void Photino::GetIgnoreCertificateErrorsEnabled(bool* enabled)
 
 void Photino::GetFocused(bool* isFocused)
 {
-	*isFocused = GetFocus() == _hWnd;
+	Invoke([this, isFocused]() {
+		*isFocused = GetFocus() == _hWnd;
+	});
 }
 
 void Photino::GetNotificationsEnabled(bool* enabled)
@@ -774,24 +825,35 @@ void Photino::GetTopmost(bool* topmost)
 
 void Photino::GetZoom(int* zoom)
 {
-	double rawValue = 0;
-	_webviewController->get_ZoomFactor(&rawValue);
-	rawValue = (rawValue * 100.0) + 0.5;		//account for rounding issues
-	*zoom = (int)rawValue;
+	Invoke([this, zoom]() {
+		if (!_webviewController) { *zoom = _zoom; return; }
+		double rawValue = 1.0;
+		HRESULT hr = _webviewController->get_ZoomFactor(&rawValue);
+		if (SUCCEEDED(hr)) {
+			_zoom = (int)((rawValue * 100.0) + 0.5);
+		}
+		*zoom = _zoom;
+	});
 }
 
 
 
 void Photino::NavigateToString(AutoString content)
 {
-	content = ToUTF16String(content);
-	_webviewWindow->NavigateToString(content);
+	Invoke([this, content]() {
+		if (!_webviewWindow) return;
+		AutoString wContent = ToUTF16String(content);
+		_webviewWindow->NavigateToString(wContent);
+	});
 }
 
 void Photino::NavigateToUrl(AutoString url)
 {
-	url = ToUTF16String(url);
-	_webviewWindow->Navigate(url);
+	Invoke([this, url]() {
+		if (!_webviewWindow) return;
+		AutoString wUrl = ToUTF16String(url);
+		_webviewWindow->Navigate(wUrl);
+	});
 }
 
 void Photino::Restore()
@@ -801,51 +863,72 @@ void Photino::Restore()
 
 void Photino::SendWebMessage(AutoString message)
 {
-	message = ToUTF16String(message);
-	_webviewWindow->PostWebMessageAsString(message);
+	Invoke([this, message]() {
+		if (!_webviewWindow) return;
+		AutoString wMessage = ToUTF16String(message);
+		_webviewWindow->PostWebMessageAsString(wMessage);
+	});
 }
 
 
 void Photino::SetTransparentEnabled(const bool enabled)
 {
-	ICoreWebView2Controller2* controller2;
-	_webviewController->QueryInterface(&controller2);
-	COREWEBVIEW2_COLOR backgroundColor;
-	controller2->get_DefaultBackgroundColor(&backgroundColor);
-	backgroundColor.A = enabled ? 0 : 255;
-	controller2->put_DefaultBackgroundColor(backgroundColor);
-	_webviewWindow->Reload();
+	Invoke([this, enabled]() {
+		_transparentEnabled = enabled;
+		if (!_webviewController) return;
+		wil::com_ptr<ICoreWebView2Controller2> controller2;
+		_webviewController.query_to(&controller2);
+		if (controller2)
+		{
+			COREWEBVIEW2_COLOR backgroundColor;
+			controller2->get_DefaultBackgroundColor(&backgroundColor);
+			backgroundColor.A = enabled ? 0 : 255;
+			controller2->put_DefaultBackgroundColor(backgroundColor);
+			_webviewWindow->Reload();
+		}
+	});
 }
 
 void Photino::SetContextMenuEnabled(const bool enabled)
 {
-	ICoreWebView2Settings* settings;
-	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->put_AreDefaultContextMenusEnabled(enabled);
-	_webviewWindow->Reload();
+	Invoke([this, enabled]() {
+		_contextMenuEnabled = enabled;
+		if (!_webviewWindow) return;
+		ComPtr<ICoreWebView2Settings> settings;
+		HRESULT hr = _webviewWindow->get_Settings(&settings);
+		if (SUCCEEDED(hr) && settings)
+		{
+			settings->put_AreDefaultContextMenusEnabled(enabled);
+			_webviewWindow->Reload();
+		}
+	});
 }
 
 void Photino::SetZoomEnabled(const bool enabled)
 {
-    ComPtr<ICoreWebView2Settings> settings;
-
-    HRESULT hr = _webviewWindow->get_Settings(&settings);
-    if (FAILED(hr) || !settings)  return;
-
-    hr = settings->put_IsZoomControlEnabled(enabled);
-    if (FAILED(hr)) return;
-
-    // Reload only if truly needed; otherwise omit this call in the future.
-    hr = _webviewWindow->Reload();
-    FAILED(hr);
+	Invoke([this, enabled]() {
+		_zoomEnabled = enabled;
+		if (!_webviewWindow) return;
+		ComPtr<ICoreWebView2Settings> settings;
+		HRESULT hr = _webviewWindow->get_Settings(&settings);
+		if (SUCCEEDED(hr) && settings)
+			settings->put_IsZoomControlEnabled(enabled);
+	});
 }
 
 void Photino::SetDevToolsEnabled(const bool enabled)
 {
-	ICoreWebView2Settings* settings;
-	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->put_AreDevToolsEnabled(enabled);
-	_webviewWindow->Reload();
+	Invoke([this, enabled]() {
+		_devToolsEnabled = enabled;
+		if (!_webviewWindow) return;
+		ComPtr<ICoreWebView2Settings> settings;
+		HRESULT hr = _webviewWindow->get_Settings(&settings);
+		if (SUCCEEDED(hr) && settings)
+		{
+			settings->put_AreDevToolsEnabled(enabled);
+			_webviewWindow->Reload();
+		}
+	});
 }
 
 void Photino::SetFullScreen(const bool fullScreen)
@@ -994,12 +1077,14 @@ void Photino::SetTopmost(const bool topmost)
 
 void Photino::SetZoom(const int zoom)
 {
-    if (zoom < 25 || zoom > 500) return;
-    if (!_webviewController) return;
+	Invoke([this, zoom]() {
+		if (zoom < 25 || zoom > 500) return;
+		_zoom = zoom;
+		if (!_webviewController) return;
 
-    const double newZoom = zoom / 100.0;
-    HRESULT hr = _webviewController->put_ZoomFactor(newZoom);
-    if (FAILED(hr)) return;
+		const double newZoom = zoom / 100.0;
+		_webviewController->put_ZoomFactor(newZoom);
+	});
 }
 
 void Photino::SetFocused()
@@ -1110,6 +1195,11 @@ void Photino::GetAllMonitors(GetAllMonitorsCallback callback)
 
 void Photino::Invoke(ACTION callback)
 {
+	Invoke([callback]() { if (callback) callback(); });
+}
+
+void Photino::Invoke(std::function<void()> callback)
+{
 	if (!_hWnd)
 	{
 		if (callback) callback();
@@ -1135,7 +1225,7 @@ void Photino::Invoke(ACTION callback)
 
 		_pendingInvokes.push_back(&waitInfo);
 
-		if (!PostMessage(_hWnd, WM_USER_INVOKE, (WPARAM)callback, (LPARAM)&waitInfo))
+		if (!PostMessage(_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(&callback), reinterpret_cast<LPARAM>(&waitInfo)))
 		{
 			_pendingInvokes.erase(std::remove(_pendingInvokes.begin(), _pendingInvokes.end(), &waitInfo), _pendingInvokes.end());
 			if (callback) callback();
@@ -1424,60 +1514,67 @@ bool Photino::InstallWebView2()
 
 void Photino::RefitContent()
 {
-	if (_webviewController)
-	{
-		RECT bounds;
-		GetClientRect(_hWnd, &bounds);
-		_webviewController->put_Bounds(bounds);
-	}
+	Invoke([this]() {
+		if (_webviewController)
+		{
+			RECT bounds;
+			GetClientRect(_hWnd, &bounds);
+			_webviewController->put_Bounds(bounds);
+		}
+	});
 }
 
 void Photino::FocusWebView2()
 {
-	if (_webviewController)
-	{
-		_webviewController->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
-	}
+	Invoke([this]() {
+		if (_webviewController)
+		{
+			_webviewController->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
+		}
+	});
 }
 
 void Photino::NotifyWebView2WindowMove()
 {
-	if (_webviewController)
-	{
-		//MessageBox(nullptr, L"NotifyWebView2WindowMove() was called!", L"", MB_OK);
-		_webviewController->NotifyParentWindowPositionChanged();
-	}
+	Invoke([this]() {
+		if (_webviewController)
+		{
+			_webviewController->NotifyParentWindowPositionChanged();
+		}
+	});
 }
 
 void Photino::ClearBrowserAutoFill()
 {
-	if (!_webviewWindow)
-		return;
+	Invoke([this]() {
+		if (!_webviewWindow)
+			return;
 
-	auto webview15 = _webviewWindow.try_query<ICoreWebView2_15>();
-	if (webview15)
-	{
-		wil::com_ptr<ICoreWebView2Profile> profile;
-		webview15->get_Profile(&profile);
-		auto profile2 = profile.try_query<ICoreWebView2Profile2>();
-
-		if (profile2)
+		auto webview15 = _webviewWindow.try_query<ICoreWebView2_15>();
+		if (webview15)
 		{
-			COREWEBVIEW2_BROWSING_DATA_KINDS dataKinds =
-				(COREWEBVIEW2_BROWSING_DATA_KINDS)
-				(COREWEBVIEW2_BROWSING_DATA_KINDS_GENERAL_AUTOFILL |
-					COREWEBVIEW2_BROWSING_DATA_KINDS_PASSWORD_AUTOSAVE);
+			wil::com_ptr<ICoreWebView2Profile> profile;
+			webview15->get_Profile(&profile);
+			auto profile2 = profile.try_query<ICoreWebView2Profile2>();
 
-			profile2->ClearBrowsingData(
-				dataKinds,
-				Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>(
-					[this](HRESULT error)
-					-> HRESULT {
-						return S_OK;
-					})
-				.Get());
+			if (profile2)
+			{
+				COREWEBVIEW2_BROWSING_DATA_KINDS dataKinds =
+					(COREWEBVIEW2_BROWSING_DATA_KINDS)
+					(COREWEBVIEW2_BROWSING_DATA_KINDS_GENERAL_AUTOFILL |
+						COREWEBVIEW2_BROWSING_DATA_KINDS_PASSWORD_AUTOSAVE);
+
+				profile2->ClearBrowsingData(
+					dataKinds,
+					Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>(
+						[this](HRESULT error)
+						-> HRESULT {
+							return S_OK;
+						})
+					.Get());
+			}
 		}
-	}
+	});
 }
 
 void Photino::SetWebView2RuntimePath(const AutoString pathToWebView2)

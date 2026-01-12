@@ -462,7 +462,7 @@ public sealed class InfiniFrameWindow(
     public void WaitForClose() {
         try {
             logger.LogDebug("Starting message loop for window {InstanceHandle}.", InstanceHandle);
-            Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
+            InfiniFrameNative.WaitForExit(InstanceHandle);
         }
         catch (Exception ex) {
             int lastError = 0;

@@ -29,6 +29,7 @@ typedef const char* AutoStringConst;
 #include <webkit2/webkit2.h>
 #endif
 
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -341,6 +342,7 @@ public:
 	}
 
 	void Invoke(ACTION callback);
+	void Invoke(std::function<void()> callback);
 
     [[nodiscard]] bool InvokeClose() const
     {
