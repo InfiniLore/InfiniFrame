@@ -18,9 +18,15 @@ void WindowThreadMain(PhotinoInitParams* paramsCopy, std::promise<Photino*>* pro
 		promise->set_value(nullptr);
 		return;
 	}
+#elif __linux__
+	GMainContext* context = g_main_context_new();
+	g_main_context_push_thread_default(context);
 #endif
 
 	Photino* instance = new Photino(paramsCopy);
+#ifdef __linux__
+	instance->_mainContext = context;
+#endif
 	instance->_windowThread = (std::thread*)1; // Marker
 	
 	promise->set_value(instance);
@@ -31,6 +37,9 @@ void WindowThreadMain(PhotinoInitParams* paramsCopy, std::promise<Photino*>* pro
 	delete paramsCopy;
 #ifdef _WIN32
 	CoUninitialize();
+#elif __linux__
+	g_main_context_pop_thread_default(context);
+	g_main_context_unref(context);
 #endif
 }
 #endif

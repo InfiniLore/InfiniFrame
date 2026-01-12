@@ -192,6 +192,7 @@ private:
 	GdkGeometry _hints;
 	void AddCustomSchemeHandlers();
 	bool _isFullScreen;
+	GMainLoop *_mainLoop = nullptr;
 #elif __APPLE__
 	NSWindow *_window;
 	WKWebView *_webview;
@@ -230,6 +231,10 @@ public:
 	bool _contextMenuEnabled;
 	bool _zoomEnabled;
 	std::thread* _windowThread = nullptr;
+
+#ifdef __linux__
+	GMainContext *_mainContext = nullptr;
+#endif
 
 #ifdef _WIN32
 	static void Register(HINSTANCE hInstance);

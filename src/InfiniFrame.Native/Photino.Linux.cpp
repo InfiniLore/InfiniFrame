@@ -47,6 +47,8 @@ gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest 
 
 void Photino::Register(const AutoString title)
 {
+	static std::mutex registerMutex;
+	std::lock_guard<std::mutex> lock(registerMutex);
 	static bool registered = false;
 	if (registered) return;
 
@@ -166,6 +168,10 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 	_parent = initParams->ParentInstance;
 
 	_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	if (_parent != nullptr)
+	{
+		gtk_window_set_transient_for(GTK_WINDOW(_window), GTK_WINDOW(_parent->_window));
+	}
 	_dialog = new PhotinoDialog();
 
 	if (initParams->FullScreen)
@@ -237,7 +243,15 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 											}
 										}
 										photino->_invokeCV.notify_all();
-										gtk_main_quit(); 
+										
+										if (photino->_mainLoop)
+										{
+											g_main_loop_quit(photino->_mainLoop);
+										}
+										else
+										{
+											gtk_main_quit(); 
+										}
 									}),
 						 this);
 	}
@@ -303,6 +317,10 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 
 Photino::~Photino()
 {
+	if (_mainLoop)
+	{
+		g_main_loop_quit(_mainLoop);
+	}
 	notify_uninit();
 	gtk_widget_destroy(_window);
 }
@@ -352,7 +370,9 @@ void Photino::ClearBrowserAutoFill()
 
 void Photino::Close()
 {
-	gtk_window_close(GTK_WINDOW(_window));
+	Invoke([this]() {
+		gtk_window_close(GTK_WINDOW(_window));
+	});
 }
 
 void Photino::GetTransparentEnabled(bool *enabled)
@@ -512,14 +532,18 @@ void Photino::GetTopmost(bool *topmost)
 
 void Photino::GetZoom(int *zoom)
 {
-	double rawValue = 0;
-	rawValue = webkit_web_view_get_zoom_level(WEBKIT_WEB_VIEW(_webview));
-	rawValue = (rawValue * 100.0) + 0.5;
-	*zoom = (int)rawValue;
+	Invoke([this, zoom]() {
+		double rawValue = 0;
+		rawValue = webkit_web_view_get_zoom_level(WEBKIT_WEB_VIEW(_webview));
+		rawValue = (rawValue * 100.0) + 0.5;
+		*zoom = (int)rawValue;
+	});
 }
 
 void Photino::GetFocused(bool *isFocused) {
-	*isFocused = gtk_window_is_active(GTK_WINDOW(_window));
+	Invoke([this, isFocused]() {
+		*isFocused = gtk_window_is_active(GTK_WINDOW(_window));
+	});
 }
 
 AutoString Photino::GetIconFileName() const
@@ -529,17 +553,23 @@ AutoString Photino::GetIconFileName() const
 
 void Photino::NavigateToString(const AutoString content)
 {
-	webkit_web_view_load_html(WEBKIT_WEB_VIEW(_webview), content, nullptr);
+	Invoke([this, content]() {
+		webkit_web_view_load_html(WEBKIT_WEB_VIEW(_webview), content, nullptr);
+	});
 }
 
 void Photino::NavigateToUrl(const AutoString url)
 {
-	webkit_web_view_load_uri(WEBKIT_WEB_VIEW(_webview), url);
+	Invoke([this, url]() {
+		webkit_web_view_load_uri(WEBKIT_WEB_VIEW(_webview), url);
+	});
 }
 
 void Photino::Restore()
 {
-	gtk_window_present(GTK_WINDOW(_window));
+	Invoke([this]() {
+		gtk_window_present(GTK_WINDOW(_window));
+	});
 }
 
 // From https://stackoverflow.com/a/33799784
@@ -603,28 +633,30 @@ static void webview_eval_finished_new(GObject *object, GAsyncResult *result, gpo
 
 void Photino::SendWebMessage(const AutoString message)
 {
-    std::string js;
-    js.append("__dispatchMessageCallback(\"");
-    js.append(escape_json(message));
-    js.append("\")");
+    Invoke([this, message]() {
+        std::string js;
+        js.append("__dispatchMessageCallback(\"");
+        js.append(escape_json(message));
+        js.append("\")");
 
-    InvokeJSWaitInfo invokeJsWaitInfo = {};
+        InvokeJSWaitInfo invokeJsWaitInfo = {};
 
-    webkit_web_view_evaluate_javascript(
-        WEBKIT_WEB_VIEW(_webview),
-        js.c_str(),                 // script
-        -1,                         // length (-1 means null-terminated)
-        nullptr,                    // world_name (default JS world)
-        nullptr,                    // source_uri (optional, can be NULL)
-        nullptr,                    // GCancellable
-        webview_eval_finished_new,  // callback
-        &invokeJsWaitInfo           // user_data
-    );
+        webkit_web_view_evaluate_javascript(
+            WEBKIT_WEB_VIEW(_webview),
+            js.c_str(),                 // script
+            -1,                         // length (-1 means null-terminated)
+            nullptr,                    // world_name (default JS world)
+            nullptr,                    // source_uri (optional, can be NULL)
+            nullptr,                    // GCancellable
+            webview_eval_finished_new,  // callback
+            &invokeJsWaitInfo           // user_data
+        );
 
-    // Wait for JS to finish
-    while (!invokeJsWaitInfo.isCompleted){
-        g_main_context_iteration(nullptr, TRUE);
-    }
+        // Wait for JS to finish
+        while (!invokeJsWaitInfo.isCompleted){
+            g_main_context_iteration(_mainContext, TRUE);
+        }
+    });
 }
 
 
@@ -640,129 +672,159 @@ void Photino::SetZoomEnabled(const bool enabled)
 
 void Photino::SetDevToolsEnabled(const bool enabled)
 {
-	_devToolsEnabled = enabled;
-	WebKitSettings *settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(_webview));
-	webkit_settings_set_enable_developer_extras(settings, _devToolsEnabled);
+	Invoke([this, enabled]() {
+		_devToolsEnabled = enabled;
+		WebKitSettings *settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(_webview));
+		webkit_settings_set_enable_developer_extras(settings, _devToolsEnabled);
+	});
 }
 
 void Photino::SetFullScreen(const bool fullScreen)
 {
-	if (fullScreen)
-		gtk_window_fullscreen(GTK_WINDOW(_window));
-	else
-		gtk_window_unfullscreen(GTK_WINDOW(_window));
+	Invoke([this, fullScreen]() {
+		if (fullScreen)
+			gtk_window_fullscreen(GTK_WINDOW(_window));
+		else
+			gtk_window_unfullscreen(GTK_WINDOW(_window));
 
-	_isFullScreen = fullScreen;
+		_isFullScreen = fullScreen;
+	});
 }
 
 void Photino::SetIconFile(const AutoString filename)
 {
-	gtk_window_set_icon_from_file(GTK_WINDOW(_window), filename, nullptr);
+	Invoke([this, filename]() {
+		gtk_window_set_icon_from_file(GTK_WINDOW(_window), filename, nullptr);
 
-    // Store filename internally (UTF-8)
-    strncpy(_iconFileName, filename, 255);
-    _iconFileName[255] = '\0';
+		// Store filename internally (UTF-8)
+		strncpy(_iconFileName, filename, 255);
+		_iconFileName[255] = '\0';
+	});
 }
 
 void Photino::SetMinimized(const bool minimized)
 {
-	if (minimized)
-		gtk_window_iconify(GTK_WINDOW(_window));
-	else
-		gtk_window_deiconify(GTK_WINDOW(_window));
+	Invoke([this, minimized]() {
+		if (minimized)
+			gtk_window_iconify(GTK_WINDOW(_window));
+		else
+			gtk_window_deiconify(GTK_WINDOW(_window));
+	});
 }
 
 void Photino::SetMaximized(const bool maximized)
 {
-	_isFullScreen = maximized;
-	if (maximized)
-		gtk_window_maximize(GTK_WINDOW(_window));
-	else
-		gtk_window_unmaximize(GTK_WINDOW(_window));
+	Invoke([this, maximized]() {
+		_isFullScreen = maximized;
+		if (maximized)
+			gtk_window_maximize(GTK_WINDOW(_window));
+		else
+			gtk_window_unmaximize(GTK_WINDOW(_window));
+	});
 }
 
 void Photino::SetPosition(const int x, const int y)
 {
-	gtk_window_move(GTK_WINDOW(_window), x, y);
+	Invoke([this, x, y]() {
+		gtk_window_move(GTK_WINDOW(_window), x, y);
+	});
 }
 
 void Photino::SetResizable(const bool resizable)
 {
-	gtk_window_set_resizable(GTK_WINDOW(_window), resizable);
+	Invoke([this, resizable]() {
+		gtk_window_set_resizable(GTK_WINDOW(_window), resizable);
+	});
 }
 
 void Photino::SetMinSize(const int width, const int height)
 {
-    _hints.min_width = width;
-    _hints.min_height = height;
+	Invoke([this, width, height]() {
+		_hints.min_width = width;
+		_hints.min_height = height;
 
-    gtk_window_set_geometry_hints(
-		GTK_WINDOW(_window),
-        nullptr,
-		&_hints,
-		(GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+		gtk_window_set_geometry_hints(
+			GTK_WINDOW(_window),
+			nullptr,
+			&_hints,
+			(GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+	});
 }
 
 void Photino::SetMaxSize(const int width, const int height)
 {	
-    _hints.max_width = width;
-    _hints.max_height = height;
+	Invoke([this, width, height]() {
+		_hints.max_width = width;
+		_hints.max_height = height;
 
-    gtk_window_set_geometry_hints(
-		GTK_WINDOW(_window),
-        nullptr,
-		&_hints,
-		(GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+		gtk_window_set_geometry_hints(
+			GTK_WINDOW(_window),
+			nullptr,
+			&_hints,
+			(GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+	});
 }
 
 void Photino::SetSize(const int width, const int height)
 {
-	gtk_window_resize(GTK_WINDOW(_window), width, height);
+	Invoke([this, width, height]() {
+		gtk_window_resize(GTK_WINDOW(_window), width, height);
+	});
 }
 
 void Photino::SetTitle(const AutoString title)
 {
-	gtk_window_set_title(GTK_WINDOW(_window), title);
+	Invoke([this, title]() {
+		gtk_window_set_title(GTK_WINDOW(_window), title);
+	});
 }
 
 void Photino::SetTopmost(const bool topmost)
 {
-	gtk_window_set_keep_above(GTK_WINDOW(_window), topmost);
+	Invoke([this, topmost]() {
+		gtk_window_set_keep_above(GTK_WINDOW(_window), topmost);
+	});
 }
 
 void Photino::SetZoom(const int zoom)
 {
-	double newZoom = zoom / 100.0;
-	webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(_webview), newZoom);
+	Invoke([this, zoom]() {
+		double newZoom = zoom / 100.0;
+		webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(_webview), newZoom);
+	});
 }
 
 void Photino::SetFocused()
 {
-    gtk_window_present(GTK_WINDOW(_window));
+	Invoke([this]() {
+		gtk_window_present(GTK_WINDOW(_window));
+	});
 }
 
 void Photino::SetTransparentEnabled(const bool enabled)
 {
-	_transparentEnabled = enabled;
+	Invoke([this, enabled]() {
+		_transparentEnabled = enabled;
 
-	gtk_window_set_decorated(GTK_WINDOW(_window), !enabled);	//hide/show window chrome
+		gtk_window_set_decorated(GTK_WINDOW(_window), !enabled);	//hide/show window chrome
 
-	GdkScreen* screen = gtk_window_get_screen(GTK_WINDOW(_window));
-	GdkVisual* rgba_visual = gdk_screen_get_rgba_visual(screen);
-	if (rgba_visual)
-	{
-		gtk_widget_set_visual(GTK_WIDGET(_window), rgba_visual);
-		gtk_widget_set_app_paintable(GTK_WIDGET(_window), true);
+		GdkScreen* screen = gtk_window_get_screen(GTK_WINDOW(_window));
+		GdkVisual* rgba_visual = gdk_screen_get_rgba_visual(screen);
+		if (rgba_visual)
+		{
+			gtk_widget_set_visual(GTK_WIDGET(_window), rgba_visual);
+			gtk_widget_set_app_paintable(GTK_WIDGET(_window), true);
 
-		GdkRGBA color;
-		webkit_web_view_get_background_color(WEBKIT_WEB_VIEW(_webview), &color);
-		if (enabled)
-			color.alpha = 0;
-		else
-			color.alpha = 1;
+			GdkRGBA color;
+			webkit_web_view_get_background_color(WEBKIT_WEB_VIEW(_webview), &color);
+			if (enabled)
+				color.alpha = 0;
+			else
+				color.alpha = 1;
 
-		webkit_web_view_set_background_color(WEBKIT_WEB_VIEW(_webview), &color);
-	}
+			webkit_web_view_set_background_color(WEBKIT_WEB_VIEW(_webview), &color);
+		}
+	});
 }
 
 void Photino::ShowNotification(const AutoString title, const AutoString message)
@@ -775,20 +837,23 @@ void Photino::ShowNotification(const AutoString title, const AutoString message)
 
 void Photino::WaitForExit()
 {
-	gtk_main();
+	if (_windowThread != nullptr && _windowThread != (std::thread*)1)
+	{
+		if (_windowThread->joinable())
+		{
+			_windowThread->join();
+		}
+		return;
+	}
+
+	_mainLoop = g_main_loop_new(_mainContext, FALSE);
+	g_main_loop_run(_mainLoop);
+	g_main_loop_unref(_mainLoop);
+	_mainLoop = nullptr;
 
 	{
 		std::lock_guard<std::mutex> lock(_invokeMutex);
 		_isClosing = true;
-		for (auto waitInfo : _pendingInvokes)
-		{
-			if (waitInfo)
-			{
-				std::lock_guard<std::mutex> guard(waitInfo->mutex);
-				waitInfo->isCompleted = true;
-				waitInfo->cv.notify_all();
-			}
-		}
 	}
 	_invokeCV.notify_all();
 }
@@ -863,6 +928,12 @@ void Photino::Invoke(const ACTION callback)
 
 void Photino::Invoke(std::function<void()> callback)
 {
+	if (g_main_context_is_owner(_mainContext ? _mainContext : g_main_context_default()))
+	{
+		if (callback) callback();
+		return;
+	}
+
 	InvokeWaitInfo waitInfo;
 	waitInfo.isCompleted = false;
 	waitInfo.callback = callback;
@@ -880,7 +951,11 @@ void Photino::Invoke(std::function<void()> callback)
 	LinuxInvokeParams* params = new LinuxInvokeParams();
 	params->instance = this;
 	params->waitInfo = &waitInfo;
-	gdk_threads_add_idle(invokeCallback, params);
+	
+	GSource *source = g_idle_source_new();
+	g_source_set_callback(source, invokeCallback, params, nullptr);
+	g_source_attach(source, _mainContext ? _mainContext : g_main_context_default());
+	g_source_unref(source);
 
 	// Block until the callback is actually executed and completed or window closes
 	std::unique_lock<std::mutex> uLock(waitInfo.mutex);
