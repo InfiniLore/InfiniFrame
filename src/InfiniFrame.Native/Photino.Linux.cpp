@@ -1,5 +1,6 @@
 #ifdef __linux__
 #include "Photino.h"
+#include <algorithm>
 #include "Photino.Dialog.h"
 #include <mutex>
 #include <condition_variable>
@@ -25,15 +26,6 @@ using json = nlohmann::json;
 //     return s;
 // }
 /* --- end macro --- */
-
-std::mutex invokeLockMutex;
-
-struct InvokeWaitInfo
-{
-	ACTION callback;
-	std::condition_variable completionNotifier;
-	bool isCompleted;
-};
 
 struct InvokeJSWaitInfo
 {
@@ -222,7 +214,24 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 	{
 		g_signal_connect(G_OBJECT(_window), "destroy",
 						 G_CALLBACK(+[](GtkWidget *w, gpointer arg)
-									{ gtk_main_quit(); }),
+									{ 
+										Photino* photino = static_cast<Photino*>(arg);
+										{
+											std::lock_guard<std::mutex> lock(photino->_invokeMutex);
+											photino->_isClosing = true;
+											for (auto waitInfo : photino->_pendingInvokes)
+											{
+												if (waitInfo)
+												{
+													std::lock_guard<std::mutex> guard(waitInfo->mutex);
+													waitInfo->isCompleted = true;
+													waitInfo->cv.notify_all();
+												}
+											}
+										}
+										photino->_invokeCV.notify_all();
+										gtk_main_quit(); 
+									}),
 						 this);
 	}
 
@@ -760,6 +769,21 @@ void Photino::ShowNotification(const AutoString title, const AutoString message)
 void Photino::WaitForExit()
 {
 	gtk_main();
+
+	{
+		std::lock_guard<std::mutex> lock(_invokeMutex);
+		_isClosing = true;
+		for (auto waitInfo : _pendingInvokes)
+		{
+			if (waitInfo)
+			{
+				std::lock_guard<std::mutex> guard(waitInfo->mutex);
+				waitInfo->isCompleted = true;
+				waitInfo->cv.notify_all();
+			}
+		}
+	}
+	_invokeCV.notify_all();
 }
 
 // Callbacks
@@ -783,29 +807,68 @@ void Photino::GetAllMonitors(const GetAllMonitorsCallback callback)
 	}
 }
 
+struct LinuxInvokeParams {
+	std::function<void()>* callback;
+	InvokeWaitInfo* waitInfo;
+};
+
 static gboolean invokeCallback(const gpointer data)
 {
-	InvokeWaitInfo *waitInfo = (InvokeWaitInfo *)data;
-	waitInfo->callback();
+	LinuxInvokeParams* params = reinterpret_cast<LinuxInvokeParams*>(data);
+	std::function<void()>* callback = params->callback;
+	InvokeWaitInfo* waitInfo = params->waitInfo;
+
+	if (callback && *callback)
 	{
-		std::lock_guard<std::mutex> guard(invokeLockMutex);
-		waitInfo->isCompleted = true;
+		try {
+			(*callback)();
+		} catch (...) {
+		}
 	}
-	waitInfo->completionNotifier.notify_one();
+
+	if (waitInfo)
+	{
+		std::lock_guard<std::mutex> guard(waitInfo->mutex);
+		waitInfo->isCompleted = true;
+		waitInfo->cv.notify_all();
+	}
+
 	return false;
 }
 
 void Photino::Invoke(const ACTION callback)
 {
-	InvokeWaitInfo waitInfo = {};
-	waitInfo.callback = callback;
-	gdk_threads_add_idle(invokeCallback, &waitInfo);
+	Invoke([callback]() { if (callback) callback(); });
+}
 
-	// Block until the callback is actually executed and completed
-	// TODO: Add return values, exception handling, etc.
-	std::unique_lock<std::mutex> uLock(invokeLockMutex);
-	waitInfo.completionNotifier.wait(uLock, [&]
-									 { return waitInfo.isCompleted; });
+void Photino::Invoke(std::function<void()> callback)
+{
+	InvokeWaitInfo waitInfo;
+	waitInfo.isCompleted = false;
+
+	{
+		std::lock_guard<std::mutex> lock(_invokeMutex);
+		if (_isClosing)
+		{
+			if (callback) callback();
+			return;
+		}
+		_pendingInvokes.push_back(&waitInfo);
+	}
+
+	LinuxInvokeParams params = { &callback, &waitInfo };
+	gdk_threads_add_idle(invokeCallback, &params);
+
+	// Block until the callback is actually executed and completed or window closes
+	std::unique_lock<std::mutex> uLock(waitInfo.mutex);
+	waitInfo.cv.wait(uLock, [&] { 
+		return waitInfo.isCompleted || _isClosing; 
+	});
+
+	{
+		std::lock_guard<std::mutex> lock(_invokeMutex);
+		_pendingInvokes.erase(std::remove(_pendingInvokes.begin(), _pendingInvokes.end(), &waitInfo), _pendingInvokes.end());
+	}
 }
 
 // Private methods

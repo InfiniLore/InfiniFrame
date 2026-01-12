@@ -26,8 +26,8 @@ void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount)
 }
 
 AutoString* ShowDialog(const DialogType type, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount, const AutoString defaultFileName = nullptr) {
-    GtkFileChooserAction action;
-    const char* buttonText;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    const char* buttonText = "_Open";
     switch (type) {
         case OpenFile:
             action = GTK_FILE_CHOOSER_ACTION_OPEN;
