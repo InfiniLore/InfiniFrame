@@ -106,6 +106,10 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppWebMessageReceivedDelegate? WebMessageReceivedHandler;
 
+    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    internal CppWindowCreatedDelegate? WindowCreatedHandler;
+
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
     internal IntPtr[] CustomSchemeNames;

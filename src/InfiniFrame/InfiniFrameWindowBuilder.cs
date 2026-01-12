@@ -71,6 +71,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         startupParameters.FocusOutHandler = Events.OnFocusOut;
         startupParameters.WebMessageReceivedHandler = Events.OnWebMessageReceived;
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
+        startupParameters.WindowCreatedHandler = window.OnWindowCreated;
         window.StartupParameters = startupParameters;
 
         window.MaxHeight = startupParameters.MaxHeight;
@@ -84,6 +85,5 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         window.MessageHandlers = MessageHandlers;
         window.Initialize();
         return window;
-
     }
 }

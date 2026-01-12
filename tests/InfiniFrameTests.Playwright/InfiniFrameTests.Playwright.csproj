@@ -77,8 +77,8 @@
     </Target>
 
     <Target Name="BuildFrontend" BeforeTargets="Build">
-        <Message Text="Cleaning workspace" Importance="high"/>
-        <Exec Command="npm ci" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
+<!--        <Message Text="Cleaning workspace" Importance="high"/>-->
+<!--        <Exec Command="npm ci" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>-->
         <Message Text="Installing npm packages" Importance="high"/>
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
         <Message Text="Building frontend with npm..." Importance="high"/>

@@ -39,6 +39,42 @@ extern "C"
 
 	EXPORTED Photino* Photino_ctor(PhotinoInitParams* initParams)
 	{
+#ifdef _WIN32
+		if (initParams->ParentInstance == nullptr)
+		{
+			// Copy initParams to ensure it survives if it's on the caller's stack
+			PhotinoInitParams* paramsCopy = new PhotinoInitParams(*initParams);
+			std::promise<Photino*> promise;
+			auto future = promise.get_future();
+
+			std::thread* t = new std::thread([paramsCopy, &promise]() {
+				// Initialize COM for this thread
+				if (FAILED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED)))
+				{
+					promise.set_value(nullptr);
+					return;
+				}
+
+				Photino* instance = new Photino(paramsCopy);
+				instance->_windowThread = (std::thread*)1; // Marker
+				
+				promise.set_value(instance);
+
+				// Start the message loop automatically for root windows
+				instance->WaitForExit();
+
+				delete paramsCopy;
+				CoUninitialize();
+			});
+			
+			Photino* instance = future.get();
+			if (instance != nullptr)
+			{
+				instance->_windowThread = t;
+			}
+			return instance;
+		}
+#endif
 		return new Photino(initParams);
 	}
 

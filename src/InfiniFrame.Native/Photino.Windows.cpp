@@ -25,16 +25,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 const wchar_t* CLASS_NAME = L"Photino";
 std::mutex invokeLockMutex;
 HINSTANCE Photino::_hInstance;
-HWND messageLoopRootWindowHandle;
+thread_local HWND messageLoopRootWindowHandle;
+std::mutex hwndToPhotinoMutex;
 std::map<HWND, Photino*> hwndToPhotino;
 wchar_t _webview2RuntimePath[MAX_PATH];
 
-
-struct InvokeWaitInfo
-{
-	std::condition_variable completionNotifier;
-	bool isCompleted;
-};
 
 struct ShowMessageParams
 {
@@ -75,6 +70,7 @@ void Photino::Register(const HINSTANCE hInstance)
 
 Photino::Photino(PhotinoInitParams* initParams)
 {
+	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	//wchar_t msg[50];
 	//swprintf(msg, 50, L"Size: %i", initParams->Size);
 	//MessageBox(nullptr, msg, L"", MB_OK);
@@ -193,6 +189,7 @@ Photino::Photino(PhotinoInitParams* initParams)
 	_closingCallback = (ClosingCallback)initParams->ClosingHandler;
 	_focusInCallback = (FocusInCallback)initParams->FocusInHandler;
 	_focusOutCallback = (FocusOutCallback)initParams->FocusOutHandler;
+	_windowCreatedCallback = (WindowCreatedCallback)initParams->WindowCreatedHandler;
 	_customSchemeCallback = (WebResourceRequestedCallback)initParams->CustomSchemeHandler;
 
 	//copy strings from the fixed size array passed, but only if they have a value.
@@ -269,7 +266,10 @@ Photino::Photino(PhotinoInitParams* initParams)
 		_hInstance, //Instance handle
 		this        //Additional application data
 	);
-	hwndToPhotino[_hWnd] = this;
+	{
+		std::lock_guard<std::mutex> lock(hwndToPhotinoMutex);
+		hwndToPhotino[_hWnd] = this;
+	}
 
     _iconFileName = new wchar_t[256];
 	if (initParams->WindowIconFile != nullptr)
@@ -305,8 +305,14 @@ Photino::Photino(PhotinoInitParams* initParams)
 
 	_dialog = new PhotinoDialog(this);
 
+	if (initParams->ParentInstance == nullptr)
+	{
+		messageLoopRootWindowHandle = _hWnd;
+	}
+
 	bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
 	Show(isAlreadyShown);
+	InvokeWindowCreated();
 }
 
 Photino::~Photino()
@@ -315,7 +321,15 @@ Photino::~Photino()
 	if (_startString != nullptr) delete[]_startString;
 	if (_temporaryFilesPath != nullptr) delete[]_temporaryFilesPath;
 	if (_windowTitle != nullptr) delete[]_windowTitle;
-	if (_notificationsEnabled && _toastHandler != nullptr) delete _toastHandler;
+	if (_notificationsEnabled)
+	{
+		if (_toastHandler != nullptr)
+			delete _toastHandler;
+	}
+	if (_windowThread != nullptr && _windowThread != (std::thread*)1) 
+	{
+		delete _windowThread;
+	}
 }
 
 HWND Photino::getHwnd()
@@ -326,6 +340,14 @@ HWND Photino::getHwnd()
 
 LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam)
 {
+	Photino* photino = nullptr;
+	{
+		std::lock_guard<std::mutex> lock(hwndToPhotinoMutex);
+		photino = hwndToPhotino[hwnd];
+	}
+	if (photino == nullptr)
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+
 	switch (uMsg)
 	{
 	case WM_CREATE: 
@@ -394,15 +416,14 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_ACTIVATE:
 	{
-		Photino* Photino = hwndToPhotino[hwnd];
 		if (LOWORD(wParam) == WA_INACTIVE) 
 		{
-			Photino->InvokeFocusOut();
+			photino->InvokeFocusOut();
 		}
 		else 
 		{
-			Photino->FocusWebView2();
-			Photino->InvokeFocusIn();
+			photino->FocusWebView2();
+			photino->InvokeFocusIn();
 
 			return 0;
 		}
@@ -410,10 +431,9 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_CLOSE:
 	{
-		Photino* Photino = hwndToPhotino[hwnd];
-		if (Photino)
+		if (photino)
 		{
-			bool doNotClose = Photino->InvokeClose();
+			bool doNotClose = photino->InvokeClose();
 
 			if (!doNotClose)
 			{
@@ -425,15 +445,31 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_DESTROY:
 	{
-		Photino* Photino = hwndToPhotino[hwnd];
-		if (Photino)
+		if (photino)
 		{
-			Photino->CloseWebView();
+			{
+				std::lock_guard<std::mutex> lock(photino->_invokeMutex);
+				photino->_isClosing = true;
+				for (auto waitInfo : photino->_pendingInvokes)
+				{
+					if (waitInfo)
+					{
+						std::lock_guard<std::mutex> guard(waitInfo->mutex);
+						waitInfo->isCompleted = true; // Added safety
+						waitInfo->cv.notify_all();
+					}
+				}
+			}
+			photino->_invokeCV.notify_all();
+			photino->CloseWebView();
 		}
-		// Only terminate the message loop if the window being closed is the one that
-		// started the message loop
-		hwndToPhotino.erase(hwnd);
-		if (hwnd == messageLoopRootWindowHandle)
+
+		HWND rootHwnd = messageLoopRootWindowHandle;
+		{
+			std::lock_guard<std::mutex> lock(hwndToPhotinoMutex);
+			hwndToPhotino.erase(hwnd);
+		}
+		if (hwnd == rootHwnd)
 			PostQuitMessage(0);
 
 		return 0;
@@ -441,76 +477,93 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	case WM_USER_INVOKE:
 	{
 		ACTION callback = (ACTION)wParam;
-		callback();
 		InvokeWaitInfo* waitInfo = (InvokeWaitInfo*)lParam;
+
+		// Verify if waitInfo is still in _pendingInvokes to avoid use-after-free
+		bool isValid = false;
+		if (photino && waitInfo)
 		{
-			std::lock_guard<std::mutex> guard(invokeLockMutex);
-			waitInfo->isCompleted = true;
+			std::lock_guard<std::mutex> lock(photino->_invokeMutex);
+			auto it = std::find(photino->_pendingInvokes.begin(), photino->_pendingInvokes.end(), waitInfo);
+			if (it != photino->_pendingInvokes.end())
+			{
+				isValid = true;
+			}
 		}
-		waitInfo->completionNotifier.notify_one();
-		//delete waitInfo; ?
+
+		if (isValid)
+		{
+			if (callback)
+			{
+				try {
+					callback();
+				} catch (...) {
+					// Prevent crashes from managed-to-native callback exceptions
+				}
+			}
+
+			if (waitInfo)
+			{
+				std::lock_guard<std::mutex> guard(waitInfo->mutex);
+				waitInfo->isCompleted = true;
+				waitInfo->cv.notify_all();
+			}
+		}
 		return 0;
 	}
 	case WM_GETMINMAXINFO:
 	{
-		Photino* Photino = hwndToPhotino[hwnd];
-		if (Photino == nullptr)
-			return 0;
-
 		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
-		if (Photino->_minWidth > 0)
-			mmi->ptMinTrackSize.x = Photino->_minWidth;
-		if (Photino->_minHeight > 0)
-			mmi->ptMinTrackSize.y = Photino->_minHeight;	
-		if (Photino->_maxWidth < INT_MAX)
-			mmi->ptMaxTrackSize.x = Photino->_maxWidth;
-		if (Photino->_maxHeight < INT_MAX)
-			mmi->ptMaxTrackSize.y = Photino->_maxHeight;
+		if (photino->_minWidth > 0)
+			mmi->ptMinTrackSize.x = photino->_minWidth;
+		if (photino->_minHeight > 0)
+			mmi->ptMinTrackSize.y = photino->_minHeight;	
+		if (photino->_maxWidth < INT_MAX)
+			mmi->ptMaxTrackSize.x = photino->_maxWidth;
+		if (photino->_maxHeight < INT_MAX)
+			mmi->ptMaxTrackSize.y = photino->_maxHeight;
 		return 0;
 	}
 	case WM_SIZE:
 	{
-		Photino* Photino = hwndToPhotino[hwnd];
-		if (Photino)
+		if (photino)
 		{
-			Photino->RefitContent();
+			photino->RefitContent();
 			int width, height;
-			Photino->GetSize(&width, &height);
-			Photino->InvokeResize(width, height);
+			photino->GetSize(&width, &height);
+			photino->InvokeResize(width, height);
 
 			if (LOWORD(wParam) == SIZE_MAXIMIZED) {
-				Photino->InvokeMaximized();
+				photino->InvokeMaximized();
 			}
 			else if (LOWORD(wParam) == SIZE_RESTORED) {
-				Photino->InvokeRestored();
+				photino->InvokeRestored();
 			}
 			else if (LOWORD(wParam) == SIZE_MINIMIZED) {
-				Photino->InvokeMinimized();
+				photino->InvokeMinimized();
 			}
 		}
 		return 0;
 	}
 	case WM_MOVE:
 	{
-		Photino* Photino = hwndToPhotino[hwnd];
-		if (Photino)
+		if (photino)
 		{
-			//Photino->NotifyWebView2WindowMove();
-			//Photino->RefitContent();
+			//photino->NotifyWebView2WindowMove();
+			//photino->RefitContent();
 
 			int x, y;
-			Photino->GetPosition(&x, &y);
-			Photino->InvokeMove(x, y);
+			photino->GetPosition(&x, &y);
+			photino->InvokeMove(x, y);
 		}
 		return 0;
 	}
 	case WM_MOVING:
 	{
-		Photino* Photino = hwndToPhotino[hwnd];
-		if (Photino)
+		if (photino)
 		{
-			//Photino->NotifyWebView2WindowMove();
-			//Photino->RefitContent();
+			//photino->NotifyWebView2WindowMove();
+			//photino->RefitContent();
 		}
 	}
 	break;
@@ -996,7 +1049,14 @@ void Photino::ShowNotification(AutoString title, AutoString body)
 
 void Photino::WaitForExit()
 {
-	messageLoopRootWindowHandle = _hWnd;
+	if (_windowThread != nullptr && _windowThread != (std::thread*)1)
+	{
+		if (_windowThread->joinable())
+		{
+			_windowThread->join();
+		}
+		return;
+	}
 
 	// Run the message loop
 	MSG msg = { };
@@ -1005,6 +1065,12 @@ void Photino::WaitForExit()
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+	
+	{
+		std::lock_guard<std::mutex> lock(_invokeMutex);
+		_isClosing = true;
+	}
+	_invokeCV.notify_all();
 }
 
 
@@ -1044,13 +1110,49 @@ void Photino::GetAllMonitors(GetAllMonitorsCallback callback)
 
 void Photino::Invoke(ACTION callback)
 {
-	InvokeWaitInfo waitInfo = {};
-	PostMessage(_hWnd, WM_USER_INVOKE, (WPARAM)callback, (LPARAM)&waitInfo);
+	if (!_hWnd)
+	{
+		if (callback) callback();
+		return;
+	}
 
-	// Block until the callback is actually executed and completed
-	// TODO: Add return values, exception handling, etc.
-	std::unique_lock<std::mutex> uLock(invokeLockMutex);
-	waitInfo.completionNotifier.wait(uLock, [&] { return waitInfo.isCompleted; });
+	if (GetWindowThreadProcessId(_hWnd, NULL) == GetCurrentThreadId())
+	{
+		if (callback) callback();
+		return;
+	}
+
+	InvokeWaitInfo waitInfo;
+	waitInfo.isCompleted = false;
+
+	{
+		std::lock_guard<std::mutex> lock(_invokeMutex);
+		if (_isClosing)
+		{
+			if (callback) callback();
+			return;
+		}
+
+		_pendingInvokes.push_back(&waitInfo);
+
+		if (!PostMessage(_hWnd, WM_USER_INVOKE, (WPARAM)callback, (LPARAM)&waitInfo))
+		{
+			_pendingInvokes.erase(std::remove(_pendingInvokes.begin(), _pendingInvokes.end(), &waitInfo), _pendingInvokes.end());
+			if (callback) callback();
+			return;
+		}
+	}
+
+	// Block until the callback is actually executed and completed or window closes
+	std::unique_lock<std::mutex> uLock(waitInfo.mutex);
+	waitInfo.cv.wait(uLock, [&] { 
+		return waitInfo.isCompleted || _isClosing; 
+	});
+
+	{
+		std::lock_guard<std::mutex> lock(_invokeMutex);
+		_pendingInvokes.erase(std::remove(_pendingInvokes.begin(), _pendingInvokes.end(), &waitInfo), _pendingInvokes.end());
+	}
 }
 
 

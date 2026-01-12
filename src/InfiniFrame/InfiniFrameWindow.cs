@@ -98,7 +98,7 @@ public sealed class InfiniFrameWindow(
     /// </remarks>
     public Guid Id { get; } = Guid.NewGuid();
 
-    public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
+    public int ManagedThreadId { get; private set; }
 
     /// <summary>
     ///     Gets the value indicating whether the native window is chromeless.
@@ -401,11 +401,11 @@ public sealed class InfiniFrameWindow(
         //All C++ exceptions will bubble up to here.
         try {
             if (OperatingSystem.IsWindows())
-                Invoke(() => InfiniFrameNative.RegisterWin32(NativeType));
+                InfiniFrameNative.RegisterWin32(NativeType);
             else if (OperatingSystem.IsMacOS())
-                Invoke(() => InfiniFrameNative.RegisterMac());
+                InfiniFrameNative.RegisterMac();
 
-            Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(ref StartupParameters));
+            InstanceHandle = InfiniFrameNative.Constructor(ref StartupParameters);
         }
         catch (Exception ex) {
             int lastError = 0;
@@ -416,7 +416,26 @@ public sealed class InfiniFrameWindow(
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
 
+        // Wait for ManagedThreadId to be set by the native side if it hasn't been already
+        if (OperatingSystem.IsWindows() && StartupParameters.NativeParent == IntPtr.Zero)
+        {
+            var sw = Stopwatch.StartNew();
+            while (ManagedThreadId == 0 && sw.ElapsedMilliseconds < 5000)
+            {
+                if (InstanceHandle == IntPtr.Zero) break; // Window creation failed
+                Thread.Sleep(1);
+            }
+            if (ManagedThreadId == 0)
+            {
+                logger.LogWarning("ManagedThreadId was not set within 5 seconds for window {InstanceHandle}", InstanceHandle);
+            }
+        }
+
         Events.OnWindowCreated();
+    }
+
+    public void OnWindowCreated() {
+        ManagedThreadId = Environment.CurrentManagedThreadId;
     }
 
     /// <summary>
@@ -441,13 +460,8 @@ public sealed class InfiniFrameWindow(
     ///     The operation of the message loop is exclusive to the main native window only.
     /// </remarks>
     public void WaitForClose() {
-        if (!MessageLoopState.TryAcquireFirstState()) {
-            logger.LogWarning("Message loop is already running. This call will be ignored.");
-            return;
-        }
-
         try {
-            logger.LogDebug("Starting message loop. There can only be 1 message loop for all windows.");
+            logger.LogDebug("Starting message loop for window {InstanceHandle}.", InstanceHandle);
             Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
         }
         catch (Exception ex) {
@@ -457,9 +471,6 @@ public sealed class InfiniFrameWindow(
 
             logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
-        }
-        finally {
-            MessageLoopState.ReleaseState();
         }
     }
     

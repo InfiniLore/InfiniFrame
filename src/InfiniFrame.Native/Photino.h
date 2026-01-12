@@ -32,6 +32,15 @@ typedef const char* AutoStringConst;
 #include <map>
 #include <string>
 #include <vector>
+#include <thread>
+#include <future>
+
+struct InvokeWaitInfo
+{
+	bool isCompleted;
+	std::mutex mutex;
+	std::condition_variable cv;
+};
 
 struct Monitor
 {
@@ -55,6 +64,7 @@ typedef void (*MovedCallback)(int x, int y);
 typedef bool (*ClosingCallback)();
 typedef void (*FocusInCallback)();
 typedef void (*FocusOutCallback)();
+typedef void (*WindowCreatedCallback)();
 
 class PhotinoDialog;
 class Photino;
@@ -81,6 +91,7 @@ struct PhotinoInitParams
 	MinimizedCallback *MinimizedHandler;
 	MovedCallback *MovedHandler;
 	WebMessageReceivedCallback *WebMessageReceivedHandler;
+	WindowCreatedCallback *WindowCreatedHandler;
 	AutoString CustomSchemeNames[16];
 	WebResourceRequestedCallback *CustomSchemeHandler;
 
@@ -132,6 +143,7 @@ private:
 	ClosingCallback _closingCallback;
 	FocusInCallback _focusInCallback;
 	FocusOutCallback _focusOutCallback;
+	WindowCreatedCallback _windowCreatedCallback;
 	std::vector<AutoStringConst> _customSchemeNames;
 	WebResourceRequestedCallback _customSchemeCallback;
 
@@ -208,8 +220,14 @@ private:
 #endif
 
 public:
+	bool _isClosing = false;
+	std::mutex _invokeMutex;
+	std::condition_variable _invokeCV;
+	std::vector<InvokeWaitInfo*> _pendingInvokes;
+
 	bool _contextMenuEnabled;
 	bool _zoomEnabled;
+	std::thread* _windowThread = nullptr;
 
 #ifdef _WIN32
 	static void Register(HINSTANCE hInstance);
@@ -315,6 +333,12 @@ public:
 	void SetMaximizedCallback(const MaximizedCallback callback) { _maximizedCallback = callback; }
 	void SetRestoredCallback(const RestoredCallback callback) { _restoredCallback = callback; }
 	void SetMinimizedCallback(const MinimizedCallback callback) { _minimizedCallback = callback; }
+
+	void InvokeWindowCreated() const
+    {
+		if (_windowCreatedCallback)
+			return _windowCreatedCallback();
+	}
 
 	void Invoke(ACTION callback);
 
