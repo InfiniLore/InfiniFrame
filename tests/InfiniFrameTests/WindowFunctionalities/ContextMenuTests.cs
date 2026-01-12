@@ -34,7 +34,6 @@ public class ContextMenuTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window(bool state, CancellationToken timeoutToken) {
@@ -55,7 +54,6 @@ public class ContextMenuTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(Timeout.Seconds10)]
     [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnWindows("For some reason it keeps tripping up the transport connection")]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken timeoutToken) {
