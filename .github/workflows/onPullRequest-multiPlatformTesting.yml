@@ -262,7 +262,23 @@ jobs:
                     dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
                       --configuration Release \
                       --no-build \
-                      --no-restore
+                      --no-restore \
+                      --framework net8.0 \
+                      -- --report-trx
+                    
+                    dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework net9.0 \
+                      -- --report-trx
+                    
+                    dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework net10.0 \
+                      -- --report-trx
 
             -   name: Display test logs on failure
                 if: failure()
