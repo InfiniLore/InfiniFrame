@@ -130,7 +130,7 @@ public static class InfiniWindowEventsExtensions {
             ArgumentNullException.ThrowIfNull(handler);
 
             builder.Events.WebMessageReceived += (sender, message) => {
-                IServiceProvider? provider = builder.Events.ServiceProvider;
+                IServiceProvider? provider = (sender as IInfiniFrameWindow)?.ServiceProvider;
                 if (provider is null) {
                     throw new InvalidOperationException(
                         "Web message handlers with service injection were registered, but no IServiceProvider was supplied. " +

@@ -8,8 +8,6 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowEvents {
-    IServiceProvider? ServiceProvider { get; }
-    
     event EventHandler<Point>? WindowLocationChanged;
     event EventHandler<Size>? WindowSizeChanged;
     event EventHandler? WindowFocusIn;
