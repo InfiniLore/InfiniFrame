@@ -6,7 +6,7 @@ using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections.Immutable;
 
-namespace InfiniFrameTests;
+namespace InfiniFrameTests.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
