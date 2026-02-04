@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Collections.Immutable;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -29,7 +30,7 @@ public class OrderedEventTests {
     public async Task OrderedEvent_InvokesInRegistrationOrder() {
         // Arrange
         var orderedEvent = new InfiniFrameOrderedEvent();
-        var window = CreateWindow();
+        InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
 
         orderedEvent.Add(_ => calls.Add(1));
@@ -49,7 +50,7 @@ public class OrderedEventTests {
     public async Task OrderedEvent_RemoveStopsInvocation() {
         // Arrange
         var orderedEvent = new InfiniFrameOrderedEvent();
-        var window = CreateWindow();
+        InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
         Action<IInfiniFrameWindow> handler = _ => calls.Add(1);
 
@@ -72,7 +73,7 @@ public class OrderedEventTests {
         Action<IInfiniFrameWindow> handler2 = _ => { };
 
         orderedEvent.Add(handler1);
-        var snapshot = orderedEvent.Snapshot;
+        ImmutableArray<Action<IInfiniFrameWindow>> snapshot = orderedEvent.Snapshot;
 
         // Act
         orderedEvent.Add(handler2);
@@ -106,7 +107,7 @@ public class OrderedEventTests {
     public async Task OrderedEventWithPayload_InvokesWithPayload() {
         // Arrange
         var orderedEvent = new InfiniFrameOrderedEvent<int>();
-        var window = CreateWindow();
+        InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
 
         orderedEvent.Add((_, value) => calls.Add(value));
@@ -126,7 +127,7 @@ public class OrderedEventTests {
     public async Task ClosingEvent_ReturnsLastResult() {
         // Arrange
         var closingEvent = new InfiniFrameOrderedClosingEvent();
-        var window = CreateWindow();
+        InfiniFrameWindow window = CreateWindow();
 
         closingEvent.Add((_, _) => false);
         closingEvent.Add((_, _) => true);
@@ -143,7 +144,7 @@ public class OrderedEventTests {
     public async Task ClosingEvent_ReturnsNullWhenEmpty() {
         // Arrange
         var closingEvent = new InfiniFrameOrderedClosingEvent();
-        var window = CreateWindow();
+        InfiniFrameWindow window = CreateWindow();
 
         // Act
         bool? result = closingEvent.Invoke(window);
