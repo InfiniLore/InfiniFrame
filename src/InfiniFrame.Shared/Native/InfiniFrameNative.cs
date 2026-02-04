@@ -231,6 +231,12 @@ public static partial class InfiniFrameNative {
 
     [LibraryImport(DllName, EntryPoint = Photino_ShowMessage, SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameDialogResult ShowMessage(IntPtr inst, string title, string text, InfiniFrameDialogButtons buttons, InfiniFrameDialogIcon icon);
+
+    [LibraryImport(DllName, EntryPoint = Photino_FreeString, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void FreeString(IntPtr value);
+
+    [LibraryImport(DllName, EntryPoint = Photino_FreeStringArray, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void FreeStringArray(IntPtr values, int count);
     #endregion
 
     #region Overloads

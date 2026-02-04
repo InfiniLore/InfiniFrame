@@ -1,5 +1,9 @@
 #include "Photino.Dialog.h"
 #include "Photino.h"
+#include <cstdlib>
+#ifdef __linux__
+#include <glib.h>
+#endif
 
 #ifdef _WIN32
 #define EXPORTED __declspec(dllexport)
@@ -295,6 +299,42 @@ extern "C"
 	EXPORTED void Photino_WaitForExit(Photino* instance)
 	{
 		instance->WaitForExit();
+	}
+
+	EXPORTED void Photino_FreeString(AutoString value)
+	{
+		if (value == nullptr)
+			return;
+#ifdef _WIN32
+		delete[] value;
+#elif __linux__
+		g_free(value);
+#elif __APPLE__
+		free(value);
+#else
+		free(value);
+#endif
+	}
+
+	EXPORTED void Photino_FreeStringArray(AutoString* values, const int count)
+	{
+		if (values == nullptr)
+			return;
+
+		for (int i = 0; i < count; ++i)
+		{
+			Photino_FreeString(values[i]);
+		}
+
+#ifdef _WIN32
+		delete[] values;
+#elif __linux__
+		delete[] values;
+#elif __APPLE__
+		free(values);
+#else
+		free(values);
+#endif
 	}
     
 	//Dialog

@@ -109,7 +109,11 @@ AutoString* PhotinoDialog::ShowOpenFolder(const AutoString title, const AutoStri
 AutoString PhotinoDialog::ShowSaveFile(const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName)
 {
     char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
-    if (result != nullptr) return result[0];
+    if (result != nullptr) {
+        char* value = result[0];
+        delete[] result;
+        return value;
+    }
     return nullptr;
 }
 

@@ -15,6 +15,7 @@ NSString* warningBase64 = @"iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNS
 NSImage* getIcon(NSString* base64) {
   NSData *imageData = [[NSData alloc] initWithBase64EncodedString:base64 options:0];
   NSImage *image = [[NSImage alloc] initWithData:imageData];
+  [imageData release];
   return image;
 }
 
@@ -26,6 +27,10 @@ PhotinoDialog::PhotinoDialog() {
 }
 
 PhotinoDialog::~PhotinoDialog() {
+  [_errorIcon release];
+  [_infoIcon release];
+  [_questionIcon release];
+  [_warningIcon release];
 }
 
 AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath, bool multiSelect, AutoString* filters, int filterCount, int* resultCount) {

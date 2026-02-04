@@ -121,6 +121,9 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 		strcpy(_browserControlInitParameters, initParams->BrowserControlInitParameters);
 	}
 
+	_iconFileName = new char[256];
+	_iconFileName[0] = '\0';
+
 	_transparentEnabled = initParams->Transparent;
 	_contextMenuEnabled = initParams->ContextMenuEnabled;
 	_zoomEnabled = true; // initParams->ZoomEnabled;
@@ -161,6 +164,7 @@ Photino::Photino(PhotinoInitParams *initParams) : _webview(nullptr)
 			char *name = new char[50];
 			strcpy(name, initParams->CustomSchemeNames[i]);
 			_customSchemeNames.push_back(name);
+			_ownedCustomSchemeNames.push_back(name);
 		}
 	}
 
@@ -289,6 +293,16 @@ Photino::~Photino()
 {
 	notify_uninit();
 	gtk_widget_destroy(_window);
+	if (_startUrl != nullptr) delete[] _startUrl;
+	if (_startString != nullptr) delete[] _startString;
+	if (_temporaryFilesPath != nullptr) delete[] _temporaryFilesPath;
+	if (_windowTitle != nullptr) delete[] _windowTitle;
+	if (_userAgent != nullptr) delete[] _userAgent;
+	if (_browserControlInitParameters != nullptr) delete[] _browserControlInitParameters;
+	if (_iconFileName != nullptr) delete[] _iconFileName;
+	for (auto* name : _ownedCustomSchemeNames) delete[] name;
+	_ownedCustomSchemeNames.clear();
+	if (_dialog != nullptr) delete _dialog;
 }
 
 void Photino::Center()
