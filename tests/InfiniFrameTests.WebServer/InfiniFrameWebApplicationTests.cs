@@ -16,8 +16,7 @@ public class InfiniFrameWebApplicationTests {
 
     private static IInfiniFrameWindow CreateMockWindow() {
         var mockWindow = Substitute.For<IInfiniFrameWindow>();
-        var mockEvents = Substitute.For<IInfiniFrameWindowEvents>();
-        mockWindow.Events.Returns(mockEvents);
+        mockWindow.Events.Returns(new InfiniFrameWindowEvents());
         return mockWindow;
     }
 
@@ -38,7 +37,7 @@ public class InfiniFrameWebApplicationTests {
     public async Task UseAutoServerClose_WhenWindowNotCreated_ShouldRegisterWithBuilder() {
         // Arrange
         var mockWindowBuilder = Substitute.For<IInfiniFrameWindowBuilder>();
-        var mockBuilderEvents = Substitute.For<IInfiniFrameWindowEvents>();
+        var mockBuilderEvents = new InfiniFrameWindowEvents();
         mockWindowBuilder.Events.Returns(mockBuilderEvents);
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -57,7 +56,7 @@ public class InfiniFrameWebApplicationTests {
 
         // Assert
         await Assert.That(result).IsEqualTo(app);
-        await Assert.That(mockBuilderEvents.ReceivedCalls().Count()).IsGreaterThan(0);
+        await Assert.That(mockBuilderEvents.WindowClosing.Snapshot.Length).IsGreaterThan(0);
     }
 
     [Test]
@@ -84,7 +83,7 @@ public class InfiniFrameWebApplicationTests {
 
         // Assert
         await Assert.That(result).IsEqualTo(app);
-        await Assert.That(mockEvents.ReceivedCalls().Count()).IsGreaterThan(0);
+        await Assert.That(mockEvents.WindowClosing.Snapshot.Length).IsGreaterThan(0);
     }
 
     [Test]
@@ -105,12 +104,9 @@ public class InfiniFrameWebApplicationTests {
             LazyWindow = lazyWindow
         };
 
-        NetClosingDelegate? capturedHandler = null;
-        mockEvents.When(e => e.WindowClosing += Arg.Any<NetClosingDelegate>())
-            .Do(callInfo => capturedHandler = callInfo.Arg<NetClosingDelegate>());
-
         // Act
         app.UseAutoServerClose();
+        NetClosingDelegate? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
         bool? result = capturedHandler?.Invoke(new object(), EventArgs.Empty);
 
         // Assert
@@ -136,13 +132,10 @@ public class InfiniFrameWebApplicationTests {
             LazyWindow = lazyWindow
         };
 
-        NetClosingDelegate? capturedHandler = null;
-        mockEvents.When(e => e.WindowClosing += Arg.Any<NetClosingDelegate>())
-            .Do(callInfo => capturedHandler = callInfo.Arg<NetClosingDelegate>());
-
         app.UseAutoServerClose();
 
         // Act
+        NetClosingDelegate? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
         capturedHandler?.Invoke(new object(), EventArgs.Empty);
 
         // Give the Task.Run a moment to execute

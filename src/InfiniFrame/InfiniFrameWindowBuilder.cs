@@ -59,7 +59,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             MessageHandlers = MessageHandlers
         };
 
-        Events.WebMessageReceived += MessageHandlers.Handle;
+        Events.WebMessageReceived.Add(MessageHandlers.Handle);
 
         //These are for the callbacks from C++ to C#.
         InfiniFrameNativeParameters startupParameters = GetParameters(provider);

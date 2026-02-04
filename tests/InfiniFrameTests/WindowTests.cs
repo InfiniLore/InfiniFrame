@@ -84,9 +84,9 @@ public class WindowTests {
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
         var windowUtility = InfiniFrameWindowTestUtility.Create(
-            builder => builder.Events.WindowClosingRequested += _ => {
+            builder => builder.Events.WindowClosingRequested.Add(_ => {
                 windowClosingTcs.SetResult(true);
-            }
+            })
         );
         IInfiniFrameWindow window = windowUtility.Window;
 

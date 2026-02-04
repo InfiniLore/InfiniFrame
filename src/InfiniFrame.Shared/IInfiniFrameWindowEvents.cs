@@ -2,24 +2,25 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
+using InfiniFrame.Utilities;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowEvents {
-    event Action<IInfiniFrameWindow, Point>? WindowLocationChanged;
-    event Action<IInfiniFrameWindow, Size>? WindowSizeChanged;
-    event Action<IInfiniFrameWindow>? WindowFocusIn;
-    event Action<IInfiniFrameWindow>? WindowMaximized;
-    event Action<IInfiniFrameWindow>? WindowRestored;
-    event Action<IInfiniFrameWindow>? WindowFocusOut;
-    event Action<IInfiniFrameWindow>? WindowMinimized;
-    event Action<IInfiniFrameWindow, string>? WebMessageReceived;
-    event Action<IInfiniFrameWindow>? WindowClosingRequested;
-    event NetClosingDelegate? WindowClosing;
-    event Action<IInfiniFrameWindow>? WindowCreating;
-    event Action<IInfiniFrameWindow>? WindowCreated;
+    InfiniFrameOrderedEvent<Point> WindowLocationChanged { get; }
+    InfiniFrameOrderedEvent<Size> WindowSizeChanged { get; }
+    InfiniFrameOrderedEvent WindowFocusIn { get; }
+    InfiniFrameOrderedEvent WindowMaximized { get; }
+    InfiniFrameOrderedEvent WindowRestored { get; }
+    InfiniFrameOrderedEvent WindowFocusOut { get; }
+    InfiniFrameOrderedEvent WindowMinimized { get; }
+    InfiniFrameOrderedEvent<string> WebMessageReceived { get; }
+    InfiniFrameOrderedEvent WindowClosingRequested { get; }
+    InfiniFrameOrderedClosingEvent WindowClosing { get; }
+    InfiniFrameOrderedEvent WindowCreating { get; }
+    InfiniFrameOrderedEvent WindowCreated { get; }
 
     void CompleteSetup(IInfiniFrameWindow sender);
 

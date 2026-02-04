@@ -68,13 +68,13 @@
     protected override void OnInitialized() {
         base.OnInitialized();
 
-        PhotinoWindow.Events.WindowMaximized += OnMaximized;
-        PhotinoWindow.Events.WindowRestored += OnRestored;
+        PhotinoWindow.Events.WindowMaximized.Add(OnMaximized);
+        PhotinoWindow.Events.WindowRestored.Add(OnRestored);
     }
 
     public void Dispose() {
-        PhotinoWindow.Events.WindowMaximized -= OnMaximized;
-        PhotinoWindow.Events.WindowRestored -= OnRestored;
+        PhotinoWindow.Events.WindowMaximized.Remove(OnMaximized);
+        PhotinoWindow.Events.WindowRestored.Remove(OnRestored);
     }
 
     private void OnMaximized(IInfiniFrameWindow window) {
