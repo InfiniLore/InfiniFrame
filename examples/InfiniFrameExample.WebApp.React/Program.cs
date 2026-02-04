@@ -10,10 +10,16 @@ namespace InfiniFrameExample.WebApp.React;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
+    private sealed class WebMessageCounter {
+        private int _count;
+        public int Increment() => Interlocked.Increment(ref _count);
+    }
+
     [STAThread]
     public static void Main(string[] args) {
         InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
         // WebApplicationBuilder appBuilder = builder.WebApp;
+        builder.WebApp.Services.AddSingleton<WebMessageCounter>();
         
         builder.Window
             .SetUseOsDefaultSize(false)
@@ -32,9 +38,10 @@ public static class Program {
                         })();
                         """u8.ToArray());
             })
-            .RegisterWebMessageReceivedHandler((sender, message) => {
+            .RegisterWebMessageReceivedHandler((WebMessageCounter counter, object? sender, string message) => {
                 var window = (InfiniFrameWindow)sender!;
-                string response = $"Received message: \"{message}\"";
+                int count = counter.Increment();
+                string response = $"[{count}] Received message: \"{message}\"";
                 window.SendWebMessage(response);
             });
         

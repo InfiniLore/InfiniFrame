@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
@@ -113,6 +114,36 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WebMessageReceived += handler;
             return builder;
         }
+
+        /// <summary>
+        ///     Registers user-defined handler methods to receive callbacks from the native builder when it sends a message,
+        ///     resolving required services from the configured service provider.
+        /// </summary>
+        /// <returns>
+        ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
+        /// </returns>
+        /// <remarks>
+        ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
+        /// </remarks>
+        /// <param name="handler">Handler that receives the resolved service and web message data.</param>
+        public T RegisterWebMessageReceivedHandler<TService>(Action<TService, object?, string> handler) where TService : notnull {
+            ArgumentNullException.ThrowIfNull(handler);
+
+            builder.Events.WebMessageReceived += (sender, message) => {
+                IServiceProvider? provider = builder.Events.ServiceProvider;
+                if (provider is null) {
+                    throw new InvalidOperationException(
+                        "Web message handlers with service injection were registered, but no IServiceProvider was supplied. " +
+                        "Call Build(provider) or register non-DI handlers."
+                    );
+                }
+
+                var service = provider.GetRequiredService<TService>();
+                handler(service, sender, message);
+            };
+
+            return builder;
+        }
         
         /// <summary>
         /// Registers user-defined handler methods to receive callbacks from the native builder before the window is closed through the native api calls.
@@ -164,4 +195,5 @@ public static class InfiniWindowEventsExtensions {
             return builder;
         }
     }
+
 }

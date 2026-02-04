@@ -13,9 +13,9 @@ namespace InfiniFrame;
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
 
-    public IInfiniFrameWindowConfiguration Configuration { get; } = new InfiniFrameWindowConfiguration();
-    public IInfiniFrameWindowEvents Events { get; } = new InfiniFrameWindowEvents();
-    public IInfiniFrameWindowMessageHandlers MessageHandlers { get; } = new InfiniFrameWindowMessageHandlers();
+    public IInfiniFrameWindowConfiguration Configuration { get; internal set; } = new InfiniFrameWindowConfiguration();
+    public IInfiniFrameWindowEvents Events { get; internal set; } = new InfiniFrameWindowEvents();
+    public IInfiniFrameWindowMessageHandlers MessageHandlers { get; internal set; } = new InfiniFrameWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
 
     private InfiniFrameWindowBuilder() {}
@@ -80,7 +80,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         // window.IconFilePath = startupParameters.WindowIconFile;
 
-        window.Events = Events.DefineSender(window);
+        Events.CompleteSetup(window, provider);
         window.MessageHandlers = MessageHandlers;
         window.Initialize();
         return window;

@@ -8,6 +8,8 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowEvents {
+    IServiceProvider? ServiceProvider { get; }
+    
     event EventHandler<Point>? WindowLocationChanged;
     event EventHandler<Size>? WindowSizeChanged;
     event EventHandler? WindowFocusIn;
@@ -21,7 +23,7 @@ public interface IInfiniFrameWindowEvents {
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
 
-    IInfiniFrameWindowEvents DefineSender<T>(T sender) where T : class;
+    void CompleteSetup<T>(T sender, IServiceProvider? provider) where T : class;
 
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);
