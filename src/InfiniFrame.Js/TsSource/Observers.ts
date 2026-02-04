@@ -6,7 +6,9 @@ import {SendToHostMessageIds} from "./Contracts/IHostMessaging";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export const TitleObserverTarget: HTMLTitleElement | null = document.querySelector('title');
+export function getTitleObserverTarget(): HTMLTitleElement | null {
+    return document.querySelector('title');
+}
 
 export function getTitleObserver(): MutationObserver {
     return new MutationObserver((mutations, _) => {

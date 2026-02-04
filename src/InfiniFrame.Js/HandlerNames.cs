@@ -19,6 +19,8 @@ public static class HandlerNames {
     
     internal const string TitleChanged = $"{InfiniFramePrefix}:title:change";
     internal const string RegisterTitleChange = $"{InfiniFramePrefix}:register:title:change";
+
+    internal const string WindowReady = $"{InfiniFramePrefix}:ready";
     
     
     internal const string WindowMinimize = $"{InfiniFramePrefix}:window:minimize";

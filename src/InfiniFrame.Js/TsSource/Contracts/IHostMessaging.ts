@@ -13,6 +13,7 @@ export const SendToHostMessageIds = {
     fullscreenExit: `${infiniFrame}:fullscreen:exit`,
     openExternalLink: `${infiniFrame}:open:external`,
     windowClose: `${infiniFrame}:window:close`,
+    ready: `${infiniFrame}:ready`,
 }
 
 export const ReceiveFromHostMessageIds = {
