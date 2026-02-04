@@ -119,22 +119,25 @@ T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst default
 	return nullptr;
 }
 
-void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, Photino* wndInstance)
+void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, Photino* wndInstance, std::vector<std::wstring>& filterStorage)
 {
 	std::vector<COMDLG_FILTERSPEC> specs;
 	for (int i = 0; i < filterCount; i++) {
-		auto* filter = new wchar_t[MAX_PATH];
-		std::wstring wFilter = wndInstance->ToUTF16String(filters[i]);
-		wcscpy_s(filter, MAX_PATH, wFilter.c_str());
-
-		const wchar_t* filterName = wcstok_s(filter, L"|", &filter);
-		const wchar_t* filterPattern = filter;
+		filterStorage.push_back(wndInstance->ToUTF16String(filters[i]));
+		std::wstring& filterText = filterStorage.back();
+		wchar_t* context = nullptr;
+		wchar_t* filterName = wcstok_s(filterText.data(), L"|", &context);
+		wchar_t* filterPattern = wcstok_s(nullptr, L"|", &context);
+		if (filterName == nullptr)
+			continue;
+		if (filterPattern == nullptr)
+			filterPattern = filterName;
 		COMDLG_FILTERSPEC spec;
 		spec.pszName = filterName;
 		spec.pszSpec = filterPattern;
 		specs.push_back(spec);
 	}
-	pfd->SetFileTypes(filterCount, specs.data());
+	pfd->SetFileTypes(static_cast<UINT>(specs.size()), specs.data());
 }
 
 AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount)
@@ -182,7 +185,8 @@ AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath
 	auto* pfd = Create<IFileOpenDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
 
 	if (SUCCEEDED(hr)) {
-		AddFilters(pfd, filters, filterCount, _window);
+		std::vector<std::wstring> filterStorage;
+		AddFilters(pfd, filters, filterCount, _window, filterStorage);
 
 		DWORD dwOptions;
 		pfd->GetOptions(&dwOptions);
@@ -245,7 +249,8 @@ AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath,
 			pfd->SetFileName(wideDefaultFileName.c_str());
 		}
 
-		AddFilters(pfd, filters, filterCount, _window);
+		std::vector<std::wstring> filterStorage;
+		AddFilters(pfd, filters, filterCount, _window, filterStorage);
 
 		DWORD dwOptions;
 		pfd->GetOptions(&dwOptions);

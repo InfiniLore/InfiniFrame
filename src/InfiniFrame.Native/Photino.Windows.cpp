@@ -1257,8 +1257,10 @@ void Photino::AttachWebView()
 
 bool Photino::EnsureWebViewIsInstalled()
 {
-	LPWSTR* versionInfo = new wchar_t* [100];
-	HRESULT ensureInstalledResult = GetAvailableCoreWebView2BrowserVersionString(nullptr, versionInfo);
+	LPWSTR versionInfo = nullptr;
+	HRESULT ensureInstalledResult = GetAvailableCoreWebView2BrowserVersionString(nullptr, &versionInfo);
+	if (versionInfo != nullptr)
+		CoTaskMemFree(versionInfo);
 
 	if (ensureInstalledResult != S_OK)
 		return InstallWebView2();
@@ -1301,6 +1303,7 @@ bool Photino::InstallWebView2()
 			CloseHandle(pi.hProcess);
 			CloseHandle(pi.hThread);
 		}
+		delete[] command;
 
 		return success;
 	}
