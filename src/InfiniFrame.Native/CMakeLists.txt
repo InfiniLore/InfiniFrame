@@ -117,12 +117,29 @@ if(WIN32)
 
     # WIL package configuration
     set(WINIMPL_VERSION "1.0.260126.7" CACHE STRING "Windows Implementation Library version")
-    set(WINIMPL_BASE_DIR "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}")
+    set(WINIMPL_INCLUDE_DIR "")
+    set(WINIMPL_BASE_DIR_CANDIDATES
+            "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}"
+            "$ENV{USERPROFILE}/.nuget/packages/microsoft.windows.implementationlibrary/${WINIMPL_VERSION}"
+    )
+    foreach(_cand IN LISTS WINIMPL_BASE_DIR_CANDIDATES)
+        if(EXISTS "${_cand}/include/wil/com.h")
+            set(WINIMPL_INCLUDE_DIR "${_cand}/include")
+            break()
+        elseif(EXISTS "${_cand}/build/native/include/wil/com.h")
+            set(WINIMPL_INCLUDE_DIR "${_cand}/build/native/include")
+            break()
+        endif()
+    endforeach()
+
+    if(NOT WINIMPL_INCLUDE_DIR)
+        message(FATAL_ERROR "WIL headers not found. Looked in: ${WINIMPL_BASE_DIR_CANDIDATES}")
+    endif()
 
     # Include directories
     target_include_directories(${PROJECT_NAME} PRIVATE
             "${WEBVIEW2_BASE_DIR}/include"
-            "${WINIMPL_BASE_DIR}/include"
+            "${WINIMPL_INCLUDE_DIR}"
     )
 
     # Link libraries
