@@ -14,6 +14,10 @@ public static class RegisterWindowCreatedUtility {
     }
     
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
+        RegisterMessageHandler(builder, HandlerNames.WindowReady, (window, payload) => {
+            _ = window.SendWebMessageAsync(messageId);
+        });
+
         builder.Events.WindowCreated += (sender, args) => {
             if (sender is not IInfiniFrameWindow window) return;
 
