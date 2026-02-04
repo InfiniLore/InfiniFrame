@@ -29,10 +29,11 @@ public static class Program {
             .RegisterTitleChangedWebMessageHandler()
             .RegisterWindowManagementWebMessageHandler()
             .RegisterWebMessageReceivedHandler((sender, message) => {
+                // ReSharper disable twice UnusedVariable
                 if (sender is not IInfiniFrameWindow window) return;
-
                 string response = $"Received message: \"{message}\"";
-                window.SendWebMessage(response);
+                
+                // ... do something with the message
             })
             ;
         
