@@ -21,7 +21,7 @@ public interface IInfiniFrameWindowEvents {
     event EventHandler? WindowCreating;
     event EventHandler? WindowCreated;
 
-    void CompleteSetup<T>(T sender, IServiceProvider? provider) where T : class;
+    void CompleteSetup<T>(T sender) where T : IInfiniFrameWindow;
 
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);

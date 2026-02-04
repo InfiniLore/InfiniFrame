@@ -13,9 +13,9 @@ namespace InfiniFrame;
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
 
-    public IInfiniFrameWindowConfiguration Configuration { get; internal set; } = new InfiniFrameWindowConfiguration();
+    public IInfiniFrameWindowConfiguration Configuration { get; } = new InfiniFrameWindowConfiguration();
     public IInfiniFrameWindowEvents Events { get; internal set; } = new InfiniFrameWindowEvents();
-    public IInfiniFrameWindowMessageHandlers MessageHandlers { get; internal set; } = new InfiniFrameWindowMessageHandlers();
+    public IInfiniFrameWindowMessageHandlers MessageHandlers { get; } = new InfiniFrameWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
 
     private InfiniFrameWindowBuilder() {}
@@ -48,7 +48,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     }
 
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
-        if (CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(nameof(CustomSchemeHandlers), "Maximum number of custom scheme handlers is 16.");
+        if (CustomSchemeHandlers.Count > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
 
         var window = new InfiniFrameWindow {
             ServiceProvider = provider,
@@ -80,7 +80,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         // window.IconFilePath = startupParameters.WindowIconFile;
 
-        Events.CompleteSetup(window, provider);
+        Events.CompleteSetup(window);
         window.MessageHandlers = MessageHandlers;
         window.Initialize();
         return window;

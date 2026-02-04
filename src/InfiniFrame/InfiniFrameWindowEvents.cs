@@ -8,8 +8,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
-    private object Sender { get; set; } = null!;
-    public IServiceProvider? ServiceProvider { get; internal set; }
+    private IInfiniFrameWindow Sender { get; set; } = null!;
 
     public event EventHandler<Point>? WindowLocationChanged;
     public event EventHandler<Size>? WindowSizeChanged;
@@ -27,11 +26,9 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void CompleteSetup<T>(T sender, IServiceProvider? provider) where T : class {
+    public void CompleteSetup<T>(T sender) where T : IInfiniFrameWindow {
         ArgumentNullException.ThrowIfNull(sender);
-        
         Sender = sender;
-        ServiceProvider = provider;
     }
 
     /// <summary>
