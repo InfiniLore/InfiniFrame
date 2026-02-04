@@ -95,7 +95,7 @@ PhotinoDialog::~PhotinoDialog()
 }
 
 template<typename T>
-T* Create(HRESULT* hResult, AutoString title, const AutoString defaultPath)
+T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst defaultPath)
 {
 	static_assert(std::is_base_of<IFileDialog, T>::value, "T must inherit from IFileDialog");
 	T* pfd = nullptr;
@@ -124,8 +124,8 @@ void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, Phot
 	std::vector<COMDLG_FILTERSPEC> specs;
 	for (int i = 0; i < filterCount; i++) {
 		auto* filter = new wchar_t[MAX_PATH];
-		AutoString wFilter = wndInstance->ToUTF16String(filters[i]);
-		wcscpy_s(filter, MAX_PATH, wFilter);
+		std::wstring wFilter = wndInstance->ToUTF16String(filters[i]);
+		wcscpy_s(filter, MAX_PATH, wFilter.c_str());
 
 		const wchar_t* filterName = wcstok_s(filter, L"|", &filter);
 		const wchar_t* filterPattern = filter;
@@ -176,10 +176,10 @@ AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount)
 AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount)
 {
 	HRESULT hr;
-	title = _window->ToUTF16String(title);
-	defaultPath = _window->ToUTF16String(defaultPath);
+	std::wstring wideTitle = _window->ToUTF16String(title);
+	std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
 	
-	auto* pfd = Create<IFileOpenDialog>(&hr, title, defaultPath);
+	auto* pfd = Create<IFileOpenDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
 
 	if (SUCCEEDED(hr)) {
 		AddFilters(pfd, filters, filterCount, _window);
@@ -207,10 +207,10 @@ AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath
 AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, const bool multiSelect, int* resultCount)
 {
 	HRESULT hr;	
-	title = _window->ToUTF16String(title);
-	defaultPath = _window->ToUTF16String(defaultPath);
+	std::wstring wideTitle = _window->ToUTF16String(title);
+	std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
 
-	auto* pfd = Create<IFileOpenDialog>(&hr, title, defaultPath);
+	auto* pfd = Create<IFileOpenDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
 
 	if (SUCCEEDED(hr)) {
 		DWORD dwOptions;
@@ -236,13 +236,13 @@ AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPa
 AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, const int filterCount, AutoString defaultFileName)
 {
 	HRESULT hr;
-	title = _window->ToUTF16String(title);
-	defaultPath = _window->ToUTF16String(defaultPath);
-	defaultFileName = _window->ToUTF16String(defaultFileName);
-	auto* pfd = Create<IFileSaveDialog>(&hr, title, defaultPath);
+	std::wstring wideTitle = _window->ToUTF16String(title);
+	std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
+	std::wstring wideDefaultFileName = _window->ToUTF16String(defaultFileName);
+	auto* pfd = Create<IFileSaveDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
 	if (SUCCEEDED(hr)) {
-		if (defaultFileName) {
-			pfd->SetFileName(defaultFileName);
+		if (!wideDefaultFileName.empty()) {
+			pfd->SetFileName(wideDefaultFileName.c_str());
 		}
 
 		AddFilters(pfd, filters, filterCount, _window);
@@ -278,8 +278,8 @@ AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath,
 
 DialogResult PhotinoDialog::ShowMessage(AutoString title, AutoString text, const DialogButtons buttons, const DialogIcon icon)
 {
-	title = _window->ToUTF16String(title);
-	text = _window->ToUTF16String(text);
+	std::wstring wideTitle = _window->ToUTF16String(title);
+	std::wstring wideText = _window->ToUTF16String(text);
 	NewStyleContext ctx;
 
 	UINT flags = {};
@@ -300,7 +300,7 @@ DialogResult PhotinoDialog::ShowMessage(AutoString title, AutoString text, const
 		case DialogButtons::AbortRetryIgnore: flags |= MB_ABORTRETRYIGNORE; break;
 	}
 
-	const auto result = MessageBoxW(_window->getHwnd(), text, title, flags);
+	const auto result = MessageBoxW(_window->getHwnd(), wideText.c_str(), wideTitle.c_str(), flags);
 
 	switch (result) {
 		case IDCANCEL: return DialogResult::Cancel;

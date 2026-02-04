@@ -168,6 +168,7 @@ private:
 	wil::com_ptr<ICoreWebView2Environment> _webviewEnvironment;
 	wil::com_ptr<ICoreWebView2> _webviewWindow;
 	wil::com_ptr<ICoreWebView2Controller> _webviewController;
+	std::vector<AutoString> _ownedCustomSchemeNames;
 	bool EnsureWebViewIsInstalled();
 	bool InstallWebView2();
 	void AttachWebView();
@@ -219,8 +220,8 @@ public:
 	void FocusWebView2();
 	void NotifyWebView2WindowMove();
 	void GetNotificationsEnabled(bool* enabled);
-	AutoString ToUTF16String(AutoString source);
-	AutoString ToUTF8String(AutoString source);
+	std::wstring ToUTF16String(AutoString source);
+	std::string ToUTF8String(AutoString source);
 	int _minWidth;
 	int _minHeight;
 	int _maxWidth;
