@@ -1,11 +1,18 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.CompilerServices;
+
 namespace InfiniFrame.Js.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class RegisterWindowCreatedUtility {
+    private sealed class ReadyRegistrationState {
+        public bool Registered { get; set; }
+    }
+
+    private static readonly ConditionalWeakTable<IInfiniFrameWindowBuilder, ReadyRegistrationState> ReadyRegistrations = new();
     public static void RegisterMessageHandler(IInfiniFrameWindowBuilder builder, string messageId, Action<IInfiniFrameWindow, string?> handler) {
         builder.MessageHandlers.RegisterMessageHandler(messageId, handler);
     }
@@ -14,9 +21,11 @@ public static class RegisterWindowCreatedUtility {
     }
     
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
-        RegisterMessageHandler(builder, HandlerNames.WindowReady, (window, payload) => {
-            _ = window.SendWebMessageAsync(messageId);
-        });
+        if (TryRegisterReadyHandler(builder)) {
+            RegisterMessageHandler(builder, HandlerNames.WindowReady, (window, payload) => {
+                _ = window.SendWebMessageAsync(messageId);
+            });
+        }
 
         builder.Events.WindowCreated += (sender, args) => {
             if (sender is not IInfiniFrameWindow window) return;
@@ -29,6 +38,15 @@ public static class RegisterWindowCreatedUtility {
                 await window.SendWebMessageAsync(messageId);
             });
         };
+    }
+
+    private static bool TryRegisterReadyHandler(IInfiniFrameWindowBuilder builder) {
+        ReadyRegistrationState state = ReadyRegistrations.GetOrCreateValue(builder);
+        lock (state) {
+            if (state.Registered) return false;
+            state.Registered = true;
+            return true;
+        }
     }
 
 }
