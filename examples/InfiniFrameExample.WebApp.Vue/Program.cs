@@ -28,9 +28,8 @@ public static class Program {
             .RegisterOpenExternalTargetWebMessageHandler()
             .RegisterTitleChangedWebMessageHandler()
             .RegisterWindowManagementWebMessageHandler()
-            .RegisterWebMessageReceivedHandler((sender, message) => {
+            .RegisterWebMessageReceivedHandler((_, message) => {
                 // ReSharper disable twice UnusedVariable
-                if (sender is not IInfiniFrameWindow window) return;
                 string response = $"Received message: \"{message}\"";
                 
                 // ... do something with the message

@@ -14,7 +14,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
 
     public IInfiniFrameWindowConfiguration Configuration { get; } = new InfiniFrameWindowConfiguration();
-    public IInfiniFrameWindowEvents Events { get; } = new InfiniFrameWindowEvents();
+    public IInfiniFrameWindowEvents Events { get; internal set; } = new InfiniFrameWindowEvents();
     public IInfiniFrameWindowMessageHandlers MessageHandlers { get; } = new InfiniFrameWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
 
@@ -48,16 +48,18 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     }
 
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
-        #pragma warning disable CA2208
-        if (CustomSchemeHandlers.Count > 16) throw new ArgumentOutOfRangeException(nameof(CustomSchemeHandlers), "Maximum number of custom scheme handlers is 16.");
-        #pragma warning restore CA2208
+        if (CustomSchemeHandlers.Count > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
 
-        var window = new InfiniFrameWindow(
-            CustomSchemeHandlers,
-            provider?.GetService<ILogger<InfiniFrameWindow>>() ?? GetDefaultLogger()
-        );
+        var window = new InfiniFrameWindow {
+            ServiceProvider = provider,
+            Logger = provider?.GetService<ILogger<InfiniFrameWindow>>() ?? GetDefaultLogger(),
+            CustomSchemes = CustomSchemeHandlers,
+            Parent = null,
+            Events = Events,
+            MessageHandlers = MessageHandlers
+        };
 
-        Events.WebMessageReceived += MessageHandlers.Handle;
+        Events.WebMessageReceived.Add(MessageHandlers.Handle);
 
         //These are for the callbacks from C++ to C#.
         InfiniFrameNativeParameters startupParameters = GetParameters(provider);
@@ -80,8 +82,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         // window.IconFilePath = startupParameters.WindowIconFile;
 
-        window.Events = Events.DefineSender(window);
-        window.MessageHandlers = MessageHandlers;
+        Events.CompleteSetup(window);
         window.Initialize();
         return window;
 

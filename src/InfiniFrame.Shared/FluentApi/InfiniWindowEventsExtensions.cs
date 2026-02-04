@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
@@ -19,9 +20,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterLocationChangedHandler(EventHandler<Point> handler) {
-            builder.Events.WindowLocationChanged += handler;
+        /// <param name="handler">Handler invoked with the window and new location.</param>
+        public T RegisterLocationChangedHandler(Action<IInfiniFrameWindow, Point> handler) {
+            builder.Events.WindowLocationChanged.Add(handler);
             return builder;
         }
         
@@ -31,9 +32,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterSizeChangedHandler(EventHandler<Size> handler) {
-            builder.Events.WindowSizeChanged += handler;
+        /// <param name="handler">Handler invoked with the window and new size.</param>
+        public T RegisterSizeChangedHandler(Action<IInfiniFrameWindow, Size> handler) {
+            builder.Events.WindowSizeChanged.Add(handler);
             return builder;
         }
         
@@ -44,9 +45,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterFocusInHandler(EventHandler handler) {
-            builder.Events.WindowFocusIn += handler;
+        /// <param name="handler">Handler invoked with the window.</param>
+        public T RegisterFocusInHandler(Action<IInfiniFrameWindow> handler) {
+            builder.Events.WindowFocusIn.Add(handler);
             return builder;
         }
         
@@ -56,9 +57,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterMaximizedHandler(EventHandler handler) {
-            builder.Events.WindowMaximized += handler;
+        /// <param name="handler">Handler invoked with the window.</param>
+        public T RegisterMaximizedHandler(Action<IInfiniFrameWindow> handler) {
+            builder.Events.WindowMaximized.Add(handler);
             return builder;
         }
         
@@ -68,9 +69,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterRestoredHandler(EventHandler handler) {
-            builder.Events.WindowRestored += handler;
+        /// <param name="handler">Handler invoked with the window.</param>
+        public T RegisterRestoredHandler(Action<IInfiniFrameWindow> handler) {
+            builder.Events.WindowRestored.Add(handler);
             return builder;
         }
         
@@ -81,9 +82,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterFocusOutHandler(EventHandler handler) {
-            builder.Events.WindowFocusOut += handler;
+        /// <param name="handler">Handler invoked with the window.</param>
+        public T RegisterFocusOutHandler(Action<IInfiniFrameWindow> handler) {
+            builder.Events.WindowFocusOut.Add(handler);
             return builder;
         }
         
@@ -93,9 +94,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterMinimizedHandler(EventHandler handler) {
-            builder.Events.WindowMinimized += handler;
+        /// <param name="handler">Handler invoked with the window.</param>
+        public T RegisterMinimizedHandler(Action<IInfiniFrameWindow> handler) {
+            builder.Events.WindowMinimized.Add(handler);
             return builder;
         }
         
@@ -108,9 +109,39 @@ public static class InfiniWindowEventsExtensions {
         /// <remarks>
         ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
         /// </remarks>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterWebMessageReceivedHandler(EventHandler<string> handler) {
-            builder.Events.WebMessageReceived += handler;
+        /// <param name="handler">Handler invoked with the window and message.</param>
+        public T RegisterWebMessageReceivedHandler(Action<IInfiniFrameWindow, string> handler) {
+            builder.Events.WebMessageReceived.Add(handler);
+            return builder;
+        }
+
+        /// <summary>
+        ///     Registers user-defined handler methods to receive callbacks from the native builder when it sends a message,
+        ///     resolving required services from the configured service provider.
+        /// </summary>
+        /// <returns>
+        ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
+        /// </returns>
+        /// <remarks>
+        ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
+        /// </remarks>
+        /// <param name="handler">Handler that receives the resolved service and web message data.</param>
+        public T RegisterWebMessageReceivedHandler<TService>(Action<TService, IInfiniFrameWindow, string> handler) where TService : notnull {
+            ArgumentNullException.ThrowIfNull(handler);
+
+            builder.Events.WebMessageReceived.Add((sender, message) => {
+                IServiceProvider? provider = sender.ServiceProvider;
+                if (provider is null) {
+                    throw new InvalidOperationException(
+                        "Web message handlers with service injection were registered, but no IServiceProvider was supplied. " +
+                        "Call Build(provider) or register non-DI handlers."
+                    );
+                }
+
+                var service = provider.GetRequiredService<TService>();
+                handler(service, sender, message);
+            });
+
             return builder;
         }
         
@@ -120,9 +151,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         /// Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterWindowClosingRequestedHandler(EventHandler handler) {
-            builder.Events.WindowClosingRequested += handler;
+        /// <param name="handler">Handler invoked with the window.</param>
+        public T RegisterWindowClosingRequestedHandler(Action<IInfiniFrameWindow> handler) {
+            builder.Events.WindowClosingRequested.Add(handler);
             return builder;
         }
         
@@ -136,7 +167,7 @@ public static class InfiniWindowEventsExtensions {
         /// </returns>
         /// <param name="handler"><see cref="NetClosingDelegate" /></param>
         public T RegisterWindowClosingHandler(NetClosingDelegate handler) {
-            builder.Events.WindowClosing += handler;
+            builder.Events.WindowClosing.Add(handler);
             return builder;
         }
         
@@ -146,9 +177,9 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="EventHandler" /></param>
-        public T RegisterWindowCreatingHandler(EventHandler handler) {
-            builder.Events.WindowCreating += handler;
+        /// <param name="handler">Handler invoked with the window.</param>
+        public T RegisterWindowCreatingHandler(Action<IInfiniFrameWindow> handler) {
+            builder.Events.WindowCreating.Add(handler);
             return builder;
         }
         
@@ -158,10 +189,11 @@ public static class InfiniWindowEventsExtensions {
         /// <returns>
         ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
         /// </returns>
-        /// <param name="handler"><see cref="NetClosingDelegate" /></param>
-        public T RegisterWindowCreatedHandler(EventHandler handler) {
-            builder.Events.WindowCreated += handler;
+        /// <param name="handler">Handler invoked with the window.</param>
+        public T RegisterWindowCreatedHandler(Action<IInfiniFrameWindow> handler) {
+            builder.Events.WindowCreated.Add(handler);
             return builder;
         }
     }
+
 }

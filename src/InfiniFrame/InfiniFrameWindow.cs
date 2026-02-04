@@ -13,29 +13,23 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class InfiniFrameWindow(
-    Dictionary<string, NetCustomSchemeDelegate?> customSchemes,
-    ILogger<InfiniFrameWindow> logger,
-    InfiniFrameWindow? parent = null
-) : IInfiniFrameWindow {
-
+public sealed class InfiniFrameWindow : IInfiniFrameWindow {
+    public required ILogger<IInfiniFrameWindow> Logger { get; init; }
+    public required IServiceProvider? ServiceProvider { get; init; }
+    public required Dictionary<string, NetCustomSchemeDelegate?> CustomSchemes { get; init; }
+    public required IInfiniFrameWindow? Parent { get; init; }
+    public required IInfiniFrameWindowEvents Events { get; init; }
+    public required IInfiniFrameWindowMessageHandlers MessageHandlers { get; init; }
+    
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     public IntPtr NativeType => WindowType.Value;
 
     public IntPtr InstanceHandle { get; private set; }
     public InfiniFrameNativeParameters StartupParameters;
-    
-    ILogger<IInfiniFrameWindow> IInfiniFrameWindow.Logger => logger;
-
-    public IInfiniFrameWindow? Parent { get; } = parent;
-    public IInfiniFrameWindowEvents Events { get; set; } = null!;
-    public IInfiniFrameWindowMessageHandlers MessageHandlers { get; set; } = null!;
 
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
-
-    internal Dictionary<string, NetCustomSchemeDelegate?> CustomSchemes => customSchemes;
 
     #region PROPERTIES
     /// <summary>
@@ -382,7 +376,7 @@ public sealed class InfiniFrameWindow(
     public void Initialize() {
         //fill in the fixed size array of custom scheme names
         int i = 0;
-        foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in customSchemes.Take(16)) {
+        foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in CustomSchemes.Take(16)) {
             StartupParameters.CustomSchemeNames[i] = Marshal.StringToHGlobalAnsi(name.Key);
             i++;
         }
@@ -391,8 +385,8 @@ public sealed class InfiniFrameWindow(
             ? parent.InstanceHandle
             : IntPtr.Zero;
 
-        if (!InfiniFrameNativeParametersValidator.Validate(StartupParameters, logger)) {
-            logger.LogCritical("Startup Parameters Are Not Valid, please check the logs");
+        if (!InfiniFrameNativeParametersValidator.Validate(StartupParameters, Logger)) {
+            Logger.LogCritical("Startup Parameters Are Not Valid, please check the logs");
             throw new ArgumentException("Startup Parameters Are Not Valid, please check the logs");
         }
 
@@ -412,7 +406,7 @@ public sealed class InfiniFrameWindow(
             if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
 
-            logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
+            Logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
 
@@ -442,12 +436,12 @@ public sealed class InfiniFrameWindow(
     /// </remarks>
     public void WaitForClose() {
         if (!MessageLoopState.TryAcquireFirstState()) {
-            logger.LogWarning("Message loop is already running. This call will be ignored.");
+            Logger.LogWarning("Message loop is already running. This call will be ignored.");
             return;
         }
 
         try {
-            logger.LogDebug("Starting message loop. There can only be 1 message loop for all windows.");
+            Logger.LogDebug("Starting message loop. There can only be 1 message loop for all windows.");
             Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
         }
         catch (Exception ex) {
@@ -455,7 +449,7 @@ public sealed class InfiniFrameWindow(
             if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
 
-            logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
+            Logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
         finally {
@@ -472,7 +466,7 @@ public sealed class InfiniFrameWindow(
     ///     Thrown when the window is not initialized.
     /// </exception>
     public void Close() {
-        logger.LogDebug(".Close()");
+        Logger.LogDebug(".Close()");
         Events.OnWindowClosingRequested();
         Invoke(() => InfiniFrameNative.Close(InstanceHandle));
     }
@@ -488,13 +482,13 @@ public sealed class InfiniFrameWindow(
     /// </exception>
     /// <param name="message">Message as string</param>
     public void SendWebMessage(string message) {
-        logger.LogDebug(".SendWebMessage({Message})", message);
+        Logger.LogDebug(".SendWebMessage({Message})", message);
         Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
     }
 
     public async Task SendWebMessageAsync(string message) {
         await Task.Run(() => {
-            logger.LogDebug(".SendWebMessage({Message})", message);
+            Logger.LogDebug(".SendWebMessage({Message})", message);
             Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
         });
     }
@@ -509,7 +503,7 @@ public sealed class InfiniFrameWindow(
     /// <param name="title">The title of the notification</param>
     /// <param name="body">The text of the notification</param>
     public void SendNotification(string title, string body) {
-        logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
+        Logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
         Invoke(() => InfiniFrameNative.ShowNotification(InstanceHandle, title, body));
     }
 
@@ -721,8 +715,8 @@ public sealed class InfiniFrameWindow(
 
         InfiniFrameNative.AddCustomSchemeName(InstanceHandle, scheme);
 
-        customSchemes.TryAdd(scheme, null);
-        customSchemes[scheme] += handler;
+        CustomSchemes.TryAdd(scheme, null);
+        CustomSchemes[scheme] += handler;
         return this;
     }
 
@@ -753,8 +747,8 @@ public sealed class InfiniFrameWindow(
 
         string scheme = url[..colonPos].ToLower();
 
-        if (!customSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
-            logger.LogWarning("No handler registered for scheme '{Scheme}'", scheme);
+        if (!CustomSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
+            Logger.LogWarning("No handler registered for scheme '{Scheme}'", scheme);
         }
 
         Stream? responseStream = handler?.Invoke(this, scheme, url, out contentType);

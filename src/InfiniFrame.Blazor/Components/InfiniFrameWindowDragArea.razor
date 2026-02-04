@@ -60,20 +60,20 @@
     protected override void OnInitialized() {
         base.OnInitialized();
 
-        PhotinoWindow.Events.WindowMaximized += OnMaximized;
-        PhotinoWindow.Events.WindowRestored += OnRestored;
+        PhotinoWindow.Events.WindowMaximized.Add(OnMaximized);
+        PhotinoWindow.Events.WindowRestored.Add(OnRestored);
     }
 
     public void Dispose() {
-        PhotinoWindow.Events.WindowMaximized -= OnMaximized;
-        PhotinoWindow.Events.WindowRestored -= OnRestored;
+        PhotinoWindow.Events.WindowMaximized.Remove(OnMaximized);
+        PhotinoWindow.Events.WindowRestored.Remove(OnRestored);
     }
 
-    private void OnMaximized(object? sender, EventArgs eventArgs) {
+    private void OnMaximized(IInfiniFrameWindow window) {
         _suppressGrabbing = true;
     }
 
-    private void OnRestored(object? sender, EventArgs eventArgs) {
+    private void OnRestored(IInfiniFrameWindow window) {
         _suppressGrabbing = false;
     }
 

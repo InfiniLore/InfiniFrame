@@ -2,26 +2,27 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
+using InfiniFrame.Utilities;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowEvents {
-    event EventHandler<Point>? WindowLocationChanged;
-    event EventHandler<Size>? WindowSizeChanged;
-    event EventHandler? WindowFocusIn;
-    event EventHandler? WindowMaximized;
-    event EventHandler? WindowRestored;
-    event EventHandler? WindowFocusOut;
-    event EventHandler? WindowMinimized;
-    event EventHandler<string>? WebMessageReceived;
-    event EventHandler? WindowClosingRequested;
-    event NetClosingDelegate? WindowClosing;
-    event EventHandler? WindowCreating;
-    event EventHandler? WindowCreated;
+    InfiniFrameOrderedEvent<Point> WindowLocationChanged { get; }
+    InfiniFrameOrderedEvent<Size> WindowSizeChanged { get; }
+    InfiniFrameOrderedEvent WindowFocusIn { get; }
+    InfiniFrameOrderedEvent WindowMaximized { get; }
+    InfiniFrameOrderedEvent WindowRestored { get; }
+    InfiniFrameOrderedEvent WindowFocusOut { get; }
+    InfiniFrameOrderedEvent WindowMinimized { get; }
+    InfiniFrameOrderedEvent<string> WebMessageReceived { get; }
+    InfiniFrameOrderedEvent WindowClosingRequested { get; }
+    InfiniFrameOrderedClosingEvent WindowClosing { get; }
+    InfiniFrameOrderedEvent WindowCreating { get; }
+    InfiniFrameOrderedEvent WindowCreated { get; }
 
-    IInfiniFrameWindowEvents DefineSender<T>(T sender) where T : class;
+    void CompleteSetup(IInfiniFrameWindow sender);
 
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);

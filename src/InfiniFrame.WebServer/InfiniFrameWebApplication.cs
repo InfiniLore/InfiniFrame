@@ -41,13 +41,13 @@ public class InfiniFrameWebApplication {
     public InfiniFrameWebApplication UseAutoServerClose() {
         if (LazyWindow.IsValueCreated) {
             Window.RegisterWindowClosingHandler((_,_) => ClosingHandler());
-            Window.RegisterWindowClosingRequestedHandler((_,_) => ClosingHandler());
+            Window.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
             return this;    
         }
 
         var builder = WebApp.Services.GetRequiredService<IInfiniFrameWindowBuilder>();
         builder.RegisterWindowClosingHandler((_,_) => ClosingHandler());
-        builder.RegisterWindowClosingRequestedHandler((_,_) => ClosingHandler());
+        builder.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
         return this;
     
         bool ClosingHandler() {
