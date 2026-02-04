@@ -9,5 +9,5 @@ public interface IInfiniFrameWindowMessageHandlers {
     bool IsEmpty { get; }
 
     void RegisterMessageHandler(string messageId, Action<IInfiniFrameWindow, string?> handler);
-    void Handle(object? sender, string? message);
+    void Handle(IInfiniFrameWindow sender, string message);
 }

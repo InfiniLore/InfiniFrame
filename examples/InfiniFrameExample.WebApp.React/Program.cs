@@ -38,8 +38,7 @@ public static class Program {
                         })();
                         """u8.ToArray());
             })
-            .RegisterWebMessageReceivedHandler((WebMessageCounter counter, object? sender, string message) => {
-                var window = (InfiniFrameWindow)sender!;
+            .RegisterWebMessageReceivedHandler((WebMessageCounter counter, IInfiniFrameWindow window, string message) => {
                 int count = counter.Increment();
                 string response = $"[{count}] Received message: \"{message}\"";
                 window.SendWebMessage(response);

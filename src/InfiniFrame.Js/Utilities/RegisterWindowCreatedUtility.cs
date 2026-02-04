@@ -27,9 +27,7 @@ public static class RegisterWindowCreatedUtility {
             });
         }
 
-        builder.Events.WindowCreated += (sender, args) => {
-            if (sender is not IInfiniFrameWindow window) return;
-
+        builder.Events.WindowCreated += window => {
             // TODO this is a hack but works because we can only send an event after the window is fully created.
             //      The issue is that OnWindowCreated is called before the window is fully finalized.
             //      We should fix this in the future.

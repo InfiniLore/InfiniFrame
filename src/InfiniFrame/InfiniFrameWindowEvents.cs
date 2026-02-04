@@ -10,23 +10,23 @@ namespace InfiniFrame;
 public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     private IInfiniFrameWindow Sender { get; set; } = null!;
 
-    public event EventHandler<Point>? WindowLocationChanged;
-    public event EventHandler<Size>? WindowSizeChanged;
-    public event EventHandler? WindowFocusIn;
-    public event EventHandler? WindowMaximized;
-    public event EventHandler? WindowRestored;
-    public event EventHandler? WindowFocusOut;
-    public event EventHandler? WindowMinimized;
-    public event EventHandler<string>? WebMessageReceived;
+    public event Action<IInfiniFrameWindow, Point>? WindowLocationChanged;
+    public event Action<IInfiniFrameWindow, Size>? WindowSizeChanged;
+    public event Action<IInfiniFrameWindow>? WindowFocusIn;
+    public event Action<IInfiniFrameWindow>? WindowMaximized;
+    public event Action<IInfiniFrameWindow>? WindowRestored;
+    public event Action<IInfiniFrameWindow>? WindowFocusOut;
+    public event Action<IInfiniFrameWindow>? WindowMinimized;
+    public event Action<IInfiniFrameWindow, string>? WebMessageReceived;
     public event NetClosingDelegate? WindowClosing;
-    public event EventHandler? WindowClosingRequested;
-    public event EventHandler? WindowCreating;
-    public event EventHandler? WindowCreated;
+    public event Action<IInfiniFrameWindow>? WindowClosingRequested;
+    public event Action<IInfiniFrameWindow>? WindowCreating;
+    public event Action<IInfiniFrameWindow>? WindowCreated;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void CompleteSetup<T>(T sender) where T : IInfiniFrameWindow {
+    public void CompleteSetup(IInfiniFrameWindow sender) {
         ArgumentNullException.ThrowIfNull(sender);
         Sender = sender;
     }
@@ -53,7 +53,7 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     ///     Invokes registered user-defined handler methods when the native window focuses in.
     /// </summary>
     public void OnFocusIn() {
-        WindowFocusIn?.Invoke(Sender, EventArgs.Empty);
+        WindowFocusIn?.Invoke(Sender);
     }
 
 
@@ -61,28 +61,28 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     ///     Invokes registered user-defined handler methods when the native window is maximized.
     /// </summary>
     public void OnMaximized() {
-        WindowMaximized?.Invoke(Sender, EventArgs.Empty);
+        WindowMaximized?.Invoke(Sender);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window is restored.
     /// </summary>
     public void OnRestored() {
-        WindowRestored?.Invoke(Sender, EventArgs.Empty);
+        WindowRestored?.Invoke(Sender);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window focuses out.
     /// </summary>
     public void OnFocusOut() {
-        WindowFocusOut?.Invoke(Sender, EventArgs.Empty);
+        WindowFocusOut?.Invoke(Sender);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window is minimized.
     /// </summary>
     public void OnMinimized() {
-        WindowMinimized?.Invoke(Sender, EventArgs.Empty);
+        WindowMinimized?.Invoke(Sender);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     }
 
     public void OnWindowClosingRequested() {
-        WindowClosingRequested?.Invoke(Sender, EventArgs.Empty);
+        WindowClosingRequested?.Invoke(Sender);
     }
 
     /// <summary>
@@ -113,14 +113,14 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     ///     Invokes registered user-defined handler methods before the native window is created.
     /// </summary>
     public void OnWindowCreating() {
-        WindowCreating?.Invoke(Sender, EventArgs.Empty);
+        WindowCreating?.Invoke(Sender);
     }
 
     /// <summary>
     ///     Invokes registered user-defined handler methods after the native window is created.
     /// </summary>
     public void OnWindowCreated() {
-        WindowCreated?.Invoke(Sender, EventArgs.Empty);
+        WindowCreated?.Invoke(Sender);
     }
 
 }

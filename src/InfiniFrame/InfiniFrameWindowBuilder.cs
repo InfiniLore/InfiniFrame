@@ -54,7 +54,9 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             ServiceProvider = provider,
             Logger = provider?.GetService<ILogger<InfiniFrameWindow>>() ?? GetDefaultLogger(),
             CustomSchemes = CustomSchemeHandlers,
-            Parent = null
+            Parent = null,
+            Events = Events,
+            MessageHandlers = MessageHandlers
         };
 
         Events.WebMessageReceived += MessageHandlers.Handle;
@@ -81,7 +83,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         // window.IconFilePath = startupParameters.WindowIconFile;
 
         Events.CompleteSetup(window);
-        window.MessageHandlers = MessageHandlers;
         window.Initialize();
         return window;
 

@@ -77,12 +77,12 @@
         PhotinoWindow.Events.WindowRestored -= OnRestored;
     }
 
-    private void OnMaximized(object? sender, EventArgs eventArgs) {
+    private void OnMaximized(IInfiniFrameWindow window) {
         _hidden = true;
         InvokeAsync(StateHasChanged);
     }
 
-    private void OnRestored(object? sender, EventArgs eventArgs) {
+    private void OnRestored(IInfiniFrameWindow window) {
         _hidden = false;
         InvokeAsync(StateHasChanged);
     }

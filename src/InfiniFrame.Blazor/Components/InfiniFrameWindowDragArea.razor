@@ -69,11 +69,11 @@
         PhotinoWindow.Events.WindowRestored -= OnRestored;
     }
 
-    private void OnMaximized(object? sender, EventArgs eventArgs) {
+    private void OnMaximized(IInfiniFrameWindow window) {
         _suppressGrabbing = true;
     }
 
-    private void OnRestored(object? sender, EventArgs eventArgs) {
+    private void OnRestored(IInfiniFrameWindow window) {
         _suppressGrabbing = false;
     }
 

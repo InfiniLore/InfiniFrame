@@ -16,8 +16,7 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
         Handlers.Add(messageId, handler);
     }
 
-    public void Handle(object? sender, string? message) {
-        if (sender is not IInfiniFrameWindow window) return;
+    public void Handle(IInfiniFrameWindow window, string message) {
         if (window.MessageHandlers.IsEmpty) return;
         if (string.IsNullOrWhiteSpace(message)) return;
 

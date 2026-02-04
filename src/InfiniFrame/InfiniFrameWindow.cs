@@ -18,6 +18,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public required IServiceProvider? ServiceProvider { get; init; }
     public required Dictionary<string, NetCustomSchemeDelegate?> CustomSchemes { get; init; }
     public required IInfiniFrameWindow? Parent { get; init; }
+    public required IInfiniFrameWindowEvents Events { get; init; }
+    public required IInfiniFrameWindowMessageHandlers MessageHandlers { get; init; }
     
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
@@ -25,9 +27,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     public IntPtr InstanceHandle { get; private set; }
     public InfiniFrameNativeParameters StartupParameters;
-    
-    public IInfiniFrameWindowEvents Events { get; set; } = null!;
-    public IInfiniFrameWindowMessageHandlers MessageHandlers { get; set; } = null!;
 
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;

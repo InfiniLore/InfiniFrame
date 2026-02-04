@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -33,14 +34,21 @@ public class WebMessageReceivedHandlerTests {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         var service = new TestService();
-        var events = new InfiniFrameWindowEvents {
-            ServiceProvider = new TestServiceProvider(service)
+        var events = new InfiniFrameWindowEvents();
+        var window = new InfiniFrameWindow {
+            Logger = NullLogger<IInfiniFrameWindow>.Instance,
+            ServiceProvider =  new TestServiceProvider(service),
+            CustomSchemes = [],
+            Parent = null,
+            Events = events,
+            MessageHandlers = new InfiniFrameWindowMessageHandlers()
         };
+        events.CompleteSetup(window);
         builder.Events = events;
 
         var tcs = new TaskCompletionSource<(string ServiceId, string Message)>();
 
-        builder.RegisterWebMessageReceivedHandler((TestService resolvedService, object? _, string message) => {
+        builder.RegisterWebMessageReceivedHandler((TestService resolvedService, IInfiniFrameWindow _, string message) => {
             tcs.TrySetResult((resolvedService.Id, message));
         });
 

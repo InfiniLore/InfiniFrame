@@ -8,20 +8,20 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowEvents {
-    event EventHandler<Point>? WindowLocationChanged;
-    event EventHandler<Size>? WindowSizeChanged;
-    event EventHandler? WindowFocusIn;
-    event EventHandler? WindowMaximized;
-    event EventHandler? WindowRestored;
-    event EventHandler? WindowFocusOut;
-    event EventHandler? WindowMinimized;
-    event EventHandler<string>? WebMessageReceived;
-    event EventHandler? WindowClosingRequested;
+    event Action<IInfiniFrameWindow, Point>? WindowLocationChanged;
+    event Action<IInfiniFrameWindow, Size>? WindowSizeChanged;
+    event Action<IInfiniFrameWindow>? WindowFocusIn;
+    event Action<IInfiniFrameWindow>? WindowMaximized;
+    event Action<IInfiniFrameWindow>? WindowRestored;
+    event Action<IInfiniFrameWindow>? WindowFocusOut;
+    event Action<IInfiniFrameWindow>? WindowMinimized;
+    event Action<IInfiniFrameWindow, string>? WebMessageReceived;
+    event Action<IInfiniFrameWindow>? WindowClosingRequested;
     event NetClosingDelegate? WindowClosing;
-    event EventHandler? WindowCreating;
-    event EventHandler? WindowCreated;
+    event Action<IInfiniFrameWindow>? WindowCreating;
+    event Action<IInfiniFrameWindow>? WindowCreated;
 
-    void CompleteSetup<T>(T sender) where T : IInfiniFrameWindow;
+    void CompleteSetup(IInfiniFrameWindow sender);
 
     void OnLocationChanged(int left, int top);
     void OnSizeChanged(int width, int height);
