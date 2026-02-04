@@ -598,7 +598,13 @@ public sealed class InfiniFrameWindow(
 
         Invoke(() => {
             IntPtr ptrResult = InfiniFrameNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length);
-            result = Marshal.PtrToStringAuto(ptrResult);
+            if (ptrResult == IntPtr.Zero) return;
+            try {
+                result = Marshal.PtrToStringAuto(ptrResult);
+            }
+            finally {
+                InfiniFrameNative.FreeString(ptrResult);
+            }
         });
 
         return result;
@@ -659,13 +665,18 @@ public sealed class InfiniFrameWindow(
         Invoke(() => {
             IntPtr ptrResults = foldersOnly ? InfiniFrameNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out int resultCount) : InfiniFrameNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount);
 
-            if (resultCount == 0) return;
+            if (resultCount == 0 || ptrResults == IntPtr.Zero) return;
 
-            IntPtr[] ptrArray = new IntPtr[resultCount];
-            results = new string?[resultCount];
-            Marshal.Copy(ptrResults, ptrArray, 0, resultCount);
-            for (int i = 0; i < resultCount; i++) {
-                results[i] = Marshal.PtrToStringAuto(ptrArray[i]);
+            try {
+                IntPtr[] ptrArray = new IntPtr[resultCount];
+                results = new string?[resultCount];
+                Marshal.Copy(ptrResults, ptrArray, 0, resultCount);
+                for (int i = 0; i < resultCount; i++) {
+                    results[i] = Marshal.PtrToStringAuto(ptrArray[i]);
+                }
+            }
+            finally {
+                InfiniFrameNative.FreeStringArray(ptrResults, resultCount);
             }
         });
 

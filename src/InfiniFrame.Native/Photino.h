@@ -179,6 +179,7 @@ private:
 	GdkGeometry _hints;
 	void AddCustomSchemeHandlers();
 	bool _isFullScreen;
+	std::vector<AutoString> _ownedCustomSchemeNames;
 #elif __APPLE__
 	NSWindow *_window;
 	WKWebView *_webview;

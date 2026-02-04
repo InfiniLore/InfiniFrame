@@ -73,6 +73,8 @@ internal static class NativeDll {
     internal const string Photino_ShowMessage = nameof(Photino_ShowMessage);
     internal const string Photino_GetZoomEnabled = nameof(Photino_GetZoomEnabled);
     internal const string Photino_SetZoomEnabled = nameof(Photino_SetZoomEnabled);
+    internal const string Photino_FreeString = nameof(Photino_FreeString);
+    internal const string Photino_FreeStringArray = nameof(Photino_FreeStringArray);
     internal const string InfiniFrame_SetFocused = nameof(InfiniFrame_SetFocused);
     internal const string InfiniFrame_GetFocused = nameof(InfiniFrame_GetFocused);
     // ReSharper restore InconsistentNaming
