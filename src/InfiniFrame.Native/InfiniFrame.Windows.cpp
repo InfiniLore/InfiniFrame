@@ -83,70 +83,34 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 		exit(0);
 	}
 
-	_windowTitle = new wchar_t[256];
 	if (initParams->Title != nullptr)
 	{
-		std::wstring wTitle = ToUTF16String(initParams->Title);
+		_windowTitle = ToUTF16String(initParams->Title);
 		if (initParams->NotificationsEnabled)
 		{
-			WinToast::instance()->setAppName(wTitle.c_str());
-			if (_notificationRegistrationId == nullptr)
-				WinToast::instance()->setAppUserModelId(wTitle.c_str());
+			WinToast::instance()->setAppName(_windowTitle.c_str());
+			if (_notificationRegistrationId.empty())
+				WinToast::instance()->setAppUserModelId(_windowTitle.c_str());
 		}
-	    wcscpy_s(_windowTitle, 256, wTitle.c_str());
 	}
-	else
-		_windowTitle[0] = 0;
 
-	_startUrl = nullptr;
 	if (initParams->StartUrl != nullptr)
-	{
-		_startUrl = new wchar_t[2048];
-		wcscpy_s(_startUrl,2048, initParams->StartUrl);
-	}
+		_startUrl = initParams->StartUrl;
 
-	_startString = nullptr;
 	if (initParams->StartString != nullptr)
-	{
-	    auto startStringLength = wcslen(initParams->StartString) + 1;
-		_startString = new wchar_t[startStringLength];
-		wcscpy_s(_startString, startStringLength, initParams->StartString);
-	}
+		_startString = initParams->StartString;
 
-	_temporaryFilesPath = nullptr;
 	if (initParams->TemporaryFilesPath != nullptr)
-	{
-		_temporaryFilesPath = new wchar_t[256];
-		std::wstring wTemporaryFilesPath = ToUTF16String(initParams->TemporaryFilesPath);
-		wcscpy_s(_temporaryFilesPath, 256, wTemporaryFilesPath.c_str());
-	}
+		_temporaryFilesPath = ToUTF16String(initParams->TemporaryFilesPath);
 
-	_userAgent = nullptr;
 	if (initParams->UserAgent != nullptr)
-	{
-		std::wstring wUserAgent = ToUTF16String(initParams->UserAgent);
-	    auto userAgentLength = wcslen(wUserAgent.c_str()) + 1;
-		_userAgent = new wchar_t[userAgentLength];
-		wcscpy_s(_userAgent,userAgentLength, wUserAgent.c_str());
-	}
+		_userAgent = ToUTF16String(initParams->UserAgent);
 
-	_browserControlInitParameters = nullptr;
 	if (initParams->BrowserControlInitParameters != nullptr)
-	{
-		std::wstring wBrowserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
-	    auto browserControlInitParametersLength = wcslen(wBrowserControlInitParameters.c_str()) + 1;
-		_browserControlInitParameters = new wchar_t[browserControlInitParametersLength];
-		wcscpy_s(_browserControlInitParameters,browserControlInitParametersLength, wBrowserControlInitParameters.c_str());
-	}
+		_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
 
-	_notificationRegistrationId = nullptr;
 	if (initParams->NotificationRegistrationId != nullptr)
-	{
-		std::wstring wNotificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
-	    auto notificationRegistrationIdLength = wcslen(wNotificationRegistrationId.c_str()) + 1;
-		_notificationRegistrationId = new wchar_t[notificationRegistrationIdLength];
-		wcscpy_s(_notificationRegistrationId,notificationRegistrationIdLength, wNotificationRegistrationId.c_str());
-	}
+		_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
 
 
 	_transparentEnabled = initParams->Transparent;
@@ -170,28 +134,22 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	_maxHeight = initParams->MaxHeight;
 
 	//these handlers are ALWAYS hooked up
-	_webMessageReceivedCallback = (WebMessageReceivedCallback)initParams->WebMessageReceivedHandler;
-	_resizedCallback = (ResizedCallback)initParams->ResizedHandler;
-	_maximizedCallback = (MaximizedCallback)initParams->MaximizedHandler;
-	_restoredCallback = (RestoredCallback)initParams->RestoredHandler;
-	_minimizedCallback = (MinimizedCallback)initParams->MinimizedHandler;
-	_movedCallback = (MovedCallback)initParams->MovedHandler;
-	_closingCallback = (ClosingCallback)initParams->ClosingHandler;
-	_focusInCallback = (FocusInCallback)initParams->FocusInHandler;
-	_focusOutCallback = (FocusOutCallback)initParams->FocusOutHandler;
-	_customSchemeCallback = (WebResourceRequestedCallback)initParams->CustomSchemeHandler;
+	_webMessageReceivedCallback = reinterpret_cast<WebMessageReceivedCallback>(initParams->WebMessageReceivedHandler);
+	_resizedCallback = reinterpret_cast<ResizedCallback>(initParams->ResizedHandler);
+	_maximizedCallback = reinterpret_cast<MaximizedCallback>(initParams->MaximizedHandler);
+	_restoredCallback = reinterpret_cast<RestoredCallback>(initParams->RestoredHandler);
+	_minimizedCallback = reinterpret_cast<MinimizedCallback>(initParams->MinimizedHandler);
+	_movedCallback = reinterpret_cast<MovedCallback>(initParams->MovedHandler);
+	_closingCallback = reinterpret_cast<ClosingCallback>(initParams->ClosingHandler);
+	_focusInCallback = reinterpret_cast<FocusInCallback>(initParams->FocusInHandler);
+	_focusOutCallback = reinterpret_cast<FocusOutCallback>(initParams->FocusOutHandler);
+	_customSchemeCallback = reinterpret_cast<WebResourceRequestedCallback>(initParams->CustomSchemeHandler);
 
 	//copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)
 	{
 		if (initParams->CustomSchemeNames[i] != nullptr)
-		{
-			wchar_t* name = new wchar_t[50];
-			std::wstring wCustomSchemeNames = ToUTF16String(initParams->CustomSchemeNames[i]);
-			wcscpy_s(name, 50, wCustomSchemeNames.c_str());
-			_customSchemeNames.push_back(name);
-			_ownedCustomSchemeNames.push_back(name);
-		}
+			_customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
 	}
 
 	_parent = initParams->ParentInstance;
@@ -241,7 +199,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	_hWnd = CreateWindowEx(
 		initParams->Transparent ? WS_EX_LAYERED : 0, //WS_EX_OVERLAPPEDWINDOW, //An optional extended window style.
 		CLASS_NAME,					//Window class
-		_windowTitle,		//Window text
+		_windowTitle.c_str(),		//Window text
 		initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW,	//Window style
 
 		// Size and position
@@ -254,7 +212,6 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	);
 	hwndToInfiniFrame[_hWnd] = this;
 
-    _iconFileName = new wchar_t[256];
 	if (initParams->WindowIconFile != nullptr)
 	{
 		SetIconFile(initParams->WindowIconFile);
@@ -278,15 +235,15 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 
 	if (initParams->NotificationsEnabled)
 	{
-		if (_notificationRegistrationId != nullptr)
-			WinToast::instance()->setAppUserModelId(_notificationRegistrationId);
+		if (!_notificationRegistrationId.empty())
+			WinToast::instance()->setAppUserModelId(_notificationRegistrationId.c_str());
 
-		this->_toastHandler = new WinToastHandler(this);
+		this->_toastHandler = std::make_unique<WinToastHandler>(this);
 		WinToast::instance()->initialize();
 
 	}
 
-	_dialog = new InfiniFrameDialog(this);
+	_dialog = std::make_unique<InfiniFrameDialog>(this);
 
 	bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
 	Show(isAlreadyShown);
@@ -294,18 +251,6 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 
 InfiniFrame::~InfiniFrame()
 {
-	if (_startUrl != nullptr) delete[]_startUrl;
-	if (_startString != nullptr) delete[]_startString;
-	if (_temporaryFilesPath != nullptr) delete[]_temporaryFilesPath;
-	if (_windowTitle != nullptr) delete[]_windowTitle;
-	if (_iconFileName != nullptr) delete[] _iconFileName;
-	if (_userAgent != nullptr) delete[] _userAgent;
-	if (_browserControlInitParameters != nullptr) delete[] _browserControlInitParameters;
-	if (_notificationRegistrationId != nullptr) delete[] _notificationRegistrationId;
-	for (auto* name : _ownedCustomSchemeNames) delete[] name;
-	_ownedCustomSchemeNames.clear();
-	if (_notificationsEnabled && _toastHandler != nullptr) delete _toastHandler;
-	if (_dialog != nullptr) delete _dialog;
 }
 
 HWND InfiniFrame::getHwnd()
@@ -586,7 +531,7 @@ void InfiniFrame::GetGrantBrowserPermissions(bool* grant)
 
 AutoString InfiniFrame::GetUserAgent()
 {
-	return this->_userAgent;
+	return const_cast<AutoString>(this->_userAgent.c_str());
 }
 
 void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled)
@@ -636,7 +581,7 @@ void InfiniFrame::GetNotificationsEnabled(bool* enabled)
 
 AutoString InfiniFrame::GetIconFileName()
 {
-	return _iconFileName;
+	return const_cast<AutoString>(_iconFileName.c_str());
 }
 
 void InfiniFrame::GetMaximized(bool* isMaximized)
@@ -680,7 +625,7 @@ void InfiniFrame::GetSize(int* width, int* height)
 
 AutoString InfiniFrame::GetTitle()
 {
-	return _windowTitle;
+	return const_cast<AutoString>(_windowTitle.c_str());
 }
 
 void InfiniFrame::GetTopmost(bool* topmost)
@@ -695,7 +640,7 @@ void InfiniFrame::GetZoom(int* zoom)
 	double rawValue = 0;
 	_webviewController->get_ZoomFactor(&rawValue);
 	rawValue = (rawValue * 100.0) + 0.5;		//account for rounding issues
-	*zoom = (int)rawValue;
+	*zoom = static_cast<int>(rawValue);
 }
 
 
@@ -793,19 +738,19 @@ void InfiniFrame::SetFullScreen(const bool fullScreen)
 void InfiniFrame::SetIconFile(const AutoString filename)
 {
     std::wstring wideFilename = ToUTF16String(filename);
-    wcscpy_s(_iconFileName, 255, wideFilename.c_str());
+    _iconFileName = wideFilename;
     if (wideFilename.empty()) return;
     
     // Load icons from file
-    HICON iconSmall = (HICON)LoadImageW(nullptr, wideFilename.c_str(),
-        IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
-    HICON iconBig = (HICON)LoadImageW(nullptr, wideFilename.c_str(),
-        IMAGE_ICON, 32, 32, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED);
+    HICON iconSmall = static_cast<HICON>(LoadImageW(nullptr, wideFilename.c_str(),
+        IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED));
+    HICON iconBig = static_cast<HICON>(LoadImageW(nullptr, wideFilename.c_str(),
+        IMAGE_ICON, 32, 32, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED));
 
     if (iconSmall && iconBig)
     {
-        SendMessageW(_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
-        SendMessageW(_hWnd, WM_SETICON, ICON_BIG, (LPARAM)iconBig);
+        SendMessageW(_hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(iconSmall));
+        SendMessageW(_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(iconBig));
     }
 }
 
@@ -872,19 +817,12 @@ void InfiniFrame::SetSize(const int width, const int height)
 void InfiniFrame::SetTitle(AutoString title)
 {
 	std::wstring wideTitle = ToUTF16String(title);
-	if (wcslen(wideTitle.c_str()) > 255)
-	{
-		for (int i = 0; i < 256; i++)
-			_windowTitle[i] = wideTitle[i];
-		_windowTitle[255] = 0;
-	}
-	else
-		wcscpy_s(_windowTitle, 255, wideTitle.c_str());
+	_windowTitle = wideTitle;
 	SetWindowText(_hWnd, wideTitle.c_str());
 	if (_notificationsEnabled)
 	{
 		WinToast::instance()->setAppName(wideTitle.c_str());
-		if (_notificationRegistrationId == nullptr)
+		if (_notificationRegistrationId.empty())
 			WinToast::instance()->setAppUserModelId(wideTitle.c_str());
 	}
 }
@@ -995,14 +933,14 @@ void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback)
 {
 	if (callback)
 	{
-		EnumDisplayMonitors(nullptr, nullptr, (MONITORENUMPROC) MonitorEnum, (LPARAM)callback);
+		EnumDisplayMonitors(nullptr, nullptr, reinterpret_cast<MONITORENUMPROC>(MonitorEnum), reinterpret_cast<LPARAM>(callback));
 	}
 }
 
 void InfiniFrame::Invoke(ACTION callback)
 {
 	InvokeWaitInfo waitInfo = {};
-	PostMessage(_hWnd, WM_USER_INVOKE, (WPARAM)callback, (LPARAM)&waitInfo);
+	PostMessage(_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo));
 
 	// Block until the callback is actually executed and completed
 	// TODO: Add return values, exception handling, etc.
@@ -1019,8 +957,8 @@ void InfiniFrame::Invoke(ACTION callback)
 std::string InfiniFrame::ToUTF8String(const AutoString source)
 {
 	std::string response;
-	int inLen = (int)wcslen(source);
-	int result = WideCharToMultiByte(CP_UTF8, 0, (LPCWCH)source, inLen, nullptr, 0, nullptr, nullptr);
+	int inLen = static_cast<int>(wcslen(source));
+	int result = WideCharToMultiByte(CP_UTF8, 0, source, inLen, nullptr, 0, nullptr, nullptr);
 	if (result < 0)
 	{
 		response = "UTF8 to UTF16 convert failed";
@@ -1028,15 +966,15 @@ std::string InfiniFrame::ToUTF8String(const AutoString source)
 	else
 	{
 		response.resize(result, 0);
-		result = WideCharToMultiByte(CP_UTF8, 0, (LPCWCH)source, inLen, &response[0], result, nullptr, nullptr);
+		result = WideCharToMultiByte(CP_UTF8, 0, source, inLen, &response[0], result, nullptr, nullptr);
 	}
 	return response;
 }
 std::wstring InfiniFrame::ToUTF16String(const AutoString source)
 {
 	std::wstring response;
-	int inLen = (int)strlen((char*)source);	
-	int result = MultiByteToWideChar(CP_UTF8, 0, (char*)source, inLen, nullptr, 0);
+	int inLen = static_cast<int>(strlen(reinterpret_cast<const char*>(source)));	
+	int result = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(source), inLen, nullptr, 0);
 	if (result < 0)
 	{
 		response = L"UTF8 to UTF16 convert failed";
@@ -1044,7 +982,7 @@ std::wstring InfiniFrame::ToUTF16String(const AutoString source)
 	else
 	{
 		response.resize(result, 0);
-		result = MultiByteToWideChar(CP_UTF8, 0, (char*)source, inLen, &response[0], result);
+		result = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(source), inLen, &response[0], result);
 	}
 	return response;
 }
@@ -1061,8 +999,8 @@ void InfiniFrame::AttachWebView()
 	//Add together all 7 special startup strings, plus the generic one passed by the user to make one big string. Try not to duplicate anything. Separate with spaces.
 	
 	std::wstring startupString = L"";
-	if (_userAgent != nullptr && wcslen(_userAgent) > 0)
-		startupString += L"--user-agent=\"" + std::wstring(_userAgent) + L"\" ";
+	if (!_userAgent.empty())
+		startupString += L"--user-agent=\"" + _userAgent + L"\" ";
 	if (_mediaAutoplayEnabled) 
 		startupString += L"--autoplay-policy=no-user-gesture-required ";
 	if (_fileSystemAccessEnabled) 
@@ -1077,14 +1015,14 @@ void InfiniFrame::AttachWebView()
 		startupString += L"--disable-smooth-scrolling ";
 	if (_ignoreCertificateErrorsEnabled)
 		startupString += L"--ignore-certificate-errors ";
-	if (_browserControlInitParameters != nullptr)
+	if (!_browserControlInitParameters.empty())
 		startupString += _browserControlInitParameters;	//e.g.--hide-scrollbars
 
 	auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
 	if (startupString.length() > 0)
 		options->put_AdditionalBrowserArguments(startupString.c_str());
 
-	HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(runtimePath, _temporaryFilesPath, options.Get(),
+	HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(runtimePath, _temporaryFilesPath.empty() ? nullptr : _temporaryFilesPath.c_str(), options.Get(),
 		Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
 			[&](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
 				if (result != S_OK) { return result; }
@@ -1132,20 +1070,20 @@ void InfiniFrame::AttachWebView()
 								if (colonPos > 0)
 								{
 									std::wstring scheme = uriString.substr(0, colonPos);
-                                    std::vector<const wchar_t*>::iterator it = std::find(
+                                    auto it = std::find(
                                         _customSchemeNames.begin(), _customSchemeNames.end(), scheme);
 
 									if (it != _customSchemeNames.end() && _customSchemeCallback != nullptr)
 									{
 										int numBytes;
 										AutoString contentType;
-										wil::unique_cotaskmem dotNetResponse(_customSchemeCallback((AutoString)uriString.c_str(), &numBytes, &contentType));
+										wil::unique_cotaskmem dotNetResponse(_customSchemeCallback(const_cast<AutoString>(uriString.c_str()), &numBytes, &contentType));
 
 										if (dotNetResponse != nullptr && contentType != nullptr)
 										{
 											std::wstring contentTypeWS = contentType;
 
-											IStream* dataStream = SHCreateMemStream((BYTE*)dotNetResponse.get(), numBytes);
+											IStream* dataStream = SHCreateMemStream(reinterpret_cast<const BYTE*>(dotNetResponse.get()), numBytes);
 											wil::com_ptr<ICoreWebView2WebResourceResponse> response;
 											_webviewEnvironment->CreateWebResourceResponse(
 												dataStream, 200, L"OK", (L"Content-Type: " + contentTypeWS).c_str(),
@@ -1170,10 +1108,10 @@ void InfiniFrame::AttachWebView()
 							.Get(),
 									&permissionRequestedToken);
 
-						if (_startUrl != nullptr)
-							NavigateToUrl(_startUrl);
-						else if (_startString != nullptr)
-							NavigateToString(_startString);
+						if (!_startUrl.empty())
+							NavigateToUrl(_startUrl.c_str());
+						else if (!_startString.empty())
+							NavigateToString(_startString.c_str());
 						else
 						{
 							MessageBox(nullptr, L"Neither StartUrl nor StartString was specified", L"Native Initialization Failed", MB_OK);
@@ -1233,7 +1171,7 @@ bool InfiniFrame::InstallWebView2()
 
 	if (S_OK == URLDownloadToFile(nullptr, srcURL, destFile, 0, nullptr))
 	{
-		LPWSTR command = new wchar_t[100]{ L"MicrosoftEdgeWebview2Setup.exe\0" };	//add these switches? /silent /install
+		std::wstring command = L"MicrosoftEdgeWebview2Setup.exe";
 
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -1244,7 +1182,7 @@ bool InfiniFrame::InstallWebView2()
 
 		bool success = CreateProcess(
             nullptr,		// No module name (use command line)
-			command,	// Command line
+			command.data(),	// Command line
             nullptr,       // Process handle not inheritable
             nullptr,       // Thread handle not inheritable
 			FALSE,      // Set handle inheritance to FALSE
@@ -1261,7 +1199,6 @@ bool InfiniFrame::InstallWebView2()
 			CloseHandle(pi.hProcess);
 			CloseHandle(pi.hThread);
 		}
-		delete[] command;
 
 		return success;
 	}

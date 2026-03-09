@@ -222,11 +222,27 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         }
     }
 
+    private int _maxHeight;
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
-    public int MaxHeight { get; set; }
+    public int MaxHeight {
+        get => _maxHeight;
+        set {
+            _maxHeight = value;
+            if (InstanceHandle != IntPtr.Zero)
+                Invoke(() => InfiniFrameNative.SetMaxSize(InstanceHandle, _maxWidth, _maxHeight));
+        }
+    }
 
+    private int _maxWidth;
     ///<summary>Gets or sets the native window maximum width in pixels.</summary>
-    public int MaxWidth { get; set; }
+    public int MaxWidth {
+        get => _maxWidth;
+        set {
+            _maxWidth = value;
+            if (InstanceHandle != IntPtr.Zero)
+                Invoke(() => InfiniFrameNative.SetMaxSize(InstanceHandle, _maxWidth, _maxHeight));
+        }
+    }
 
     /// <summary>
     ///     Gets or sets whether the native window is minimized (hidden).
@@ -244,11 +260,27 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         }
     }
 
+    private int _minHeight;
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    public int MinHeight { get; set; }
+    public int MinHeight {
+        get => _minHeight;
+        set {
+            _minHeight = value;
+            if (InstanceHandle != IntPtr.Zero)
+                Invoke(() => InfiniFrameNative.SetMinSize(InstanceHandle, _minWidth, _minHeight));
+        }
+    }
 
-    ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    public int MinWidth { get; set; }
+    private int _minWidth;
+    ///<summary>Gets or sets the native window minimum width in pixels.</summary>
+    public int MinWidth {
+        get => _minWidth;
+        set {
+            _minWidth = value;
+            if (InstanceHandle != IntPtr.Zero)
+                Invoke(() => InfiniFrameNative.SetMinSize(InstanceHandle, _minWidth, _minHeight));
+        }
+    }
 
     /// <summary>
     ///     Gets or sets whether the user can resize the native window.

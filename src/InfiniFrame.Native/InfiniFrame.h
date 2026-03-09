@@ -29,8 +29,16 @@ typedef const char* AutoStringConst;
 #endif
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
+
+// Internal string type matching platform AutoString character type
+#ifdef _WIN32
+using NativeString = std::wstring;
+#else
+using NativeString = std::string;
+#endif
 
 struct Monitor
 {
@@ -122,26 +130,26 @@ struct InfiniFrameInitParams
 class InfiniFrame
 {
 private:
-	WebMessageReceivedCallback _webMessageReceivedCallback;
-	MovedCallback _movedCallback;
-	ResizedCallback _resizedCallback;
-	MaximizedCallback _maximizedCallback;
-	RestoredCallback _restoredCallback;
-	MinimizedCallback _minimizedCallback;
-	ClosingCallback _closingCallback;
-	FocusInCallback _focusInCallback;
-	FocusOutCallback _focusOutCallback;
-	std::vector<AutoStringConst> _customSchemeNames;
-	WebResourceRequestedCallback _customSchemeCallback;
+	WebMessageReceivedCallback _webMessageReceivedCallback = nullptr;
+	MovedCallback _movedCallback = nullptr;
+	ResizedCallback _resizedCallback = nullptr;
+	MaximizedCallback _maximizedCallback = nullptr;
+	RestoredCallback _restoredCallback = nullptr;
+	MinimizedCallback _minimizedCallback = nullptr;
+	ClosingCallback _closingCallback = nullptr;
+	FocusInCallback _focusInCallback = nullptr;
+	FocusOutCallback _focusOutCallback = nullptr;
+	std::vector<NativeString> _customSchemeNames;
+	WebResourceRequestedCallback _customSchemeCallback = nullptr;
 
-	AutoString _startUrl;
-	AutoString _startString;
-	AutoString _temporaryFilesPath;
-	AutoString _windowTitle;
-	AutoString _iconFileName;
-	AutoString _userAgent;
-	AutoString _browserControlInitParameters;
-	AutoString _notificationRegistrationId;
+	NativeString _startUrl;
+	NativeString _startString;
+	NativeString _temporaryFilesPath;
+	NativeString _windowTitle;
+	NativeString _iconFileName;
+	NativeString _userAgent;
+	NativeString _browserControlInitParameters;
+	NativeString _notificationRegistrationId;
 
 	bool _transparentEnabled;
 	bool _devToolsEnabled;
@@ -157,17 +165,16 @@ private:
 
 	int _zoom;
 
-	InfiniFrame *_parent;
-	InfiniFrameDialog *_dialog;
+	InfiniFrame *_parent = nullptr;
+	std::unique_ptr<InfiniFrameDialog> _dialog;
 	void Show(bool isAlreadyShown);
 #ifdef _WIN32
 	static HINSTANCE _hInstance;
 	HWND _hWnd;
-	WinToastHandler *_toastHandler;
+	std::unique_ptr<WinToastHandler> _toastHandler;
 	wil::com_ptr<ICoreWebView2Environment> _webviewEnvironment;
 	wil::com_ptr<ICoreWebView2> _webviewWindow;
 	wil::com_ptr<ICoreWebView2Controller> _webviewController;
-	std::vector<AutoString> _ownedCustomSchemeNames;
 	bool EnsureWebViewIsInstalled();
 	bool InstallWebView2();
 	void AttachWebView();
@@ -178,13 +185,11 @@ private:
 	GdkGeometry _hints;
 	void AddCustomSchemeHandlers();
 	bool _isFullScreen;
-	std::vector<AutoString> _ownedCustomSchemeNames;
 #elif __APPLE__
 	NSWindow *_window;
 	WKWebView *_webview;
 	WKWebViewConfiguration *_webviewConfiguration;
 	std::vector<Monitor *> GetMonitors();
-	std::vector<AutoString> _ownedCustomSchemeNames;
 	
 	bool _chromeless;
 
@@ -220,7 +225,7 @@ public:
 	int _minHeight;
 	int _maxWidth;
 	int _maxHeight;
-    wchar_t* GetIconFileName();
+    AutoString GetIconFileName();
 #elif __linux__
 	void set_webkit_settings();
 	void set_webkit_customsettings(WebKitSettings* settings);
@@ -240,7 +245,7 @@ public:
     explicit InfiniFrame(InfiniFrameInitParams *initParams);
 	~InfiniFrame();
 
-	InfiniFrameDialog *GetDialog() const { return _dialog; };
+	InfiniFrameDialog *GetDialog() const { return _dialog.get(); };
 
 	void Center();
 	void ClearBrowserAutoFill();
@@ -300,7 +305,7 @@ public:
 	void CloseWebView();
 
 	// Callbacks
-	void AddCustomSchemeName(const AutoStringConst scheme) { _customSchemeNames.push_back(scheme); }
+	void AddCustomSchemeName(const AutoStringConst scheme) { _customSchemeNames.emplace_back(scheme); }
 	void GetAllMonitors(GetAllMonitorsCallback callback);
 	void SetClosingCallback(const ClosingCallback callback) { _closingCallback = callback; }
 	void SetFocusInCallback(const FocusInCallback callback) { _focusInCallback = callback; }

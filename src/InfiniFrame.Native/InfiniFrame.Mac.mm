@@ -87,32 +87,16 @@ void InfiniFrame::Register()
 
 InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 {
-	_windowTitle = new char[256];
-	if (initParams->Title != nullptr)
-		strcpy(_windowTitle, initParams->Title);
-	else
-		_windowTitle[0] = 0;
+	_windowTitle = initParams->Title ? initParams->Title : "";
 
-	_startUrl = nullptr;
 	if (initParams->StartUrl != nullptr)
-	{
-		_startUrl = new char[2048];
-		strcpy(_startUrl, initParams->StartUrl);
-	}
+		_startUrl = initParams->StartUrl;
 
-	_startString = nullptr;
 	if (initParams->StartString != nullptr)
-	{
-		_startString = new char[strlen(initParams->StartString) + 1];
-		strcpy(_startString, initParams->StartString);
-	}
+		_startString = initParams->StartString;
 
-	_temporaryFilesPath = nullptr;
 	if (initParams->TemporaryFilesPath != nullptr)
-	{
-		_temporaryFilesPath = new char[256];
-		strcpy(_temporaryFilesPath, initParams->TemporaryFilesPath);
-	}
+		_temporaryFilesPath = initParams->TemporaryFilesPath;
 
     _ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
 	_contextMenuEnabled = initParams->ContextMenuEnabled;
@@ -120,28 +104,23 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
     _grantBrowserPermissions = initParams->GrantBrowserPermissions;
 
 	//these handlers are ALWAYS hooked up
-	_webMessageReceivedCallback = (WebMessageReceivedCallback)initParams->WebMessageReceivedHandler;
-	_resizedCallback = (ResizedCallback)initParams->ResizedHandler;
-	_movedCallback = (MovedCallback)initParams->MovedHandler;
-	_closingCallback = (ClosingCallback)initParams->ClosingHandler;
-    _focusInCallback = (FocusInCallback)initParams->FocusInHandler;
-	_focusOutCallback = (FocusOutCallback)initParams->FocusOutHandler;
-    _maximizedCallback = (MaximizedCallback)initParams->MaximizedHandler;
-	_minimizedCallback = (MinimizedCallback)initParams->MinimizedHandler;
-	_restoredCallback = (RestoredCallback)initParams->RestoredHandler;
-	_customSchemeCallback = (WebResourceRequestedCallback)initParams->CustomSchemeHandler;
+	_webMessageReceivedCallback = reinterpret_cast<WebMessageReceivedCallback>(initParams->WebMessageReceivedHandler);
+	_resizedCallback = reinterpret_cast<ResizedCallback>(initParams->ResizedHandler);
+	_movedCallback = reinterpret_cast<MovedCallback>(initParams->MovedHandler);
+	_closingCallback = reinterpret_cast<ClosingCallback>(initParams->ClosingHandler);
+    _focusInCallback = reinterpret_cast<FocusInCallback>(initParams->FocusInHandler);
+	_focusOutCallback = reinterpret_cast<FocusOutCallback>(initParams->FocusOutHandler);
+    _maximizedCallback = reinterpret_cast<MaximizedCallback>(initParams->MaximizedHandler);
+	_minimizedCallback = reinterpret_cast<MinimizedCallback>(initParams->MinimizedHandler);
+	_restoredCallback = reinterpret_cast<RestoredCallback>(initParams->RestoredHandler);
+	_customSchemeCallback = reinterpret_cast<WebResourceRequestedCallback>(initParams->CustomSchemeHandler);
     
 
 	//copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)
 	{
 		if (initParams->CustomSchemeNames[i] != nullptr)
-		{
-			char* name = new char[50];
-			strcpy(name, initParams->CustomSchemeNames[i]);
-			_customSchemeNames.push_back(name);
-			_ownedCustomSchemeNames.push_back(name);
-		}
+			_customSchemeNames.emplace_back(initParams->CustomSchemeNames[i]);
 	}
 
 	_parent = initParams->ParentInstance;
@@ -202,10 +181,8 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
     _window.delegate = windowDelegate;
     
     // Set Window options
-    SetTitle(_windowTitle);
+    SetTitle(const_cast<AutoString>(_windowTitle.c_str()));
     
-    _iconFileName = new char[256];
-	_iconFileName[0] = '\0';
     if (initParams->WindowIconFile != nullptr && initParams->WindowIconFile[0] != '\0')
 		InfiniFrame::SetIconFile(initParams->WindowIconFile);
 
@@ -231,9 +208,9 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
     _webviewConfiguration = [[WKWebViewConfiguration alloc] init];
 
     // Add Custom URL Schemes to WebView Configuration
-    for (auto & scheme : _customSchemeNames)
+    for (const auto & scheme : _customSchemeNames)
     {
-        AddCustomScheme(scheme, _customSchemeCallback);
+        AddCustomScheme(scheme.c_str(), _customSchemeCallback);
     }
 
     // Create WebView
@@ -270,7 +247,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
             json key = it.key();
             json value = it.value();
             
-            NSString *preferenceKey = [NSString stringWithUTF8String: (char*)key.get<std::string>().c_str()];
+            NSString *preferenceKey = [NSString stringWithUTF8String: key.get<std::string>().c_str()];
 
             if (value.is_number_integer())
             {
@@ -286,13 +263,13 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
             }
             else if (value.is_string())
             {
-                NSString *preferenceValue = [[NSString alloc] initWithUTF8String: (char*)value.get<std::string>().c_str()];
+                NSString *preferenceValue = [[NSString alloc] initWithUTF8String: value.get<std::string>().c_str()];
                 SetPreference(preferenceKey, preferenceValue);
             }
         }
     }
 
-    _dialog = new InfiniFrameDialog();
+    _dialog = std::make_unique<InfiniFrameDialog>();
 
     Show(false);
     SetFullScreen(initParams->FullScreen);
@@ -300,17 +277,6 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 
 InfiniFrame::~InfiniFrame()
 {
-	if (_startUrl != nullptr) delete[]_startUrl;
-	if (_startString != nullptr) delete[]_startString;
-	if (_temporaryFilesPath != nullptr) delete[]_temporaryFilesPath;
-	if (_windowTitle != nullptr) delete[]_windowTitle;
-	if (_iconFileName != nullptr) delete[]_iconFileName;
-	if (_userAgent != nullptr) delete[]_userAgent;
-	if (_browserControlInitParameters != nullptr) delete[]_browserControlInitParameters;
-	for (auto* name : _ownedCustomSchemeNames) delete[] name;
-	_ownedCustomSchemeNames.clear();
-	if (_dialog != nullptr) delete _dialog;
-
     [_webviewConfiguration release];
     [_webview release];
     [_window performClose: _window];
@@ -376,7 +342,7 @@ void InfiniFrame::GetGrantBrowserPermissions(bool* enabled)
 
 AutoString InfiniFrame::GetUserAgent()
 {
-    return _userAgent;
+    return const_cast<AutoString>(_userAgent.c_str());
 }
 
 //! Always enabled on macOS. This is always true.
@@ -494,7 +460,7 @@ void InfiniFrame::GetSize(int* width, int* height)
 
 AutoString InfiniFrame::GetTitle()
 {
-    return _windowTitle;
+    return const_cast<AutoString>(_windowTitle.c_str());
 }
 
 void InfiniFrame::GetTopmost(bool* topmost)
@@ -511,7 +477,7 @@ void InfiniFrame::GetZoom(int* zoom)
 
 AutoString InfiniFrame::GetIconFileName() const
 {
-    return _iconFileName;
+    return _iconFileName.c_str();
 }
 
 void InfiniFrame::NavigateToString(AutoString content)
@@ -566,16 +532,14 @@ void InfiniFrame::SendWebMessage(AutoString message)
 
 void InfiniFrame::SetUserAgent(AutoString userAgent)
 {
-    if (_userAgent != nullptr) delete[] _userAgent;
     if (userAgent != nullptr)
     {
-        _userAgent = new char[strlen(userAgent) + 1];
-        strcpy(_userAgent, userAgent);
+        _userAgent = userAgent;
         [_webview setCustomUserAgent: [NSString stringWithUTF8String: userAgent]];
     }
     else
     {
-        _userAgent = nullptr;
+        _userAgent.clear();
     }
 }
 
@@ -619,10 +583,7 @@ void InfiniFrame::SetIconFile(AutoString filename)
         [[_window standardWindowButton: NSWindowDocumentIconButton] setImage:icon];
 
     // Store the path internally for retrieval later
-    if (_iconFileName == nullptr) _iconFileName = new char[256];
-    
-    strncpy(_iconFileName, filename, 255);
-    _iconFileName[255] = '\0';
+    _iconFileName = filename ? filename : "";
 }
 
 
@@ -750,7 +711,7 @@ void InfiniFrame::SetMaxSize(int width, int height)
 
 void InfiniFrame::SetTitle(AutoString title)
 {
-    strcpy(_windowTitle, title);
+    _windowTitle = title ? title : "";
     [_window setTitle: [NSString stringWithUTF8String:title]];
 }
 
@@ -934,10 +895,10 @@ void InfiniFrame::AttachWebView()
     _webview.UIDelegate = uiDelegate;
     _webview.navigationDelegate = navDelegate;
 
-    if (_startUrl != nullptr)
-        NavigateToUrl(_startUrl);
-    else if (_startString != nullptr)
-        NavigateToString(_startString);
+    if (!_startUrl.empty())
+        NavigateToUrl(const_cast<AutoString>(_startUrl.c_str()));
+    else if (!_startString.empty())
+        NavigateToString(const_cast<AutoString>(_startString.c_str()));
     else
     {    
         NSAlert *alert = [[[NSAlert alloc] init] autorelease];
