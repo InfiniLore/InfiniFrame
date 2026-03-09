@@ -1,6 +1,5 @@
-#include "Photino.Dialog.h"
-#include "Photino.h"
-#include <cstdlib>
+#include "InfiniFrame.Dialog.h"
+#include "InfiniFrame.h"
 #ifdef __linux__
 #include <glib.h>
 #endif
@@ -15,293 +14,293 @@
 extern "C"
 {
 #ifdef _WIN32
-	EXPORTED void Photino_register_win32(const HINSTANCE hInstance)
+	EXPORTED void InfiniFrame_register_win32(const HINSTANCE hInstance)
 	{
-		Photino::Register(hInstance);
+		InfiniFrame::Register(hInstance);
 	}
 
-	EXPORTED HWND Photino_getHwnd_win32(Photino* instance)
+	EXPORTED HWND InfiniFrame_getHwnd_win32(InfiniFrame* instance)
 	{
 		return instance->getHwnd();
 	}
 
-	EXPORTED void Photino_setWebView2RuntimePath_win32(Photino* instance, const AutoString webView2RuntimePath)
+	EXPORTED void InfiniFrame_setWebView2RuntimePath_win32(InfiniFrame* instance, const AutoString webView2RuntimePath)
 	{
-		Photino::SetWebView2RuntimePath(webView2RuntimePath);
+		InfiniFrame::SetWebView2RuntimePath(webView2RuntimePath);
 	}
 
-	EXPORTED void Photino_GetNotificationsEnabled(Photino* instance, bool* disabled)
+	EXPORTED void InfiniFrame_GetNotificationsEnabled(InfiniFrame* instance, bool* disabled)
 	{
 		instance->GetNotificationsEnabled(disabled);
 	}
 #elif __APPLE__
-	EXPORTED void Photino_register_mac()
+	EXPORTED void InfiniFrame_register_mac()
 	{
-		Photino::Register();
+		InfiniFrame::Register();
 	}
 #endif
 
-	EXPORTED Photino* Photino_ctor(PhotinoInitParams* initParams)
+	EXPORTED InfiniFrame* InfiniFrame_ctor(InfiniFrameInitParams* initParams)
 	{
-		return new Photino(initParams);
+		return new InfiniFrame(initParams);
 	}
 
-	EXPORTED void Photino_dtor(Photino* instance)
+	EXPORTED void InfiniFrame_dtor(InfiniFrame* instance)
 	{
 		delete instance;
 	}
 
-	EXPORTED void Photino_Center(Photino* instance)
+	EXPORTED void InfiniFrame_Center(InfiniFrame* instance)
 	{
 		instance->Center();
 	}
 
-	EXPORTED void Photino_ClearBrowserAutoFill(Photino* instance)
+	EXPORTED void InfiniFrame_ClearBrowserAutoFill(InfiniFrame* instance)
 	{
 		instance->ClearBrowserAutoFill();
 	}
 
-	EXPORTED void Photino_Close(Photino* instance)
+	EXPORTED void InfiniFrame_Close(InfiniFrame* instance)
 	{
 		instance->Close();
 	}
 
-	EXPORTED void Photino_GetTransparentEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetTransparentEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetTransparentEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetContextMenuEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetContextMenuEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetContextMenuEnabled(enabled);
 	}
 
-    EXPORTED void Photino_GetZoomEnabled(Photino* instance, bool* enabled)
+    EXPORTED void InfiniFrame_GetZoomEnabled(InfiniFrame* instance, bool* enabled)
 	{
 	    instance->GetZoomEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetDevToolsEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetDevToolsEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetDevToolsEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetFullScreen(Photino* instance, bool* fullScreen)
+	EXPORTED void InfiniFrame_GetFullScreen(InfiniFrame* instance, bool* fullScreen)
 	{
 		instance->GetFullScreen(fullScreen);
 	}
 
-	EXPORTED void Photino_GetGrantBrowserPermissions(Photino* instance, bool* grant)
+	EXPORTED void InfiniFrame_GetGrantBrowserPermissions(InfiniFrame* instance, bool* grant)
 	{
 		instance->GetGrantBrowserPermissions(grant);
 	}
 
-	EXPORTED AutoString Photino_GetUserAgent(Photino* instance)
+	EXPORTED AutoString InfiniFrame_GetUserAgent(InfiniFrame* instance)
 	{
 		return instance->GetUserAgent();
 	}
 
-	EXPORTED void Photino_GetMediaAutoplayEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetMediaAutoplayEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetMediaAutoplayEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetFileSystemAccessEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetFileSystemAccessEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetFileSystemAccessEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetWebSecurityEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetWebSecurityEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetWebSecurityEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetJavascriptClipboardAccessEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetJavascriptClipboardAccessEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetJavascriptClipboardAccessEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetMediaStreamEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetMediaStreamEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetMediaStreamEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetSmoothScrollingEnabled(Photino* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetSmoothScrollingEnabled(InfiniFrame* instance, bool* enabled)
 	{
 		instance->GetSmoothScrollingEnabled(enabled);
 	}
 
-	EXPORTED void Photino_GetMaximized(Photino* instance, bool* isMaximized)
+	EXPORTED void InfiniFrame_GetMaximized(InfiniFrame* instance, bool* isMaximized)
 	{
 		instance->GetMaximized(isMaximized);
 	}
 
-	EXPORTED void Photino_GetMinimized(Photino* instance, bool* isMinimized)
+	EXPORTED void InfiniFrame_GetMinimized(InfiniFrame* instance, bool* isMinimized)
 	{
 		instance->GetMinimized(isMinimized);
 	}
 
-    EXPORTED void Photino_GetIgnoreCertificateErrorsEnabled(Photino* instance, bool *disabled)
+    EXPORTED void InfiniFrame_GetIgnoreCertificateErrorsEnabled(InfiniFrame* instance, bool *disabled)
 	{
 		instance->GetIgnoreCertificateErrorsEnabled(disabled);
 	}
 
-	EXPORTED void Photino_GetPosition(Photino* instance, int* x, int* y)
+	EXPORTED void InfiniFrame_GetPosition(InfiniFrame* instance, int* x, int* y)
 	{
 		instance->GetPosition(x, y);
 	}
 
-	EXPORTED void Photino_GetResizable(Photino* instance, bool* resizable)
+	EXPORTED void InfiniFrame_GetResizable(InfiniFrame* instance, bool* resizable)
 	{
 		instance->GetResizable(resizable);
 	}
 
-	EXPORTED unsigned int Photino_GetScreenDpi(Photino* instance)
+	EXPORTED unsigned int InfiniFrame_GetScreenDpi(InfiniFrame* instance)
 	{
 		return instance->GetScreenDpi();
 	}
 
-	EXPORTED void Photino_GetSize(Photino* instance, int* width, int* height)
+	EXPORTED void InfiniFrame_GetSize(InfiniFrame* instance, int* width, int* height)
 	{
 		instance->GetSize(width, height);
 	}
 
-	EXPORTED AutoString Photino_GetTitle(Photino* instance)
+	EXPORTED AutoString InfiniFrame_GetTitle(InfiniFrame* instance)
 	{
 		return instance->GetTitle();
 	}
 
-	EXPORTED void Photino_GetTopmost(Photino* instance, bool* topmost)
+	EXPORTED void InfiniFrame_GetTopmost(InfiniFrame* instance, bool* topmost)
 	{
 		instance->GetTopmost(topmost);
 	}
 
-	EXPORTED void Photino_GetZoom(Photino* instance, int* zoom)
+	EXPORTED void InfiniFrame_GetZoom(InfiniFrame* instance, int* zoom)
 	{
 		instance->GetZoom(zoom);
 	}
     
-    EXPORTED void InfiniFrame_GetFocused(Photino* instance, bool* isFocused)
+    EXPORTED void InfiniFrame_GetFocused(InfiniFrame* instance, bool* isFocused)
 	{
 	    instance->GetFocused(isFocused);
 	}
 
-    EXPORTED AutoString Photino_GetIconFileName(Photino* instance)
+    EXPORTED AutoString InfiniFrame_GetIconFileName(InfiniFrame* instance)
 	{
 	    return instance->GetIconFileName();
 	}
 
-	EXPORTED void Photino_NavigateToString(Photino* instance, const AutoString content)
+	EXPORTED void InfiniFrame_NavigateToString(InfiniFrame* instance, const AutoString content)
 	{
 		instance->NavigateToString(content);
 	}
 
-	EXPORTED void Photino_NavigateToUrl(Photino* instance, const AutoString url)
+	EXPORTED void InfiniFrame_NavigateToUrl(InfiniFrame* instance, const AutoString url)
 	{
 		instance->NavigateToUrl(url);
 	}
 
-	EXPORTED void Photino_Restore(Photino* instance)
+	EXPORTED void InfiniFrame_Restore(InfiniFrame* instance)
 	{
 		instance->Restore();
 	}
 
-	EXPORTED void Photino_SendWebMessage(Photino* instance, const AutoString message)
+	EXPORTED void InfiniFrame_SendWebMessage(InfiniFrame* instance, const AutoString message)
 	{
 		instance->SendWebMessage(message);
 	}
 
-	EXPORTED void Photino_SetTransparentEnabled(Photino* instance, const bool enabled)
+	EXPORTED void InfiniFrame_SetTransparentEnabled(InfiniFrame* instance, const bool enabled)
 	{
 		instance->SetTransparentEnabled(enabled);
 	}
 
-	EXPORTED void Photino_SetContextMenuEnabled(Photino* instance, const bool enabled)
+	EXPORTED void InfiniFrame_SetContextMenuEnabled(InfiniFrame* instance, const bool enabled)
 	{
 		instance->SetContextMenuEnabled(enabled);
 	}
 
-    EXPORTED void Photino_SetZoomEnabled(Photino* instance, const bool enabled)
+    EXPORTED void InfiniFrame_SetZoomEnabled(InfiniFrame* instance, const bool enabled)
 	{
 	    instance->SetZoomEnabled(enabled);
 	}
 
-	EXPORTED void Photino_SetDevToolsEnabled(Photino* instance, const bool enabled)
+	EXPORTED void InfiniFrame_SetDevToolsEnabled(InfiniFrame* instance, const bool enabled)
 	{
 		instance->SetDevToolsEnabled(enabled);
 	}
 
-	EXPORTED void Photino_SetFullScreen(Photino* instance, const bool fullScreen)
+	EXPORTED void InfiniFrame_SetFullScreen(InfiniFrame* instance, const bool fullScreen)
 	{
 		instance->SetFullScreen(fullScreen);
 	}
 
-	EXPORTED void Photino_SetIconFile(Photino* instance, const AutoString filename)
+	EXPORTED void InfiniFrame_SetIconFile(InfiniFrame* instance, const AutoString filename)
 	{
 		instance->SetIconFile(filename);
 	}
 
-	EXPORTED void Photino_SetMaximized(Photino* instance, const bool maximized)
+	EXPORTED void InfiniFrame_SetMaximized(InfiniFrame* instance, const bool maximized)
 	{
 		instance->SetMaximized(maximized);
 	}
 
-	EXPORTED void Photino_SetMaxSize(Photino* instance, const int width, const int height)
+	EXPORTED void InfiniFrame_SetMaxSize(InfiniFrame* instance, const int width, const int height)
 	{
 		instance->SetMaxSize(width, height);
 	}
 
-	EXPORTED void Photino_SetMinimized(Photino* instance, const bool minimized)
+	EXPORTED void InfiniFrame_SetMinimized(InfiniFrame* instance, const bool minimized)
 	{
 		instance->SetMinimized(minimized);
 	}
 
-	EXPORTED void Photino_SetMinSize(Photino* instance, const int width, const int height)
+	EXPORTED void InfiniFrame_SetMinSize(InfiniFrame* instance, const int width, const int height)
 	{
 		instance->SetMinSize(width, height);
 	}
 
-	EXPORTED void Photino_SetPosition(Photino* instance, const int x, const int y)
+	EXPORTED void InfiniFrame_SetPosition(InfiniFrame* instance, const int x, const int y)
 	{
 		instance->SetPosition(x, y);
 	}
 
-	EXPORTED void Photino_SetResizable(Photino* instance, const bool resizable)
+	EXPORTED void InfiniFrame_SetResizable(InfiniFrame* instance, const bool resizable)
 	{
 		instance->SetResizable(resizable);
 	}
 
-	EXPORTED void Photino_SetSize(Photino* instance, const int width, const int height)
+	EXPORTED void InfiniFrame_SetSize(InfiniFrame* instance, const int width, const int height)
 	{
 		instance->SetSize(width, height);
 	}
 
-	EXPORTED void Photino_SetTitle(Photino* instance, const AutoString title)
+	EXPORTED void InfiniFrame_SetTitle(InfiniFrame* instance, const AutoString title)
 	{
 		instance->SetTitle(title);
 	}
 
-	EXPORTED void Photino_SetTopmost(Photino* instance, const bool topmost)
+	EXPORTED void InfiniFrame_SetTopmost(InfiniFrame* instance, const bool topmost)
 	{
 		instance->SetTopmost(topmost);
 	}
 
-	EXPORTED void Photino_SetZoom(Photino* instance, const int zoom)
+	EXPORTED void InfiniFrame_SetZoom(InfiniFrame* instance, const int zoom)
 	{
 		instance->SetZoom(zoom);
 	}
 	
-	EXPORTED void Photino_ShowNotification(Photino* instance, const AutoString title, const AutoString body)
+	EXPORTED void InfiniFrame_ShowNotification(InfiniFrame* instance, const AutoString title, const AutoString body)
 	{
 		instance->ShowNotification(title, body);
 	}
 
-	EXPORTED void Photino_WaitForExit(Photino* instance)
+	EXPORTED void InfiniFrame_WaitForExit(InfiniFrame* instance)
 	{
 		instance->WaitForExit();
 	}
 
-	EXPORTED void Photino_FreeString(AutoString value)
+	EXPORTED void InfiniFrame_FreeString(AutoString value)
 	{
 		if (value == nullptr)
 			return;
@@ -316,14 +315,14 @@ extern "C"
 #endif
 	}
 
-	EXPORTED void Photino_FreeStringArray(AutoString* values, const int count)
+	EXPORTED void InfiniFrame_FreeStringArray(AutoString* values, const int count)
 	{
 		if (values == nullptr)
 			return;
 
 		for (int i = 0; i < count; ++i)
 		{
-			Photino_FreeString(values[i]);
+			InfiniFrame_FreeString(values[i]);
 		}
 
 #ifdef _WIN32
@@ -338,61 +337,61 @@ extern "C"
 	}
     
 	//Dialog
-	EXPORTED AutoString* Photino_ShowOpenFile(Photino* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount) {
+	EXPORTED AutoString* InfiniFrame_ShowOpenFile(InfiniFrame* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount) {
 		return inst->GetDialog()->ShowOpenFile(title, defaultPath, multiSelect, filters, filterCount, resultCount);
 	}
-	EXPORTED AutoString* Photino_ShowOpenFolder(Photino* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount) {
+	EXPORTED AutoString* InfiniFrame_ShowOpenFolder(InfiniFrame* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount) {
 		return inst->GetDialog()->ShowOpenFolder(title, defaultPath, multiSelect, resultCount);
 	}
-	EXPORTED AutoString Photino_ShowSaveFile(Photino* inst, const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName = nullptr) {
+	EXPORTED AutoString InfiniFrame_ShowSaveFile(InfiniFrame* inst, const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName = nullptr) {
 		return inst->GetDialog()->ShowSaveFile(title, defaultPath, filters, filterCount, defaultFileName);
 	}
-	EXPORTED DialogResult Photino_ShowMessage(Photino* inst, const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon) {
+	EXPORTED DialogResult InfiniFrame_ShowMessage(InfiniFrame* inst, const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon) {
 		return inst->GetDialog()->ShowMessage(title, text, buttons, icon);
 	}
     
 	//Callbacks
-	EXPORTED void Photino_AddCustomSchemeName(Photino* instance, const AutoString scheme)
+	EXPORTED void InfiniFrame_AddCustomSchemeName(InfiniFrame* instance, const AutoString scheme)
 	{
 		instance->AddCustomSchemeName(scheme);
 	}
 
-	EXPORTED void Photino_GetAllMonitors(Photino* instance, const GetAllMonitorsCallback callback)
+	EXPORTED void InfiniFrame_GetAllMonitors(InfiniFrame* instance, const GetAllMonitorsCallback callback)
 	{
 		instance->GetAllMonitors(callback);
 	}
 
-	EXPORTED void Photino_SetClosingCallback(Photino* instance, const ClosingCallback callback)
+	EXPORTED void InfiniFrame_SetClosingCallback(InfiniFrame* instance, const ClosingCallback callback)
 	{
 		instance->SetClosingCallback(callback);
 	}
 
-	EXPORTED void Photino_SetFocusInCallback(Photino* instance, const FocusInCallback callback)
+	EXPORTED void InfiniFrame_SetFocusInCallback(InfiniFrame* instance, const FocusInCallback callback)
 	{
 		instance->SetFocusInCallback(callback);
 	}
 
-	EXPORTED void Photino_SetFocusOutCallback(Photino* instance, const FocusOutCallback callback)
+	EXPORTED void InfiniFrame_SetFocusOutCallback(InfiniFrame* instance, const FocusOutCallback callback)
 	{
 		instance->SetFocusOutCallback(callback);
 	}
 
-	EXPORTED void Photino_SetMovedCallback(Photino* instance, const MovedCallback callback)
+	EXPORTED void InfiniFrame_SetMovedCallback(InfiniFrame* instance, const MovedCallback callback)
 	{
 		instance->SetMovedCallback(callback);
 	}
 
-	EXPORTED void Photino_SetResizedCallback(Photino* instance, const ResizedCallback callback)
+	EXPORTED void InfiniFrame_SetResizedCallback(InfiniFrame* instance, const ResizedCallback callback)
 	{
 		instance->SetResizedCallback(callback);
 	}
 
-	EXPORTED void Photino_Invoke(Photino* instance, const ACTION callback)
+	EXPORTED void InfiniFrame_Invoke(InfiniFrame* instance, const ACTION callback)
 	{
 		instance->Invoke(callback);
 	}
 
-	EXPORTED void InfiniFrame_SetFocused(Photino* instance)
+	EXPORTED void InfiniFrame_SetFocused(InfiniFrame* instance)
 	{
         instance->SetFocused();
 	}

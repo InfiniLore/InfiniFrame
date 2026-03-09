@@ -65,7 +65,7 @@ public class InfiniFrameWebApplication {
                     Window.Logger.LogError(e, "Error stopping web app");
                 }
             });
-            // return false else the window will be not be closed (see old Photino code why)
+            // return false else the window will be not be closed (see old InfiniFrame code why)
             return false;
         }
     }

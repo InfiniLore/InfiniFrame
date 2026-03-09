@@ -1,11 +1,11 @@
 #ifdef __APPLE__
 #pragma once
-#include "Photino.h"
+#include "InfiniFrame.h"
 
 @interface UiDelegate : NSObject <WKUIDelegate, WKScriptMessageHandler> {
     @public
     NSWindow * window;
-    Photino * photino;
+    InfiniFrame * infiniFrame;
     WebMessageReceivedCallback webMessageReceivedCallback;
 }
 @end

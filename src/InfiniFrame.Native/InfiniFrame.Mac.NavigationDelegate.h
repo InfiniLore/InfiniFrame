@@ -1,11 +1,11 @@
 #ifdef __APPLE__
 #pragma once
-#include "Photino.h"
+#include "InfiniFrame.h"
 
 @interface NavigationDelegate: NSObject<WKNavigationDelegate>{
     @public
     NSWindow * window;
-    Photino * photino;
+    InfiniFrame * infiniFrame;
 }
 @end
 #endif

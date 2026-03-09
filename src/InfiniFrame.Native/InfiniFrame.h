@@ -1,5 +1,4 @@
 #pragma once
-#include "Photino.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -56,10 +55,10 @@ typedef bool (*ClosingCallback)();
 typedef void (*FocusInCallback)();
 typedef void (*FocusOutCallback)();
 
-class PhotinoDialog;
-class Photino;
+class InfiniFrameDialog;
+class InfiniFrame;
 
-struct PhotinoInitParams
+struct InfiniFrameInitParams
 {
 	AutoString StartString;
 	AutoString StartUrl;
@@ -70,7 +69,7 @@ struct PhotinoInitParams
 	AutoString BrowserControlInitParameters;
 	AutoString NotificationRegistrationId;
 
-	Photino *ParentInstance;
+	InfiniFrame *ParentInstance;
 
 	ClosingCallback *ClosingHandler;
 	FocusInCallback *FocusInHandler;
@@ -120,7 +119,7 @@ struct PhotinoInitParams
 	int Size;
 };
 
-class Photino
+class InfiniFrame
 {
 private:
 	WebMessageReceivedCallback _webMessageReceivedCallback;
@@ -158,8 +157,8 @@ private:
 
 	int _zoom;
 
-	Photino *_parent;
-	PhotinoDialog *_dialog;
+	InfiniFrame *_parent;
+	InfiniFrameDialog *_dialog;
 	void Show(bool isAlreadyShown);
 #ifdef _WIN32
 	static HINSTANCE _hInstance;
@@ -185,6 +184,7 @@ private:
 	WKWebView *_webview;
 	WKWebViewConfiguration *_webviewConfiguration;
 	std::vector<Monitor *> GetMonitors();
+	std::vector<AutoString> _ownedCustomSchemeNames;
 	
 	bool _chromeless;
 
@@ -199,14 +199,7 @@ private:
 	void SetUserAgent(AutoString userAgent);
 
 	void SetPreference(NSString *key, NSNumber *value);
-	// void SetPreference(NSString *key, NSUInteger value);
-	// void SetPreference(NSString *key, double value);
 	void SetPreference(NSString *key, NSString *value);
-	// void SetPreference(NSString *key, _WKEditableLinkBehavior value);
-	// void SetPreference(NSString *key, _WKJavaScriptRuntimeFlags value);
-	// void SetPreference(NSString *key, _WKPitchCorrectionAlgorithm value);
-	// void SetPreference(NSString *key, _WKStorageBlockingPolicy value);
-	// void SetPreference(NSString *key, _WKDebugOverlayRegions value);
 #endif
 
 public:
@@ -244,10 +237,10 @@ public:
 	static void Register();
 #endif
 
-    explicit Photino(PhotinoInitParams *initParams);
-	~Photino();
+    explicit InfiniFrame(InfiniFrameInitParams *initParams);
+	~InfiniFrame();
 
-	PhotinoDialog *GetDialog() const { return _dialog; };
+	InfiniFrameDialog *GetDialog() const { return _dialog; };
 
 	void Center();
 	void ClearBrowserAutoFill();

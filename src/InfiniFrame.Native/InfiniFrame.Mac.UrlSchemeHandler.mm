@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#import "Photino.Mac.UrlSchemeHandler.h"
+#import "InfiniFrame.Mac.UrlSchemeHandler.h"
 
 @implementation UrlSchemeHandler : NSObject
 

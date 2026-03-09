@@ -44,7 +44,7 @@ class HostMessaging implements IHostMessaging {
     public sendMessageToHost(id: SendToHostMessageId | string, data?: string) {
         const message = data ? `${id};${data}` : id;
         
-        // TODO - determine messaging methods for Photino.NET for all platforms
+        // TODO - determine messaging methods for InfiniFrame.NET for all platforms
         if (window.chrome?.webview) {
             window.chrome.webview.postMessage(message);
         } else if (window.external?.sendMessage) {
@@ -67,7 +67,7 @@ class HostMessaging implements IHostMessaging {
             });
         }
 
-        // Handle general Photino messages (cross-platform)
+        // Handle general InfiniFrame messages (cross-platform)
         if (typeof window !== 'undefined' && window.external) {
             window.external.receiveMessage = (message: any) => {
                 // Check if it's a Blazor message and pass it to the original handler

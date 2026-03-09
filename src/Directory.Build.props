@@ -15,7 +15,7 @@
         <IncludeBuildOutput>true</IncludeBuildOutput>
 
         <Version>0.1.0-preview.25</Version>
-        <Authors>TryPhotino, Anna Sas</Authors>
+        <Authors>InfiniFrame, Anna Sas</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
