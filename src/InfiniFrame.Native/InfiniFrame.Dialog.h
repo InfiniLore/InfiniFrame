@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_DIALOG_H
-#define INFINIFRAME_DIALOG_H
-
 #include "InfiniFrame.h"
 
 #ifdef __APPLE__
@@ -63,5 +60,3 @@ protected:
 	InfiniFrame *_window;
 #endif
 };
-
-#endif

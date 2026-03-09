@@ -313,77 +313,77 @@ void InfiniFrame::Close()
     }
 }
 
-void InfiniFrame::GetTransparentEnabled(bool* enabled)
+void InfiniFrame::GetTransparentEnabled(bool* enabled) const
 {
     //! Not implemented (supported?) on macOS
     // *enabled = _transparentEnabled;
     *enabled = false;
 }
 
-void InfiniFrame::GetContextMenuEnabled(bool* enabled)
+void InfiniFrame::GetContextMenuEnabled(bool* enabled) const
 {
     *enabled = _contextMenuEnabled;
 }
 
-void InfiniFrame::GetZoomEnabled(bool* enabled)
+void InfiniFrame::GetZoomEnabled(bool* enabled) const
 {
     *enabled = _zoomEnabled;
 }
 
-void InfiniFrame::GetDevToolsEnabled(bool* enabled)
+void InfiniFrame::GetDevToolsEnabled(bool* enabled) const
 {
     *enabled = _devToolsEnabled;
 }
 
-void InfiniFrame::GetGrantBrowserPermissions(bool* enabled)
+void InfiniFrame::GetGrantBrowserPermissions(bool* enabled) const
 {
     *enabled = _grantBrowserPermissions;
 }
 
-AutoString InfiniFrame::GetUserAgent()
+AutoString InfiniFrame::GetUserAgent() const
 {
     return const_cast<AutoString>(_userAgent.c_str());
 }
 
 //! Always enabled on macOS. This is always true.
-void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled)
+void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled) const
 {
     *enabled = true;
 }
 
 //! Not supported on macOS. This is always false.
-void InfiniFrame::GetFileSystemAccessEnabled(bool* enabled)
+void InfiniFrame::GetFileSystemAccessEnabled(bool* enabled) const
 {
     *enabled = _fileSystemAccessEnabled;
 }
 
 //! Not supported on macOS. This is always false.
-void InfiniFrame::GetSmoothScrollingEnabled(bool* enabled)
+void InfiniFrame::GetSmoothScrollingEnabled(bool* enabled) const
 {
     *enabled = false;
 }
 
-void InfiniFrame::GetWebSecurityEnabled(bool* enabled)
+void InfiniFrame::GetWebSecurityEnabled(bool* enabled) const
 {
     *enabled = _webSecurityEnabled;
 }
 
-void InfiniFrame::GetJavascriptClipboardAccessEnabled(bool* enabled)
+void InfiniFrame::GetJavascriptClipboardAccessEnabled(bool* enabled) const
 {
     *enabled = _javascriptClipboardAccessEnabled;
 }
 
-void InfiniFrame::GetMediaStreamEnabled(bool* enabled)
+void InfiniFrame::GetMediaStreamEnabled(bool* enabled) const
 {
     *enabled = _mediaStreamEnabled;
 }
 
-void InfiniFrame::GetFullScreen(bool* fullScreen)
+void InfiniFrame::GetFullScreen(bool* fullScreen) const
 {
     *fullScreen = ([_window.contentView isInFullScreenMode]);
 }
 
-void InfiniFrame::GetMaximized(bool* isMaximized)
+void InfiniFrame::GetMaximized(bool* isMaximized) const
 {
     bool isFullScreen = false;
     GetFullScreen(&isFullScreen);
@@ -395,36 +395,35 @@ void InfiniFrame::GetMaximized(bool* isMaximized)
     *isMaximized = [_window isZoomed];
 }
 
-void InfiniFrame::GetMinimized(bool* isMinimized)
+void InfiniFrame::GetMinimized(bool* isMinimized) const
 {
 	*isMinimized = [_window isMiniaturized];
 }
 
-void InfiniFrame::GetPosition(int* x, int* y)
+void InfiniFrame::GetPosition(int* x, int* y) const
 {
     NSRect frame = [_window frame];
 
-    std::vector<Monitor*> monitors = GetMonitors();
-    Monitor monitor = *monitors[0];
-    for (auto* m : monitors) delete m;
+    std::vector<Monitor> monitors = GetMonitors();
+    Monitor monitor = monitors[0];
 
-    int height = (int)roundf(frame.size.height);
+    int height = static_cast<int>(roundf(frame.size.height));
 
-    *x = (int)roundf(frame.origin.x);
-    *y = (int)(monitor.monitor.height - ((int)roundf(frame.origin.y) + height)); // Assuming window is on monitor 0
+    *x = static_cast<int>(roundf(frame.origin.x));
+    *y = static_cast<int>(monitor.monitor.height - (static_cast<int>(roundf(frame.origin.y)) + height)); // Assuming window is on monitor 0
  }
 
-void InfiniFrame::GetResizable(bool* resizable)
+void InfiniFrame::GetResizable(bool* resizable) const
 {
    *resizable = (([_window styleMask] & NSWindowStyleMaskResizable) == NSWindowStyleMaskResizable);
 }
 
-void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled)
+void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
 {
 	*enabled = this->_ignoreCertificateErrorsEnabled;
 }
 
-void InfiniFrame::GetFocused(bool* isFocused)
+void InfiniFrame::GetFocused(bool* isFocused) const
 {
     if (!isFocused)
         return;
@@ -445,34 +444,34 @@ void InfiniFrame::GetFocused(bool* isFocused)
     *isFocused = focused;
 }
 
-unsigned int InfiniFrame::GetScreenDpi()
+unsigned int InfiniFrame::GetScreenDpi() const
 {
     //not supported on macOS - _window's devices collection does have dpi
 	return 72;  //https://stackoverflow.com/questions/2621439/hot-to-get-screen-dpi-linux-mac-programaticaly
 }
 
-void InfiniFrame::GetSize(int* width, int* height)
+void InfiniFrame::GetSize(int* width, int* height) const
 {
     NSSize size = [_window frame].size;
-    if (width) *width = (int)roundf(size.width);
-    if (height) *height = (int)roundf(size.height);
+    if (width) *width = static_cast<int>(roundf(size.width));
+    if (height) *height = static_cast<int>(roundf(size.height));
 }
 
-AutoString InfiniFrame::GetTitle()
+AutoString InfiniFrame::GetTitle() const
 {
     return const_cast<AutoString>(_windowTitle.c_str());
 }
 
-void InfiniFrame::GetTopmost(bool* topmost)
+void InfiniFrame::GetTopmost(bool* topmost) const
 {
     *topmost = ([_window level] & NSFloatingWindowLevel) == NSFloatingWindowLevel;
 }
 
-void InfiniFrame::GetZoom(int* zoom)
+void InfiniFrame::GetZoom(int* zoom) const
 {
 	CGFloat rawValue = [_webview magnification];
 	rawValue = (rawValue * 100.0) + 0.5;
-	*zoom = (int)rawValue;
+	*zoom = static_cast<int>(rawValue);
 }
 
 AutoString InfiniFrame::GetIconFileName() const
@@ -632,15 +631,14 @@ void InfiniFrame::SetMaximized(bool maximized)
 
 void InfiniFrame::SetPosition(int x, int y)
 {
-    std::vector<Monitor*> monitors = GetMonitors();
-    Monitor monitor = *monitors[0];
-    for (auto* m : monitors) delete m;
+    std::vector<Monitor> monitors = GetMonitors();
+    Monitor monitor = monitors[0];
     
     NSRect frame = [_window frame];
-    int height = (int)roundf(frame.size.height);
+    int height = static_cast<int>(roundf(frame.size.height));
     
-    CGFloat left = (CGFloat)x;
-    CGFloat top = (CGFloat)(monitor.monitor.height - (y + height));
+    auto left = static_cast<CGFloat>(x);
+    auto top = static_cast<CGFloat>(monitor.monitor.height - (y + height));
 
     CGPoint position = CGPointMake(left, top);
     [_window setFrameOrigin: position];
@@ -674,8 +672,8 @@ void InfiniFrame::SetSize(int width, int height)
 
     NSRect frame = [_window frame];
     
-    CGFloat fw = (CGFloat)width;
-    CGFloat fh = (CGFloat)height;
+    auto fw = static_cast<CGFloat>(width);
+    auto fh = static_cast<CGFloat>(height);
     
     CGFloat oldHeight = frame.size.height;
 
@@ -764,7 +762,7 @@ void InfiniFrame::WaitForExit()
 }
 
 //Callbacks
-void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback)
+void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback) const
 {
     if (callback)
     {
@@ -773,16 +771,16 @@ void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback)
             Monitor props = {};
 
             NSRect frame = [screen frame];
-            props.monitor.x = (int)roundf(frame.origin.x);
-            props.monitor.y = (int)roundf(frame.origin.y);
-            props.monitor.width = (int)roundf(frame.size.width);
-            props.monitor.height = (int)roundf(frame.size.height);
+            props.monitor.x = static_cast<int>(roundf(frame.origin.x));
+            props.monitor.y = static_cast<int>(roundf(frame.origin.y));
+            props.monitor.width = static_cast<int>(roundf(frame.size.width));
+            props.monitor.height = static_cast<int>(roundf(frame.size.height));
 
             NSRect vframe = [screen visibleFrame];
-            props.work.x = (int)roundf(vframe.origin.x);
-            props.work.y = (int)roundf(vframe.origin.y);
-            props.work.width = (int)roundf(vframe.size.width);
-            props.work.height = (int)roundf(vframe.size.height);
+            props.work.x = static_cast<int>(roundf(vframe.origin.x));
+            props.work.y = static_cast<int>(roundf(vframe.origin.y));
+            props.work.width = static_cast<int>(roundf(vframe.size.width));
+            props.work.height = static_cast<int>(roundf(vframe.size.height));
 
             // CGFloat scaleFactor = [screen backingScaleFactor];
             props.scale = [screen backingScaleFactor];
@@ -792,34 +790,29 @@ void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback)
     }
 }
 
-std::vector<Monitor *> InfiniFrame::GetMonitors()
+std::vector<Monitor> InfiniFrame::GetMonitors() const
 {
-    std::vector<Monitor *> monitors;
+    std::vector<Monitor> monitors;
 
     for (NSScreen *screen : [NSScreen screens])
     {
         NSRect monitorFrame = [screen frame];
         Monitor::MonitorRect monitorArea;
-        monitorArea.x = (int)roundf(monitorFrame.origin.x);
-        monitorArea.y = (int)roundf(monitorFrame.origin.y);
-        monitorArea.width = (int)roundf(monitorFrame.size.width);
-        monitorArea.height = (int)roundf(monitorFrame.size.height);
+        monitorArea.x = static_cast<int>(roundf(monitorFrame.origin.x));
+        monitorArea.y = static_cast<int>(roundf(monitorFrame.origin.y));
+        monitorArea.width = static_cast<int>(roundf(monitorFrame.size.width));
+        monitorArea.height = static_cast<int>(roundf(monitorFrame.size.height));
 
         NSRect workFrame = [screen visibleFrame];
         Monitor::MonitorRect workArea;
-        workArea.x = (int)roundf(workFrame.origin.x);
-        workArea.y = (int)roundf(workFrame.origin.y);
-        workArea.width = (int)roundf(workFrame.size.width);
-        workArea.height = (int)roundf(workFrame.size.height);
+        workArea.x = static_cast<int>(roundf(workFrame.origin.x));
+        workArea.y = static_cast<int>(roundf(workFrame.origin.y));
+        workArea.width = static_cast<int>(roundf(workFrame.size.width));
+        workArea.height = static_cast<int>(roundf(workFrame.size.height));
 
         CGFloat scaleFactor = [screen backingScaleFactor];
 
-        Monitor *monitor = new Monitor();
-        monitor->monitor = monitorArea;
-        monitor->work = workArea;
-        monitor->scale = scaleFactor;
-
-        monitors.push_back(monitor);
+        monitors.push_back({monitorArea, workArea, static_cast<double>(scaleFactor)});
     }
 
     return monitors;

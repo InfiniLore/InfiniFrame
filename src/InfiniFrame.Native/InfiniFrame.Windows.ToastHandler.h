@@ -1,5 +1,5 @@
-#ifndef TOASTHANDLER_H
-#define TOASTHANDLER_H
+#pragma once
+
 #include <WinUser.h>
 #include "InfiniFrame.h"
 #include "Dependencies/wintoastlib.h"
@@ -47,4 +47,3 @@ public:
         // Optional handling
     }
 };
-#endif

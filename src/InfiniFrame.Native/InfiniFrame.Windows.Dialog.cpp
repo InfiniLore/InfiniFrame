@@ -17,7 +17,7 @@ public:
 	{
 	public:
 		Proc(Dll const& lib, std::string const& sym)
-			: _mProc(static_cast<T*>((void*)GetProcAddress(lib._handle, sym.c_str())))
+			: _mProc(static_cast<T*>(reinterpret_cast<void*>(GetProcAddress(lib._handle, sym.c_str()))))
 		{}
 
 		explicit operator bool() const { return _mProc != nullptr; }
@@ -77,7 +77,7 @@ inline HANDLE NewStyleContext::Create()
 	{
 		sizeof(actCtx),
 		ACTCTX_FLAG_RESOURCE_NAME_VALID | ACTCTX_FLAG_ASSEMBLY_DIRECTORY_VALID,
-		"shell32.dll", 0, 0, sysDir.c_str(), (LPCSTR)124, nullptr, nullptr,
+		"shell32.dll", 0, 0, sysDir.c_str(), reinterpret_cast<LPCSTR>(124), nullptr, nullptr,
 	};
 
 	return CreateActCtxA(&actCtx);

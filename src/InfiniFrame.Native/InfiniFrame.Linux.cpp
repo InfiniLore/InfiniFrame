@@ -276,79 +276,78 @@ void InfiniFrame::Close()
 	gtk_window_close(GTK_WINDOW(_window));
 }
 
-void InfiniFrame::GetTransparentEnabled(bool *enabled)
+void InfiniFrame::GetTransparentEnabled(bool *enabled) const
 {
 	*enabled = _transparentEnabled;
 }
 
-void InfiniFrame::GetContextMenuEnabled(bool *enabled)
+void InfiniFrame::GetContextMenuEnabled(bool *enabled) const
 {
 	*enabled = _contextMenuEnabled;
 }
 
-void InfiniFrame::GetZoomEnabled(bool *enabled)
+void InfiniFrame::GetZoomEnabled(bool *enabled) const
 {
     *enabled = _zoomEnabled;
 }
 
-void InfiniFrame::GetDevToolsEnabled(bool *enabled)
+void InfiniFrame::GetDevToolsEnabled(bool *enabled) const
 {
 	WebKitSettings *settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(_webview));
-	_devToolsEnabled = webkit_settings_get_enable_developer_extras(settings);
-	*enabled = _devToolsEnabled;
+	*enabled = webkit_settings_get_enable_developer_extras(settings);
 }
 
-void InfiniFrame::GetFullScreen(bool *fullScreen)
+void InfiniFrame::GetFullScreen(bool *fullScreen) const
 {
 	*fullScreen = _isFullScreen;
 }
 
-void InfiniFrame::GetGrantBrowserPermissions(bool *grant)
+void InfiniFrame::GetGrantBrowserPermissions(bool *grant) const
 {
 	*grant = _grantBrowserPermissions;
 }
 
-AutoString InfiniFrame::GetUserAgent()
+AutoString InfiniFrame::GetUserAgent() const
 {
 	return const_cast<AutoString>(this->_userAgent.c_str());
 }
 
-void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled)
+void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled) const
 {
 	*enabled = this->_mediaAutoplayEnabled;
 }
 
-void InfiniFrame::GetFileSystemAccessEnabled(bool* enabled)
+void InfiniFrame::GetFileSystemAccessEnabled(bool* enabled) const
 {
 	*enabled = this->_fileSystemAccessEnabled;
 }
 
-void InfiniFrame::GetWebSecurityEnabled(bool* enabled)
+void InfiniFrame::GetWebSecurityEnabled(bool* enabled) const
 {
 	*enabled = this->_webSecurityEnabled;
 }
 
-void InfiniFrame::GetJavascriptClipboardAccessEnabled(bool* enabled)
+void InfiniFrame::GetJavascriptClipboardAccessEnabled(bool* enabled) const
 {
 	*enabled = this->_javascriptClipboardAccessEnabled;
 }
 
-void InfiniFrame::GetMediaStreamEnabled(bool* enabled)
+void InfiniFrame::GetMediaStreamEnabled(bool* enabled) const
 {
 	*enabled = this->_mediaStreamEnabled;
 }
 
-void InfiniFrame::GetSmoothScrollingEnabled(bool* enabled)
+void InfiniFrame::GetSmoothScrollingEnabled(bool* enabled) const
 {
 	*enabled = this->_smoothScrollingEnabled;
 }
 
-void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled)
+void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
 {
 	*enabled = this->_ignoreCertificateErrorsEnabled;
 }
 
-void InfiniFrame::GetMaximized(bool *isMaximized)
+void InfiniFrame::GetMaximized(bool *isMaximized) const
 {
 	//gboolean maximized = gtk_window_is_maximized(GTK_WINDOW(_window));  //this method doesn't work
 	//*isMaximized = maximized;
@@ -357,34 +356,34 @@ void InfiniFrame::GetMaximized(bool *isMaximized)
 	*isMaximized = flags & GDK_WINDOW_STATE_MAXIMIZED;
 }
 
-void InfiniFrame::GetMinimized(bool *isMinimized)
+void InfiniFrame::GetMinimized(bool *isMinimized) const
 {
 	GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(_window));
 	GdkWindowState flags = gdk_window_get_state(gdk_window);
 	*isMinimized = flags & GDK_WINDOW_STATE_ICONIFIED;
 }
 
-void InfiniFrame::GetPosition(int *x, int *y)
+void InfiniFrame::GetPosition(int *x, int *y) const
 {
 	gtk_window_get_position(GTK_WINDOW(_window), x, y);
 }
 
-void InfiniFrame::GetResizable(bool *resizable)
+void InfiniFrame::GetResizable(bool *resizable) const
 {
 	*resizable = gtk_window_get_resizable(GTK_WINDOW(_window));
 }
 
-unsigned int InfiniFrame::GetScreenDpi()
+unsigned int InfiniFrame::GetScreenDpi() const
 {
 	GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(_window));
 	gdouble dpi = gdk_screen_get_resolution(screen);
 	if (dpi < 0)
 		return 96;
 	else
-		return (unsigned int)dpi;
+		return static_cast<unsigned int>(dpi);
 }
 
-void InfiniFrame::GetSize(int *width, int *height)
+void InfiniFrame::GetSize(int *width, int *height) const
 {
 	gtk_window_get_size(GTK_WINDOW(_window), width, height);
 
@@ -402,12 +401,12 @@ void InfiniFrame::GetSize(int *width, int *height)
 	// gtk_widget_destroy(dialog);
 }
 
-AutoString InfiniFrame::GetTitle()
+AutoString InfiniFrame::GetTitle() const
 {
 	return const_cast<AutoString>(gtk_window_get_title(GTK_WINDOW(_window)));
 }
 
-void InfiniFrame::GetTopmost(bool *topmost)
+void InfiniFrame::GetTopmost(bool *topmost) const
 {
 	// TODO: This flag is not set in GDK3. WebKit does not support GTK5 yet.
 	GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(_window));
@@ -415,7 +414,7 @@ void InfiniFrame::GetTopmost(bool *topmost)
 	*topmost = flags & GDK_WINDOW_STATE_ABOVE;
 }
 
-void InfiniFrame::GetZoom(int *zoom)
+void InfiniFrame::GetZoom(int *zoom) const
 {
 	double rawValue = 0;
 	rawValue = webkit_web_view_get_zoom_level(WEBKIT_WEB_VIEW(_webview));
@@ -423,7 +422,7 @@ void InfiniFrame::GetZoom(int *zoom)
 	*zoom = static_cast<int>(rawValue);
 }
 
-void InfiniFrame::GetFocused(bool *isFocused) {
+void InfiniFrame::GetFocused(bool *isFocused) const {
 	*isFocused = gtk_window_is_active(GTK_WINDOW(_window));
 }
 
@@ -643,7 +642,7 @@ void InfiniFrame::WaitForExit()
 }
 
 // Callbacks
-void InfiniFrame::GetAllMonitors(const GetAllMonitorsCallback callback)
+void InfiniFrame::GetAllMonitors(const GetAllMonitorsCallback callback) const
 {
 	if (callback)
 	{
@@ -962,7 +961,9 @@ gboolean on_webview_context_menu(WebKitWebView *web_view, GtkWidget *default_men
 								 WebKitHitTestResult *hit_test_result, gboolean triggered_with_keyboard, const gpointer self)
 {
 	InfiniFrame *instance = ((InfiniFrame *)self);
-	return !instance->_contextMenuEnabled;
+	bool contextMenuEnabled = false;
+	instance->GetContextMenuEnabled(&contextMenuEnabled);
+	return !contextMenuEnabled;
 }
 
 gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest *request, gpointer user_data)

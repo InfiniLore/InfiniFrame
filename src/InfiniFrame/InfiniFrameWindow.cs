@@ -793,14 +793,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         // Read the stream into memory and serve the bytes
         // In the future, it would be possible to pass the stream through into C++
-        using (responseStream)
-        using (var ms = new MemoryStream()) {
-            responseStream.CopyTo(ms);
+        using var _ = responseStream;
+        using var ms = new MemoryStream();
+        responseStream.CopyTo(ms);
 
-            numBytes = (int)ms.Position;
-            IntPtr buffer = Marshal.AllocHGlobal(numBytes);
-            Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
-            return buffer;
-        }
+        numBytes = (int)ms.Position;
+        IntPtr buffer = Marshal.AllocHGlobal(numBytes);
+        Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
+        return buffer;
     }
 }

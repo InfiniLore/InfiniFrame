@@ -383,7 +383,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 		if (instance == nullptr)
 			return 0;
 
-		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
+		MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
 		if (instance->_minWidth > 0)
 			mmi->ptMinTrackSize.x = instance->_minWidth;
 		if (instance->_minHeight > 0)
@@ -484,10 +484,10 @@ void InfiniFrame::Center()
 
 void InfiniFrame::Close()
 {
-	PostMessage(_hWnd, WM_CLOSE, NULL, NULL);
+	PostMessage(_hWnd, WM_CLOSE, 0, 0);
 }
 
-void InfiniFrame::GetTransparentEnabled(bool* enabled)
+void InfiniFrame::GetTransparentEnabled(bool* enabled) const
 {
 	ICoreWebView2Controller2* controller2;
 	_webviewController->QueryInterface(&controller2);
@@ -496,107 +496,107 @@ void InfiniFrame::GetTransparentEnabled(bool* enabled)
 	*enabled = backgroundColor.A == 0;
 }
 
-void InfiniFrame::GetContextMenuEnabled(bool* enabled)
+void InfiniFrame::GetContextMenuEnabled(bool* enabled) const
 {
 	ICoreWebView2Settings* settings;
 	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->get_AreDefaultContextMenusEnabled((BOOL*)enabled);
+	settings->get_AreDefaultContextMenusEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
-void InfiniFrame::GetZoomEnabled(bool* enabled)
+void InfiniFrame::GetZoomEnabled(bool* enabled) const
 {
     ICoreWebView2Settings* settings;
     HRESULT r = _webviewWindow->get_Settings(&settings);
-    settings->get_IsZoomControlEnabled((BOOL*)enabled);
+    settings->get_IsZoomControlEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
-void InfiniFrame::GetDevToolsEnabled(bool* enabled)
+void InfiniFrame::GetDevToolsEnabled(bool* enabled) const
 {
 	ICoreWebView2Settings* settings;
 	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->get_AreDevToolsEnabled((BOOL*)enabled);
+	settings->get_AreDevToolsEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
-void InfiniFrame::GetFullScreen(bool* fullScreen)
+void InfiniFrame::GetFullScreen(bool* fullScreen) const
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	if (lStyles & WS_POPUP) *fullScreen = true;
 	else *fullScreen = false;
 }
 
-void InfiniFrame::GetGrantBrowserPermissions(bool* grant)
+void InfiniFrame::GetGrantBrowserPermissions(bool* grant) const
 {
 	*grant = _grantBrowserPermissions;
 }
 
-AutoString InfiniFrame::GetUserAgent()
+AutoString InfiniFrame::GetUserAgent() const
 {
 	return const_cast<AutoString>(this->_userAgent.c_str());
 }
 
-void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled)
+void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled) const
 {
 	*enabled = this->_mediaAutoplayEnabled;
 }
 
-void InfiniFrame::GetFileSystemAccessEnabled(bool* enabled)
+void InfiniFrame::GetFileSystemAccessEnabled(bool* enabled) const
 {
 	*enabled = this->_fileSystemAccessEnabled;
 }
 
-void InfiniFrame::GetWebSecurityEnabled(bool* enabled)
+void InfiniFrame::GetWebSecurityEnabled(bool* enabled) const
 {
 	*enabled = this->_webSecurityEnabled;
 }
 
-void InfiniFrame::GetJavascriptClipboardAccessEnabled(bool* enabled)
+void InfiniFrame::GetJavascriptClipboardAccessEnabled(bool* enabled) const
 {
 	*enabled = this->_javascriptClipboardAccessEnabled;
 }
 
-void InfiniFrame::GetMediaStreamEnabled(bool* enabled)
+void InfiniFrame::GetMediaStreamEnabled(bool* enabled) const
 {
 	*enabled = this->_mediaStreamEnabled;
 }
 
-void InfiniFrame::GetSmoothScrollingEnabled(bool* enabled)
+void InfiniFrame::GetSmoothScrollingEnabled(bool* enabled) const
 {
 	*enabled = this->_smoothScrollingEnabled;
 }
 
-void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled)
+void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
 {
 	*enabled = this->_ignoreCertificateErrorsEnabled;
 }
 
-void InfiniFrame::GetFocused(bool* isFocused)
+void InfiniFrame::GetFocused(bool* isFocused) const
 {
 	*isFocused = GetFocus() == _hWnd;
 }
 
-void InfiniFrame::GetNotificationsEnabled(bool* enabled)
+void InfiniFrame::GetNotificationsEnabled(bool* enabled) const
 {
 	*enabled = this->_notificationsEnabled;
 }
 
-AutoString InfiniFrame::GetIconFileName()
+AutoString InfiniFrame::GetIconFileName() const
 {
 	return const_cast<AutoString>(_iconFileName.c_str());
 }
 
-void InfiniFrame::GetMaximized(bool* isMaximized)
+void InfiniFrame::GetMaximized(bool* isMaximized) const
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	*isMaximized = (lStyles & WS_MAXIMIZE) != 0;
 }
 
-void InfiniFrame::GetMinimized(bool* isMinimized)
+void InfiniFrame::GetMinimized(bool* isMinimized) const
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	*isMinimized = (lStyles & WS_MINIMIZE) != 0;
 }
 
-void InfiniFrame::GetPosition(int* x, int* y)
+void InfiniFrame::GetPosition(int* x, int* y) const
 {
 	RECT rect = {};
 	GetWindowRect(_hWnd, &rect);
@@ -604,18 +604,18 @@ void InfiniFrame::GetPosition(int* x, int* y)
 	if (y) *y = rect.top;
 }
 
-void InfiniFrame::GetResizable(bool* resizable)
+void InfiniFrame::GetResizable(bool* resizable) const
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
 	*resizable = (lStyles & WS_THICKFRAME) != 0;
 }
 
-unsigned int InfiniFrame::GetScreenDpi()
+unsigned int InfiniFrame::GetScreenDpi() const
 {
 	return GetDpiForWindow(_hWnd);
 }
 
-void InfiniFrame::GetSize(int* width, int* height)
+void InfiniFrame::GetSize(int* width, int* height) const
 {
 	RECT rect = {};
 	GetWindowRect(_hWnd, &rect);
@@ -623,19 +623,19 @@ void InfiniFrame::GetSize(int* width, int* height)
 	if (height) *height = rect.bottom - rect.top;
 }
 
-AutoString InfiniFrame::GetTitle()
+AutoString InfiniFrame::GetTitle() const
 {
 	return const_cast<AutoString>(_windowTitle.c_str());
 }
 
-void InfiniFrame::GetTopmost(bool* topmost)
+void InfiniFrame::GetTopmost(bool* topmost) const
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_EXSTYLE);
 	if (lStyles & WS_EX_TOPMOST) *topmost = true;
 	else *topmost = false;
 }
 
-void InfiniFrame::GetZoom(int* zoom)
+void InfiniFrame::GetZoom(int* zoom) const
 {
 	double rawValue = 0;
 	_webviewController->get_ZoomFactor(&rawValue);
@@ -903,10 +903,6 @@ void InfiniFrame::WaitForExit()
 }
 
 
-
-
-
-
 //Callbacks
 BOOL MonitorEnum(const HMONITOR monitor, HDC, LPRECT, const LPARAM arg)
 {
@@ -929,7 +925,7 @@ BOOL MonitorEnum(const HMONITOR monitor, HDC, LPRECT, const LPARAM arg)
 	return callback(&props) ? TRUE : FALSE;
 }
 
-void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback)
+void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback) const
 {
 	if (callback)
 	{
@@ -948,13 +944,9 @@ void InfiniFrame::Invoke(ACTION callback)
 	waitInfo.completionNotifier.wait(uLock, [&] { return waitInfo.isCompleted; });
 }
 
-
-
-
-
 //private methods
 
-std::string InfiniFrame::ToUTF8String(const AutoString source)
+std::string InfiniFrame::ToUTF8String(const AutoString source) const
 {
 	std::string response;
 	int inLen = static_cast<int>(wcslen(source));
@@ -970,7 +962,7 @@ std::string InfiniFrame::ToUTF8String(const AutoString source)
 	}
 	return response;
 }
-std::wstring InfiniFrame::ToUTF16String(const AutoString source)
+std::wstring InfiniFrame::ToUTF16String(const AutoString source) const
 {
 	std::wstring response;
 	int inLen = static_cast<int>(strlen(reinterpret_cast<const char*>(source)));	
