@@ -493,7 +493,7 @@ jobs:
                       target_url  = "${env:WORKFLOW_URL}"
                     } | ConvertTo-Json
                     
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" `
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
                       -Method POST `
                       -Headers @{
                         "Authorization" = "Bearer $env:GITHUB_TOKEN"
@@ -692,7 +692,7 @@ jobs:
                       target_url  = "${env:WORKFLOW_URL}"
                     } | ConvertTo-Json
                     
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" `
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
                       -Method POST `
                       -Headers @{
                         "Authorization" = "Bearer $env:GITHUB_TOKEN"
