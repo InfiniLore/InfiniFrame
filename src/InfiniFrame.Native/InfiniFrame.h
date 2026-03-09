@@ -50,18 +50,18 @@ struct Monitor
 	double scale;
 };
 
-typedef void (*ACTION)();
-typedef void (*WebMessageReceivedCallback)(AutoString message);
-typedef void *(*WebResourceRequestedCallback)(AutoString url, int *outNumBytes, AutoString *outContentType);
-typedef int (*GetAllMonitorsCallback)(const Monitor *monitor);
-typedef void (*ResizedCallback)(int width, int height);
-typedef void (*MaximizedCallback)();
-typedef void (*RestoredCallback)();
-typedef void (*MinimizedCallback)();
-typedef void (*MovedCallback)(int x, int y);
-typedef bool (*ClosingCallback)();
-typedef void (*FocusInCallback)();
-typedef void (*FocusOutCallback)();
+using ACTION = void (*)();
+using WebMessageReceivedCallback = void (*)(AutoString message);
+using WebResourceRequestedCallback = void *(*)(AutoString url, int *outNumBytes, AutoString *outContentType);
+using GetAllMonitorsCallback = int (*)(const Monitor *monitor);
+using ResizedCallback = void (*)(int width, int height);
+using MaximizedCallback = void (*)();
+using RestoredCallback = void (*)();
+using MinimizedCallback = void (*)();
+using MovedCallback = void (*)(int x, int y);
+using ClosingCallback = bool (*)();
+using FocusInCallback = void (*)();
+using FocusOutCallback = void (*)();
 
 class InfiniFrameDialog;
 class InfiniFrame;
@@ -163,6 +163,9 @@ private:
     bool _ignoreCertificateErrorsEnabled;
 	bool _notificationsEnabled;
 
+	bool _contextMenuEnabled;
+	bool _zoomEnabled;
+
 	int _zoom;
 
 	InfiniFrame *_parent = nullptr;
@@ -189,7 +192,7 @@ private:
 	NSWindow *_window;
 	WKWebView *_webview;
 	WKWebViewConfiguration *_webviewConfiguration;
-	std::vector<Monitor *> GetMonitors();
+	std::vector<Monitor> GetMonitors() const;
 	
 	bool _chromeless;
 
@@ -208,9 +211,6 @@ private:
 #endif
 
 public:
-	bool _contextMenuEnabled;
-	bool _zoomEnabled;
-
 #ifdef _WIN32
 	static void Register(HINSTANCE hInstance);
 	static void SetWebView2RuntimePath(AutoString pathToWebView2);
@@ -218,14 +218,13 @@ public:
 	void RefitContent();
 	void FocusWebView2();
 	void NotifyWebView2WindowMove();
-	void GetNotificationsEnabled(bool* enabled);
-	std::wstring ToUTF16String(AutoString source);
-	std::string ToUTF8String(AutoString source);
+	void GetNotificationsEnabled(bool* enabled) const;
+	std::wstring ToUTF16String(AutoString source) const;
+	std::string ToUTF8String(AutoString source) const;
 	int _minWidth;
 	int _minHeight;
 	int _maxWidth;
 	int _maxHeight;
-    AutoString GetIconFileName();
 #elif __linux__
 	void set_webkit_settings();
 	void set_webkit_customsettings(WebKitSettings* settings);
@@ -245,37 +244,37 @@ public:
     explicit InfiniFrame(InfiniFrameInitParams *initParams);
 	~InfiniFrame();
 
-	InfiniFrameDialog *GetDialog() const { return _dialog.get(); };
+	[[nodiscard]] InfiniFrameDialog *GetDialog() const { return _dialog.get(); };
 
 	void Center();
 	void ClearBrowserAutoFill();
 	void Close();
 
-	void GetTransparentEnabled(bool *enabled);
-	void GetContextMenuEnabled(bool *enabled);
-	void GetZoomEnabled(bool *enabled);
-	void GetDevToolsEnabled(bool *enabled);
-	void GetFullScreen(bool *fullScreen);
-	void GetGrantBrowserPermissions(bool *grant);
-	AutoString GetUserAgent();
-	void GetMediaAutoplayEnabled(bool* enabled);
-	void GetFileSystemAccessEnabled(bool* enabled);
-	void GetWebSecurityEnabled(bool* enabled);
-	void GetJavascriptClipboardAccessEnabled(bool* enabled);
-	void GetMediaStreamEnabled(bool* enabled);
-	void GetSmoothScrollingEnabled(bool* enabled);
-	AutoString GetIconFileName() const;
-	void GetMaximized(bool *isMaximized);
-	void GetMinimized(bool *isMinimized);
-	void GetPosition(int *x, int *y);
-	void GetResizable(bool *resizable);
-	unsigned int GetScreenDpi();
-	void GetSize(int *width, int *height);
-	AutoString GetTitle();
-	void GetTopmost(bool *topmost);
-	void GetZoom(int *zoom);
-	void GetIgnoreCertificateErrorsEnabled(bool* enabled);
-    void GetFocused(bool *isFocused);
+	void GetTransparentEnabled(bool *enabled) const;
+	void GetContextMenuEnabled(bool *enabled) const;
+	void GetZoomEnabled(bool *enabled) const;
+	void GetDevToolsEnabled(bool *enabled) const;
+	void GetFullScreen(bool *fullScreen) const;
+	void GetGrantBrowserPermissions(bool *grant) const;
+	[[nodiscard]] AutoString GetUserAgent() const;
+	void GetMediaAutoplayEnabled(bool* enabled) const;
+	void GetFileSystemAccessEnabled(bool* enabled) const;
+	void GetWebSecurityEnabled(bool* enabled) const;
+	void GetJavascriptClipboardAccessEnabled(bool* enabled) const;
+	void GetMediaStreamEnabled(bool* enabled) const;
+	void GetSmoothScrollingEnabled(bool* enabled) const;
+	[[nodiscard]] AutoString GetIconFileName() const;
+	void GetMaximized(bool *isMaximized) const;
+	void GetMinimized(bool *isMinimized) const;
+	void GetPosition(int *x, int *y) const;
+	void GetResizable(bool *resizable) const;
+	[[nodiscard]] unsigned int GetScreenDpi() const;
+	void GetSize(int *width, int *height) const;
+	[[nodiscard]] AutoString GetTitle() const;
+	void GetTopmost(bool *topmost) const;
+	void GetZoom(int *zoom) const;
+	void GetIgnoreCertificateErrorsEnabled(bool* enabled) const;
+    void GetFocused(bool *isFocused) const;
 
 	void NavigateToString(AutoString content);
 	void NavigateToUrl(AutoString url);
@@ -306,7 +305,7 @@ public:
 
 	// Callbacks
 	void AddCustomSchemeName(const AutoStringConst scheme) { _customSchemeNames.emplace_back(scheme); }
-	void GetAllMonitors(GetAllMonitorsCallback callback);
+	void GetAllMonitors(GetAllMonitorsCallback callback) const;
 	void SetClosingCallback(const ClosingCallback callback) { _closingCallback = callback; }
 	void SetFocusInCallback(const FocusInCallback callback) { _focusInCallback = callback; }
 	void SetFocusOutCallback(const FocusOutCallback callback) { _focusOutCallback = callback; }
@@ -318,42 +317,42 @@ public:
 
 	void Invoke(ACTION callback);
 
-    [[nodiscard]] bool InvokeClose() const
+    [[nodiscard]] bool InvokeClose() const noexcept
     {
         return _closingCallback && _closingCallback();
     }
 
-	void InvokeFocusIn() const
+	void InvokeFocusIn() const noexcept
     {
 		if (_focusInCallback)
 			return _focusInCallback();
 	}
-	void InvokeFocusOut() const
+	void InvokeFocusOut() const noexcept
     {
 		if (_focusOutCallback)
 			return _focusOutCallback();
 	}
-	void InvokeMove(const int x, const int y) const
+	void InvokeMove(const int x, const int y) const noexcept
     {
 		if (_movedCallback)
 			_movedCallback(x, y);
 	}
-	void InvokeResize(const int width, const int height) const
+	void InvokeResize(const int width, const int height) const noexcept
     {
 		if (_resizedCallback)
 			_resizedCallback(width, height);
 	}
-	void InvokeMaximized() const
+	void InvokeMaximized() const noexcept
     {
 		if (_maximizedCallback)
 			return _maximizedCallback();
 	}
-	void InvokeRestored() const
+	void InvokeRestored() const noexcept
     {
 		if (_restoredCallback)
 			return _restoredCallback();
 	}
-	void InvokeMinimized() const
+	void InvokeMinimized() const noexcept
     {
 		if (_minimizedCallback)
 			return _minimizedCallback();

@@ -13,12 +13,13 @@ void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount)
         GtkFileFilter *filter = gtk_file_filter_new();
 
         char* filterCopy = g_strdup(filters[i]); // Copy the string
-        const char* name = strtok(filterCopy, "|");
+        char* saveptr = nullptr;
+        const char* name = strtok_r(filterCopy, "|", &saveptr);
         gtk_file_filter_set_name(filter, name);
-        const char* patterns = strtok(nullptr, "|");
+        const char* patterns = strtok_r(nullptr, "|", &saveptr);
         while (patterns != nullptr) {
             gtk_file_filter_add_pattern(filter, patterns);
-            patterns = strtok(nullptr, ";");
+            patterns = strtok_r(nullptr, ";", &saveptr);
         }
         gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
         g_free(filterCopy); // Free the duplicated string
@@ -47,7 +48,7 @@ AutoString* ShowDialog(const DialogType type, const AutoString title, const Auto
         title, nullptr, action,
         "_Cancel", GTK_RESPONSE_CANCEL, 
         buttonText, GTK_RESPONSE_ACCEPT,
-        NULL);
+        nullptr);
 
     if (defaultPath != nullptr) {
         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), defaultPath);
@@ -78,7 +79,7 @@ AutoString* ShowDialog(const DialogType type, const AutoString title, const Auto
         int count = g_slist_length(pathList);
         char** results = new char*[count];
         for (int i = 0; i < count; i++) {
-            results[i] = g_strdup((char*)g_slist_nth_data(pathList, i));
+            results[i] = g_strdup(static_cast<char*>(g_slist_nth_data(pathList, i)));
         }
         g_slist_free(pathList);
         *resultCount = count;
@@ -150,32 +151,32 @@ DialogResult InfiniFrameDialog::ShowMessage(const AutoString title, const AutoSt
 
     switch (buttons) {
         case DialogButtons::Ok:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", (gint)DialogResult::Ok);
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
             break;
         case DialogButtons::OkCancel:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", (gint)DialogResult::Ok);
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", (gint)DialogResult::Cancel);
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
             break;
         case DialogButtons::YesNo:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", (gint)DialogResult::Yes);
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", (gint)DialogResult::No);
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", static_cast<gint>(DialogResult::Yes));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", static_cast<gint>(DialogResult::No));
             break;
         case DialogButtons::YesNoCancel:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", (gint)DialogResult::Yes);
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", (gint)DialogResult::No);
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", (gint)DialogResult::Cancel);
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", static_cast<gint>(DialogResult::Yes));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", static_cast<gint>(DialogResult::No));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
             break;
         case DialogButtons::RetryCancel:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", (gint)DialogResult::Retry);
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", (gint)DialogResult::Cancel);
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", static_cast<gint>(DialogResult::Retry));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
             break;
         case DialogButtons::AbortRetryIgnore:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Abort", (gint)DialogResult::Abort);
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", (gint)DialogResult::Retry);
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ignore", (gint)DialogResult::Ignore);
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Abort", static_cast<gint>(DialogResult::Abort));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", static_cast<gint>(DialogResult::Retry));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ignore", static_cast<gint>(DialogResult::Ignore));
             break;
         default:
-            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", (gint)DialogResult::Ok);
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
             break;
     }
 
@@ -185,19 +186,19 @@ DialogResult InfiniFrameDialog::ShowMessage(const AutoString title, const AutoSt
     switch (result) {
         case GTK_RESPONSE_CLOSE:
             return DialogResult::Cancel;
-        case (gint)DialogResult::Ok:
+        case static_cast<gint>(DialogResult::Ok):
             return DialogResult::Ok;
-        case (gint)DialogResult::Yes:
+        case static_cast<gint>(DialogResult::Yes):
             return DialogResult::Yes;
-        case (gint)DialogResult::No:
+        case static_cast<gint>(DialogResult::No):
             return DialogResult::No;
-        case (gint)DialogResult::Cancel:
+        case static_cast<gint>(DialogResult::Cancel):
             return DialogResult::Cancel;
-        case (gint)DialogResult::Abort:
+        case static_cast<gint>(DialogResult::Abort):
             return DialogResult::Abort;
-        case (gint)DialogResult::Retry:
+        case static_cast<gint>(DialogResult::Retry):
             return DialogResult::Retry;
-        case (gint)DialogResult::Ignore:
+        case static_cast<gint>(DialogResult::Ignore):
             return DialogResult::Ignore;
         default:
             return DialogResult::Cancel;

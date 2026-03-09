@@ -5,7 +5,7 @@
 - (void)userContentController:(WKUserContentController *)userContentController
         didReceiveScriptMessage:(WKScriptMessage *)message
 {
-    char *messageUtf8 = (char *)[message.body UTF8String];
+    char *messageUtf8 = const_cast<char *>([message.body UTF8String]);
     webMessageReceivedCallback(messageUtf8);
 }
 
