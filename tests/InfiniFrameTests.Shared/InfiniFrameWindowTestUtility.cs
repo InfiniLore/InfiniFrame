@@ -10,6 +10,8 @@ namespace InfiniFrameTests.Shared;
 public class InfiniFrameWindowTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
 
+    private Task? _messageLoopTask;
+
     private InfiniFrameWindowTestUtility() {}
 
     public static InfiniFrameWindowTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
@@ -32,7 +34,7 @@ public class InfiniFrameWindowTestUtility : IDisposable {
             Window = windowBuilder.Build()
         };
 
-        _ = Task.Run(utility.Window.WaitForClose);
+        utility._messageLoopTask = Task.Run(utility.Window.WaitForClose);
 
         return utility;
     }
@@ -40,6 +42,7 @@ public class InfiniFrameWindowTestUtility : IDisposable {
     public void Dispose() {
         try {
             Window.Close();
+            _messageLoopTask?.Wait(TimeSpan.FromSeconds(5));
         }
         catch (Exception) {
             // Ignore

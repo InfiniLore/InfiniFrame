@@ -42,7 +42,7 @@
 
     private bool _isGrabbing;
     private bool _suppressRender;
-    private bool _suppressGrabbing;// TEMP solution to fix a bug with dragging after returning from maximized state.
+    private bool _suppressGrabbing;
     private long _lastKnownPointerId;
 
     // ReSharper disable once InvertIf
@@ -80,6 +80,7 @@
     private async Task OnPointerDown(PointerEventArgs args) {
         _suppressRender = true;
         if (_suppressGrabbing) return;
+        if (args.Detail >= 2) return;
 
         _isGrabbing = true;
 
@@ -101,9 +102,10 @@
 
     private async Task OnPointerUp(PointerEventArgs args) {
         _suppressRender = true;
-        if (_suppressGrabbing) return;
 
         _isGrabbing = false;
+        if (_lastKnownPointerId == 0) return;
+
         await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, args.PointerId);
         _lastKnownPointerId = 0;
     }

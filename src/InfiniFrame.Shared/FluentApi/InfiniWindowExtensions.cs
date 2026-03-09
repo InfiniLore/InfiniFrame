@@ -608,14 +608,14 @@ public static class InfiniWindowExtensions {
                     window.CachedPreMaximizedBounds = windowRect;
                     InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
                     InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
-                    // window.Events.OnMaximized();
+                    window.Events.OnMaximized();
                 }
                 else {
                     Rectangle oldRect = window.CachedPreMaximizedBounds;
                     InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
                     InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
                     window.CachedPreMaximizedBounds = Rectangle.Empty;
-                    // window.Events.OnRestored();
+                    window.Events.OnRestored();
                 }
             });
             return window;
