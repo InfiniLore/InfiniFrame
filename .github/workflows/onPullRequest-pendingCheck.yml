@@ -29,14 +29,16 @@ jobs:
                   echo "EOF" >> $GITHUB_OUTPUT
 
             - name: Set pending statuses
+              if: github.event.pull_request.head.repo.fork == false
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   SHA: ${{ github.event.pull_request.head.sha }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
+                  HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
               run: |
                   set -euo pipefail
 
-                  API_BASE="https://api.github.com/repos/${{ github.repository }}"
+                  API_BASE="https://api.github.com/repos/${HEAD_REPO}"
                   WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/onPullRequest-multiPlatformTesting.yml"
 
                   if [ -z "${SHA}" ] || [ "${SHA}" = "null" ]; then
@@ -44,7 +46,7 @@ jobs:
                     exit 1
                   fi
 
-                  echo "Validating SHA exists in base repository context..."
+                  echo "Validating SHA exists in PR head repository context..."
                   commit_response="$(mktemp)"
                   commit_status=$(curl -sS -o "$commit_response" -w "%{http_code}" \
                     -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -88,3 +90,9 @@ jobs:
 
                     rm -f "$response_file"
                   done <<< "${{ steps.contexts.outputs.list }}"
+
+            - name: Skip fork PRs
+              if: github.event.pull_request.head.repo.fork == true
+              run: |
+                  echo "Skipping pending status updates for fork PR #${{ github.event.pull_request.number }}."
+                  echo "GITHUB_TOKEN in pull_request_target does not have commit status write access on fork repositories."
