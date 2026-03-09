@@ -7,7 +7,7 @@ namespace InfiniFrame.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-// These are the parameter names that are passed to Photino.Native.
+// These are the parameter names that are passed to InfiniFrame.Native.
 // DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential)]
 public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParameters> {

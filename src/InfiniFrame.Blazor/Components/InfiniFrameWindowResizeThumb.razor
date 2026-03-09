@@ -12,7 +12,7 @@
 @inherits ComponentBase
 @implements IDisposable
 
-@inject IInfiniFrameWindow PhotinoWindow
+@inject IInfiniFrameWindow Window
 @inject IInfiniFrameJs InfiniWindowJs
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Html
@@ -68,13 +68,13 @@
     protected override void OnInitialized() {
         base.OnInitialized();
 
-        PhotinoWindow.Events.WindowMaximized.Add(OnMaximized);
-        PhotinoWindow.Events.WindowRestored.Add(OnRestored);
+        Window.Events.WindowMaximized.Add(OnMaximized);
+        Window.Events.WindowRestored.Add(OnRestored);
     }
 
     public void Dispose() {
-        PhotinoWindow.Events.WindowMaximized.Remove(OnMaximized);
-        PhotinoWindow.Events.WindowRestored.Remove(OnRestored);
+        Window.Events.WindowMaximized.Remove(OnMaximized);
+        Window.Events.WindowRestored.Remove(OnRestored);
     }
 
     private void OnMaximized(IInfiniFrameWindow window) {
@@ -181,6 +181,6 @@
         _suppressRender = true;
         if (!_isGrabbing) return;
 
-        PhotinoWindow.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
+        Window.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
     }
 }

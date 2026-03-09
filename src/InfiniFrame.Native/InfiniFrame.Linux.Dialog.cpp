@@ -1,5 +1,5 @@
 #ifdef __linux__
-#include "Photino.Dialog.h"
+#include "InfiniFrame.Dialog.h"
 
 enum DialogType {
     OpenFile,
@@ -92,21 +92,21 @@ AutoString* ShowDialog(const DialogType type, const AutoString title, const Auto
     }
 }
 
-PhotinoDialog::PhotinoDialog() {}
+InfiniFrameDialog::InfiniFrameDialog() {}
 
-PhotinoDialog::~PhotinoDialog() {}
+InfiniFrameDialog::~InfiniFrameDialog() {}
 
-AutoString* PhotinoDialog::ShowOpenFile(const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount)
+AutoString* InfiniFrameDialog::ShowOpenFile(const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount)
 {
     return ShowDialog(OpenFile, title, defaultPath, multiSelect, filters, filterCount, resultCount);
 }
 
-AutoString* PhotinoDialog::ShowOpenFolder(const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount)
+AutoString* InfiniFrameDialog::ShowOpenFolder(const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount)
 {
     return ShowDialog(OpenFolder, title, defaultPath, multiSelect, nullptr, 0, resultCount);
 }
 
-AutoString PhotinoDialog::ShowSaveFile(const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName)
+AutoString InfiniFrameDialog::ShowSaveFile(const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName)
 {
     char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
     if (result != nullptr) {
@@ -117,7 +117,7 @@ AutoString PhotinoDialog::ShowSaveFile(const AutoString title, const AutoString 
     return nullptr;
 }
 
-DialogResult PhotinoDialog::ShowMessage(const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon)
+DialogResult InfiniFrameDialog::ShowMessage(const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon)
 {
     GtkWidget* dialog;
     GtkMessageType type;

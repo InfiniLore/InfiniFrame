@@ -8,47 +8,51 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Source files common to all platforms
 set(COMMON_SOURCES
         Exports.cpp
+)
+
+# Test exports, compiled into the same DLL for integration test access
+set(TEST_SOURCES
         Exports.Tests.cpp
 )
 
 # Windows-specific sources
 set(WINDOWS_SOURCES
-        Photino.Windows.cpp
-        Photino.Windows.DarkMode.cpp
-        Photino.Windows.Dialog.cpp
+        InfiniFrame.Windows.cpp
+        InfiniFrame.Windows.DarkMode.cpp
+        InfiniFrame.Windows.Dialog.cpp
         Dependencies/wintoastlib.cpp
 )
 
 # Linux-specific sources
 set(LINUX_SOURCES
-        Photino.Linux.cpp
-        Photino.Linux.Dialog.cpp
+        InfiniFrame.Linux.cpp
+        InfiniFrame.Linux.Dialog.cpp
 )
 
 # macOS-specific sources (Objective-C++)
 set(MAC_SOURCES
-        Photino.Mac.AppDelegate.mm
-        Photino.Mac.UiDelegate.mm
-        Photino.Mac.WindowDelegate.mm
-        Photino.Mac.NavigationDelegate.mm
-        Photino.Mac.UrlSchemeHandler.mm
-        Photino.Mac.NSWindowBorderless.mm
-        Photino.Mac.Dialog.mm
-        Photino.Mac.mm
+        InfiniFrame.Mac.AppDelegate.mm
+        InfiniFrame.Mac.UiDelegate.mm
+        InfiniFrame.Mac.WindowDelegate.mm
+        InfiniFrame.Mac.NavigationDelegate.mm
+        InfiniFrame.Mac.UrlSchemeHandler.mm
+        InfiniFrame.Mac.NSWindowBorderless.mm
+        InfiniFrame.Mac.Dialog.mm
+        InfiniFrame.Mac.mm
 )
 
 # Header files
 set(HEADER_FILES
-        Photino.h
-        Photino.Dialog.h
-        Photino.Windows.ToastHandler.h
-        Photino.Windows.DarkMode.h
-        Photino.Mac.AppDelegate.h
-        Photino.Mac.NavigationDelegate.h
-        Photino.Mac.NSWindowBorderless.h
-        Photino.Mac.UiDelegate.h
-        Photino.Mac.WindowDelegate.h
-        Photino.Mac.UrlSchemeHandler.h
+        InfiniFrame.h
+        InfiniFrame.Dialog.h
+        InfiniFrame.Windows.ToastHandler.h
+        InfiniFrame.Windows.DarkMode.h
+        InfiniFrame.Mac.AppDelegate.h
+        InfiniFrame.Mac.NavigationDelegate.h
+        InfiniFrame.Mac.NSWindowBorderless.h
+        InfiniFrame.Mac.UiDelegate.h
+        InfiniFrame.Mac.WindowDelegate.h
+        InfiniFrame.Mac.UrlSchemeHandler.h
         Dependencies/wintoastlib.h
         Dependencies/json.hpp
         resource.h
@@ -80,7 +84,7 @@ if(WIN32)
     endif()
 
     # Windows build
-    add_library(${PROJECT_NAME} SHARED ${COMMON_SOURCES} ${WINDOWS_SOURCES} ${HEADER_FILES})
+    add_library(${PROJECT_NAME} SHARED ${COMMON_SOURCES} ${TEST_SOURCES} ${WINDOWS_SOURCES} ${HEADER_FILES})
 
     # Set output directory to match MSBuild expectations
     set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -181,7 +185,7 @@ if(WIN32)
     )
 
     # Resource file
-    target_sources(${PROJECT_NAME} PRIVATE Photino.Native.rc)
+    target_sources(${PROJECT_NAME} PRIVATE InfiniFrame.Native.rc)
 
     # Copy webview2loader to output
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -230,13 +234,15 @@ elseif(APPLE)
 
 elseif(UNIX)
     # Linux build
-    add_library(${PROJECT_NAME} SHARED ${COMMON_SOURCES} ${LINUX_SOURCES} ${HEADER_FILES})
+    add_library(${PROJECT_NAME} SHARED ${COMMON_SOURCES} ${TEST_SOURCES} ${LINUX_SOURCES} ${HEADER_FILES})
     
     # Determine architecture
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
         set(ARCH_DIR "arm64")
+        set(OUTPUT_ARCH_DIR "arm64")
     else()
         set(ARCH_DIR "x64")
+        set(OUTPUT_ARCH_DIR "x64")
     endif()
 
     set_target_properties(${PROJECT_NAME} PROPERTIES

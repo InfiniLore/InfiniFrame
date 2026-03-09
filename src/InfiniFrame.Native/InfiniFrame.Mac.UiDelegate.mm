@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#import "Photino.Mac.UiDelegate.h"
+#import "InfiniFrame.Mac.UiDelegate.h"
 
 @implementation UiDelegate : NSObject
 - (void)userContentController:(WKUserContentController *)userContentController
@@ -93,7 +93,7 @@
         decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler
 {
     bool grantPermissions;
-    photino->GetGrantBrowserPermissions(&grantPermissions);
+    infiniFrame->GetGrantBrowserPermissions(&grantPermissions);
     decisionHandler(grantPermissions ? WKPermissionDecisionGrant : WKPermissionDecisionPrompt);
 }
 @end

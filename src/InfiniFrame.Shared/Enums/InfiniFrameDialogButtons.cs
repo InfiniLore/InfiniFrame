@@ -6,7 +6,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Represents the types of buttons that can be displayed in a Photino-dialog.
+///     Represents the types of buttons that can be displayed in a InfiniFrame dialog.
 /// </summary>
 public enum InfiniFrameDialogButtons {
     /// <summary>

@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#import "Photino.Dialog.h"
+#import "InfiniFrame.Dialog.h"
 
 #if defined(VSTGUI_USE_OBJC_UTTYPE)
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -19,21 +19,21 @@ NSImage* getIcon(NSString* base64) {
   return image;
 }
 
-PhotinoDialog::PhotinoDialog() {
+InfiniFrameDialog::InfiniFrameDialog() {
   _errorIcon = getIcon(errorBase64);
   _infoIcon = getIcon(infoBase64);
   _questionIcon = getIcon(questionBase64);
   _warningIcon = getIcon(warningBase64);
 }
 
-PhotinoDialog::~PhotinoDialog() {
+InfiniFrameDialog::~InfiniFrameDialog() {
   [_errorIcon release];
   [_infoIcon release];
   [_questionIcon release];
   [_warningIcon release];
 }
 
-AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath, bool multiSelect, AutoString* filters, int filterCount, int* resultCount) {
+AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString defaultPath, bool multiSelect, AutoString* filters, int filterCount, int* resultCount) {
   NSOpenPanel* openDlg = [NSOpenPanel openPanel];
 
   [openDlg setTitle:[NSString stringWithUTF8String:title]];
@@ -69,7 +69,7 @@ AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath
   return nullptr;
 }
 
-AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount) {
+AutoString* InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount) {
   NSOpenPanel* openDlg = [NSOpenPanel openPanel];
 
   [openDlg setTitle:[NSString stringWithUTF8String:title]];
@@ -93,7 +93,7 @@ AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPa
   return nullptr;
 }
 
-AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, int filterCount, AutoString defaultFileName) {
+AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, int filterCount, AutoString defaultFileName) {
   NSSavePanel* saveDlg = [NSSavePanel savePanel];
 
   [saveDlg setTitle:[NSString stringWithUTF8String:title]];
@@ -123,7 +123,7 @@ AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath,
   return nullptr;
 }
 
-DialogResult PhotinoDialog::ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon) {
+DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon) {
   NSAlert* alert = [[NSAlert alloc] init];
   [alert setMessageText:[NSString stringWithUTF8String:title]];
   [alert setInformativeText:[NSString stringWithUTF8String:text]];

@@ -13,7 +13,7 @@
 @inherits ComponentBase
 @implements IDisposable
 
-@inject IInfiniFrameWindow PhotinoWindow
+@inject IInfiniFrameWindow Window
 @inject IInfiniFrameJs InfiniWindowJs
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Html
@@ -60,13 +60,13 @@
     protected override void OnInitialized() {
         base.OnInitialized();
 
-        PhotinoWindow.Events.WindowMaximized.Add(OnMaximized);
-        PhotinoWindow.Events.WindowRestored.Add(OnRestored);
+        Window.Events.WindowMaximized.Add(OnMaximized);
+        Window.Events.WindowRestored.Add(OnRestored);
     }
 
     public void Dispose() {
-        PhotinoWindow.Events.WindowMaximized.Remove(OnMaximized);
-        PhotinoWindow.Events.WindowRestored.Remove(OnRestored);
+        Window.Events.WindowMaximized.Remove(OnMaximized);
+        Window.Events.WindowRestored.Remove(OnRestored);
     }
 
     private void OnMaximized(IInfiniFrameWindow window) {
@@ -83,15 +83,15 @@
 
         _isGrabbing = true;
 
-        if (PhotinoWindow.CachedPreMaximizedBounds != Rectangle.Empty) {
-            Rectangle bounds = PhotinoWindow.CachedPreMaximizedBounds;
-            PhotinoWindow.CachedPreMaximizedBounds = Rectangle.Empty;
+        if (Window.CachedPreMaximizedBounds != Rectangle.Empty) {
+            Rectangle bounds = Window.CachedPreMaximizedBounds;
+            Window.CachedPreMaximizedBounds = Rectangle.Empty;
 
-            PhotinoWindow.Invoke(() => {
+            Window.Invoke(() => {
                 int targetX = (int)(args.ScreenX - bounds.Width / 2f);
                 int targetY = (int)(args.ScreenY - 10);
-                InfiniFrameNative.SetSize(PhotinoWindow.InstanceHandle, bounds.Width, bounds.Height);
-                InfiniFrameNative.SetPosition(PhotinoWindow.InstanceHandle, targetX, targetY);
+                InfiniFrameNative.SetSize(Window.InstanceHandle, bounds.Width, bounds.Height);
+                InfiniFrameNative.SetPosition(Window.InstanceHandle, targetX, targetY);
             });
         }
 
@@ -112,7 +112,7 @@
     private async Task OnDoubleClick(MouseEventArgs args) {
         _suppressRender = true;
         _isGrabbing = false;
-        PhotinoWindow.ToggleMaximized();
+        Window.ToggleMaximized();
         if (_lastKnownPointerId == 0) return;
 
         await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, _lastKnownPointerId);
@@ -123,6 +123,6 @@
         if (_suppressGrabbing) return;
         if (!_isGrabbing) return;
 
-        PhotinoWindow.Offset(args.MovementX, args.MovementY);
+        Window.Offset(args.MovementX, args.MovementY);
     }
 }

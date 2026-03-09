@@ -14,7 +14,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniWindowExtensions {
     #region Load
-    /// <param name="window">Photino window instance</param>
+    /// <param name="window">InfiniFrame window instance</param>
     extension<T>(T window) where T : class, IInfiniFrameWindow {
         /// <summary>
         ///     Loads specified <see cref="Uri" /> into the browser control.
@@ -177,7 +177,7 @@ public static class InfiniWindowExtensions {
                 // application window title bar. As a workaround we make a
                 // negative value out of the vertical position to "pull" the window up.
                 // Note:
-                // This behavior seems to be a macOS thing. In the Photino.Native
+                // This behavior seems to be a macOS thing. In the InfiniFrame.Native
                 // project files it is commented to be expected behavior for macOS.
                 // There is some code trying to mitigate this problem, but it might
                 // not work as expected. Further investigation is necessary.
@@ -277,7 +277,7 @@ public static class InfiniWindowExtensions {
                 return window;
             }
 
-            window.Logger.LogDebug("Invoking PhotinoNative.SetTransparentEnabled({value})", enabled);
+            window.Logger.LogDebug("Invoking InfiniFrameNative.SetTransparentEnabled({value})", enabled);
             window.Invoke(() => InfiniFrameNative.SetTransparentEnabled(window.InstanceHandle, enabled));
             return window;
         }
@@ -733,7 +733,7 @@ public static class InfiniWindowExtensions {
         
         /// <summary>
         ///     Sets the native window <see cref="IInfiniFrameWindow.Title" />.
-        ///     Default is "Photino".
+        ///     Default is "InfiniFrame".
         /// </summary>
         /// <returns>
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
@@ -823,7 +823,7 @@ public static class InfiniWindowExtensions {
         }
         
         /// <summary>
-        ///     Set the runtime path for WebView2 so that developers can use Photino on Windows using the "Fixed Version"
+        ///     Set the runtime path for WebView2 so that developers can use InfiniFrame on Windows using the "Fixed Version"
         ///     deployment
         ///     module of the WebView2 runtime.
         /// </summary>

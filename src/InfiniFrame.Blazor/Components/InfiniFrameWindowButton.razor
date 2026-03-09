@@ -10,7 +10,7 @@
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @inherits ComponentBase
 
-@inject IInfiniFrameWindow PhotinoWindow
+@inject IInfiniFrameWindow Window
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Html
 @* ------------------------------------------------------------------------------------------------------------------ *@
@@ -224,17 +224,17 @@
         switch (WindowAction) {
 
             case WindowAction.Minimize: {
-                PhotinoWindow.SetMinimized(true);
+                Window.SetMinimized(true);
                 break;
             }
 
             case WindowAction.Maximize: {
-                PhotinoWindow.ToggleMaximized();
+                Window.ToggleMaximized();
                 break;
             }
 
             case WindowAction.Close: {
-                PhotinoWindow.Close();
+                Window.Close();
                 break;
             }
 

@@ -13,14 +13,14 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 
 // Most UI platforms have a built-in SyncContext/Dispatcher, e.g., Windows Forms and WPF, which WebView
-// can normally use directly. However, Photino currently doesn't.
+// can normally use directly. However, InfiniFrame currently doesn't.
 //
 // This is a duplicate of Microsoft.AspNetCore.Components.Rendering.RendererSynchronizationContextDispatcher,
-// except that it also uses Photino's "Invoke" to ensure we're running on the correct thread to be able to
+// except that it also uses InfiniFrame's "Invoke" to ensure we're running on the correct thread to be able to
 // interact with the unmanaged resources (the window and WebView).
 //
-// It might be that a simpler variant of this would work, for example, purely using Photino's "Invoke" and
-// relying on that for single-threadedness. Maybe also in the future Photino could consider having its own
+// It might be that a simpler variant of this would work, for example, purely using InfiniFrame's "Invoke" and
+// relying on that for single-threadedness. Maybe also in the future InfiniFrame could consider having its own
 // built-in SyncContext/Dispatcher like other UI platforms.
 public class InfiniFrameSynchronizationContext(IServiceProvider provider, InfiniFrameSynchronizationState? state = null) : SynchronizationContext {
     private readonly InfiniFrameSynchronizationState _state = state ?? new InfiniFrameSynchronizationState();
@@ -206,7 +206,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         SendOrPostCallback? d,
         object? state
     ) {
-        // Anything run on the sync context should actually be dispatched as far as Photino
+        // Anything run on the sync context should actually be dispatched as far as InfiniFrame
         // is concerned, so that it's safe to interact with the native window/WebView.
         LazyWindow.Value.Invoke(() => {
             SynchronizationContext? original = Current;

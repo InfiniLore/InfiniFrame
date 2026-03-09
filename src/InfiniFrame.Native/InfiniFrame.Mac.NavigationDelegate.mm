@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#import "Photino.Mac.NavigationDelegate.h"
+#import "InfiniFrame.Mac.NavigationDelegate.h"
 
 @implementation NavigationDelegate : NSObject
 
@@ -7,7 +7,7 @@
         didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
         completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
             bool ignoreCertificateErrorsEnabled = false;
-            photino->GetIgnoreCertificateErrorsEnabled(&ignoreCertificateErrorsEnabled);
+            infiniFrame->GetIgnoreCertificateErrorsEnabled(&ignoreCertificateErrorsEnabled);
             if(ignoreCertificateErrorsEnabled)
             {
                 SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
