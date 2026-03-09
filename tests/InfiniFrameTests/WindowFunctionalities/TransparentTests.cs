@@ -32,7 +32,7 @@ public class TransparentTests {
     [Test]
     [DisplayName($"{nameof(TransparentTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux("For some reason the tets environment doesnt support transparency")]
+    [SkipUtility.SkipOnLinux("Headless display lacks compositing support for post-init transparency changes")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Arguments(true)]
     [Arguments(false)]
