@@ -71,6 +71,11 @@ jobs:
                     else
                       SHA="${{ github.sha }}"
                     fi
+
+                    if [ -z "$SHA" ] || [ "$SHA" = "null" ]; then
+                      echo "Failed to resolve a valid commit SHA. Check pr_number input."
+                      exit 1
+                    fi
                     
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
     
@@ -834,6 +839,7 @@ jobs:
     mark-skipped:
         name: Mark Skipped Platforms
         runs-on: ubuntu-latest
+        if: ${{ always() }}
         needs:
             - prepare
             - linux-gui
