@@ -1,4 +1,3 @@
-
 name: MultiPlatform Testing
 
 on:
@@ -70,7 +69,7 @@ jobs:
                         https://api.github.com/repos/${{ github.repository }}/pulls/${{ inputs.pr_number }} \
                         | jq -r .head.sha)
                     else
-                      SHA="$TARGET_SHA"
+                      SHA="${{ github.sha }}"
                     fi
                     
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
@@ -117,6 +116,8 @@ jobs:
         needs: [prepare, mark-pending]
         name: Test - Linux/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
+        env:
+            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         strategy:
             fail-fast: false
             matrix:
@@ -359,6 +360,8 @@ jobs:
         needs: [prepare, mark-pending]
         name: Test - Windows/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
+        env:
+            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         strategy:
             fail-fast: false
             matrix:
@@ -499,6 +502,8 @@ jobs:
         needs: [prepare, mark-pending]
         name: Test - Windows Playwright
         runs-on: windows-latest
+        env:
+            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         permissions:
             statuses: write
         
@@ -699,6 +704,8 @@ jobs:
         needs: [prepare, mark-pending]
         name: Test - macOS/${{ matrix.arch }}
         runs-on: ${{ matrix.os }}
+        env:
+            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         strategy:
             fail-fast: false
             matrix:
@@ -828,12 +835,15 @@ jobs:
         name: Mark Skipped Platforms
         runs-on: ubuntu-latest
         needs:
+            - prepare
             - linux-gui
             - windows-gui
             - windows-playwright
             - macos-gui
         permissions:
             statuses: write
+        env:
+            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         steps:
             -   name: Mark skipped platform statuses
                 env:
