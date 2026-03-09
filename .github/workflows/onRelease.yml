@@ -209,7 +209,7 @@ jobs:
                         -p:Platform=${{ matrix.arch }}
 
             -   name: Upload build artifact
-                uses: actions/upload-artifact@v6
+                uses: actions/upload-artifact@v7
                 with:
                     name: native-${{ matrix.libName }}-${{ matrix.arch }}
                     path: ${{ github.workspace }}/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
@@ -250,7 +250,7 @@ jobs:
                 uses: lukka/get-cmake@latest
 
             -   name: Download build artifacts
-                uses: actions/download-artifact@v7
+                uses: actions/download-artifact@v8
                 with:
                     path: artifacts/native
 
@@ -328,7 +328,7 @@ jobs:
                       -o ./release
 
             -   name: Upload NuGet packages as artifact
-                uses: actions/upload-artifact@v6
+                uses: actions/upload-artifact@v7
                 with:
                     name: nuget-packages-${{ needs.bump-version.outputs.tag_name }}
                     path: ./release/*.nupkg
