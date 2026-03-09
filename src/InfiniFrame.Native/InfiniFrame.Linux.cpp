@@ -57,49 +57,22 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams *initParams) : _webview(nullptr)
 		exit(0);
 	}
 
-	_windowTitle = new char[256];
-	if (initParams->Title != nullptr)
-		strcpy(_windowTitle, initParams->Title);
-	else
-		_windowTitle[0] = 0;
+	_windowTitle = initParams->Title ? initParams->Title : "";
 
-	_startUrl = nullptr;
 	if (initParams->StartUrl != nullptr)
-	{
-		_startUrl = new char[2048];
-		strcpy(_startUrl, initParams->StartUrl);
-	}
+		_startUrl = initParams->StartUrl;
 
-	_startString = nullptr;
 	if (initParams->StartString != nullptr)
-	{
-		_startString = new char[strlen(initParams->StartString) + 1];
-		strcpy(_startString, initParams->StartString);
-	}
+		_startString = initParams->StartString;
 
-	_temporaryFilesPath = nullptr;
 	if (initParams->TemporaryFilesPath != nullptr)
-	{
-		_temporaryFilesPath = new char[256];
-		strcpy(_temporaryFilesPath, initParams->TemporaryFilesPath);
-	}
+		_temporaryFilesPath = initParams->TemporaryFilesPath;
 
-	_userAgent = nullptr;
 	if (initParams->UserAgent != nullptr)
-	{
-		_userAgent = new char[strlen(initParams->UserAgent) + 1];
-		strcpy(_userAgent, initParams->UserAgent);
-	}
+		_userAgent = initParams->UserAgent;
 
-	_browserControlInitParameters = nullptr;
 	if (initParams->BrowserControlInitParameters != nullptr)
-	{
-		_browserControlInitParameters = new char[strlen(initParams->BrowserControlInitParameters) + 1];
-		strcpy(_browserControlInitParameters, initParams->BrowserControlInitParameters);
-	}
-
-	_iconFileName = new char[256];
-	_iconFileName[0] = '\0';
+		_browserControlInitParameters = initParams->BrowserControlInitParameters;
 
 	_transparentEnabled = initParams->Transparent;
 	_contextMenuEnabled = initParams->ContextMenuEnabled;
@@ -122,33 +95,28 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams *initParams) : _webview(nullptr)
 	_maxHeight = initParams->MaxHeight;
 
 	// these handlers are ALWAYS hooked up
-	_webMessageReceivedCallback = (WebMessageReceivedCallback)initParams->WebMessageReceivedHandler;
-	_resizedCallback = (ResizedCallback)initParams->ResizedHandler;
-	_movedCallback = (MovedCallback)initParams->MovedHandler;
-	_closingCallback = (ClosingCallback)initParams->ClosingHandler;
-	_focusInCallback = (FocusInCallback)initParams->FocusInHandler;
-	_focusOutCallback = (FocusOutCallback)initParams->FocusOutHandler;
-	_maximizedCallback = (MaximizedCallback)initParams->MaximizedHandler;
-	_minimizedCallback = (MinimizedCallback)initParams->MinimizedHandler;
-	_restoredCallback = (RestoredCallback)initParams->RestoredHandler;
-	_customSchemeCallback = (WebResourceRequestedCallback)initParams->CustomSchemeHandler;
+	_webMessageReceivedCallback = reinterpret_cast<WebMessageReceivedCallback>(initParams->WebMessageReceivedHandler);
+	_resizedCallback = reinterpret_cast<ResizedCallback>(initParams->ResizedHandler);
+	_movedCallback = reinterpret_cast<MovedCallback>(initParams->MovedHandler);
+	_closingCallback = reinterpret_cast<ClosingCallback>(initParams->ClosingHandler);
+	_focusInCallback = reinterpret_cast<FocusInCallback>(initParams->FocusInHandler);
+	_focusOutCallback = reinterpret_cast<FocusOutCallback>(initParams->FocusOutHandler);
+	_maximizedCallback = reinterpret_cast<MaximizedCallback>(initParams->MaximizedHandler);
+	_minimizedCallback = reinterpret_cast<MinimizedCallback>(initParams->MinimizedHandler);
+	_restoredCallback = reinterpret_cast<RestoredCallback>(initParams->RestoredHandler);
+	_customSchemeCallback = reinterpret_cast<WebResourceRequestedCallback>(initParams->CustomSchemeHandler);
 
 	// copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)
 	{
 		if (initParams->CustomSchemeNames[i] != nullptr)
-		{
-			char *name = new char[50];
-			strcpy(name, initParams->CustomSchemeNames[i]);
-			_customSchemeNames.push_back(name);
-			_ownedCustomSchemeNames.push_back(name);
-		}
+			_customSchemeNames.emplace_back(initParams->CustomSchemeNames[i]);
 	}
 
 	_parent = initParams->ParentInstance;
 
 	_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	_dialog = new InfiniFrameDialog();
+	_dialog = std::make_unique<InfiniFrameDialog>();
 
 	if (initParams->FullScreen)
 		SetFullScreen(true);
@@ -176,7 +144,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams *initParams) : _webview(nullptr)
 			gtk_window_move(GTK_WINDOW(_window), initParams->Left, initParams->Top);
 	}
 
-	SetTitle(_windowTitle);
+	SetTitle(const_cast<AutoString>(_windowTitle.c_str()));
 
 	if (initParams->Chromeless)
 		gtk_window_set_decorated(GTK_WINDOW(_window), false);
@@ -258,16 +226,6 @@ InfiniFrame::~InfiniFrame()
 {
 	notify_uninit();
 	gtk_widget_destroy(_window);
-	if (_startUrl != nullptr) delete[] _startUrl;
-	if (_startString != nullptr) delete[] _startString;
-	if (_temporaryFilesPath != nullptr) delete[] _temporaryFilesPath;
-	if (_windowTitle != nullptr) delete[] _windowTitle;
-	if (_userAgent != nullptr) delete[] _userAgent;
-	if (_browserControlInitParameters != nullptr) delete[] _browserControlInitParameters;
-	if (_iconFileName != nullptr) delete[] _iconFileName;
-	for (auto* name : _ownedCustomSchemeNames) delete[] name;
-	_ownedCustomSchemeNames.clear();
-	if (_dialog != nullptr) delete _dialog;
 }
 
 void InfiniFrame::Center()
@@ -352,7 +310,7 @@ void InfiniFrame::GetGrantBrowserPermissions(bool *grant)
 
 AutoString InfiniFrame::GetUserAgent()
 {
-	return this->_userAgent;
+	return const_cast<AutoString>(this->_userAgent.c_str());
 }
 
 void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled)
@@ -446,7 +404,7 @@ void InfiniFrame::GetSize(int *width, int *height)
 
 AutoString InfiniFrame::GetTitle()
 {
-	return (AutoString)gtk_window_get_title(GTK_WINDOW(_window));
+	return const_cast<AutoString>(gtk_window_get_title(GTK_WINDOW(_window)));
 }
 
 void InfiniFrame::GetTopmost(bool *topmost)
@@ -462,7 +420,7 @@ void InfiniFrame::GetZoom(int *zoom)
 	double rawValue = 0;
 	rawValue = webkit_web_view_get_zoom_level(WEBKIT_WEB_VIEW(_webview));
 	rawValue = (rawValue * 100.0) + 0.5;
-	*zoom = (int)rawValue;
+	*zoom = static_cast<int>(rawValue);
 }
 
 void InfiniFrame::GetFocused(bool *isFocused) {
@@ -471,7 +429,7 @@ void InfiniFrame::GetFocused(bool *isFocused) {
 
 AutoString InfiniFrame::GetIconFileName() const
 {
-    return _iconFileName;
+    return const_cast<AutoString>(_iconFileName.c_str());
 }
 
 void InfiniFrame::NavigateToString(const AutoString content)
@@ -568,8 +526,7 @@ void InfiniFrame::SetIconFile(const AutoString filename)
 	gtk_window_set_icon_from_file(GTK_WINDOW(_window), filename, nullptr);
 
     // Store filename internally (UTF-8)
-    strncpy(_iconFileName, filename, 255);
-    _iconFileName[255] = '\0';
+    _iconFileName = filename ? filename : "";
 }
 
 void InfiniFrame::SetMinimized(const bool minimized)
@@ -739,7 +696,7 @@ void HandleWebMessage(WebKitUserContentManager *contentManager, WebKitJavascript
 	{
 		AutoString str_value = jsc_value_to_string(jsValue);
 
-		WebMessageReceivedCallback callback = (WebMessageReceivedCallback)arg;
+		WebMessageReceivedCallback callback = reinterpret_cast<WebMessageReceivedCallback>(arg);
 		callback(str_value);
 		g_free(str_value);
 	}
@@ -781,13 +738,13 @@ void InfiniFrame::Show(bool isAlreadyShown)
 		webkit_user_script_unref(script);
 
 		g_signal_connect(contentManager, "script-message-received::InfiniFrameInterop",
-						 G_CALLBACK(HandleWebMessage), (void *)_webMessageReceivedCallback);
+						 G_CALLBACK(HandleWebMessage), reinterpret_cast<void *>(_webMessageReceivedCallback));
 		webkit_user_content_manager_register_script_message_handler(contentManager, "InfiniFrameInterop");
 
-		if (_startUrl != nullptr)
-			InfiniFrame::NavigateToUrl(_startUrl);
-		else if (_startString != nullptr)
-			InfiniFrame::NavigateToString(_startString);
+		if (!_startUrl.empty())
+			InfiniFrame::NavigateToUrl(const_cast<AutoString>(_startUrl.c_str()));
+		else if (!_startString.empty())
+			InfiniFrame::NavigateToString(const_cast<AutoString>(_startString.c_str()));
 		else
 		{
 			GtkWidget *dialog = gtk_message_dialog_new(
@@ -827,7 +784,7 @@ void InfiniFrame::set_webkit_settings()
 		"enable_smooth_scrolling", _smoothScrollingEnabled, 					// default: TRUE
 		"javascript_can_access_clipboard", _javascriptClipboardAccessEnabled,	// default: FALSE
 		"media_playback_requires_user_gesture", _mediaAutoplayEnabled,			// default: FALSE
-		"user_agent", _userAgent,												// default: None
+		"user_agent", _userAgent.c_str(),										// default: None
 		
 		// Other available settings for reference
 		// "default_charset", "iso-8859-1",										// default: iso-8859-1
@@ -875,7 +832,7 @@ void InfiniFrame::set_webkit_settings()
 		// "hardware_acceleration_policy", WEBKIT_HARDWARE_ACCELERATION_POLICY_ALWAYS,	// default: WEBKIT_HARDWARE_ACCELERATION_POLICY_ALWAYS
 		NULL); // NULL terminates the list
 
-	if (_browserControlInitParameters != nullptr && strlen(_browserControlInitParameters) > 0)
+	if (!_browserControlInitParameters.empty())
 		InfiniFrame::set_webkit_customsettings(settings);		//if any custom init parameters were passed, set them now.
 
 	WebKitWebsiteDataManager* manager = webkit_web_view_get_website_data_manager(WEBKIT_WEB_VIEW(_webview));
@@ -1022,14 +979,14 @@ gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest 
 
 void HandleCustomSchemeRequest(WebKitURISchemeRequest *request, const gpointer user_data)
 {
-	WebResourceRequestedCallback webResourceRequestedCallback = (WebResourceRequestedCallback)user_data;
+	WebResourceRequestedCallback webResourceRequestedCallback = reinterpret_cast<WebResourceRequestedCallback>(user_data);
 
 	const gchar *uri = webkit_uri_scheme_request_get_uri(request);
 	int numBytes;
 	AutoString contentType;
-	void *dotNetResponse = webResourceRequestedCallback((AutoString)uri, &numBytes, &contentType);
+	void *dotNetResponse = webResourceRequestedCallback(const_cast<AutoString>(uri), &numBytes, &contentType);
 	GInputStream *stream = g_memory_input_stream_new_from_data(dotNetResponse, numBytes, nullptr);
-	webkit_uri_scheme_request_finish(request, (GInputStream *)stream, -1, contentType);
+	webkit_uri_scheme_request_finish(request, reinterpret_cast<GInputStream *>(stream), -1, contentType);
 	g_object_unref(stream);
 	delete[] contentType;
 }
@@ -1040,7 +997,7 @@ void InfiniFrame::AddCustomSchemeHandlers()
 	for (const auto &value : _customSchemeNames)
 	{
 		webkit_web_context_register_uri_scheme(
-			context, value, (WebKitURISchemeRequestCallback)HandleCustomSchemeRequest, (void *)_customSchemeCallback, nullptr);
+			context, value.c_str(), reinterpret_cast<WebKitURISchemeRequestCallback>(HandleCustomSchemeRequest), reinterpret_cast<void *>(_customSchemeCallback), nullptr);
 	}
 }
 

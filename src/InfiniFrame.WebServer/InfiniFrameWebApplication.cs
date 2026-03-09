@@ -22,7 +22,7 @@ public class InfiniFrameWebApplication {
         }.Initialize();
 
     public void Run() {
-        _webAppThread = new Thread(WebApp.Run);
+        _webAppThread = new Thread(WebApp.Run) { IsBackground = true };
         _webAppThread.Start();
 
         Window.WaitForClose();

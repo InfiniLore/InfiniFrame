@@ -1,19 +1,22 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Concurrent;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandlers {
-    private Dictionary<string, Action<IInfiniFrameWindow, string?>> Handlers { get; } = new();
-    public bool IsEmpty => Handlers.Count == 0;
+    private ConcurrentDictionary<string, Action<IInfiniFrameWindow, string?>> Handlers { get; } = new();
+    public bool IsEmpty => Handlers.IsEmpty;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public void RegisterMessageHandler(string messageId, Action<IInfiniFrameWindow, string?> handler) {
-        Handlers.Add(messageId, handler);
+        if (!Handlers.TryAdd(messageId, handler))
+            throw new ArgumentException($"A handler for message '{messageId}' is already registered.", nameof(messageId));
     }
 
     public void Handle(IInfiniFrameWindow window, string message) {
