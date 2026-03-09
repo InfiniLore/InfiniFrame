@@ -883,9 +883,9 @@ void InfiniFrame::ShowNotification(AutoString title, AutoString body)
 		WinToastTemplate toast = WinToastTemplate(WinToastTemplate::ImageAndText02);
 		toast.setTextField(wideTitle.c_str(), WinToastTemplate::FirstLine);
 		toast.setTextField(wideBody.c_str(), WinToastTemplate::SecondLine);
-		if (this->_iconFileName != nullptr)
+		if (!this->_iconFileName.empty())
 			toast.setImagePath(this->_iconFileName);
-		WinToast::instance()->showToast(toast, _toastHandler);
+		WinToast::instance()->showToast(toast, _toastHandler.get());
 	}
 }
 
@@ -1101,9 +1101,9 @@ void InfiniFrame::AttachWebView()
 									&permissionRequestedToken);
 
 						if (!_startUrl.empty())
-							NavigateToUrl(_startUrl.c_str());
+							NavigateToUrl(const_cast<AutoString>(_startUrl.c_str()));
 						else if (!_startString.empty())
-							NavigateToString(_startString.c_str());
+							NavigateToString(const_cast<AutoString>(_startString.c_str()));
 						else
 						{
 							MessageBox(nullptr, L"Neither StartUrl nor StartString was specified", L"Native Initialization Failed", MB_OK);

@@ -476,7 +476,7 @@ void InfiniFrame::GetZoom(int* zoom) const
 
 AutoString InfiniFrame::GetIconFileName() const
 {
-    return _iconFileName.c_str();
+    return const_cast<AutoString>(_iconFileName.c_str());
 }
 
 void InfiniFrame::NavigateToString(AutoString content)
