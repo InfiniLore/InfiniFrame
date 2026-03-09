@@ -167,10 +167,7 @@ jobs:
                 with:
                     path: |
                         src/InfiniFrame.Native/build
-                        src/InfiniFrame.Native/CMakeFiles
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
             
             # Cache and install APT packages
             -   name: Cache and install desktop environment
@@ -415,10 +412,7 @@ jobs:
                 with:
                     path: |
                         src\InfiniFrame.Native\build
-                        src\InfiniFrame.Native\CMakeFiles
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
@@ -547,10 +541,7 @@ jobs:
                 with:
                     path: |
                         src\InfiniFrame.Native\build
-                        src\InfiniFrame.Native\CMakeFiles
-                    key: ${{ runner.os }}-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
-                    restore-keys: |
-                        ${{ runner.os }}-cmake-
+                    key: ${{ runner.os }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
 
             # Cache WebView2 installer
             -   name: Cache WebView2 installer
@@ -754,10 +745,7 @@ jobs:
                 with:
                     path: |
                         src/InfiniFrame.Native/build
-                        src/InfiniFrame.Native/CMakeFiles
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
