@@ -489,8 +489,13 @@ void InfiniFrame::Close()
 
 void InfiniFrame::GetTransparentEnabled(bool* enabled) const
 {
-	ICoreWebView2Controller2* controller2;
-	_webviewController->QueryInterface(&controller2);
+	if (!_webviewController) { *enabled = _transparentEnabled; return; }
+	ICoreWebView2Controller2* controller2 = nullptr;
+	if (FAILED(_webviewController->QueryInterface(&controller2)) || !controller2)
+	{
+		*enabled = _transparentEnabled;
+		return;
+	}
 	COREWEBVIEW2_COLOR backgroundColor;
 	controller2->get_DefaultBackgroundColor(&backgroundColor);
 	*enabled = backgroundColor.A == 0;
@@ -498,7 +503,7 @@ void InfiniFrame::GetTransparentEnabled(bool* enabled) const
 
 void InfiniFrame::GetContextMenuEnabled(bool* enabled) const
 {
-	if (!_webviewWindow) return;
+	if (!_webviewWindow) { *enabled = _contextMenuEnabled; return; }
 	ICoreWebView2Settings* settings = nullptr;
 	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_AreDefaultContextMenusEnabled(reinterpret_cast<BOOL*>(enabled));
@@ -506,7 +511,7 @@ void InfiniFrame::GetContextMenuEnabled(bool* enabled) const
 
 void InfiniFrame::GetZoomEnabled(bool* enabled) const
 {
-	if (!_webviewWindow) return;
+	if (!_webviewWindow) { *enabled = _zoomEnabled; return; }
 	ICoreWebView2Settings* settings = nullptr;
 	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_IsZoomControlEnabled(reinterpret_cast<BOOL*>(enabled));
@@ -514,7 +519,7 @@ void InfiniFrame::GetZoomEnabled(bool* enabled) const
 
 void InfiniFrame::GetDevToolsEnabled(bool* enabled) const
 {
-	if (!_webviewWindow) return;
+	if (!_webviewWindow) { *enabled = _devToolsEnabled; return; }
 	ICoreWebView2Settings* settings = nullptr;
 	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_AreDevToolsEnabled(reinterpret_cast<BOOL*>(enabled));
@@ -674,8 +679,10 @@ void InfiniFrame::SendWebMessage(AutoString message)
 
 void InfiniFrame::SetTransparentEnabled(const bool enabled)
 {
-	ICoreWebView2Controller2* controller2;
-	_webviewController->QueryInterface(&controller2);
+	_transparentEnabled = enabled;
+	if (!_webviewController || !_webviewWindow) return;
+	ICoreWebView2Controller2* controller2 = nullptr;
+	if (FAILED(_webviewController->QueryInterface(&controller2)) || !controller2) return;
 	COREWEBVIEW2_COLOR backgroundColor;
 	controller2->get_DefaultBackgroundColor(&backgroundColor);
 	backgroundColor.A = enabled ? 0 : 255;
@@ -685,26 +692,38 @@ void InfiniFrame::SetTransparentEnabled(const bool enabled)
 
 void InfiniFrame::SetContextMenuEnabled(const bool enabled)
 {
-	ICoreWebView2Settings* settings;
-	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->put_AreDefaultContextMenusEnabled(enabled);
-	_webviewWindow->Reload();
+	_contextMenuEnabled = enabled;
+	if (!_webviewWindow) return;
+	ICoreWebView2Settings* settings = nullptr;
+	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	{
+		settings->put_AreDefaultContextMenusEnabled(enabled);
+		_webviewWindow->Reload();
+	}
 }
 
 void InfiniFrame::SetZoomEnabled(const bool enabled)
 {
-    ICoreWebView2Settings* settings;
-    HRESULT r = _webviewWindow->get_Settings(&settings);
-    settings->put_IsZoomControlEnabled(enabled);
-    _webviewWindow->Reload();
+	_zoomEnabled = enabled;
+	if (!_webviewWindow) return;
+	ICoreWebView2Settings* settings = nullptr;
+	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	{
+		settings->put_IsZoomControlEnabled(enabled);
+		_webviewWindow->Reload();
+	}
 }
 
 void InfiniFrame::SetDevToolsEnabled(const bool enabled)
 {
-	ICoreWebView2Settings* settings;
-	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->put_AreDevToolsEnabled(enabled);
-	_webviewWindow->Reload();
+	_devToolsEnabled = enabled;
+	if (!_webviewWindow) return;
+	ICoreWebView2Settings* settings = nullptr;
+	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	{
+		settings->put_AreDevToolsEnabled(enabled);
+		_webviewWindow->Reload();
+	}
 }
 
 void InfiniFrame::SetFullScreen(const bool fullScreen)
