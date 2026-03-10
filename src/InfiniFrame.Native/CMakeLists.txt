@@ -93,7 +93,7 @@ if(WIN32)
     )
 
     # WebView2 package configuration
-    set(WEBVIEW2_VERSION "1.0.3719.77" CACHE STRING "WebView2 version")
+    set(WEBVIEW2_VERSION "1.0.3800.47" CACHE STRING "WebView2 version")
 
     # Prefer local packages folder, fall back to user NuGet cache (useful on CI/agents)
     set(WEBVIEW2_BASE_DIR "")
