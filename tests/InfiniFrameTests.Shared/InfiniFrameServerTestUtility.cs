@@ -18,13 +18,18 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
     private readonly Thread _windowThread;
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameServerTestUtility(Thread windowThread) {
         _windowThread = windowThread;
     }
-
+    
+    [MustDisposeResource] 
     public static InfiniFrameServerTestUtility Create(
         Action<WebApplicationBuilder>? appBuilder = null,
-        Action<IInfiniFrameWindowBuilder>? windowBuilder = null
+        Action<IInfiniFrameWindowBuilder>? windowBuilder = null,
+        CancellationToken cancellationToken = default
     ) {
         var creationSignal = new ManualResetEventSlim();
         InfiniFrameServerTestUtility? utility = null;
@@ -68,12 +73,12 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
             IsBackground = false// Keep the thread alive
         };
 
-        // Set apartment state for Windows compatibility
+        // Set the apartment state for Windows compatibility
         if (OperatingSystem.IsWindows()) windowThread.SetApartmentState(ApartmentState.STA);
         windowThread.Start();
 
         // Wait for the window and server to be created
-        creationSignal.Wait();
+        creationSignal.Wait(cancellationToken);
 
         if (creationException != null) throw new InvalidOperationException("Failed to create window and server", creationException);
         if (utility == null) throw new InvalidOperationException("Window utility was not created");
@@ -84,6 +89,9 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
         return utility;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void Dispose() {
         try {
             if (!_cancellationTokenSource.IsCancellationRequested) {

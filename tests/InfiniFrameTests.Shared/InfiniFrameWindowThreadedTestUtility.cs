@@ -11,19 +11,24 @@ namespace InfiniFrameTests.Shared;
 [MustDisposeResource]
 public sealed class InfiniFrameWindowThreadedTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
-    
     private readonly Thread _windowThread;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameWindowThreadedTestUtility(Thread windowThread) {
         _windowThread = windowThread;
     }
 
     [MustDisposeResource]
-    public static InfiniFrameWindowThreadedTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
+    public static InfiniFrameWindowThreadedTestUtility Create(
+        Action<IInfiniFrameWindowBuilder>? builder = null,
+        CancellationToken cancellationToken = default
+    ) {
         var creationSignal = new ManualResetEventSlim();
         InfiniFrameWindowThreadedTestUtility? utility = null;
         Exception? creationException = null;
-        
+
         var windowThread = new Thread(() => {
             try {
                 var windowBuilder = InfiniFrameWindowBuilder.Create();
@@ -39,7 +44,7 @@ public sealed class InfiniFrameWindowThreadedTestUtility : IDisposable {
                     """);
 
                 builder?.Invoke(windowBuilder);
-                
+
                 utility = new InfiniFrameWindowThreadedTestUtility(Thread.CurrentThread) {
                     Window = windowBuilder.Build()
                 };
@@ -58,28 +63,29 @@ public sealed class InfiniFrameWindowThreadedTestUtility : IDisposable {
         };
 
         // Set the apartment state for Windows compatibility
-        if (OperatingSystem.IsWindows()) 
+        if (OperatingSystem.IsWindows())
             windowThread.SetApartmentState(ApartmentState.STA);
-        
+
         windowThread.Start();
 
         // Wait for window creation
-        creationSignal.Wait();
-        
+        creationSignal.Wait(cancellationToken);
+
         // Give a bit more time for the window to fully initialize
         Thread.Sleep(2000);
 
-        if (creationException != null) 
+        if (creationException != null)
             throw new InvalidOperationException("Failed to create window", creationException);
-        
+
         return utility ?? throw new InvalidOperationException("Window utility was not created");
     }
 
     public void Dispose() {
         try {
             Window.Close();
-            
+
             if (_windowThread.Join(TimeSpan.FromSeconds(5))) return;
+
             _windowThread.Interrupt();
             _windowThread.Join(TimeSpan.FromSeconds(1));
         }

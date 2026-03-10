@@ -11,13 +11,18 @@ namespace InfiniFrameTests.Shared;
 [MustDisposeResource]
 public sealed class InfiniFrameWindowTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
-
     private Task? _messageLoopTask;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameWindowTestUtility() {}
 
     [MustDisposeResource]
-    public static InfiniFrameWindowTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
+    public static InfiniFrameWindowTestUtility Create(
+        Action<IInfiniFrameWindowBuilder>? builder = null,
+        CancellationToken cancellationToken = default
+    ) {
         var windowBuilder = InfiniFrameWindowBuilder.Create();
 
         windowBuilder.SetStartString("""
@@ -37,11 +42,14 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
             Window = windowBuilder.Build()
         };
 
-        utility._messageLoopTask = Task.Run(utility.Window.WaitForClose);
+        utility._messageLoopTask = Task.Run(utility.Window.WaitForClose, cancellationToken);
 
         return utility;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void Dispose() {
         try {
             Window.Close();
