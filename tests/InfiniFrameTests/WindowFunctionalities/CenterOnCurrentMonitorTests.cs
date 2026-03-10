@@ -16,7 +16,7 @@ public class CenterOnCurrentMonitorTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task Window(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);

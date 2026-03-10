@@ -16,7 +16,7 @@ public class ResizeTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(0, 0, ResizeOrigin.TopLeft)]
     [Arguments(0, 0, ResizeOrigin.Top)]
     [Arguments(0, 0, ResizeOrigin.TopRight)]

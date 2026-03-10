@@ -30,7 +30,7 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
     public async Task Window(CancellationToken ct) {
@@ -55,7 +55,7 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
     [MatrixDataSource]

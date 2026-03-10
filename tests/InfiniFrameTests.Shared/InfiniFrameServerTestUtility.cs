@@ -15,103 +15,92 @@ namespace InfiniFrameTests.Shared;
 public sealed class InfiniFrameServerTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
     public required WebApplication WebApplication { get; init; }
-    private readonly Thread _windowThread;
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
+
+    private readonly Thread _thread;
+    private int _disposed;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameServerTestUtility(Thread windowThread) {
-        _windowThread = windowThread;
+    private InfiniFrameServerTestUtility(Thread thread) {
+        _thread = thread;
     }
-    
-    [MustDisposeResource] 
+
     public static InfiniFrameServerTestUtility Create(
         Action<WebApplicationBuilder>? appBuilder = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null,
         CancellationToken cancellationToken = default
     ) {
-        var creationSignal = new ManualResetEventSlim();
-        InfiniFrameServerTestUtility? utility = null;
-        Exception? creationException = null;
-        
-        var windowThread = new Thread(() => {
+        var ready = new TaskCompletionSource<InfiniFrameServerTestUtility>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var thread = new Thread(() => {
             try {
                 InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
                 builder.WebApp.WebHost.UseStaticWebAssets();
-                
+
                 appBuilder?.Invoke(builder.WebApp);
-                
                 windowBuilder?.Invoke(builder.Window);
-        
-                InfiniFrameWebApplication application = builder.Build();
-                application.WebApp.UseDefaultFiles();
-                
-                #if NET8_0
-                application.WebApp.UseStaticFiles();
-                #else
-                application.WebApp.UseStaticFiles();
-                application.WebApp.MapStaticAssets();
+
+                InfiniFrameWebApplication app = builder.Build();
+
+                app.WebApp.UseDefaultFiles();
+                app.WebApp.UseStaticFiles();
+
+                #if !NET8_0
+                app.WebApp.MapStaticAssets();
                 #endif
-                
-                utility = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
-                    Window = application.Window,
-                    WebApplication = application.WebApp
+
+                using var util = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
+                    Window = app.Window,
+                    WebApplication = app.WebApp
                 };
 
-                // Signal that creation is complete
-                creationSignal.Set();
+                app.WebApp.StartAsync(cancellationToken).GetAwaiter().GetResult();
 
-                // Run the message loop on this thread
-                application.Run();
+                ready.SetResult(util);
+
+                app.Window.WaitForClose();
+
+                app.WebApp.StopAsync(cancellationToken).GetAwaiter().GetResult();
             }
             catch (Exception ex) {
-                creationException = ex;
-                creationSignal.Set();
+                ready.TrySetException(ex);
             }
         }) {
-            IsBackground = false// Keep the thread alive
+            IsBackground = true
         };
 
-        // Set the apartment state for Windows compatibility
-        if (OperatingSystem.IsWindows()) windowThread.SetApartmentState(ApartmentState.STA);
-        windowThread.Start();
+        if (OperatingSystem.IsWindows())
+            thread.SetApartmentState(ApartmentState.STA);
 
-        // Wait for the window and server to be created
-        creationSignal.Wait(cancellationToken);
+        thread.Start();
 
-        if (creationException != null) throw new InvalidOperationException("Failed to create window and server", creationException);
-        if (utility == null) throw new InvalidOperationException("Window utility was not created");
-
-        // Give a bit more time for the window to fully initialize
-        Thread.Sleep(2000);
-
-        return utility;
+        return ready.Task.WaitAsync(cancellationToken).GetAwaiter().GetResult();
     }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public void Dispose() {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+            return;
+
         try {
-            if (!_cancellationTokenSource.IsCancellationRequested) {
-                _cancellationTokenSource.Cancel();
-
-                Window.Close();
-
-                // Give the window thread time to close gracefully
-                if (!_windowThread.Join(TimeSpan.FromSeconds(5))) {
-                    // Force abort if it doesn't close gracefully
-                    _windowThread.Interrupt();
-                }
-
-                WebApplication.StopAsync(_cancellationTokenSource.Token).Wait();
-            }
-
-            _cancellationTokenSource.Dispose();
+            Window.Close();
         }
-        catch (Exception) {
-            // Ignore
+        catch {
+            // ignored
         }
+
+        try {
+            WebApplication.StopAsync().GetAwaiter().GetResult();
+        }
+        catch {
+            // ignored
+        }
+
+        if (!_thread.Join(TimeSpan.FromSeconds(5)))
+            _thread.Interrupt();
     }
 }

@@ -32,7 +32,7 @@ public class MinHeightTests {
     [DisplayName($"{nameof(MinHeightTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task Window(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
@@ -49,7 +49,7 @@ public class MinHeightTests {
     [DisplayName($"{nameof(MinHeightTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task FullIntegration(CancellationToken ct) {
         // Arrange
 

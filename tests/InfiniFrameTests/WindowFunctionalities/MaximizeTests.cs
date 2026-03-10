@@ -33,7 +33,7 @@ public class MaximizeTests {
     [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct) {
@@ -55,7 +55,7 @@ public class MaximizeTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window_Toggle(bool state, CancellationToken ct) {
@@ -75,7 +75,7 @@ public class MaximizeTests {
     [DisplayName($"{nameof(MaximizeTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct) {

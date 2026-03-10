@@ -36,7 +36,7 @@ public class CenterTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task Window(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
@@ -63,7 +63,7 @@ public class CenterTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct) {

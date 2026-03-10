@@ -36,7 +36,7 @@ public class MaxSizeTests {
     [DisplayName($"{nameof(MaxSizeTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task Window(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
@@ -53,7 +53,7 @@ public class MaxSizeTests {
     [DisplayName($"{nameof(MaxSizeTests)}.{nameof(Window_AsSize)}")] 
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task Window_AsSize(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
@@ -70,7 +70,7 @@ public class MaxSizeTests {
     [DisplayName($"{nameof(MaxSizeTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task FullIntegration(CancellationToken ct) {
         // Arrange
 

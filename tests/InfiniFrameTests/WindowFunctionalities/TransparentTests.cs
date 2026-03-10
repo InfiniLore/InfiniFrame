@@ -34,7 +34,7 @@ public class TransparentTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux("Headless display lacks compositing support for post-init transparency changes")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct) {
@@ -54,7 +54,7 @@ public class TransparentTests {
     [DisplayName($"{nameof(TransparentTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct) {

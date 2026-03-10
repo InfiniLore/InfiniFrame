@@ -33,7 +33,7 @@ public class MinimizeTests {
     [DisplayName($"{nameof(MinimizeTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct) {
@@ -54,7 +54,7 @@ public class MinimizeTests {
     [DisplayName($"{nameof(MinimizeTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct) {
