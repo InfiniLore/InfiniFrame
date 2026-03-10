@@ -1,4 +1,4 @@
-﻿name: Pending Check (Manual CI)
+﻿name: "Workflow: Pending Checks"
 
 on:
     pull_request_target:

@@ -1,4 +1,4 @@
-name: MultiPlatform Testing
+name: "Workflow: MultiPlatform Testing"
 
 on:
     workflow_dispatch:
