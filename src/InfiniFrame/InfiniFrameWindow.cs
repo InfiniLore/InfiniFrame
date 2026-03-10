@@ -28,8 +28,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public IntPtr InstanceHandle { get; private set; }
     public InfiniFrameNativeParameters StartupParameters;
 
-    internal object[]? NativeCallbackAnchors;
-
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 

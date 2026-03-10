@@ -26,7 +26,7 @@ public static partial class InfiniFrameNative {
     //Not useful to use LibraryImport when passing a user-defined type.
     //See https://stackoverflow.com/questions/77770231/libraryimport-the-type-is-not-supported-by-source-generated-p-invokes
     [DllImport(DllName, EntryPoint = InfiniFrame_ctor, CallingConvention = CallingConvention.Cdecl, SetLastError = true, CharSet = CharSet.Ansi)]
-    internal static extern IntPtr Constructor(ref InfiniFrameNativeParameters parameters);
+    internal static extern IntPtr Constructor([In] ref InfiniFrameNativeParameters parameters);
     #pragma warning restore SYSLIB1054
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_dtor), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

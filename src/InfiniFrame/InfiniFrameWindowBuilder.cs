@@ -75,19 +75,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
         window.StartupParameters = startupParameters;
 
-        window.NativeCallbackAnchors = [
-            startupParameters.ClosingHandler!,
-            startupParameters.ResizedHandler!,
-            startupParameters.MaximizedHandler!,
-            startupParameters.RestoredHandler!,
-            startupParameters.MinimizedHandler!,
-            startupParameters.MovedHandler!,
-            startupParameters.FocusInHandler!,
-            startupParameters.FocusOutHandler!,
-            startupParameters.WebMessageReceivedHandler!,
-            startupParameters.CustomSchemeHandler!,
-        ];
-
         window.MaxHeight = startupParameters.MaxHeight;
         window.MaxWidth = startupParameters.MaxWidth;
         window.MinHeight = startupParameters.MinHeight;
