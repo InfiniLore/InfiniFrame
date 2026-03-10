@@ -40,25 +40,25 @@ public class InfiniFrameWebApplication {
     /// </returns>
     public InfiniFrameWebApplication UseAutoServerClose() {
         if (LazyWindow.IsValueCreated) {
-            Window.RegisterWindowClosingHandler((_,_) => ClosingHandler());
+            Window.RegisterWindowClosingHandler((_, _) => ClosingHandler());
             Window.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
-            return this;    
+            return this;
         }
 
         var builder = WebApp.Services.GetRequiredService<IInfiniFrameWindowBuilder>();
-        builder.RegisterWindowClosingHandler((_,_) => ClosingHandler());
+        builder.RegisterWindowClosingHandler((_, _) => ClosingHandler());
         builder.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
         return this;
-    
+
         bool ClosingHandler() {
             // Start web app shutdown in background - don't block UI thread
             Task.Run(async () => {
                 try {
                     await WebApp.StopAsync();
-                    
+
                     if (_webAppThread is null) return;
                     if (_webAppThread.Join(TimeSpan.FromSeconds(5))) return;
-                    
+
                     _webAppThread.Interrupt();
                 }
                 catch (Exception e) {

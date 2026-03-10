@@ -1,8 +1,7 @@
-﻿﻿// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame.WebServer;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,7 +17,7 @@ public class InfiniFrameWebApplicationBuilder {
             .AddSingleton<IInfiniFrameWindowBuilder>(Window)
             .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
             ;
-        
+
         WebApp.WebHost.UseStaticWebAssets();
 
         // Prefer ASPNETCORE_URLS, then "urls" else it has to be set by the dev themselves
@@ -29,12 +28,12 @@ public class InfiniFrameWebApplicationBuilder {
         string? startUrl = configuredUrls?
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .FirstOrDefault();
-        
+
         if (startUrl is not null) Window.SetStartUrl(startUrl);
-        
+
         return this;
     }
-    
+
     public InfiniFrameWebApplication Build() {
         WebApplication webApp = WebApp.Build();
 

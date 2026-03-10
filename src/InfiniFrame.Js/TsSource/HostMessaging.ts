@@ -43,7 +43,7 @@ class HostMessaging implements IHostMessaging {
 
     public sendMessageToHost(id: SendToHostMessageId | string, data?: string) {
         const message = data ? `${id};${data}` : id;
-        
+
         // TODO - determine messaging methods for InfiniFrame.NET for all platforms
         if (window.chrome?.webview) {
             window.chrome.webview.postMessage(message);

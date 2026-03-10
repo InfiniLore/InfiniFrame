@@ -25,7 +25,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowLocationChanged.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined handler methods to receive callbacks from the native builder when its size changes.
         /// </summary>
@@ -37,7 +37,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowSizeChanged.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers registered user-defined handler methods to receive callbacks from the native builder when it is focused
         ///     in.
@@ -50,7 +50,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowFocusIn.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined handler methods to receive callbacks from the native builder when it is maximized.
         /// </summary>
@@ -62,7 +62,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowMaximized.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined handler methods to receive callbacks from the native builder when it is restored.
         /// </summary>
@@ -74,7 +74,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowRestored.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers registered user-defined handler methods to receive callbacks from the native builder when it is focused
         ///     out.
@@ -87,7 +87,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowFocusOut.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined handler methods to receive callbacks from the native builder when it is minimized.
         /// </summary>
@@ -99,7 +99,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowMinimized.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined handler methods to receive callbacks from the native builder when it sends a message.
         /// </summary>
@@ -144,7 +144,7 @@ public static class InfiniWindowEventsExtensions {
 
             return builder;
         }
-        
+
         /// <summary>
         /// Registers user-defined handler methods to receive callbacks from the native builder before the window is closed through the native api calls.
         /// </summary>
@@ -156,7 +156,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowClosingRequested.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined handler methods to receive callbacks from the native builder when the builder is about to
         ///     close.
@@ -170,7 +170,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowClosing.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined handler methods to receive callbacks before the native builder is created.
         /// </summary>
@@ -182,7 +182,7 @@ public static class InfiniWindowEventsExtensions {
             builder.Events.WindowCreating.Add(handler);
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined handler methods to receive callbacks after the native builder is created.
         /// </summary>

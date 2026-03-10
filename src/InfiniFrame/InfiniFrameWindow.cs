@@ -20,7 +20,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public required IInfiniFrameWindow? Parent { get; init; }
     public required IInfiniFrameWindowEvents Events { get; init; }
     public required IInfiniFrameWindowMessageHandlers MessageHandlers { get; init; }
-    
+
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     public IntPtr NativeType => WindowType.Value;
@@ -212,7 +212,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool Focused => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFocused);
-    
+
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
     public Size MaxSize {
         get => new(MaxWidth, MaxHeight);
@@ -456,7 +456,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             MessageLoopState.ReleaseState();
         }
     }
-    
+
     public Task WaitForCloseAsync() => Task.Run(WaitForClose);
 
     /// <summary>
@@ -593,6 +593,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         Invoke(() => {
             IntPtr ptrResult = InfiniFrameNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length);
             if (ptrResult == IntPtr.Zero) return;
+
             try {
                 result = Marshal.PtrToStringAuto(ptrResult);
             }
@@ -761,7 +762,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         // Read the stream into memory and serve the bytes
         // In the future, it would be possible to pass the stream through into C++
-        using var _ = responseStream;
+        using Stream _ = responseStream;
         using var ms = new MemoryStream();
         responseStream.CopyTo(ms);
 

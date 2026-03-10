@@ -117,7 +117,7 @@ public static partial class InfiniFrameNative {
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_GetZoomEnabled, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void GetZoomEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool zoomEnabled);
-    
+
     [LibraryImport(DllName, EntryPoint = InfiniFrame_GetIconFileName, SetLastError = true, StringMarshalling = StringMarshalling.Utf16), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial IntPtr GetIconFileName(IntPtr instance);
 
@@ -275,7 +275,7 @@ public static partial class InfiniFrameNative {
         IntPtr ptr = GetTitle(instance);
         title = Marshal.PtrToStringAuto(ptr) ?? string.Empty;// The way on how infiniFrame works internally is that the title is always an empty string when we set it to null on our end.
     }
-    
+
     internal static void GetIconFileName(IntPtr instance, out string iconFileName) {
         IntPtr ptr = GetIconFileName(instance);
         iconFileName = Marshal.PtrToStringAuto(ptr) ?? string.Empty;

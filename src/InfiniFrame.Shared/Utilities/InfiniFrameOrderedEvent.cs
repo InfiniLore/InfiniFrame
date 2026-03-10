@@ -10,7 +10,7 @@ namespace InfiniFrame.Utilities;
 public class InfiniFrameOrderedEvent {
     private ImmutableArray<Action<IInfiniFrameWindow>> _handlers = ImmutableArray<Action<IInfiniFrameWindow>>.Empty;
     public ImmutableArray<Action<IInfiniFrameWindow>> Snapshot => _handlers;
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

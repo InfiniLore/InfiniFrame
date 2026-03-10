@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-const infiniFrame : string = "__infiniframe";
+const infiniFrame: string = "__infiniframe";
 
 export const SendToHostMessageIds = {
     titleChange: `${infiniFrame}:title:change`,

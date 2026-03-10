@@ -20,7 +20,10 @@ internal static class InvokeUtilities {
     public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IInfiniFrameWindow, T> callback) {
         T? value = default;
         bool completed = false;
-        window.Invoke(() => { value = callback(window); completed = true; });
+        window.Invoke(() => {
+            value = callback(window);
+            completed = true;
+        });
         Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
         return value;
     }
@@ -28,7 +31,10 @@ internal static class InvokeUtilities {
     public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IntPtr, T> callback) {
         T? value = default;
         bool completed = false;
-        window.Invoke(() => { value = callback(window.InstanceHandle); completed = true; });
+        window.Invoke(() => {
+            value = callback(window.InstanceHandle);
+            completed = true;
+        });
         Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
         return value;
     }
@@ -36,7 +42,10 @@ internal static class InvokeUtilities {
     public static T InvokeAndReturn<T>(IInfiniFrameWindow window, FuncWithOut<T> callback) {
         T? value = default;
         bool completed = false;
-        window.Invoke(() => { callback(window.InstanceHandle, out value); completed = true; });
+        window.Invoke(() => {
+            callback(window.InstanceHandle, out value);
+            completed = true;
+        });
         Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
         return value!;
     }

@@ -14,7 +14,7 @@ internal static class MessageLoopState {
     #else
     private static readonly object Lock = new();
     #endif
-    
+
     private static bool IsStarted { get; set; }
 
     public static bool TryAcquireFirstState() {
@@ -25,7 +25,7 @@ internal static class MessageLoopState {
             return true;
         }
     }
-    
+
     public static void ReleaseState() {
         lock (Lock) {
             IsStarted = false;
