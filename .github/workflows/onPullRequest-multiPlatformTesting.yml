@@ -495,16 +495,21 @@ jobs:
                       } `
                       -Body $body `
                       -ContentType "application/json"
-    
+
     windows-playwright:
         if: ${{ inputs.run_windows_playwright == true }}
-        needs: [prepare, mark-pending]
-        name: Test - Windows Playwright
+        needs: [ prepare, mark-pending ]
+        name: Test - Windows Playwright (${{ matrix.framework }})
         runs-on: windows-latest
         env:
             TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         permissions:
             statuses: write
+        
+        strategy:
+            fail-fast: false
+            matrix:
+                framework: [ net8.0, net9.0, net10.0 ]
         
         steps:
             -   name: Checkout repository
@@ -521,7 +526,6 @@ jobs:
                         9.x
                         10.x
 
-            # Cache .NET packages
             -   name: Cache .NET packages
                 uses: actions/cache@v5
                 with:
@@ -535,15 +539,12 @@ jobs:
                 with:
                     cmakeVersion: "4.0.0"
 
-            # Cache CMake build
             -   name: Cache CMake build
                 uses: actions/cache@v5
                 with:
-                    path: |
-                        src\InfiniFrame.Native\build
+                    path: src\InfiniFrame.Native\build
                     key: ${{ runner.os }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
 
-            # Cache WebView2 installer
             -   name: Cache WebView2 installer
                 id: cache-webview2
                 uses: actions/cache@v5
@@ -555,27 +556,10 @@ jobs:
                 shell: pwsh
                 run: |
                     $installer = "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
-                    
                     if (-Not (Test-Path $installer)) {
-                        Write-Host "Downloading WebView2 Runtime..."
-                        $url = "https://go.microsoft.com/fwlink/p/?LinkId=2124703"
-                        Invoke-WebRequest -Uri $url -OutFile $installer
-                    } else {
-                        Write-Host "Using cached WebView2 installer..."
+                      Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
                     }
-                    
-                    Write-Host "Installing WebView2 Runtime..."
                     Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
-                    Write-Host "WebView2 Runtime installed"
-
-            # Cache npm global packages
-            -   name: Cache npm global packages
-                uses: actions/cache@v5
-                with:
-                    path: ~\AppData\Roaming\npm
-                    key: ${{ runner.os }}-npm-global-${{ hashFiles('**/package*.json') }}
-                    restore-keys: |
-                        ${{ runner.os }}-npm-global-
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
@@ -598,7 +582,6 @@ jobs:
                     npm install -g playwright
                     $versionOutput = npx playwright --version
                     $version = $versionOutput -replace '^Version\s+', ''
-                    Write-Host "Playwright version: $version"
                     "version=$version" >> $env:GITHUB_OUTPUT
 
             -   name: Cache Playwright browsers
@@ -613,72 +596,47 @@ jobs:
             -   name: Install Playwright browsers
                 if: steps.cache-playwright.outputs.cache-hit != 'true'
                 shell: pwsh
-                run: |
-                    Write-Host "Cache miss - Installing Playwright browsers..."
-                    npx playwright install --with-deps
-                    Write-Host "Playwright installation complete"
+                run: npx playwright install chromium
 
-            -   name: Verify Native DLLs for testing
+            -   name: Verify Native DLLs for testing (${{ matrix.framework }})
                 shell: pwsh
                 run: |
-                    $frameworks = @("net9.0", "net10.0")
-                    $requiredDlls = @(
-                      "InfiniFrame.Native.dll",
-                      "WebView2Loader.dll"
-                    )
-                    
-                    $allFound = $true
-                    
-                    foreach ($framework in $frameworks) {
-                      Write-Host "Checking $framework..."
-                      $binPath = "tests/InfiniFrameTests.Playwright/bin/Release/$framework"
-                    
-                      foreach ($dll in $requiredDlls) {
-                        $fullPath = Join-Path $binPath $dll
-                    
-                        if (-Not (Test-Path $fullPath)) {
-                          Write-Host "❌ ERROR: $dll NOT found in $framework output!" -ForegroundColor Red
-                          $allFound = $false
-                        } else {
-                          Write-Host "✅ $dll found" -ForegroundColor Green
-                        }
+                    $binPath = "tests/InfiniFrameTests.Playwright/bin/Release/${{ matrix.framework }}"
+                    foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
+                      $fullPath = Join-Path $binPath $dll
+                      if (-Not (Test-Path $fullPath)) {
+                        throw "$dll missing in $binPath"
                       }
                     }
-                    
-                    if (-Not $allFound) {
-                      Write-Host "❌ Some native DLLs are missing!" -ForegroundColor Red
-                      Exit 1
-                    }
-                    
-                    Write-Host "✅ All native DLLs present for all frameworks" -ForegroundColor Green
 
-            -   name: Run Playwright tests (.NET)
+            -   name: Run Playwright tests (${{ matrix.framework }})
                 working-directory: tests/InfiniFrameTests.Playwright/
-                run: dotnet test --configuration Release --no-build --no-restore
+                run: dotnet test --configuration Release --no-build --no-restore --framework ${{ matrix.framework }}
 
             -   name: Upload Playwright test results
                 if: always()
                 uses: actions/upload-artifact@v7
                 with:
-                    name: playwright-test-results
+                    name: playwright-test-results-${{ matrix.framework }}
                     path: tests/InfiniFrameTests.Playwright/TestResults
 
             -   name: Update Windows Playwright status
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                shell: pwsh
                 run: |
                     if ("${{ job.status }}" -eq "success") {
                       $STATUS = "success"
-                      $DESCRIPTION = "Windows Playwright tests passed"
+                      $DESCRIPTION = "Windows Playwright tests passed (${{ matrix.framework }})"
                     } else {
                       $STATUS = "failure"
-                      $DESCRIPTION = "Windows Playwright tests failed"
+                      $DESCRIPTION = "Windows Playwright tests failed (${{ matrix.framework }})"
                     }
                     
                     $body = @{
                       state       = $STATUS
-                      context     = "Manual MultiPlatform CI - Windows Playwright"
+                      context     = "Manual MultiPlatform CI - Windows Playwright (${{ matrix.framework }})"
                       description = $DESCRIPTION
                       target_url  = "${env:WORKFLOW_URL}"
                     } | ConvertTo-Json
