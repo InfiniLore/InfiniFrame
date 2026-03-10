@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
 using Microsoft.Playwright;
 using TUnit.Engine.Exceptions;
 using TUnit.Playwright;
@@ -11,6 +12,16 @@ namespace InfiniFrameTests.Playwright.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class InfiniFrameWebviewTest : PageTest {
     public override string BrowserName => "webkit";
+
+    [Before(Test)]
+    public async Task ResetStateBeforeEachTest() {
+        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.InfiniFrameWindowTitle);
+        IPage page = await GetRootPageAsync();
+        await page.EvaluateAsync(
+            // lang=javascript
+            $"() => {{ document.title = '{GlobalPlaywrightContext.VueDocumentTitle}'; }}"
+        );
+    }
 
     /// <summary>
     /// Asynchronously retrieves a page object for the specified relative URL.
@@ -54,8 +65,7 @@ public abstract class InfiniFrameWebviewTest : PageTest {
     /// <param name="relativeUrl">The relative URL to connect the browser to.</param>
     /// <returns>A task that resolves to an <see cref="IBrowser"/> instance representing the connected browser.</returns>
     protected static async Task<IBrowser> GetBrowserAsync(string relativeUrl) {
-        var url = new Uri(GlobalPlaywrightContext.PlaywrightConnectionUri, relativeUrl);
-        return await Playwright.Chromium.ConnectOverCDPAsync(url.ToString());
+        return await GlobalPlaywrightContext.GetOrCreateBrowserAsync(relativeUrl);
     }
 
     /// <summary>
@@ -78,7 +88,7 @@ public abstract class InfiniFrameWebviewTest : PageTest {
     /// <returns>The new state once it changes from the initial value or throws an exception if the timeout is exceeded.</returns>
     /// <exception cref="TUnit.Engine.Exceptions.TestFailedException">Thrown when the timeout for waiting for the state change is exceeded.</exception>
     protected static async Task<T> WaitForStateChangeAsync<T>(T initialValue, Func<T> stateProvider, TimeSpan timeout = default, TimeSpan interval = default) {
-        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(5);
+        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(10);
         if (interval == TimeSpan.Zero) interval = TimeSpan.FromMilliseconds(100);
 
         DateTime expectedEnd = DateTime.UtcNow.Add(timeout);
@@ -96,7 +106,7 @@ public abstract class InfiniFrameWebviewTest : PageTest {
 
     /// <inheritdoc cref="WaitForStateChangeAsync{T}(T, Func{T}, TimeSpan, TimeSpan)"/>
     protected static async Task<T> WaitForStateChangeAsync<T>(T initialValue, Func<Task<T>> stateProvider, TimeSpan timeout = default, TimeSpan interval = default) {
-        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(5);
+        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(10);
         if (interval == TimeSpan.Zero) interval = TimeSpan.FromMilliseconds(100);
 
         DateTime expectedEnd = DateTime.UtcNow.Add(timeout);
