@@ -1,4 +1,3 @@
-
 name: Release to Nuget
 
 on:
@@ -88,10 +87,16 @@ jobs:
     # ------------------------------------------------------------------------------------------------------------------
     # Run multi-platform tests first
     # ------------------------------------------------------------------------------------------------------------------
+    # noinspection UndefinedAction, UndefinedParamsPresent
     run-tests:
         name: Run Multi-Platform Tests
         needs: bump-version
-        uses: ./.github/workflows/onPullRequest-multiPlatformTesting.yml
+        uses: ./.github/workflows/reusable-multiPlatformTesting.yml
+        with:
+            run_windows: true
+            run_windows_playwright: false
+            run_linux: true
+            run_macos: true
         secrets: inherit
     
     # ------------------------------------------------------------------------------------------------------------------

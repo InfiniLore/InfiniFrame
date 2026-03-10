@@ -1,0 +1,245 @@
+name: Reusable Linux GUI Tests
+
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                default: ''
+                required: false
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+jobs:
+    linux-gui:
+        name: Test - Linux/${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        arch: x64
+                        libName: linux
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        libName: linux
+        permissions:
+            statuses: write
+        steps:
+            -   uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
+                    fetch-depth: 1
+
+            -   name: Setup .NET SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache .NET packages
+                uses: actions/cache@v5
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+
+            -   name: Cache CMake build
+                uses: actions/cache@v5
+                with:
+                    path: |
+                        src/InfiniFrame.Native/build
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+
+            -   name: Cache and install desktop environment
+                uses: awalsh128/cache-apt-pkgs-action@latest
+                with:
+                    packages: >
+                        gnome-shell
+                        gnome-session
+                        gnome-settings-daemon
+                        mutter
+                        xvfb
+                        x11-utils
+                        x11-xserver-utils
+                        dbus-x11
+                        at-spi2-core
+                        gsettings-desktop-schemas
+                        libnotify4
+                        libnotify-dev
+                        libwebkit2gtk-4.1-dev
+                        libgtk-3-dev
+                        libglib2.0-dev
+                        libgdk-pixbuf2.0-dev
+                        libpango1.0-dev
+                        libatk1.0-dev
+                        libharfbuzz-dev
+                        libepoxy-dev
+                        libx11-dev
+                        fonts-liberation
+                        xfonts-base
+                    version: 1.0
+
+            -   name: Restore dependencies
+                run: dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
+
+            -   name: Build (Release)
+                run: |
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir="${{ github.workspace }}/" \
+                      /p:Platform=${{ matrix.arch }}
+
+                    dotnet build InfiniFrame.GitHubActions.Linux.slnf \
+                      --configuration Release \
+                      --no-restore
+
+            -   name: Verify Native DLLs for testing
+                run: |
+                    nativeSo="tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.so"
+
+                    if [ ! -f "$nativeSo" ]; then
+                      echo "ERROR: InfiniFrame.Native.so NOT found in test output!"
+                      exit 1
+                    fi
+
+                    echo "All native DLLs present"
+
+            -   name: Start desktop environment and run tests
+                run: |
+                    echo "Starting desktop environment..."
+
+                    eval "$(dbus-launch --sh-syntax)"
+
+                    echo "Launching Xvfb..."
+                    Xvfb :99 \
+                      -screen 0 1920x1080x24 \
+                      -ac \
+                      +extension GLX \
+                      +extension RANDR \
+                      +extension RENDER \
+                      -nolisten tcp \
+                      -noreset &> xvfb.log &
+
+                    export DISPLAY=:99
+                    export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
+                    export XDG_SESSION_TYPE=x11
+                    export XDG_SESSION_CLASS=user
+                    export XDG_SESSION_DESKTOP=ubuntu
+                    export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+                    export DESKTOP_SESSION=ubuntu
+
+                    mkdir -p "$XDG_RUNTIME_DIR"
+                    chmod 700 "$XDG_RUNTIME_DIR"
+
+                    echo "Waiting for X server..."
+                    timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
+                      echo "X server failed to start."
+                      exit 1
+                    }
+
+                    echo "Starting Mutter window manager..."
+                    mutter --x11 --replace --sm-disable &> mutter.log &
+
+                    timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
+                      echo "Mutter failed to start or crashed."
+                      echo "=== Diagnostic: X11 info ==="
+                      xdpyinfo | head -3 || echo "xdpyinfo failed"
+                      echo "=== Diagnostic: D-Bus ==="
+                      echo "$DBUS_SESSION_BUS_ADDRESS"
+                      exit 1
+                    }
+
+                    echo "Mutter is running:"
+                    ps aux | grep "[m]utter" || echo "Mutter missing unexpectedly"
+
+                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || {
+                      echo "Window manager not responding"
+                      exit 1
+                    }
+
+                    echo "=== Environment Status ==="
+                    echo "Display: $DISPLAY"
+                    echo "Desktop: $XDG_CURRENT_DESKTOP"
+                    echo "Session: $XDG_SESSION_DESKTOP"
+                    echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
+                    xdpyinfo | head -3 || true
+
+                    echo "=== Running Tests ==="
+                    dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore
+
+            -   name: Display test logs on failure
+                if: failure()
+                run: |
+                    echo "=== Xvfb/Mutter logs ==="
+                    cat xvfb.log
+                    cat mutter.log
+
+                    echo "=== Test Run Failed - Displaying Logs ==="
+
+                    strip_ansi() {
+                      sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
+                    }
+
+                    find . -name "*.log" -path "*/TestResults/*" -type f | while read -r logfile; do
+                      echo "=== Content of $logfile ==="
+                      strip_ansi < "$logfile" || echo "Could not read $logfile"
+                      echo ""
+                    done
+
+                    find . -name "*.trx" -path "*/TestResults/*" -type f | while read -r trxfile; do
+                      echo "=== Content of $trxfile ==="
+                      strip_ansi < "$trxfile" || echo "Could not read $trxfile"
+                      echo ""
+                    done
+
+                    echo "=== All files in TestResults directories ==="
+                    find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
+
+            -   name: Upload test results as artifact
+                if: failure()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: test-logs-linux-${{ matrix.arch }}
+                    path: |
+                        **/TestResults/*.log
+                        **/TestResults/*.trx
+
+            -   name: Update Linux status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if [ "${{ job.status }}" == "success" ]; then
+                      STATUS="success"
+                      DESCRIPTION="Linux tests passed"
+                    else
+                      STATUS="failure"
+                      DESCRIPTION="Linux tests failed"
+                    fi
+
+                    CONTEXT="Manual MultiPlatform CI - Linux/${{ matrix.arch }}"
+
+                    curl -X POST \
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" \
+                      -d "{\"state\":\"$STATUS\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"

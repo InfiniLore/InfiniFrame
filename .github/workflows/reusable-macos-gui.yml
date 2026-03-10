@@ -1,0 +1,139 @@
+name: Reusable macOS GUI Tests
+
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                default: ''
+                required: false
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+jobs:
+    macos-gui:
+        name: Test - macOS/${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   os: macos-15-intel
+                        arch: x64
+                        libName: osx
+                    -   os: macos-latest
+                        arch: arm64
+                        libName: osx
+        permissions:
+            statuses: write
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
+                    fetch-depth: 1
+
+            -   name: Setup .NET SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache .NET packages
+                uses: actions/cache@v5
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
+
+            -   name: Cache CMake build
+                uses: actions/cache@v5
+                with:
+                    path: |
+                        src/InfiniFrame.Native/build
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+
+            -   name: Restore dependencies
+                run: dotnet restore InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
+
+            -   name: Build native
+                run: |
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir="${{ github.workspace }}/" \
+                      /p:Platform=${{ matrix.arch }}
+
+            -   name: Build (Release)
+                run: dotnet build InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
+
+            -   name: Verify Native DLLs for testing
+                run: |
+                    nativeSo="tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dylib"
+
+                    if [ ! -f "$nativeSo" ]; then
+                      echo "ERROR: InfiniFrame.Native.dylib NOT found in test output!"
+                      exit 1
+                    fi
+
+                    echo "All native DLLs present"
+
+            -   name: Setup GUI environment and run tests
+                run: |
+                    echo "Setting up macOS GUI environment..."
+
+                    echo "=== Environment Status ==="
+                    echo "System: $(sw_vers -productName) $(sw_vers -productVersion)"
+                    echo "Architecture: $(uname -m)"
+                    echo "Running in native macOS mode"
+
+                    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+                    export NSUnbufferedIO=YES
+
+                    echo "=== Running Tests ==="
+
+                    dotnet test --solution InfiniFrame.GitHubActions.MacOs.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore
+
+            -   name: Upload test results as artifact
+                if: failure()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: test-logs-macos-${{ matrix.arch }}
+                    path: |
+                        **/TestResults/*.log
+                        **/TestResults/*.trx
+
+            -   name: Update macOS status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if [ "${{ job.status }}" == "success" ]; then
+                      STATUS="success"
+                      DESCRIPTION="macOS tests passed"
+                    else
+                      STATUS="failure"
+                      DESCRIPTION="macOS tests failed"
+                    fi
+
+                    CONTEXT="Manual MultiPlatform CI - macOS/${{ matrix.arch }}"
+
+                    curl -X POST \
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" \
+                      -d "{\"state\":\"$STATUS\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"

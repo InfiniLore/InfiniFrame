@@ -1,0 +1,150 @@
+name: Reusable Windows GUI Tests
+
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                default: ''
+                required: false
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+jobs:
+    windows-gui:
+        name: Test - Windows/${{ matrix.arch }}
+        runs-on: ${{ matrix.os }}
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   os: windows-latest
+                        arch: x64
+                        libName: windows
+                    -   os: windows-11-arm
+                        arch: arm64
+                        libName: windows
+        permissions:
+            statuses: write
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
+                    fetch-depth: 1
+
+            -   name: Setup .NET SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache .NET packages
+                uses: actions/cache@v5
+                with:
+                    path: ~\.nuget\packages
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+                with:
+                    cmakeVersion: "4.0.0"
+
+            -   name: Cache CMake build
+                uses: actions/cache@v5
+                with:
+                    path: |
+                        src\InfiniFrame.Native\build
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+
+            -   name: Restore dependencies
+                run: dotnet restore InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+
+            -   name: Build (Release)
+                run: |
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
+                      --configuration Release `
+                      --no-restore `
+                      -p:SolutionDir="${{ github.workspace }}/" `
+                      -p:Platform=${{ matrix.arch }}
+
+                    dotnet build InfiniFrame.GitHubActions.Windows.slnf `
+                      --configuration Release `
+                      --no-restore
+
+            -   name: Verify Native DLLs for testing
+                run: |
+                    $nativeDll = "tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dll"
+                    $webView2 = "tests/InfiniFrameTests/bin/Release/net9.0/WebView2Loader.dll"
+
+                    if (-Not (Test-Path $nativeDll)) {
+                      Write-Host "ERROR: InfiniFrame.Native.dll NOT found in test output!"
+                      Exit 1
+                    }
+
+                    if (-Not (Test-Path $webView2)) {
+                      Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
+                      Exit 1
+                    }
+
+                    Write-Host "All native DLLs present"
+
+            -   name: Run tests
+                run: |
+                    echo "Running tests on Windows..."
+                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore
+
+            -   name: Upload test results as artifact
+                if: failure()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: test-logs-windows-${{ matrix.arch }}
+                    path: |
+                        **/TestResults/*.log
+                        **/TestResults/*.trx
+
+            -   name: Update Windows status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    if ("${{ job.status }}" -eq "success") {
+                      $STATUS = "success"
+                      $DESCRIPTION = "Windows tests passed"
+                    } else {
+                      $STATUS = "failure"
+                      $DESCRIPTION = "Windows tests failed"
+                    }
+
+                    $CONTEXT = "Manual MultiPlatform CI - Windows/${{ matrix.arch }}"
+
+                    $body = @{
+                      state       = $STATUS
+                      context     = $CONTEXT
+                      description = $DESCRIPTION
+                      target_url  = "${env:WORKFLOW_URL}"
+                    } | ConvertTo-Json
+
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
+                      -Method POST `
+                      -Headers @{
+                        "Authorization" = "Bearer $env:GITHUB_TOKEN"
+                        "Accept"        = "application/vnd.github+json"
+                      } `
+                      -Body $body `
+                      -ContentType "application/json"

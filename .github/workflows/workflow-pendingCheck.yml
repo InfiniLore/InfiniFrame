@@ -39,7 +39,7 @@ jobs:
                   set -euo pipefail
 
                   API_BASE="https://api.github.com/repos/${HEAD_REPO}"
-                  WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/onPullRequest-multiPlatformTesting.yml"
+                  WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/workflow-multiPlatformTesting.yml"
 
                   if [ -z "${SHA}" ] || [ "${SHA}" = "null" ]; then
                     echo "Invalid PR head SHA: '${SHA}'"
