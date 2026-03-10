@@ -2,53 +2,101 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using JetBrains.Annotations;
 
 namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowTestUtility : IDisposable {
+[MustDisposeResource]
+public sealed class InfiniFrameWindowTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
 
-    private Task? _messageLoopTask;
+    private Thread? _windowThread;
+    private int _disposed;
 
+    private const string StartString = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+        </head>
+        <body>
+        </body>
+        </html>
+        """;
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameWindowTestUtility() {}
 
-    public static InfiniFrameWindowTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
-        var windowBuilder = InfiniFrameWindowBuilder.Create();
+    [MustDisposeResource]
+    public static InfiniFrameWindowTestUtility Create(CancellationToken cancellationToken = default)
+        => Create(null, cancellationToken);
 
-        windowBuilder.SetStartString("""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-            </head>
-            <body>
-            </body>
-            </html>
-            """);
+    [MustDisposeResource]
+    public static InfiniFrameWindowTestUtility Create(
+        Action<IInfiniFrameWindowBuilder>? builder = null,
+        CancellationToken cancellationToken = default
+    ) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var windowBuilder = InfiniFrameWindowBuilder.Create();
+        windowBuilder.SetStartString(StartString);
 
         builder?.Invoke(windowBuilder);
 
+        IInfiniFrameWindow window = windowBuilder.Build();
+
         var utility = new InfiniFrameWindowTestUtility {
-            Window = windowBuilder.Build()
+            Window = window
         };
 
-        utility._messageLoopTask = Task.Run(utility.Window.WaitForClose);
+        var thread = new Thread(() => {
+            try {
+                window.WaitForClose();
+            }
+            catch {
+                // Ignore shutdown exceptions during test cleanup.
+            }
+        }) {
+            IsBackground = true
+        };
+
+        if (OperatingSystem.IsWindows())
+            thread.SetApartmentState(ApartmentState.STA);
+
+        utility._windowThread = thread;
+
+        thread.Start();
 
         return utility;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void Dispose() {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+            return;
+
         try {
             Window.Close();
-            _messageLoopTask?.Wait(TimeSpan.FromSeconds(5));
         }
-        catch (Exception) {
-            // Ignore
+        catch {
+            // ignored
         }
-        finally {
-            GC.SuppressFinalize(this);
+
+        try {
+            if (_windowThread == null)
+                return;
+
+            if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
+                _windowThread.Interrupt();
+        }
+        catch {
+            // ignored
         }
     }
 }

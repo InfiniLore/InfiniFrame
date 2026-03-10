@@ -58,9 +58,10 @@ public class WidthTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task Window(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -75,14 +76,16 @@ public class WidthTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task FullIntegration(CancellationToken ct) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
-                .SetWidth(500)
+                .SetWidth(500),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 
@@ -95,9 +98,13 @@ public class WidthTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window_WithChromelessToGetSmallestWidth() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task Window_WithChromelessToGetSmallestWidth(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder.SetChromeless(true));
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+            builder => builder.SetChromeless(true),
+            ct
+        );
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -111,14 +118,16 @@ public class WidthTests {
     [DisplayName($"{nameof(WidthTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestWidth)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration_WithChromelessToGetSmallestWidth() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task FullIntegration_WithChromelessToGetSmallestWidth(CancellationToken ct) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetChromeless(true)
-                .SetWidth(Width)
+                .SetWidth(Width),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 

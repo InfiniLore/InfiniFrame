@@ -30,7 +30,6 @@ public class LeftTests {
 
     [Test]
     [DisplayName($"{nameof(LeftTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
-    [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -59,9 +58,10 @@ public class LeftTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task Window(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -76,13 +76,14 @@ public class LeftTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task FullIntegration(CancellationToken ct) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
-            builder => builder
-                .SetLeft(Left)
+            builder => builder.SetLeft(Left),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 

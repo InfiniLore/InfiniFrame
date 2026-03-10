@@ -17,12 +17,13 @@ public class MoveWithinCurrentMonitorAreaTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(0, 0, 0, 0)]
     [Arguments(100, 100, 100, 100)]
     [Arguments(-100, -100, 0, 0)]
-    public async Task Window(int x, int y, int expectedX, int expectedY) {
+    public async Task Window(int x, int y, int expectedX, int expectedY, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -47,12 +48,13 @@ public class MoveWithinCurrentMonitorAreaTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(0, 0, 0, 0)]
     [Arguments(100, 100, 100, 100)]
     [Arguments(-100, -100, 0, 0)]
-    public async Task Window_AsPoint(int x, int y, int expectedX, int expectedY) {
+    public async Task Window_AsPoint(int x, int y, int expectedX, int expectedY, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -77,12 +79,13 @@ public class MoveWithinCurrentMonitorAreaTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(0, 0, 0, 0)]
     [Arguments(100, 100, 100, 100)]
     [Arguments(-100, -100, 0, 0)]
-    public async Task Window_AsDouble(double x, double y, int expectedX, int expectedY) {
+    public async Task Window_AsDouble(double x, double y, int expectedX, int expectedY, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act

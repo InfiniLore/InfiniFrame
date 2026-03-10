@@ -17,9 +17,10 @@ public class WindowTests {
     [DisplayName($"{nameof(WindowTests)}.{nameof(InstanceHandle_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task InstanceHandle_IsDefined() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task InstanceHandle_IsDefined(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -32,9 +33,10 @@ public class WindowTests {
     [DisplayName($"{nameof(WindowTests)}.{nameof(WindowHandle_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task WindowHandle_IsDefined() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task WindowHandle_IsDefined(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -49,9 +51,10 @@ public class WindowTests {
     [DisplayName($"{nameof(WindowTests)}.{nameof(Monitors_IsNotEmpty)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Monitors_IsNotEmpty() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task Monitors_IsNotEmpty(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -65,9 +68,10 @@ public class WindowTests {
     [DisplayName($"{nameof(WindowTests)}.{nameof(NativeType_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task NativeType_IsDefined() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task NativeType_IsDefined(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -80,13 +84,15 @@ public class WindowTests {
     [DisplayName($"{nameof(WindowTests)}.{nameof(Close_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Close_IsDefined() {
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task Close_IsDefined(CancellationToken ct) {
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
-        var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder.Events.WindowClosingRequested.Add(_ => {
                 windowClosingTcs.SetResult(true);
-            })
+            }),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 
