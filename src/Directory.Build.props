@@ -13,6 +13,7 @@
         <Deterministic>true</Deterministic>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeBuildOutput>true</IncludeBuildOutput>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
         <Version>0.1.0-preview.25</Version>
         <Authors>InfiniFrame, Anna Sas</Authors>
