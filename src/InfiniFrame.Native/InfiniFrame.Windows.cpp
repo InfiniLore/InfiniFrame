@@ -498,23 +498,26 @@ void InfiniFrame::GetTransparentEnabled(bool* enabled) const
 
 void InfiniFrame::GetContextMenuEnabled(bool* enabled) const
 {
-	ICoreWebView2Settings* settings;
-	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->get_AreDefaultContextMenusEnabled(reinterpret_cast<BOOL*>(enabled));
+	if (!_webviewWindow) return;
+	ICoreWebView2Settings* settings = nullptr;
+	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+		settings->get_AreDefaultContextMenusEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
 void InfiniFrame::GetZoomEnabled(bool* enabled) const
 {
-    ICoreWebView2Settings* settings;
-    HRESULT r = _webviewWindow->get_Settings(&settings);
-    settings->get_IsZoomControlEnabled(reinterpret_cast<BOOL*>(enabled));
+	if (!_webviewWindow) return;
+	ICoreWebView2Settings* settings = nullptr;
+	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+		settings->get_IsZoomControlEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
 void InfiniFrame::GetDevToolsEnabled(bool* enabled) const
 {
-	ICoreWebView2Settings* settings;
-	HRESULT r = _webviewWindow->get_Settings(&settings);
-	settings->get_AreDevToolsEnabled(reinterpret_cast<BOOL*>(enabled));
+	if (!_webviewWindow) return;
+	ICoreWebView2Settings* settings = nullptr;
+	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+		settings->get_AreDevToolsEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
 void InfiniFrame::GetFullScreen(bool* fullScreen) const
