@@ -18,45 +18,23 @@ This project is not affiliated with- or endorsed by the original authors of Phot
 
 This project is currently in a *very early stage of converting the old code base to more modern C# and .NET*.
 
+Although all functionality should be working, it is not verified on all platforms if they are stable.
+Currently a lot of the codebase is still untestsed on Linux and MacOS environments because setting up runners with the ability to have
+properly working windows is still being looked for.
+
 ## Breaking changes
 
-Although most of the original API has been kept as is, the introduction of the builder pattern, switching to a more
-loosely defined fluent-api style and other changes, have brought many breaking changes to the codebase.
+`InfiniFrame` is not meant to be a drop in replacement for `Photino`.
+Although it uses much of the same API as Photino, it handles window initialization a whole different manner. 
+For now, until proper documentation is setup, please refer to the examples and tests to see how to create windows and attach them to servers, etc...
 
-Some changes so far, have been described below:
-
-**Solution wide changes**
-
-- Nullability: The entire project now has nullable enabled, this means that some of the return types of methods have
-  been changed from `object` to `object?`, but most of the time this shouldn't be a problem given this now mimics what
-  the actual code base was doing all along.
-
-**Photino.NET changes**
-
-- `PhotinoWindow.Log()` and `PhotinoWindow.Verbosity` have been removed from the codebase and have been replaced with a
-  `ILogger` approach so proper logging handlers can be injected.
-  When a logger isn't defined in the DI container creating the `PhotinoWindow`, it will create a default console logger
-  that will log to the console.
-- `PhotinoWindow.Fullscreen` is not monitor aware and resizes to the original size of the window when you exit
-  fullscreen.
-- Full rework of the `PhotinoWindow` api to separate initializing logic from run time logic.
-  This means we start the builder chain with the options for more fluent api extensions than what the `PhotinoWindow`
-  properties allowed for.
-
-**Photino.NET.Server changes**
-
-- `PhotinoServer(webRootFolder:...)` is no longer hard coded to depend on starting from the `Resources/` folder and is
-  now fully configurable and has the default value of `wwwroot`.
-- `PhotinoServer.CreateStaticFileServer()` is completely replaced by a combination of `PhotinoServerBuilder.Create()`
-  and `PhotinoServerBuilder.Build()` to create the static file server in a more fluent API way.
-  This also adds the `PhotinoServer.GetAttachedWindow()` method to immediately get an attached window to the server
-  without further setup.
+*further list of all Breaking changes can be added at a later date*
 
 ---
 
 ## Building and running
 
-For building and running the project, you will need to have the .NET 9 SDK installed.
+For building and running the project, you will need to have the .NET 10 SDK installed.
 You will also need to add the [nuget cli tool](https://www.nuget.org/downloads) to your PATH.
 
 The solution is set up in such a way that you can build the entire solution without having to need any additional
