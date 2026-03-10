@@ -1,5 +1,3 @@
-#file: noinspection UndefinedAction
-
 name: Release to Nuget
 
 on:
@@ -89,6 +87,7 @@ jobs:
     # ------------------------------------------------------------------------------------------------------------------
     # Run multi-platform tests first
     # ------------------------------------------------------------------------------------------------------------------
+    # noinspection UndefinedAction
     run-tests:
         name: Run Multi-Platform Tests
         needs: bump-version
