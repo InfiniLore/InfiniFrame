@@ -51,8 +51,8 @@ public class SizeTests {
         // Assert
         await Assert.That(builder.Configuration.Width).IsEqualTo(Width);
         await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
-        await Assert.That(builder.Configuration.UseOsDefaultSize).IsEqualTo(false);
-        await Assert.That(builder.Configuration.Centered).IsEqualTo(false);
+        await Assert.That(builder.Configuration.UseOsDefaultSize).IsFalse();
+        await Assert.That(builder.Configuration.Centered).IsFalse();
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
