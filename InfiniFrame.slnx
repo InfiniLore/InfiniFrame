@@ -14,13 +14,16 @@
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\workflow-todo.yml" />
     <File Path=".github/dependabot.yml" />
+    <File Path=".github\workflows\workflow-pendingCheck.yml" />
+    <File Path=".github/workflows/workflow-multiPlatformTesting.yml" />
+    <File Path=".github\workflows\workflow-onRelease.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/reusables/">
     <File Path=".github/workflows/reusable-linux-gui.yml" />
     <File Path=".github/workflows/reusable-macos-gui.yml" />
     <File Path=".github/workflows/reusable-windows-gui.yml" />
     <File Path=".github/workflows/reusable-windows-playwright.yml" />
-    <File Path=".github\workflows\onPullRequest-multiPlatformTesting.yml" />
-    <File Path=".github\workflows\onPullRequest-pendingCheck.yml" />
-    <File Path=".github\workflows\onRelease.yml" />
+    <File Path=".github\workflows\reusable-multiPlatformTesting.yml" />
   </Folder>
   <Folder Name="/.dev-tools/py/">
     <File Path="dev\bump_version.py" />

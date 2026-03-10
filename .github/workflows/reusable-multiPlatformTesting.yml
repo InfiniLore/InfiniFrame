@@ -1,33 +1,12 @@
-name: MultiPlatform Testing
+name: Reusable MultiPlatform Testing
 
 on:
     workflow_call:
         inputs:
             pr_number:
-                description: 'PR number to test'
+                description: 'PR number to test. Leave empty to test the current trigger commit (github.sha).'
                 type: string
                 default: ''
-                required: false
-            run_windows:
-                description: 'Run Windows GUI tests'
-                type: boolean
-                default: true
-            run_windows_playwright:
-                description: 'Run Windows Playwright tests'
-                type: boolean
-                default: false
-            run_linux:
-                description: 'Run Linux GUI tests'
-                type: boolean
-                default: true
-            run_macos:
-                description: 'Run macOS GUI tests'
-                type: boolean
-                default: true
-    workflow_dispatch:
-        inputs:
-            pr_number:
-                description: 'PR number to test (use the PR number from the URL)'
                 required: false
             run_windows:
                 description: 'Run Windows GUI tests'
@@ -119,7 +98,7 @@ jobs:
         with:
             pr_number: ${{ inputs.pr_number }}
             target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ env.WORKFLOW_URL }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
@@ -130,7 +109,7 @@ jobs:
         with:
             pr_number: ${{ inputs.pr_number }}
             target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ env.WORKFLOW_URL }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
@@ -141,7 +120,7 @@ jobs:
         with:
             pr_number: ${{ inputs.pr_number }}
             target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ env.WORKFLOW_URL }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
@@ -152,7 +131,7 @@ jobs:
         with:
             pr_number: ${{ inputs.pr_number }}
             target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ env.WORKFLOW_URL }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
 
     mark-skipped:

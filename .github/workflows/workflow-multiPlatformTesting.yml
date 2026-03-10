@@ -1,0 +1,37 @@
+name: MultiPlatform Testing
+
+on:
+    workflow_dispatch:
+        inputs:
+            pr_number:
+                description: 'PR number to test. Leave empty to test the current branch commit.'
+                required: false
+                type: string
+            run_windows:
+                description: 'Run Windows GUI tests'
+                type: boolean
+                default: true
+            run_windows_playwright:
+                description: 'Run Windows Playwright tests'
+                type: boolean
+                default: false
+            run_linux:
+                description: 'Run Linux GUI tests'
+                type: boolean
+                default: false
+            run_macos:
+                description: 'Run macOS GUI tests'
+                type: boolean
+                default: false
+
+jobs:
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    run:
+        uses: ./.github/workflows/reusable-multiPlatformTesting.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            run_windows: ${{ inputs.run_windows }}
+            run_windows_playwright: ${{ inputs.run_windows_playwright }}
+            run_linux: ${{ inputs.run_linux }}
+            run_macos: ${{ inputs.run_macos }}
+        secrets: inherit
