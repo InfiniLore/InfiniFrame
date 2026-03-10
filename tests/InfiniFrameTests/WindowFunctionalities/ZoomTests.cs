@@ -35,7 +35,7 @@ public class ZoomTests {
     public async Task Window() {
         // Arrange
         const int zoom = 120;
-        using var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetUseOsDefaultLocation(true)
                 .SetUseOsDefaultSize(true)
@@ -56,35 +56,12 @@ public class ZoomTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    [Arguments(26)]
-    [Arguments(36)]
-    [Arguments(46)]
-    [Arguments(56)]
-    [Arguments(66)]
-    [Arguments(76)]
-    [Arguments(86)]
-    [Arguments(96)]
-    [Arguments(106)]
-    [Arguments(116)]
-    [Arguments(126)]
-    [Arguments(136)]
-    [Arguments(146)]
-    [Arguments(156)]
-    [Arguments(166)]
-    [Arguments(176)]
-    [Arguments(186)]
-    [Arguments(196)]
-    [Arguments(206)]
-    [Arguments(216)]
-    [Arguments(226)]
-    [Arguments(236)]
-    [Arguments(246)]
-    [Arguments(250)]
-    public async Task FullIntegration(int zoom) {
+    [MatrixDataSource]
+    public async Task FullIntegration([MatrixRange<int>(26, 250, 10)] int zoom) {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetZoomEnabled(true)
                 .SetZoom(zoom)
