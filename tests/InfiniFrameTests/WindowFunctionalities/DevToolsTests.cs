@@ -58,7 +58,7 @@ public class DevToolsTests {
         // Arrange
 
         // Act
-        var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetDevToolsEnabled(state)
         );

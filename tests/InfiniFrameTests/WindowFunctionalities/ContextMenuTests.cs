@@ -58,7 +58,7 @@ public class ContextMenuTests {
         // Arrange
 
         // Act
-        var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetContextMenuEnabled(state)
         );
