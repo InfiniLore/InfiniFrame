@@ -49,7 +49,9 @@ public class InfiniFrameWindowThreadedTestUtility : IDisposable {
                 creationSignal.Set();
             }
         }) {
-            IsBackground = false
+            // Keep test helper threads from blocking full test-host shutdown
+            // if a window does not close cleanly in a parameterized run.
+            IsBackground = true
         };
 
         // Set apartment state for Windows compatibility

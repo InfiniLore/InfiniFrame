@@ -645,8 +645,20 @@ void InfiniFrame::GetTopmost(bool* topmost) const
 
 void InfiniFrame::GetZoom(int* zoom) const
 {
+	if (zoom == nullptr) return;
+	if (_webviewController == nullptr)
+	{
+		*zoom = _zoom;
+		return;
+	}
+
 	double rawValue = 0;
-	_webviewController->get_ZoomFactor(&rawValue);
+	if (FAILED(_webviewController->get_ZoomFactor(&rawValue)))
+	{
+		*zoom = _zoom;
+		return;
+	}
+
 	rawValue = (rawValue * 100.0) + 0.5;		//account for rounding issues
 	*zoom = static_cast<int>(rawValue);
 }
@@ -861,6 +873,9 @@ void InfiniFrame::SetTopmost(const bool topmost)
 void InfiniFrame::SetZoom(const int zoom)
 {
     if (zoom < 25 || zoom > 500) return;
+
+	_zoom = zoom;
+	if (_webviewController == nullptr) return;
 
     const double newZoom = zoom / 100.0;
     _webviewController->put_ZoomFactor(newZoom);
