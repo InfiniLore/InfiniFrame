@@ -6,24 +6,23 @@ on:
             pr_number:
                 description: 'PR number to test. Leave empty to test the current trigger commit (github.sha).'
                 type: string
-                default: ''
-                required: false
+                required: true
             run_windows:
                 description: 'Run Windows GUI tests'
                 type: boolean
-                default: true
+                required: true
             run_windows_playwright:
                 description: 'Run Windows Playwright tests'
                 type: boolean
-                default: false
+                required: true
             run_linux:
                 description: 'Run Linux GUI tests'
                 type: boolean
-                default: false
+                required: true
             run_macos:
                 description: 'Run macOS GUI tests'
                 type: boolean
-                default: false
+                required: true
 
 env:
     WORKFLOW_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
