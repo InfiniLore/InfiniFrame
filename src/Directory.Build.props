@@ -16,7 +16,7 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
         <Version>0.1.0</Version>
-        <Authors>InfiniFrame, Anna Sas</Authors>
+        <Authors>InfiniFrame, TryPhotino</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
