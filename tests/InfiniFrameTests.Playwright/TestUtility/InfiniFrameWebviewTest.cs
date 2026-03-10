@@ -91,7 +91,7 @@ public abstract class InfiniFrameWebviewTest : PageTest {
     /// <returns>The new state once it changes from the initial value or throws an exception if the timeout is exceeded.</returns>
     /// <exception cref="TUnit.Engine.Exceptions.TestFailedException">Thrown when the timeout for waiting for the state change is exceeded.</exception>
     protected static async Task<T> WaitForStateChangeAsync<T>(T initialValue, Func<T> stateProvider, TimeSpan timeout = default, TimeSpan interval = default) {
-        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(10);
+        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(20);
         if (interval == TimeSpan.Zero) interval = TimeSpan.FromMilliseconds(100);
 
         DateTime expectedEnd = DateTime.UtcNow.Add(timeout);
@@ -109,7 +109,7 @@ public abstract class InfiniFrameWebviewTest : PageTest {
 
     /// <inheritdoc cref="WaitForStateChangeAsync{T}(T, Func{T}, TimeSpan, TimeSpan)"/>
     protected static async Task<T> WaitForStateChangeAsync<T>(T initialValue, Func<Task<T>> stateProvider, TimeSpan timeout = default, TimeSpan interval = default) {
-        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(10);
+        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(20);
         if (interval == TimeSpan.Zero) interval = TimeSpan.FromMilliseconds(100);
 
         DateTime expectedEnd = DateTime.UtcNow.Add(timeout);

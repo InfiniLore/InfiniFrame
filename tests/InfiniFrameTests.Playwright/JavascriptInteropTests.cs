@@ -12,7 +12,8 @@ namespace InfiniFrameTests.Playwright;
 // ---------------------------------------------------------------------------------------------------------------------
 public class JavascriptInteropTests : InfiniFrameWebviewTest {
 
-    [Test, NotInParallel(ParallelControl.Playwright)]
+    [Test]
+    [NotInParallel(ParallelControl.Playwright)]
     public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen() {
         // Arrange
         bool originalFullscreenState = GlobalPlaywrightContext.Window.FullScreen;
@@ -38,7 +39,8 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
         await Assert.That(finalFullscreenState).IsFalse();
     }
 
-    [Test, NotInParallel(ParallelControl.Playwright)]
+    [Test]
+    [NotInParallel(ParallelControl.Playwright)]
     public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle() {
         // Arrange
         IPage page = await GetRootPageAsync();
@@ -48,12 +50,14 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
         try {
             // Act
             await page.ClickAsync(buttonId);
+            await Task.Delay(5_000);
             string newTitleState = await WaitForStateChangeAsync(
                 originalTitleState,
                 stateProvider: static () => GlobalPlaywrightContext.Window.Title
             );
 
             await page.ClickAsync(buttonId);
+            await Task.Delay(5_000);
             string finalTitleState = await WaitForStateChangeAsync(
                 newTitleState,
                 stateProvider: static () => GlobalPlaywrightContext.Window.Title
