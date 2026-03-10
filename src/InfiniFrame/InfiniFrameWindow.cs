@@ -30,6 +30,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
+    private int _shutdownStarted;
 
     #region PROPERTIES
     /// <summary>
@@ -453,6 +454,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
         finally {
+            Interlocked.Exchange(ref _shutdownStarted, 1);
             MessageLoopState.ReleaseState();
         }
     }
@@ -466,8 +468,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Thrown when the window is not initialized.
     /// </exception>
     public void Close() {
+        if (Interlocked.Exchange(ref _shutdownStarted, 1) != 0) return;
+
         Logger.LogDebug(".Close()");
         Events.OnWindowClosingRequested();
+        if (InstanceHandle == IntPtr.Zero) return;
+
         Invoke(() => InfiniFrameNative.Close(InstanceHandle));
     }
 
@@ -482,15 +488,18 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </exception>
     /// <param name="message">Message as string</param>
     public void SendWebMessage(string message) {
+        if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+            Logger.LogDebug("Skipping SendWebMessage during shutdown");
+            return;
+        }
+
         Logger.LogDebug(".SendWebMessage({Message})", message);
         Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
     }
 
-    public async Task SendWebMessageAsync(string message) {
-        await Task.Run(() => {
-            Logger.LogDebug(".SendWebMessage({Message})", message);
-            Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
-        });
+    public Task SendWebMessageAsync(string message) {
+        SendWebMessage(message);
+        return Task.CompletedTask;
     }
 
     /// <summary>

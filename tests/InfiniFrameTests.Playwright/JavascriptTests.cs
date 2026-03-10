@@ -45,7 +45,7 @@ public class JavascriptTests : InfiniFrameWebviewTest {
         await Assert.That(updatedTitle).IsEqualTo(newTitle);
 
         // Reset
-        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.InfiniFrameWindowTitle);
+        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
     }
 
     [Test] 

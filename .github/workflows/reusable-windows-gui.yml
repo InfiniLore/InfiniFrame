@@ -5,8 +5,7 @@ on:
         inputs:
             pr_number:
                 type: string
-                default: ''
-                required: false
+                required: true
             target_sha:
                 type: string
                 required: true

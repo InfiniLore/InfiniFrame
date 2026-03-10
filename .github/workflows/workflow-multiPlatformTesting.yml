@@ -18,11 +18,11 @@ on:
             run_linux:
                 description: 'Run Linux GUI tests'
                 type: boolean
-                default: false
+                default: true
             run_macos:
                 description: 'Run macOS GUI tests'
                 type: boolean
-                default: false
+                default: true
 
 jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent

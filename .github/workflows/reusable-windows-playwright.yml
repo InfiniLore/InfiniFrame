@@ -5,8 +5,7 @@ on:
         inputs:
             pr_number:
                 type: string
-                default: ''
-                required: false
+                required: true
             target_sha:
                 type: string
                 required: true
@@ -125,6 +124,13 @@ jobs:
                         throw "$dll missing in $binPath"
                       }
                     }
+                    
+            -   name: Expose GitHub Actions Runtime
+                uses: actions/github-script@v7
+                with:
+                    script: |
+                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+                        core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
             -   name: Run Playwright tests (${{ matrix.framework }})
                 working-directory: tests/InfiniFrameTests.Playwright/

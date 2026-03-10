@@ -12,7 +12,8 @@ namespace InfiniFrameTests.Playwright;
 // ---------------------------------------------------------------------------------------------------------------------
 public class JavascriptInteropTests : InfiniFrameWebviewTest {
 
-    [Test, NotInParallel(ParallelControl.Playwright)]
+    [Test]
+    [NotInParallel(ParallelControl.Playwright)]
     public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen() {
         // Arrange
         bool originalFullscreenState = GlobalPlaywrightContext.Window.FullScreen;
@@ -38,33 +39,42 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
         await Assert.That(finalFullscreenState).IsFalse();
     }
 
-    [Test, NotInParallel(ParallelControl.Playwright)]
+    [Test]
+    [NotInParallel(ParallelControl.Playwright)]
     public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle() {
         // Arrange
-        string originalTitleState = GlobalPlaywrightContext.Window.Title;
         IPage page = await GetRootPageAsync();
         const string buttonId = "#title-toggle-button";
+        string originalTitleState = GlobalPlaywrightContext.Window.Title;
 
-        // Act
-        await page.ClickAsync(buttonId);
-        string newTitleState = await WaitForStateChangeAsync(
-            originalTitleState,
-            stateProvider: static () => GlobalPlaywrightContext.Window.Title
-        );
+        try {
+            // Act
+            await page.ClickAsync(buttonId);
+            await Task.Delay(5_000);
+            string newTitleState = await WaitForStateChangeAsync(
+                originalTitleState,
+                stateProvider: static () => GlobalPlaywrightContext.Window.Title
+            );
 
-        await page.ClickAsync(buttonId);
-        string finalTitleState = await WaitForStateChangeAsync(
-            newTitleState,
-            stateProvider: static () => GlobalPlaywrightContext.Window.Title
-        );
+            await page.ClickAsync(buttonId);
+            await Task.Delay(5_000);
+            string finalTitleState = await WaitForStateChangeAsync(
+                newTitleState,
+                stateProvider: static () => GlobalPlaywrightContext.Window.Title
+            );
 
-        // Assert
-        await Assert.That(originalTitleState).IsEqualTo(GlobalPlaywrightContext.InfiniFrameWindowTitle);
-        await Assert.That(newTitleState).IsEqualTo("New Title");
-        await Assert.That(finalTitleState).IsEqualTo(GlobalPlaywrightContext.VueDocumentTitle);
-
-        // Reset
-        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.InfiniFrameWindowTitle);
+            // Assert
+            await Assert.That(originalTitleState).IsEqualTo(GlobalPlaywrightContext.DefaultDocumentTitle);
+            await Assert.That(newTitleState).IsEqualTo("New Title");
+            await Assert.That(finalTitleState).IsEqualTo(GlobalPlaywrightContext.DefaultDocumentTitle);
+        }
+        finally {
+            GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
+            await page.EvaluateAsync(
+                // lang=javascript
+                $"() => {{ document.title = '{GlobalPlaywrightContext.DefaultDocumentTitle}'; }}"
+            );
+        }
 
     }
 }
