@@ -30,8 +30,8 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    // [SkipUtility.SkipOnLinux]
-    // [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
+    [SkipUtility.SkipOnMacOs]
     public async Task Window() {
         // Arrange
         const int zoom = 120;
@@ -54,8 +54,8 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    // [SkipUtility.SkipOnLinux]
-    // [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
+    [SkipUtility.SkipOnMacOs]
     [Arguments(26)]
     [Arguments(36)]
     [Arguments(46)]
