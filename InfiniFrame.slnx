@@ -14,6 +14,10 @@
   <Folder Name="/.dev-tools/github/">
     <File Path=".github\workflows\workflow-todo.yml" />
     <File Path=".github/dependabot.yml" />
+    <File Path=".github/workflows/reusable-linux-gui.yml" />
+    <File Path=".github/workflows/reusable-macos-gui.yml" />
+    <File Path=".github/workflows/reusable-windows-gui.yml" />
+    <File Path=".github/workflows/reusable-windows-playwright.yml" />
     <File Path=".github\workflows\onPullRequest-multiPlatformTesting.yml" />
     <File Path=".github\workflows\onPullRequest-pendingCheck.yml" />
     <File Path=".github\workflows\onRelease.yml" />

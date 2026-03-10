@@ -76,9 +76,9 @@ jobs:
                       echo "Failed to resolve a valid commit SHA. Check pr_number input."
                       exit 1
                     fi
-                    
+
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
-    
+
     mark-pending:
         name: Mark Manual CI as Pending
         runs-on: ubuntu-latest
@@ -93,16 +93,16 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     echo "Posting pending statuses for all Manual MultiPlatform CI contexts"
-                    
+
                     OS_LIST=("Linux" "Windows" "macOS")
                     ARCHES=("x64" "arm64")
-                    
+
                     for OS in "${OS_LIST[@]}"; do
                       for ARCH in "${ARCHES[@]}"; do
                         CONTEXT="Manual MultiPlatform CI - ${OS}/${ARCH}"
                         DESCRIPTION="${OS}/${ARCH} tests"
                         echo "Setting pending: $CONTEXT"
-                    
+
                         curl -X POST \
                           -H "Authorization: Bearer $GITHUB_TOKEN" \
                           -H "Accept: application/vnd.github+json" \
@@ -110,677 +110,47 @@ jobs:
                           -d "{\"state\":\"pending\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
                       done
                     done
-                    
-    
-    
-    # ------------------------------------------------------------------------------------------------------------------
-    # Linux (Full Desktop Environment)
-    # ------------------------------------------------------------------------------------------------------------------
+
     linux-gui:
         if: ${{ inputs.run_linux == true }}
         needs: [prepare, mark-pending]
-        name: Test - Linux/${{ matrix.arch }}
-        runs-on: ${{ matrix.os }}
-        env:
-            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    -   os: ubuntu-latest
-                        arch: x64
-                        libName: linux
-                    -   os: ubuntu-24.04-arm
-                        arch: arm64
-                        libName: linux
-        permissions:
-            statuses: write
-        steps:
-            -   uses: actions/checkout@v6
-                with:
-                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
-                    fetch-depth: 1
+        uses: ./.github/workflows/reusable-linux-gui.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ env.WORKFLOW_URL }}
+        secrets: inherit
 
-            -   name: Setup .NET SDK
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-            
-            # Cache .NET packages
-            -   name: Cache .NET packages
-                uses: actions/cache@v5
-                with:
-                    path: ~/.nuget/packages
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
-
-            -   name: Setup CMake
-                uses: lukka/get-cmake@latest
-
-            # Cache CMake build
-            -   name: Cache CMake build
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        src/InfiniFrame.Native/build
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
-            
-            # Cache and install APT packages
-            -   name: Cache and install desktop environment
-                uses: awalsh128/cache-apt-pkgs-action@latest
-                with:
-                    packages: >
-                        gnome-shell
-                        gnome-session
-                        gnome-settings-daemon
-                        mutter
-                        xvfb
-                        x11-utils
-                        x11-xserver-utils
-                        dbus-x11
-                        at-spi2-core
-                        gsettings-desktop-schemas
-                        libnotify4
-                        libnotify-dev
-                        libwebkit2gtk-4.1-dev
-                        libgtk-3-dev
-                        libglib2.0-dev
-                        libgdk-pixbuf2.0-dev
-                        libpango1.0-dev
-                        libatk1.0-dev
-                        libharfbuzz-dev
-                        libepoxy-dev
-                        libx11-dev
-                        fonts-liberation
-                        xfonts-base
-                    version: 1.0
-
-            -   name: Restore dependencies
-                run: dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
-
-            -   name: Build (Release)
-                run: |
-                    # Build native project first
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=${{ matrix.arch }}
-                    
-                    # Then build the rest of the solution
-                    dotnet build InfiniFrame.GitHubActions.Linux.slnf \
-                      --configuration Release \
-                      --no-restore
-
-            -   name: Verify Native DLLs for testing
-                run: |
-                    nativeSo="tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.so"
-                    
-                    if [ ! -f "$nativeSo" ]; then
-                      echo "ERROR: InfiniFrame.Native.so NOT found in test output!"
-                      exit 1
-                    fi
-                    
-                    echo "✅ All native DLLs present"
-
-            -   name: Start desktop environment and run tests
-                run: |
-                    echo "Starting desktop environment..."
-                    
-                    # Start D-Bus session
-                    eval "$(dbus-launch --sh-syntax)"
-                    
-                    # Start Xvfb
-                    echo "Launching Xvfb..."
-                    Xvfb :99 \
-                      -screen 0 1920x1080x24 \
-                      -ac \
-                      +extension GLX \
-                      +extension RANDR \
-                      +extension RENDER \
-                      -nolisten tcp \
-                      -noreset &> xvfb.log &
-                    
-                    export DISPLAY=:99
-                    export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
-                    export XDG_SESSION_TYPE=x11
-                    export XDG_SESSION_CLASS=user
-                    export XDG_SESSION_DESKTOP=ubuntu
-                    export XDG_CURRENT_DESKTOP=ubuntu:GNOME
-                    export DESKTOP_SESSION=ubuntu
-                    
-                    mkdir -p "$XDG_RUNTIME_DIR"
-                    chmod 700 "$XDG_RUNTIME_DIR"
-                    
-                    echo "Waiting for X server..."
-                    timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
-                      echo "❌ X server failed to start."
-                      exit 1
-                    }
-                    
-                    # Start Mutter
-                    echo "Starting Mutter window manager..."
-                    mutter --x11 --replace --sm-disable &> mutter.log &
-                    
-                    timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
-                      echo "❌ Mutter failed to start or crashed."
-                      echo "=== Diagnostic: X11 info ==="
-                      xdpyinfo | head -3 || echo "xdpyinfo failed"
-                      echo "=== Diagnostic: D-Bus ==="
-                      echo "$DBUS_SESSION_BUS_ADDRESS"
-                      exit 1
-                    }
-                    
-                    echo "✅ Mutter is running:"
-                    ps aux | grep "[m]utter" || echo "❌ Mutter missing unexpectedly"
-                    
-                    timeout 5 xwininfo -root >/dev/null 2>&1 && echo "✅ Window manager responding" || {
-                      echo "❌ Window manager not responding"
-                      exit 1
-                    }
-                    
-                    echo "=== Environment Status ==="
-                    echo "Display: $DISPLAY"
-                    echo "Desktop: $XDG_CURRENT_DESKTOP"
-                    echo "Session: $XDG_SESSION_DESKTOP"
-                    echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
-                    xdpyinfo | head -3 || true
-                    
-                    echo "=== Running Tests ==="
-                    dotnet test --solution InfiniFrame.GitHubActions.Linux.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore
-
-            -   name: Display test logs on failure
-                if: failure()
-                run: |
-                    echo "=== Xvfb/Mutter logs ==="
-                    cat xvfb.log
-                    cat mutter.log
-                    
-                    echo "=== Test Run Failed - Displaying Logs ==="
-                    
-                    strip_ansi() {
-                      sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
-                    }
-                    
-                    find . -name "*.log" -path "*/TestResults/*" -type f | while read -r logfile; do
-                      echo "=== Content of $logfile ==="
-                      strip_ansi < "$logfile" || echo "Could not read $logfile"
-                      echo ""
-                    done
-                    
-                    find . -name "*.trx" -path "*/TestResults/*" -type f | while read -r trxfile; do
-                      echo "=== Content of $trxfile ==="
-                      strip_ansi < "$trxfile" || echo "Could not read $trxfile"
-                      echo ""
-                    done
-                    
-                    echo "=== All files in TestResults directories ==="
-                    find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
-
-            -   name: Upload test results as artifact
-                if: failure()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: test-logs-linux-${{ matrix.arch }}
-                    path: |
-                        **/TestResults/*.log
-                        **/TestResults/*.trx
-
-            -   name: Update Linux status
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    if [ "${{ job.status }}" == "success" ]; then
-                      STATUS="success"
-                      DESCRIPTION="Linux tests passed"
-                    else
-                      STATUS="failure"
-                      DESCRIPTION="Linux tests failed"
-                    fi
-                    
-                    CONTEXT="Manual MultiPlatform CI - Linux/${{ matrix.arch }}"
-                    
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
-    
-    # ------------------------------------------------------------------------------------------------------------------
-    # Windows
-    # ------------------------------------------------------------------------------------------------------------------
     windows-gui:
         if: ${{ inputs.run_windows == true }}
         needs: [prepare, mark-pending]
-        name: Test - Windows/${{ matrix.arch }}
-        runs-on: ${{ matrix.os }}
-        env:
-            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    -   os: windows-latest
-                        arch: x64
-                        libName: windows
-                    -   os: windows-11-arm
-                        arch: arm64
-                        libName: windows
-        permissions:
-            statuses: write
-        
-        steps:
-            -   name: Checkout repository
-                uses: actions/checkout@v6
-                with:
-                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
-                    fetch-depth: 1
-
-            -   name: Setup .NET SDK
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-
-            # Cache .NET packages
-            -   name: Cache .NET packages
-                uses: actions/cache@v5
-                with:
-                    path: ~\.nuget\packages
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
-
-            -   name: Setup CMake
-                uses: lukka/get-cmake@latest
-                with:
-                    cmakeVersion: "4.0.0"
-
-            # Cache CMake build
-            -   name: Cache CMake build
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        src\InfiniFrame.Native\build
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
-
-            -   name: Restore dependencies
-                run: dotnet restore InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
-
-            -   name: Build (Release)
-                run: |
-                    # Build native project first
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
-                      --configuration Release `
-                      --no-restore `
-                      -p:SolutionDir="${{ github.workspace }}/" `
-                      -p:Platform=${{ matrix.arch }}
-                    
-                    # Then build the rest of the solution
-                    dotnet build InfiniFrame.GitHubActions.Windows.slnf `
-                      --configuration Release `
-                      --no-restore
-
-            -   name: Verify Native DLLs for testing
-                run: |
-                    $nativeDll = "tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dll"
-                    $webView2 = "tests/InfiniFrameTests/bin/Release/net9.0/WebView2Loader.dll"
-                    
-                    if (-Not (Test-Path $nativeDll)) {
-                      Write-Host "ERROR: InfiniFrame.Native.dll NOT found in test output!"
-                      Exit 1
-                    }
-                    
-                    if (-Not (Test-Path $webView2)) {
-                      Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
-                      Exit 1
-                    }
-                    
-                    Write-Host "✅ All native DLLs present"
-
-            -   name: Run tests
-                run: |
-                    echo "Running tests on Windows..."
-                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore
-
-            -   name: Upload test results as artifact
-                if: failure()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: test-logs-windows-${{ matrix.arch }}
-                    path: |
-                        **/TestResults/*.log
-                        **/TestResults/*.trx
-
-            -   name: Update Windows status
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    if ("${{ job.status }}" -eq "success") {
-                      $STATUS = "success"
-                      $DESCRIPTION = "Windows tests passed"
-                    } else {
-                      $STATUS = "failure"
-                      $DESCRIPTION = "Windows tests failed"
-                    }
-                    
-                    $CONTEXT = "Manual MultiPlatform CI - Windows/${{ matrix.arch }}"
-                    
-                    $body = @{
-                      state       = $STATUS
-                      context     = $CONTEXT
-                      description = $DESCRIPTION
-                      target_url  = "${env:WORKFLOW_URL}"
-                    } | ConvertTo-Json
-                    
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
-                      -Method POST `
-                      -Headers @{
-                        "Authorization" = "Bearer $env:GITHUB_TOKEN"
-                        "Accept"        = "application/vnd.github+json"
-                      } `
-                      -Body $body `
-                      -ContentType "application/json"
+        uses: ./.github/workflows/reusable-windows-gui.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ env.WORKFLOW_URL }}
+        secrets: inherit
 
     windows-playwright:
         if: ${{ inputs.run_windows_playwright == true }}
-        needs: [ prepare, mark-pending ]
-        name: Test - Windows Playwright (${{ matrix.framework }})
-        runs-on: windows-latest
-        env:
-            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
-        permissions:
-            statuses: write
-        
-        strategy:
-            fail-fast: false
-            matrix:
-                framework: [ net8.0, net9.0, net10.0 ]
-        
-        steps:
-            -   name: Checkout repository
-                uses: actions/checkout@v6
-                with:
-                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
-                    fetch-depth: 1
+        needs: [prepare, mark-pending]
+        uses: ./.github/workflows/reusable-windows-playwright.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ env.WORKFLOW_URL }}
+        secrets: inherit
 
-            -   name: Setup .NET SDK
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-
-            -   name: Cache .NET packages
-                uses: actions/cache@v5
-                with:
-                    path: ~\.nuget\packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-nuget-
-
-            -   name: Setup CMake
-                uses: lukka/get-cmake@latest
-                with:
-                    cmakeVersion: "4.0.0"
-
-            -   name: Cache CMake build
-                uses: actions/cache@v5
-                with:
-                    path: src\InfiniFrame.Native\build
-                    key: ${{ runner.os }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
-
-            -   name: Cache WebView2 installer
-                id: cache-webview2
-                uses: actions/cache@v5
-                with:
-                    path: ${{ env.TEMP }}\MicrosoftEdgeWebview2Setup.exe
-                    key: webview2-installer-${{ runner.os }}
-
-            -   name: Install WebView2 Runtime
-                shell: pwsh
-                run: |
-                    $installer = "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
-                    if (-Not (Test-Path $installer)) {
-                      Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
-                    }
-                    Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
-
-            -   name: Restore dependencies
-                run: dotnet restore InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
-
-            -   name: Build (Release)
-                run: |
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
-                      --configuration Release `
-                      --no-restore `
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
-                    
-                    dotnet build InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
-                      --configuration Release `
-                      --no-restore
-
-            -   name: Cache Playwright browsers
-                id: cache-playwright
-                uses: actions/cache@v5
-                with:
-                    path: ~\AppData\Local\ms-playwright
-                    key: playwright-${{ runner.os }}-${{ matrix.framework }}-${{ hashFiles('tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj') }}
-                    restore-keys: |
-                        playwright-${{ runner.os }}-${{ matrix.framework }}-
-                        playwright-${{ runner.os }}-
-
-            -   name: Install Playwright browsers (.NET)
-                if: steps.cache-playwright.outputs.cache-hit != 'true'
-                working-directory: tests/InfiniFrameTests.Playwright
-                shell: pwsh
-                run: |
-                    $script = "bin/Release/${{ matrix.framework }}/playwright.ps1"
-                    if (-Not (Test-Path $script)) {
-                      throw "Playwright install script not found: $script"
-                    }
-
-                    pwsh $script install
-
-            -   name: Verify Native DLLs for testing (${{ matrix.framework }})
-                shell: pwsh
-                run: |
-                    $binPath = "tests/InfiniFrameTests.Playwright/bin/Release/${{ matrix.framework }}"
-                    foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
-                      $fullPath = Join-Path $binPath $dll
-                      if (-Not (Test-Path $fullPath)) {
-                        throw "$dll missing in $binPath"
-                      }
-                    }
-
-            -   name: Run Playwright tests (${{ matrix.framework }})
-                working-directory: tests/InfiniFrameTests.Playwright/
-                run: dotnet test --configuration Release --no-build --no-restore --framework ${{ matrix.framework }}
-
-            -   name: Upload Playwright test results
-                if: always()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: playwright-test-results-${{ matrix.framework }}
-                    path: tests/InfiniFrameTests.Playwright/TestResults
-
-            -   name: Update Windows Playwright status
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                shell: pwsh
-                run: |
-                    if ("${{ job.status }}" -eq "success") {
-                      $STATUS = "success"
-                      $DESCRIPTION = "Windows Playwright tests passed (${{ matrix.framework }})"
-                    } else {
-                      $STATUS = "failure"
-                      $DESCRIPTION = "Windows Playwright tests failed (${{ matrix.framework }})"
-                    }
-                    
-                    $body = @{
-                      state       = $STATUS
-                      context     = "Manual MultiPlatform CI - Windows Playwright (${{ matrix.framework }})"
-                      description = $DESCRIPTION
-                      target_url  = "${env:WORKFLOW_URL}"
-                    } | ConvertTo-Json
-                    
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
-                      -Method POST `
-                      -Headers @{
-                        "Authorization" = "Bearer $env:GITHUB_TOKEN"
-                        "Accept"        = "application/vnd.github+json"
-                      } `
-                      -Body $body `
-                      -ContentType "application/json"
-    
-    # ------------------------------------------------------------------------------------------------------------------
-    # macOS
-    # ------------------------------------------------------------------------------------------------------------------
     macos-gui:
         if: ${{ inputs.run_macos == true }}
         needs: [prepare, mark-pending]
-        name: Test - macOS/${{ matrix.arch }}
-        runs-on: ${{ matrix.os }}
-        env:
-            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    -   os: macos-15-intel
-                        arch: x64
-                        libName: osx
-                    -   os: macos-latest
-                        arch: arm64
-                        libName: osx
-        permissions:
-            statuses: write
-        
-        steps:
-            -   name: Checkout repository
-                uses: actions/checkout@v6
-                with:
-                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
-                    fetch-depth: 1
+        uses: ./.github/workflows/reusable-macos-gui.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ env.WORKFLOW_URL }}
+        secrets: inherit
 
-            -   name: Setup .NET SDK
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-            
-            # Cache .NET packages
-            -   name: Cache .NET packages
-                uses: actions/cache@v5
-                with:
-                    path: ~/.nuget/packages
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
-
-            # Cache CMake build
-            -   name: Cache CMake build
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        src/InfiniFrame.Native/build
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
-
-            -   name: Restore dependencies
-                run: dotnet restore InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
-
-            -   name: Build native
-                run: |
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=${{ matrix.arch }}
-
-            -   name: Build (Release)
-                run: dotnet build InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
-
-            -   name: Verify Native DLLs for testing
-                run: |
-                    nativeSo="tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dylib"
-                    
-                    if [ ! -f "$nativeSo" ]; then
-                      echo "ERROR: InfiniFrame.Native.dylib NOT found in test output!"
-                      exit 1
-                    fi
-                    
-                    echo "✅ All native DLLs present"
-
-            -   name: Setup GUI environment and run tests
-                run: |
-                    echo "Setting up macOS GUI environment..."
-                    
-                    echo "=== Environment Status ==="
-                    echo "System: $(sw_vers -productName) $(sw_vers -productVersion)"
-                    echo "Architecture: $(uname -m)"
-                    echo "Running in native macOS mode"
-                    
-                    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-                    export NSUnbufferedIO=YES
-                    
-                    echo "=== Running Tests ==="
-                    
-                    dotnet test --solution InfiniFrame.GitHubActions.MacOs.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore
-
-            -   name: Upload test results as artifact
-                if: failure()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: test-logs-macos-${{ matrix.arch }}
-                    path: |
-                        **/TestResults/*.log
-                        **/TestResults/*.trx
-
-            -   name: Update macOS status
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    if [ "${{ job.status }}" == "success" ]; then
-                      STATUS="success"
-                      DESCRIPTION="macOS tests passed"
-                    else
-                      STATUS="failure"
-                      DESCRIPTION="macOS tests failed"
-                    fi
-                    
-                    CONTEXT="Manual MultiPlatform CI - macOS/${{ matrix.arch }}"
-                    
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
-    
-    # ---------------------------------------------------------------------------------------
-    # Handle skipped platforms
-    # ---------------------------------------------------------------------------------------
     mark-skipped:
         name: Mark Skipped Platforms
         runs-on: ubuntu-latest
@@ -805,15 +175,15 @@ jobs:
                       ["Windows"]="${{ inputs.run_windows }}"
                       ["macOS"]="${{ inputs.run_macos }}"
                     )
-                    
+
                     ARCHES=("x64" "arm64")
-                    
+
                     for OS in "${!OS_INPUT_MAP[@]}"; do
                       if [[ "${OS_INPUT_MAP[$OS]}" != "true" ]]; then
                         for ARCH in "${ARCHES[@]}"; do
                           CONTEXT="Manual MultiPlatform CI - ${OS}/${ARCH}"
                           echo "Marking $CONTEXT as skipped"
-                    
+
                           curl -X POST \
                             -H "Authorization: Bearer $GITHUB_TOKEN" \
                             -H "Accept: application/vnd.github+json" \

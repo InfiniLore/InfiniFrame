@@ -1,0 +1,168 @@
+name: Reusable Windows Playwright Tests
+
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                default: ''
+                required: false
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+jobs:
+    windows-playwright:
+        name: Test - Windows Playwright (${{ matrix.framework }})
+        runs-on: windows-latest
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        permissions:
+            statuses: write
+
+        strategy:
+            fail-fast: false
+            matrix:
+                framework: [ net8.0, net9.0, net10.0 ]
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
+                    fetch-depth: 1
+
+            -   name: Setup .NET SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache .NET packages
+                uses: actions/cache@v5
+                with:
+                    path: ~\.nuget\packages
+                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-nuget-
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+                with:
+                    cmakeVersion: "4.0.0"
+
+            -   name: Cache CMake build
+                uses: actions/cache@v5
+                with:
+                    path: src\InfiniFrame.Native\build
+                    key: ${{ runner.os }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+
+            -   name: Cache WebView2 installer
+                id: cache-webview2
+                uses: actions/cache@v5
+                with:
+                    path: ${{ env.TEMP }}\MicrosoftEdgeWebview2Setup.exe
+                    key: webview2-installer-${{ runner.os }}
+
+            -   name: Install WebView2 Runtime
+                shell: pwsh
+                run: |
+                    $installer = "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
+                    if (-Not (Test-Path $installer)) {
+                      Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
+                    }
+                    Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
+
+            -   name: Restore dependencies
+                run: dotnet restore InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
+
+            -   name: Build (Release)
+                run: |
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
+                      --configuration Release `
+                      --no-restore `
+                      /p:SolutionDir=$GITHUB_WORKSPACE/
+
+                    dotnet build InfiniFrame.GitHubActions.WindowsPlaywright.slnf `
+                      --configuration Release `
+                      --no-restore
+
+            -   name: Cache Playwright browsers
+                id: cache-playwright
+                uses: actions/cache@v5
+                with:
+                    path: ~\AppData\Local\ms-playwright
+                    key: playwright-${{ runner.os }}-${{ matrix.framework }}-${{ hashFiles('tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj') }}
+                    restore-keys: |
+                        playwright-${{ runner.os }}-${{ matrix.framework }}-
+                        playwright-${{ runner.os }}-
+
+            -   name: Install Playwright browsers (.NET)
+                if: steps.cache-playwright.outputs.cache-hit != 'true'
+                working-directory: tests/InfiniFrameTests.Playwright
+                shell: pwsh
+                run: |
+                    $script = "bin/Release/${{ matrix.framework }}/playwright.ps1"
+                    if (-Not (Test-Path $script)) {
+                      throw "Playwright install script not found: $script"
+                    }
+
+                    pwsh $script install
+
+            -   name: Verify Native DLLs for testing (${{ matrix.framework }})
+                shell: pwsh
+                run: |
+                    $binPath = "tests/InfiniFrameTests.Playwright/bin/Release/${{ matrix.framework }}"
+                    foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
+                      $fullPath = Join-Path $binPath $dll
+                      if (-Not (Test-Path $fullPath)) {
+                        throw "$dll missing in $binPath"
+                      }
+                    }
+
+            -   name: Run Playwright tests (${{ matrix.framework }})
+                working-directory: tests/InfiniFrameTests.Playwright/
+                run: dotnet test --configuration Release --no-build --no-restore --framework ${{ matrix.framework }}
+
+            -   name: Upload Playwright test results
+                if: always()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: playwright-test-results-${{ matrix.framework }}
+                    path: tests/InfiniFrameTests.Playwright/TestResults
+
+            -   name: Update Windows Playwright status
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                shell: pwsh
+                run: |
+                    if ("${{ job.status }}" -eq "success") {
+                      $STATUS = "success"
+                      $DESCRIPTION = "Windows Playwright tests passed (${{ matrix.framework }})"
+                    } else {
+                      $STATUS = "failure"
+                      $DESCRIPTION = "Windows Playwright tests failed (${{ matrix.framework }})"
+                    }
+
+                    $body = @{
+                      state       = $STATUS
+                      context     = "Manual MultiPlatform CI - Windows Playwright (${{ matrix.framework }})"
+                      description = $DESCRIPTION
+                      target_url  = "${env:WORKFLOW_URL}"
+                    } | ConvertTo-Json
+
+                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
+                      -Method POST `
+                      -Headers @{
+                        "Authorization" = "Bearer $env:GITHUB_TOKEN"
+                        "Accept"        = "application/vnd.github+json"
+                      } `
+                      -Body $body `
+                      -ContentType "application/json"
