@@ -30,7 +30,7 @@ public class ZoomTests {
     // TODO: fix this test
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
-    [Skip("THIS IS NOT WORKING IN TEST ENVIRONMENT, but is working in real application")]
+    [Skip("Zoom level readback from WebView is inconsistent in test environment")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
@@ -57,7 +57,7 @@ public class ZoomTests {
     // TODO: fix this test
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
-    [Skip("THIS IS NOT WORKING IN TEST ENVIRONMENT, but is working in real application")]
+    [Skip("Zoom level readback from WebView is inconsistent in test environment")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]

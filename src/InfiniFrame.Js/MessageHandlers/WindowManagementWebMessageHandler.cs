@@ -12,17 +12,17 @@ public static class WindowManagementWebMessageHandler {
         RegisterMessageHandler(builder,
             HandlerNames.WindowMinimize,
             static window => window.SetMinimized(true));
-        
+
         RegisterMessageHandler(builder,
             HandlerNames.WindowMaximize,
             static window => window.SetMaximized(true));
-        
+
         RegisterMessageHandler(builder,
             HandlerNames.WindowClose,
             static window => window.Close());
 
         RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterWindowClose);
-        
+
         // RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterWindowOpen);
         return builder;
     }

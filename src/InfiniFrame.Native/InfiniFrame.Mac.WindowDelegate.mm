@@ -1,38 +1,38 @@
 #ifdef __APPLE__
-#import "Photino.Mac.WindowDelegate.h"
+#import "InfiniFrame.Mac.WindowDelegate.h"
 
 @implementation WindowDelegate : NSObject
 - (void)windowDidResize:(NSNotification *)notification {
     int width, height;
-    photino->GetSize(&width, &height);
-    photino->InvokeResize(width, height);
+    infiniFrame->GetSize(&width, &height);
+    infiniFrame->InvokeResize(width, height);
 }  
 
 - (void)windowDidMove:(NSNotification *)notification {
     int x, y;
-    photino->GetPosition(&x, &y);
-    photino->InvokeMove(x, y);
+    infiniFrame->GetPosition(&x, &y);
+    infiniFrame->InvokeMove(x, y);
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
-    photino->InvokeFocusIn();
+    infiniFrame->InvokeFocusIn();
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
-    photino->InvokeFocusOut();
+    infiniFrame->InvokeFocusOut();
 }
 
 - (void)windowDidMiniaturize:(NSNotification *)notification {
-    photino->InvokeMinimized();
+    infiniFrame->InvokeMinimized();
 }
 
 - (void)windowDidDeminiaturize:(NSNotification *)notification {
-    photino->InvokeRestored();
+    infiniFrame->InvokeRestored();
 }
 
 - (void)windowWillClose: (NSWindow *)sender
 {
-    photino->InvokeClose();
+    infiniFrame->InvokeClose();
 }
 @end
 

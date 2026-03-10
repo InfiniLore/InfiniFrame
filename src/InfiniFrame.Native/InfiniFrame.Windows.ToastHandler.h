@@ -1,7 +1,7 @@
-#ifndef TOASTHANDLER_H
-#define TOASTHANDLER_H
+#pragma once
+
 #include <WinUser.h>
-#include "Photino.h"
+#include "InfiniFrame.h"
 #include "Dependencies/wintoastlib.h"
 
 using namespace WinToastLib;
@@ -9,10 +9,10 @@ using namespace WinToastLib;
 class WinToastHandler final : public IWinToastHandler
 {
 private:
-    Photino* _window;
+    InfiniFrame* _window;
 
 public:
-    explicit WinToastHandler(Photino* window)
+    explicit WinToastHandler(InfiniFrame* window)
         : _window(window) {}
 
     // Plain activation
@@ -47,4 +47,3 @@ public:
         // Optional handling
     }
 };
-#endif

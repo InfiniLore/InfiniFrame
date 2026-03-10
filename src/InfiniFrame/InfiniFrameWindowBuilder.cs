@@ -27,12 +27,12 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         var config = provider.GetService<IConfiguration>();
         IConfigurationSection? section = config?.GetSection("InfiniFrame");
-        
+
         IInfiniFrameWindowConfiguration configuration = Configuration;
         if (section.Exists()) {
             configuration = section.Get<InfiniFrameWindowConfiguration>() ?? Configuration;
         }
-        
+
         return configuration.ToParameters();
     }
 

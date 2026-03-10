@@ -1,9 +1,6 @@
 #pragma once
 
-#ifndef PHOTINO_DIALOG_H
-#define PHOTINO_DIALOG_H
-
-#include "Photino.h"
+#include "InfiniFrame.h"
 
 #ifdef __APPLE__
 #include <Cocoa/Cocoa.h>
@@ -38,15 +35,15 @@ enum class DialogIcon
 	Question,
 };
 
-class PhotinoDialog
+class InfiniFrameDialog
 {
 public:
 #ifdef _WIN32
-	PhotinoDialog(Photino *window);
+	InfiniFrameDialog(InfiniFrame *window);
 #else
-	PhotinoDialog();
+	InfiniFrameDialog();
 #endif
-	~PhotinoDialog();
+	~InfiniFrameDialog();
 
 	AutoString *ShowOpenFile(AutoString title, AutoString defaultPath, bool multiSelect, AutoString *filters, int filterCount, int *resultCount);
 	AutoString *ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int *resultCount);
@@ -60,8 +57,6 @@ protected:
 	NSImage *_questionIcon;
 	NSImage *_warningIcon;
 #elif _WIN32
-	Photino *_window;
+	InfiniFrame *_window;
 #endif
 };
-
-#endif

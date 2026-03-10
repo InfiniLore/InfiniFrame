@@ -24,7 +24,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.MediaAutoplayEnabled = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets the user agent on the browser control at initialization.
         /// </summary>
@@ -32,7 +32,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.UserAgent = userAgent;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets FileSystemAccessEnabled on the browser control at initialization.
         /// </summary>
@@ -40,7 +40,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.FileSystemAccessEnabled = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets WebSecurityEnabled on the browser control at initialization.
         /// </summary>
@@ -48,7 +48,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.WebSecurityEnabled = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets JavascriptClipboardAccessEnabled on the browser control at initialization.
         /// </summary>
@@ -56,7 +56,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.JavascriptClipboardAccessEnabled = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets MediaStreamEnabled on the browser control at initialization.
         /// </summary>
@@ -64,7 +64,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.MediaStreamEnabled = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets SmoothScrollingEnabled on the browser control at initialization.
         /// </summary>
@@ -72,7 +72,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.SmoothScrollingEnabled = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
         /// </summary>
@@ -80,7 +80,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.IgnoreCertificateErrorsEnabled = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets NotificationsEnabled on the browser control at initialization.
         /// </summary>
@@ -94,7 +94,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.NotificationsEnabled = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Gets or Sets whether the native browser control grants all requests for access to local resources
         ///     such as the user's camera and microphone. By default, this is set to true.
@@ -106,13 +106,13 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.GrantBrowserPermissions = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
         /// </summary>
-        public T SetHeight(int value) 
+        public T SetHeight(int value)
             => SetSize(builder, builder.Configuration.Width, value);
-        
+
         /// <summary>
         ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
         /// </summary>
@@ -128,7 +128,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.IconFilePath = iconFilePath;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets Location on the browser control at initialization.
         /// </summary>
@@ -140,13 +140,13 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.Centered = false;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets Location on the browser control at initialization.
         /// </summary>
-        public T SetLocation(Point location) 
+        public T SetLocation(Point location)
             => SetLocation(builder, location.X, location.Y);
-        
+
         /// <summary>
         ///     Sets Minimized on the browser control at initialization.
         /// </summary>
@@ -154,7 +154,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.Minimized = minimized;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets Maximized on the browser control at initialization.
         /// </summary>
@@ -162,7 +162,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.Maximized = maximized;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets MaxWidth on the browser control at initialization.
         /// </summary>
@@ -170,7 +170,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.MaxWidth = value;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets MaxHeight on the browser control at initialization.
         /// </summary>
@@ -178,7 +178,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.MaxHeight = value;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets MinWidth on the browser control at initialization.
         /// </summary>
@@ -186,7 +186,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.MinWidth = Math.Max(0, value);
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets MinHeight on the browser control at initialization.
         /// </summary>
@@ -194,7 +194,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.MinHeight = Math.Max(0, value);
             return builder;
         }
-        
+
         // TODO verify that this is only on windows and else throws an error
 
         public T SetMinSize(int width, int height) {
@@ -203,9 +203,9 @@ public static class InfiniWindowBuilderExtensions {
 
             return builder;
         }
-        public T SetMinSize(Size minSize) 
+        public T SetMinSize(Size minSize)
             => SetMinSize(builder, minSize.Width, minSize.Height);
-        
+
         /// <summary>
         ///     Sets FullScreen on the browser control at initialization.
         /// </summary>
@@ -213,7 +213,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.FullScreen = fullscreen;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets Resizable on the browser control at initialization.
         /// </summary>
@@ -221,13 +221,13 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.Resizable = resizable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets Width on the browser control at initialization.
         /// </summary>
-        public T SetWidth(int value) 
+        public T SetWidth(int value)
             => SetSize(builder, value, builder.Configuration.Height);
-        
+
         /// <summary>
         ///     Sets Size on the browser control at initialization.
         /// </summary>
@@ -239,13 +239,13 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.Centered = false;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets Size on the browser control at initialization.
         /// </summary>
         public T SetSize(Size size)
             => SetSize(builder, size.Width, size.Height);
-        
+
         /// <summary>
         ///     Sets BrowserControlInitParameters on the browser control at initialization.
         ///     <remarks>
@@ -268,7 +268,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.BrowserControlInitParameters = parameters;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets TemporaryFilesPath on the browser control at initialization.
         /// </summary>
@@ -276,7 +276,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.TemporaryFilesPath = path;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets NotificationRegistrationId on the browser control at initialization.
         /// </summary>
@@ -290,7 +290,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.NotificationRegistrationId = id;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets Title on the browser control at initialization.
         /// </summary>
@@ -298,7 +298,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.Title = title ?? string.Empty;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets TopMost on the browser control at initialization.
         /// </summary>
@@ -306,7 +306,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.TopMost = topmost;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets UseOsDefaultLocation on the browser control at initialization.
         /// </summary>
@@ -314,7 +314,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.UseOsDefaultLocation = useOsDefaultLocation;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets UseOsDefaultSize on the browser control at initialization.
         /// </summary>
@@ -418,7 +418,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.Transparent = transparent;
             return builder;
         }
-        
+
         /// <summary>
         ///     Sets SetCentered on the browser control at initialization.
         /// </summary>
@@ -426,7 +426,7 @@ public static class InfiniWindowBuilderExtensions {
             builder.Configuration.Centered = enable;
             return builder;
         }
-        
+
         /// <summary>
         ///     Registers user-defined custom schemes (other than 'http', 'https' and 'file') and handler methods to receive
         ///     callbacks

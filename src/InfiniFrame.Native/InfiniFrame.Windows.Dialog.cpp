@@ -1,4 +1,4 @@
-#include "Photino.Dialog.h"
+#include "InfiniFrame.Dialog.h"
 
 #include <cwchar>
 #include <iostream>
@@ -17,7 +17,7 @@ public:
 	{
 	public:
 		Proc(Dll const& lib, std::string const& sym)
-			: _mProc(static_cast<T*>((void*)GetProcAddress(lib._handle, sym.c_str())))
+			: _mProc(static_cast<T*>(reinterpret_cast<void*>(GetProcAddress(lib._handle, sym.c_str()))))
 		{}
 
 		explicit operator bool() const { return _mProc != nullptr; }
@@ -77,19 +77,19 @@ inline HANDLE NewStyleContext::Create()
 	{
 		sizeof(actCtx),
 		ACTCTX_FLAG_RESOURCE_NAME_VALID | ACTCTX_FLAG_ASSEMBLY_DIRECTORY_VALID,
-		"shell32.dll", 0, 0, sysDir.c_str(), (LPCSTR)124, nullptr, nullptr,
+		"shell32.dll", 0, 0, sysDir.c_str(), reinterpret_cast<LPCSTR>(124), nullptr, nullptr,
 	};
 
 	return CreateActCtxA(&actCtx);
 }
 
-PhotinoDialog::PhotinoDialog(Photino* window)
+InfiniFrameDialog::InfiniFrameDialog(InfiniFrame* window)
 {
 	_window = window;
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 }
 
-PhotinoDialog::~PhotinoDialog()
+InfiniFrameDialog::~InfiniFrameDialog()
 {
 	CoUninitialize();
 }
@@ -119,7 +119,7 @@ T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst default
 	return nullptr;
 }
 
-void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, Photino* wndInstance, std::vector<std::wstring>& filterStorage)
+void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, InfiniFrame* wndInstance, std::vector<std::wstring>& filterStorage)
 {
 	std::vector<COMDLG_FILTERSPEC> specs;
 	for (int i = 0; i < filterCount; i++) {
@@ -176,7 +176,7 @@ AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount)
 	return nullptr;
 }
 
-AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount)
+AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount)
 {
 	HRESULT hr;
 	std::wstring wideTitle = _window->ToUTF16String(title);
@@ -208,7 +208,7 @@ AutoString* PhotinoDialog::ShowOpenFile(AutoString title, AutoString defaultPath
 	return nullptr;
 }
 
-AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, const bool multiSelect, int* resultCount)
+AutoString* InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, const bool multiSelect, int* resultCount)
 {
 	HRESULT hr;	
 	std::wstring wideTitle = _window->ToUTF16String(title);
@@ -237,7 +237,7 @@ AutoString* PhotinoDialog::ShowOpenFolder(AutoString title, AutoString defaultPa
 	return nullptr;
 }
 
-AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, const int filterCount, AutoString defaultFileName)
+AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters, const int filterCount, AutoString defaultFileName)
 {
 	HRESULT hr;
 	std::wstring wideTitle = _window->ToUTF16String(title);
@@ -281,7 +281,7 @@ AutoString PhotinoDialog::ShowSaveFile(AutoString title, AutoString defaultPath,
 	return nullptr;
 }
 
-DialogResult PhotinoDialog::ShowMessage(AutoString title, AutoString text, const DialogButtons buttons, const DialogIcon icon)
+DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, const DialogButtons buttons, const DialogIcon icon)
 {
 	std::wstring wideTitle = _window->ToUTF16String(title);
 	std::wstring wideText = _window->ToUTF16String(text);

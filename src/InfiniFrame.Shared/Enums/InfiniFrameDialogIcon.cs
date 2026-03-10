@@ -6,7 +6,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Represents the icons that can be used in a Photino dialog.
+///     Represents the icons that can be used in a InfiniFrame dialog.
 /// </summary>
 public enum InfiniFrameDialogIcon {
     /// <summary>

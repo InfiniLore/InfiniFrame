@@ -13,7 +13,7 @@
 @inherits ComponentBase
 @implements IDisposable
 
-@inject IInfiniFrameWindow PhotinoWindow
+@inject IInfiniFrameWindow Window
 @inject IInfiniFrameJs InfiniWindowJs
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Html
@@ -34,15 +34,18 @@
 @* ------------------------------------------------------------------------------------------------------------------ *@
 @* Code
 @* ------------------------------------------------------------------------------------------------------------------ *@
+
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? ExtraAttributes { get; set; }
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? ExtraAttributes { get; set; }
 
     private ElementReference _dragArea;
 
     private bool _isGrabbing;
     private bool _suppressRender;
-    private bool _suppressGrabbing;// TEMP solution to fix a bug with dragging after returning from maximized state.
+    private bool _suppressGrabbing;
     private long _lastKnownPointerId;
 
     // ReSharper disable once InvertIf
@@ -60,13 +63,13 @@
     protected override void OnInitialized() {
         base.OnInitialized();
 
-        PhotinoWindow.Events.WindowMaximized.Add(OnMaximized);
-        PhotinoWindow.Events.WindowRestored.Add(OnRestored);
+        Window.Events.WindowMaximized.Add(OnMaximized);
+        Window.Events.WindowRestored.Add(OnRestored);
     }
 
     public void Dispose() {
-        PhotinoWindow.Events.WindowMaximized.Remove(OnMaximized);
-        PhotinoWindow.Events.WindowRestored.Remove(OnRestored);
+        Window.Events.WindowMaximized.Remove(OnMaximized);
+        Window.Events.WindowRestored.Remove(OnRestored);
     }
 
     private void OnMaximized(IInfiniFrameWindow window) {
@@ -80,18 +83,19 @@
     private async Task OnPointerDown(PointerEventArgs args) {
         _suppressRender = true;
         if (_suppressGrabbing) return;
+        if (args.Detail >= 2) return;
 
         _isGrabbing = true;
 
-        if (PhotinoWindow.CachedPreMaximizedBounds != Rectangle.Empty) {
-            Rectangle bounds = PhotinoWindow.CachedPreMaximizedBounds;
-            PhotinoWindow.CachedPreMaximizedBounds = Rectangle.Empty;
+        if (Window.CachedPreMaximizedBounds != Rectangle.Empty) {
+            Rectangle bounds = Window.CachedPreMaximizedBounds;
+            Window.CachedPreMaximizedBounds = Rectangle.Empty;
 
-            PhotinoWindow.Invoke(() => {
+            Window.Invoke(() => {
                 int targetX = (int)(args.ScreenX - bounds.Width / 2f);
                 int targetY = (int)(args.ScreenY - 10);
-                InfiniFrameNative.SetSize(PhotinoWindow.InstanceHandle, bounds.Width, bounds.Height);
-                InfiniFrameNative.SetPosition(PhotinoWindow.InstanceHandle, targetX, targetY);
+                InfiniFrameNative.SetSize(Window.InstanceHandle, bounds.Width, bounds.Height);
+                InfiniFrameNative.SetPosition(Window.InstanceHandle, targetX, targetY);
             });
         }
 
@@ -101,9 +105,10 @@
 
     private async Task OnPointerUp(PointerEventArgs args) {
         _suppressRender = true;
-        if (_suppressGrabbing) return;
 
         _isGrabbing = false;
+        if (_lastKnownPointerId == 0) return;
+
         await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, args.PointerId);
         _lastKnownPointerId = 0;
     }
@@ -112,7 +117,7 @@
     private async Task OnDoubleClick(MouseEventArgs args) {
         _suppressRender = true;
         _isGrabbing = false;
-        PhotinoWindow.ToggleMaximized();
+        Window.ToggleMaximized();
         if (_lastKnownPointerId == 0) return;
 
         await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, _lastKnownPointerId);
@@ -123,6 +128,6 @@
         if (_suppressGrabbing) return;
         if (!_isGrabbing) return;
 
-        PhotinoWindow.Offset(args.MovementX, args.MovementY);
+        Window.Offset(args.MovementX, args.MovementY);
     }
 }

@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Photino.Native.rc
+// Used by InfiniFrame.Native.rc
 
 // Next default values for new objects
 // 

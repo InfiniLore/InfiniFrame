@@ -1,4 +1,4 @@
-﻿#include "Photino.h"
+﻿#include "InfiniFrame.h"
 
 #ifdef _WIN32
 #define EXPORTED __declspec(dllexport)
@@ -26,9 +26,9 @@ inline AutoString duplicateString(AutoStringConst str) {
 
 extern "C"
 {
-    EXPORTED void InfiniWindowTests_NativeParametersReturnAsIs(const PhotinoInitParams* params, PhotinoInitParams** new_params)
+    EXPORTED void InfiniWindowTests_NativeParametersReturnAsIs(const InfiniFrameInitParams* params, InfiniFrameInitParams** new_params)
     {
-        *new_params = new PhotinoInitParams();
+        *new_params = new InfiniFrameInitParams();
 
         // Deep copy AutoString fields
         (*new_params)->StartString = duplicateString(params->StartString);

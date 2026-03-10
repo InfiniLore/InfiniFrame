@@ -22,7 +22,7 @@ public class InfiniFrameWebApplication {
         }.Initialize();
 
     public void Run() {
-        _webAppThread = new Thread(WebApp.Run);
+        _webAppThread = new Thread(WebApp.Run) { IsBackground = true };
         _webAppThread.Start();
 
         Window.WaitForClose();
@@ -40,32 +40,32 @@ public class InfiniFrameWebApplication {
     /// </returns>
     public InfiniFrameWebApplication UseAutoServerClose() {
         if (LazyWindow.IsValueCreated) {
-            Window.RegisterWindowClosingHandler((_,_) => ClosingHandler());
+            Window.RegisterWindowClosingHandler((_, _) => ClosingHandler());
             Window.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
-            return this;    
+            return this;
         }
 
         var builder = WebApp.Services.GetRequiredService<IInfiniFrameWindowBuilder>();
-        builder.RegisterWindowClosingHandler((_,_) => ClosingHandler());
+        builder.RegisterWindowClosingHandler((_, _) => ClosingHandler());
         builder.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
         return this;
-    
+
         bool ClosingHandler() {
             // Start web app shutdown in background - don't block UI thread
             Task.Run(async () => {
                 try {
                     await WebApp.StopAsync();
-                    
+
                     if (_webAppThread is null) return;
                     if (_webAppThread.Join(TimeSpan.FromSeconds(5))) return;
-                    
+
                     _webAppThread.Interrupt();
                 }
                 catch (Exception e) {
                     Window.Logger.LogError(e, "Error stopping web app");
                 }
             });
-            // return false else the window will be not be closed (see old Photino code why)
+            // return false else the window will be not be closed (see old InfiniFrame code why)
             return false;
         }
     }

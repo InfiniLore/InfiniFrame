@@ -11,7 +11,7 @@ namespace InfiniFrame.Js.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class OpenExternalTargetWebMessageHandler {
     public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        RegisterMessageHandler(builder,HandlerNames.OpenExternal, HandleWebMessage);
+        RegisterMessageHandler(builder, HandlerNames.OpenExternal, HandleWebMessage);
         RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterOpenExternal);
         return builder;
     }

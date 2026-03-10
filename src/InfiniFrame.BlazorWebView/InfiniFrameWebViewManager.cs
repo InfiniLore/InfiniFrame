@@ -47,7 +47,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         builder.RegisterWebMessageReceivedHandler((_, message) => {
             // On some platforms, we need to move off the browser UI thread
             Task.Factory.StartNew(action: m => {
-                // TODO: Fix this. Photino should ideally tell us the URL that the message comes from so we
+                // TODO: Fix this. InfiniFrame should ideally tell us the URL that the message comes from so we
                 // know whether to trust it. Currently it's hardcoded to trust messages from any source, including
                 // if the webview is somehow navigated to an external URL.
                 var messageOriginUrl = new Uri(AppBaseUri);

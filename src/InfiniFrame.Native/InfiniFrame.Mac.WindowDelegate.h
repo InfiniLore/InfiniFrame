@@ -1,11 +1,11 @@
 #ifdef __APPLE__
 #pragma once
-#include "Photino.h"
+#include "InfiniFrame.h"
 
 @interface WindowDelegate : NSObject <NSWindowDelegate>
 {
     @public
-        Photino * photino;
+        InfiniFrame * infiniFrame;
 }
 @end
 #endif

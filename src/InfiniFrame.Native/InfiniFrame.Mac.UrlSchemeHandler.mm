@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#import "Photino.Mac.UrlSchemeHandler.h"
+#import "InfiniFrame.Mac.UrlSchemeHandler.h"
 
 @implementation UrlSchemeHandler : NSObject
 
@@ -10,12 +10,12 @@
     //[alert runModal];
 
     NSURL *url = [[urlSchemeTask request] URL];
-    char *urlUtf8 = (char *)[url.absoluteString UTF8String];
+    auto *urlUtf8 = const_cast<char *>([url.absoluteString UTF8String]);
     int numBytes;
     char* contentType;
     void* dotNetResponse = requestHandler(urlUtf8, &numBytes, &contentType);
 
-    NSInteger statusCode = dotNetResponse == NULL ? 404 : 200;
+    NSInteger statusCode = dotNetResponse == nullptr ? 404 : 200;
 
     NSString* nsContentType = [[NSString stringWithUTF8String:contentType] autorelease];
 

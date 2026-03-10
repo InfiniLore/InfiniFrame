@@ -14,7 +14,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniWindowExtensions {
     #region Load
-    /// <param name="window">Photino window instance</param>
+    /// <param name="window">InfiniFrame window instance</param>
     extension<T>(T window) where T : class, IInfiniFrameWindow {
         /// <summary>
         ///     Loads specified <see cref="Uri" /> into the browser control.
@@ -110,7 +110,7 @@ public static class InfiniWindowExtensions {
                 var newLocation = new Point(area.X + area.Width / 2 - rectangle.Width / 2, area.Y + area.Height / 2 - rectangle.Height / 2);
                 InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
             });
-            
+
             return window;
         }
 
@@ -177,7 +177,7 @@ public static class InfiniWindowExtensions {
                 // application window title bar. As a workaround we make a
                 // negative value out of the vertical position to "pull" the window up.
                 // Note:
-                // This behavior seems to be a macOS thing. In the Photino.Native
+                // This behavior seems to be a macOS thing. In the InfiniFrame.Native
                 // project files it is commented to be expected behavior for macOS.
                 // There is some code trying to mitigate this problem, but it might
                 // not work as expected. Further investigation is necessary.
@@ -277,7 +277,7 @@ public static class InfiniWindowExtensions {
                 return window;
             }
 
-            window.Logger.LogDebug("Invoking PhotinoNative.SetTransparentEnabled({value})", enabled);
+            window.Logger.LogDebug("Invoking InfiniFrameNative.SetTransparentEnabled({value})", enabled);
             window.Invoke(() => InfiniFrameNative.SetTransparentEnabled(window.InstanceHandle, enabled));
             return window;
         }
@@ -397,10 +397,9 @@ public static class InfiniWindowExtensions {
 
             return window;
         }
-    
-    #endregion
+        #endregion
 
-    #region SetIcon
+        #region SetIcon
         /// <summary>
         ///     Sets the icon file for the native window title bar.
         ///     The file must be located on the local machine and cannot be a URL. The default is none.
@@ -429,10 +428,9 @@ public static class InfiniWindowExtensions {
             window.Invoke(() => InfiniFrameNative.SetIconFile(window.InstanceHandle, iconFilePath));
             return window;
         }
-    
-    #endregion
+        #endregion
 
-    #region SetLeft
+        #region SetLeft
         /// <summary>
         ///     Sets the native window to a new <see cref="IInfiniFrameWindow.Left" /> (X) coordinate in pixels.
         ///     Default is 0.
@@ -453,10 +451,9 @@ public static class InfiniWindowExtensions {
 
             return window;
         }
-    
-    #endregion
+        #endregion
 
-    #region SetResizable
+        #region SetResizable
         /// <summary>
         ///     Sets whether the user can resize the native window.
         ///     Default is true.
@@ -470,10 +467,9 @@ public static class InfiniWindowExtensions {
             window.Invoke(() => InfiniFrameNative.SetResizable(window.InstanceHandle, resizable));
             return window;
         }
-    
-    #endregion
+        #endregion
 
-    #region SetSize
+        #region SetSize
         /// <summary>
         ///     Sets the native window Size. This represents the <see cref="IInfiniFrameWindow.Width" /> and the
         ///     <see cref="IInfiniFrameWindow.Height" /> of the window in pixels.
@@ -499,20 +495,20 @@ public static class InfiniWindowExtensions {
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
         /// <param name="size">Width &amp; Height</param>
-        public T SetSize(Size size) 
+        public T SetSize(Size size)
             => SetSize(window, size.Width, size.Height);
-    #endregion
+        #endregion
 
-    #region SetLocation
-    /// <summary>
-    /// Sets the location of the window to the specified coordinates.
-    /// </summary>
-    /// <param name="left">The horizontal position (in pixels) from the left edge of the screen.</param>
-    /// <param name="top">The vertical position (in pixels) from the top edge of the screen.</param>
-    /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
-    /// </returns>
-    public T SetLocation(int left, int top) {
+        #region SetLocation
+        /// <summary>
+        /// Sets the location of the window to the specified coordinates.
+        /// </summary>
+        /// <param name="left">The horizontal position (in pixels) from the left edge of the screen.</param>
+        /// <param name="top">The vertical position (in pixels) from the top edge of the screen.</param>
+        /// <returns>
+        /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+        /// </returns>
+        public T SetLocation(int left, int top) {
             window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
             window.Invoke(() => {
                 InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
@@ -523,7 +519,7 @@ public static class InfiniWindowExtensions {
 
             return window;
         }
-        
+
         /// <summary>
         ///     Sets the native window <see cref="IInfiniFrameWindow.Left" /> (X) and <see cref="IInfiniFrameWindow.Top" /> coordinates (Y)
         ///     in pixels.
@@ -533,10 +529,9 @@ public static class InfiniWindowExtensions {
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
         /// <param name="location">Location as a <see cref="Point" /></param>
-        public T SetLocation(Point location) 
+        public T SetLocation(Point location)
             => SetLocation(window, location.X, location.Y);
-    
-    #endregion
+        #endregion
 
         /// <summary>
         ///     Sets whether the native window is maximized.
@@ -608,19 +603,19 @@ public static class InfiniWindowExtensions {
                     window.CachedPreMaximizedBounds = windowRect;
                     InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
                     InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
-                    // window.Events.OnMaximized();
+                    window.Events.OnMaximized();
                 }
                 else {
                     Rectangle oldRect = window.CachedPreMaximizedBounds;
                     InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
                     InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
                     window.CachedPreMaximizedBounds = Rectangle.Empty;
-                    // window.Events.OnRestored();
+                    window.Events.OnRestored();
                 }
             });
             return window;
         }
-        
+
         /// <summary>
         /// Sets the maximum width and height for a native window in pixels.
         /// </summary>
@@ -638,7 +633,7 @@ public static class InfiniWindowExtensions {
             window.Invoke(() => InfiniFrameNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight));
             return window;
         }
-        
+
         /// <summary>
         /// Sets the maximum size constraints for the window.
         /// </summary>
@@ -648,7 +643,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T SetMaxSize(Size size)
             => SetMaxSize(window, size.Width, size.Height);
-        
+
         /// <summary>
         /// Sets the maximum height of the native window in pixels.
         /// </summary>
@@ -658,7 +653,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T SetMaxHeight(int maxHeight)
             => SetMaxSize(window, window.MaxWidth, maxHeight);
-        
+
         /// <summary>
         /// Sets the maximum width for the native window.
         /// </summary>
@@ -668,7 +663,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T SetMaxWidth(int maxWidth)
             => SetMaxSize(window, maxWidth, window.MaxHeight);
-        
+
         /// <summary>
         ///     Sets whether the native window is minimized (hidden).
         ///     Default is false.
@@ -700,7 +695,7 @@ public static class InfiniWindowExtensions {
             window.Invoke(() => InfiniFrameNative.SetMinSize(window.InstanceHandle, minWidth, minHeight));
             return window;
         }
-        
+
         /// <summary>
         /// Sets the minimum size for the window.
         /// </summary>
@@ -710,7 +705,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T SetMinSize(Size size)
             => SetMinSize(window, size.Width, size.Height);
-        
+
         /// <summary>
         /// Sets the minimum height of the window.
         /// </summary>
@@ -718,9 +713,9 @@ public static class InfiniWindowExtensions {
         /// <returns>
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
-        public T SetMinHeight(int minHeight) 
+        public T SetMinHeight(int minHeight)
             => SetMinSize(window, window.MinWidth, minHeight);
-        
+
         /// <summary>
         /// Sets the minimum width of the native window.
         /// </summary>
@@ -730,10 +725,10 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T SetMinWidth(int minWidth)
             => SetMinSize(window, minWidth, window.MinHeight);
-        
+
         /// <summary>
         ///     Sets the native window <see cref="IInfiniFrameWindow.Title" />.
-        ///     Default is "Photino".
+        ///     Default is "InfiniFrame".
         /// </summary>
         /// <returns>
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
@@ -753,7 +748,7 @@ public static class InfiniWindowExtensions {
 
             return window;
         }
-        
+
         /// <summary>
         ///     Sets the native window <see cref="IInfiniFrameWindow.Top" /> (Y) coordinate in pixels.
         ///     Default is 0.
@@ -773,7 +768,7 @@ public static class InfiniWindowExtensions {
 
             return window;
         }
-        
+
         /// <summary>
         ///     Sets whether the native window is always at the top of the z-order.
         ///     Default is false.
@@ -787,7 +782,7 @@ public static class InfiniWindowExtensions {
             window.Invoke(() => InfiniFrameNative.SetTopmost(window.InstanceHandle, topMost));
             return window;
         }
-        
+
         /// <summary>
         ///     Sets the native window width in pixels.
         ///     Default is 0.
@@ -806,7 +801,7 @@ public static class InfiniWindowExtensions {
 
             return window;
         }
-        
+
         /// <summary>
         ///     Sets the native browser control <see cref="IInfiniFrameWindow.Zoom" />.
         ///     Default is 100.
@@ -821,9 +816,9 @@ public static class InfiniWindowExtensions {
             window.Invoke(() => InfiniFrameNative.SetZoom(window.InstanceHandle, zoom));
             return window;
         }
-        
+
         /// <summary>
-        ///     Set the runtime path for WebView2 so that developers can use Photino on Windows using the "Fixed Version"
+        ///     Set the runtime path for WebView2 so that developers can use InfiniFrame on Windows using the "Fixed Version"
         ///     deployment
         ///     module of the WebView2 runtime.
         /// </summary>
@@ -843,7 +838,7 @@ public static class InfiniWindowExtensions {
 
             return window;
         }
-        
+
         /// <summary>
         ///     Clears the autofill data in the browser control.
         /// </summary>
