@@ -27,18 +27,15 @@ public class ZoomTests {
         await Assert.That(configParameters.Zoom).IsEqualTo(zoom);
     }
 
-    // TODO: fix this test
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
-    [Skip("Zoom level readback from WebView is inconsistent in test environment")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    // [MatrixDataSource]
     public async Task Window() {
         // Arrange
         const int zoom = 120;
-        var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
+        using var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
             builder => builder
                 .SetUseOsDefaultLocation(true)
                 .SetUseOsDefaultSize(true)
@@ -54,10 +51,8 @@ public class ZoomTests {
         await Assert.That(window.Zoom).IsEqualTo(zoom);
     }
 
-    // TODO: fix this test
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
-    [Skip("Zoom level readback from WebView is inconsistent in test environment")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
@@ -66,7 +61,7 @@ public class ZoomTests {
         // Arrange
 
         // Act
-        var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
+        using var windowUtility = InfiniFrameWindowThreadedTestUtility.Create(
             builder => builder
                 .SetZoomEnabled(true)
                 .SetZoom(zoom)
