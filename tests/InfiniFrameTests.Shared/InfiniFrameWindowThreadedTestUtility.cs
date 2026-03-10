@@ -2,12 +2,14 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using JetBrains.Annotations;
 
 namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowThreadedTestUtility : IDisposable {
+[MustDisposeResource]
+public sealed class InfiniFrameWindowThreadedTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
     
     private readonly Thread _windowThread;
@@ -16,6 +18,7 @@ public class InfiniFrameWindowThreadedTestUtility : IDisposable {
         _windowThread = windowThread;
     }
 
+    [MustDisposeResource]
     public static InfiniFrameWindowThreadedTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
         var creationSignal = new ManualResetEventSlim();
         InfiniFrameWindowThreadedTestUtility? utility = null;
@@ -54,7 +57,7 @@ public class InfiniFrameWindowThreadedTestUtility : IDisposable {
             IsBackground = true
         };
 
-        // Set apartment state for Windows compatibility
+        // Set the apartment state for Windows compatibility
         if (OperatingSystem.IsWindows()) 
             windowThread.SetApartmentState(ApartmentState.STA);
         
@@ -82,9 +85,6 @@ public class InfiniFrameWindowThreadedTestUtility : IDisposable {
         }
         catch (Exception) {
             // Ignore disposal exceptions
-        }
-        finally {
-            GC.SuppressFinalize(this);
         }
     }
 }

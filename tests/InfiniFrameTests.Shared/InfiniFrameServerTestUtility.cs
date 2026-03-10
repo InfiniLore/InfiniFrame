@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.WebServer;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 
@@ -10,7 +11,8 @@ namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameServerTestUtility : IDisposable {
+[MustDisposeResource]
+public sealed class InfiniFrameServerTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
     public required WebApplication WebApplication { get; init; }
     private readonly Thread _windowThread;
@@ -102,9 +104,6 @@ public class InfiniFrameServerTestUtility : IDisposable {
         }
         catch (Exception) {
             // Ignore
-        }
-        finally {
-            GC.SuppressFinalize(this);
         }
     }
 }

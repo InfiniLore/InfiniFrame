@@ -2,18 +2,21 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using JetBrains.Annotations;
 
 namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowTestUtility : IDisposable {
+[MustDisposeResource]
+public sealed class InfiniFrameWindowTestUtility : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
 
     private Task? _messageLoopTask;
 
     private InfiniFrameWindowTestUtility() {}
 
+    [MustDisposeResource]
     public static InfiniFrameWindowTestUtility Create(Action<IInfiniFrameWindowBuilder>? builder = null) {
         var windowBuilder = InfiniFrameWindowBuilder.Create();
 
@@ -46,9 +49,6 @@ public class InfiniFrameWindowTestUtility : IDisposable {
         }
         catch (Exception) {
             // Ignore
-        }
-        finally {
-            GC.SuppressFinalize(this);
         }
     }
 }
