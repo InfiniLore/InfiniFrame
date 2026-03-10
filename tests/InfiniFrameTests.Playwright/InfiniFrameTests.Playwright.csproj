@@ -35,7 +35,6 @@
     </ItemGroup>
 
     <ItemGroup>
-<!--        <_ContentIncludedByDefault Remove="wwwroot\index.html"/>-->
         <EmbeddedResource Include="wwwroot\**"/>
         <None Include="wwwroot\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
