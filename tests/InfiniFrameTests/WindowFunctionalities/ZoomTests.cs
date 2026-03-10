@@ -30,19 +30,20 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    public async Task Window() {
+    public async Task Window(CancellationToken ct) {
         // Arrange
         const int zoom = 120;
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetUseOsDefaultLocation(true)
                 .SetUseOsDefaultSize(true)
-                .SetZoomEnabled(true)
+                .SetZoomEnabled(true),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
-        await Task.Delay(2000);
 
         // Act
         window.SetZoom(zoom);
@@ -54,17 +55,19 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
     [MatrixDataSource]
-    public async Task FullIntegration([MatrixRange<int>(26, 250, 10)] int zoom) {
+    public async Task FullIntegration([MatrixRange<int>(26, 250, 10)] int zoom, CancellationToken ct) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder
                 .SetZoomEnabled(true)
-                .SetZoom(zoom)
+                .SetZoom(zoom),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 

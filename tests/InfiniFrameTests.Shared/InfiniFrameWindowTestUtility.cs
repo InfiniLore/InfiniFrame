@@ -19,8 +19,12 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
     private InfiniFrameWindowTestUtility() {}
 
     [MustDisposeResource]
+    public static InfiniFrameWindowTestUtility Create(CancellationToken cancellationToken = default)
+        => Create(null, cancellationToken);
+    
+    [MustDisposeResource]
     public static InfiniFrameWindowTestUtility Create(
-        Action<IInfiniFrameWindowBuilder>? builder = null,
+        Action<IInfiniFrameWindowBuilder>? builder,
         CancellationToken cancellationToken = default
     ) {
         var windowBuilder = InfiniFrameWindowBuilder.Create();

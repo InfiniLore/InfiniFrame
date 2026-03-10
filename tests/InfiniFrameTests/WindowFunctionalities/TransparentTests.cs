@@ -34,11 +34,12 @@ public class TransparentTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux("Headless display lacks compositing support for post-init transparency changes")]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task Window(bool state) {
+    public async Task Window(bool state, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -53,15 +54,16 @@ public class TransparentTests {
     [DisplayName($"{nameof(TransparentTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task FullIntegration(bool state) {
+    public async Task FullIntegration(bool state, CancellationToken ct) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
-            builder => builder
-                .SetTransparent(state)
+            builder => builder.SetTransparent(state),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 

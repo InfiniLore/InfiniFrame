@@ -16,12 +16,13 @@ public class OffsetTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window(int x, int y) {
+    public async Task Window(int x, int y, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 
@@ -39,12 +40,13 @@ public class OffsetTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window_AsPoint(int x, int y) {
+    public async Task Window_AsPoint(int x, int y, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 
@@ -62,12 +64,13 @@ public class OffsetTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window_AsDouble(double x, double y) {
+    public async Task Window_AsDouble(double x, double y, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 

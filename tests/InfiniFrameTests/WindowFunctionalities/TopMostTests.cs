@@ -35,11 +35,12 @@ public class TopMostTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task Window(bool state) {
+    public async Task Window(bool state, CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -54,15 +55,16 @@ public class TopMostTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task FullIntegration(bool state) {
+    public async Task FullIntegration(bool state, CancellationToken ct) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
-            builder => builder
-                .SetTopMost(state)
+            builder => builder.SetTopMost(state),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 

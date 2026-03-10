@@ -32,9 +32,10 @@ public class MaxHeightTests {
     [DisplayName($"{nameof(MaxHeightTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task Window() {
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    public async Task Window(CancellationToken ct) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create();
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -48,13 +49,14 @@ public class MaxHeightTests {
     [DisplayName($"{nameof(MaxHeightTests)}.{nameof(FullIntegration)}")] 
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task FullIntegration() {
+    [Timeout(TimeoutUtlitity.DefaultTimeout)]
+    public async Task FullIntegration(CancellationToken ct) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
-            builder => builder
-                .SetMaxHeight(500)
+            builder => builder.SetMaxHeight(500),
+            ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 
