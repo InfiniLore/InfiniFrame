@@ -13,13 +13,16 @@ namespace InfiniFrameTests.Playwright.TestUtility;
 public abstract class InfiniFrameWebviewTest : PageTest {
     public override string BrowserName => "webkit";
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Before(Test)]
     public async Task ResetStateBeforeEachTest() {
-        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.InfiniFrameWindowTitle);
+        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
         IPage page = await GetRootPageAsync();
         await page.EvaluateAsync(
             // lang=javascript
-            $"() => {{ document.title = '{GlobalPlaywrightContext.VueDocumentTitle}'; }}"
+            $"() => {{ document.title = '{GlobalPlaywrightContext.DefaultDocumentTitle}'; }}"
         );
     }
 

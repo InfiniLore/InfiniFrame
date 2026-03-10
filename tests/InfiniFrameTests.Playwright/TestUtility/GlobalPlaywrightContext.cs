@@ -27,11 +27,13 @@ public static class GlobalPlaywrightContext {
 
     private static readonly string ServerUrl = $"http://127.0.0.1:{ServerPort}";
     private static readonly string PlaywrightConnectionString = $"http://127.0.0.1:{PlaywrightDevtoolsPort}";
-    public static readonly Uri PlaywrightConnectionUri = new(PlaywrightConnectionString);
+    private static readonly Uri PlaywrightConnectionUri = new(PlaywrightConnectionString);
 
-    public const string InfiniFrameWindowTitle = "InfiniFrame Playwright";
-    public const string VueDocumentTitle = "InfiniFrame Playwright Vue";
+    public const string DefaultDocumentTitle = "InfiniFrame Playwright Vue";
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     private static int GetAvailablePort() {
         using TcpListener listener = new(IPAddress.Loopback, 0);
         listener.Start();
@@ -47,7 +49,7 @@ public static class GlobalPlaywrightContext {
                 .WebHost.UseUrls(ServerUrl),
             windowBuilder: static windowBuilder => windowBuilder
                 .SetStartUrl(ServerUrl)
-                .SetTitle(InfiniFrameWindowTitle)
+                .SetTitle(DefaultDocumentTitle)
                 .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
                 .RegisterFullScreenWebMessageHandler()
                 .RegisterOpenExternalTargetWebMessageHandler()

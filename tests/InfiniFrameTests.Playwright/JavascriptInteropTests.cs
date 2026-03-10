@@ -60,15 +60,15 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
             );
 
             // Assert
-            await Assert.That(originalTitleState).IsEqualTo(GlobalPlaywrightContext.InfiniFrameWindowTitle);
+            await Assert.That(originalTitleState).IsEqualTo(GlobalPlaywrightContext.DefaultDocumentTitle);
             await Assert.That(newTitleState).IsEqualTo("New Title");
-            await Assert.That(finalTitleState).IsEqualTo(GlobalPlaywrightContext.VueDocumentTitle);
+            await Assert.That(finalTitleState).IsEqualTo(GlobalPlaywrightContext.DefaultDocumentTitle);
         }
         finally {
-            GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.InfiniFrameWindowTitle);
+            GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
             await page.EvaluateAsync(
                 // lang=javascript
-                $"() => {{ document.title = '{GlobalPlaywrightContext.VueDocumentTitle}'; }}"
+                $"() => {{ document.title = '{GlobalPlaywrightContext.DefaultDocumentTitle}'; }}"
             );
         }
 
