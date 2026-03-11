@@ -103,16 +103,16 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
     _grantBrowserPermissions = initParams->GrantBrowserPermissions;
 
 	//these handlers are ALWAYS hooked up
-	_webMessageReceivedCallback = reinterpret_cast<WebMessageReceivedCallback>(initParams->WebMessageReceivedHandler);
-	_resizedCallback = reinterpret_cast<ResizedCallback>(initParams->ResizedHandler);
-	_movedCallback = reinterpret_cast<MovedCallback>(initParams->MovedHandler);
-	_closingCallback = reinterpret_cast<ClosingCallback>(initParams->ClosingHandler);
-    _focusInCallback = reinterpret_cast<FocusInCallback>(initParams->FocusInHandler);
-	_focusOutCallback = reinterpret_cast<FocusOutCallback>(initParams->FocusOutHandler);
-    _maximizedCallback = reinterpret_cast<MaximizedCallback>(initParams->MaximizedHandler);
-	_minimizedCallback = reinterpret_cast<MinimizedCallback>(initParams->MinimizedHandler);
-	_restoredCallback = reinterpret_cast<RestoredCallback>(initParams->RestoredHandler);
-	_customSchemeCallback = reinterpret_cast<WebResourceRequestedCallback>(initParams->CustomSchemeHandler);
+	_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
+	_resizedCallback = initParams->ResizedHandler;
+	_movedCallback = initParams->MovedHandler;
+	_closingCallback = initParams->ClosingHandler;
+    _focusInCallback = initParams->FocusInHandler;
+	_focusOutCallback = initParams->FocusOutHandler;
+    _maximizedCallback = initParams->MaximizedHandler;
+	_minimizedCallback = initParams->MinimizedHandler;
+	_restoredCallback = initParams->RestoredHandler;
+	_customSchemeCallback = initParams->CustomSchemeHandler;
 
 	//copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)

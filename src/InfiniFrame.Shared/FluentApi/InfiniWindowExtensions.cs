@@ -739,7 +739,7 @@ public static class InfiniWindowExtensions {
 
             window.Invoke(() => {
                 IntPtr ptr = InfiniFrameNative.GetTitle(window.InstanceHandle);
-                string? oldTitle = Marshal.PtrToStringAuto(ptr);
+                string? oldTitle = InfiniFrameNative.PtrToNativeString(ptr);
                 if (title == oldTitle) return;
 
                 if (OperatingSystem.IsLinux() && title?.Length > 31) title = title[..31];// Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars

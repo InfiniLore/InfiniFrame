@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <comdef.h>
 #include <condition_variable>
+#include <cstring>
 #include <mutex>
 #include <Shellscalingapi.h>
 #include <Shlwapi.h>
@@ -10,6 +11,7 @@
 
 #include "Models/InfiniFrameDialog.h"
 #include "Models/InfiniFrame.h"
+#include "Dependencies/simdutf.h"
 #include "DarkMode.h"
 #include "ToastHandler.h"
 
@@ -29,6 +31,60 @@ HINSTANCE InfiniFrame::_hInstance;
 thread_local HWND messageLoopRootWindowHandle = nullptr;
 std::map<HWND, InfiniFrame*> hwndToInfiniFrame;
 wchar_t _webview2RuntimePath[MAX_PATH];
+
+namespace
+{
+	static_assert(sizeof(wchar_t) == sizeof(char16_t));
+
+	std::wstring Utf8ToWide(const AutoString source)
+	{
+		if (source == nullptr)
+			return {};
+
+		const auto* utf8 = reinterpret_cast<const char*>(source);
+		const size_t utf8Length = strlen(utf8);
+		if (utf8Length == 0)
+			return {};
+
+		if (const auto validation = simdutf::validate_utf8_with_errors(utf8, utf8Length); validation.is_err())
+			return {};
+
+		std::u16string utf16(simdutf::utf16_length_from_utf8(utf8, utf8Length), u'\0');
+		const size_t written = simdutf::convert_valid_utf8_to_utf16(
+			utf8,
+			utf8Length,
+			reinterpret_cast<char16_t*>(utf16.data()));
+		utf16.resize(written);
+
+		return {
+			reinterpret_cast<const wchar_t*>(utf16.data()),
+			utf16.size()
+		};
+	}
+
+	std::string WideToUtf8(const AutoString source)
+	{
+		if (source == nullptr)
+			return {};
+
+		const size_t utf16Length = wcslen(source);
+		if (utf16Length == 0)
+			return {};
+
+		const auto* utf16 = reinterpret_cast<const char16_t*>(source);
+		if (const auto validation = simdutf::validate_utf16_with_errors(utf16, utf16Length); validation.is_err())
+			return {};
+
+		std::string utf8(simdutf::utf8_length_from_utf16(utf16, utf16Length), '\0');
+		const size_t written = simdutf::convert_valid_utf16_to_utf8(
+			utf16,
+			utf16Length,
+			utf8.data());
+		utf8.resize(written);
+
+		return utf8;
+	}
+}
 
 
 struct InvokeWaitInfo
@@ -96,10 +152,10 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	}
 
 	if (initParams->StartUrl != nullptr)
-		_startUrl = initParams->StartUrl;
+		_startUrl = ToUTF16String(initParams->StartUrl);
 
 	if (initParams->StartString != nullptr)
-		_startString = initParams->StartString;
+		_startString = ToUTF16String(initParams->StartString);
 
 	if (initParams->TemporaryFilesPath != nullptr)
 		_temporaryFilesPath = ToUTF16String(initParams->TemporaryFilesPath);
@@ -135,16 +191,16 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	_maxHeight = initParams->MaxHeight;
 
 	//these handlers are ALWAYS hooked up
-	_webMessageReceivedCallback = reinterpret_cast<WebMessageReceivedCallback>(initParams->WebMessageReceivedHandler);
-	_resizedCallback = reinterpret_cast<ResizedCallback>(initParams->ResizedHandler);
-	_maximizedCallback = reinterpret_cast<MaximizedCallback>(initParams->MaximizedHandler);
-	_restoredCallback = reinterpret_cast<RestoredCallback>(initParams->RestoredHandler);
-	_minimizedCallback = reinterpret_cast<MinimizedCallback>(initParams->MinimizedHandler);
-	_movedCallback = reinterpret_cast<MovedCallback>(initParams->MovedHandler);
-	_closingCallback = reinterpret_cast<ClosingCallback>(initParams->ClosingHandler);
-	_focusInCallback = reinterpret_cast<FocusInCallback>(initParams->FocusInHandler);
-	_focusOutCallback = reinterpret_cast<FocusOutCallback>(initParams->FocusOutHandler);
-	_customSchemeCallback = reinterpret_cast<WebResourceRequestedCallback>(initParams->CustomSchemeHandler);
+	_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
+	_resizedCallback = initParams->ResizedHandler;
+	_maximizedCallback = initParams->MaximizedHandler;
+	_restoredCallback = initParams->RestoredHandler;
+	_minimizedCallback = initParams->MinimizedHandler;
+	_movedCallback = initParams->MovedHandler;
+	_closingCallback = initParams->ClosingHandler;
+	_focusInCallback = initParams->FocusInHandler;
+	_focusOutCallback = initParams->FocusOutHandler;
+	_customSchemeCallback = initParams->CustomSchemeHandler;
 
 	//copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)
@@ -155,46 +211,51 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 
 	_parent = initParams->ParentInstance;
 
+	int normalizedWidth = initParams->Width;
+	int normalizedHeight = initParams->Height;
+	int normalizedLeft = initParams->Left;
+	int normalizedTop = initParams->Top;
+	bool centerOnInitialize = initParams->CenterOnInitialize;
 
 	if (initParams->UseOsDefaultSize)
 	{
-		initParams->Width = CW_USEDEFAULT;
-		initParams->Height = CW_USEDEFAULT;
+		normalizedWidth = CW_USEDEFAULT;
+		normalizedHeight = CW_USEDEFAULT;
 	}
 	else
 	{
-		if (initParams->Width < 0) initParams->Width = CW_USEDEFAULT;
-		if (initParams->Height < 0) initParams->Height = CW_USEDEFAULT;
+		if (normalizedWidth < 0) normalizedWidth = CW_USEDEFAULT;
+		if (normalizedHeight < 0) normalizedHeight = CW_USEDEFAULT;
 	}
 
 	if (initParams->UseOsDefaultLocation)
 	{
-		initParams->Left = CW_USEDEFAULT;
-		initParams->Top = CW_USEDEFAULT;
+		normalizedLeft = CW_USEDEFAULT;
+		normalizedTop = CW_USEDEFAULT;
 	}
 
-	if (initParams->FullScreen == true)
+	if (initParams->FullScreen)
 	{
-		initParams->Left = 0;
-		initParams->Top = 0;
-		initParams->Width = GetSystemMetrics(SM_CXSCREEN);
-		initParams->Height = GetSystemMetrics(SM_CYSCREEN);
+		normalizedLeft = 0;
+		normalizedTop = 0;
+		normalizedWidth = GetSystemMetrics(SM_CXSCREEN);
+		normalizedHeight = GetSystemMetrics(SM_CYSCREEN);
 	}
 
 	if (initParams->Chromeless)
 	{
-		//CW_USEDEFAULT CAN NOT BE USED ON POPUP WINDOWS
-		if (initParams->Left == CW_USEDEFAULT && initParams->Top == CW_USEDEFAULT) initParams->CenterOnInitialize = true;
-		if (initParams->Left == CW_USEDEFAULT) initParams->Left = 0;
-		if (initParams->Top == CW_USEDEFAULT) initParams->Top = 0;
-		if (initParams->Height == CW_USEDEFAULT) initParams->Height = 600;
-		if (initParams->Width == CW_USEDEFAULT) initParams->Width = 800;
+		if (normalizedLeft == CW_USEDEFAULT && normalizedTop == CW_USEDEFAULT) centerOnInitialize = true;
+		if (normalizedLeft == CW_USEDEFAULT) normalizedLeft = 0;
+		if (normalizedTop == CW_USEDEFAULT) normalizedTop = 0;
+		if (normalizedHeight == CW_USEDEFAULT) normalizedHeight = 600;
+		if (normalizedWidth == CW_USEDEFAULT) normalizedWidth = 800;
 	}
 
-	if (initParams->Height > initParams->MaxHeight) initParams->Height = initParams->MaxHeight;
-	if (initParams->Height < initParams->MinHeight && initParams->MinHeight > 0) initParams->Height = initParams->MinHeight;
-	if (initParams->Width > initParams->MaxWidth) initParams->Width = initParams->MaxWidth;
-	if (initParams->Width < initParams->MinWidth && initParams->MinWidth > 0) initParams->Width = initParams->MinWidth;
+	if (normalizedHeight > initParams->MaxHeight) normalizedHeight = initParams->MaxHeight;
+	if (normalizedHeight < initParams->MinHeight && initParams->MinHeight > 0) normalizedHeight = initParams->MinHeight;
+	if (normalizedWidth > initParams->MaxWidth) normalizedWidth = initParams->MaxWidth;
+	if (normalizedWidth < initParams->MinWidth && initParams->MinWidth > 0) normalizedWidth = initParams->MinWidth;
+
 
 	//Create the window
 	_hWnd = CreateWindowEx(
@@ -204,7 +265,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 		initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW,	//Window style
 
 		// Size and position
-		initParams->Left, initParams->Top, initParams->Width, initParams->Height,
+		normalizedLeft, normalizedTop, normalizedWidth, normalizedHeight,
 
 		nullptr,    //Parent window handle
 		nullptr,    //Menu
@@ -222,7 +283,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	}
 		
 
-	if (initParams->CenterOnInitialize)
+	if (centerOnInitialize)
 		Center();
 
 	if (initParams->Minimized)
@@ -231,7 +292,6 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	if (initParams->Maximized)
 		SetMaximized(true);
 
-	//if (initParams->Resizable == false)
 	SetResizable(initParams->Resizable);
 
 	if (initParams->Topmost)
@@ -372,15 +432,14 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_USER_INVOKE:
 	{
-		ACTION callback = (ACTION)wParam;
+		auto callback = reinterpret_cast<ACTION>(wParam);
 		callback();
-		InvokeWaitInfo* waitInfo = (InvokeWaitInfo*)lParam;
+		auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
 		{
 			std::lock_guard<std::mutex> guard(invokeLockMutex);
 			waitInfo->isCompleted = true;
 		}
 		waitInfo->completionNotifier.notify_one();
-		//delete waitInfo; ?
 		return 0;
 	}
 	case WM_GETMINMAXINFO:
@@ -427,18 +486,11 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 		InfiniFrame* instance = hwndToInfiniFrame[hwnd];
 		if (instance)
 		{
-			//instance->NotifyWebView2WindowMove();
-			//instance->RefitContent();
-
 			int x, y;
 			instance->GetPosition(&x, &y);
 			instance->InvokeMove(x, y);
 		}
 		return 0;
-	}
-	case WM_MOVING:
-	{
-		break;
 	}
 	}
 
@@ -480,10 +532,6 @@ void InfiniFrame::Center()
 
 	int left = (screenWidth / 2) - (windowWidth / 2);
 	int top = (screenHeight / 2) - (windowHeight / 2);
-
-	//wchar_t msg[500];
-	//swprintf(msg, 500, L"Screen DPI: %i  Screen Height: %i  ScreenWidth: %i  Window Height: %i  Window Width: %i  Left: %d  Top: %d", screenDpi, screenHeight, screenWidth, windowHeight, windowWidth, left, top);
-	//MessageBox(nullptr, msg, L"", MB_OK);
 
 	SetPosition(left, top);
 }
@@ -981,45 +1029,18 @@ void InfiniFrame::Invoke(ACTION callback)
 	InvokeWaitInfo waitInfo = {};
 	PostMessage(_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo));
 
-	// Block until the callback is actually executed and completed
-	// TODO: Add return values, exception handling, etc.
 	std::unique_lock<std::mutex> uLock(invokeLockMutex);
 	waitInfo.completionNotifier.wait(uLock, [&] { return waitInfo.isCompleted; });
 }
 
-//private methods
-
 std::string InfiniFrame::ToUTF8String(const AutoString source) const
 {
-	std::string response;
-	int inLen = static_cast<int>(wcslen(source));
-	int result = WideCharToMultiByte(CP_UTF8, 0, source, inLen, nullptr, 0, nullptr, nullptr);
-	if (result < 0)
-	{
-		response = "UTF8 to UTF16 convert failed";
-	}
-	else
-	{
-		response.resize(result, 0);
-		result = WideCharToMultiByte(CP_UTF8, 0, source, inLen, &response[0], result, nullptr, nullptr);
-	}
-	return response;
+	return WideToUtf8(source);
 }
+
 std::wstring InfiniFrame::ToUTF16String(const AutoString source) const
 {
-	std::wstring response;
-	int inLen = static_cast<int>(strlen(reinterpret_cast<const char*>(source)));	
-	int result = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(source), inLen, nullptr, 0);
-	if (result < 0)
-	{
-		response = L"UTF8 to UTF16 convert failed";
-	}
-	else
-	{
-		response.resize(result, 0);
-		result = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(source), inLen, &response[0], result);
-	}
-	return response;
+	return Utf8ToWide(source);
 }
 
 void InfiniFrame::AttachWebView()
@@ -1027,13 +1048,7 @@ void InfiniFrame::AttachWebView()
 	size_t runtimePathLen = wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath));
 	PCWSTR runtimePath = runtimePathLen > 0 ? &_webview2RuntimePath[0] : nullptr;
 
-	//TODO: Implement special startup strings.
-	//https://peter.sh/experiments/chromium-command-line-switches/
-	//https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49&viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
-	//https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
-	//Add together all 7 special startup strings, plus the generic one passed by the user to make one big string. Try not to duplicate anything. Separate with spaces.
-	
-	std::wstring startupString = L"";
+	std::wstring startupString;
 	if (!_userAgent.empty())
 		startupString += L"--user-agent=\"" + _userAgent + L"\" ";
 	if (_mediaAutoplayEnabled) 
@@ -1111,8 +1126,12 @@ void InfiniFrame::AttachWebView()
 									if (it != _customSchemeNames.end() && _customSchemeCallback != nullptr)
 									{
 										int numBytes;
-										AutoString contentType;
+										AutoString contentType = nullptr;
 										wil::unique_cotaskmem dotNetResponse(_customSchemeCallback(const_cast<AutoString>(uriString.c_str()), &numBytes, &contentType));
+										auto freeContentType = wil::scope_exit([&contentType]
+										{
+											CoTaskMemFree(contentType);
+										});
 
 										if (dotNetResponse != nullptr && contentType != nullptr)
 										{
@@ -1144,9 +1163,9 @@ void InfiniFrame::AttachWebView()
 									&permissionRequestedToken);
 
 						if (!_startUrl.empty())
-							NavigateToUrl(const_cast<AutoString>(_startUrl.c_str()));
+							_webviewWindow->Navigate(_startUrl.c_str());
 						else if (!_startString.empty())
-							NavigateToString(const_cast<AutoString>(_startString.c_str()));
+							_webviewWindow->NavigateToString(_startString.c_str());
 						else
 						{
 							MessageBox(nullptr, L"Neither StartUrl nor StartString was specified", L"Native Initialization Failed", MB_OK);
@@ -1263,7 +1282,6 @@ void InfiniFrame::NotifyWebView2WindowMove()
 {
 	if (_webviewController)
 	{
-		//MessageBox(nullptr, L"NotifyWebView2WindowMove() was called!", L"", MB_OK);
 		_webviewController->NotifyParentWindowPositionChanged();
 	}
 }
@@ -1301,22 +1319,21 @@ void InfiniFrame::ClearBrowserAutoFill()
 
 void InfiniFrame::SetWebView2RuntimePath(const AutoString pathToWebView2)
 {
-	if (pathToWebView2 != nullptr)
-	{
-		wcsncpy_s(_webview2RuntimePath, pathToWebView2, _countof(_webview2RuntimePath));
-	}
+	if (pathToWebView2 == nullptr)
+		return;
+
+	std::wstring widePath = Utf8ToWide(pathToWebView2);
+	wcsncpy_s(_webview2RuntimePath, widePath.c_str(), _countof(_webview2RuntimePath));
 }
 
 void InfiniFrame::Show(const bool isAlreadyShown)
 {
 	if (!isAlreadyShown)
-		ShowWindow(_hWnd, SW_SHOWDEFAULT);	//causes maximized and minimized to not work
+		ShowWindow(_hWnd, SW_SHOWDEFAULT);
 
 	UpdateWindow(_hWnd);
 
-	// Strangely, it only works to create the webview2 *after* the window has been shown,
-	// so defer it until here. This unfortunately means you can't call the Navigate methods
-	// until the window is shown.
+	// WebView2 must be created after the window is visible.
 	if (!_webviewController)
 	{
 		if (wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath)) > 0 || EnsureWebViewIsInstalled())
