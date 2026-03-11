@@ -95,16 +95,16 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams *initParams) : _webview(nullptr)
 	_maxHeight = initParams->MaxHeight;
 
 	// these handlers are ALWAYS hooked up
-	_webMessageReceivedCallback = reinterpret_cast<WebMessageReceivedCallback>(initParams->WebMessageReceivedHandler);
-	_resizedCallback = reinterpret_cast<ResizedCallback>(initParams->ResizedHandler);
-	_movedCallback = reinterpret_cast<MovedCallback>(initParams->MovedHandler);
-	_closingCallback = reinterpret_cast<ClosingCallback>(initParams->ClosingHandler);
-	_focusInCallback = reinterpret_cast<FocusInCallback>(initParams->FocusInHandler);
-	_focusOutCallback = reinterpret_cast<FocusOutCallback>(initParams->FocusOutHandler);
-	_maximizedCallback = reinterpret_cast<MaximizedCallback>(initParams->MaximizedHandler);
-	_minimizedCallback = reinterpret_cast<MinimizedCallback>(initParams->MinimizedHandler);
-	_restoredCallback = reinterpret_cast<RestoredCallback>(initParams->RestoredHandler);
-	_customSchemeCallback = reinterpret_cast<WebResourceRequestedCallback>(initParams->CustomSchemeHandler);
+	_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
+	_resizedCallback = initParams->ResizedHandler;
+	_movedCallback = initParams->MovedHandler;
+	_closingCallback = initParams->ClosingHandler;
+	_focusInCallback = initParams->FocusInHandler;
+	_focusOutCallback = initParams->FocusOutHandler;
+	_maximizedCallback = initParams->MaximizedHandler;
+	_minimizedCallback = initParams->MinimizedHandler;
+	_restoredCallback = initParams->RestoredHandler;
+	_customSchemeCallback = initParams->CustomSchemeHandler;
 
 	// copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)
@@ -983,13 +983,13 @@ void HandleCustomSchemeRequest(WebKitURISchemeRequest *request, const gpointer u
 	WebResourceRequestedCallback webResourceRequestedCallback = reinterpret_cast<WebResourceRequestedCallback>(user_data);
 
 	const gchar *uri = webkit_uri_scheme_request_get_uri(request);
-	int numBytes;
-	AutoString contentType;
+	int numBytes = 0;
+	AutoString contentType = nullptr;
 	void *dotNetResponse = webResourceRequestedCallback(const_cast<AutoString>(uri), &numBytes, &contentType);
-	GInputStream *stream = g_memory_input_stream_new_from_data(dotNetResponse, numBytes, nullptr);
+	GInputStream *stream = g_memory_input_stream_new_from_data(dotNetResponse, numBytes, free);
 	webkit_uri_scheme_request_finish(request, reinterpret_cast<GInputStream *>(stream), -1, contentType);
 	g_object_unref(stream);
-	delete[] contentType;
+	free(contentType);
 }
 
 void InfiniFrame::AddCustomSchemeHandlers()

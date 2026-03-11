@@ -594,11 +594,11 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         string[] nativeFilters = GetNativeFilters(filters);
 
         Invoke(() => {
-            IntPtr ptrResult = InfiniFrameNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length);
+            IntPtr ptrResult = InfiniFrameNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length, null);
             if (ptrResult == IntPtr.Zero) return;
 
             try {
-                result = Marshal.PtrToStringAuto(ptrResult);
+                result = InfiniFrameNative.PtrToNativeString(ptrResult);
             }
             finally {
                 InfiniFrameNative.FreeString(ptrResult);
@@ -670,7 +670,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 results = new string?[resultCount];
                 Marshal.Copy(ptrResults, ptrArray, 0, resultCount);
                 for (int i = 0; i < resultCount; i++) {
-                    results[i] = Marshal.PtrToStringAuto(ptrArray[i]);
+                    results[i] = InfiniFrameNative.PtrToNativeString(ptrArray[i]);
                 }
             }
             finally {
@@ -770,7 +770,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         responseStream.CopyTo(ms);
 
         numBytes = (int)ms.Position;
-        IntPtr buffer = Marshal.AllocHGlobal(numBytes);
+        IntPtr buffer = Marshal.AllocCoTaskMem(numBytes);
         Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
         return buffer;
     }

@@ -343,7 +343,7 @@ extern "C"
 	EXPORTED AutoString* InfiniFrame_ShowOpenFolder(InfiniFrame* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount) {
 		return inst->GetDialog()->ShowOpenFolder(title, defaultPath, multiSelect, resultCount);
 	}
-	EXPORTED AutoString InfiniFrame_ShowSaveFile(InfiniFrame* inst, const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName = nullptr) {
+	EXPORTED AutoString InfiniFrame_ShowSaveFile(InfiniFrame* inst, const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName) {
 		return inst->GetDialog()->ShowSaveFile(title, defaultPath, filters, filterCount, defaultFileName);
 	}
 	EXPORTED DialogResult InfiniFrame_ShowMessage(InfiniFrame* inst, const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon) {
@@ -359,31 +359,6 @@ extern "C"
 	EXPORTED void InfiniFrame_GetAllMonitors(InfiniFrame* instance, const GetAllMonitorsCallback callback)
 	{
 		instance->GetAllMonitors(callback);
-	}
-
-	EXPORTED void InfiniFrame_SetClosingCallback(InfiniFrame* instance, const ClosingCallback callback)
-	{
-		instance->SetClosingCallback(callback);
-	}
-
-	EXPORTED void InfiniFrame_SetFocusInCallback(InfiniFrame* instance, const FocusInCallback callback)
-	{
-		instance->SetFocusInCallback(callback);
-	}
-
-	EXPORTED void InfiniFrame_SetFocusOutCallback(InfiniFrame* instance, const FocusOutCallback callback)
-	{
-		instance->SetFocusOutCallback(callback);
-	}
-
-	EXPORTED void InfiniFrame_SetMovedCallback(InfiniFrame* instance, const MovedCallback callback)
-	{
-		instance->SetMovedCallback(callback);
-	}
-
-	EXPORTED void InfiniFrame_SetResizedCallback(InfiniFrame* instance, const ResizedCallback callback)
-	{
-		instance->SetResizedCallback(callback);
 	}
 
 	EXPORTED void InfiniFrame_Invoke(InfiniFrame* instance, const ACTION callback)

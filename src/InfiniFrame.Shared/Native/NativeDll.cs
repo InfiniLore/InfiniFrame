@@ -49,7 +49,6 @@ internal static class NativeDll {
     internal const string InfiniFrame_SetContextMenuEnabled = nameof(InfiniFrame_SetContextMenuEnabled);
     internal const string InfiniFrame_SetDevToolsEnabled = nameof(InfiniFrame_SetDevToolsEnabled);
     internal const string InfiniFrame_SetFullScreen = nameof(InfiniFrame_SetFullScreen);
-    internal const string InfiniFrame_SetGrantBrowserPermissions = nameof(InfiniFrame_SetGrantBrowserPermissions);
     internal const string InfiniFrame_SetMaximized = nameof(InfiniFrame_SetMaximized);
     internal const string InfiniFrame_SetMaxSize = nameof(InfiniFrame_SetMaxSize);
     internal const string InfiniFrame_SetMinimized = nameof(InfiniFrame_SetMinimized);
@@ -77,6 +76,7 @@ internal static class NativeDll {
     internal const string InfiniFrame_FreeStringArray = nameof(InfiniFrame_FreeStringArray);
     internal const string InfiniFrame_SetFocused = nameof(InfiniFrame_SetFocused);
     internal const string InfiniFrame_GetFocused = nameof(InfiniFrame_GetFocused);
+    internal const string InfiniFrame_Restore = nameof(InfiniFrame_Restore);
     // ReSharper restore InconsistentNaming
     #endregion
 

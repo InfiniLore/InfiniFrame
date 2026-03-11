@@ -17,17 +17,17 @@ struct InfiniFrameInitParams
 
 	InfiniFrame *ParentInstance;
 
-	ClosingCallback *ClosingHandler;
-	FocusInCallback *FocusInHandler;
-	FocusOutCallback *FocusOutHandler;
-	ResizedCallback *ResizedHandler;
-	MaximizedCallback *MaximizedHandler;
-	RestoredCallback *RestoredHandler;
-	MinimizedCallback *MinimizedHandler;
-	MovedCallback *MovedHandler;
-	WebMessageReceivedCallback *WebMessageReceivedHandler;
+	ClosingCallback ClosingHandler;
+	FocusInCallback FocusInHandler;
+	FocusOutCallback FocusOutHandler;
+	ResizedCallback ResizedHandler;
+	MaximizedCallback MaximizedHandler;
+	RestoredCallback RestoredHandler;
+	MinimizedCallback MinimizedHandler;
+	MovedCallback MovedHandler;
+	WebMessageReceivedCallback WebMessageReceivedHandler;
 	AutoString CustomSchemeNames[16];
-	WebResourceRequestedCallback *CustomSchemeHandler;
+	WebResourceRequestedCallback CustomSchemeHandler;
 
 	int Left;
 	int Top;

@@ -20,6 +20,7 @@ set(WINDOWS_SOURCES
         Windows/Window.cpp
         Windows/DarkMode.cpp
         Windows/Dialog.cpp
+        Dependencies/simdutf.cpp
         Dependencies/wintoastlib.cpp
 )
 
@@ -59,6 +60,7 @@ set(HEADER_FILES
         Mac/WindowDelegate.h
         Mac/UrlSchemeHandler.h
         Dependencies/wintoastlib.h
+        Dependencies/simdutf.h
         Dependencies/json.hpp
         resource.h
 )
@@ -288,4 +290,4 @@ elseif(UNIX)
 endif()
 
 # Common compiler features
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
