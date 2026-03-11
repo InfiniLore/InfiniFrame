@@ -1,4 +1,4 @@
-﻿#include "InfiniFrame.h"
+﻿#include "Models/InfiniFrame.h"
 
 #ifdef _WIN32
 #define EXPORTED __declspec(dllexport)

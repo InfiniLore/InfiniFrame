@@ -436,13 +436,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     The operation of the message loop is exclusive to the main native window only.
     /// </remarks>
     public void WaitForClose() {
-        if (!MessageLoopState.TryAcquireFirstState()) {
-            Logger.LogWarning("Message loop is already running. This call will be ignored.");
-            return;
-        }
-
         try {
-            Logger.LogDebug("Starting message loop. There can only be 1 message loop for all windows.");
+            Logger.LogDebug("Starting message loop for window.");
             Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
         }
         catch (Exception ex) {
@@ -450,12 +445,11 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
 
-            Logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
+            Logger.LogError(ex, "Error #{LastErrorCode} while running message loop", lastError);
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
         finally {
             Interlocked.Exchange(ref _shutdownStarted, 1);
-            MessageLoopState.ReleaseState();
         }
     }
 

@@ -1,9 +1,9 @@
 #ifdef __APPLE__
-#import "InfiniFrame.Mac.NavigationDelegate.h"
+#import "NavigationDelegate.h"
 
 @implementation NavigationDelegate : NSObject
 
-    - (void)webView:(WKWebView *)webView 
+    - (void)webView:(WKWebView *)webView
         didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
         completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
             bool ignoreCertificateErrorsEnabled = false;

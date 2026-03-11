@@ -1,12 +1,12 @@
 #ifdef __APPLE__
-#include "InfiniFrame.h"
-#include "InfiniFrame.Dialog.h"
-#include "InfiniFrame.Mac.AppDelegate.h"
-#include "InfiniFrame.Mac.UiDelegate.h"
-#include "InfiniFrame.Mac.WindowDelegate.h"
-#include "InfiniFrame.Mac.UrlSchemeHandler.h"
-#include "InfiniFrame.Mac.NSWindowBorderless.h"
-#include "InfiniFrame.Mac.NavigationDelegate.h"
+#include "Models/InfiniFrame.h"
+#include "Models/InfiniFrameDialog.h"
+#include "AppDelegate.h"
+#include "UiDelegate.h"
+#include "WindowDelegate.h"
+#include "UrlSchemeHandler.h"
+#include "NSWindowBorderless.h"
+#include "NavigationDelegate.h"
 #include <vector>
 
 #include "Dependencies/json.hpp"
@@ -28,7 +28,7 @@ void InfiniFrame::Register()
     [application setActivationPolicy: NSApplicationActivationPolicyRegular];
 
     NSString *appName = [[NSProcessInfo processInfo] processName];
-    
+
     NSMenu *mainMenu = [[NSMenu new] autorelease];
 
     NSMenuItem *mainMenuItem = [[NSMenuItem new] autorelease];
@@ -72,7 +72,6 @@ void InfiniFrame::Register()
     ] autorelease];
     [mainSubMenu addItem: pasteMenuItem];
 
-    // Add Quit Menu Item
     NSMenuItem *quitMenuItem = [[
         [NSMenuItem alloc]
         initWithTitle: [@"Quit " stringByAppendingString: appName]
@@ -114,7 +113,6 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	_minimizedCallback = reinterpret_cast<MinimizedCallback>(initParams->MinimizedHandler);
 	_restoredCallback = reinterpret_cast<RestoredCallback>(initParams->RestoredHandler);
 	_customSchemeCallback = reinterpret_cast<WebResourceRequestedCallback>(initParams->CustomSchemeHandler);
-    
 
 	//copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)
@@ -124,22 +122,22 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	}
 
 	_parent = initParams->ParentInstance;
-    
+
     if (initParams->UseOsDefaultSize)
 	{
-		initParams->Width = 800; //CW_USEDEFAULT;
-		initParams->Height = 600; //CW_USEDEFAULT;
+		initParams->Width = 800;
+		initParams->Height = 600;
 	}
 	else
 	{
-		if (initParams->Width < 0) initParams->Width = 800; //CW_USEDEFAULT;
-		if (initParams->Height < 0) initParams->Height = 600; //CW_USEDEFAULT;
+		if (initParams->Width < 0) initParams->Width = 800;
+		if (initParams->Height < 0) initParams->Height = 600;
 	}
 
 	if (initParams->UseOsDefaultLocation)
 	{
-		initParams->Left = 0; //CW_USEDEFAULT;
-		initParams->Top = 0; //CW_USEDEFAULT;
+		initParams->Left = 0;
+		initParams->Top = 0;
 	}
 
     // Create Window
@@ -148,7 +146,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
     _chromeless = initParams->Chromeless;
     if (initParams->Chromeless)
     {
-        // For MouseMoved events, InfiniFrame.Mac.NSWindowBorderless.mm
+        // For MouseMoved events, Mac/NSWindowBorderless.mm
         // https://stackoverflow.com/questions/2520127/getting-a-borderless-window-to-receive-mousemoved-events-cocoa-osx
         _window = [[NSWindowBorderless alloc]
             initWithContentRect: frame
@@ -179,10 +177,10 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
     windowDelegate->infiniFrame = this;
 
     _window.delegate = windowDelegate;
-    
+
     // Set Window options
     SetTitle(const_cast<AutoString>(_windowTitle.c_str()));
-    
+
     if (initParams->WindowIconFile != nullptr && initParams->WindowIconFile[0] != '\0')
 		InfiniFrame::SetIconFile(initParams->WindowIconFile);
 
@@ -190,20 +188,18 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
     SetPosition(initParams->Left, initParams->Top);
 
     // It's important to set min/max size before setting size
-    // SetSize is ensuring internally that the size is within min/max
-    // but requires that min/max be set first.
-    SetMinSize(initParams->MinWidth, initParams->MinHeight); // Defaults to 0,0
-    SetMaxSize(initParams->MaxWidth, initParams->MaxHeight); // Defaults to 10000,10000
+    SetMinSize(initParams->MinWidth, initParams->MinHeight);
+    SetMaxSize(initParams->MaxWidth, initParams->MaxHeight);
     SetSize(initParams->Width, initParams->Height);
 
 	SetMinimized(initParams->Minimized);
 	SetMaximized(initParams->Maximized);
-    
+
 	SetResizable(initParams->Resizable);
 
 	if (initParams->CenterOnInitialize)
 		InfiniFrame::Center();
-  
+
     // Create WebView Configuration
     _webviewConfiguration = [[WKWebViewConfiguration alloc] init];
 
@@ -218,7 +214,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 
     // Set initialized WebKit (Configuration) options
     SetUserAgent(initParams->UserAgent);
-    
+
     SetPreference(@"developerExtrasEnabled", initParams->DevToolsEnabled ? @YES : @NO);
     SetPreference(@"allowFileAccessFromFileURLs", initParams->FileSystemAccessEnabled ? @YES : @NO);
     SetPreference(@"webSecurityEnabled", initParams->WebSecurityEnabled ? @YES : @NO);
@@ -238,15 +234,13 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 
     if (initParams->BrowserControlInitParameters != nullptr)
     {
-        // Set initialized WebKit (Configuration) options
         json wkPreferences = json::parse(initParams->BrowserControlInitParameters);
 
-        // Iterate over wkPreferences json object and set preferences
         for (json::iterator it = wkPreferences.begin(); it != wkPreferences.end(); ++it)
         {
             json key = it.key();
             json value = it.value();
-            
+
             NSString *preferenceKey = [NSString stringWithUTF8String: key.get<std::string>().c_str()];
 
             if (value.is_number_integer())
@@ -286,12 +280,6 @@ void InfiniFrame::Center()
 {
     [_window center];
     [_window makeKeyAndOrderFront: _window];
-
-    //NSRect screen = [[_window screen] visibleFrame];
-    //NSRect window = [_window frame];
-    //CGFloat xPos = NSWidth(screen) / 2 + screen.origin.x - NSWidth(window) / 2;
-    //CGFloat yPos = NSHeight(screen) / 2 + screen.origin.y - NSHeight(window) / 2;
-    //[_window setFrame: NSMakeRect(xPos, yPos, NSWidth(window), NSHeight(window)) display:YES];
 }
 
 void InfiniFrame::ClearBrowserAutoFill()
@@ -303,12 +291,10 @@ void InfiniFrame::Close()
 {
     if (_chromeless)
     {
-        // Can't use performClose because frame has no title area and close button
         [_window close];
     }
     else
     {
-        // Simulates user clicking the close button
     	[_window performClose: _window];
     }
 }
@@ -316,7 +302,6 @@ void InfiniFrame::Close()
 void InfiniFrame::GetTransparentEnabled(bool* enabled) const
 {
     //! Not implemented (supported?) on macOS
-    // *enabled = _transparentEnabled;
     *enabled = false;
 }
 
@@ -410,8 +395,8 @@ void InfiniFrame::GetPosition(int* x, int* y) const
     int height = static_cast<int>(roundf(frame.size.height));
 
     *x = static_cast<int>(roundf(frame.origin.x));
-    *y = static_cast<int>(monitor.monitor.height - (static_cast<int>(roundf(frame.origin.y)) + height)); // Assuming window is on monitor 0
- }
+    *y = static_cast<int>(monitor.monitor.height - (static_cast<int>(roundf(frame.origin.y)) + height));
+}
 
 void InfiniFrame::GetResizable(bool* resizable) const
 {
@@ -434,9 +419,6 @@ void InfiniFrame::GetFocused(bool* isFocused) const
         return;
     }
 
-    // A window is focused when it is BOTH:
-    //  - key window  (receiving keyboard input)
-    //  - the app is active (not in background)
     bool focused =
         [NSApp isActive] &&
         [_window isKeyWindow];
@@ -446,8 +428,7 @@ void InfiniFrame::GetFocused(bool* isFocused) const
 
 unsigned int InfiniFrame::GetScreenDpi() const
 {
-    //not supported on macOS - _window's devices collection does have dpi
-	return 72;  //https://stackoverflow.com/questions/2621439/hot-to-get-screen-dpi-linux-mac-programaticaly
+	return 72; // https://stackoverflow.com/questions/2621439/hot-to-get-screen-dpi-linux-mac-programaticaly
 }
 
 void InfiniFrame::GetSize(int* width, int* height) const
@@ -518,7 +499,7 @@ void InfiniFrame::SendWebMessage(AutoString message)
         initWithData: data
         encoding: NSUTF8StringEncoding] autorelease];
 
-    // Remove curly braces?
+    // Remove outer array brackets
     nsmessageJson = [
         [nsmessageJson substringToIndex: ([nsmessageJson length] - 1)]
         substringFromIndex: 1
@@ -542,11 +523,11 @@ void InfiniFrame::SetUserAgent(AutoString userAgent)
     }
 }
 
-// Set preferences with a string key and a value of any type
 void InfiniFrame::SetPreference(NSString *key, NSNumber *value)
 {
     [_webviewConfiguration.preferences setValue: value forKey: key];
 }
+
 void InfiniFrame::SetPreference(NSString *key, NSString *value)
 {
     [_webviewConfiguration.preferences setValue: value forKey: key];
@@ -575,16 +556,13 @@ void InfiniFrame::SetZoomEnabled(bool enabled)
 
 void InfiniFrame::SetIconFile(AutoString filename)
 {
-   // Set the NSWindow icon
     NSString* path = [NSString stringWithUTF8String: filename];
     NSImage* icon = [[NSImage alloc] initWithContentsOfFile: path];
     if (icon != nil)
         [[_window standardWindowButton: NSWindowDocumentIconButton] setImage:icon];
 
-    // Store the path internally for retrieval later
     _iconFileName = filename ? filename : "";
 }
-
 
 void InfiniFrame::SetFullScreen(bool fullScreen)
 {
@@ -606,7 +584,6 @@ void InfiniFrame::SetMinimized(bool minimized)
 
 void InfiniFrame::SetMaximized(bool maximized)
 {
-    // Maximize window by filling the screen with the window instead of setting it to fullscreen
     if (maximized)
     {
         NSRect window = [_window frame];
@@ -614,7 +591,7 @@ void InfiniFrame::SetMaximized(bool maximized)
         _preMaximizedHeight = window.size.height;
         _preMaximizedXPosition = window.origin.x;
         _preMaximizedYPosition = window.origin.y;
-        
+
         NSRect screen = [[_window screen] visibleFrame];
         CGFloat xPos = screen.origin.x;
         CGFloat yPos = screen.origin.y;
@@ -624,7 +601,6 @@ void InfiniFrame::SetMaximized(bool maximized)
     }
     else if (!maximized && _preMaximizedWidth > 0 && _preMaximizedHeight > 0)
     {
-        // Restore window to its previous size
         [_window setFrame: NSMakeRect(_preMaximizedXPosition, _preMaximizedYPosition, _preMaximizedWidth, _preMaximizedHeight) display:YES];
     }
 }
@@ -633,10 +609,10 @@ void InfiniFrame::SetPosition(int x, int y)
 {
     std::vector<Monitor> monitors = GetMonitors();
     Monitor monitor = monitors[0];
-    
+
     NSRect frame = [_window frame];
     int height = static_cast<int>(roundf(frame.size.height));
-    
+
     auto left = static_cast<CGFloat>(x);
     auto top = static_cast<CGFloat>(monitor.monitor.height - (y + height));
 
@@ -655,40 +631,29 @@ void InfiniFrame::SetResizable(bool resizable)
 void InfiniFrame::SetSize(int width, int height)
 {
     // The macOS window server has a limit of 10,000 pixels for either dimension
-    // See: https://developer.apple.com/documentation/appkit/nswindow/1419595-maxsize
     width = width > 10000 ? 10000 : width;
     height = height > 10000 ? 10000 : height;
 
-    // Ensure that the size does not exceed any set min/max dimension:
-    // This is done here because the window server will not enforce this
-    // when the size is set programmatically compared to when the user
-    // resizes the window manually.
-    // This behavior is different from Windows and Linux where the OS
-    // will enforce the min/max size regardless of how the size is set.
     if (width > _window.maxSize.width) width = _window.maxSize.width;
     if (height > _window.maxSize.height) height = _window.maxSize.height;
     if (width < _window.minSize.width) width = _window.minSize.width;
     if (height < _window.minSize.height) height = _window.minSize.height;
 
     NSRect frame = [_window frame];
-    
+
     auto fw = static_cast<CGFloat>(width);
     auto fh = static_cast<CGFloat>(height);
-    
+
     CGFloat oldHeight = frame.size.height;
 
     frame.size = CGSizeMake(fw, fh);
-    
-    // Reposition the window so that the bottom left corner stays in the same place
     frame.origin.y -= fh - oldHeight;
-    
+
     [_window setFrame: frame display: true];
 }
 
 void InfiniFrame::SetMinSize(int width, int height)
 {
-    // The macOS window server has a limit of 10,000 pixels for either dimension
-    // See: https://developer.apple.com/documentation/appkit/nswindow/1419595-maxsize
     width = width > 10000 ? 10000 : width;
     height = height > 10000 ? 10000 : height;
 
@@ -698,8 +663,6 @@ void InfiniFrame::SetMinSize(int width, int height)
 
 void InfiniFrame::SetMaxSize(int width, int height)
 {
-    // The macOS window server has a limit of 10,000 pixels for either dimension
-    // See: https://developer.apple.com/documentation/appkit/nswindow/1419595-maxsize
     width = width > 10000 ? 10000 : width;
     height = height > 10000 ? 10000 : height;
 
@@ -727,16 +690,11 @@ void InfiniFrame::SetZoom(int zoom)
 
 void InfiniFrame::SetFocused()
 {
-     if (!_window) return;
+    if (!_window) return;
 
-    // Bring the application to the foreground
     [NSApp activateIgnoringOtherApps:YES];
-
-    // Ensure the window becomes the key window
     [_window makeKeyAndOrderFront:_window];
 
-    // If for some reason it still doesn't get key (borderless windows),
-    // force it to become key.
     if (![_window isKeyWindow])
     {
         [_window orderFrontRegardless];
@@ -758,7 +716,30 @@ void InfiniFrame::ShowNotification(AutoString title, AutoString body)
 
 void InfiniFrame::WaitForExit()
 {
-    [NSApp run];
+    if (![NSApp isRunning]) {
+        // First caller: start the application event loop.
+        [NSApp run];
+        return;
+    }
+
+    // NOTE: Still need to test this BUT from what i find...
+    // NSApp is already running on another thread's call. We cannot call [NSApp run] recursively
+    // Instead, spin the current run loop until this specific window closes (NSWindowWillCloseNotification fires)
+    __block bool windowClosed = false;
+    id observer = [[NSNotificationCenter defaultCenter]
+        addObserverForName: NSWindowWillCloseNotification
+        object: _window
+        queue: nil
+        usingBlock: ^(NSNotification*) {
+            windowClosed = true;
+        }];
+
+    while (!windowClosed) {
+        [[NSRunLoop currentRunLoop] runMode: NSDefaultRunLoopMode
+                                 beforeDate: [NSDate dateWithTimeIntervalSinceNow: 0.05]];
+    }
+
+    [[NSNotificationCenter defaultCenter] removeObserver: observer];
 }
 
 //Callbacks
@@ -782,7 +763,6 @@ void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback) const
             props.work.width = static_cast<int>(roundf(vframe.size.width));
             props.work.height = static_cast<int>(roundf(vframe.size.height));
 
-            // CGFloat scaleFactor = [screen backingScaleFactor];
             props.scale = [screen backingScaleFactor];
 
             callback(&props);
@@ -828,8 +808,6 @@ void InfiniFrame::Invoke(ACTION callback)
 //private methods
 void InfiniFrame::AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler)
 {
-    // Note that this can only be done *before* the WKWebView is instantiated, so we only let this
-    // get called from the options callback in the constructor
     UrlSchemeHandler* schemeHandler = [[[UrlSchemeHandler alloc] init] autorelease];
     schemeHandler->requestHandler = requestHandler;
 
@@ -893,7 +871,7 @@ void InfiniFrame::AttachWebView()
     else if (!_startString.empty())
         NavigateToString(const_cast<AutoString>(_startString.c_str()));
     else
-    {    
+    {
         NSAlert *alert = [[[NSAlert alloc] init] autorelease];
         [alert setMessageText:@"Neither StartUrl nor StartString was specified"];
         [alert runModal];

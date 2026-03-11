@@ -4,13 +4,7 @@
 #include <Windows.h>
 #include <wil/com.h>
 #include <WebView2.h>
-typedef wchar_t* AutoString;
-typedef const wchar_t* AutoStringConst;
 class WinToastHandler;
-#else
-// AutoString for macOS/Linux
-typedef char* AutoString;
-typedef const char* AutoStringConst;
 #endif
 
 #ifdef __APPLE__
@@ -30,102 +24,14 @@ typedef const char* AutoStringConst;
 
 #include <map>
 #include <memory>
-#include <string>
 #include <vector>
 
-// Internal string type matching platform AutoString character type
-#ifdef _WIN32
-using NativeString = std::wstring;
-#else
-using NativeString = std::string;
-#endif
-
-struct Monitor
-{
-	struct MonitorRect
-	{
-		int x, y;
-		int width, height;
-	} monitor, work;
-	double scale;
-};
-
-using ACTION = void (*)();
-using WebMessageReceivedCallback = void (*)(AutoString message);
-using WebResourceRequestedCallback = void *(*)(AutoString url, int *outNumBytes, AutoString *outContentType);
-using GetAllMonitorsCallback = int (*)(const Monitor *monitor);
-using ResizedCallback = void (*)(int width, int height);
-using MaximizedCallback = void (*)();
-using RestoredCallback = void (*)();
-using MinimizedCallback = void (*)();
-using MovedCallback = void (*)(int x, int y);
-using ClosingCallback = bool (*)();
-using FocusInCallback = void (*)();
-using FocusOutCallback = void (*)();
+#include "Types.h"
+#include "Monitor.h"
+#include "Callbacks.h"
+#include "InitParams.h"
 
 class InfiniFrameDialog;
-class InfiniFrame;
-
-struct InfiniFrameInitParams
-{
-	AutoString StartString;
-	AutoString StartUrl;
-	AutoString Title;
-	AutoString WindowIconFile;
-	AutoString TemporaryFilesPath;
-	AutoString UserAgent;
-	AutoString BrowserControlInitParameters;
-	AutoString NotificationRegistrationId;
-
-	InfiniFrame *ParentInstance;
-
-	ClosingCallback *ClosingHandler;
-	FocusInCallback *FocusInHandler;
-	FocusOutCallback *FocusOutHandler;
-	ResizedCallback *ResizedHandler;
-	MaximizedCallback *MaximizedHandler;
-	RestoredCallback *RestoredHandler;
-	MinimizedCallback *MinimizedHandler;
-	MovedCallback *MovedHandler;
-	WebMessageReceivedCallback *WebMessageReceivedHandler;
-	AutoString CustomSchemeNames[16];
-	WebResourceRequestedCallback *CustomSchemeHandler;
-
-	int Left;
-	int Top;
-	int Width;
-	int Height;
-	int Zoom;
-	int MinWidth;
-	int MinHeight;
-	int MaxWidth;
-	int MaxHeight;
-
-	bool CenterOnInitialize;
-	bool Chromeless;
-	bool Transparent;
-	bool ContextMenuEnabled;
-	bool ZoomEnabled;
-	bool DevToolsEnabled;
-	bool FullScreen;
-	bool Maximized;
-	bool Minimized;
-	bool Resizable;
-	bool Topmost;
-	bool UseOsDefaultLocation;
-	bool UseOsDefaultSize;
-	bool GrantBrowserPermissions;
-	bool MediaAutoplayEnabled;
-	bool FileSystemAccessEnabled;
-	bool WebSecurityEnabled;
-	bool JavascriptClipboardAccessEnabled;
-	bool MediaStreamEnabled;
-	bool SmoothScrollingEnabled;
-    bool IgnoreCertificateErrorsEnabled;
-	bool NotificationsEnabled;
-
-	int Size;
-};
 
 class InfiniFrame
 {
@@ -160,7 +66,7 @@ private:
 	bool _javascriptClipboardAccessEnabled;
 	bool _mediaStreamEnabled;
 	bool _smoothScrollingEnabled;
-    bool _ignoreCertificateErrorsEnabled;
+	bool _ignoreCertificateErrorsEnabled;
 	bool _notificationsEnabled;
 
 	bool _contextMenuEnabled;
@@ -181,9 +87,8 @@ private:
 	bool EnsureWebViewIsInstalled();
 	bool InstallWebView2();
 	void AttachWebView();
-	
+
 #elif __linux__
-	// GtkWidget* _window;
 	GtkWidget *_webview;
 	GdkGeometry _hints;
 	void AddCustomSchemeHandlers();
@@ -193,7 +98,7 @@ private:
 	WKWebView *_webview;
 	WKWebViewConfiguration *_webviewConfiguration;
 	std::vector<Monitor> GetMonitors() const;
-	
+
 	bool _chromeless;
 
 	int _preMaximizedWidth;
@@ -202,7 +107,7 @@ private:
 	int _preMaximizedYPosition;
 
 	void AttachWebView();
-    void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
+	void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
 
 	void SetUserAgent(AutoString userAgent);
 
@@ -241,7 +146,7 @@ public:
 	static void Register();
 #endif
 
-    explicit InfiniFrame(InfiniFrameInitParams *initParams);
+	explicit InfiniFrame(InfiniFrameInitParams *initParams);
 	~InfiniFrame();
 
 	[[nodiscard]] InfiniFrameDialog *GetDialog() const { return _dialog.get(); };
@@ -274,11 +179,11 @@ public:
 	void GetTopmost(bool *topmost) const;
 	void GetZoom(int *zoom) const;
 	void GetIgnoreCertificateErrorsEnabled(bool* enabled) const;
-    void GetFocused(bool *isFocused) const;
+	void GetFocused(bool *isFocused) const;
 
 	void NavigateToString(AutoString content);
 	void NavigateToUrl(AutoString url);
-	void Restore(); // required anymore?backward compat?
+	void Restore();
 	void SendWebMessage(AutoString message);
 
 	void SetTransparentEnabled(bool enabled);
@@ -297,7 +202,7 @@ public:
 	void SetTitle(AutoString title);
 	void SetTopmost(bool topmost);
 	void SetZoom(int zoom);
-    void SetFocused();
+	void SetFocused();
 
 	void ShowNotification(AutoString title, AutoString message);
 	void WaitForExit();
@@ -317,43 +222,43 @@ public:
 
 	void Invoke(ACTION callback);
 
-    [[nodiscard]] bool InvokeClose() const noexcept
-    {
-        return _closingCallback && _closingCallback();
-    }
+	[[nodiscard]] bool InvokeClose() const noexcept
+	{
+		return _closingCallback && _closingCallback();
+	}
 
 	void InvokeFocusIn() const noexcept
-    {
+	{
 		if (_focusInCallback)
 			return _focusInCallback();
 	}
 	void InvokeFocusOut() const noexcept
-    {
+	{
 		if (_focusOutCallback)
 			return _focusOutCallback();
 	}
 	void InvokeMove(const int x, const int y) const noexcept
-    {
+	{
 		if (_movedCallback)
 			_movedCallback(x, y);
 	}
 	void InvokeResize(const int width, const int height) const noexcept
-    {
+	{
 		if (_resizedCallback)
 			_resizedCallback(width, height);
 	}
 	void InvokeMaximized() const noexcept
-    {
+	{
 		if (_maximizedCallback)
 			return _maximizedCallback();
 	}
 	void InvokeRestored() const noexcept
-    {
+	{
 		if (_restoredCallback)
 			return _restoredCallback();
 	}
 	void InvokeMinimized() const noexcept
-    {
+	{
 		if (_minimizedCallback)
 			return _minimizedCallback();
 	}

@@ -1,6 +1,6 @@
 #ifdef __linux__
-#include "InfiniFrame.h"
-#include "InfiniFrame.Dialog.h"
+#include "Models/InfiniFrame.h"
+#include "Models/InfiniFrameDialog.h"
 #include <mutex>
 #include <condition_variable>
 #include <X11/Xlib.h>
@@ -167,13 +167,6 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams *initParams) : _webview(nullptr)
 	if (initParams->Topmost)
 		InfiniFrame::SetTopmost(true);
 
-	if (_parent == nullptr)
-	{
-		g_signal_connect(G_OBJECT(_window), "destroy",
-						 G_CALLBACK(+[](GtkWidget *w, gpointer arg)
-									{ gtk_main_quit(); }),
-						 this);
-	}
 
 	// g_signal_connect(G_OBJECT(_window), "size-allocate",
 	//	G_CALLBACK(on_size_allocate),
@@ -638,6 +631,13 @@ void InfiniFrame::ShowNotification(const AutoString title, const AutoString mess
 
 void InfiniFrame::WaitForExit()
 {
+	// Each window controls its own loop level: when this window is destroyed,
+	// gtk_main_quit() exits the innermost gtk_main() started by this call.
+	// GTK supports nested event loops, so multiple WaitForExit() calls
+	// (dispatched via gdk_threads_add_idle) each run their own nested loop.
+	g_signal_connect(G_OBJECT(_window), "destroy",
+					 G_CALLBACK(+[](GtkWidget*, gpointer) { gtk_main_quit(); }),
+					 nullptr);
 	gtk_main();
 }
 

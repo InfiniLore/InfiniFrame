@@ -1,4 +1,4 @@
-#include "InfiniFrame.Windows.DarkMode.h"
+#include "DarkMode.h"
 
 #include <mutex>
 

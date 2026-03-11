@@ -1,5 +1,5 @@
 #ifdef __linux__
-#include "InfiniFrame.Dialog.h"
+#include "Models/InfiniFrameDialog.h"
 
 enum DialogType {
     OpenFile,

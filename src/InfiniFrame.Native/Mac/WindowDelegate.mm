@@ -1,12 +1,12 @@
 #ifdef __APPLE__
-#import "InfiniFrame.Mac.WindowDelegate.h"
+#import "WindowDelegate.h"
 
 @implementation WindowDelegate : NSObject
 - (void)windowDidResize:(NSNotification *)notification {
     int width, height;
     infiniFrame->GetSize(&width, &height);
     infiniFrame->InvokeResize(width, height);
-}  
+}
 
 - (void)windowDidMove:(NSNotification *)notification {
     int x, y;

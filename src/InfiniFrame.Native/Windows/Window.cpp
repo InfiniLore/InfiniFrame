@@ -8,10 +8,10 @@
 #include <windows.h>
 #include <wrl.h>
 
-#include "InfiniFrame.Dialog.h"
-#include "InfiniFrame.h"
-#include "InfiniFrame.Windows.DarkMode.h"
-#include "InfiniFrame.Windows.ToastHandler.h"
+#include "Models/InfiniFrameDialog.h"
+#include "Models/InfiniFrame.h"
+#include "DarkMode.h"
+#include "ToastHandler.h"
 
 #pragma comment(lib, "Shcore.lib")
 #pragma comment(lib, "Urlmon.lib")
@@ -24,8 +24,9 @@ using namespace Microsoft::WRL;
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 const wchar_t* CLASS_NAME = L"InfiniFrame";
 std::mutex invokeLockMutex;
+std::mutex hwndMapMutex;
 HINSTANCE InfiniFrame::_hInstance;
-HWND messageLoopRootWindowHandle;
+thread_local HWND messageLoopRootWindowHandle = nullptr;
 std::map<HWND, InfiniFrame*> hwndToInfiniFrame;
 wchar_t _webview2RuntimePath[MAX_PATH];
 
@@ -210,7 +211,10 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 		_hInstance, //Instance handle
 		this        //Additional application data
 	);
-	hwndToInfiniFrame[_hWnd] = this;
+	{
+		std::lock_guard<std::mutex> lock(hwndMapMutex);
+		hwndToInfiniFrame[_hWnd] = this;
+	}
 
 	if (initParams->WindowIconFile != nullptr)
 	{
@@ -356,9 +360,11 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 		{
 			instance->CloseWebView();
 		}
-		// Only terminate the message loop if the window being closed is the one that
-		// started the message loop
-		hwndToInfiniFrame.erase(hwnd);
+		{
+			std::lock_guard<std::mutex> lock(hwndMapMutex);
+			hwndToInfiniFrame.erase(hwnd);
+		}
+		// Terminate the message loop of the thread that owns this window
 		if (hwnd == messageLoopRootWindowHandle)
 			PostQuitMessage(0);
 

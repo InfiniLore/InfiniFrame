@@ -17,42 +17,47 @@ set(TEST_SOURCES
 
 # Windows-specific sources
 set(WINDOWS_SOURCES
-        InfiniFrame.Windows.cpp
-        InfiniFrame.Windows.DarkMode.cpp
-        InfiniFrame.Windows.Dialog.cpp
+        Windows/Window.cpp
+        Windows/DarkMode.cpp
+        Windows/Dialog.cpp
         Dependencies/wintoastlib.cpp
 )
 
 # Linux-specific sources
 set(LINUX_SOURCES
-        InfiniFrame.Linux.cpp
-        InfiniFrame.Linux.Dialog.cpp
+        Linux/Window.cpp
+        Linux/Dialog.cpp
 )
 
 # macOS-specific sources (Objective-C++)
 set(MAC_SOURCES
-        InfiniFrame.Mac.AppDelegate.mm
-        InfiniFrame.Mac.UiDelegate.mm
-        InfiniFrame.Mac.WindowDelegate.mm
-        InfiniFrame.Mac.NavigationDelegate.mm
-        InfiniFrame.Mac.UrlSchemeHandler.mm
-        InfiniFrame.Mac.NSWindowBorderless.mm
-        InfiniFrame.Mac.Dialog.mm
-        InfiniFrame.Mac.mm
+        Mac/AppDelegate.mm
+        Mac/UiDelegate.mm
+        Mac/WindowDelegate.mm
+        Mac/NavigationDelegate.mm
+        Mac/UrlSchemeHandler.mm
+        Mac/NSWindowBorderless.mm
+        Mac/Dialog.mm
+        Mac/Window.mm
 )
 
 # Header files
 set(HEADER_FILES
-        InfiniFrame.h
-        InfiniFrame.Dialog.h
-        InfiniFrame.Windows.ToastHandler.h
-        InfiniFrame.Windows.DarkMode.h
-        InfiniFrame.Mac.AppDelegate.h
-        InfiniFrame.Mac.NavigationDelegate.h
-        InfiniFrame.Mac.NSWindowBorderless.h
-        InfiniFrame.Mac.UiDelegate.h
-        InfiniFrame.Mac.WindowDelegate.h
-        InfiniFrame.Mac.UrlSchemeHandler.h
+        Models/InfiniFrame.h
+        Models/InfiniFrameDialog.h
+        Models/Types.h
+        Models/Monitor.h
+        Models/Callbacks.h
+        Models/InitParams.h
+        Models/DialogEnums.h
+        Windows/ToastHandler.h
+        Windows/DarkMode.h
+        Mac/AppDelegate.h
+        Mac/NavigationDelegate.h
+        Mac/NSWindowBorderless.h
+        Mac/UiDelegate.h
+        Mac/WindowDelegate.h
+        Mac/UrlSchemeHandler.h
         Dependencies/wintoastlib.h
         Dependencies/json.hpp
         resource.h
@@ -142,6 +147,7 @@ if(WIN32)
 
     # Include directories
     target_include_directories(${PROJECT_NAME} PRIVATE
+            "${CMAKE_SOURCE_DIR}"
             "${WEBVIEW2_BASE_DIR}/include"
             "${WINIMPL_INCLUDE_DIR}"
     )
@@ -259,6 +265,7 @@ elseif(UNIX)
 
     # Include directories
     target_include_directories(${PROJECT_NAME} PRIVATE
+            "${CMAKE_SOURCE_DIR}"
             ${GTK3_INCLUDE_DIRS}
             ${WEBKIT2_INCLUDE_DIRS}
             ${LIBNOTIFY_INCLUDE_DIRS}
