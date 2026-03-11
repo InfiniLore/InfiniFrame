@@ -1,14 +1,10 @@
 #ifdef __APPLE__
-#import "InfiniFrame.Mac.UrlSchemeHandler.h"
+#import "UrlSchemeHandler.h"
 
 @implementation UrlSchemeHandler : NSObject
 
 - (void)webView:(WKWebView *)webView startURLSchemeTask:(id <WKURLSchemeTask>)urlSchemeTask
-{ 
-    //NSAlert *alert = [[[NSAlert alloc] init] autorelease];
-    //[alert setMessageText:@"startURLSchemeTask"];
-    //[alert runModal];
-
+{
     NSURL *url = [[urlSchemeTask request] URL];
     auto *urlUtf8 = const_cast<char *>([url.absoluteString UTF8String]);
     int numBytes;
@@ -31,7 +27,6 @@
 
 - (void)webView:(WKWebView *)webView stopURLSchemeTask:(id <WKURLSchemeTask>)urlSchemeTask
 {
-
 }
 
 @end

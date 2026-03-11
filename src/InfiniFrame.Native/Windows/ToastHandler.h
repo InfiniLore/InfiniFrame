@@ -1,7 +1,7 @@
 #pragma once
 
 #include <WinUser.h>
-#include "InfiniFrame.h"
+#include "Models/InfiniFrame.h"
 #include "Dependencies/wintoastlib.h"
 
 using namespace WinToastLib;
@@ -26,24 +26,16 @@ public:
     // Activation with action index
     void toastActivated(int actionIndex) const override
     {
-        // Handle specific action index if needed
-        toastActivated(); // For now handling as default
+        toastActivated();
     }
 
     // Activation with string response
     void toastActivated(std::wstring response) const override
     {
-        // Handle string response if needed
-        toastActivated(); // For now handling as default
+        toastActivated();
     }
 
-    void toastDismissed(WinToastDismissalReason state) const override
-    {
-        // Optional handling
-    }
+    void toastDismissed(WinToastDismissalReason state) const override {}
 
-    void toastFailed() const override
-    {
-        // Optional handling
-    }
+    void toastFailed() const override {}
 };

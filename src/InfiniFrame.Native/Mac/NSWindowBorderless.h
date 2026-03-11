@@ -1,6 +1,6 @@
 #ifdef __APPLE__
 #pragma once
-#include "InfiniFrame.h"
+#include "Models/InfiniFrame.h"
 
 @interface NSWindowBorderless : NSWindow
 {

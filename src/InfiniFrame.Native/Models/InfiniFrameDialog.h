@@ -1,39 +1,11 @@
 #pragma once
 
 #include "InfiniFrame.h"
+#include "DialogEnums.h"
 
 #ifdef __APPLE__
 #include <Cocoa/Cocoa.h>
 #endif
-
-enum class DialogResult
-{
-	Cancel = -1,
-	Ok,
-	Yes,
-	No,
-	Abort,
-	Retry,
-	Ignore,
-};
-
-enum class DialogButtons
-{
-	Ok,
-	OkCancel,
-	YesNo,
-	YesNoCancel,
-	RetryCancel,
-	AbortRetryIgnore,
-};
-
-enum class DialogIcon
-{
-	Info,
-	Warning,
-	Error,
-	Question,
-};
 
 class InfiniFrameDialog
 {

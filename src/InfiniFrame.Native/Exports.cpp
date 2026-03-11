@@ -1,5 +1,5 @@
-#include "InfiniFrame.Dialog.h"
-#include "InfiniFrame.h"
+#include "Models/InfiniFrameDialog.h"
+#include "Models/InfiniFrame.h"
 #ifdef __linux__
 #include <glib.h>
 #endif

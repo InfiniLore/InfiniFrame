@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#import "InfiniFrame.Mac.UiDelegate.h"
+#import "UiDelegate.h"
 
 @implementation UiDelegate : NSObject
 - (void)userContentController:(WKUserContentController *)userContentController
@@ -35,7 +35,7 @@
 
     [alert setMessageText: @"Confirm"];
     [alert setInformativeText:message];
-    
+
     [alert addButtonWithTitle:@"OK"];
     [alert addButtonWithTitle:@"Cancel"];
 
@@ -55,14 +55,14 @@
 
     [alert setMessageText: @"Prompt"];
     [alert setInformativeText:prompt];
-    
+
     [alert addButtonWithTitle:@"OK"];
     [alert addButtonWithTitle:@"Cancel"];
-    
+
     NSTextField* input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
     [input setStringValue:defaultText];
     [alert setAccessoryView:input];
-    
+
     [alert beginSheetModalForWindow:window completionHandler:^void (NSModalResponse response) {
         [input validateEditing];
         completionHandler(response == NSAlertFirstButtonReturn ? [input stringValue] : nil);
@@ -70,9 +70,9 @@
     }];
 }
 
-- (void)webView:(WKWebView *)webView 
-        runOpenPanelWithParameters:(WKOpenPanelParameters *)parameters 
-        initiatedByFrame:(WKFrameInfo *)frame 
+- (void)webView:(WKWebView *)webView
+        runOpenPanelWithParameters:(WKOpenPanelParameters *)parameters
+        initiatedByFrame:(WKFrameInfo *)frame
         completionHandler:(void (^)(NSArray<NSURL *> *URLs))completionHandler
 {
     NSOpenPanel* openDlg = [NSOpenPanel openPanel];
@@ -86,10 +86,10 @@
     }];
 }
 
-- (void)webView:(WKWebView *)webView 
-        requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin 
-        initiatedByFrame:(WKFrameInfo *)frame 
-        type:(WKMediaCaptureType)type 
+- (void)webView:(WKWebView *)webView
+        requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin
+        initiatedByFrame:(WKFrameInfo *)frame
+        type:(WKMediaCaptureType)type
         decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler
 {
     bool grantPermissions;

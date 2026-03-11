@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#import "InfiniFrame.Mac.NSWindowBorderless.h"
+#import "NSWindowBorderless.h"
 
 @implementation NSWindowBorderless : NSWindow
 - (BOOL)canBecomeKeyWindow

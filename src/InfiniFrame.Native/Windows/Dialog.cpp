@@ -1,4 +1,4 @@
-#include "InfiniFrame.Dialog.h"
+#include "Models/InfiniFrameDialog.h"
 
 #include <cwchar>
 #include <iostream>
@@ -181,7 +181,7 @@ AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString default
 	HRESULT hr;
 	std::wstring wideTitle = _window->ToUTF16String(title);
 	std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
-	
+
 	auto* pfd = Create<IFileOpenDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
 
 	if (SUCCEEDED(hr)) {
@@ -210,7 +210,7 @@ AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString default
 
 AutoString* InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, const bool multiSelect, int* resultCount)
 {
-	HRESULT hr;	
+	HRESULT hr;
 	std::wstring wideTitle = _window->ToUTF16String(title);
 	std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
 
