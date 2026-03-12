@@ -6,13 +6,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="wwwroot\**"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="wwwroot\**">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
+        <Content Update="wwwroot\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>

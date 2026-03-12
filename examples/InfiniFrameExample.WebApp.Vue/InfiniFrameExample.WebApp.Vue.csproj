@@ -6,24 +6,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="wwwroot\**"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="wwwroot\**">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
+        <Content Update="wwwroot\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
         <Folder Include="Source\"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <_ContentIncludedByDefault Remove="wwwroot\assets\index-6D1d22Ve.css"/>
-        <_ContentIncludedByDefault Remove="wwwroot\assets\index-CsvMUBM9.js"/>
-        <_ContentIncludedByDefault Remove="wwwroot\index.html"/>
-        <_ContentIncludedByDefault Remove="wwwroot\vite.svg"/>
     </ItemGroup>
 
     <Target Name="BuildFrontend" BeforeTargets="Build">

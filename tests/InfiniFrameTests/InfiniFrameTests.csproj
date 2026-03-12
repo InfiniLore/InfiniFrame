@@ -1,29 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-        
-        <TargetDir Condition="'$(TargetDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\</TargetDir>
-
-        <CMakePlatform>$(Platform)</CMakePlatform>
-        <CMakePlatform Condition="'$(CMakePlatform)'=='' Or '$(CMakePlatform)'=='AnyCPU' Or '$(CMakePlatform)'=='Any CPU'">x64</CMakePlatform>
-        <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
-        <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
-        <IsMac>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMac>
-
-        <!-- Map to CMake architecture -->
-        <CMakeArch Condition="'$(CMakePlatform)'=='x64'">x64</CMakeArch>
-        <CMakeArch Condition="'$(CMakePlatform)'=='arm64'">arm64</CMakeArch>
-    
-        <!-- Fallback -->
-        <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
-
-        <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
-        <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
-        <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
-        <CMakeOSDir Condition="'$(IsMac)'=='true'">osx</CMakeOSDir>
-
-        <!-- Output all binaries to a fixed path under the solution -->
-        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+        <EnableNativeDllCopy>true</EnableNativeDllCopy>
     </PropertyGroup>
 
     <ItemGroup>
@@ -35,36 +13,6 @@
         <ProjectReference Include="..\..\src\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
-
-    <Target Name="EnsureNativeDlls" AfterTargets="Build">
-        <ItemGroup>
-            <NativeDlls Include="$(NativeOutputDir)/InfiniFrame.Native.dll"
-                        Condition="Exists('$(NativeOutputDir)/InfiniFrame.Native.dll')"/>
-            <NativeDlls Include="$(NativeOutputDir)/WebView2Loader.dll"
-                        Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')"/>
-            <NativeDlls Include="$(NativeOutputDir)/InfiniFrame.Native.so"
-                        Condition="Exists('$(NativeOutputDir)/InfiniFrame.Native.so')"/>
-            <NativeDlls Include="$(NativeOutputDir)/InfiniFrame.Native.dylib"
-                        Condition="Exists('$(NativeOutputDir)/InfiniFrame.Native.dylib')"/>
-        </ItemGroup>
-
-        <Copy Condition="@(NativeDlls->Count()) > 0"
-              SourceFiles="@(NativeDlls)"
-              DestinationFolder="$(TargetDir)"
-              SkipUnchangedFiles="true" />
-
-        <Message Condition="Exists('$(OutDir)/InfiniFrame.Native.dll')"
-                 Text="✅ Copied InfiniFrame.Native.dll into test output" Importance="High"/>
-
-        <Message Condition="Exists('$(OutDir)/WebView2Loader.dll')"
-                 Text="✅ Copied WebView2Loader.dll into test output" Importance="High"/>
-
-        <Message Condition="Exists('$(OutDir)/InfiniFrame.Native.so')"
-                 Text="✅ Copied InfiniFrame.Native.so into test output" Importance="High"/>
-
-        <Message Condition="Exists('$(OutDir)/InfiniFrame.Native.dylib')"
-                 Text="✅ Copied InfiniFrame.Native.dylib into test output" Importance="High"/>
-    </Target>
 
     <ItemGroup>
         <Content Include="..\..\assets\favicon.ico">
