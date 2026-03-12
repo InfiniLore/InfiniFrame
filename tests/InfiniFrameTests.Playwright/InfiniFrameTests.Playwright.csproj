@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>        
         <TargetDir Condition="'$(TargetDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\</TargetDir>
@@ -23,6 +23,10 @@
 
         <!-- Output all binaries to a fixed path under the solution -->
         <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+
+        <!-- Build frontend exactly once during multi-target builds -->
+        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'=='' and '$(TargetFrameworks)'!=''">$([System.String]::Copy('$(TargetFrameworks)').Split(';')[0])</FrontendBuildOnceTargetFramework>
+        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'==''">$(TargetFramework)</FrontendBuildOnceTargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -75,7 +79,9 @@
                  Text="✅ Copied InfiniFrame.Native.dylib into test output" Importance="High"/>
     </Target>
 
-    <Target Name="BuildFrontend" BeforeTargets="Build">
+    <Target Name="BuildFrontend"
+            BeforeTargets="Build"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true' and '$(TargetFramework)'=='$(FrontendBuildOnceTargetFramework)'">
         <Message Text="Installing npm packages" Importance="high"/>
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
         <Message Text="Building frontend with npm..." Importance="high"/>
