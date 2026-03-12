@@ -1,6 +1,7 @@
 #ifdef __APPLE__
-#include "Models/InfiniFrame.h"
-#include "Models/InfiniFrameDialog.h"
+#include "Core/InfiniFrameWindow.h"
+#include "Core/InfiniFrameDialog.h"
+#include "Utils/Common.h"
 #include "AppDelegate.h"
 #include "UiDelegate.h"
 #include "WindowDelegate.h"
@@ -8,10 +9,10 @@
 #include "NSWindowBorderless.h"
 #include "NavigationDelegate.h"
 #include <vector>
+#include <fmt/format.h>
+#include <simdjson.h>
 
 #include "Dependencies/json.hpp"
-
-using json = nlohmann::json;
 
 using namespace std;
 
@@ -84,7 +85,7 @@ void InfiniFrame::Register()
     [NSApp setMainMenu: mainMenu];
 }
 
-InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 {
 	_windowTitle = initParams->Title ? initParams->Title : "";
 
@@ -234,31 +235,47 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 
     if (initParams->BrowserControlInitParameters != nullptr)
     {
-        json wkPreferences = json::parse(initParams->BrowserControlInitParameters);
-
-        for (json::iterator it = wkPreferences.begin(); it != wkPreferences.end(); ++it)
-        {
-            json key = it.key();
-            json value = it.value();
-
-            NSString *preferenceKey = [NSString stringWithUTF8String: key.get<std::string>().c_str()];
-
-            if (value.is_number_integer())
-            {
-                SetPreference(preferenceKey, [NSNumber numberWithInt: value]);
-            }
-            else if (value.is_number_float())
-            {
-                SetPreference(preferenceKey, [NSNumber numberWithDouble: value]);
-            }
-            else if (value.is_boolean())
-            {
-                SetPreference(preferenceKey, [NSNumber numberWithBool: value]);
-            }
-            else if (value.is_string())
-            {
-                NSString *preferenceValue = [[NSString alloc] initWithUTF8String: value.get<std::string>().c_str()];
-                SetPreference(preferenceKey, preferenceValue);
+        simdjson::ondemand::parser parser;
+        auto doc = parser.iterate(initParams->BrowserControlInitParameters);
+        
+        for (auto field : doc.get_object()) {
+            auto key = field.key().value();
+            auto value = field.value();
+            
+            NSString *preferenceKey = [NSString stringWithUTF8String: key.data()];
+            
+            switch (value.type()) {
+                case simdjson::ondemand::json_type::number: {
+                    int64_t intVal;
+                    if (value.get(intVal).error() == simdjson::SUCCESS) {
+                        SetPreference(preferenceKey, [NSNumber numberWithInt: (int)intVal]);
+                    } else {
+                        double doubleVal;
+                        if (value.get(doubleVal).error() == simdjson::SUCCESS) {
+                            SetPreference(preferenceKey, [NSNumber numberWithDouble: doubleVal]);
+                        }
+                    }
+                    break;
+                }
+                case simdjson::ondemand::json_type::boolean: {
+                    bool boolVal;
+                    if (value.get(boolVal).error() == simdjson::SUCCESS) {
+                        SetPreference(preferenceKey, [NSNumber numberWithBool: boolVal]);
+                    }
+                    break;
+                }
+                case simdjson::ondemand::json_type::string: {
+                    std::string_view strVal;
+                    if (value.get(strVal).error() == simdjson::SUCCESS) {
+                        NSString *preferenceValue = [[NSString alloc] initWithBytes:strVal.data() 
+                                                                             length:strVal.length() 
+                                                                           encoding:NSUTF8StringEncoding];
+                        SetPreference(preferenceKey, preferenceValue);
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
         }
     }
@@ -269,7 +286,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
     SetFullScreen(initParams->FullScreen);
 }
 
-InfiniFrame::~InfiniFrame()
+InfiniFrameWindow::~InfiniFrameWindow()
 {
     [_webviewConfiguration release];
     [_webview release];
@@ -800,9 +817,16 @@ std::vector<Monitor> InfiniFrame::GetMonitors() const
 
 void InfiniFrame::Invoke(ACTION callback)
 {
-    dispatch_sync(dispatch_get_main_queue(), ^(void){
+    if (dispatch_get_main_queue() == dispatch_get_current_queue())
+    {
         callback();
-    });
+    }
+    else
+    {
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            callback();
+        });
+    }
 }
 
 //private methods

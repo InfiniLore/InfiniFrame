@@ -1,6 +1,7 @@
 #ifdef __linux__
-#include "Models/InfiniFrame.h"
-#include "Models/InfiniFrameDialog.h"
+#include "Core/InfiniFrameWindow.h"
+#include "Core/InfiniFrameDialog.h"
+#include "Utils/Common.h"
 #include <mutex>
 #include <condition_variable>
 #include <X11/Xlib.h>
@@ -9,9 +10,9 @@
 #include <sstream>
 #include <iomanip>
 #include <libnotify/notify.h>
-#include <dlfcn.h>	//for dynamically calling functions from shared libraries
-#include "Dependencies/json.hpp"
-using json = nlohmann::json;
+#include <dlfcn.h>
+#include <fmt/format.h>
+#include <simdjson.h>
 
 std::mutex invokeLockMutex;
 
@@ -22,10 +23,7 @@ struct InvokeWaitInfo
 	bool isCompleted;
 };
 
-struct InvokeJSWaitInfo
-{
-	bool isCompleted;
-};
+// InvokeJSWaitInfo removed - using fire-and-forget async pattern
 
 // window size or position changed
 gboolean on_configure_event(GtkWidget *widget, GdkEvent *event, gpointer self);
@@ -40,7 +38,7 @@ gboolean on_webview_context_menu(WebKitWebView *web_view,
 								 gpointer user_data);
 gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest *request, gpointer user_data);
 
-InfiniFrame::InfiniFrame(InfiniFrameInitParams *initParams) : _webview(nullptr)
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams *initParams) : _webview(nullptr)
 {
 	// It makes xlib thread safe.
 	// Needed for get_position.
@@ -168,10 +166,6 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams *initParams) : _webview(nullptr)
 		InfiniFrame::SetTopmost(true);
 
 
-	// g_signal_connect(G_OBJECT(_window), "size-allocate",
-	//	G_CALLBACK(on_size_allocate),
-	//	this);
-
 	g_signal_connect(G_OBJECT(_window), "configure-event",
 					 G_CALLBACK(on_configure_event),
 					 this);
@@ -211,11 +205,9 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams *initParams) : _webview(nullptr)
 	if (_zoom != 100.0)
 		SetZoom(_zoom);
 
-	//gchar* webkitVer = g_strconcat(g_strdup_printf("%d", webkit_get_major_version()), ".", g_strdup_printf("%d", webkit_get_minor_version()), ".", g_strdup_printf("%d", webkit_get_micro_version()), NULL);
-	//InfiniFrame::ShowNotification("Web Kit Version", webkitVer);
 }
 
-InfiniFrame::~InfiniFrame()
+InfiniFrameWindow::~InfiniFrameWindow()
 {
 	notify_uninit();
 	gtk_widget_destroy(_window);
@@ -342,8 +334,7 @@ void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
 
 void InfiniFrame::GetMaximized(bool *isMaximized) const
 {
-	//gboolean maximized = gtk_window_is_maximized(GTK_WINDOW(_window));  //this method doesn't work
-	//*isMaximized = maximized;
+	// gtk_window_is_maximized() is unreliable; use GDK window state directly
 	GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(_window));
 	GdkWindowState flags = gdk_window_get_state(gdk_window);
 	*isMaximized = flags & GDK_WINDOW_STATE_MAXIMIZED;
@@ -379,19 +370,6 @@ unsigned int InfiniFrame::GetScreenDpi() const
 void InfiniFrame::GetSize(int *width, int *height) const
 {
 	gtk_window_get_size(GTK_WINDOW(_window), width, height);
-
-	// TODO: When calling set height, then set width...
-	// calling set size works fine.
-	// Uncomment this and it works properly. Commented, it only changes width.
-	// GtkWidget* dialog = gtk_message_dialog_new(
-	// 	nullptr
-	// 	, GTK_DIALOG_DESTROY_WITH_PARENT
-	// 	, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE
-	// 	, "width: %i bytes, height %i"
-	// 	, *width
-	// 	, *height);
-	// gtk_dialog_run(GTK_DIALOG(dialog));
-	// gtk_widget_destroy(dialog);
 }
 
 AutoString InfiniFrame::GetTitle() const
@@ -441,7 +419,6 @@ void InfiniFrame::Restore()
 
 static void webview_eval_finished_new(GObject *object, GAsyncResult *result, gpointer userdata)
 {
-    InvokeJSWaitInfo* waitInfo = (InvokeJSWaitInfo*)userdata;
     GError* error = nullptr;
     webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
 
@@ -450,39 +427,52 @@ static void webview_eval_finished_new(GObject *object, GAsyncResult *result, gpo
         g_warning("JavaScript evaluation failed: %s", error->message);
         g_error_free(error);
     }
+}
 
-    waitInfo->isCompleted = true;
+static std::string escapeJsonString(std::string_view input) {
+    std::string result;
+    result.reserve(input.size() + 2);
+    
+    for (char c : input) {
+        switch (c) {
+            case '"':  result += "\\\""; break;
+            case '\\': result += "\\\\"; break;
+            case '\b': result += "\\b"; break;
+            case '\f': result += "\\f"; break;
+            case '\n': result += "\\n"; break;
+            case '\r': result += "\\r"; break;
+            case '\t': result += "\\t"; break;
+            default:
+                if (static_cast<unsigned char>(c) < 0x20) {
+                    fmt::format_to(std::back_inserter(result), "\\u{:04x}", static_cast<unsigned char>(c));
+                } else {
+                    result += c;
+                }
+        }
+    }
+    
+    return result;
 }
 
 void InfiniFrame::SendWebMessage(const AutoString message)
 {
-    json j = message;
-    std::string escaped = j.dump();
-    // j.dump() returns quoted string like "value", strip the outer quotes
-    std::string unquoted = escaped.substr(1, escaped.size() - 2);
+    std::string escaped = escapeJsonString(message ? message : "");
 
     std::string js;
     js.append("__dispatchMessageCallback(\"");
-    js.append(unquoted);
+    js.append(escaped);
     js.append("\")");
-
-    InvokeJSWaitInfo invokeJsWaitInfo = {};
 
     webkit_web_view_evaluate_javascript(
         WEBKIT_WEB_VIEW(_webview),
-        js.c_str(),                 // script
-        -1,                         // length (-1 means null-terminated)
-        nullptr,                    // world_name (default JS world)
-        nullptr,                    // source_uri (optional, can be NULL)
-        nullptr,                    // GCancellable
-        webview_eval_finished_new,  // callback
-        &invokeJsWaitInfo           // user_data
+        js.c_str(),
+        -1,
+        nullptr,
+        nullptr,
+        nullptr,
+        webview_eval_finished_new,
+        nullptr
     );
-
-    // Wait for JS to finish
-    while (!invokeJsWaitInfo.isCompleted){
-        g_main_context_iteration(nullptr, TRUE);
-    }
 }
 
 
@@ -664,7 +654,7 @@ void InfiniFrame::GetAllMonitors(const GetAllMonitorsCallback callback) const
 
 static gboolean invokeCallback(const gpointer data)
 {
-	InvokeWaitInfo *waitInfo = (InvokeWaitInfo *)data;
+	auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(data);
 	waitInfo->callback();
 	{
 		std::lock_guard<std::mutex> guard(invokeLockMutex);
@@ -900,7 +890,7 @@ gboolean on_configure_event(GtkWidget *widget, GdkEvent *event, const gpointer s
 {
 	if (event->type == GDK_CONFIGURE)
 	{
-		InfiniFrame *instance = ((InfiniFrame *)self);
+		auto* instance = reinterpret_cast<InfiniFrame*>(self);
 
 		if (instance->_lastLeft != event->configure.x || instance->_lastTop != event->configure.y)
 		{
@@ -921,7 +911,7 @@ gboolean on_configure_event(GtkWidget *widget, GdkEvent *event, const gpointer s
 
 gboolean on_window_state_event(GtkWidget *widget, GdkEventWindowState *event, const gpointer self)
 {
-	InfiniFrame *instance = ((InfiniFrame *)self);
+	auto* instance = reinterpret_cast<InfiniFrame*>(self);
 	if (event->new_window_state & GDK_WINDOW_STATE_MAXIMIZED)
 	{
 		instance->InvokeMaximized();
@@ -939,20 +929,20 @@ gboolean on_window_state_event(GtkWidget *widget, GdkEventWindowState *event, co
 
 gboolean on_widget_deleted(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
-	InfiniFrame *instance = ((InfiniFrame *)self);
+	auto* instance = reinterpret_cast<InfiniFrame*>(self);
 	return instance->InvokeClose();
 }
 
 gboolean on_focus_in_event(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
-	InfiniFrame *instance = ((InfiniFrame *)self);
+	auto* instance = reinterpret_cast<InfiniFrame*>(self);
 	instance->InvokeFocusIn();
 	return FALSE;
 }
 
 gboolean on_focus_out_event(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
-	InfiniFrame *instance = ((InfiniFrame *)self);
+	auto* instance = reinterpret_cast<InfiniFrame*>(self);
 	instance->InvokeFocusOut();
 	return FALSE;
 }
@@ -960,7 +950,7 @@ gboolean on_focus_out_event(GtkWidget *widget, GdkEvent *event, const gpointer s
 gboolean on_webview_context_menu(WebKitWebView *web_view, GtkWidget *default_menu,
 								 WebKitHitTestResult *hit_test_result, gboolean triggered_with_keyboard, const gpointer self)
 {
-	InfiniFrame *instance = ((InfiniFrame *)self);
+	auto* instance = reinterpret_cast<InfiniFrame*>(self);
 	bool contextMenuEnabled = false;
 	instance->GetContextMenuEnabled(&contextMenuEnabled);
 	return !contextMenuEnabled;
@@ -968,7 +958,7 @@ gboolean on_webview_context_menu(WebKitWebView *web_view, GtkWidget *default_men
 
 gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest *request, gpointer user_data)
 {
-	InfiniFrame *instance = ((InfiniFrame *)user_data);
+	auto* instance = reinterpret_cast<InfiniFrame*>(user_data);
 	bool grant = false;
 	instance->GetGrantBrowserPermissions(&grant);
 	if (grant)

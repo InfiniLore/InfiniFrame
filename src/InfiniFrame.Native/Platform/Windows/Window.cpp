@@ -9,8 +9,11 @@
 #include <windows.h>
 #include <wrl.h>
 
-#include "Models/InfiniFrameDialog.h"
-#include "Models/InfiniFrame.h"
+#include <fmt/format.h>
+#include <fmt/xchar.h>
+
+#include "Core/InfiniFrameDialog.h"
+#include "Core/InfiniFrameWindow.h"
 #include "Dependencies/simdutf.h"
 #include "DarkMode.h"
 #include "ToastHandler.h"
@@ -100,9 +103,37 @@ struct ShowMessageParams
 	UINT type = 0;
 };
 
+namespace detail {
 
-const HBRUSH darkBrush = CreateSolidBrush(RGB(0, 0, 0));
-const HBRUSH lightBrush = CreateSolidBrush(RGB(255, 255, 255));
+class BrushManager {
+public:
+	static BrushManager& instance() noexcept {
+		static BrushManager inst;
+		return inst;
+	}
+
+	HBRUSH dark() const noexcept { return m_darkBrush.get(); }
+	HBRUSH light() const noexcept { return m_lightBrush.get(); }
+
+private:
+	BrushManager() noexcept {
+		m_darkBrush.reset(CreateSolidBrush(RGB(0, 0, 0)));
+		m_lightBrush.reset(CreateSolidBrush(RGB(255, 255, 255)));
+	}
+
+	~BrushManager() noexcept = default;
+
+	struct HBRUSHDeleter {
+		void operator()(void* h) const noexcept {
+			if (h) DeleteObject(static_cast<HBRUSH>(h));
+		}
+	};
+
+	std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
+	std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
+};
+
+} // namespace detail
 
 void InfiniFrame::Register(const HINSTANCE hInstance)
 {
@@ -120,7 +151,7 @@ void InfiniFrame::Register(const HINSTANCE hInstance)
 	wcx.hInstance = hInstance;
 	wcx.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
 	wcx.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcx.hbrBackground = IsDarkModeEnabled() ? darkBrush : lightBrush;
+	wcx.hbrBackground = IsDarkModeEnabled() ? detail::BrushManager::instance().dark() : detail::BrushManager::instance().light();
 	wcx.lpszMenuName = nullptr;
 	wcx.lpszClassName = CLASS_NAME;
 	wcx.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
@@ -130,13 +161,13 @@ void InfiniFrame::Register(const HINSTANCE hInstance)
 	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }
 
-InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 {
 	if (initParams->Size != sizeof(InfiniFrameInitParams))
 	{
-		wchar_t msg[200];
-		swprintf(msg, 200, L"Initial parameters passed are %i bytes, but expected %I64i bytes.", initParams->Size, sizeof(InfiniFrameInitParams));
-		MessageBox(nullptr, msg, L"Native Initialization Failed", MB_OK);
+		auto msg = fmt::format(L"Initial parameters passed are {} bytes, but expected {} bytes.", 
+			initParams->Size, sizeof(InfiniFrameInitParams));
+		MessageBox(nullptr, msg.c_str(), L"Native Initialization Failed", MB_OK);
 		exit(0);
 	}
 
@@ -313,7 +344,7 @@ InfiniFrame::InfiniFrame(InfiniFrameInitParams* initParams)
 	Show(isAlreadyShown);
 }
 
-InfiniFrame::~InfiniFrame()
+InfiniFrameWindow::~InfiniFrameWindow()
 {
 }
 
@@ -372,11 +403,11 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 		// Fill the background with the current theme color
 		if (IsDarkModeEnabled())
 		{
-			FillRect(hdc, &ps.rcPaint, darkBrush);
+			FillRect(hdc, &ps.rcPaint, detail::BrushManager::instance().dark());
 		}
 		else
 		{
-			FillRect(hdc, &ps.rcPaint, lightBrush);
+			FillRect(hdc, &ps.rcPaint, detail::BrushManager::instance().light());
 		}
 
 		EndPaint(hwnd, &ps);
@@ -582,8 +613,7 @@ void InfiniFrame::GetDevToolsEnabled(bool* enabled) const
 void InfiniFrame::GetFullScreen(bool* fullScreen) const
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
-	if (lStyles & WS_POPUP) *fullScreen = true;
-	else *fullScreen = false;
+	*fullScreen = (lStyles & WS_POPUP) != 0;
 }
 
 void InfiniFrame::GetGrantBrowserPermissions(bool* grant) const
@@ -693,8 +723,7 @@ AutoString InfiniFrame::GetTitle() const
 void InfiniFrame::GetTopmost(bool* topmost) const
 {
 	LONG lStyles = GetWindowLong(_hWnd, GWL_EXSTYLE);
-	if (lStyles & WS_EX_TOPMOST) *topmost = true;
-	else *topmost = false;
+	*topmost = (lStyles & WS_EX_TOPMOST) != 0;
 }
 
 void InfiniFrame::GetZoom(int* zoom) const
@@ -828,8 +857,7 @@ void InfiniFrame::SetIconFile(const AutoString filename)
     std::wstring wideFilename = ToUTF16String(filename);
     _iconFileName = wideFilename;
     if (wideFilename.empty()) return;
-    
-    // Load icons from file
+
     HICON iconSmall = static_cast<HICON>(LoadImageW(nullptr, wideFilename.c_str(),
         IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED));
     HICON iconBig = static_cast<HICON>(LoadImageW(nullptr, wideFilename.c_str(),
