@@ -1,7 +1,7 @@
 #pragma once
 
 #include <WinUser.h>
-#include "Models/InfiniFrame.h"
+#include "Core/InfiniFrame.h"
 #include "Dependencies/wintoastlib.h"
 
 using namespace WinToastLib;

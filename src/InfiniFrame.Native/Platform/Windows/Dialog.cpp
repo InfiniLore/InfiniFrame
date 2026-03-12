@@ -1,4 +1,4 @@
-#include "Models/InfiniFrameDialog.h"
+#include "Core/InfiniFrameDialog.h"
 
 #include <cwchar>
 #include <iostream>
