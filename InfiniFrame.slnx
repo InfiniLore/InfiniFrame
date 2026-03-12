@@ -26,6 +26,7 @@
     <File Path=".github\workflows\reusable-multiPlatformTesting.yml" />
   </Folder>
   <Folder Name="/.dev-tools/py/">
+    <File Path="dev/test_bump_version.py" />
     <File Path="dev\bump_version.py" />
   </Folder>
   <Folder Name="/.dev-tools/web/">
