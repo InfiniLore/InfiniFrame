@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-namespace InfiniFrame {
+
 
 // ============================================================================
 // Constants
@@ -86,14 +86,14 @@ inline std::error_code make_error_code(ErrorCode e) noexcept {
     return {static_cast<int>(e), errorCategory()};
 }
 
-} // namespace InfiniFrame
+
 
 namespace std {
 template<>
-struct is_error_code_enum<InfiniFrame::ErrorCode> : true_type {};
+struct is_error_code_enum<ErrorCode> : true_type {};
 }
 
-namespace InfiniFrame {
+
 
 // ============================================================================
 // Result Type
@@ -140,19 +140,5 @@ template<typename T>
 [[nodiscard]] constexpr T clampDimension(T value, T minVal = MinWindowDimension, T maxVal = MaxWindowDimension) {
     return std::clamp(value, minVal, maxVal);
 }
-
-#ifdef _WIN32
-inline std::wstring Utf8ToWide(std::string_view utf8) {
-    if (utf8.empty()) return {};
-    return std::wstring{utf8.begin(), utf8.end()};
-}
-
-inline std::string WideToUtf8(std::wstring_view wide) {
-    if (wide.empty()) return {};
-    return std::string{wide.begin(), wide.end()};
-}
-#endif
-
-} // namespace InfiniFrame
 
 #endif // INFINIFRAME_COMMON_H

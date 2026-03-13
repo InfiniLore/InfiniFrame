@@ -14,22 +14,20 @@
 #include <Cocoa/Cocoa.h>
 #endif
 
-namespace InfiniFrame
-{
-    class InfiniFrame; // forward declaration
+class InfiniFrameWindow; // forward declaration
 
-    /**
-     * @brief Dialog handler for file/folder operations and message boxes
-     */
-    class InfiniFrameDialog
-    {
-    public:
+/**
+ * @brief Dialog handler for file/folder operations and message boxes
+ */
+class InfiniFrameDialog
+{
+public:
 #ifdef _WIN32
         /**
          * @brief Construct dialog handler with parent window (Windows)
          * @param window Parent InfiniFrame window
          */
-        InfiniFrameDialog(InfiniFrame *window);
+        InfiniFrameDialog(InfiniFrameWindow *window);
 #else
         /**
          * @brief Construct dialog handler (Linux/macOS)
@@ -92,10 +90,8 @@ namespace InfiniFrame
         NSImage *_questionIcon;
         NSImage *_warningIcon;
 #elif _WIN32
-        InfiniFrame *_window;
+        InfiniFrameWindow *_window;
 #endif
     };
-
-} // namespace InfiniFrame
 
 #endif // INFINIFRAME_CORE_DIALOG_H

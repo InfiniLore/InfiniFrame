@@ -1,7 +1,7 @@
 #pragma once
 
 #include <WinUser.h>
-#include "Core/InfiniFrame.h"
+#include "Core/InfiniFrameWindow.h"
 #include "Dependencies/wintoastlib.h"
 
 using namespace WinToastLib;
@@ -9,10 +9,10 @@ using namespace WinToastLib;
 class WinToastHandler final : public IWinToastHandler
 {
 private:
-    InfiniFrame* _window;
+    InfiniFrameWindow* _window;
 
 public:
-    explicit WinToastHandler(InfiniFrame* window)
+    explicit WinToastHandler(InfiniFrameWindow* window)
         : _window(window) {}
 
     // Plain activation

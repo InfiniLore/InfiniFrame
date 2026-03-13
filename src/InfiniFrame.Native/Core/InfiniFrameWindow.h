@@ -35,10 +35,10 @@ class WinToastHandler;
 
 #include "../Types/Basic.h"
 #include "../Types/Dialog.h"
-#include "../Types/InitParams.h"
 #include "../Interop/Callbacks.h"
 
 class InfiniFrameDialog;
+struct InfiniFrameInitParams;
 
 /**
  * @brief Main window class providing WebView-based UI
@@ -192,11 +192,27 @@ public:
     // ========================================================================
 
 private:
+    void Show(bool isAlreadyShown);
+    void AttachWebView();
+
+#ifdef _WIN32
+    static bool EnsureWebViewIsInstalled();
+    static bool InstallWebView2();
+#endif
+
+#ifdef _WIN32
+    friend LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#endif
+
+#ifdef __linux__
+    void OnConfigureEvent(int x, int y, int width, int height);
+    void OnWindowStateEvent(GdkWindowState newState);
+#endif
+
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 };
 
-// Alias for backward compatibility with Exports.cpp
-using InfiniFrame = InfiniFrameWindow;
+#include "../Types/InitParams.h"
 
 #endif // INFINIFRAME_CORE_WINDOW_H

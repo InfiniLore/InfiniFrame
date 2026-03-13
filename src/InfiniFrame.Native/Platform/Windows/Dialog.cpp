@@ -1,4 +1,4 @@
-#include "Core/InfiniFrameDialog.h"
+#include "Core/InfiniFrame.h"
 
 #include <cwchar>
 #include <iostream>
@@ -83,7 +83,7 @@ inline HANDLE NewStyleContext::Create()
 	return CreateActCtxA(&actCtx);
 }
 
-InfiniFrameDialog::InfiniFrameDialog(InfiniFrame* window)
+InfiniFrameDialog::InfiniFrameDialog(InfiniFrameWindow* window)
 {
 	_window = window;
 	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
@@ -119,7 +119,7 @@ T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst default
 	return nullptr;
 }
 
-void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, InfiniFrame* wndInstance, std::vector<std::wstring>& filterStorage)
+void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, InfiniFrameWindow* wndInstance, std::vector<std::wstring>& filterStorage)
 {
 	std::vector<COMDLG_FILTERSPEC> specs;
 	for (int i = 0; i < filterCount; i++) {
