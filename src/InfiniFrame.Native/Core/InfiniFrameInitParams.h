@@ -1,14 +1,14 @@
 #pragma once
 /**
- * @file InitParams.h
+ * @file InfiniFrameInitParams.h
  * @brief Window initialization parameters
  */
 
-#ifndef INFINIFRAME_TYPES_INITPARAMS_H
-#define INFINIFRAME_TYPES_INITPARAMS_H
+#ifndef INFINIFRAME_CORE_INITPARAMS_H
+#define INFINIFRAME_CORE_INITPARAMS_H
 
-#include "Basic.h"
-#include "../Interop/Callbacks.h"
+#include "../Types/Basic.h"
+#include "../Types/Callbacks.h"
 
 class InfiniFrameWindow;  // Forward declaration
 
@@ -31,7 +31,7 @@ struct InfiniFrameInitParams
 
     // Parent window
     InfiniFrameWindow* ParentInstance;
-    
+
     // Event handlers
     ClosingCallback ClosingHandler;
     FocusInCallback FocusInHandler;
@@ -84,4 +84,4 @@ struct InfiniFrameInitParams
     int Size;
 };
 
-#endif // INFINIFRAME_TYPES_INITPARAMS_H
+#endif // INFINIFRAME_CORE_INITPARAMS_H

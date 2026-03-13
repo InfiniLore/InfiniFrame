@@ -15,8 +15,9 @@
 // ============================================================================
 
 #include "../Types/Basic.h"
-#include "../Types/InitParams.h"
 #include "../Types/Dialog.h"
+#include "../Types/Callbacks.h"
+#include "InfiniFrameInitParams.h"
 
 // ============================================================================
 // Core Classes
@@ -31,11 +32,5 @@
 
 #include "../Utils/Common.h"
 #include "../Utils/Event.h"
-
-// ============================================================================
-// Interop
-// ============================================================================
-
-#include "../Interop/Callbacks.h"
 
 #endif // INFINIFRAME_H

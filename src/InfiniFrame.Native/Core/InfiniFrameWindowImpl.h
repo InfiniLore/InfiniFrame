@@ -16,7 +16,7 @@
 #define INFINIFRAME_CORE_WINDOWIMPL_H
 
 #include "../Types/Basic.h"
-#include "../Interop/Callbacks.h"
+#include "../Types/Callbacks.h"
 #include "InfiniFrameDialog.h"
 
 #include <memory>

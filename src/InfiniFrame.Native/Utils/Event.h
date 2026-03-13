@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <map>
+#include <mutex>
 #include <shared_mutex>
 #include <vector>
 

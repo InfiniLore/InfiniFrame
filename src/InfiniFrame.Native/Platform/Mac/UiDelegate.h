@@ -5,7 +5,7 @@
 @interface UiDelegate : NSObject <WKUIDelegate, WKScriptMessageHandler> {
     @public
     NSWindow * window;
-    InfiniFrame * infiniFrame;
+    InfiniFrameWindow * infiniFrame;
     WebMessageReceivedCallback webMessageReceivedCallback;
 }
 @end
