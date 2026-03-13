@@ -1,6 +1,7 @@
 #ifdef __APPLE__
 #include "Core/InfiniFrameWindow.h"
 #include "Core/InfiniFrameDialog.h"
+#include "Core/InfiniFrameWindowImpl.h"
 #include "Utils/Common.h"
 #include "AppDelegate.h"
 #include "UiDelegate.h"
@@ -12,13 +13,101 @@
 #include <fmt/format.h>
 #include <simdjson.h>
 
-#include "Dependencies/json.hpp"
-
 using namespace std;
 
-//Creates an instance of the 'application' under which, all windows will run
-//Only called once!
-void InfiniFrame::Register()
+// ============================================================================
+// Platform Impl
+// ============================================================================
+
+struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl
+{
+    NSWindow* _window = nil;
+    WKWebView* _webview = nil;
+    WKWebViewConfiguration* _webviewConfiguration = nil;
+
+    bool _chromeless = false;
+
+    CGFloat _preMaximizedWidth = 0;
+    CGFloat _preMaximizedHeight = 0;
+    CGFloat _preMaximizedXPosition = 0;
+    CGFloat _preMaximizedYPosition = 0;
+
+    std::vector<Monitor> GetMonitors() const;
+    void SetUserAgent(AutoString userAgent);
+    void SetPreference(NSString* key, NSNumber* value);
+    void SetPreference(NSString* key, NSString* value);
+    void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
+};
+
+// ============================================================================
+// Impl method definitions
+// ============================================================================
+
+std::vector<Monitor> InfiniFrameWindow::Impl::GetMonitors() const
+{
+    std::vector<Monitor> monitors;
+
+    for (NSScreen *screen : [NSScreen screens])
+    {
+        NSRect monitorFrame = [screen frame];
+        Monitor::MonitorRect monitorArea;
+        monitorArea.x = static_cast<int>(roundf(monitorFrame.origin.x));
+        monitorArea.y = static_cast<int>(roundf(monitorFrame.origin.y));
+        monitorArea.width = static_cast<int>(roundf(monitorFrame.size.width));
+        monitorArea.height = static_cast<int>(roundf(monitorFrame.size.height));
+
+        NSRect workFrame = [screen visibleFrame];
+        Monitor::MonitorRect workArea;
+        workArea.x = static_cast<int>(roundf(workFrame.origin.x));
+        workArea.y = static_cast<int>(roundf(workFrame.origin.y));
+        workArea.width = static_cast<int>(roundf(workFrame.size.width));
+        workArea.height = static_cast<int>(roundf(workFrame.size.height));
+
+        CGFloat scaleFactor = [screen backingScaleFactor];
+        monitors.push_back({monitorArea, workArea, static_cast<double>(scaleFactor)});
+    }
+
+    return monitors;
+}
+
+void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
+{
+    if (userAgent != nullptr)
+    {
+        _userAgent = userAgent;
+        [_webview setCustomUserAgent: [NSString stringWithUTF8String: userAgent]];
+    }
+    else
+    {
+        _userAgent.clear();
+    }
+}
+
+void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSNumber *value)
+{
+    [_webviewConfiguration.preferences setValue: value forKey: key];
+}
+
+void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSString *value)
+{
+    [_webviewConfiguration.preferences setValue: value forKey: key];
+}
+
+void InfiniFrameWindow::Impl::AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler)
+{
+    UrlSchemeHandler* schemeHandler = [[[UrlSchemeHandler alloc] init] autorelease];
+    schemeHandler->requestHandler = requestHandler;
+
+    [_webviewConfiguration
+        setURLSchemeHandler: schemeHandler
+        forURLScheme: [NSString stringWithUTF8String: scheme]];
+}
+
+// ============================================================================
+// Register (static — called once)
+// ============================================================================
+
+void InfiniFrameWindow::Register()
 {
     [NSAutoreleasePool new];
 
@@ -31,7 +120,6 @@ void InfiniFrame::Register()
     NSString *appName = [[NSProcessInfo processInfo] processName];
 
     NSMenu *mainMenu = [[NSMenu new] autorelease];
-
     NSMenuItem *mainMenuItem = [[NSMenuItem new] autorelease];
     [mainMenu addItem: mainMenuItem];
 
@@ -44,7 +132,6 @@ void InfiniFrame::Register()
         action: @selector(selectAll:)
         keyEquivalent: @"a"
     ] autorelease];
-
     [mainSubMenu addItem: selectMenuItem];
 
     NSMenuItem *cutMenuItem = [[
@@ -53,7 +140,6 @@ void InfiniFrame::Register()
         action: @selector(cut:)
         keyEquivalent: @"x"
     ] autorelease];
-
     [mainSubMenu addItem: cutMenuItem];
 
     NSMenuItem *copyMenuItem = [[
@@ -62,7 +148,6 @@ void InfiniFrame::Register()
         action: @selector(copy:)
         keyEquivalent: @"c"
     ] autorelease];
-
     [mainSubMenu addItem: copyMenuItem];
 
     NSMenuItem *pasteMenuItem = [[
@@ -79,77 +164,75 @@ void InfiniFrame::Register()
         action: @selector(terminate:)
         keyEquivalent: @"q"
     ] autorelease];
-
     [mainSubMenu addItem: quitMenuItem];
 
     [NSApp setMainMenu: mainMenu];
 }
 
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
+// ============================================================================
+// Constructor / Destructor
+// ============================================================================
+
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>())
 {
-	_windowTitle = initParams->Title ? initParams->Title : "";
+    m_impl->_windowTitle = initParams->Title ? initParams->Title : "";
 
-	if (initParams->StartUrl != nullptr)
-		_startUrl = initParams->StartUrl;
+    if (initParams->StartUrl != nullptr)
+        m_impl->_startUrl = initParams->StartUrl;
 
-	if (initParams->StartString != nullptr)
-		_startString = initParams->StartString;
+    if (initParams->StartString != nullptr)
+        m_impl->_startString = initParams->StartString;
 
-	if (initParams->TemporaryFilesPath != nullptr)
-		_temporaryFilesPath = initParams->TemporaryFilesPath;
+    if (initParams->TemporaryFilesPath != nullptr)
+        m_impl->_temporaryFilesPath = initParams->TemporaryFilesPath;
 
-    _ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
-	_contextMenuEnabled = initParams->ContextMenuEnabled;
-	_zoomEnabled = initParams->ZoomEnabled;
-    _grantBrowserPermissions = initParams->GrantBrowserPermissions;
+    m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
+    m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
+    m_impl->_zoomEnabled = initParams->ZoomEnabled;
+    m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
 
-	//these handlers are ALWAYS hooked up
-	_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
-	_resizedCallback = initParams->ResizedHandler;
-	_movedCallback = initParams->MovedHandler;
-	_closingCallback = initParams->ClosingHandler;
-    _focusInCallback = initParams->FocusInHandler;
-	_focusOutCallback = initParams->FocusOutHandler;
-    _maximizedCallback = initParams->MaximizedHandler;
-	_minimizedCallback = initParams->MinimizedHandler;
-	_restoredCallback = initParams->RestoredHandler;
-	_customSchemeCallback = initParams->CustomSchemeHandler;
+    m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
+    m_impl->_resizedCallback = initParams->ResizedHandler;
+    m_impl->_movedCallback = initParams->MovedHandler;
+    m_impl->_closingCallback = initParams->ClosingHandler;
+    m_impl->_focusInCallback = initParams->FocusInHandler;
+    m_impl->_focusOutCallback = initParams->FocusOutHandler;
+    m_impl->_maximizedCallback = initParams->MaximizedHandler;
+    m_impl->_minimizedCallback = initParams->MinimizedHandler;
+    m_impl->_restoredCallback = initParams->RestoredHandler;
+    m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
 
-	//copy strings from the fixed size array passed, but only if they have a value.
-	for (int i = 0; i < 16; ++i)
-	{
-		if (initParams->CustomSchemeNames[i] != nullptr)
-			_customSchemeNames.emplace_back(initParams->CustomSchemeNames[i]);
-	}
+    for (int i = 0; i < 16; ++i)
+    {
+        if (initParams->CustomSchemeNames[i] != nullptr)
+            m_impl->_customSchemeNames.emplace_back(initParams->CustomSchemeNames[i]);
+    }
 
-	_parent = initParams->ParentInstance;
+    m_impl->_parent = initParams->ParentInstance;
 
     if (initParams->UseOsDefaultSize)
-	{
-		initParams->Width = 800;
-		initParams->Height = 600;
-	}
-	else
-	{
-		if (initParams->Width < 0) initParams->Width = 800;
-		if (initParams->Height < 0) initParams->Height = 600;
-	}
+    {
+        initParams->Width = 800;
+        initParams->Height = 600;
+    }
+    else
+    {
+        if (initParams->Width < 0) initParams->Width = 800;
+        if (initParams->Height < 0) initParams->Height = 600;
+    }
 
-	if (initParams->UseOsDefaultLocation)
-	{
-		initParams->Left = 0;
-		initParams->Top = 0;
-	}
+    if (initParams->UseOsDefaultLocation)
+    {
+        initParams->Left = 0;
+        initParams->Top = 0;
+    }
 
-    // Create Window
     NSRect frame = NSMakeRect(0, 0, 0, 0);
 
-    _chromeless = initParams->Chromeless;
+    m_impl->_chromeless = initParams->Chromeless;
     if (initParams->Chromeless)
     {
-        // For MouseMoved events, Mac/NSWindowBorderless.mm
-        // https://stackoverflow.com/questions/2520127/getting-a-borderless-window-to-receive-mousemoved-events-cocoa-osx
-        _window = [[NSWindowBorderless alloc]
+        m_impl->_window = [[NSWindowBorderless alloc]
             initWithContentRect: frame
             styleMask: NSWindowStyleMaskBorderless
                 | NSWindowStyleMaskClosable
@@ -160,7 +243,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
     }
     else
     {
-        _window = [[NSWindow alloc]
+        m_impl->_window = [[NSWindow alloc]
             initWithContentRect: frame
             styleMask: NSWindowStyleMaskTitled
                 | NSWindowStyleMaskClosable
@@ -170,89 +253,79 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
             defer: true];
     }
 
-    // Set transparency (not yet implemented)
-    _transparentEnabled = initParams->Transparent;
+    m_impl->_transparentEnabled = initParams->Transparent;
 
-    // Set Window Delegate
     WindowDelegate *windowDelegate = [WindowDelegate new];
     windowDelegate->infiniFrame = this;
+    m_impl->_window.delegate = windowDelegate;
 
-    _window.delegate = windowDelegate;
-
-    // Set Window options
-    SetTitle(const_cast<AutoString>(_windowTitle.c_str()));
+    SetTitle(const_cast<AutoString>(m_impl->_windowTitle.c_str()));
 
     if (initParams->WindowIconFile != nullptr && initParams->WindowIconFile[0] != '\0')
-		InfiniFrame::SetIconFile(initParams->WindowIconFile);
+        SetIconFile(initParams->WindowIconFile);
 
-	SetTopmost(initParams->Topmost);
+    SetTopmost(initParams->Topmost);
     SetPosition(initParams->Left, initParams->Top);
 
-    // It's important to set min/max size before setting size
     SetMinSize(initParams->MinWidth, initParams->MinHeight);
     SetMaxSize(initParams->MaxWidth, initParams->MaxHeight);
     SetSize(initParams->Width, initParams->Height);
 
-	SetMinimized(initParams->Minimized);
-	SetMaximized(initParams->Maximized);
+    SetMinimized(initParams->Minimized);
+    SetMaximized(initParams->Maximized);
+    SetResizable(initParams->Resizable);
 
-	SetResizable(initParams->Resizable);
+    if (initParams->CenterOnInitialize)
+        Center();
 
-	if (initParams->CenterOnInitialize)
-		InfiniFrame::Center();
+    m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
 
-    // Create WebView Configuration
-    _webviewConfiguration = [[WKWebViewConfiguration alloc] init];
-
-    // Add Custom URL Schemes to WebView Configuration
-    for (const auto & scheme : _customSchemeNames)
+    for (const auto & scheme : m_impl->_customSchemeNames)
     {
-        AddCustomScheme(scheme.c_str(), _customSchemeCallback);
+        m_impl->AddCustomScheme(scheme.c_str(), m_impl->_customSchemeCallback);
     }
 
-    // Create WebView
     AttachWebView();
 
-    // Set initialized WebKit (Configuration) options
-    SetUserAgent(initParams->UserAgent);
+    m_impl->SetUserAgent(initParams->UserAgent);
 
-    SetPreference(@"developerExtrasEnabled", initParams->DevToolsEnabled ? @YES : @NO);
-    SetPreference(@"allowFileAccessFromFileURLs", initParams->FileSystemAccessEnabled ? @YES : @NO);
-    SetPreference(@"webSecurityEnabled", initParams->WebSecurityEnabled ? @YES : @NO);
-    SetPreference(@"javaScriptCanAccessClipboard", initParams->JavascriptClipboardAccessEnabled ? @YES : @NO);
-    SetPreference(@"mediaStreamEnabled", initParams->MediaStreamEnabled ? @YES : @NO);
+    m_impl->SetPreference(@"developerExtrasEnabled", initParams->DevToolsEnabled ? @YES : @NO);
+    m_impl->SetPreference(@"allowFileAccessFromFileURLs", initParams->FileSystemAccessEnabled ? @YES : @NO);
+    m_impl->SetPreference(@"webSecurityEnabled", initParams->WebSecurityEnabled ? @YES : @NO);
+    m_impl->SetPreference(@"javaScriptCanAccessClipboard", initParams->JavascriptClipboardAccessEnabled ? @YES : @NO);
+    m_impl->SetPreference(@"mediaStreamEnabled", initParams->MediaStreamEnabled ? @YES : @NO);
 
-    SetPreference(@"mediaDevicesEnabled", @YES);
-    SetPreference(@"mediaCaptureRequiresSecureConnection", @NO);
+    m_impl->SetPreference(@"mediaDevicesEnabled", @YES);
+    m_impl->SetPreference(@"mediaCaptureRequiresSecureConnection", @NO);
 
     if ([NSProcessInfo.processInfo isOperatingSystemAtLeastVersion: NSOperatingSystemVersion({13, 3, 0})])
     {
-        SetPreference(@"notificationEventEnabled", @YES);
+        m_impl->SetPreference(@"notificationEventEnabled", @YES);
     }
 
-    SetPreference(@"notificationsEnabled", @YES);
-    SetPreference(@"screenCaptureEnabled", @YES);
+    m_impl->SetPreference(@"notificationsEnabled", @YES);
+    m_impl->SetPreference(@"screenCaptureEnabled", @YES);
 
     if (initParams->BrowserControlInitParameters != nullptr)
     {
         simdjson::ondemand::parser parser;
         auto doc = parser.iterate(initParams->BrowserControlInitParameters);
-        
+
         for (auto field : doc.get_object()) {
             auto key = field.key().value();
             auto value = field.value();
-            
+
             NSString *preferenceKey = [NSString stringWithUTF8String: key.data()];
-            
+
             switch (value.type()) {
                 case simdjson::ondemand::json_type::number: {
                     int64_t intVal;
                     if (value.get(intVal).error() == simdjson::SUCCESS) {
-                        SetPreference(preferenceKey, [NSNumber numberWithInt: (int)intVal]);
+                        m_impl->SetPreference(preferenceKey, [NSNumber numberWithInt: (int)intVal]);
                     } else {
                         double doubleVal;
                         if (value.get(doubleVal).error() == simdjson::SUCCESS) {
-                            SetPreference(preferenceKey, [NSNumber numberWithDouble: doubleVal]);
+                            m_impl->SetPreference(preferenceKey, [NSNumber numberWithDouble: doubleVal]);
                         }
                     }
                     break;
@@ -260,17 +333,17 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
                 case simdjson::ondemand::json_type::boolean: {
                     bool boolVal;
                     if (value.get(boolVal).error() == simdjson::SUCCESS) {
-                        SetPreference(preferenceKey, [NSNumber numberWithBool: boolVal]);
+                        m_impl->SetPreference(preferenceKey, [NSNumber numberWithBool: boolVal]);
                     }
                     break;
                 }
                 case simdjson::ondemand::json_type::string: {
                     std::string_view strVal;
                     if (value.get(strVal).error() == simdjson::SUCCESS) {
-                        NSString *preferenceValue = [[NSString alloc] initWithBytes:strVal.data() 
-                                                                             length:strVal.length() 
+                        NSString *preferenceValue = [[NSString alloc] initWithBytes:strVal.data()
+                                                                             length:strVal.length()
                                                                            encoding:NSUTF8StringEncoding];
-                        SetPreference(preferenceKey, preferenceValue);
+                        m_impl->SetPreference(preferenceKey, preferenceValue);
                     }
                     break;
                 }
@@ -280,7 +353,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
         }
     }
 
-    _dialog = std::make_unique<InfiniFrameDialog>();
+    m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
 
     Show(false);
     SetFullScreen(initParams->FullScreen);
@@ -288,104 +361,104 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 
 InfiniFrameWindow::~InfiniFrameWindow()
 {
-    [_webviewConfiguration release];
-    [_webview release];
-    [_window performClose: _window];
+    [m_impl->_webviewConfiguration release];
+    [m_impl->_webview release];
+    [m_impl->_window performClose: m_impl->_window];
 }
 
-void InfiniFrame::Center()
+// ============================================================================
+// Window Operations
+// ============================================================================
+
+void InfiniFrameWindow::Center()
 {
-    [_window center];
-    [_window makeKeyAndOrderFront: _window];
+    [m_impl->_window center];
+    [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
 }
 
-void InfiniFrame::ClearBrowserAutoFill()
+void InfiniFrameWindow::ClearBrowserAutoFill()
 {
-    //TODO
+    // TODO
 }
 
-void InfiniFrame::Close()
+void InfiniFrameWindow::Close()
 {
-    if (_chromeless)
-    {
-        [_window close];
-    }
+    if (m_impl->_chromeless)
+        [m_impl->_window close];
     else
-    {
-    	[_window performClose: _window];
-    }
+        [m_impl->_window performClose: m_impl->_window];
 }
 
-void InfiniFrame::GetTransparentEnabled(bool* enabled) const
+// ============================================================================
+// Get Properties
+// ============================================================================
+
+void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 {
-    //! Not implemented (supported?) on macOS
     *enabled = false;
 }
 
-void InfiniFrame::GetContextMenuEnabled(bool* enabled) const
+void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
 {
-    *enabled = _contextMenuEnabled;
+    *enabled = m_impl->_contextMenuEnabled;
 }
 
-void InfiniFrame::GetZoomEnabled(bool* enabled) const
+void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const
 {
-    *enabled = _zoomEnabled;
+    *enabled = m_impl->_zoomEnabled;
 }
 
-void InfiniFrame::GetDevToolsEnabled(bool* enabled) const
+void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
 {
-    *enabled = _devToolsEnabled;
+    *enabled = m_impl->_devToolsEnabled;
 }
 
-void InfiniFrame::GetGrantBrowserPermissions(bool* enabled) const
+void InfiniFrameWindow::GetGrantBrowserPermissions(bool* enabled) const
 {
-    *enabled = _grantBrowserPermissions;
+    *enabled = m_impl->_grantBrowserPermissions;
 }
 
-AutoString InfiniFrame::GetUserAgent() const
+AutoString InfiniFrameWindow::GetUserAgent() const
 {
-    return const_cast<AutoString>(_userAgent.c_str());
+    return const_cast<AutoString>(m_impl->_userAgent.c_str());
 }
 
-//! Always enabled on macOS. This is always true.
-void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled) const
+void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const
 {
     *enabled = true;
 }
 
-//! Not supported on macOS. This is always false.
-void InfiniFrame::GetFileSystemAccessEnabled(bool* enabled) const
+void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const
 {
-    *enabled = _fileSystemAccessEnabled;
+    *enabled = m_impl->_fileSystemAccessEnabled;
 }
 
-//! Not supported on macOS. This is always false.
-void InfiniFrame::GetSmoothScrollingEnabled(bool* enabled) const
+void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const
 {
     *enabled = false;
 }
 
-void InfiniFrame::GetWebSecurityEnabled(bool* enabled) const
+void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const
 {
-    *enabled = _webSecurityEnabled;
+    *enabled = m_impl->_webSecurityEnabled;
 }
 
-void InfiniFrame::GetJavascriptClipboardAccessEnabled(bool* enabled) const
+void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const
 {
-    *enabled = _javascriptClipboardAccessEnabled;
+    *enabled = m_impl->_javascriptClipboardAccessEnabled;
 }
 
-void InfiniFrame::GetMediaStreamEnabled(bool* enabled) const
+void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const
 {
-    *enabled = _mediaStreamEnabled;
+    *enabled = m_impl->_mediaStreamEnabled;
 }
 
-void InfiniFrame::GetFullScreen(bool* fullScreen) const
+void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const
 {
-    *fullScreen = ([_window.contentView isInFullScreenMode]);
+    *fullScreen = ([m_impl->_window.contentView isInFullScreenMode]);
 }
 
-void InfiniFrame::GetMaximized(bool* isMaximized) const
+void InfiniFrameWindow::GetMaximized(bool* isMaximized) const
 {
     bool isFullScreen = false;
     GetFullScreen(&isFullScreen);
@@ -394,103 +467,100 @@ void InfiniFrame::GetMaximized(bool* isMaximized) const
         *isMaximized = false;
         return;
     }
-    *isMaximized = [_window isZoomed];
+    *isMaximized = [m_impl->_window isZoomed];
 }
 
-void InfiniFrame::GetMinimized(bool* isMinimized) const
+void InfiniFrameWindow::GetMinimized(bool* isMinimized) const
 {
-	*isMinimized = [_window isMiniaturized];
+    *isMinimized = [m_impl->_window isMiniaturized];
 }
 
-void InfiniFrame::GetPosition(int* x, int* y) const
+void InfiniFrameWindow::GetPosition(int* x, int* y) const
 {
-    NSRect frame = [_window frame];
-
-    std::vector<Monitor> monitors = GetMonitors();
+    NSRect frame = [m_impl->_window frame];
+    std::vector<Monitor> monitors = m_impl->GetMonitors();
     Monitor monitor = monitors[0];
-
     int height = static_cast<int>(roundf(frame.size.height));
-
     *x = static_cast<int>(roundf(frame.origin.x));
     *y = static_cast<int>(monitor.monitor.height - (static_cast<int>(roundf(frame.origin.y)) + height));
 }
 
-void InfiniFrame::GetResizable(bool* resizable) const
+void InfiniFrameWindow::GetResizable(bool* resizable) const
 {
-   *resizable = (([_window styleMask] & NSWindowStyleMaskResizable) == NSWindowStyleMaskResizable);
+    *resizable = (([m_impl->_window styleMask] & NSWindowStyleMaskResizable) == NSWindowStyleMaskResizable);
 }
 
-void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
+void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
 {
-	*enabled = this->_ignoreCertificateErrorsEnabled;
+    *enabled = m_impl->_ignoreCertificateErrorsEnabled;
 }
 
-void InfiniFrame::GetFocused(bool* isFocused) const
+void InfiniFrameWindow::GetFocused(bool* isFocused) const
 {
     if (!isFocused)
         return;
 
-    if (!_window)
+    if (!m_impl->_window)
     {
         *isFocused = false;
         return;
     }
 
-    bool focused =
-        [NSApp isActive] &&
-        [_window isKeyWindow];
-
-    *isFocused = focused;
+    *isFocused = [NSApp isActive] && [m_impl->_window isKeyWindow];
 }
 
-unsigned int InfiniFrame::GetScreenDpi() const
+unsigned int InfiniFrameWindow::GetScreenDpi() const
 {
-	return 72; // https://stackoverflow.com/questions/2621439/hot-to-get-screen-dpi-linux-mac-programaticaly
+    return 72;
 }
 
-void InfiniFrame::GetSize(int* width, int* height) const
+void InfiniFrameWindow::GetSize(int* width, int* height) const
 {
-    NSSize size = [_window frame].size;
+    NSSize size = [m_impl->_window frame].size;
     if (width) *width = static_cast<int>(roundf(size.width));
     if (height) *height = static_cast<int>(roundf(size.height));
 }
 
-AutoString InfiniFrame::GetTitle() const
+AutoString InfiniFrameWindow::GetTitle() const
 {
-    return const_cast<AutoString>(_windowTitle.c_str());
+    return const_cast<AutoString>(m_impl->_windowTitle.c_str());
 }
 
-void InfiniFrame::GetTopmost(bool* topmost) const
+void InfiniFrameWindow::GetTopmost(bool* topmost) const
 {
-    *topmost = ([_window level] & NSFloatingWindowLevel) == NSFloatingWindowLevel;
+    *topmost = ([m_impl->_window level] & NSFloatingWindowLevel) == NSFloatingWindowLevel;
 }
 
-void InfiniFrame::GetZoom(int* zoom) const
+void InfiniFrameWindow::GetZoom(int* zoom) const
 {
-	CGFloat rawValue = [_webview magnification];
-	rawValue = (rawValue * 100.0) + 0.5;
-	*zoom = static_cast<int>(rawValue);
+    CGFloat rawValue = [m_impl->_webview magnification];
+    rawValue = (rawValue * 100.0) + 0.5;
+    *zoom = static_cast<int>(rawValue);
 }
 
-AutoString InfiniFrame::GetIconFileName() const
+AutoString InfiniFrameWindow::GetIconFileName() const
 {
-    return const_cast<AutoString>(_iconFileName.c_str());
+    return const_cast<AutoString>(m_impl->_iconFileName.c_str());
 }
 
-void InfiniFrame::NavigateToString(AutoString content)
+// ============================================================================
+// Navigation
+// ============================================================================
+
+void InfiniFrameWindow::NavigateToString(AutoString content)
 {
-    [_webview loadHTMLString: [NSString stringWithUTF8String: content] baseURL: nil];
+    [m_impl->_webview loadHTMLString: [NSString stringWithUTF8String: content] baseURL: nil];
 }
 
-void InfiniFrame::NavigateToUrl(AutoString url)
+void InfiniFrameWindow::NavigateToUrl(AutoString url)
 {
     NSString* nsurlstring = [NSString stringWithUTF8String: url];
-    NSURL *nsurl= [NSURL URLWithString: nsurlstring];
-    NSURLRequest *nsrequest= [NSURLRequest requestWithURL: nsurl];
-    [_webview loadRequest: nsrequest];
+    NSURL *nsurl = [NSURL URLWithString: nsurlstring];
+    NSURLRequest *nsrequest = [NSURLRequest requestWithURL: nsurl];
+    [m_impl->_webview loadRequest: nsrequest];
 }
 
-void InfiniFrame::Restore()
+void InfiniFrameWindow::Restore()
 {
     bool minimized;
     bool maximized;
@@ -500,9 +570,8 @@ void InfiniFrame::Restore()
     if (maximized) SetMaximized(false);
 }
 
-void InfiniFrame::SendWebMessage(AutoString message)
+void InfiniFrameWindow::SendWebMessage(AutoString message)
 {
-    // JSON-encode the message
     NSString* nsmessage = [NSString stringWithUTF8String: message];
 
     NSData* data = [
@@ -516,236 +585,210 @@ void InfiniFrame::SendWebMessage(AutoString message)
         initWithData: data
         encoding: NSUTF8StringEncoding] autorelease];
 
-    // Remove outer array brackets
     nsmessageJson = [
         [nsmessageJson substringToIndex: ([nsmessageJson length] - 1)]
         substringFromIndex: 1
     ];
 
     NSString *javaScriptToEval = [NSString stringWithFormat: @"__dispatchMessageCallback(%@)", nsmessageJson];
-
-    [_webview evaluateJavaScript: javaScriptToEval completionHandler: nil];
+    [m_impl->_webview evaluateJavaScript: javaScriptToEval completionHandler: nil];
 }
 
-void InfiniFrame::SetUserAgent(AutoString userAgent)
+// ============================================================================
+// Set Properties
+// ============================================================================
+
+void InfiniFrameWindow::SetDevToolsEnabled(bool enabled)
 {
-    if (userAgent != nullptr)
-    {
-        _userAgent = userAgent;
-        [_webview setCustomUserAgent: [NSString stringWithUTF8String: userAgent]];
-    }
-    else
-    {
-        _userAgent.clear();
-    }
+    m_impl->_devToolsEnabled = enabled;
+    m_impl->SetPreference(@"developerExtrasEnabled", enabled ? @YES : @NO);
 }
 
-void InfiniFrame::SetPreference(NSString *key, NSNumber *value)
+void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
 {
-    [_webviewConfiguration.preferences setValue: value forKey: key];
+    // Not implemented on macOS
 }
 
-void InfiniFrame::SetPreference(NSString *key, NSString *value)
+void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 {
-    [_webviewConfiguration.preferences setValue: value forKey: key];
+    // Not supported on macOS
 }
 
-void InfiniFrame::SetDevToolsEnabled(bool enabled)
+void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 {
-    _devToolsEnabled = enabled;
-    SetPreference(@"developerExtrasEnabled", enabled ? @YES : @NO);
+    // Not implemented on macOS
 }
 
-void InfiniFrame::SetTransparentEnabled(bool enabled)
-{
-    //! Not implemented (supported?) on macOS
-}
-
-void InfiniFrame::SetContextMenuEnabled(bool enabled)
-{
-    //! Not supported on macOS
-}
-
-void InfiniFrame::SetZoomEnabled(bool enabled)
-{
-    //! Not implemented (supported?) on macOS
-}
-
-void InfiniFrame::SetIconFile(AutoString filename)
+void InfiniFrameWindow::SetIconFile(AutoString filename)
 {
     NSString* path = [NSString stringWithUTF8String: filename];
     NSImage* icon = [[NSImage alloc] initWithContentsOfFile: path];
     if (icon != nil)
-        [[_window standardWindowButton: NSWindowDocumentIconButton] setImage:icon];
+        [[m_impl->_window standardWindowButton: NSWindowDocumentIconButton] setImage: icon];
 
-    _iconFileName = filename ? filename : "";
+    m_impl->_iconFileName = filename ? filename : "";
 }
 
-void InfiniFrame::SetFullScreen(bool fullScreen)
+void InfiniFrameWindow::SetFullScreen(bool fullScreen)
 {
     if (fullScreen)
-        [_window.contentView enterFullScreenMode: [NSScreen mainScreen] withOptions: nil];
+        [m_impl->_window.contentView enterFullScreenMode: [NSScreen mainScreen] withOptions: nil];
     else
-        [_window.contentView exitFullScreenModeWithOptions: nil];
+        [m_impl->_window.contentView exitFullScreenModeWithOptions: nil];
 }
 
-void InfiniFrame::SetMinimized(bool minimized)
+void InfiniFrameWindow::SetMinimized(bool minimized)
 {
-    if (_window.isMiniaturized == minimized) return;
+    if (m_impl->_window.isMiniaturized == minimized) return;
 
     if (minimized)
-        [_window miniaturize: nullptr];
+        [m_impl->_window miniaturize: nullptr];
     else
-	    [_window deminiaturize: nullptr];
+        [m_impl->_window deminiaturize: nullptr];
 }
 
-void InfiniFrame::SetMaximized(bool maximized)
+void InfiniFrameWindow::SetMaximized(bool maximized)
 {
     if (maximized)
     {
-        NSRect window = [_window frame];
-        _preMaximizedWidth = window.size.width;
-        _preMaximizedHeight = window.size.height;
-        _preMaximizedXPosition = window.origin.x;
-        _preMaximizedYPosition = window.origin.y;
+        NSRect window = [m_impl->_window frame];
+        m_impl->_preMaximizedWidth = window.size.width;
+        m_impl->_preMaximizedHeight = window.size.height;
+        m_impl->_preMaximizedXPosition = window.origin.x;
+        m_impl->_preMaximizedYPosition = window.origin.y;
 
-        NSRect screen = [[_window screen] visibleFrame];
-        CGFloat xPos = screen.origin.x;
-        CGFloat yPos = screen.origin.y;
-        CGFloat width = screen.size.width;
-        CGFloat height = screen.size.height;
-        [_window setFrame: NSMakeRect(xPos, yPos, width, height) display:YES];
+        NSRect screen = [[m_impl->_window screen] visibleFrame];
+        [m_impl->_window setFrame: NSMakeRect(screen.origin.x, screen.origin.y,
+                                              screen.size.width, screen.size.height)
+                          display: YES];
     }
-    else if (!maximized && _preMaximizedWidth > 0 && _preMaximizedHeight > 0)
+    else if (!maximized && m_impl->_preMaximizedWidth > 0 && m_impl->_preMaximizedHeight > 0)
     {
-        [_window setFrame: NSMakeRect(_preMaximizedXPosition, _preMaximizedYPosition, _preMaximizedWidth, _preMaximizedHeight) display:YES];
+        [m_impl->_window setFrame: NSMakeRect(m_impl->_preMaximizedXPosition,
+                                              m_impl->_preMaximizedYPosition,
+                                              m_impl->_preMaximizedWidth,
+                                              m_impl->_preMaximizedHeight)
+                          display: YES];
     }
 }
 
-void InfiniFrame::SetPosition(int x, int y)
+void InfiniFrameWindow::SetPosition(int x, int y)
 {
-    std::vector<Monitor> monitors = GetMonitors();
+    std::vector<Monitor> monitors = m_impl->GetMonitors();
     Monitor monitor = monitors[0];
 
-    NSRect frame = [_window frame];
+    NSRect frame = [m_impl->_window frame];
     int height = static_cast<int>(roundf(frame.size.height));
 
     auto left = static_cast<CGFloat>(x);
     auto top = static_cast<CGFloat>(monitor.monitor.height - (y + height));
 
-    CGPoint position = CGPointMake(left, top);
-    [_window setFrameOrigin: position];
+    [m_impl->_window setFrameOrigin: CGPointMake(left, top)];
 }
 
-void InfiniFrame::SetResizable(bool resizable)
+void InfiniFrameWindow::SetResizable(bool resizable)
 {
     if (resizable)
-        _window.styleMask |= NSWindowStyleMaskResizable;
+        m_impl->_window.styleMask |= NSWindowStyleMaskResizable;
     else
-        _window.styleMask &= ~NSWindowStyleMaskResizable;
+        m_impl->_window.styleMask &= ~NSWindowStyleMaskResizable;
 }
 
-void InfiniFrame::SetSize(int width, int height)
+void InfiniFrameWindow::SetSize(int width, int height)
 {
-    // The macOS window server has a limit of 10,000 pixels for either dimension
     width = width > 10000 ? 10000 : width;
     height = height > 10000 ? 10000 : height;
 
-    if (width > _window.maxSize.width) width = _window.maxSize.width;
-    if (height > _window.maxSize.height) height = _window.maxSize.height;
-    if (width < _window.minSize.width) width = _window.minSize.width;
-    if (height < _window.minSize.height) height = _window.minSize.height;
+    if (width > m_impl->_window.maxSize.width) width = m_impl->_window.maxSize.width;
+    if (height > m_impl->_window.maxSize.height) height = m_impl->_window.maxSize.height;
+    if (width < m_impl->_window.minSize.width) width = m_impl->_window.minSize.width;
+    if (height < m_impl->_window.minSize.height) height = m_impl->_window.minSize.height;
 
-    NSRect frame = [_window frame];
-
-    auto fw = static_cast<CGFloat>(width);
-    auto fh = static_cast<CGFloat>(height);
-
+    NSRect frame = [m_impl->_window frame];
     CGFloat oldHeight = frame.size.height;
+    frame.size = CGSizeMake(static_cast<CGFloat>(width), static_cast<CGFloat>(height));
+    frame.origin.y -= static_cast<CGFloat>(height) - oldHeight;
 
-    frame.size = CGSizeMake(fw, fh);
-    frame.origin.y -= fh - oldHeight;
-
-    [_window setFrame: frame display: true];
+    [m_impl->_window setFrame: frame display: true];
 }
 
-void InfiniFrame::SetMinSize(int width, int height)
+void InfiniFrameWindow::SetMinSize(int width, int height)
 {
     width = width > 10000 ? 10000 : width;
     height = height > 10000 ? 10000 : height;
 
-    NSSize minSize = NSMakeSize(width, height);
-    [_window setMinSize: minSize];
+    [m_impl->_window setMinSize: NSMakeSize(width, height)];
 }
 
-void InfiniFrame::SetMaxSize(int width, int height)
+void InfiniFrameWindow::SetMaxSize(int width, int height)
 {
     width = width > 10000 ? 10000 : width;
     height = height > 10000 ? 10000 : height;
 
-    NSSize maxSize = NSMakeSize(width, height);
-    [_window setMaxSize: maxSize];
+    [m_impl->_window setMaxSize: NSMakeSize(width, height)];
 }
 
-void InfiniFrame::SetTitle(AutoString title)
+void InfiniFrameWindow::SetTitle(AutoString title)
 {
-    _windowTitle = title ? title : "";
-    [_window setTitle: [NSString stringWithUTF8String:title]];
+    m_impl->_windowTitle = title ? title : "";
+    [m_impl->_window setTitle: [NSString stringWithUTF8String: title]];
 }
 
-void InfiniFrame::SetTopmost(bool topmost)
+void InfiniFrameWindow::SetTopmost(bool topmost)
 {
-    if (topmost) [_window setLevel: NSFloatingWindowLevel];
-    else [_window setLevel: NSNormalWindowLevel];
+    if (topmost) [m_impl->_window setLevel: NSFloatingWindowLevel];
+    else [m_impl->_window setLevel: NSNormalWindowLevel];
 }
 
-void InfiniFrame::SetZoom(int zoom)
+void InfiniFrameWindow::SetZoom(int zoom)
 {
     CGFloat newZoom = zoom / 100.0;
-	[_webview setMagnification: newZoom];
+    [m_impl->_webview setMagnification: newZoom];
 }
 
-void InfiniFrame::SetFocused()
+void InfiniFrameWindow::SetFocused()
 {
-    if (!_window) return;
+    if (!m_impl->_window) return;
 
-    [NSApp activateIgnoringOtherApps:YES];
-    [_window makeKeyAndOrderFront:_window];
+    [NSApp activateIgnoringOtherApps: YES];
+    [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
 
-    if (![_window isKeyWindow])
+    if (![m_impl->_window isKeyWindow])
     {
-        [_window orderFrontRegardless];
-        [_window makeKeyWindow];
+        [m_impl->_window orderFrontRegardless];
+        [m_impl->_window makeKeyWindow];
     }
 }
 
-void InfiniFrame::ShowNotification(AutoString title, AutoString body)
+// ============================================================================
+// Notifications / Event loop
+// ============================================================================
+
+void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
 {
     UNMutableNotificationContent *objNotificationContent = [[UNMutableNotificationContent alloc] init];
-    objNotificationContent.title = [[NSString stringWithUTF8String:title] autorelease];
-    objNotificationContent.body = [[NSString stringWithUTF8String:body] autorelease];
+    objNotificationContent.title = [[NSString stringWithUTF8String: title] autorelease];
+    objNotificationContent.body = [[NSString stringWithUTF8String: body] autorelease];
     objNotificationContent.sound = [UNNotificationSound defaultSound];
-    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.3 repeats:NO];
-    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:@"three" content:objNotificationContent trigger:trigger];
+    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval: 0.3 repeats: NO];
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier: @"three"
+                                                                          content: objNotificationContent
+                                                                          trigger: trigger];
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {}];
+    [center addNotificationRequest: request withCompletionHandler: ^(NSError * _Nullable error) {}];
 }
 
-void InfiniFrame::WaitForExit()
+void InfiniFrameWindow::WaitForExit()
 {
     if (![NSApp isRunning]) {
-        // First caller: start the application event loop.
         [NSApp run];
         return;
     }
 
-    // NOTE: Still need to test this BUT from what i find...
-    // NSApp is already running on another thread's call. We cannot call [NSApp run] recursively
-    // Instead, spin the current run loop until this specific window closes (NSWindowWillCloseNotification fires)
     __block bool windowClosed = false;
     id observer = [[NSNotificationCenter defaultCenter]
         addObserverForName: NSWindowWillCloseNotification
-        object: _window
+        object: m_impl->_window
         queue: nil
         usingBlock: ^(NSNotification*) {
             windowClosed = true;
@@ -759,8 +802,27 @@ void InfiniFrame::WaitForExit()
     [[NSNotificationCenter defaultCenter] removeObserver: observer];
 }
 
-//Callbacks
-void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback) const
+void InfiniFrameWindow::CloseWebView()
+{
+    // Not implemented on macOS
+}
+
+// ============================================================================
+// Callbacks
+// ============================================================================
+
+InfiniFrameDialog* InfiniFrameWindow::GetDialog() const
+{
+    return m_impl->_dialog.get();
+}
+
+void InfiniFrameWindow::AddCustomSchemeName(const AutoStringConst scheme)
+{
+    if (scheme)
+        m_impl->_customSchemeNames.emplace_back(scheme);
+}
+
+void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const
 {
     if (callback)
     {
@@ -787,73 +849,121 @@ void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback) const
     }
 }
 
-std::vector<Monitor> InfiniFrame::GetMonitors() const
+void InfiniFrameWindow::SetClosingCallback(const ClosingCallback callback)
 {
-    std::vector<Monitor> monitors;
-
-    for (NSScreen *screen : [NSScreen screens])
-    {
-        NSRect monitorFrame = [screen frame];
-        Monitor::MonitorRect monitorArea;
-        monitorArea.x = static_cast<int>(roundf(monitorFrame.origin.x));
-        monitorArea.y = static_cast<int>(roundf(monitorFrame.origin.y));
-        monitorArea.width = static_cast<int>(roundf(monitorFrame.size.width));
-        monitorArea.height = static_cast<int>(roundf(monitorFrame.size.height));
-
-        NSRect workFrame = [screen visibleFrame];
-        Monitor::MonitorRect workArea;
-        workArea.x = static_cast<int>(roundf(workFrame.origin.x));
-        workArea.y = static_cast<int>(roundf(workFrame.origin.y));
-        workArea.width = static_cast<int>(roundf(workFrame.size.width));
-        workArea.height = static_cast<int>(roundf(workFrame.size.height));
-
-        CGFloat scaleFactor = [screen backingScaleFactor];
-
-        monitors.push_back({monitorArea, workArea, static_cast<double>(scaleFactor)});
-    }
-
-    return monitors;
+    m_impl->_closingCallback = callback;
 }
 
-void InfiniFrame::Invoke(ACTION callback)
+void InfiniFrameWindow::SetFocusInCallback(const FocusInCallback callback)
+{
+    m_impl->_focusInCallback = callback;
+}
+
+void InfiniFrameWindow::SetFocusOutCallback(const FocusOutCallback callback)
+{
+    m_impl->_focusOutCallback = callback;
+}
+
+void InfiniFrameWindow::SetMovedCallback(const MovedCallback callback)
+{
+    m_impl->_movedCallback = callback;
+}
+
+void InfiniFrameWindow::SetResizedCallback(const ResizedCallback callback)
+{
+    m_impl->_resizedCallback = callback;
+}
+
+void InfiniFrameWindow::SetMaximizedCallback(const MaximizedCallback callback)
+{
+    m_impl->_maximizedCallback = callback;
+}
+
+void InfiniFrameWindow::SetRestoredCallback(const RestoredCallback callback)
+{
+    m_impl->_restoredCallback = callback;
+}
+
+void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback)
+{
+    m_impl->_minimizedCallback = callback;
+}
+
+void InfiniFrameWindow::Invoke(ACTION callback)
 {
     if (dispatch_get_main_queue() == dispatch_get_current_queue())
-    {
         callback();
-    }
     else
-    {
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            callback();
-        });
-    }
+        dispatch_async(dispatch_get_main_queue(), ^(void){ callback(); });
 }
 
-//private methods
-void InfiniFrame::AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler)
+[[nodiscard]] bool InfiniFrameWindow::InvokeClose() const noexcept
 {
-    UrlSchemeHandler* schemeHandler = [[[UrlSchemeHandler alloc] init] autorelease];
-    schemeHandler->requestHandler = requestHandler;
-
-    [_webviewConfiguration
-        setURLSchemeHandler: schemeHandler
-        forURLScheme: [NSString stringWithUTF8String: scheme]];
+    if (m_impl->_closingCallback)
+        return m_impl->_closingCallback();
+    return false;
 }
 
-void InfiniFrame::AttachWebView()
+void InfiniFrameWindow::InvokeFocusIn() const noexcept
+{
+    if (m_impl->_focusInCallback)
+        m_impl->_focusInCallback();
+}
+
+void InfiniFrameWindow::InvokeFocusOut() const noexcept
+{
+    if (m_impl->_focusOutCallback)
+        m_impl->_focusOutCallback();
+}
+
+void InfiniFrameWindow::InvokeMove(int x, int y) const noexcept
+{
+    if (m_impl->_movedCallback)
+        m_impl->_movedCallback(x, y);
+}
+
+void InfiniFrameWindow::InvokeResize(int width, int height) const noexcept
+{
+    if (m_impl->_resizedCallback)
+        m_impl->_resizedCallback(width, height);
+}
+
+void InfiniFrameWindow::InvokeMaximized() const noexcept
+{
+    if (m_impl->_maximizedCallback)
+        m_impl->_maximizedCallback();
+}
+
+void InfiniFrameWindow::InvokeRestored() const noexcept
+{
+    if (m_impl->_restoredCallback)
+        m_impl->_restoredCallback();
+}
+
+void InfiniFrameWindow::InvokeMinimized() const noexcept
+{
+    if (m_impl->_minimizedCallback)
+        m_impl->_minimizedCallback();
+}
+
+// ============================================================================
+// Private methods
+// ============================================================================
+
+void InfiniFrameWindow::AttachWebView()
 {
     NSString *initScriptSource = @"window.__receiveMessageCallbacks = [];"
-			"window.__dispatchMessageCallback = function(message) {"
-			"	window.__receiveMessageCallbacks.forEach(function(callback) { callback(message); });"
-			"};"
-			"window.external = {"
-			"	sendMessage: function(message) {"
-			"		window.webkit.messageHandlers.infiniFrameInterop.postMessage(message);"
-			"	},"
-			"	receiveMessage: function(callback) {"
-			"		window.__receiveMessageCallbacks.push(callback);"
-			"	}"
-			"};";
+        "window.__dispatchMessageCallback = function(message) {"
+        "	window.__receiveMessageCallbacks.forEach(function(callback) { callback(message); });"
+        "};"
+        "window.external = {"
+        "	sendMessage: function(message) {"
+        "		window.webkit.messageHandlers.infiniFrameInterop.postMessage(message);"
+        "	},"
+        "	receiveMessage: function(callback) {"
+        "		window.__receiveMessageCallbacks.push(callback);"
+        "	}"
+        "};";
 
     WKUserScript *initScript = [
         [WKUserScript alloc]
@@ -862,52 +972,51 @@ void InfiniFrame::AttachWebView()
         forMainFrameOnly: true];
 
     WKUserContentController *userContentController = [WKUserContentController new];
-    [userContentController addUserScript:initScript];
-    _webviewConfiguration.userContentController = userContentController;
+    [userContentController addUserScript: initScript];
+    m_impl->_webviewConfiguration.userContentController = userContentController;
 
-    _webview = [
+    m_impl->_webview = [
         [WKWebView alloc]
-        initWithFrame: _window.contentView.frame
-        configuration: _webviewConfiguration];
+        initWithFrame: m_impl->_window.contentView.frame
+        configuration: m_impl->_webviewConfiguration];
 
-    [_webview setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-    [_window.contentView addSubview: _webview];
-    [_window.contentView setAutoresizesSubviews: true];
+    [m_impl->_webview setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+    [m_impl->_window.contentView addSubview: m_impl->_webview];
+    [m_impl->_window.contentView setAutoresizesSubviews: true];
 
     UiDelegate *uiDelegate = [[[UiDelegate alloc] init] autorelease];
     uiDelegate->infiniFrame = this;
-    uiDelegate->window = _window;
-    uiDelegate->webMessageReceivedCallback = _webMessageReceivedCallback;
+    uiDelegate->window = m_impl->_window;
+    uiDelegate->webMessageReceivedCallback = m_impl->_webMessageReceivedCallback;
 
     NavigationDelegate *navDelegate = [[[NavigationDelegate alloc] init] autorelease];
     navDelegate->infiniFrame = this;
-    navDelegate->window = _window;
+    navDelegate->window = m_impl->_window;
 
-    [userContentController
-        addScriptMessageHandler: uiDelegate
-        name:@"infiniFrameInterop"];
+    [userContentController addScriptMessageHandler: uiDelegate name: @"infiniFrameInterop"];
 
-    _webview.UIDelegate = uiDelegate;
-    _webview.navigationDelegate = navDelegate;
+    m_impl->_webview.UIDelegate = uiDelegate;
+    m_impl->_webview.navigationDelegate = navDelegate;
 
-    if (!_startUrl.empty())
-        NavigateToUrl(const_cast<AutoString>(_startUrl.c_str()));
-    else if (!_startString.empty())
-        NavigateToString(const_cast<AutoString>(_startString.c_str()));
+    if (!m_impl->_startUrl.empty())
+        NavigateToUrl(const_cast<AutoString>(m_impl->_startUrl.c_str()));
+    else if (!m_impl->_startString.empty())
+        NavigateToString(const_cast<AutoString>(m_impl->_startString.c_str()));
     else
     {
         NSAlert *alert = [[[NSAlert alloc] init] autorelease];
-        [alert setMessageText:@"Neither StartUrl nor StartString was specified"];
+        [alert setMessageText: @"Neither StartUrl nor StartString was specified"];
         [alert runModal];
     }
 }
 
-void InfiniFrame::Show(bool isAlreadyShown)
+void InfiniFrameWindow::Show(bool isAlreadyShown)
 {
-    if (_webview == nil)
+    if (m_impl->_webview == nil)
         AttachWebView();
 
-    [_window makeKeyAndOrderFront: _window];
-    [_window orderFrontRegardless];
+    [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
+    [m_impl->_window orderFrontRegardless];
 }
+
 #endif

@@ -10,8 +10,6 @@
 #include "../Types/Basic.h"
 #include "../Types/Dialog.h"
 
-namespace InfiniFrame {
-
 // ============================================================================
 // C-style Callbacks (for C# interop)
 // ============================================================================
@@ -28,7 +26,5 @@ using MovedCallback = void (*)(int x, int y);
 using ClosingCallback = bool (*)();
 using FocusInCallback = void (*)();
 using FocusOutCallback = void (*)();
-
-} // namespace InfiniFrame
 
 #endif // INFINIFRAME_INTEROP_CALLBACKS_H

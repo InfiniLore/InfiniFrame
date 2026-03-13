@@ -48,6 +48,8 @@ set(WINDOWS_SOURCES
     Platform/Windows/Window.cpp
     Platform/Windows/DarkMode.cpp
     Platform/Windows/Dialog.cpp
+    Dependencies/simdutf.cpp
+    Dependencies/wintoastlib.cpp
 )
 
 set(LINUX_SOURCES
@@ -67,6 +69,7 @@ set(MAC_SOURCES
 )
 
 set(HEADER_FILES
+    Core/InfiniFrame.h
     Core/InfiniFrameWindow.h
     Core/InfiniFrameDialog.h
     Types/Basic.h

@@ -10,10 +10,7 @@
 #include "Basic.h"
 #include "../Interop/Callbacks.h"
 
-namespace InfiniFrame {
-
 class InfiniFrameWindow;  // Forward declaration
-using InfiniFrame = InfiniFrameWindow;  // Alias for convenience
 
 /**
  * @brief Initialization parameters for InfiniFrame window
@@ -33,7 +30,7 @@ struct InfiniFrameInitParams
     AutoString NotificationRegistrationId;
 
     // Parent window
-    InfiniFrame* ParentInstance;
+    InfiniFrameWindow* ParentInstance;
     
     // Event handlers
     ClosingCallback ClosingHandler;
@@ -47,7 +44,7 @@ struct InfiniFrameInitParams
     WebMessageReceivedCallback WebMessageReceivedHandler;
     AutoString CustomSchemeNames[16];
     WebResourceRequestedCallback CustomSchemeHandler;
-    
+
     // Position and size
     int Left;
     int Top;
@@ -58,7 +55,7 @@ struct InfiniFrameInitParams
     int MinHeight;
     int MaxWidth;
     int MaxHeight;
-    
+
     // Behavior flags
     bool CenterOnInitialize;
     bool Chromeless;
@@ -82,11 +79,9 @@ struct InfiniFrameInitParams
     bool SmoothScrollingEnabled;
     bool IgnoreCertificateErrorsEnabled;
     bool NotificationsEnabled;
-    
+
     // Struct size (for version checking)
     int Size;
 };
-
-} // namespace InfiniFrame
 
 #endif // INFINIFRAME_TYPES_INITPARAMS_H

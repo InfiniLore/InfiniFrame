@@ -14,9 +14,11 @@
 
 #include "Core/InfiniFrameDialog.h"
 #include "Core/InfiniFrameWindow.h"
+#include "Core/InfiniFrameWindowImpl.h"
 #include "Dependencies/simdutf.h"
 #include "DarkMode.h"
 #include "ToastHandler.h"
+#include "Utils/Common.h"
 
 #pragma comment(lib, "Shcore.lib")
 #pragma comment(lib, "Urlmon.lib")
@@ -26,14 +28,57 @@
 using namespace WinToastLib;
 using namespace Microsoft::WRL;
 
+// ============================================================================
+// InfiniFrameWindow::Impl definition
+// ============================================================================
+
+struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl
+{
+    std::wstring _temporaryFilesPath;
+    std::wstring _notificationRegistrationId;
+
+    bool _notificationsEnabled = false;
+    bool _isInitialized = false;
+    bool _isWebView2Initializing = false;
+    bool _centerOnInitialize = false;
+    bool _chromeless = false;
+    bool _fullScreen = false;
+    bool _maximized = false;
+    bool _minimized = false;
+    bool _resizable = true;
+    bool _topmost = false;
+    bool _useOsDefaultLocation = false;
+    bool _useOsDefaultSize = false;
+
+    int _zoom = 100;
+    int _minWidth = MinWindowDimension;
+    int _minHeight = MinWindowDimension;
+    int _maxWidth = MaxWindowDimension;
+    int _maxHeight = MaxWindowDimension;
+
+    HWND _hWnd = nullptr;
+    wil::com_ptr<ICoreWebView2Controller> _webviewController;
+    wil::com_ptr<ICoreWebView2> _webviewWindow;
+    wil::com_ptr<ICoreWebView2Environment> _webviewEnvironment;
+
+    EventRegistrationToken _webMessageReceivedToken = {};
+    EventRegistrationToken _webResourceRequestedTokenForCustomScheme = {};
+    EventRegistrationToken _windowClosedToken = {};
+    EventRegistrationToken _windowClosingToken = {};
+    EventRegistrationToken _documentTitleChangedToken = {};
+    EventRegistrationToken _coreWebView2InitializedToken = {};
+
+    std::unique_ptr<WinToastHandler> _toastHandler;
+};
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 const wchar_t* CLASS_NAME = L"InfiniFrame";
 std::mutex invokeLockMutex;
 std::mutex hwndMapMutex;
-HINSTANCE InfiniFrame::_hInstance;
+HINSTANCE _hInstance;
 thread_local HWND messageLoopRootWindowHandle = nullptr;
-std::map<HWND, InfiniFrame*> hwndToInfiniFrame;
 wchar_t _webview2RuntimePath[MAX_PATH];
+std::map<HWND, InfiniFrameWindow*> hwndToInfiniFrame;
 
 namespace
 {
@@ -112,8 +157,8 @@ public:
 		return inst;
 	}
 
-	HBRUSH dark() const noexcept { return m_darkBrush.get(); }
-	HBRUSH light() const noexcept { return m_lightBrush.get(); }
+	HBRUSH dark() const noexcept { return static_cast<HBRUSH>(m_darkBrush.get()); }
+	HBRUSH light() const noexcept { return static_cast<HBRUSH>(m_lightBrush.get()); }
 
 private:
 	BrushManager() noexcept {
@@ -135,7 +180,7 @@ private:
 
 } // namespace detail
 
-void InfiniFrame::Register(const HINSTANCE hInstance)
+void InfiniFrameWindow::Register(const HINSTANCE hInstance)
 {
 	InitDarkModeSupport();
 
@@ -163,6 +208,7 @@ void InfiniFrame::Register(const HINSTANCE hInstance)
 
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 {
+    m_impl = std::make_unique<Impl>();
 	if (initParams->Size != sizeof(InfiniFrameInitParams))
 	{
 		auto msg = fmt::format(L"Initial parameters passed are {} bytes, but expected {} bytes.", 
@@ -173,74 +219,74 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 
 	if (initParams->Title != nullptr)
 	{
-		_windowTitle = ToUTF16String(initParams->Title);
+		m_impl->_windowTitle = ToUTF16String(initParams->Title);
 		if (initParams->NotificationsEnabled)
 		{
-			WinToast::instance()->setAppName(_windowTitle.c_str());
-			if (_notificationRegistrationId.empty())
-				WinToast::instance()->setAppUserModelId(_windowTitle.c_str());
+			WinToast::instance()->setAppName(m_impl->_windowTitle.c_str());
+			if (m_impl->_notificationRegistrationId.empty())
+				WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
 		}
 	}
 
 	if (initParams->StartUrl != nullptr)
-		_startUrl = ToUTF16String(initParams->StartUrl);
+		m_impl->_startUrl = ToUTF16String(initParams->StartUrl);
 
 	if (initParams->StartString != nullptr)
-		_startString = ToUTF16String(initParams->StartString);
+		m_impl->_startString = ToUTF16String(initParams->StartString);
 
 	if (initParams->TemporaryFilesPath != nullptr)
-		_temporaryFilesPath = ToUTF16String(initParams->TemporaryFilesPath);
+		m_impl->_temporaryFilesPath = ToUTF16String(initParams->TemporaryFilesPath);
 
 	if (initParams->UserAgent != nullptr)
-		_userAgent = ToUTF16String(initParams->UserAgent);
+		m_impl->_userAgent = ToUTF16String(initParams->UserAgent);
 
 	if (initParams->BrowserControlInitParameters != nullptr)
-		_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
+		m_impl->_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
 
 	if (initParams->NotificationRegistrationId != nullptr)
-		_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
+		m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
 
 
-	_transparentEnabled = initParams->Transparent;
-	_contextMenuEnabled = initParams->ContextMenuEnabled;
-	_zoomEnabled = initParams->ZoomEnabled;
-	_devToolsEnabled = initParams->DevToolsEnabled;
-	_grantBrowserPermissions = initParams->GrantBrowserPermissions;
-	_mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
-	_fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
-	_webSecurityEnabled = initParams->WebSecurityEnabled;
-	_javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
-	_mediaStreamEnabled = initParams->MediaStreamEnabled;
-	_smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
-    _ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
-	_notificationsEnabled = initParams->NotificationsEnabled;
+	m_impl->_transparentEnabled = initParams->Transparent;
+	m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
+	m_impl->_zoomEnabled = initParams->ZoomEnabled;
+	m_impl->_devToolsEnabled = initParams->DevToolsEnabled;
+	m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
+	m_impl->_mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
+	m_impl->_fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
+	m_impl->_webSecurityEnabled = initParams->WebSecurityEnabled;
+	m_impl->_javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
+	m_impl->_mediaStreamEnabled = initParams->MediaStreamEnabled;
+	m_impl->_smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
+    m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
+	m_impl->_notificationsEnabled = initParams->NotificationsEnabled;
 
-	_zoom = initParams->Zoom;
-	_minWidth = initParams->MinWidth;
-	_minHeight = initParams->MinHeight;
-	_maxWidth = initParams->MaxWidth;
-	_maxHeight = initParams->MaxHeight;
+	m_impl->_zoom = initParams->Zoom;
+	m_impl->_minWidth = initParams->MinWidth;
+	m_impl->_minHeight = initParams->MinHeight;
+	m_impl->_maxWidth = initParams->MaxWidth;
+	m_impl->_maxHeight = initParams->MaxHeight;
 
 	//these handlers are ALWAYS hooked up
-	_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
-	_resizedCallback = initParams->ResizedHandler;
-	_maximizedCallback = initParams->MaximizedHandler;
-	_restoredCallback = initParams->RestoredHandler;
-	_minimizedCallback = initParams->MinimizedHandler;
-	_movedCallback = initParams->MovedHandler;
-	_closingCallback = initParams->ClosingHandler;
-	_focusInCallback = initParams->FocusInHandler;
-	_focusOutCallback = initParams->FocusOutHandler;
-	_customSchemeCallback = initParams->CustomSchemeHandler;
+	m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
+	m_impl->_resizedCallback = initParams->ResizedHandler;
+	m_impl->_maximizedCallback = initParams->MaximizedHandler;
+	m_impl->_restoredCallback = initParams->RestoredHandler;
+	m_impl->_minimizedCallback = initParams->MinimizedHandler;
+	m_impl->_movedCallback = initParams->MovedHandler;
+	m_impl->_closingCallback = initParams->ClosingHandler;
+	m_impl->_focusInCallback = initParams->FocusInHandler;
+	m_impl->_focusOutCallback = initParams->FocusOutHandler;
+	m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
 
 	//copy strings from the fixed size array passed, but only if they have a value.
 	for (int i = 0; i < 16; ++i)
 	{
 		if (initParams->CustomSchemeNames[i] != nullptr)
-			_customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
+			m_impl->_customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
 	}
 
-	_parent = initParams->ParentInstance;
+	m_impl->_parent = initParams->ParentInstance;
 
 	int normalizedWidth = initParams->Width;
 	int normalizedHeight = initParams->Height;
@@ -289,10 +335,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 
 
 	//Create the window
-	_hWnd = CreateWindowEx(
+	m_impl->_hWnd = CreateWindowEx(
 		initParams->Transparent ? WS_EX_LAYERED : 0, //WS_EX_OVERLAPPEDWINDOW, //An optional extended window style.
 		CLASS_NAME,					//Window class
-		_windowTitle.c_str(),		//Window text
+		m_impl->_windowTitle.c_str(),		//Window text
 		initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW,	//Window style
 
 		// Size and position
@@ -305,7 +351,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 	);
 	{
 		std::lock_guard<std::mutex> lock(hwndMapMutex);
-		hwndToInfiniFrame[_hWnd] = this;
+		hwndToInfiniFrame[m_impl->_hWnd] = this;
 	}
 
 	if (initParams->WindowIconFile != nullptr)
@@ -330,15 +376,15 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 
 	if (initParams->NotificationsEnabled)
 	{
-		if (!_notificationRegistrationId.empty())
-			WinToast::instance()->setAppUserModelId(_notificationRegistrationId.c_str());
+		if (!m_impl->_notificationRegistrationId.empty())
+			WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
 
-		this->_toastHandler = std::make_unique<WinToastHandler>(this);
+		m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
 		WinToast::instance()->initialize();
 
 	}
 
-	_dialog = std::make_unique<InfiniFrameDialog>(this);
+	m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);
 
 	bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
 	Show(isAlreadyShown);
@@ -348,9 +394,9 @@ InfiniFrameWindow::~InfiniFrameWindow()
 {
 }
 
-HWND InfiniFrame::getHwnd()
+HWND InfiniFrameWindow::getHwnd()
 {
-	return _hWnd;
+	return m_impl->_hWnd;
 }
 
 
@@ -415,7 +461,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_ACTIVATE:
 	{
-		InfiniFrame* instance = hwndToInfiniFrame[hwnd];
+		InfiniFrameWindow* instance = hwndToInfiniFrame[hwnd];
 		if (LOWORD(wParam) == WA_INACTIVE) 
 		{
 			instance->InvokeFocusOut();
@@ -431,7 +477,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_CLOSE:
 	{
-		InfiniFrame* instance = hwndToInfiniFrame[hwnd];
+		InfiniFrameWindow* instance = hwndToInfiniFrame[hwnd];
 		if (instance)
 		{
 			bool doNotClose = instance->InvokeClose();
@@ -446,7 +492,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_DESTROY:
 	{
-		InfiniFrame* instance = hwndToInfiniFrame[hwnd];
+		InfiniFrameWindow* instance = hwndToInfiniFrame[hwnd];
 		if (instance)
 		{
 			instance->CloseWebView();
@@ -475,24 +521,24 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_GETMINMAXINFO:
 	{
-		InfiniFrame* instance = hwndToInfiniFrame[hwnd];
+		InfiniFrameWindow* instance = hwndToInfiniFrame[hwnd];
 		if (instance == nullptr)
 			return 0;
 
 		MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
-		if (instance->_minWidth > 0)
-			mmi->ptMinTrackSize.x = instance->_minWidth;
-		if (instance->_minHeight > 0)
-			mmi->ptMinTrackSize.y = instance->_minHeight;	
-		if (instance->_maxWidth < INT_MAX)
-			mmi->ptMaxTrackSize.x = instance->_maxWidth;
-		if (instance->_maxHeight < INT_MAX)
-			mmi->ptMaxTrackSize.y = instance->_maxHeight;
+		if (instance->m_impl->_minWidth > 0)
+			mmi->ptMinTrackSize.x = instance->m_impl->_minWidth;
+		if (instance->m_impl->_minHeight > 0)
+			mmi->ptMinTrackSize.y = instance->m_impl->_minHeight;	
+		if (instance->m_impl->_maxWidth < INT_MAX)
+			mmi->ptMaxTrackSize.x = instance->m_impl->_maxWidth;
+		if (instance->m_impl->_maxHeight < INT_MAX)
+			mmi->ptMaxTrackSize.y = instance->m_impl->_maxHeight;
 		return 0;
 	}
 	case WM_SIZE:
 	{
-		InfiniFrame* instance = hwndToInfiniFrame[hwnd];
+		InfiniFrameWindow* instance = hwndToInfiniFrame[hwnd];
 		if (instance)
 		{
 			instance->RefitContent();
@@ -514,7 +560,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	}
 	case WM_MOVE:
 	{
-		InfiniFrame* instance = hwndToInfiniFrame[hwnd];
+		InfiniFrameWindow* instance = hwndToInfiniFrame[hwnd];
 		if (instance)
 		{
 			int x, y;
@@ -528,36 +574,36 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-void InfiniFrame::CloseWebView()
+void InfiniFrameWindow::CloseWebView()
 {
-	if (_webviewController != nullptr)
+	if (m_impl->_webviewController != nullptr)
 	{
-		_webviewController->Close();
-		_webviewController = nullptr;
+		m_impl->_webviewController->Close();
+		m_impl->_webviewController = nullptr;
 	}
 
-	if (_webviewWindow != nullptr)
+	if (m_impl->_webviewWindow != nullptr)
 	{
-		_webviewWindow->Stop();
-		_webviewWindow = nullptr;
+		m_impl->_webviewWindow->Stop();
+		m_impl->_webviewWindow = nullptr;
 	}
 
-	if (_webviewEnvironment != nullptr)
+	if (m_impl->_webviewEnvironment != nullptr)
 	{
-		_webviewEnvironment = nullptr;
+		m_impl->_webviewEnvironment = nullptr;
 	}
 }
 
 
 
-void InfiniFrame::Center()
+void InfiniFrameWindow::Center()
 {
-	int screenDpi = GetDpiForWindow(_hWnd);
+	int screenDpi = GetDpiForWindow(m_impl->_hWnd);
 	int screenHeight = GetSystemMetricsForDpi(SM_CYSCREEN, screenDpi);
 	int screenWidth = GetSystemMetricsForDpi(SM_CXSCREEN, screenDpi);
 
 	RECT windowRect = {};
-	GetWindowRect(_hWnd, &windowRect);
+	GetWindowRect(m_impl->_hWnd, &windowRect);
 	int windowHeight = windowRect.bottom - windowRect.top;
 	int windowWidth = windowRect.right - windowRect.left;
 
@@ -567,18 +613,18 @@ void InfiniFrame::Center()
 	SetPosition(left, top);
 }
 
-void InfiniFrame::Close()
+void InfiniFrameWindow::Close()
 {
-	PostMessage(_hWnd, WM_CLOSE, 0, 0);
+	PostMessage(m_impl->_hWnd, WM_CLOSE, 0, 0);
 }
 
-void InfiniFrame::GetTransparentEnabled(bool* enabled) const
+void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 {
-	if (!_webviewController) { *enabled = _transparentEnabled; return; }
+	if (!m_impl->_webviewController) { *enabled = m_impl->_transparentEnabled; return; }
 	ICoreWebView2Controller2* controller2 = nullptr;
-	if (FAILED(_webviewController->QueryInterface(&controller2)) || !controller2)
+	if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2)
 	{
-		*enabled = _transparentEnabled;
+		*enabled = m_impl->_transparentEnabled;
 		return;
 	}
 	COREWEBVIEW2_COLOR backgroundColor;
@@ -586,159 +632,159 @@ void InfiniFrame::GetTransparentEnabled(bool* enabled) const
 	*enabled = backgroundColor.A == 0;
 }
 
-void InfiniFrame::GetContextMenuEnabled(bool* enabled) const
+void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
 {
-	if (!_webviewWindow) { *enabled = _contextMenuEnabled; return; }
+	if (!m_impl->_webviewWindow) { *enabled = m_impl->_contextMenuEnabled; return; }
 	ICoreWebView2Settings* settings = nullptr;
-	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_AreDefaultContextMenusEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
-void InfiniFrame::GetZoomEnabled(bool* enabled) const
+void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const
 {
-	if (!_webviewWindow) { *enabled = _zoomEnabled; return; }
+	if (!m_impl->_webviewWindow) { *enabled = m_impl->_zoomEnabled; return; }
 	ICoreWebView2Settings* settings = nullptr;
-	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_IsZoomControlEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
-void InfiniFrame::GetDevToolsEnabled(bool* enabled) const
+void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
 {
-	if (!_webviewWindow) { *enabled = _devToolsEnabled; return; }
+	if (!m_impl->_webviewWindow) { *enabled = m_impl->_devToolsEnabled; return; }
 	ICoreWebView2Settings* settings = nullptr;
-	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_AreDevToolsEnabled(reinterpret_cast<BOOL*>(enabled));
 }
 
-void InfiniFrame::GetFullScreen(bool* fullScreen) const
+void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const
 {
-	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
+	LONG lStyles = GetWindowLong(m_impl->_hWnd, GWL_STYLE);
 	*fullScreen = (lStyles & WS_POPUP) != 0;
 }
 
-void InfiniFrame::GetGrantBrowserPermissions(bool* grant) const
+void InfiniFrameWindow::GetGrantBrowserPermissions(bool* grant) const
 {
-	*grant = _grantBrowserPermissions;
+	*grant = m_impl->_grantBrowserPermissions;
 }
 
-AutoString InfiniFrame::GetUserAgent() const
+AutoString InfiniFrameWindow::GetUserAgent() const
 {
-	return const_cast<AutoString>(this->_userAgent.c_str());
+	return const_cast<AutoString>(m_impl->_userAgent.c_str());
 }
 
-void InfiniFrame::GetMediaAutoplayEnabled(bool* enabled) const
+void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const
 {
-	*enabled = this->_mediaAutoplayEnabled;
+	*enabled = m_impl->_mediaAutoplayEnabled;
 }
 
-void InfiniFrame::GetFileSystemAccessEnabled(bool* enabled) const
+void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const
 {
-	*enabled = this->_fileSystemAccessEnabled;
+	*enabled = m_impl->_fileSystemAccessEnabled;
 }
 
-void InfiniFrame::GetWebSecurityEnabled(bool* enabled) const
+void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const
 {
-	*enabled = this->_webSecurityEnabled;
+	*enabled = m_impl->_webSecurityEnabled;
 }
 
-void InfiniFrame::GetJavascriptClipboardAccessEnabled(bool* enabled) const
+void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const
 {
-	*enabled = this->_javascriptClipboardAccessEnabled;
+	*enabled = m_impl->_javascriptClipboardAccessEnabled;
 }
 
-void InfiniFrame::GetMediaStreamEnabled(bool* enabled) const
+void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const
 {
-	*enabled = this->_mediaStreamEnabled;
+	*enabled = m_impl->_mediaStreamEnabled;
 }
 
-void InfiniFrame::GetSmoothScrollingEnabled(bool* enabled) const
+void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const
 {
-	*enabled = this->_smoothScrollingEnabled;
+	*enabled = m_impl->_smoothScrollingEnabled;
 }
 
-void InfiniFrame::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
+void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
 {
-	*enabled = this->_ignoreCertificateErrorsEnabled;
+	*enabled = m_impl->_ignoreCertificateErrorsEnabled;
 }
 
-void InfiniFrame::GetFocused(bool* isFocused) const
+void InfiniFrameWindow::GetFocused(bool* isFocused) const
 {
-	*isFocused = GetFocus() == _hWnd;
+	*isFocused = GetFocus() == m_impl->_hWnd;
 }
 
-void InfiniFrame::GetNotificationsEnabled(bool* enabled) const
+void InfiniFrameWindow::GetNotificationsEnabled(bool* enabled) const
 {
-	*enabled = this->_notificationsEnabled;
+	*enabled = m_impl->_notificationsEnabled;
 }
 
-AutoString InfiniFrame::GetIconFileName() const
+AutoString InfiniFrameWindow::GetIconFileName() const
 {
-	return const_cast<AutoString>(_iconFileName.c_str());
+	return const_cast<AutoString>(m_impl->_iconFileName.c_str());
 }
 
-void InfiniFrame::GetMaximized(bool* isMaximized) const
+void InfiniFrameWindow::GetMaximized(bool* isMaximized) const
 {
-	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
+	LONG lStyles = GetWindowLong(m_impl->_hWnd, GWL_STYLE);
 	*isMaximized = (lStyles & WS_MAXIMIZE) != 0;
 }
 
-void InfiniFrame::GetMinimized(bool* isMinimized) const
+void InfiniFrameWindow::GetMinimized(bool* isMinimized) const
 {
-	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
+	LONG lStyles = GetWindowLong(m_impl->_hWnd, GWL_STYLE);
 	*isMinimized = (lStyles & WS_MINIMIZE) != 0;
 }
 
-void InfiniFrame::GetPosition(int* x, int* y) const
+void InfiniFrameWindow::GetPosition(int* x, int* y) const
 {
 	RECT rect = {};
-	GetWindowRect(_hWnd, &rect);
+	GetWindowRect(m_impl->_hWnd, &rect);
 	if (x) *x = rect.left;
 	if (y) *y = rect.top;
 }
 
-void InfiniFrame::GetResizable(bool* resizable) const
+void InfiniFrameWindow::GetResizable(bool* resizable) const
 {
-	LONG lStyles = GetWindowLong(_hWnd, GWL_STYLE);
+	LONG lStyles = GetWindowLong(m_impl->_hWnd, GWL_STYLE);
 	*resizable = (lStyles & WS_THICKFRAME) != 0;
 }
 
-unsigned int InfiniFrame::GetScreenDpi() const
+unsigned int InfiniFrameWindow::GetScreenDpi() const
 {
-	return GetDpiForWindow(_hWnd);
+	return GetDpiForWindow(m_impl->_hWnd);
 }
 
-void InfiniFrame::GetSize(int* width, int* height) const
+void InfiniFrameWindow::GetSize(int* width, int* height) const
 {
 	RECT rect = {};
-	GetWindowRect(_hWnd, &rect);
+	GetWindowRect(m_impl->_hWnd, &rect);
 	if (width) *width = rect.right - rect.left;
 	if (height) *height = rect.bottom - rect.top;
 }
 
-AutoString InfiniFrame::GetTitle() const
+AutoString InfiniFrameWindow::GetTitle() const
 {
-	return const_cast<AutoString>(_windowTitle.c_str());
+	return const_cast<AutoString>(m_impl->_windowTitle.c_str());
 }
 
-void InfiniFrame::GetTopmost(bool* topmost) const
+void InfiniFrameWindow::GetTopmost(bool* topmost) const
 {
-	LONG lStyles = GetWindowLong(_hWnd, GWL_EXSTYLE);
+	LONG lStyles = GetWindowLong(m_impl->_hWnd, GWL_EXSTYLE);
 	*topmost = (lStyles & WS_EX_TOPMOST) != 0;
 }
 
-void InfiniFrame::GetZoom(int* zoom) const
+void InfiniFrameWindow::GetZoom(int* zoom) const
 {
 	if (zoom == nullptr) return;
-	if (_webviewController == nullptr)
+	if (m_impl->_webviewController == nullptr)
 	{
-		*zoom = _zoom;
+		*zoom = m_impl->_zoom;
 		return;
 	}
 
 	double rawValue = 0;
-	if (FAILED(_webviewController->get_ZoomFactor(&rawValue)))
+	if (FAILED(m_impl->_webviewController->get_ZoomFactor(&rawValue)))
 	{
-		*zoom = _zoom;
+		*zoom = m_impl->_zoom;
 		return;
 	}
 
@@ -748,91 +794,91 @@ void InfiniFrame::GetZoom(int* zoom) const
 
 
 
-void InfiniFrame::NavigateToString(AutoString content)
+void InfiniFrameWindow::NavigateToString(AutoString content)
 {
 	std::wstring wideContent = ToUTF16String(content);
-	_webviewWindow->NavigateToString(wideContent.c_str());
+	m_impl->_webviewWindow->NavigateToString(wideContent.c_str());
 }
 
-void InfiniFrame::NavigateToUrl(AutoString url)
+void InfiniFrameWindow::NavigateToUrl(AutoString url)
 {
 	std::wstring wideUrl = ToUTF16String(url);
-	_webviewWindow->Navigate(wideUrl.c_str());
+	m_impl->_webviewWindow->Navigate(wideUrl.c_str());
 }
 
-void InfiniFrame::Restore()
+void InfiniFrameWindow::Restore()
 {
-	ShowWindow(_hWnd, SW_RESTORE);
+	ShowWindow(m_impl->_hWnd, SW_RESTORE);
 }
 
-void InfiniFrame::SendWebMessage(AutoString message)
+void InfiniFrameWindow::SendWebMessage(AutoString message)
 {
 	std::wstring wideMessage = ToUTF16String(message);
-	_webviewWindow->PostWebMessageAsString(wideMessage.c_str());
+	m_impl->_webviewWindow->PostWebMessageAsString(wideMessage.c_str());
 }
 
 
-void InfiniFrame::SetTransparentEnabled(const bool enabled)
+void InfiniFrameWindow::SetTransparentEnabled(const bool enabled)
 {
-	_transparentEnabled = enabled;
-	if (!_webviewController || !_webviewWindow) return;
+	m_impl->_transparentEnabled = enabled;
+	if (!m_impl->_webviewController || !m_impl->_webviewWindow) return;
 	ICoreWebView2Controller2* controller2 = nullptr;
-	if (FAILED(_webviewController->QueryInterface(&controller2)) || !controller2) return;
+	if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2) return;
 	COREWEBVIEW2_COLOR backgroundColor;
 	controller2->get_DefaultBackgroundColor(&backgroundColor);
 	backgroundColor.A = enabled ? 0 : 255;
 	controller2->put_DefaultBackgroundColor(backgroundColor);
-	_webviewWindow->Reload();
+	m_impl->_webviewWindow->Reload();
 }
 
-void InfiniFrame::SetContextMenuEnabled(const bool enabled)
+void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled)
 {
-	_contextMenuEnabled = enabled;
-	if (!_webviewWindow) return;
+	m_impl->_contextMenuEnabled = enabled;
+	if (!m_impl->_webviewWindow) return;
 	ICoreWebView2Settings* settings = nullptr;
-	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 	{
 		settings->put_AreDefaultContextMenusEnabled(enabled);
-		_webviewWindow->Reload();
+		m_impl->_webviewWindow->Reload();
 	}
 }
 
-void InfiniFrame::SetZoomEnabled(const bool enabled)
+void InfiniFrameWindow::SetZoomEnabled(const bool enabled)
 {
-	_zoomEnabled = enabled;
-	if (!_webviewWindow) return;
+	m_impl->_zoomEnabled = enabled;
+	if (!m_impl->_webviewWindow) return;
 	ICoreWebView2Settings* settings = nullptr;
-	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 	{
 		settings->put_IsZoomControlEnabled(enabled);
-		_webviewWindow->Reload();
+		m_impl->_webviewWindow->Reload();
 	}
 }
 
-void InfiniFrame::SetDevToolsEnabled(const bool enabled)
+void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled)
 {
-	_devToolsEnabled = enabled;
-	if (!_webviewWindow) return;
+	m_impl->_devToolsEnabled = enabled;
+	if (!m_impl->_webviewWindow) return;
 	ICoreWebView2Settings* settings = nullptr;
-	if (SUCCEEDED(_webviewWindow->get_Settings(&settings)) && settings)
+	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 	{
 		settings->put_AreDevToolsEnabled(enabled);
-		_webviewWindow->Reload();
+		m_impl->_webviewWindow->Reload();
 	}
 }
 
-void InfiniFrame::SetFullScreen(const bool fullScreen)
+void InfiniFrameWindow::SetFullScreen(const bool fullScreen)
 {
-	LONG_PTR style = GetWindowLongPtr(_hWnd, GWL_STYLE);
+	LONG_PTR style = GetWindowLongPtr(m_impl->_hWnd, GWL_STYLE);
 	if (fullScreen)
 	{
 		style |= WS_POPUP;
 		style &= (~WS_OVERLAPPEDWINDOW);
 
-		HMONITOR monitor = MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST);
+		HMONITOR monitor = MonitorFromWindow(m_impl->_hWnd, MONITOR_DEFAULTTONEAREST);
 		MONITORINFO monitorInfo = { sizeof(monitorInfo) };
 
-		if (GetMonitorInfoW(monitor, &monitorInfo)) 
+		if (GetMonitorInfoW(monitor, &monitorInfo))
 		{
 			RECT rc = monitorInfo.rcMonitor;
 			SetPosition(rc.left, rc.top);
@@ -849,13 +895,13 @@ void InfiniFrame::SetFullScreen(const bool fullScreen)
 		style |= WS_OVERLAPPEDWINDOW;
 		style &= (~WS_POPUP);
 	}
-	SetWindowLongPtr(_hWnd, GWL_STYLE, style);
+	SetWindowLongPtr(m_impl->_hWnd, GWL_STYLE, style);
 }
 
-void InfiniFrame::SetIconFile(const AutoString filename)
+void InfiniFrameWindow::SetIconFile(const AutoString filename)
 {
     std::wstring wideFilename = ToUTF16String(filename);
-    _iconFileName = wideFilename;
+    m_impl->_iconFileName = wideFilename;
     if (wideFilename.empty()) return;
 
     HICON iconSmall = static_cast<HICON>(LoadImageW(nullptr, wideFilename.c_str(),
@@ -865,110 +911,110 @@ void InfiniFrame::SetIconFile(const AutoString filename)
 
     if (iconSmall && iconBig)
     {
-        SendMessageW(_hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(iconSmall));
-        SendMessageW(_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(iconBig));
+        SendMessageW(m_impl->_hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(iconSmall));
+        SendMessageW(m_impl->_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(iconBig));
     }
 }
 
-void InfiniFrame::SetMinimized(const bool minimized)
+void InfiniFrameWindow::SetMinimized(const bool minimized)
 {
 	if (minimized)
-		ShowWindow(_hWnd, SW_MINIMIZE);
+		ShowWindow(m_impl->_hWnd, SW_MINIMIZE);
 	else
-		ShowWindow(_hWnd, SW_NORMAL);
+		ShowWindow(m_impl->_hWnd, SW_NORMAL);
 }
 
-void InfiniFrame::SetMinSize(const int width, const int height)
+void InfiniFrameWindow::SetMinSize(const int width, const int height)
 {
-	_minWidth = width;
-	_minHeight = height;
+	m_impl->_minWidth = width;
+	m_impl->_minHeight = height;
 
 	int currWidth, currHeight;
 	GetSize(&currWidth, &currHeight);
-	if (currWidth < _minWidth)
-		SetSize(_minWidth, currHeight);
-	if (currHeight < _minHeight)
-		SetSize(currWidth, _minHeight);
+	if (currWidth < m_impl->_minWidth)
+		SetSize(m_impl->_minWidth, currHeight);
+	if (currHeight < m_impl->_minHeight)
+		SetSize(currWidth, m_impl->_minHeight);
 }
 
-void InfiniFrame::SetMaximized(const bool maximized)
+void InfiniFrameWindow::SetMaximized(const bool maximized)
 {
 	if (maximized)
-		ShowWindow(_hWnd, SW_MAXIMIZE);
+		ShowWindow(m_impl->_hWnd, SW_MAXIMIZE);
 	else
-		ShowWindow(_hWnd, SW_NORMAL);
+		ShowWindow(m_impl->_hWnd, SW_NORMAL);
 }
 
-void InfiniFrame::SetMaxSize(const int width, const int height)
+void InfiniFrameWindow::SetMaxSize(const int width, const int height)
 {
-	_maxWidth = width;
-	_maxHeight = height;
+	m_impl->_maxWidth = width;
+	m_impl->_maxHeight = height;
 
 	int currWidth, currHeight;
 	GetSize(&currWidth, &currHeight);
-	if (currWidth > _maxWidth)
-		SetSize(_maxWidth, currHeight);
-	if (currHeight > _maxHeight)
-		SetSize(currWidth, _maxHeight);
+	if (currWidth > m_impl->_maxWidth)
+		SetSize(m_impl->_maxWidth, currHeight);
+	if (currHeight > m_impl->_maxHeight)
+		SetSize(currWidth, m_impl->_maxHeight);
 }
 
-void InfiniFrame::SetPosition(const int x, const int y)
+void InfiniFrameWindow::SetPosition(const int x, const int y)
 {
-	SetWindowPos(_hWnd, HWND_TOP, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	SetWindowPos(m_impl->_hWnd, HWND_TOP, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
-void InfiniFrame::SetResizable(const bool resizable)
+void InfiniFrameWindow::SetResizable(const bool resizable)
 {
-	LONG_PTR style = GetWindowLongPtr(_hWnd, GWL_STYLE);
+	LONG_PTR style = GetWindowLongPtr(m_impl->_hWnd, GWL_STYLE);
 	if (resizable) style |= WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 	else style &= (~WS_THICKFRAME) & (~WS_MINIMIZEBOX) & (~WS_MAXIMIZEBOX);
-	SetWindowLongPtr(_hWnd, GWL_STYLE, style);
+	SetWindowLongPtr(m_impl->_hWnd, GWL_STYLE, style);
 }
 
-void InfiniFrame::SetSize(const int width, const int height)
+void InfiniFrameWindow::SetSize(const int width, const int height)
 {
-	SetWindowPos(_hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+	SetWindowPos(m_impl->_hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
 }
 
-void InfiniFrame::SetTitle(AutoString title)
+void InfiniFrameWindow::SetTitle(AutoString title)
 {
 	std::wstring wideTitle = ToUTF16String(title);
-	_windowTitle = wideTitle;
-	SetWindowText(_hWnd, wideTitle.c_str());
-	if (_notificationsEnabled)
+	m_impl->_windowTitle = wideTitle;
+	SetWindowText(m_impl->_hWnd, wideTitle.c_str());
+	if (m_impl->_notificationsEnabled)
 	{
 		WinToast::instance()->setAppName(wideTitle.c_str());
-		if (_notificationRegistrationId.empty())
+		if (m_impl->_notificationRegistrationId.empty())
 			WinToast::instance()->setAppUserModelId(wideTitle.c_str());
 	}
 }
 
-void InfiniFrame::SetTopmost(const bool topmost)
+void InfiniFrameWindow::SetTopmost(const bool topmost)
 {
-	LONG_PTR style = GetWindowLongPtr(_hWnd, GWL_EXSTYLE);
+	LONG_PTR style = GetWindowLongPtr(m_impl->_hWnd, GWL_EXSTYLE);
 	if (topmost) style |= WS_EX_TOPMOST;
 	else style &= (~WS_EX_TOPMOST);
-	SetWindowLongPtr(_hWnd, GWL_EXSTYLE, style);
-	SetWindowPos(_hWnd, topmost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	SetWindowLongPtr(m_impl->_hWnd, GWL_EXSTYLE, style);
+	SetWindowPos(m_impl->_hWnd, topmost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
-void InfiniFrame::SetZoom(const int zoom)
+void InfiniFrameWindow::SetZoom(const int zoom)
 {
     if (zoom < 25 || zoom > 500) return;
 
-	_zoom = zoom;
-	if (_webviewController == nullptr) return;
+	m_impl->_zoom = zoom;
+	if (m_impl->_webviewController == nullptr) return;
 
     const double newZoom = zoom / 100.0;
-    _webviewController->put_ZoomFactor(newZoom);
+    m_impl->_webviewController->put_ZoomFactor(newZoom);
 }
 
-void InfiniFrame::SetFocused()
+void InfiniFrameWindow::SetFocused()
 {
-    if (!_hWnd) return;
+    if (!m_impl->_hWnd) return;
 
     // If minimized, restore first
-    if (IsIconic(_hWnd)) ShowWindow(_hWnd, SW_RESTORE);
+    if (IsIconic(m_impl->_hWnd)) ShowWindow(m_impl->_hWnd, SW_RESTORE);
 
     // Try to request foreground rights
     AllowSetForegroundWindow(ASFW_ANY);
@@ -981,11 +1027,11 @@ void InfiniFrame::SetFocused()
     // Temporarily attach thread inputs to improve the chances of success
     if (fgThread && fgThread != thisThread) AttachThreadInput(fgThread, thisThread, TRUE);
 
-    ShowWindow(_hWnd, SW_SHOW);
-    SetForegroundWindow(_hWnd);
-    BringWindowToTop(_hWnd);
-    SetActiveWindow(_hWnd);
-    SetFocus(_hWnd);
+    ShowWindow(m_impl->_hWnd, SW_SHOW);
+    SetForegroundWindow(m_impl->_hWnd);
+    BringWindowToTop(m_impl->_hWnd);
+    SetActiveWindow(m_impl->_hWnd);
+    SetFocus(m_impl->_hWnd);
 
     if (fgThread && fgThread != thisThread) AttachThreadInput(fgThread, thisThread, FALSE);
 
@@ -993,24 +1039,24 @@ void InfiniFrame::SetFocused()
     FocusWebView2();
 }
 
-void InfiniFrame::ShowNotification(AutoString title, AutoString body)
+void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
 {
 	std::wstring wideTitle = ToUTF16String(title);
 	std::wstring wideBody = ToUTF16String(body);
-	if (_notificationsEnabled && WinToast::isCompatible())
+	if (m_impl->_notificationsEnabled && WinToast::isCompatible())
 	{
 		WinToastTemplate toast = WinToastTemplate(WinToastTemplate::ImageAndText02);
 		toast.setTextField(wideTitle.c_str(), WinToastTemplate::FirstLine);
 		toast.setTextField(wideBody.c_str(), WinToastTemplate::SecondLine);
-		if (!this->_iconFileName.empty())
-			toast.setImagePath(this->_iconFileName);
-		WinToast::instance()->showToast(toast, _toastHandler.get());
+		if (!m_impl->_iconFileName.empty())
+			toast.setImagePath(m_impl->_iconFileName);
+		WinToast::instance()->showToast(toast, m_impl->_toastHandler.get());
 	}
 }
 
-void InfiniFrame::WaitForExit()
+void InfiniFrameWindow::WaitForExit()
 {
-	messageLoopRootWindowHandle = _hWnd;
+	messageLoopRootWindowHandle = m_impl->_hWnd;
 
 	// Run the message loop
 	MSG msg = { };
@@ -1044,7 +1090,7 @@ BOOL MonitorEnum(const HMONITOR monitor, HDC, LPRECT, const LPARAM arg)
 	return callback(&props) ? TRUE : FALSE;
 }
 
-void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback) const
+void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const
 {
 	if (callback)
 	{
@@ -1052,90 +1098,90 @@ void InfiniFrame::GetAllMonitors(GetAllMonitorsCallback callback) const
 	}
 }
 
-void InfiniFrame::Invoke(ACTION callback)
+void InfiniFrameWindow::Invoke(ACTION callback)
 {
 	InvokeWaitInfo waitInfo = {};
-	PostMessage(_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo));
+	PostMessage(m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo));
 
 	std::unique_lock<std::mutex> uLock(invokeLockMutex);
 	waitInfo.completionNotifier.wait(uLock, [&] { return waitInfo.isCompleted; });
 }
 
-std::string InfiniFrame::ToUTF8String(const AutoString source) const
+std::string InfiniFrameWindow::ToUTF8String(const AutoString source) const
 {
 	return WideToUtf8(source);
 }
 
-std::wstring InfiniFrame::ToUTF16String(const AutoString source) const
+std::wstring InfiniFrameWindow::ToUTF16String(const AutoString source) const
 {
 	return Utf8ToWide(source);
 }
 
-void InfiniFrame::AttachWebView()
+void InfiniFrameWindow::AttachWebView()
 {
 	size_t runtimePathLen = wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath));
 	PCWSTR runtimePath = runtimePathLen > 0 ? &_webview2RuntimePath[0] : nullptr;
 
 	std::wstring startupString;
-	if (!_userAgent.empty())
-		startupString += L"--user-agent=\"" + _userAgent + L"\" ";
-	if (_mediaAutoplayEnabled) 
+	if (!m_impl->_userAgent.empty())
+		startupString += L"--user-agent=\"" + m_impl->_userAgent + L"\" ";
+	if (m_impl->_mediaAutoplayEnabled) 
 		startupString += L"--autoplay-policy=no-user-gesture-required ";
-	if (_fileSystemAccessEnabled) 
+	if (m_impl->_fileSystemAccessEnabled) 
 		startupString += L"--allow-file-access-from-files ";
-	if (!_webSecurityEnabled)
+	if (!m_impl->_webSecurityEnabled)
 		startupString += L"--disable-web-security ";
-	if (_javascriptClipboardAccessEnabled)
+	if (m_impl->_javascriptClipboardAccessEnabled)
 		startupString += L"--enable-javascript-clipboard-access ";
-	if (_mediaStreamEnabled)
+	if (m_impl->_mediaStreamEnabled)
 		startupString += L"--enable-usermedia-screen-capturing ";
-	if (!_smoothScrollingEnabled)
+	if (!m_impl->_smoothScrollingEnabled)
 		startupString += L"--disable-smooth-scrolling ";
-	if (_ignoreCertificateErrorsEnabled)
+	if (m_impl->_ignoreCertificateErrorsEnabled)
 		startupString += L"--ignore-certificate-errors ";
-	if (!_browserControlInitParameters.empty())
-		startupString += _browserControlInitParameters;	//e.g.--hide-scrollbars
+	if (!m_impl->_browserControlInitParameters.empty())
+		startupString += m_impl->_browserControlInitParameters;	//e.g.--hide-scrollbars
 
 	auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
 	if (startupString.length() > 0)
 		options->put_AdditionalBrowserArguments(startupString.c_str());
 
-	HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(runtimePath, _temporaryFilesPath.empty() ? nullptr : _temporaryFilesPath.c_str(), options.Get(),
+	HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(runtimePath, m_impl->_temporaryFilesPath.empty() ? nullptr : m_impl->_temporaryFilesPath.c_str(), options.Get(),
 		Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
 			[&](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
 				if (result != S_OK) { return result; }
-				HRESULT envResult = env->QueryInterface(&_webviewEnvironment);
+				HRESULT envResult = env->QueryInterface(&m_impl->_webviewEnvironment);
 				if (envResult != S_OK) { return envResult; }
 
-				env->CreateCoreWebView2Controller(_hWnd, Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
+				env->CreateCoreWebView2Controller(m_impl->_hWnd, Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
 					[&](const HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
 
 						if (result != S_OK) { return result; }
 
-						HRESULT envResult = controller->QueryInterface(&_webviewController);
+						HRESULT envResult = controller->QueryInterface(&m_impl->_webviewController);
 						if (envResult != S_OK) { return envResult; }
-						_webviewController->get_CoreWebView2(&_webviewWindow);
+						m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
 
 						ICoreWebView2Settings* Settings;
-						_webviewWindow->get_Settings(&Settings);
+						m_impl->_webviewWindow->get_Settings(&Settings);
 						Settings->put_AreHostObjectsAllowed(TRUE);
 						Settings->put_IsScriptEnabled(TRUE);
 						Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
 						Settings->put_IsWebMessageEnabled(TRUE);
 
 						EventRegistrationToken webMessageToken;
-						_webviewWindow->AddScriptToExecuteOnDocumentCreated(L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };", nullptr);
-						_webviewWindow->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>(
+						m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };", nullptr);
+						m_impl->_webviewWindow->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>(
 							[&](ICoreWebView2* webview, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
 								wil::unique_cotaskmem_string message;
 								args->TryGetWebMessageAsString(&message);
-								_webMessageReceivedCallback(message.get());
+								m_impl->_webMessageReceivedCallback(message.get());
 								return S_OK;
 							}).Get(), &webMessageToken);
 
 						EventRegistrationToken webResourceRequestedToken;
-						_webviewWindow->AddWebResourceRequestedFilter(L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
-						_webviewWindow->add_WebResourceRequested(Callback<ICoreWebView2WebResourceRequestedEventHandler>(
+						m_impl->_webviewWindow->AddWebResourceRequestedFilter(L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
+						m_impl->_webviewWindow->add_WebResourceRequested(Callback<ICoreWebView2WebResourceRequestedEventHandler>(
 							[&](ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args)
 							{
 								ICoreWebView2WebResourceRequest* req;
@@ -1149,13 +1195,13 @@ void InfiniFrame::AttachWebView()
 								{
 									std::wstring scheme = uriString.substr(0, colonPos);
                                     auto it = std::find(
-                                        _customSchemeNames.begin(), _customSchemeNames.end(), scheme);
+                                        m_impl->_customSchemeNames.begin(), m_impl->_customSchemeNames.end(), scheme);
 
-									if (it != _customSchemeNames.end() && _customSchemeCallback != nullptr)
+									if (it != m_impl->_customSchemeNames.end() && m_impl->_customSchemeCallback != nullptr)
 									{
 										int numBytes;
 										AutoString contentType = nullptr;
-										wil::unique_cotaskmem dotNetResponse(_customSchemeCallback(const_cast<AutoString>(uriString.c_str()), &numBytes, &contentType));
+										wil::unique_cotaskmem dotNetResponse(m_impl->_customSchemeCallback(const_cast<AutoString>(uriString.c_str()), &numBytes, &contentType));
 										auto freeContentType = wil::scope_exit([&contentType]
 										{
 											CoTaskMemFree(contentType);
@@ -1167,7 +1213,7 @@ void InfiniFrame::AttachWebView()
 
 											IStream* dataStream = SHCreateMemStream(reinterpret_cast<const BYTE*>(dotNetResponse.get()), numBytes);
 											wil::com_ptr<ICoreWebView2WebResourceResponse> response;
-											_webviewEnvironment->CreateWebResourceResponse(
+											m_impl->_webviewEnvironment->CreateWebResourceResponse(
 												dataStream, 200, L"OK", (L"Content-Type: " + contentTypeWS).c_str(),
 												&response);
 											args->put_Response(response.get());
@@ -1180,40 +1226,40 @@ void InfiniFrame::AttachWebView()
 						).Get(), &webResourceRequestedToken);
 
 						EventRegistrationToken permissionRequestedToken;
-						_webviewWindow->add_PermissionRequested(
+						m_impl->_webviewWindow->add_PermissionRequested(
 							Callback<ICoreWebView2PermissionRequestedEventHandler>(
 								[&](ICoreWebView2* sender, ICoreWebView2PermissionRequestedEventArgs* args)	-> HRESULT {
-									if (_grantBrowserPermissions)
+									if (m_impl->_grantBrowserPermissions)
 										args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
 									return S_OK;
 								})
 							.Get(),
 									&permissionRequestedToken);
 
-						if (!_startUrl.empty())
-							_webviewWindow->Navigate(_startUrl.c_str());
-						else if (!_startString.empty())
-							_webviewWindow->NavigateToString(_startString.c_str());
+						if (!m_impl->_startUrl.empty())
+							m_impl->_webviewWindow->Navigate(m_impl->_startUrl.c_str());
+						else if (!m_impl->_startString.empty())
+							m_impl->_webviewWindow->NavigateToString(m_impl->_startString.c_str());
 						else
 						{
 							MessageBox(nullptr, L"Neither StartUrl nor StartString was specified", L"Native Initialization Failed", MB_OK);
 							exit(0);
 						}
 
-						if (_contextMenuEnabled == false)
+						if (m_impl->_contextMenuEnabled == false)
 							SetContextMenuEnabled(false);
 
-						if (_zoomEnabled == false)
+						if (m_impl->_zoomEnabled == false)
 							SetZoomEnabled(false);
 
-						if (_devToolsEnabled == false)
+						if (m_impl->_devToolsEnabled == false)
 							SetDevToolsEnabled(false);
 
-						if (_transparentEnabled == true)
+						if (m_impl->_transparentEnabled == true)
 							SetTransparentEnabled(true);
 
-						if (_zoom != 100)
-							SetZoom(_zoom);
+						if (m_impl->_zoom != 100)
+							SetZoom(m_impl->_zoom);
 
 						RefitContent();
 
@@ -1228,12 +1274,12 @@ void InfiniFrame::AttachWebView()
 	{
 		_com_error err(envResult);
 		LPCTSTR errMsg = err.ErrorMessage();
-		MessageBox(_hWnd, errMsg, L"Error instantiating webview", MB_OK);
+		MessageBox(m_impl->_hWnd, errMsg, L"Error instantiating webview", MB_OK);
 	}
 }
 
 
-bool InfiniFrame::EnsureWebViewIsInstalled()
+bool InfiniFrameWindow::EnsureWebViewIsInstalled()
 {
 	LPWSTR versionInfo = nullptr;
 	HRESULT ensureInstalledResult = GetAvailableCoreWebView2BrowserVersionString(nullptr, &versionInfo);
@@ -1246,7 +1292,7 @@ bool InfiniFrame::EnsureWebViewIsInstalled()
 	return true;
 }
 
-bool InfiniFrame::InstallWebView2()
+bool InfiniFrameWindow::InstallWebView2()
 {
 	const wchar_t* srcURL = L"https://go.microsoft.com/fwlink/p/?LinkId=2124703";
 	const wchar_t* destFile = L"MicrosoftEdgeWebview2Setup.exe";
@@ -1288,38 +1334,38 @@ bool InfiniFrame::InstallWebView2()
 	return false;
 }
 
-void InfiniFrame::RefitContent()
+void InfiniFrameWindow::RefitContent()
 {
-	if (_webviewController)
+	if (m_impl->_webviewController)
 	{
 		RECT bounds;
-		GetClientRect(_hWnd, &bounds);
-		_webviewController->put_Bounds(bounds);
+		GetClientRect(m_impl->_hWnd, &bounds);
+		m_impl->_webviewController->put_Bounds(bounds);
 	}
 }
 
-void InfiniFrame::FocusWebView2()
+void InfiniFrameWindow::FocusWebView2()
 {
-	if (_webviewController)
+	if (m_impl->_webviewController)
 	{
-		_webviewController->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
+		m_impl->_webviewController->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
 	}
 }
 
-void InfiniFrame::NotifyWebView2WindowMove()
+void InfiniFrameWindow::NotifyWebView2WindowMove()
 {
-	if (_webviewController)
+	if (m_impl->_webviewController)
 	{
-		_webviewController->NotifyParentWindowPositionChanged();
+		m_impl->_webviewController->NotifyParentWindowPositionChanged();
 	}
 }
 
-void InfiniFrame::ClearBrowserAutoFill()
+void InfiniFrameWindow::ClearBrowserAutoFill()
 {
-	if (!_webviewWindow)
+	if (!m_impl->_webviewWindow)
 		return;
 
-	auto webview15 = _webviewWindow.try_query<ICoreWebView2_15>();
+	auto webview15 = m_impl->_webviewWindow.try_query<ICoreWebView2_15>();
 	if (webview15)
 	{
 		wil::com_ptr<ICoreWebView2Profile> profile;
@@ -1345,7 +1391,7 @@ void InfiniFrame::ClearBrowserAutoFill()
 	}
 }
 
-void InfiniFrame::SetWebView2RuntimePath(const AutoString pathToWebView2)
+void InfiniFrameWindow::SetWebView2RuntimePath(const AutoString pathToWebView2)
 {
 	if (pathToWebView2 == nullptr)
 		return;
@@ -1354,19 +1400,131 @@ void InfiniFrame::SetWebView2RuntimePath(const AutoString pathToWebView2)
 	wcsncpy_s(_webview2RuntimePath, widePath.c_str(), _countof(_webview2RuntimePath));
 }
 
-void InfiniFrame::Show(const bool isAlreadyShown)
+void InfiniFrameWindow::Show(const bool isAlreadyShown)
 {
 	if (!isAlreadyShown)
-		ShowWindow(_hWnd, SW_SHOWDEFAULT);
+		ShowWindow(m_impl->_hWnd, SW_SHOWDEFAULT);
 
-	UpdateWindow(_hWnd);
+	UpdateWindow(m_impl->_hWnd);
 
 	// WebView2 must be created after the window is visible.
-	if (!_webviewController)
+	if (!m_impl->_webviewController)
 	{
 		if (wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath)) > 0 || EnsureWebViewIsInstalled())
 			AttachWebView();
 		else
 			exit(0);
 	}
+}
+
+// ============================================================================
+// Dialog and Scheme
+// ============================================================================
+
+InfiniFrameDialog* InfiniFrameWindow::GetDialog() const
+{
+	return m_impl->_dialog.get();
+}
+
+void InfiniFrameWindow::AddCustomSchemeName(const AutoStringConst scheme)
+{
+	if (scheme)
+		m_impl->_customSchemeNames.emplace_back(ToUTF16String(const_cast<AutoString>(scheme)));
+}
+
+// ============================================================================
+// Callback setters
+// ============================================================================
+
+void InfiniFrameWindow::SetClosingCallback(const ClosingCallback callback)
+{
+	m_impl->_closingCallback = callback;
+}
+
+void InfiniFrameWindow::SetFocusInCallback(const FocusInCallback callback)
+{
+	m_impl->_focusInCallback = callback;
+}
+
+void InfiniFrameWindow::SetFocusOutCallback(const FocusOutCallback callback)
+{
+	m_impl->_focusOutCallback = callback;
+}
+
+void InfiniFrameWindow::SetMovedCallback(const MovedCallback callback)
+{
+	m_impl->_movedCallback = callback;
+}
+
+void InfiniFrameWindow::SetResizedCallback(const ResizedCallback callback)
+{
+	m_impl->_resizedCallback = callback;
+}
+
+void InfiniFrameWindow::SetMaximizedCallback(const MaximizedCallback callback)
+{
+	m_impl->_maximizedCallback = callback;
+}
+
+void InfiniFrameWindow::SetRestoredCallback(const RestoredCallback callback)
+{
+	m_impl->_restoredCallback = callback;
+}
+
+void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback)
+{
+	m_impl->_minimizedCallback = callback;
+}
+
+// ============================================================================
+// Invoke callbacks
+// ============================================================================
+
+bool InfiniFrameWindow::InvokeClose() const noexcept
+{
+	if (m_impl->_closingCallback)
+		return m_impl->_closingCallback();
+	return false;
+}
+
+void InfiniFrameWindow::InvokeFocusIn() const noexcept
+{
+	if (m_impl->_focusInCallback)
+		m_impl->_focusInCallback();
+}
+
+void InfiniFrameWindow::InvokeFocusOut() const noexcept
+{
+	if (m_impl->_focusOutCallback)
+		m_impl->_focusOutCallback();
+}
+
+void InfiniFrameWindow::InvokeMove(int x, int y) const noexcept
+{
+	if (m_impl->_movedCallback)
+		m_impl->_movedCallback(x, y);
+}
+
+void InfiniFrameWindow::InvokeResize(int width, int height) const noexcept
+{
+	if (m_impl->_resizedCallback)
+		m_impl->_resizedCallback(width, height);
+}
+
+void InfiniFrameWindow::InvokeMaximized() const noexcept
+{
+	if (m_impl->_maximizedCallback)
+		m_impl->_maximizedCallback();
+}
+
+void InfiniFrameWindow::InvokeRestored() const noexcept
+{
+	if (m_impl->_restoredCallback)
+		m_impl->_restoredCallback();
+}
+
+void InfiniFrameWindow::InvokeMinimized() const noexcept
+{
+	if (m_impl->_minimizedCallback)
+		m_impl->_minimizedCallback();
 }

@@ -1,63 +1,41 @@
 #pragma once
 /**
- * @file Dialog.h
- * @brief Dialog-related types and enums
+ * @file InfiniFrame.h
+ * @brief Main header file for InfiniFrame native interop
+ *
+ * This file provides unified access to all InfiniFrame types and classes.
+ * It is the primary include file for C API consumers.
  */
 
-#ifndef INFINIFRAME_TYPES_DIALOG_H
-#define INFINIFRAME_TYPES_DIALOG_H
+#ifndef INFINIFRAME_H
+#define INFINIFRAME_H
 
 // ============================================================================
-// Dialog Result
+// Core Types
 // ============================================================================
 
-enum class DialogResult
-{
-    Cancel = -1,
-    Ok,
-    Yes,
-    No,
-    Abort,
-    Retry,
-    Ignore,
-};
+#include "../Types/Basic.h"
+#include "../Types/InitParams.h"
+#include "../Types/Dialog.h"
 
 // ============================================================================
-// Dialog Buttons
+// Core Classes
 // ============================================================================
 
-enum class DialogButtons
-{
-    Ok,
-    OkCancel,
-    YesNo,
-    YesNoCancel,
-    RetryCancel,
-    AbortRetryIgnore,
-};
+#include "InfiniFrameWindow.h"
+#include "InfiniFrameDialog.h"
 
 // ============================================================================
-// Dialog Icon
+// Utilities
 // ============================================================================
 
-enum class DialogIcon
-{
-    Info,
-    Warning,
-    Error,
-    Question,
-};
+#include "../Utils/Common.h"
+#include "../Utils/Event.h"
 
 // ============================================================================
-// Monitor
+// Interop
 // ============================================================================
 
-struct Monitor {
-    struct MonitorRect {
-        int x, y;
-        int width, height;
-    } monitor, work;
-    double scale;
-};
+#include "../Interop/Callbacks.h"
 
-#endif // INFINIFRAME_TYPES_DIALOG_H
+#endif // INFINIFRAME_H

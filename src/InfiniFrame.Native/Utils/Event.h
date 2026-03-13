@@ -12,8 +12,6 @@
 #include <shared_mutex>
 #include <vector>
 
-namespace InfiniFrame {
-
 // ============================================================================
 // Event System
 // ============================================================================
@@ -151,7 +149,5 @@ private:
     EventType* m_event = nullptr;
     Token m_token = 0;
 };
-
-} // namespace InfiniFrame
 
 #endif // INFINIFRAME_EVENT_H
