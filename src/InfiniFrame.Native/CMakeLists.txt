@@ -24,14 +24,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
-FetchContent_Declare(
-    simdjson
-    GIT_REPOSITORY https://github.com/simdjson/simdjson.git
-    GIT_TAG v4.3.1
-    GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(simdjson)
-
 # ============================================================================
 # Source Files
 # ============================================================================
@@ -55,6 +47,7 @@ set(WINDOWS_SOURCES
 set(LINUX_SOURCES
     Platform/Linux/Window.cpp
     Platform/Linux/Dialog.cpp
+    Dependencies/simdjson.cpp
 )
 
 set(MAC_SOURCES
@@ -66,6 +59,7 @@ set(MAC_SOURCES
     Platform/Mac/NSWindowBorderless.mm
     Platform/Mac/Dialog.mm
     Platform/Mac/Window.mm
+    Dependencies/simdjson.cpp
 )
 
 set(HEADER_FILES
@@ -172,7 +166,6 @@ if(WIN32)
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
         fmt::fmt
-        simdjson::simdjson
         kernel32 user32 gdi32 winspool comdlg32 advapi32
         shell32 ole32 oleaut32 uuid odbc32 odbccp32 shlwapi shcore
         "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib"
@@ -242,7 +235,6 @@ elseif(APPLE)
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
         fmt::fmt
-        simdjson::simdjson
         "-framework Cocoa"
         "-framework WebKit"
         "-framework UserNotifications"
@@ -299,7 +291,6 @@ elseif(UNIX)
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
         fmt::fmt
-        simdjson::simdjson
         ${GTK3_LIBRARIES}
         ${WEBKIT2_LIBRARIES}
         ${LIBNOTIFY_LIBRARIES}

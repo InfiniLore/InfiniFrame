@@ -11,7 +11,7 @@
 #include "NavigationDelegate.h"
 #include <vector>
 #include <fmt/format.h>
-#include <simdjson.h>
+#include "Dependencies/simdjson.h"
 
 using namespace std;
 
