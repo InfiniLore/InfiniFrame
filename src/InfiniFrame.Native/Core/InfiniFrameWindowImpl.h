@@ -76,7 +76,7 @@ struct InfiniFrameWindowImpl
     // Ownership
     // =========================================================================
 
-    InfiniFrameWindow* _parent = nullptr;
+    InfiniFrameWindow *_parent = nullptr;
     std::unique_ptr<InfiniFrameDialog> _dialog;
 };
 

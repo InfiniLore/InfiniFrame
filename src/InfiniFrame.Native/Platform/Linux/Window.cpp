@@ -44,8 +44,8 @@ gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest 
 
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl
 {
-	GtkWidget* _window = nullptr;
-	GtkWidget* _webview = nullptr;
+	GtkWidget *_window = nullptr;
+	GtkWidget *_webview = nullptr;
 
 	std::string _temporaryFilesPath;
 
@@ -64,7 +64,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl
 	int _lastHeight = 0;
 
 	void set_webkit_settings();
-	void set_webkit_customsettings(WebKitSettings* settings);
+	void set_webkit_customsettings(WebKitSettings *settings);
 	void AddCustomSchemeHandlers();
 };
 
@@ -74,7 +74,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl
 
 static gboolean invokeCallback(const gpointer data)
 {
-	auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(data);
+	auto *waitInfo = reinterpret_cast<InvokeWaitInfo *>(data);
 	waitInfo->callback();
 	{
 		std::lock_guard<std::mutex> guard(invokeLockMutex);
@@ -110,25 +110,45 @@ static void HandleCustomSchemeRequest(WebKitURISchemeRequest *request, const gpo
 	free(contentType);
 }
 
-static std::string escapeJsonString(std::string_view input) {
+static std::string escapeJsonString(std::string_view input)
+{
 	std::string result;
 	result.reserve(input.size() + 2);
 
-	for (char c : input) {
-		switch (c) {
-			case '"':  result += "\\\""; break;
-			case '\\': result += "\\\\"; break;
-			case '\b': result += "\\b"; break;
-			case '\f': result += "\\f"; break;
-			case '\n': result += "\\n"; break;
-			case '\r': result += "\\r"; break;
-			case '\t': result += "\\t"; break;
-			default:
-				if (static_cast<unsigned char>(c) < 0x20) {
-					fmt::format_to(std::back_inserter(result), "\\u{:04x}", static_cast<unsigned char>(c));
-				} else {
-					result += c;
-				}
+	for (char c : input)
+	{
+		switch (c)
+		{
+		case '"':
+			result += "\\\"";
+			break;
+		case '\\':
+			result += "\\\\";
+			break;
+		case '\b':
+			result += "\\b";
+			break;
+		case '\f':
+			result += "\\f";
+			break;
+		case '\n':
+			result += "\\n";
+			break;
+		case '\r':
+			result += "\\r";
+			break;
+		case '\t':
+			result += "\\t";
+			break;
+		default:
+			if (static_cast<unsigned char>(c) < 0x20)
+			{
+				fmt::format_to(std::back_inserter(result), "\\u{:04x}", static_cast<unsigned char>(c));
+			}
+			else
+			{
+				result += c;
+			}
 		}
 	}
 
@@ -141,7 +161,7 @@ static std::string escapeJsonString(std::string_view input) {
 
 void InfiniFrameWindow::Impl::set_webkit_settings()
 {
-	WebKitSettings* settings = webkit_settings_new_with_settings(
+	WebKitSettings *settings = webkit_settings_new_with_settings(
 		"allow_modal_dialogs", TRUE,
 		"allow_top_navigation_to_data_urls", TRUE,
 		"allow_universal_access_from_file_urls", TRUE,
@@ -166,7 +186,7 @@ void InfiniFrameWindow::Impl::set_webkit_settings()
 	if (!_browserControlInitParameters.empty())
 		set_webkit_customsettings(settings);
 
-	WebKitWebsiteDataManager* manager = webkit_web_view_get_website_data_manager(WEBKIT_WEB_VIEW(_webview));
+	WebKitWebsiteDataManager *manager = webkit_web_view_get_website_data_manager(WEBKIT_WEB_VIEW(_webview));
 	if (_ignoreCertificateErrorsEnabled)
 		webkit_website_data_manager_set_tls_errors_policy(manager, WEBKIT_TLS_ERRORS_POLICY_IGNORE);
 	else
@@ -175,7 +195,7 @@ void InfiniFrameWindow::Impl::set_webkit_settings()
 	webkit_web_view_set_settings(WEBKIT_WEB_VIEW(_webview), settings);
 }
 
-void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings)
+void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings *settings)
 {
 	simdjson::ondemand::parser parser;
 	auto padded = simdjson::padded_string(_browserControlInitParameters);
@@ -186,61 +206,61 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings
 		std::string_view keyView = field.unescaped_key();
 		auto value = field.value();
 
-		gchar* propertyName = g_strdup(std::string(keyView).c_str());
-		GValue* propertyValue = g_new0(GValue, 1);
+		gchar *propertyName = g_strdup(std::string(keyView).c_str());
+		GValue *propertyValue = g_new0(GValue, 1);
 
 		switch (value.type())
 		{
-			case simdjson::ondemand::json_type::string:
+		case simdjson::ondemand::json_type::string:
+		{
+			std::string_view strVal;
+			if (value.get(strVal).error() == simdjson::SUCCESS)
 			{
-				std::string_view strVal;
-				if (value.get(strVal).error() == simdjson::SUCCESS)
-				{
-					g_value_init(propertyValue, G_TYPE_STRING);
-					g_value_set_string(propertyValue, std::string(strVal).c_str());
-				}
-				break;
+				g_value_init(propertyValue, G_TYPE_STRING);
+				g_value_set_string(propertyValue, std::string(strVal).c_str());
 			}
-			case simdjson::ondemand::json_type::boolean:
+			break;
+		}
+		case simdjson::ondemand::json_type::boolean:
+		{
+			bool boolVal;
+			if (value.get(boolVal).error() == simdjson::SUCCESS)
 			{
-				bool boolVal;
-				if (value.get(boolVal).error() == simdjson::SUCCESS)
-				{
-					g_value_init(propertyValue, G_TYPE_BOOLEAN);
-					g_value_set_boolean(propertyValue, boolVal);
-				}
-				break;
+				g_value_init(propertyValue, G_TYPE_BOOLEAN);
+				g_value_set_boolean(propertyValue, boolVal);
 			}
-			case simdjson::ondemand::json_type::number:
+			break;
+		}
+		case simdjson::ondemand::json_type::number:
+		{
+			int64_t intVal;
+			if (value.get(intVal).error() == simdjson::SUCCESS)
 			{
-				int64_t intVal;
-				if (value.get(intVal).error() == simdjson::SUCCESS)
-				{
-					g_value_init(propertyValue, G_TYPE_INT);
-					g_value_set_int(propertyValue, static_cast<int>(intVal));
-				}
-				else
-				{
-					double doubleVal;
-					if (value.get(doubleVal).error() == simdjson::SUCCESS)
-					{
-						g_value_init(propertyValue, G_TYPE_DOUBLE);
-						g_value_set_double(propertyValue, doubleVal);
-					}
-				}
-				break;
+				g_value_init(propertyValue, G_TYPE_INT);
+				g_value_set_int(propertyValue, static_cast<int>(intVal));
 			}
-			default:
+			else
 			{
-				GtkWidget* dialog = gtk_message_dialog_new(
-					nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-					"Invalid value type for key: %s", propertyName);
-				gtk_dialog_run(GTK_DIALOG(dialog));
-				gtk_widget_destroy(dialog);
-				g_free(propertyValue);
-				g_free(propertyName);
-				exit(0);
+				double doubleVal;
+				if (value.get(doubleVal).error() == simdjson::SUCCESS)
+				{
+					g_value_init(propertyValue, G_TYPE_DOUBLE);
+					g_value_set_double(propertyValue, doubleVal);
+				}
 			}
+			break;
+		}
+		default:
+		{
+			GtkWidget *dialog = gtk_message_dialog_new(
+				nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+				"Invalid value type for key: %s", propertyName);
+			gtk_dialog_run(GTK_DIALOG(dialog));
+			gtk_widget_destroy(dialog);
+			g_free(propertyValue);
+			g_free(propertyName);
+			exit(0);
+		}
 		}
 
 		g_object_set_property(G_OBJECT(settings), propertyName, propertyValue);
@@ -347,10 +367,14 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams *initParams) : m_impl
 		SetFullScreen(true);
 	else
 	{
-		if (initParams->Width > initParams->MaxWidth) initParams->Width = initParams->MaxWidth;
-		if (initParams->Height > initParams->MaxHeight) initParams->Height = initParams->MaxHeight;
-		if (initParams->Width < initParams->MinWidth) initParams->Width = initParams->MinWidth;
-		if (initParams->Height < initParams->MinHeight) initParams->Height = initParams->MinHeight;
+		if (initParams->Width > initParams->MaxWidth)
+			initParams->Width = initParams->MaxWidth;
+		if (initParams->Height > initParams->MaxHeight)
+			initParams->Height = initParams->MaxHeight;
+		if (initParams->Width < initParams->MinWidth)
+			initParams->Width = initParams->MinWidth;
+		if (initParams->Height < initParams->MinHeight)
+			initParams->Height = initParams->MinHeight;
 
 		if (initParams->UseOsDefaultSize)
 			gtk_window_set_default_size(GTK_WINDOW(m_impl->_window), -1, -1);
@@ -523,37 +547,37 @@ AutoString InfiniFrameWindow::GetUserAgent() const
 	return const_cast<AutoString>(m_impl->_userAgent.c_str());
 }
 
-void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const
+void InfiniFrameWindow::GetMediaAutoplayEnabled(bool *enabled) const
 {
 	*enabled = m_impl->_mediaAutoplayEnabled;
 }
 
-void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const
+void InfiniFrameWindow::GetFileSystemAccessEnabled(bool *enabled) const
 {
 	*enabled = m_impl->_fileSystemAccessEnabled;
 }
 
-void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const
+void InfiniFrameWindow::GetWebSecurityEnabled(bool *enabled) const
 {
 	*enabled = m_impl->_webSecurityEnabled;
 }
 
-void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const
+void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool *enabled) const
 {
 	*enabled = m_impl->_javascriptClipboardAccessEnabled;
 }
 
-void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const
+void InfiniFrameWindow::GetMediaStreamEnabled(bool *enabled) const
 {
 	*enabled = m_impl->_mediaStreamEnabled;
 }
 
-void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const
+void InfiniFrameWindow::GetSmoothScrollingEnabled(bool *enabled) const
 {
 	*enabled = m_impl->_smoothScrollingEnabled;
 }
 
-void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
+void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool *enabled) const
 {
 	*enabled = m_impl->_ignoreCertificateErrorsEnabled;
 }
@@ -647,7 +671,7 @@ void InfiniFrameWindow::Restore()
 
 static void webview_eval_finished(GObject *object, GAsyncResult *result, gpointer)
 {
-	GError* error = nullptr;
+	GError *error = nullptr;
 	webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
 	if (error)
 	{
@@ -673,8 +697,7 @@ void InfiniFrameWindow::SendWebMessage(const AutoString message)
 		nullptr,
 		nullptr,
 		webview_eval_finished,
-		nullptr
-	);
+		nullptr);
 }
 
 // ============================================================================
@@ -796,8 +819,8 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled)
 
 	gtk_window_set_decorated(GTK_WINDOW(m_impl->_window), !enabled);
 
-	GdkScreen* screen = gtk_window_get_screen(GTK_WINDOW(m_impl->_window));
-	GdkVisual* rgba_visual = gdk_screen_get_rgba_visual(screen);
+	GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(m_impl->_window));
+	GdkVisual *rgba_visual = gdk_screen_get_rgba_visual(screen);
 	if (rgba_visual)
 	{
 		gtk_widget_set_visual(GTK_WIDGET(m_impl->_window), rgba_visual);
@@ -825,7 +848,8 @@ void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoStrin
 void InfiniFrameWindow::WaitForExit()
 {
 	g_signal_connect(G_OBJECT(m_impl->_window), "destroy",
-					 G_CALLBACK(+[](GtkWidget*, gpointer) { gtk_main_quit(); }),
+					 G_CALLBACK(+[](GtkWidget *, gpointer)
+								{ gtk_main_quit(); }),
 					 nullptr);
 	gtk_main();
 }
@@ -839,7 +863,7 @@ void InfiniFrameWindow::CloseWebView()
 // Callbacks
 // ============================================================================
 
-InfiniFrameDialog* InfiniFrameWindow::GetDialog() const
+InfiniFrameDialog *InfiniFrameWindow::GetDialog() const
 {
 	return m_impl->_dialog.get();
 }
@@ -917,7 +941,8 @@ void InfiniFrameWindow::Invoke(const ACTION callback)
 	gdk_threads_add_idle(invokeCallback, &waitInfo);
 
 	std::unique_lock<std::mutex> uLock(invokeLockMutex);
-	waitInfo.completionNotifier.wait(uLock, [&] { return waitInfo.isCompleted; });
+	waitInfo.completionNotifier.wait(uLock, [&]
+									 { return waitInfo.isCompleted; });
 }
 
 [[nodiscard]] bool InfiniFrameWindow::InvokeClose() const noexcept
@@ -1073,7 +1098,7 @@ gboolean on_configure_event(GtkWidget *widget, GdkEvent *event, const gpointer s
 {
 	if (event->type == GDK_CONFIGURE)
 	{
-		auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+		auto *instance = reinterpret_cast<InfiniFrameWindow *>(self);
 		instance->OnConfigureEvent(
 			event->configure.x, event->configure.y,
 			event->configure.width, event->configure.height);
@@ -1083,27 +1108,27 @@ gboolean on_configure_event(GtkWidget *widget, GdkEvent *event, const gpointer s
 
 gboolean on_window_state_event(GtkWidget *widget, GdkEventWindowState *event, const gpointer self)
 {
-	auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+	auto *instance = reinterpret_cast<InfiniFrameWindow *>(self);
 	instance->OnWindowStateEvent(event->new_window_state);
 	return TRUE;
 }
 
 gboolean on_widget_deleted(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
-	auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+	auto *instance = reinterpret_cast<InfiniFrameWindow *>(self);
 	return instance->InvokeClose();
 }
 
 gboolean on_focus_in_event(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
-	auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+	auto *instance = reinterpret_cast<InfiniFrameWindow *>(self);
 	instance->InvokeFocusIn();
 	return FALSE;
 }
 
 gboolean on_focus_out_event(GtkWidget *widget, GdkEvent *event, const gpointer self)
 {
-	auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+	auto *instance = reinterpret_cast<InfiniFrameWindow *>(self);
 	instance->InvokeFocusOut();
 	return FALSE;
 }
@@ -1112,7 +1137,7 @@ gboolean on_webview_context_menu(WebKitWebView *web_view, GtkWidget *default_men
 								 WebKitHitTestResult *hit_test_result, gboolean triggered_with_keyboard,
 								 const gpointer self)
 {
-	auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+	auto *instance = reinterpret_cast<InfiniFrameWindow *>(self);
 	bool contextMenuEnabled = false;
 	instance->GetContextMenuEnabled(&contextMenuEnabled);
 	return !contextMenuEnabled;
@@ -1120,7 +1145,7 @@ gboolean on_webview_context_menu(WebKitWebView *web_view, GtkWidget *default_men
 
 gboolean on_permission_request(WebKitWebView *web_view, WebKitPermissionRequest *request, gpointer user_data)
 {
-	auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+	auto *instance = reinterpret_cast<InfiniFrameWindow *>(user_data);
 	bool grant = false;
 	instance->GetGrantBrowserPermissions(&grant);
 	if (grant)
