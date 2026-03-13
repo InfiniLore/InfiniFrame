@@ -347,7 +347,3 @@ healthchecksdb
 /src/InfiniFrame.Native/cmake-build-releaselinux/
 /src/InfiniFrame.Native/cmake-build-releasewindows/
 /src/InfiniFrame.Native/packages/
-
-/examples/InfiniFrameExample.WebApp.Vue/wwwroot/
-
-/tests/InfiniFrameTests.Playwright/wwwroot/
