@@ -22,6 +22,7 @@ def bump(version: str, part: str) -> str:
     core, preview = version, None
     if "-preview." in version:
         core, preview = version.split("-preview.")
+    had_preview = preview is not None
 
     major, minor, patch = map(int, core.split("."))
 
@@ -29,14 +30,14 @@ def bump(version: str, part: str) -> str:
         major += 1
         minor = 0
         patch = 0
-        preview = "0"
+        preview = "0" if had_preview else None
     elif part == "minor":
         minor += 1
         patch = 0
-        preview = "0"
+        preview = "0" if had_preview else None
     elif part == "patch":
         patch += 1
-        preview = "0"
+        preview = "0" if had_preview else None
     elif part == "preview":
         if preview is None:
             preview = "1"
