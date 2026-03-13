@@ -14,7 +14,7 @@
 #include <libnotify/notify.h>
 #include <dlfcn.h>
 #include <fmt/format.h>
-#include <simdjson.h>
+#include "Dependencies/simdjson.h"
 
 std::mutex invokeLockMutex;
 
