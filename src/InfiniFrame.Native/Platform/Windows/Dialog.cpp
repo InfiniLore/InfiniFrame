@@ -1,3 +1,8 @@
+/**
+ * @file Dialog.cpp (Windows)
+ * @brief Windows implementation of InfiniFrameDialog using IFileDialog (Vista+) and MessageBoxW
+ */
+
 #include "Core/InfiniFrame.h"
 
 #include <cwchar>
@@ -7,20 +12,37 @@
 #include <objbase.h>
 #include <vector>
 
+/**
+ * @brief RAII wrapper that loads a DLL on construction and frees it on destruction.
+ * Used to ensure comdlg32 is available before activating the common-controls activation context
+ */
 class Dll
 {
 public:
+	/** @brief Load the named DLL; handle is null if loading fails */
 	explicit Dll(std::string const& name);
+	/** @brief Unload the DLL if it was loaded successfully */
 	~Dll();
 
+	/**
+	 * @brief Type-safe wrapper around a single exported function retrieved via GetProcAddress
+	 * @tparam T Function signature (e.g. BOOL(HWND, LPCWSTR))
+	 */
 	template<typename T> class Proc
 	{
 	public:
+		/**
+		 * @brief Resolve a symbol from a loaded DLL
+		 * @param lib DLL to search
+		 * @param sym Exported symbol name
+		 */
 		Proc(Dll const& lib, std::string const& sym)
 			: _mProc(static_cast<T*>(reinterpret_cast<void*>(GetProcAddress(lib._handle, sym.c_str()))))
 		{}
 
+		/** @brief Returns true if the symbol was resolved successfully */
 		explicit operator bool() const { return _mProc != nullptr; }
+		/** @brief Returns the raw function pointer */
 		explicit operator T* () const { return _mProc; }
 
 	private:
@@ -41,15 +63,25 @@ inline Dll::~Dll()
 		FreeLibrary(_handle);
 }
 
+/**
+ * @brief RAII guard that activates the Common Controls v6 activation context for the duration of its lifetime.
+ *
+ * Required so that IFileDialog uses the modern Aero-style common controls instead of the
+ * legacy Windows 95 look. The activation context is created once (statically) from shell32.dll's
+ * embedded manifest resource (ID 124)
+ */
 class NewStyleContext
 {
 public:
+	/** @brief Activate the Common Controls v6 context */
 	NewStyleContext();
+	/** @brief Deactivate the context */
 	~NewStyleContext();
 
 private:
+	/** @brief Create the activation context from shell32.dll's manifest; called once */
 	static HANDLE Create();
-	ULONG_PTR _cookie = 0;
+	ULONG_PTR _cookie = 0; /// Activation cookie returned by ActivateActCtx; used to deactivate
 };
 
 inline NewStyleContext::NewStyleContext()
@@ -94,6 +126,14 @@ InfiniFrameDialog::~InfiniFrameDialog()
 	CoUninitialize();
 }
 
+/**
+ * @brief Create and configure an IFileDialog (open or save) with a title and optional default folder.
+ * @tparam T Either IFileOpenDialog or IFileSaveDialog; the correct CLSID is deduced automatically
+ * @param hResult Output: HRESULT from CoCreateInstance / SetFolder
+ * @param title UTF-16 dialog title
+ * @param defaultPath UTF-16 path to pre-select as the starting folder; may be null
+ * @return Pointer to the created dialog; caller owns the COM reference. Returns null on failure.
+ */
 template<typename T>
 T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst defaultPath)
 {
@@ -119,6 +159,19 @@ T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst default
 	return nullptr;
 }
 
+/**
+ * @brief Attach file-type filters to an IFileDialog.
+ *
+ * Each filter string must be in the format "Display Name|*.ext1;*.ext2".
+ * The function tokenises the string in-place so filterStorage keeps the
+ * underlying wstring buffers alive until the dialog is shown.
+ *
+ * @param pfd Target dialog
+ * @param filters UTF-8 filter strings (array of length filterCount)
+ * @param filterCount Number of filters
+ * @param wndInstance Window used for UTF-8 → UTF-16 conversion
+ * @param filterStorage Backing storage for converted wide strings; must outlive the dialog
+ */
 void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, InfiniFrameWindow* wndInstance, std::vector<std::wstring>& filterStorage)
 {
 	std::vector<COMDLG_FILTERSPEC> specs;
@@ -140,6 +193,17 @@ void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, Infi
 	pfd->SetFileTypes(static_cast<UINT>(specs.size()), specs.data());
 }
 
+/**
+ * @brief Retrieve all selected paths from an IFileOpenDialog after it has been shown.
+ *
+ * Allocates a heap array of wchar_t* strings (one per selected item).
+ * Releases pfd unconditionally before returning
+ *
+ * @param pfd The dialog to query; released on return
+ * @param hr Output: HRESULT from GetResults / GetItemAt
+ * @param resultCount Output: number of paths in the returned array
+ * @return Heap-allocated array of UTF-16 paths, or null if nothing was selected
+ */
 AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount)
 {
 	IShellItemArray* psiResults = nullptr;
@@ -290,18 +354,18 @@ DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, c
 	UINT flags = {};
 
 	switch (icon) {
-		case DialogIcon::Info:	   flags |= MB_ICONINFORMATION;	break;
-		case DialogIcon::Warning:  flags |= MB_ICONWARNING;	    break;
-		case DialogIcon::Error:	   flags |= MB_ICONERROR;	    break;
-		case DialogIcon::Question: flags |= MB_ICONQUESTION;    break;
+		case DialogIcon::Info: flags |= MB_ICONINFORMATION; break;
+		case DialogIcon::Warning: flags |= MB_ICONWARNING; break;
+		case DialogIcon::Error: flags |= MB_ICONERROR; break;
+		case DialogIcon::Question: flags |= MB_ICONQUESTION; break;
 	}
 
 	switch (buttons) {
-		case DialogButtons::Ok:               flags |= MB_OK;               break;
-		case DialogButtons::OkCancel:         flags |= MB_OKCANCEL;         break;
-		case DialogButtons::YesNo:			  flags |= MB_YESNO;			break;
-		case DialogButtons::YesNoCancel:      flags |= MB_YESNOCANCEL;	    break;
-		case DialogButtons::RetryCancel:	  flags |= MB_RETRYCANCEL;	    break;
+		case DialogButtons::Ok: flags |= MB_OK; break;
+		case DialogButtons::OkCancel: flags |= MB_OKCANCEL; break;
+		case DialogButtons::YesNo: flags |= MB_YESNO; break;
+		case DialogButtons::YesNoCancel: flags |= MB_YESNOCANCEL; break;
+		case DialogButtons::RetryCancel: flags |= MB_RETRYCANCEL; break;
 		case DialogButtons::AbortRetryIgnore: flags |= MB_ABORTRETRYIGNORE; break;
 	}
 

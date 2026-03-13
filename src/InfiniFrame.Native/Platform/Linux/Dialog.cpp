@@ -1,12 +1,26 @@
 #ifdef __linux__
+/**
+ * @file Dialog.cpp (Linux)
+ * @brief Linux implementation of InfiniFrameDialog using GTK3 file-chooser and message dialogs
+ */
+
 #include "Core/InfiniFrameDialog.h"
 
+/** @brief Distinguishes which GtkFileChooserAction to configure in ShowDialog */
 enum DialogType {
-    OpenFile,
-    OpenFolder,
-    SaveFile
+    OpenFile,   /// GTK_FILE_CHOOSER_ACTION_OPEN — select one or more files
+    OpenFolder, /// GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER — select one or more directories
+    SaveFile    /// GTK_FILE_CHOOSER_ACTION_SAVE — choose a save destination
 };
 
+/**
+ * @brief Attach file-type filters to a GtkFileChooser.
+ *
+ * Each filter string must be in the format "Display Name|*.ext1;*.ext2"
+ * @param dialog Target GtkFileChooserDialog widget
+ * @param filters UTF-8 filter strings (array of length filterCount)
+ * @param filterCount Number of filters
+ */
 void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount)
 {
     for (int i = 0; i < filterCount; i++) {
@@ -26,6 +40,22 @@ void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount)
     }
 }
 
+/**
+ * @brief Shared implementation for all GTK file-chooser dialogs.
+ *
+ * Constructs a GtkFileChooserDialog configured for the requested type, runs it
+ * modally, and returns the selected path(s) as a heap-allocated array
+ *
+ * @param type Kind of dialog to show (OpenFile, OpenFolder, SaveFile)
+ * @param title UTF-8 dialog title
+ * @param defaultPath UTF-8 initial directory; may be null
+ * @param multiSelect Allow selecting multiple items (ignored for SaveFile)
+ * @param filters File-type filters; may be null
+ * @param filterCount Number of entries in filters
+ * @param resultCount Output: number of paths returned (unused for SaveFile)
+ * @param defaultFileName UTF-8 pre-filled filename for SaveFile; may be null
+ * @return Heap-allocated array of UTF-8 path strings, or null if cancelled
+ */
 AutoString* ShowDialog(const DialogType type, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount, const AutoString defaultFileName = nullptr) {
     GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
     const char* buttonText = "_Open";
