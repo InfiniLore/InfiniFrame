@@ -15,7 +15,7 @@
 #include "Core/InfiniFrameDialog.h"
 #include "Core/InfiniFrameWindow.h"
 #include "Core/InfiniFrameWindowImpl.h"
-#include "Dependencies/simdutf.h"
+#include <simdutf.h>
 #include "DarkMode.h"
 #include "ToastHandler.h"
 #include "Utils/Common.h"
