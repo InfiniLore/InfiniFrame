@@ -30,12 +30,12 @@ enum class DialogResult
 /** @brief Button set to display in a message box */
 enum class DialogButtons
 {
-    Ok,                /// Single OK button
-    OkCancel,          /// OK and Cancel buttons
-    YesNo,             /// Yes and No buttons
-    YesNoCancel,       /// Yes, No, and Cancel buttons
-    RetryCancel,       /// Retry and Cancel buttons
-    AbortRetryIgnore,  /// Abort, Retry, and Ignore buttons
+    Ok,               /// Single OK button
+    OkCancel,         /// OK and Cancel buttons
+    YesNo,            /// Yes and No buttons
+    YesNoCancel,      /// Yes, No, and Cancel buttons
+    RetryCancel,      /// Retry and Cancel buttons
+    AbortRetryIgnore, /// Abort, Retry, and Ignore buttons
 };
 
 // ============================================================================
@@ -56,14 +56,16 @@ enum class DialogIcon
 // ============================================================================
 
 /** @brief Describes the geometry of a single display */
-struct Monitor {
+struct Monitor
+{
     /** @brief Pixel rectangle relative to the virtual desktop */
-    struct MonitorRect {
-        int x, y;           /// Top-left corner in virtual-desktop coordinates
-        int width, height;  /// Dimensions in physical pixels
-    } monitor,              /// Full monitor bounds (including taskbar)
-      work;                 /// Work area bounds (excluding taskbar and docked toolbars)
-    double scale;           /// DPI scale factor (1.0 = 100%, 1.5 = 150%)
+    struct MonitorRect
+    {
+        int x, y;          /// Top-left corner in virtual-desktop coordinates
+        int width, height; /// Dimensions in physical pixels
+    } monitor,             /// Full monitor bounds (including taskbar)
+        work;              /// Work area bounds (excluding taskbar and docked toolbars)
+    double scale;          /// DPI scale factor (1.0 = 100%, 1.5 = 150%)
 };
 
 #endif // INFINIFRAME_TYPES_DIALOG_H

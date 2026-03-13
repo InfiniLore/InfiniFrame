@@ -40,7 +40,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @return HWND window handle
 	 */
-	EXPORTED HWND InfiniFrame_getHwnd_win32(InfiniFrameWindow* instance)
+	EXPORTED HWND InfiniFrame_getHwnd_win32(InfiniFrameWindow *instance)
 	{
 		return instance->getHwnd();
 	}
@@ -50,7 +50,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param webView2RuntimePath Path to WebView2 runtime
 	 */
-	EXPORTED void InfiniFrame_setWebView2RuntimePath_win32(InfiniFrameWindow* instance, const AutoString webView2RuntimePath)
+	EXPORTED void InfiniFrame_setWebView2RuntimePath_win32(InfiniFrameWindow *instance, const AutoString webView2RuntimePath)
 	{
 		InfiniFrameWindow::SetWebView2RuntimePath(webView2RuntimePath);
 	}
@@ -60,7 +60,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param disabled Output: notifications disabled status
 	 */
-	EXPORTED void InfiniFrame_GetNotificationsEnabled(InfiniFrameWindow* instance, bool* disabled)
+	EXPORTED void InfiniFrame_GetNotificationsEnabled(InfiniFrameWindow *instance, bool *disabled)
 	{
 		instance->GetNotificationsEnabled(disabled);
 	}
@@ -79,7 +79,7 @@ extern "C"
 	 * @param initParams Initialization parameters
 	 * @return Raw pointer - ownership transferred to caller (.NET)
 	 */
-	EXPORTED InfiniFrameWindow* InfiniFrame_ctor(InfiniFrameInitParams* initParams)
+	EXPORTED InfiniFrameWindow *InfiniFrame_ctor(InfiniFrameInitParams *initParams)
 	{
 		auto instance = std::make_unique<InfiniFrameWindow>(initParams);
 		return instance.release();
@@ -89,7 +89,7 @@ extern "C"
 	 * @brief Destroy InfiniFrame window instance
 	 * @param instance Raw pointer from InfiniFrame_ctor
 	 */
-	EXPORTED void InfiniFrame_dtor(InfiniFrameWindow* instance)
+	EXPORTED void InfiniFrame_dtor(InfiniFrameWindow *instance)
 	{
 		if (instance != nullptr)
 		{
@@ -101,7 +101,7 @@ extern "C"
 	 * @brief Center window on screen
 	 * @param instance InfiniFrame instance
 	 */
-	EXPORTED void InfiniFrame_Center(InfiniFrameWindow* instance)
+	EXPORTED void InfiniFrame_Center(InfiniFrameWindow *instance)
 	{
 		instance->Center();
 	}
@@ -110,7 +110,7 @@ extern "C"
 	 * @brief Clear browser auto-fill data
 	 * @param instance InfiniFrame instance
 	 */
-	EXPORTED void InfiniFrame_ClearBrowserAutoFill(InfiniFrameWindow* instance)
+	EXPORTED void InfiniFrame_ClearBrowserAutoFill(InfiniFrameWindow *instance)
 	{
 		instance->ClearBrowserAutoFill();
 	}
@@ -119,7 +119,7 @@ extern "C"
 	 * @brief Close window
 	 * @param instance InfiniFrame instance
 	 */
-	EXPORTED void InfiniFrame_Close(InfiniFrameWindow* instance)
+	EXPORTED void InfiniFrame_Close(InfiniFrameWindow *instance)
 	{
 		instance->Close();
 	}
@@ -129,7 +129,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: transparent enabled status
 	 */
-	EXPORTED void InfiniFrame_GetTransparentEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetTransparentEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetTransparentEnabled(enabled);
 	}
@@ -139,7 +139,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: context menu enabled status
 	 */
-	EXPORTED void InfiniFrame_GetContextMenuEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetContextMenuEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetContextMenuEnabled(enabled);
 	}
@@ -149,7 +149,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: zoom enabled status
 	 */
-	EXPORTED void InfiniFrame_GetZoomEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetZoomEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetZoomEnabled(enabled);
 	}
@@ -159,7 +159,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: dev tools enabled status
 	 */
-	EXPORTED void InfiniFrame_GetDevToolsEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetDevToolsEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetDevToolsEnabled(enabled);
 	}
@@ -169,7 +169,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param fullScreen Output: full screen status
 	 */
-	EXPORTED void InfiniFrame_GetFullScreen(InfiniFrameWindow* instance, bool* fullScreen)
+	EXPORTED void InfiniFrame_GetFullScreen(InfiniFrameWindow *instance, bool *fullScreen)
 	{
 		instance->GetFullScreen(fullScreen);
 	}
@@ -179,7 +179,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param grant Output: grant browser permissions status
 	 */
-	EXPORTED void InfiniFrame_GetGrantBrowserPermissions(InfiniFrameWindow* instance, bool* grant)
+	EXPORTED void InfiniFrame_GetGrantBrowserPermissions(InfiniFrameWindow *instance, bool *grant)
 	{
 		instance->GetGrantBrowserPermissions(grant);
 	}
@@ -189,7 +189,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @return User agent string
 	 */
-	EXPORTED AutoString InfiniFrame_GetUserAgent(InfiniFrameWindow* instance)
+	EXPORTED AutoString InfiniFrame_GetUserAgent(InfiniFrameWindow *instance)
 	{
 		return instance->GetUserAgent();
 	}
@@ -199,7 +199,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: media autoplay enabled status
 	 */
-	EXPORTED void InfiniFrame_GetMediaAutoplayEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetMediaAutoplayEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetMediaAutoplayEnabled(enabled);
 	}
@@ -209,7 +209,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: file system access enabled status
 	 */
-	EXPORTED void InfiniFrame_GetFileSystemAccessEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetFileSystemAccessEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetFileSystemAccessEnabled(enabled);
 	}
@@ -219,7 +219,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: web security enabled status
 	 */
-	EXPORTED void InfiniFrame_GetWebSecurityEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetWebSecurityEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetWebSecurityEnabled(enabled);
 	}
@@ -229,7 +229,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: JavaScript clipboard access enabled status
 	 */
-	EXPORTED void InfiniFrame_GetJavascriptClipboardAccessEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetJavascriptClipboardAccessEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetJavascriptClipboardAccessEnabled(enabled);
 	}
@@ -239,7 +239,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: media stream enabled status
 	 */
-	EXPORTED void InfiniFrame_GetMediaStreamEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetMediaStreamEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetMediaStreamEnabled(enabled);
 	}
@@ -249,7 +249,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Output: smooth scrolling enabled status
 	 */
-	EXPORTED void InfiniFrame_GetSmoothScrollingEnabled(InfiniFrameWindow* instance, bool* enabled)
+	EXPORTED void InfiniFrame_GetSmoothScrollingEnabled(InfiniFrameWindow *instance, bool *enabled)
 	{
 		instance->GetSmoothScrollingEnabled(enabled);
 	}
@@ -259,7 +259,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param isMaximized Output: maximized status
 	 */
-	EXPORTED void InfiniFrame_GetMaximized(InfiniFrameWindow* instance, bool* isMaximized)
+	EXPORTED void InfiniFrame_GetMaximized(InfiniFrameWindow *instance, bool *isMaximized)
 	{
 		instance->GetMaximized(isMaximized);
 	}
@@ -269,7 +269,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param isMinimized Output: minimized status
 	 */
-	EXPORTED void InfiniFrame_GetMinimized(InfiniFrameWindow* instance, bool* isMinimized)
+	EXPORTED void InfiniFrame_GetMinimized(InfiniFrameWindow *instance, bool *isMinimized)
 	{
 		instance->GetMinimized(isMinimized);
 	}
@@ -279,7 +279,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param disabled Output: ignore certificate errors enabled status
 	 */
-	EXPORTED void InfiniFrame_GetIgnoreCertificateErrorsEnabled(InfiniFrameWindow* instance, bool* disabled)
+	EXPORTED void InfiniFrame_GetIgnoreCertificateErrorsEnabled(InfiniFrameWindow *instance, bool *disabled)
 	{
 		instance->GetIgnoreCertificateErrorsEnabled(disabled);
 	}
@@ -290,7 +290,7 @@ extern "C"
 	 * @param x Output: X coordinate
 	 * @param y Output: Y coordinate
 	 */
-	EXPORTED void InfiniFrame_GetPosition(InfiniFrameWindow* instance, int* x, int* y)
+	EXPORTED void InfiniFrame_GetPosition(InfiniFrameWindow *instance, int *x, int *y)
 	{
 		instance->GetPosition(x, y);
 	}
@@ -300,7 +300,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param resizable Output: resizable status
 	 */
-	EXPORTED void InfiniFrame_GetResizable(InfiniFrameWindow* instance, bool* resizable)
+	EXPORTED void InfiniFrame_GetResizable(InfiniFrameWindow *instance, bool *resizable)
 	{
 		instance->GetResizable(resizable);
 	}
@@ -310,7 +310,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @return Screen DPI value
 	 */
-	EXPORTED unsigned int InfiniFrame_GetScreenDpi(InfiniFrameWindow* instance)
+	EXPORTED unsigned int InfiniFrame_GetScreenDpi(InfiniFrameWindow *instance)
 	{
 		return instance->GetScreenDpi();
 	}
@@ -321,7 +321,7 @@ extern "C"
 	 * @param width Output: window width
 	 * @param height Output: window height
 	 */
-	EXPORTED void InfiniFrame_GetSize(InfiniFrameWindow* instance, int* width, int* height)
+	EXPORTED void InfiniFrame_GetSize(InfiniFrameWindow *instance, int *width, int *height)
 	{
 		instance->GetSize(width, height);
 	}
@@ -331,7 +331,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @return Window title string
 	 */
-	EXPORTED AutoString InfiniFrame_GetTitle(InfiniFrameWindow* instance)
+	EXPORTED AutoString InfiniFrame_GetTitle(InfiniFrameWindow *instance)
 	{
 		return instance->GetTitle();
 	}
@@ -341,7 +341,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param topmost Output: topmost status
 	 */
-	EXPORTED void InfiniFrame_GetTopmost(InfiniFrameWindow* instance, bool* topmost)
+	EXPORTED void InfiniFrame_GetTopmost(InfiniFrameWindow *instance, bool *topmost)
 	{
 		instance->GetTopmost(topmost);
 	}
@@ -351,7 +351,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param zoom Output: zoom level percentage
 	 */
-	EXPORTED void InfiniFrame_GetZoom(InfiniFrameWindow* instance, int* zoom)
+	EXPORTED void InfiniFrame_GetZoom(InfiniFrameWindow *instance, int *zoom)
 	{
 		instance->GetZoom(zoom);
 	}
@@ -361,7 +361,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param isFocused Output: focused status
 	 */
-	EXPORTED void InfiniFrame_GetFocused(InfiniFrameWindow* instance, bool* isFocused)
+	EXPORTED void InfiniFrame_GetFocused(InfiniFrameWindow *instance, bool *isFocused)
 	{
 		instance->GetFocused(isFocused);
 	}
@@ -371,7 +371,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @return Icon file name string
 	 */
-	EXPORTED AutoString InfiniFrame_GetIconFileName(InfiniFrameWindow* instance)
+	EXPORTED AutoString InfiniFrame_GetIconFileName(InfiniFrameWindow *instance)
 	{
 		return instance->GetIconFileName();
 	}
@@ -381,7 +381,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param content HTML content string
 	 */
-	EXPORTED void InfiniFrame_NavigateToString(InfiniFrameWindow* instance, const AutoString content)
+	EXPORTED void InfiniFrame_NavigateToString(InfiniFrameWindow *instance, const AutoString content)
 	{
 		instance->NavigateToString(content);
 	}
@@ -391,7 +391,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param url URL to navigate to
 	 */
-	EXPORTED void InfiniFrame_NavigateToUrl(InfiniFrameWindow* instance, const AutoString url)
+	EXPORTED void InfiniFrame_NavigateToUrl(InfiniFrameWindow *instance, const AutoString url)
 	{
 		instance->NavigateToUrl(url);
 	}
@@ -400,7 +400,7 @@ extern "C"
 	 * @brief Restore window from minimized/maximized state
 	 * @param instance InfiniFrame instance
 	 */
-	EXPORTED void InfiniFrame_Restore(InfiniFrameWindow* instance)
+	EXPORTED void InfiniFrame_Restore(InfiniFrameWindow *instance)
 	{
 		instance->Restore();
 	}
@@ -410,7 +410,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param message Message string to send
 	 */
-	EXPORTED void InfiniFrame_SendWebMessage(InfiniFrameWindow* instance, const AutoString message)
+	EXPORTED void InfiniFrame_SendWebMessage(InfiniFrameWindow *instance, const AutoString message)
 	{
 		instance->SendWebMessage(message);
 	}
@@ -420,7 +420,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Transparent enabled status
 	 */
-	EXPORTED void InfiniFrame_SetTransparentEnabled(InfiniFrameWindow* instance, const bool enabled)
+	EXPORTED void InfiniFrame_SetTransparentEnabled(InfiniFrameWindow *instance, const bool enabled)
 	{
 		instance->SetTransparentEnabled(enabled);
 	}
@@ -430,7 +430,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Context menu enabled status
 	 */
-	EXPORTED void InfiniFrame_SetContextMenuEnabled(InfiniFrameWindow* instance, const bool enabled)
+	EXPORTED void InfiniFrame_SetContextMenuEnabled(InfiniFrameWindow *instance, const bool enabled)
 	{
 		instance->SetContextMenuEnabled(enabled);
 	}
@@ -440,7 +440,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Zoom enabled status
 	 */
-	EXPORTED void InfiniFrame_SetZoomEnabled(InfiniFrameWindow* instance, const bool enabled)
+	EXPORTED void InfiniFrame_SetZoomEnabled(InfiniFrameWindow *instance, const bool enabled)
 	{
 		instance->SetZoomEnabled(enabled);
 	}
@@ -450,7 +450,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param enabled Dev tools enabled status
 	 */
-	EXPORTED void InfiniFrame_SetDevToolsEnabled(InfiniFrameWindow* instance, const bool enabled)
+	EXPORTED void InfiniFrame_SetDevToolsEnabled(InfiniFrameWindow *instance, const bool enabled)
 	{
 		instance->SetDevToolsEnabled(enabled);
 	}
@@ -460,7 +460,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param fullScreen Full screen status
 	 */
-	EXPORTED void InfiniFrame_SetFullScreen(InfiniFrameWindow* instance, const bool fullScreen)
+	EXPORTED void InfiniFrame_SetFullScreen(InfiniFrameWindow *instance, const bool fullScreen)
 	{
 		instance->SetFullScreen(fullScreen);
 	}
@@ -470,7 +470,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param filename Icon file path
 	 */
-	EXPORTED void InfiniFrame_SetIconFile(InfiniFrameWindow* instance, const AutoString filename)
+	EXPORTED void InfiniFrame_SetIconFile(InfiniFrameWindow *instance, const AutoString filename)
 	{
 		instance->SetIconFile(filename);
 	}
@@ -480,7 +480,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param maximized Maximized status
 	 */
-	EXPORTED void InfiniFrame_SetMaximized(InfiniFrameWindow* instance, const bool maximized)
+	EXPORTED void InfiniFrame_SetMaximized(InfiniFrameWindow *instance, const bool maximized)
 	{
 		instance->SetMaximized(maximized);
 	}
@@ -491,7 +491,7 @@ extern "C"
 	 * @param width Maximum width
 	 * @param height Maximum height
 	 */
-	EXPORTED void InfiniFrame_SetMaxSize(InfiniFrameWindow* instance, const int width, const int height)
+	EXPORTED void InfiniFrame_SetMaxSize(InfiniFrameWindow *instance, const int width, const int height)
 	{
 		instance->SetMaxSize(width, height);
 	}
@@ -501,7 +501,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param minimized Minimized status
 	 */
-	EXPORTED void InfiniFrame_SetMinimized(InfiniFrameWindow* instance, const bool minimized)
+	EXPORTED void InfiniFrame_SetMinimized(InfiniFrameWindow *instance, const bool minimized)
 	{
 		instance->SetMinimized(minimized);
 	}
@@ -512,7 +512,7 @@ extern "C"
 	 * @param width Minimum width
 	 * @param height Minimum height
 	 */
-	EXPORTED void InfiniFrame_SetMinSize(InfiniFrameWindow* instance, const int width, const int height)
+	EXPORTED void InfiniFrame_SetMinSize(InfiniFrameWindow *instance, const int width, const int height)
 	{
 		instance->SetMinSize(width, height);
 	}
@@ -523,7 +523,7 @@ extern "C"
 	 * @param x X coordinate
 	 * @param y Y coordinate
 	 */
-	EXPORTED void InfiniFrame_SetPosition(InfiniFrameWindow* instance, const int x, const int y)
+	EXPORTED void InfiniFrame_SetPosition(InfiniFrameWindow *instance, const int x, const int y)
 	{
 		instance->SetPosition(x, y);
 	}
@@ -533,7 +533,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param resizable Resizable status
 	 */
-	EXPORTED void InfiniFrame_SetResizable(InfiniFrameWindow* instance, const bool resizable)
+	EXPORTED void InfiniFrame_SetResizable(InfiniFrameWindow *instance, const bool resizable)
 	{
 		instance->SetResizable(resizable);
 	}
@@ -544,7 +544,7 @@ extern "C"
 	 * @param width Window width
 	 * @param height Window height
 	 */
-	EXPORTED void InfiniFrame_SetSize(InfiniFrameWindow* instance, const int width, const int height)
+	EXPORTED void InfiniFrame_SetSize(InfiniFrameWindow *instance, const int width, const int height)
 	{
 		instance->SetSize(width, height);
 	}
@@ -554,7 +554,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param title Window title string
 	 */
-	EXPORTED void InfiniFrame_SetTitle(InfiniFrameWindow* instance, const AutoString title)
+	EXPORTED void InfiniFrame_SetTitle(InfiniFrameWindow *instance, const AutoString title)
 	{
 		instance->SetTitle(title);
 	}
@@ -564,7 +564,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param topmost Topmost status
 	 */
-	EXPORTED void InfiniFrame_SetTopmost(InfiniFrameWindow* instance, const bool topmost)
+	EXPORTED void InfiniFrame_SetTopmost(InfiniFrameWindow *instance, const bool topmost)
 	{
 		instance->SetTopmost(topmost);
 	}
@@ -574,7 +574,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param zoom Zoom level percentage
 	 */
-	EXPORTED void InfiniFrame_SetZoom(InfiniFrameWindow* instance, const int zoom)
+	EXPORTED void InfiniFrame_SetZoom(InfiniFrameWindow *instance, const int zoom)
 	{
 		instance->SetZoom(zoom);
 	}
@@ -585,7 +585,7 @@ extern "C"
 	 * @param title Notification title
 	 * @param body Notification body
 	 */
-	EXPORTED void InfiniFrame_ShowNotification(InfiniFrameWindow* instance, const AutoString title, const AutoString body)
+	EXPORTED void InfiniFrame_ShowNotification(InfiniFrameWindow *instance, const AutoString title, const AutoString body)
 	{
 		instance->ShowNotification(title, body);
 	}
@@ -594,7 +594,7 @@ extern "C"
 	 * @brief Wait for window exit
 	 * @param instance InfiniFrame instance
 	 */
-	EXPORTED void InfiniFrame_WaitForExit(InfiniFrameWindow* instance)
+	EXPORTED void InfiniFrame_WaitForExit(InfiniFrameWindow *instance)
 	{
 		instance->WaitForExit();
 	}
@@ -623,7 +623,7 @@ extern "C"
 	 * @param values String array to free
 	 * @param count Number of strings in array
 	 */
-	EXPORTED void InfiniFrame_FreeStringArray(AutoString* values, const int count)
+	EXPORTED void InfiniFrame_FreeStringArray(AutoString *values, const int count)
 	{
 		if (values == nullptr)
 			return;
@@ -655,7 +655,7 @@ extern "C"
 	 * @param resultCount Output: number of selected files
 	 * @return Array of selected file paths
 	 */
-	EXPORTED AutoString* InfiniFrame_ShowOpenFile(InfiniFrameWindow* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount)
+	EXPORTED AutoString *InfiniFrame_ShowOpenFile(InfiniFrameWindow *inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString *filters, const int filterCount, int *resultCount)
 	{
 		return inst->GetDialog()->ShowOpenFile(title, defaultPath, multiSelect, filters, filterCount, resultCount);
 	}
@@ -669,7 +669,7 @@ extern "C"
 	 * @param resultCount Output: number of selected folders
 	 * @return Array of selected folder paths
 	 */
-	EXPORTED AutoString* InfiniFrame_ShowOpenFolder(InfiniFrameWindow* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount)
+	EXPORTED AutoString *InfiniFrame_ShowOpenFolder(InfiniFrameWindow *inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, int *resultCount)
 	{
 		return inst->GetDialog()->ShowOpenFolder(title, defaultPath, multiSelect, resultCount);
 	}
@@ -684,7 +684,7 @@ extern "C"
 	 * @param defaultFileName Default file name
 	 * @return Selected file path
 	 */
-	EXPORTED AutoString InfiniFrame_ShowSaveFile(InfiniFrameWindow* inst, const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName)
+	EXPORTED AutoString InfiniFrame_ShowSaveFile(InfiniFrameWindow *inst, const AutoString title, const AutoString defaultPath, AutoString *filters, const int filterCount, const AutoString defaultFileName)
 	{
 		return inst->GetDialog()->ShowSaveFile(title, defaultPath, filters, filterCount, defaultFileName);
 	}
@@ -698,7 +698,7 @@ extern "C"
 	 * @param icon Icon type
 	 * @return User response
 	 */
-	EXPORTED DialogResult InfiniFrame_ShowMessage(InfiniFrameWindow* inst, const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon)
+	EXPORTED DialogResult InfiniFrame_ShowMessage(InfiniFrameWindow *inst, const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon)
 	{
 		return inst->GetDialog()->ShowMessage(title, text, buttons, icon);
 	}
@@ -708,7 +708,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param scheme Scheme name to add
 	 */
-	EXPORTED void InfiniFrame_AddCustomSchemeName(InfiniFrameWindow* instance, const AutoString scheme)
+	EXPORTED void InfiniFrame_AddCustomSchemeName(InfiniFrameWindow *instance, const AutoString scheme)
 	{
 		instance->AddCustomSchemeName(scheme);
 	}
@@ -718,7 +718,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param callback Callback function to receive monitor info
 	 */
-	EXPORTED void InfiniFrame_GetAllMonitors(InfiniFrameWindow* instance, const GetAllMonitorsCallback callback)
+	EXPORTED void InfiniFrame_GetAllMonitors(InfiniFrameWindow *instance, const GetAllMonitorsCallback callback)
 	{
 		instance->GetAllMonitors(callback);
 	}
@@ -728,7 +728,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param callback Callback to invoke
 	 */
-	EXPORTED void InfiniFrame_Invoke(InfiniFrameWindow* instance, const ACTION callback)
+	EXPORTED void InfiniFrame_Invoke(InfiniFrameWindow *instance, const ACTION callback)
 	{
 		instance->Invoke(callback);
 	}
@@ -737,7 +737,7 @@ extern "C"
 	 * @brief Set window focused
 	 * @param instance InfiniFrame instance
 	 */
-	EXPORTED void InfiniFrame_SetFocused(InfiniFrameWindow* instance)
+	EXPORTED void InfiniFrame_SetFocused(InfiniFrameWindow *instance)
 	{
 		instance->SetFocused();
 	}

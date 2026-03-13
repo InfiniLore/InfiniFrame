@@ -83,7 +83,7 @@ public:
          */
         DialogResult ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon);
 
-    protected:
+protected:
 #ifdef __APPLE__
         NSImage *_errorIcon;
         NSImage *_infoIcon;
@@ -92,6 +92,6 @@ public:
 #elif _WIN32
         InfiniFrameWindow *_window;
 #endif
-    };
+};
 
 #endif // INFINIFRAME_CORE_DIALOG_H

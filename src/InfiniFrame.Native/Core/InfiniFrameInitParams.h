@@ -10,7 +10,7 @@
 #include "../Types/Basic.h"
 #include "../Types/Callbacks.h"
 
-class InfiniFrameWindow;  // Forward declaration
+class InfiniFrameWindow; // Forward declaration
 
 /**
  * @brief Initialization parameters for InfiniFrame window
@@ -30,7 +30,7 @@ struct InfiniFrameInitParams
     AutoString NotificationRegistrationId;
 
     // Parent window
-    InfiniFrameWindow* ParentInstance;
+    InfiniFrameWindow *ParentInstance;
 
     // Event handlers
     ClosingCallback ClosingHandler;

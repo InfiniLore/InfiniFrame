@@ -53,7 +53,7 @@ public:
      * @brief Construct new InfiniFrame window
      * @param initParams Initialization parameters
      */
-    explicit InfiniFrameWindow(InfiniFrameInitParams* initParams);
+    explicit InfiniFrameWindow(InfiniFrameInitParams *initParams);
 
     /**
      * @brief Destroy InfiniFrame window
@@ -64,7 +64,7 @@ public:
      * @brief Get dialog handler
      * @return Pointer to InfiniFrameDialog
      */
-    [[nodiscard]] InfiniFrameDialog* GetDialog() const;
+    [[nodiscard]] InfiniFrameDialog *GetDialog() const;
 
     // ========================================================================
     // Window Operations
@@ -87,37 +87,37 @@ public:
      * @brief Get whether transparent background is enabled
      * @param enabled Output: true if transparent background is active
      */
-    void GetTransparentEnabled(bool* enabled) const;
+    void GetTransparentEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether the browser context menu is enabled
      * @param enabled Output: true if context menu is shown on right-click
      */
-    void GetContextMenuEnabled(bool* enabled) const;
+    void GetContextMenuEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether user-controlled zoom is enabled
      * @param enabled Output: true if the user can zoom via keyboard/mouse
      */
-    void GetZoomEnabled(bool* enabled) const;
+    void GetZoomEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether the browser DevTools panel is enabled
      * @param enabled Output: true if DevTools can be opened
      */
-    void GetDevToolsEnabled(bool* enabled) const;
+    void GetDevToolsEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether the window is in fullscreen mode
      * @param fullScreen Output: true if the window occupies the full screen
      */
-    void GetFullScreen(bool* fullScreen) const;
+    void GetFullScreen(bool *fullScreen) const;
 
     /**
      * @brief Get whether browser permission requests are auto-granted
      * @param grant Output: true if permissions (camera, microphone, etc.) are granted without prompting
      */
-    void GetGrantBrowserPermissions(bool* grant) const;
+    void GetGrantBrowserPermissions(bool *grant) const;
 
     /**
      * @brief Get the custom user-agent string
@@ -129,37 +129,37 @@ public:
      * @brief Get whether media autoplay is enabled
      * @param enabled Output: true if audio/video may autoplay without user interaction
      */
-    void GetMediaAutoplayEnabled(bool* enabled) const;
+    void GetMediaAutoplayEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether the File System Access API is enabled
      * @param enabled Output: true if web content may access the local file system
      */
-    void GetFileSystemAccessEnabled(bool* enabled) const;
+    void GetFileSystemAccessEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether web security (same-origin / CORS) is enabled
      * @param enabled Output: true if standard web security restrictions are enforced
      */
-    void GetWebSecurityEnabled(bool* enabled) const;
+    void GetWebSecurityEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether JavaScript clipboard read/write access is enabled
      * @param enabled Output: true if the Clipboard API is accessible from scripts
      */
-    void GetJavascriptClipboardAccessEnabled(bool* enabled) const;
+    void GetJavascriptClipboardAccessEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether the MediaStream API is enabled
      * @param enabled Output: true if camera/microphone streaming is permitted
      */
-    void GetMediaStreamEnabled(bool* enabled) const;
+    void GetMediaStreamEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether smooth scrolling is enabled
      * @param enabled Output: true if CSS smooth-scroll behaviour is active
      */
-    void GetSmoothScrollingEnabled(bool* enabled) const;
+    void GetSmoothScrollingEnabled(bool *enabled) const;
 
     /**
      * @brief Get the window icon file path
@@ -171,26 +171,26 @@ public:
      * @brief Get whether the window is maximized
      * @param isMaximized Output: true if the window is currently maximized
      */
-    void GetMaximized(bool* isMaximized) const;
+    void GetMaximized(bool *isMaximized) const;
 
     /**
      * @brief Get whether the window is minimized
      * @param isMinimized Output: true if the window is currently minimized
      */
-    void GetMinimized(bool* isMinimized) const;
+    void GetMinimized(bool *isMinimized) const;
 
     /**
      * @brief Get the window position in screen coordinates
      * @param x Output: left edge position in pixels
      * @param y Output: top edge position in pixels
      */
-    void GetPosition(int* x, int* y) const;
+    void GetPosition(int *x, int *y) const;
 
     /**
      * @brief Get whether the window can be resized by the user
      * @param resizable Output: true if the window has a resizable border
      */
-    void GetResizable(bool* resizable) const;
+    void GetResizable(bool *resizable) const;
 
     /**
      * @brief Get the DPI of the screen the window is on
@@ -203,7 +203,7 @@ public:
      * @param width  Output: client-area width in pixels
      * @param height Output: client-area height in pixels
      */
-    void GetSize(int* width, int* height) const;
+    void GetSize(int *width, int *height) const;
 
     /**
      * @brief Get the window title bar text
@@ -215,25 +215,25 @@ public:
      * @brief Get whether the window is always on top of other windows
      * @param topmost Output: true if the always-on-top flag is set
      */
-    void GetTopmost(bool* topmost) const;
+    void GetTopmost(bool *topmost) const;
 
     /**
      * @brief Get the current zoom level
      * @param zoom Output: zoom percentage (100 = 100%)
      */
-    void GetZoom(int* zoom) const;
+    void GetZoom(int *zoom) const;
 
     /**
      * @brief Get whether TLS certificate errors are silently ignored
      * @param enabled Output: true if certificate errors are suppressed
      */
-    void GetIgnoreCertificateErrorsEnabled(bool* enabled) const;
+    void GetIgnoreCertificateErrorsEnabled(bool *enabled) const;
 
     /**
      * @brief Get whether the window currently has keyboard focus
      * @param isFocused Output: true if the window is the foreground window
      */
-    void GetFocused(bool* isFocused) const;
+    void GetFocused(bool *isFocused) const;
 
     // ========================================================================
     // Navigation
@@ -528,7 +528,7 @@ public:
      * @brief Get whether Windows toast notifications are available and registered
      * @param enabled Output: true if WinToast is initialised and ready
      */
-    void GetNotificationsEnabled(bool* enabled) const;
+    void GetNotificationsEnabled(bool *enabled) const;
 
     /**
      * @brief Convert a UTF-8 AutoString to a UTF-16 wide string using simdutf
