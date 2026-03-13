@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 4.0)
+﻿cmake_minimum_required(VERSION 4.0)
 project(InfiniFrame.Native 
-    VERSION 1.0.0
+    VERSION 1.1.1
     LANGUAGES CXX
     DESCRIPTION "InfiniFrame.Native webview-wrapper library"
 )
@@ -19,7 +19,7 @@ include(FetchContent)
 FetchContent_Declare(
     fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 11.0.2
+    GIT_TAG 12.1.0
     GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(fmt)
