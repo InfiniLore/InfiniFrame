@@ -4,11 +4,11 @@
  * @brief C-style callback type definitions for interop
  */
 
-#ifndef INFINIFRAME_INTEROP_CALLBACKS_H
-#define INFINIFRAME_INTEROP_CALLBACKS_H
+#ifndef INFINIFRAME_TYPES_CALLBACKS_H
+#define INFINIFRAME_TYPES_CALLBACKS_H
 
-#include "../Types/Basic.h"
-#include "../Types/Dialog.h"
+#include "Basic.h"
+#include "Dialog.h"
 
 // ============================================================================
 // C-style Callbacks (for C# interop)
@@ -27,4 +27,4 @@ using ClosingCallback = bool (*)();
 using FocusInCallback = void (*)();
 using FocusOutCallback = void (*)();
 
-#endif // INFINIFRAME_INTEROP_CALLBACKS_H
+#endif // INFINIFRAME_TYPES_CALLBACKS_H

@@ -35,7 +35,7 @@ class WinToastHandler;
 
 #include "../Types/Basic.h"
 #include "../Types/Dialog.h"
-#include "../Interop/Callbacks.h"
+#include "../Types/Callbacks.h"
 
 class InfiniFrameDialog;
 struct InfiniFrameInitParams;
@@ -213,6 +213,6 @@ private:
     std::unique_ptr<Impl> m_impl;
 };
 
-#include "../Types/InitParams.h"
+#include "InfiniFrameInitParams.h"
 
 #endif // INFINIFRAME_CORE_WINDOW_H

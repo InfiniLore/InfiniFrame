@@ -74,8 +74,8 @@ set(HEADER_FILES
     Core/InfiniFrameDialog.h
     Types/Basic.h
     Types/Dialog.h
-    Types/InitParams.h
-    Interop/Callbacks.h
+    Core/InfiniFrameInitParams.h
+    Types/Callbacks.h
     Utils/Common.h
     Utils/Event.h
     Platform/Windows/ToastHandler.h
@@ -86,7 +86,6 @@ set(HEADER_FILES
     Platform/Mac/UiDelegate.h
     Platform/Mac/WindowDelegate.h
     Platform/Mac/UrlSchemeHandler.h
-    resource.h
 )
 
 # ============================================================================
@@ -209,8 +208,6 @@ if(WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         LINK_FLAGS "/SUBSYSTEM:WINDOWS"
     )
-
-    target_sources(${PROJECT_NAME} PRIVATE InfiniFrame.Native.rc)
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
