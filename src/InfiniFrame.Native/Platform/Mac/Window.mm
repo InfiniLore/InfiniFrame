@@ -256,6 +256,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
     m_impl->_transparentEnabled = initParams->Transparent;
 
+    [m_impl->_window setCollectionBehavior:
+        [m_impl->_window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+
     WindowDelegate *windowDelegate = [WindowDelegate new];
     windowDelegate->infiniFrame = this;
     m_impl->_window.delegate = windowDelegate;
@@ -456,7 +459,7 @@ void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const
 
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const
 {
-    *fullScreen = ([m_impl->_window.contentView isInFullScreenMode]);
+    *fullScreen = ([m_impl->_window styleMask] & NSWindowStyleMaskFullScreen) != 0;
 }
 
 void InfiniFrameWindow::GetMaximized(bool* isMaximized) const
@@ -632,10 +635,9 @@ void InfiniFrameWindow::SetIconFile(AutoString filename)
 
 void InfiniFrameWindow::SetFullScreen(bool fullScreen)
 {
-    if (fullScreen)
-        [m_impl->_window.contentView enterFullScreenMode: [NSScreen mainScreen] withOptions: nil];
-    else
-        [m_impl->_window.contentView exitFullScreenModeWithOptions: nil];
+    bool isFullScreen = ([m_impl->_window styleMask] & NSWindowStyleMaskFullScreen) != 0;
+    if (fullScreen != isFullScreen)
+        [m_impl->_window toggleFullScreen: nil];
 }
 
 void InfiniFrameWindow::SetMinimized(bool minimized)
