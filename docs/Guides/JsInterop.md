@@ -112,7 +112,7 @@ public interface IInfiniFrameJs {
 
 These wrap the browser's `element.setPointerCapture(pointerId)` / `element.releasePointerCapture(pointerId)` APIs, which are necessary for reliable drag interactions — the pointer capture keeps events flowing to the element even after the pointer leaves it
 
-```xml
+```razor
 @inject IInfiniFrameJs InfiniJs
 
 <div @ref="handle"
