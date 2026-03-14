@@ -15,14 +15,10 @@
 - [Lifecycle](#lifecycle)
 - [Custom Window Chrome](#custom-window-chrome)
 
-
-
 ## How It Works
 
 InfiniFrame registers a custom URL scheme (`app://`) and handles all requests from the WebView internally — Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder
 There is no localhost server; all communication happens through the native browser bridge
-
-
 
 ## Project Setup
 
@@ -64,8 +60,6 @@ A minimal host page:
 </html>
 ```
 
-
-
 ## Program.cs
 
 ```csharp
@@ -92,8 +86,6 @@ builder.Build().Run();
 
 `Run()` blocks until the window is closed and then disposes all services
 
-
-
 ## Available Builder API
 
 `InfiniFrameBlazorAppBuilder` exposes three properties for configuration:
@@ -114,8 +106,6 @@ builder.WithInfiniFrameWindowBuilder(w => w
     .SetDevToolsEnabled(true)
 );
 ```
-
-
 
 ## Dependency Injection
 
@@ -142,8 +132,6 @@ The following services are automatically registered and available for injection:
 }
 ```
 
-
-
 ## Custom File Provider
 
 By default, files are served from `{AppBaseDirectory}/wwwroot/`
@@ -159,8 +147,6 @@ var builder = InfiniFrameBlazorAppBuilder.CreateDefault(
     args: args
 );
 ```
-
-
 
 ## Error Handling
 
@@ -179,8 +165,6 @@ AppDomain.CurrentDomain.UnhandledException += (_, e) => {
 };
 ```
 
-
-
 ## HttpClient
 
 An `HttpClient` is registered automatically with `BaseAddress` set to the internal app base URI
@@ -196,8 +180,6 @@ This lets you make in-process requests to your static assets or call external AP
 }
 ```
 
-
-
 ## Lifecycle
 
 ```
@@ -212,10 +194,13 @@ Configure Services & RootComponents
 DisposeAsync()  ← Disposes all services
 ```
 
-
-
 ## Custom Window Chrome
 
 Combine with `InfiniLore.InfiniFrame.Blazor` for a fully custom title bar
 
 See the [Custom Window Chrome Guide](CustomChrome.md) for details
+
+## Examples
+
+- [InfiniFrameExample.BlazorWebView](../../examples/InfiniFrameExample.BlazorWebView/) — minimal Blazor app with window configuration and Serilog
+- [InfiniFrameExample.BlazorWebView.MultiWindowSample](../../examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/) — multiple windows each hosting a different Blazor component

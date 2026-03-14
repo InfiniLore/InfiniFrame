@@ -16,23 +16,17 @@ This approach gives you the full ASP.NET Core pipeline — middleware, controlle
 - [Static Web Assets](#static-web-assets)
 - [Thread Model](#thread-model)
 
-
-
 ## How It Works
 
 - The ASP.NET Core server starts on a background thread
 - A native window opens and navigates to the server's URL
 - Both shut down together when the window is closed (with `UseAutoServerClose()`)
 
-
-
 ## Installation
 
 ```bash
 dotnet add package InfiniLore.InfiniFrame.WebServer
 ```
-
-
 
 ## Minimal Setup
 
@@ -49,8 +43,6 @@ app.Run();
 ```
 
 `app.Run()` starts the web server in the background, opens the window, and blocks until the window is closed
-
-
 
 ## Builder API
 
@@ -82,8 +74,6 @@ app.WebApp.MapHub<MyHub>("/hub");
 app.Run();
 ```
 
-
-
 ## Start URL
 
 The window's start URL is automatically resolved from configuration in this priority order:
@@ -100,8 +90,6 @@ The window's start URL is automatically resolved from configuration in this prio
 ```
 
 If multiple URLs are configured (e.g. `"http://localhost:5200;https://localhost:7200"`), the first one is used as the window's start URL
-
-
 
 ## Accessing the Window from ASP.NET Core
 
@@ -126,8 +114,6 @@ public class MyController(IInfiniFrameWindow window) : ControllerBase {
 
 > **Note:** Window operations that affect the native UI must be marshalled to the window thread using `window.Invoke(...)`
 
-
-
 ## Graceful Shutdown
 
 ### UseAutoServerClose
@@ -150,8 +136,6 @@ app.Stop(); // Stops the web server and closes the window
 await app.WebApp.StopAsync(); // Stop server only
 app.Window.Close();           // Then close window
 ```
-
-
 
 ## Example: Blazor Server
 
@@ -178,15 +162,11 @@ app.WebApp.MapRazorComponents<App>()
 app.Run();
 ```
 
-
-
 ## Static Web Assets
 
 `UseStaticWebAssets()` is called automatically during builder initialization, so static files from Razor class libraries are served correctly without additional configuration
 
 `UseDefaultFiles()` is also applied during `Build()`, which causes requests to `/` to serve `wwwroot/index.html` if it exists
-
-
 
 ## Thread Model
 
@@ -197,3 +177,11 @@ app.Run();
 
 All window API calls from ASP.NET Core handlers must use `window.Invoke(...)` to marshal to the window thread
 Web server calls from window event handlers can be made directly since ASP.NET Core is thread-safe
+
+---
+
+## Examples
+
+- [InfiniFrameExample.WebApp.Blazor](../../examples/InfiniFrameExample.WebApp.Blazor/) — Blazor Server with InteractiveServerComponents, HttpClient factory, and InfiniFrameJs
+- [InfiniFrameExample.WebApp.React](../../examples/InfiniFrameExample.WebApp.React/) — React frontend with custom scheme handler and two-way messaging
+- [InfiniFrameExample.WebApp.Vue](../../examples/InfiniFrameExample.WebApp.Vue/) — Vue.js frontend with all built-in JS message handlers

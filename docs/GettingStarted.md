@@ -133,8 +133,6 @@ builder.Build().Run();
 <button @onclick="() => Window.Close()">Exit</button>
 ```
 
-
-
 ## Option 3 — Web Server
 
 This integration starts an ASP.NET Core web server in a background thread and opens a native window pointing at it — ideal when you want the full ASP.NET Core pipeline (middleware, controllers, SignalR, etc.)
@@ -163,8 +161,6 @@ app.Run();
 
 The start URL is automatically read from `ASPNETCORE_URLS` or the `urls` configuration key
 `UseAutoServerClose()` ensures the server shuts down gracefully when the window is closed
-
-
 
 ## Next Steps
 

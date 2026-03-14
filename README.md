@@ -92,6 +92,16 @@ Your Application
 
 Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is needed for a given application type — they are independent integration paths
 
+## Examples
+
+| Example | What it demonstrates |
+|---------|---------------------|
+| [BlazorWebView](examples/InfiniFrameExample.BlazorWebView/) | Basic Blazor app in a native window |
+| [BlazorWebView.MultiWindowSample](examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/) | Multiple independent windows with different Blazor components |
+| [WebApp.Blazor](examples/InfiniFrameExample.WebApp.Blazor/) | Blazor Server hosted via ASP.NET Core |
+| [WebApp.React](examples/InfiniFrameExample.WebApp.React/) | React frontend with custom scheme handler and web messaging |
+| [WebApp.Vue](examples/InfiniFrameExample.WebApp.Vue/) | Vue.js frontend with all built-in JS message handlers |
+
 ## Documentation
 
 - [Getting Started](docs/GettingStarted.md) — Installation, first app, platform requirements

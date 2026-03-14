@@ -22,8 +22,6 @@ Package: `InfiniLore.InfiniFrame`
 - [IInfiniFrameWindowBuilder](#iinfiframewindowbuilder)
 - [IInfiniFrameWindowMessageHandlers](#iinfiframewindowmessagehandlers)
 
-
-
 ## Properties
 
 ### Identity
@@ -68,8 +66,6 @@ Package: `InfiniLore.InfiniFrame`
 | `MessageHandlers` | `IInfiniFrameWindowMessageHandlers` | Named web message routing |
 | `Parent` | `IInfiniFrameWindow?` | Parent window, or `null` if this is a top-level window |
 
-
-
 ## Methods
 
 ### Lifecycle
@@ -95,8 +91,6 @@ Task.Run(() => {
 });
 ```
 
-
-
 ### Web Messaging
 
 #### `void SendWebMessage(string message)`
@@ -105,8 +99,6 @@ The message is delivered via `window.external.receiveMessage` in the browser
 
 #### `Task SendWebMessageAsync(string message)`
 Async equivalent of `SendWebMessage`
-
-
 
 ### Dialogs
 
@@ -150,15 +142,11 @@ Opens a native save file dialog and returns the chosen path, or `null` if cancel
 #### `Task<string?> ShowSaveFileAsync(...)`
 Async equivalent of `ShowSaveFile`
 
-
-
 ### Notifications
 
 #### `void SendNotification(string title, string body)`
 Sends a native OS notification
 Windows only — requires `SetNotificationsEnabled()` and `SetNotificationRegistrationId(...)` during configuration
-
-
 
 ### Custom Schemes
 
@@ -175,8 +163,6 @@ window.RegisterCustomSchemeHandler("data", (sender, scheme, url, out string? con
 
 Up to 16 custom scheme handlers can be registered in total (including those set before `Build()`)
 
-
-
 ## IInfiniFrameWindowBuilder
 
 `InfiniFrameWindowBuilder.Create()` returns an `IInfiniFrameWindowBuilder`
@@ -192,8 +178,6 @@ Up to 16 custom scheme handlers can be registered in total (including those set 
 #### `IInfiniFrameWindow Build(IServiceProvider? provider = null)`
 Builds and opens the native window
 Pass a `ServiceProvider` to enable DI integration and `appsettings.json` configuration binding
-
-
 
 ## IInfiniFrameWindowMessageHandlers
 
