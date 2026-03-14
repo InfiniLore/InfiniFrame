@@ -4,7 +4,7 @@
  * @brief macOS implementation of InfiniFrameDialog using NSOpenPanel, NSSavePanel, and NSAlert
  */
 
-#import "Models/InfiniFrameDialog.h"
+#import "Core/InfiniFrameDialog.h"
 
 #if defined(VSTGUI_USE_OBJC_UTTYPE)
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>

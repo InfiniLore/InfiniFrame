@@ -5,6 +5,7 @@
  */
 
 #include "Core/InfiniFrameDialog.h"
+#include <gtk/gtk.h>
 
 /** @brief Distinguishes which GtkFileChooserAction to configure in ShowDialog */
 enum DialogType
