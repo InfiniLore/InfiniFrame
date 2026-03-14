@@ -46,7 +46,7 @@ On Windows, enabling chromeless mode automatically disables `UseOsDefaultLocatio
 
 Makes any area of the page draggable — acts as the window's title bar
 
-```xml
+```razor
 <InfiniFrameWindowDragArea>
     <span>My Application</span>
 </InfiniFrameWindowDragArea>
@@ -59,7 +59,7 @@ The component handles pointer capture automatically so drag operations remain st
 
 A button that performs a window action (minimize, maximize, or close):
 
-```xml
+```razor
 <InfiniFrameWindowButton Action="WindowAction.Minimize" />
 <InfiniFrameWindowButton Action="WindowAction.Maximize" />
 <InfiniFrameWindowButton Action="WindowAction.Close" />
@@ -77,7 +77,7 @@ Each button is styled via its `.razor.css` scoped stylesheet — override the st
 
 A drag handle for resizing the window from a specific edge or corner:
 
-```xml
+```razor
 <InfiniFrameWindowResizeThumb Origin="ResizeOrigin.BottomRight" />
 ```
 
@@ -85,7 +85,7 @@ A drag handle for resizing the window from a specific edge or corner:
 
 Renders resize thumbs for all edges and corners in a single declaration:
 
-```xml
+```razor
 <InfiniFrameWindowResizeThumbContainer />
 ```
 
@@ -97,7 +97,7 @@ Place this at the root level of your layout so it covers the entire window perim
 
 A complete custom window chrome in a Blazor layout:
 
-```xml
+```razor
 @* MainLayout.razor *@
 @inherits LayoutComponentBase
 
@@ -197,7 +197,7 @@ See the [JavaScript Interop Guide](JsInterop.md) for full details
 - On Windows with `SetTransparent(true)`, your CSS `background: transparent` will show through to the desktop, enabling acrylic or mica-style effects via the CSS backdrop
 - Double-clicking on a `InfiniFrameWindowDragArea` does not automatically maximize — handle `@ondblclick` yourself if you want that behavior:
 
-```xml
+```razor
 <InfiniFrameWindowDragArea @ondblclick="ToggleMaximize">
     ...
 </InfiniFrameWindowDragArea>
