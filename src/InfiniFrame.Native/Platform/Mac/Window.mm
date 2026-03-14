@@ -24,6 +24,8 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl
     WKWebView* _webview = nil;
     WKWebViewConfiguration* _webviewConfiguration = nil;
 
+    std::string _temporaryFilesPath;
+
     bool _chromeless = false;
 
     CGFloat _preMaximizedWidth = 0;
@@ -311,19 +313,19 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         auto doc = parser.iterate(initParams->BrowserControlInitParameters);
 
         for (auto field : doc.get_object()) {
-            auto key = field.key().value();
+            std::string_view key = field.unescaped_key().value();
             auto value = field.value();
 
-            NSString *preferenceKey = [NSString stringWithUTF8String: key.data()];
+            NSString *preferenceKey = [[NSString alloc] initWithBytes:key.data() length:key.length() encoding:NSUTF8StringEncoding];
 
             switch (value.type()) {
                 case simdjson::ondemand::json_type::number: {
                     int64_t intVal;
-                    if (value.get(intVal).error() == simdjson::SUCCESS) {
+                    if (value.get(intVal) == simdjson::SUCCESS) {
                         m_impl->SetPreference(preferenceKey, [NSNumber numberWithInt: (int)intVal]);
                     } else {
                         double doubleVal;
-                        if (value.get(doubleVal).error() == simdjson::SUCCESS) {
+                        if (value.get(doubleVal) == simdjson::SUCCESS) {
                             m_impl->SetPreference(preferenceKey, [NSNumber numberWithDouble: doubleVal]);
                         }
                     }
@@ -331,14 +333,14 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                 }
                 case simdjson::ondemand::json_type::boolean: {
                     bool boolVal;
-                    if (value.get(boolVal).error() == simdjson::SUCCESS) {
+                    if (value.get(boolVal) == simdjson::SUCCESS) {
                         m_impl->SetPreference(preferenceKey, [NSNumber numberWithBool: boolVal]);
                     }
                     break;
                 }
                 case simdjson::ondemand::json_type::string: {
                     std::string_view strVal;
-                    if (value.get(strVal).error() == simdjson::SUCCESS) {
+                    if (value.get(strVal) == simdjson::SUCCESS) {
                         NSString *preferenceValue = [[NSString alloc] initWithBytes:strVal.data()
                                                                              length:strVal.length()
                                                                            encoding:NSUTF8StringEncoding];
