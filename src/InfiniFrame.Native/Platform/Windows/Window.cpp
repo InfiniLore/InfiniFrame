@@ -9,8 +9,7 @@
 #include <windows.h>
 #include <wrl.h>
 
-#include <fmt/format.h>
-#include <fmt/xchar.h>
+#include <format>
 
 #include "Core/InfiniFrameDialog.h"
 #include "Core/InfiniFrameWindow.h"
@@ -211,7 +210,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
     m_impl = std::make_unique<Impl>();
 	if (initParams->Size != sizeof(InfiniFrameInitParams))
 	{
-		auto msg = fmt::format(L"Initial parameters passed are {} bytes, but expected {} bytes.", 
+		auto msg = std::format(L"Initial parameters passed are {} bytes, but expected {} bytes.",
 			initParams->Size, sizeof(InfiniFrameInitParams));
 		MessageBox(nullptr, msg.c_str(), L"Native Initialization Failed", MB_OK);
 		exit(0);

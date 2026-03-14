@@ -10,7 +10,6 @@
 #include "NSWindowBorderless.h"
 #include "NavigationDelegate.h"
 #include <vector>
-#include <fmt/format.h>
 #include <simdjson.h>
 
 using namespace std;

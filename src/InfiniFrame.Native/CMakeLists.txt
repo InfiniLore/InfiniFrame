@@ -9,20 +9,13 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # ============================================================================
 # Dependencies
 # ============================================================================
 
 include(FetchContent)
-
-FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG 12.1.0
-    GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
     simdjson
@@ -178,7 +171,6 @@ if(WIN32)
     )
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        fmt::fmt
         simdutf::simdutf
         kernel32 user32 gdi32 winspool comdlg32 advapi32
         shell32 ole32 oleaut32 uuid odbc32 odbccp32 shlwapi shcore
@@ -190,7 +182,7 @@ if(WIN32)
         _WINDOWS
         UNICODE
         _UNICODE
-        FMT_HEADER_ONLY=1
+        NOMINMAX
         $<$<CONFIG:Debug>:_DEBUG>
         $<$<CONFIG:Release>:NDEBUG>
     )
@@ -248,7 +240,6 @@ elseif(APPLE)
     )
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        fmt::fmt
         simdjson::simdjson
         "-framework Cocoa"
         "-framework WebKit"
@@ -262,9 +253,6 @@ elseif(APPLE)
         -fPIC
     )
 
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-        FMT_HEADER_ONLY=1
-    )
 
 # ============================================================================
 # Linux Build
@@ -305,7 +293,6 @@ elseif(UNIX)
     )
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        fmt::fmt
         simdjson::simdjson
         ${GTK3_LIBRARIES}
         ${WEBKIT2_LIBRARIES}
@@ -318,9 +305,6 @@ elseif(UNIX)
         -fPIC
     )
 
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-        FMT_HEADER_ONLY=1
-    )
 endif()
 
 # ============================================================================

@@ -13,7 +13,7 @@
 #include <iomanip>
 #include <libnotify/notify.h>
 #include <dlfcn.h>
-#include <fmt/format.h>
+#include <format>
 #include <simdjson.h>
 
 std::mutex invokeLockMutex;
@@ -143,7 +143,7 @@ static std::string escapeJsonString(std::string_view input)
 		default:
 			if (static_cast<unsigned char>(c) < 0x20)
 			{
-				fmt::format_to(std::back_inserter(result), "\\u{:04x}", static_cast<unsigned char>(c));
+				std::format_to(std::back_inserter(result), "\\u{:04x}", static_cast<unsigned char>(c));
 			}
 			else
 			{
