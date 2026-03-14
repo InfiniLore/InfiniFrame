@@ -1,8 +1,6 @@
-<img src="assets/icon.png" alt="logo" width="64" height="64"/> 
+<img src="assets/badge.png" alt="logo" height="76"/> 
 
-# InfiniFrame
-
-A modern and cross-platform native window framework for .NET that lets you build desktop applications using web technologies — load any URL, render HTML strings, or embed a full Blazor application inside a native window
+*A modern and cross-platform native window framework for .NET that lets you build desktop applications using web technologies — load any URL, render HTML strings, or embed a full Blazor application inside a native window*
 
 Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
 
