@@ -48,6 +48,9 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl
     bool _topmost = false;
     bool _useOsDefaultLocation = false;
     bool _useOsDefaultSize = false;
+    bool _hasSavedRect = false;
+
+    RECT _savedRect = {};
 
     int _zoom = 100;
     int _minWidth = MinWindowDimension;
@@ -871,8 +874,12 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen)
 	LONG_PTR style = GetWindowLongPtr(m_impl->_hWnd, GWL_STYLE);
 	if (fullScreen)
 	{
+		GetWindowRect(m_impl->_hWnd, &m_impl->_savedRect);
+		m_impl->_hasSavedRect = true;
+
 		style |= WS_POPUP;
 		style &= (~WS_OVERLAPPEDWINDOW);
+		SetWindowLongPtr(m_impl->_hWnd, GWL_STYLE, style);
 
 		HMONITOR monitor = MonitorFromWindow(m_impl->_hWnd, MONITOR_DEFAULTTONEAREST);
 		MONITORINFO monitorInfo = { sizeof(monitorInfo) };
@@ -880,21 +887,32 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen)
 		if (GetMonitorInfoW(monitor, &monitorInfo))
 		{
 			RECT rc = monitorInfo.rcMonitor;
-			SetPosition(rc.left, rc.top);
-			SetSize(rc.right - rc.left, rc.bottom - rc.top);
+			SetWindowPos(m_impl->_hWnd, HWND_TOP,
+				rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+				SWP_FRAMECHANGED | SWP_NOOWNERZORDER);
 		}
 		else
 		{
-			SetPosition(0, 0);
-			SetSize(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+			SetWindowPos(m_impl->_hWnd, HWND_TOP,
+				0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
+				SWP_FRAMECHANGED | SWP_NOOWNERZORDER);
 		}
 	}
 	else
 	{
 		style |= WS_OVERLAPPEDWINDOW;
 		style &= (~WS_POPUP);
+		SetWindowLongPtr(m_impl->_hWnd, GWL_STYLE, style);
+
+		if (m_impl->_hasSavedRect)
+		{
+			RECT& r = m_impl->_savedRect;
+			SetWindowPos(m_impl->_hWnd, HWND_TOP,
+				r.left, r.top, r.right - r.left, r.bottom - r.top,
+				SWP_FRAMECHANGED | SWP_NOOWNERZORDER);
+			m_impl->_hasSavedRect = false;
+		}
 	}
-	SetWindowLongPtr(m_impl->_hWnd, GWL_STYLE, style);
 }
 
 void InfiniFrameWindow::SetIconFile(const AutoString filename)
