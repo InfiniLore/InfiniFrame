@@ -496,6 +496,11 @@ public:
     // Platform-specific
     // ========================================================================
 
+#ifdef __linux__
+    void OnConfigureEvent(int x, int y, int width, int height);
+    void OnWindowStateEvent(GdkWindowState newState);
+#endif
+
 #ifdef _WIN32
     /**
      * @brief Register the Win32 window class; must be called once before creating any window
@@ -565,11 +570,6 @@ private:
 
 #ifdef _WIN32
     friend LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-#endif
-
-#ifdef __linux__
-    void OnConfigureEvent(int x, int y, int width, int height);
-    void OnWindowStateEvent(GdkWindowState newState);
 #endif
 
     struct Impl;

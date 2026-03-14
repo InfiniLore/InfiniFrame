@@ -15,7 +15,7 @@
 @interface NavigationDelegate: NSObject<WKNavigationDelegate>{
     @public
     NSWindow * window;           /// The host NSWindow
-    InfiniFrame * infiniFrame;   /// The InfiniFrameWindow instance this delegate belongs to
+    InfiniFrameWindow * infiniFrame;   /// The InfiniFrameWindow instance this delegate belongs to
 }
 @end
 #endif
