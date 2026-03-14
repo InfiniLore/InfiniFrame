@@ -214,7 +214,7 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings *settings
 		case simdjson::ondemand::json_type::string:
 		{
 			std::string_view strVal;
-			if (value.get(strVal).error() == simdjson::SUCCESS)
+			if (value.get(strVal) == simdjson::SUCCESS)
 			{
 				g_value_init(propertyValue, G_TYPE_STRING);
 				g_value_set_string(propertyValue, std::string(strVal).c_str());
@@ -224,7 +224,7 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings *settings
 		case simdjson::ondemand::json_type::boolean:
 		{
 			bool boolVal;
-			if (value.get(boolVal).error() == simdjson::SUCCESS)
+			if (value.get(boolVal) == simdjson::SUCCESS)
 			{
 				g_value_init(propertyValue, G_TYPE_BOOLEAN);
 				g_value_set_boolean(propertyValue, boolVal);
@@ -234,7 +234,7 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings *settings
 		case simdjson::ondemand::json_type::number:
 		{
 			int64_t intVal;
-			if (value.get(intVal).error() == simdjson::SUCCESS)
+			if (value.get(intVal) == simdjson::SUCCESS)
 			{
 				g_value_init(propertyValue, G_TYPE_INT);
 				g_value_set_int(propertyValue, static_cast<int>(intVal));
@@ -242,7 +242,7 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings *settings
 			else
 			{
 				double doubleVal;
-				if (value.get(doubleVal).error() == simdjson::SUCCESS)
+				if (value.get(doubleVal) == simdjson::SUCCESS)
 				{
 					g_value_init(propertyValue, G_TYPE_DOUBLE);
 					g_value_set_double(propertyValue, doubleVal);
