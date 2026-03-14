@@ -20,8 +20,6 @@ Package: `InfiniLore.InfiniFrame` (extensions defined in `InfiniLore.InfiniFrame
 - [Custom Schemes](#custom-schemes)
 - [Event Registration Shortcuts](#event-registration-shortcuts)
 
-
-
 ## Window Appearance
 
 ### `SetTitle(string? title)`
@@ -40,8 +38,6 @@ builder.SetIconFile("assets/icon.ico")
 ```
 
 Invalid paths are silently ignored
-
-
 
 ## Size
 
@@ -73,8 +69,6 @@ Sets maximum width or height independently
 ### `SetUseOsDefaultSize(bool useOsDefaultSize)`
 When `true`, the OS chooses the initial window size (overrides `SetSize`)
 
-
-
 ## Position
 
 ### `SetLocation(int left, int top)`
@@ -91,8 +85,6 @@ Centers the window on the primary monitor at startup
 
 ### `SetUseOsDefaultLocation(bool useOsDefaultLocation)`
 When `true`, the OS positions the window (overrides `SetLocation`)
-
-
 
 ## Window State
 
@@ -119,8 +111,6 @@ On Windows, also disables `UseOsDefaultLocation`, `UseOsDefaultSize`, and `Resiz
 Enables window-level transparency — the background of the WebView can be transparent
 Typically combined with `SetChromeless` for custom-shaped windows
 
-
-
 ## Content
 
 ### `SetStartUrl(string? url)`
@@ -138,8 +128,6 @@ Renders an HTML string directly in the browser control instead of navigating to 
 ```csharp
 builder.SetStartString("<html><body><h1>Hello</h1></body></html>")
 ```
-
-
 
 ## Browser Features
 
@@ -180,8 +168,6 @@ Enables CSS smooth scrolling behavior in the browser control
 ### `SetIgnoreCertificateErrorsEnabled(bool enable = true)`
 Ignores TLS certificate errors — useful for self-signed certificates in development
 
-
-
 ## Notifications (Windows only)
 
 ### `SetNotificationsEnabled(bool enable = true)`
@@ -195,8 +181,6 @@ Windows only — throws `ApplicationException` on other platforms
 ### `GrantBrowserPermissions(bool enable = true)`
 Automatically grants all browser permission requests (camera, microphone, location, etc.) without showing a prompt
 Windows only
-
-
 
 ## Platform-Specific
 
@@ -224,8 +208,6 @@ builder.SetBrowserControlInitParameters("{ \"enable_developer_extras\": true }")
 builder.SetBrowserControlInitParameters("{ \"minimumFontSize\": 12 }")
 ```
 
-
-
 ## Custom Schemes
 
 ### `RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler)`
@@ -242,8 +224,6 @@ builder.RegisterCustomSchemeHandler("app", (sender, scheme, url, out string? con
 - Up to 16 handlers can be registered before `Build()` — additional ones can be added at runtime via `window.RegisterCustomSchemeHandler(...)`
 - Throws `ArgumentException` if the scheme is empty or the handler is null
 - Throws `ApplicationException` if more than 16 unique schemes are registered pre-build
-
-
 
 ## Event Registration Shortcuts
 

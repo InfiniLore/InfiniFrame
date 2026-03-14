@@ -9,12 +9,8 @@ InfiniFrame provides two layers of JS interop:
 - [Built-in JavaScript Message Handlers](#built-in-javascript-message-handlers)
 - [Exchanging Structured Data](#exchanging-structured-data)
 
-
-
 1. **Web messaging** — a simple string-based channel between C# and the page's JavaScript
 2. **InfiniFrame.Js** — Blazor-specific utilities for pointer capture and built-in window management message handlers
-
-
 
 ## Web Messaging
 
@@ -77,8 +73,6 @@ window.external.sendMessage(JSON.stringify({ type: "set-title", value: "New Titl
 
 > The built-in message handler routing in `InfiniFrame.Js` follows this `{ type, ... }` convention for its own handlers
 
-
-
 ## InfiniFrame.Js
 
 `InfiniLore.InfiniFrame.Js` provides Blazor-specific interop and registers built-in message handlers for window management from JavaScript
@@ -134,8 +128,6 @@ These wrap the browser's `element.setPointerCapture(pointerId)` / `element.relea
 }
 ```
 
-
-
 ## Built-in JavaScript Message Handlers
 
 `InfiniFrame.Js` registers several message handlers that the client-side `InfiniFrame.js` script uses to control the native window from JavaScript
@@ -180,8 +172,6 @@ window.external.sendMessage(JSON.stringify({
 }));
 ```
 
-
-
 ## Exchanging Structured Data
 
 The message channel is string-only, so use JSON for structured communication:
@@ -215,3 +205,8 @@ builder.Events.WebMessageReceived.Add(raw => {
     // route by type
 });
 ```
+
+## Examples
+
+- [InfiniFrameExample.WebApp.Vue](../../examples/InfiniFrameExample.WebApp.Vue/) — registers all four built-in message handlers (`fullscreen`, `open_external_target`, `title_changed`, `window_management`)
+- [InfiniFrameExample.WebApp.React](../../examples/InfiniFrameExample.WebApp.React/) — custom scheme handler returning dynamic JavaScript, and a two-way messaging round-trip

@@ -15,8 +15,6 @@ This guide covers everything available through the `InfiniLore.InfiniFrame` pack
 - [Monitor Information](#monitor-information)
 - [DI Container Integration](#di-container-integration)
 
-
-
 ## Building a Window
 
 All windows are created through `InfiniFrameWindowBuilder` using a fluent API
@@ -36,8 +34,6 @@ window.WaitForClose();
 
 `Build()` creates and displays the native window immediately on the calling thread
 The returned `IInfiniFrameWindow` gives you full control over the window at runtime
-
-
 
 ## Window Configuration
 
@@ -92,8 +88,6 @@ builder
 
 `SetStartUrl` and `SetStartString` are mutually exclusive — the last one set wins
 
-
-
 ## Browser Features
 
 ```csharp
@@ -136,8 +130,6 @@ builder.SetBrowserControlInitParameters("{ \"enable_developer_extras\": true }")
 builder.SetBrowserControlInitParameters("{ \"minimumFontSize\": 12 }")
 ```
 
-
-
 ## Runtime Window Control
 
 Once a window is built, `IInfiniFrameWindow` provides methods to control it at runtime
@@ -178,8 +170,6 @@ Task.Run(() => {
     });
 });
 ```
-
-
 
 ## Events
 
@@ -224,8 +214,6 @@ builder.Events.WindowClosing.Add((window, cancel) => {
 
 See the [Events Reference](../Reference/Events.md) for the full event system documentation
 
-
-
 ## Web Messaging
 
 InfiniFrame provides a two-way messaging channel between JavaScript running in the browser control and your C# code
@@ -269,8 +257,6 @@ builder.MessageHandlers.Register("ping", message => {
 });
 ```
 
-
-
 ## Custom URL Schemes
 
 You can intercept requests for custom URL schemes (e.g. `app://`) and serve content from C# code — useful for loading local assets or implementing a virtual file system
@@ -286,8 +272,6 @@ builder.RegisterCustomSchemeHandler("app", (sender, scheme, url, out string? con
 - Up to 16 custom schemes can be registered before `Build()` is called
 - Additional handlers can be added after `Build()` via `window.RegisterCustomSchemeHandler(...)`
 - Scheme names are lowercased automatically
-
----
 
 ## Dialogs
 
@@ -340,8 +324,6 @@ window.SendNotification("Update available", "A new version is ready to install")
 
 Requires `SetNotificationsEnabled()` and `SetNotificationRegistrationId(...)` to be set during configuration
 
-
-
 ## Monitor Information
 
 ```csharp
@@ -353,8 +335,6 @@ foreach (InfiniMonitor monitor in window.Monitors) {
 // The monitor the window is currently on
 InfiniMonitor main = window.MainMonitor;
 ```
-
-
 
 ## DI Container Integration
 
@@ -378,3 +358,8 @@ var window = builder.Build(serviceProvider);
 ```
 
 `IInfiniFrameWindow` will then be resolvable from the container if registered
+
+## Examples
+
+- [InfiniFrameExample.WebApp.React](../../examples/InfiniFrameExample.WebApp.React/) — custom URL scheme handler and web messaging with DI-resolved services
+- [InfiniFrameExample.BlazorWebView](../../examples/InfiniFrameExample.BlazorWebView/) — window builder configuration with size, position, and icon

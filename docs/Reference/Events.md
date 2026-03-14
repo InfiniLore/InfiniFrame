@@ -16,8 +16,6 @@ Events are accessed through `IInfiniFrameWindowEvents`, available on `IInfiniFra
 - [InfiniFrameOrderedClosingEvent](#infiniframeorderedclosingevent)
 - [Event Handler Shortcuts on the Builder](#event-handler-shortcuts-on-the-builder)
 
-
-
 ## Registering Handlers
 
 All events expose an `Add(handler)` method:
@@ -33,8 +31,6 @@ var window = builder.Build();
 ```
 
 Handlers are fired in registration order
-
-
 
 ## Window Lifecycle Events
 
@@ -96,8 +92,6 @@ builder.Events.WindowClosing.Add((window, cancel) => {
 
 The `cancel` parameter reflects whether any `WindowClosingRequested` handler attempted a cancellation (even if it was overridden); return value here does not cancel the close
 
-
-
 ## Window State Events
 
 ### `WindowMaximized`
@@ -129,8 +123,6 @@ Fires when the window gains keyboard focus
 
 Fires when the window loses keyboard focus
 
-
-
 ## Geometry Events
 
 ### `WindowSizeChanged`
@@ -155,8 +147,6 @@ builder.Events.WindowLocationChanged.Add(position => {
 });
 ```
 
-
-
 ## Web Messaging Events
 
 ### `WebMessageReceived`
@@ -171,8 +161,6 @@ builder.Events.WebMessageReceived.Add(message => {
 });
 ```
 
-
-
 ## InfiniFrameOrderedEvent
 
 `InfiniFrameOrderedEvent` and `InfiniFrameOrderedEvent<T>` are the base event types
@@ -184,8 +172,6 @@ builder.Events.WebMessageReceived.Add(message => {
 
 Handlers registered earlier always execute before handlers registered later — this is unlike standard C# multicast delegates which do not guarantee order
 
-
-
 ## InfiniFrameOrderedClosingEvent
 
 A specialized event for `WindowClosing` that receives both the window and a cancellation flag
@@ -195,8 +181,6 @@ A specialized event for `WindowClosing` that receives both the window and a canc
 Func<IInfiniFrameWindow, bool, bool>
 // Parameters: (window, wasCancelRequested) → return value is unused for close cancellation
 ```
-
-
 
 ## Event Handler Shortcuts on the Builder
 

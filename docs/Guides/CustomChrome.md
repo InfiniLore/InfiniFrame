@@ -11,8 +11,6 @@
 - [JavaScript Interop for Drag Areas](#javascript-interop-for-drag-areas)
 - [Styling Tips](#styling-tips)
 
-
-
 ## Installation
 
 ```bash
@@ -20,8 +18,6 @@ dotnet add package InfiniLore.InfiniFrame.Blazor
 ```
 
 This package is a companion to `InfiniLore.InfiniFrame.BlazorWebView` or `InfiniLore.InfiniFrame.WebServer`
-
-
 
 ## Enable Chromeless Mode
 
@@ -37,8 +33,6 @@ builder.WithInfiniFrameWindowBuilder(w => w
 ```
 
 On Windows, enabling chromeless mode automatically disables `UseOsDefaultLocation`, `UseOsDefaultSize`, and `Resizable` — set them explicitly if needed after calling `SetChromeless`
-
-
 
 ## Components
 
@@ -90,8 +84,6 @@ Renders resize thumbs for all edges and corners in a single declaration:
 ```
 
 Place this at the root level of your layout so it covers the entire window perimeter
-
-
 
 ## Full Layout Example
 
@@ -165,8 +157,6 @@ A complete custom window chrome in a Blazor layout:
 }
 ```
 
-
-
 ## JavaScript Interop for Drag Areas
 
 `InfiniLore.InfiniFrame.Js` is used internally by the drag and resize components to call `setPointerCapture` on the underlying DOM element — this ensures drag operations continue even when the pointer leaves the element boundary
@@ -188,8 +178,6 @@ If you are building your own drag components, you can use `IInfiniFrameJs` direc
 ```
 
 See the [JavaScript Interop Guide](JsInterop.md) for full details
-
-
 
 ## Styling Tips
 

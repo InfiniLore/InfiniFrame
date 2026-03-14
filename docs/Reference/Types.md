@@ -18,8 +18,6 @@ Package: `InfiniLore.InfiniFrame.Shared`
 - [Interfaces (Shared)](#interfaces-shared)
 - [Configuration Binding](#configuration-binding)
 
-
-
 ## Value Types
 
 ### `InfiniMonitor`
@@ -47,8 +45,6 @@ foreach (InfiniMonitor monitor in window.Monitors) {
     Console.WriteLine($"Work area: {monitor.WorkArea}");
 }
 ```
-
-
 
 ## Enums
 
@@ -128,8 +124,6 @@ Used by `InfiniFrameWindowButton` to specify the action it performs
 Namespace: `InfiniFrame.Blazor`
 Package: `InfiniLore.InfiniFrame.Blazor`
 
-
-
 ## Delegates
 
 ### `NetCustomSchemeDelegate`
@@ -160,8 +154,6 @@ Stream? HandleAppScheme(object sender, string scheme, string url, out string? co
     return new MemoryStream(json);
 }
 ```
-
-
 
 ## Interfaces (Shared)
 
