@@ -31,7 +31,14 @@
     <ItemGroup>
         <!-- Include all project files for VS Solution Explorer -->
         <None Include="CMakeLists.txt" />
-        <None Include="**/*.*" Exclude="CMakeLists.txt;" />
+        <None Include="**/*.*" Exclude="CMakeLists.txt;"/>
+        
+        <None Remove="artifacts\**\*" />
+        <None Remove="build\**\*" />
+        <None Remove="cmake-build-debug-linux\**\*" />
+        <None Remove="cmake-build-debug-windows\**\*" />
+        <None Remove="cmake-build-debug\**\*" />
+        <None Remove="packages\**\*" />
     </ItemGroup>
 
     <!-- Build target -->
