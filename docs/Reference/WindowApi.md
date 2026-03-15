@@ -184,10 +184,15 @@ Pass a `ServiceProvider` to enable DI integration and `appsettings.json` configu
 Manages routing of named web messages
 
 ```csharp
-window.MessageHandlers.Register("my-action", payload => {
-    // payload is the raw string message
+window.MessageHandlers.RegisterMessageHandler("my-action", (window, payload) => {
+    // payload is everything after the first ';' in the raw message string
 });
 ```
 
-The built-in routing convention expects messages in the form `{ "type": "handler-name", ... }`
-Additional fields are passed as the payload string to the registered handler
+Messages are dispatched by splitting on `;` — the part before the first `;` is matched against registered handler keys, and everything after is passed as the optional payload string
+
+```js
+// JavaScript — format: "handlerId" or "handlerId;payload"
+window.external.sendMessage("my-action");
+window.external.sendMessage("my-action;some data");
+```
