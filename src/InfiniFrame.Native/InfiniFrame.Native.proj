@@ -50,15 +50,15 @@
 
         <!-- Windows -->
         <Exec Condition="$(IsWindows)" Command="cmake -B $(CMakeBuildDir) -S . -A $(CMakeArch)" />
-        <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
-        
+        <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel" />
+
         <!-- Linux -->
         <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)" />
-        <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
+        <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel" />
 
         <!-- macOS -->
         <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S ." />
-        <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
+        <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel" />
 
         <!-- Copy native binaries -->
         <MakeDir Directories="$(NativeOutputDir)" />
