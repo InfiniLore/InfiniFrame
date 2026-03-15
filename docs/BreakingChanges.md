@@ -92,7 +92,7 @@ InfiniFrame supports sourcing window configuration from `IConfiguration` under a
 | `PhotinoWindow.MoveTo(Point, bool)` / `Offset(Point)` | Removed — use `window.SetPosition(x, y)` | |
 | `PhotinoWindow.SetMinHeight(int)` / `SetMinWidth(int)` | Removed — use `SetMinSize(width, height)` | Consolidated |
 | `PhotinoWindow.SetMaxHeight(int)` / `SetMaxWidth(int)` | Removed — use `SetMaxSize(width, height)` | Consolidated |
-| `PhotinoWindow.SetLogVerbosity(int)` | Removed — see [Logging](#6-logging) | |
+| `PhotinoWindow.SetLogVerbosity(int)` | Removed — see [Logging](#logging) | |
 | `PhotinoWindow.Win32SetWebView2Path(string)` | Internal — not on public interface | |
 | `PhotinoWindow.MacOsVersion` (static) | Removed | |
 | `PhotinoWindow.IsWindowsPlatform` / `IsMacOsPlatform` / `IsLinuxPlatform` (static) | Removed from public interface | |
