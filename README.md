@@ -4,7 +4,8 @@
 
 Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
 
-> **Note:** This project is a modern rework of [Photino.NET](https://github.com/tryphotino/photino.NET) and is not affiliated with or endorsed by the original Photino authors
+> **Note:** This project is a modern rework of  [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
+> and [Photino.Native](https://github.com/tryphotino/photino.Native) and is not affiliated with or endorsed by the original Photino authors
 
 ## Packages
 
@@ -127,6 +128,18 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 | Windows | WebView2 (Chromium) | Windows 10 or later, WebView2 Runtime |
 | Linux | WebKit2GTK | GTK 3+ |
 | macOS | WKWebView | macOS 10.15 Catalina or later |
+
+## Repo history
+
+This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of
+the [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
+and [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server) repositories were merged into this.
+By merging the histories, it was possible to ease further development, especially whilst also preserving the original
+commit history and attribution from the contributors of Photino.
+
+This was also done for the [Photino.Native](https://github.com/tryphotino/photino.Native) library, but given the
+extensive work that had already been done, git was seemingly unable to fully merge the commit history without losing the
+original commit history.
 
 ## License
 
