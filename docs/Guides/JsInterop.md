@@ -56,22 +56,20 @@ var window = InfiniFrameWindowBuilder.Create()
     ...
     .Build();
 
-window.MessageHandlers.Register("ping", _ => {
+window.MessageHandlers.RegisterMessageHandler("ping", (window, _) => {
     window.SendWebMessage("pong");
 });
 
-window.MessageHandlers.Register("set-title", title => {
-    // handle title change
+window.MessageHandlers.RegisterMessageHandler("set-title", (window, title) => {
+    // handle title change — title is the payload after ';'
 });
 ```
 
 ```js
-// JavaScript convention — send an object with a `type` field
-window.external.sendMessage(JSON.stringify({ type: "ping" }));
-window.external.sendMessage(JSON.stringify({ type: "set-title", value: "New Title" }));
+// Messages use the "handlerId;payload" format
+window.external.sendMessage("ping");
+window.external.sendMessage("set-title;New Title");
 ```
-
-> The built-in message handler routing in `InfiniFrame.Js` follows this `{ type, ... }` convention for its own handlers
 
 ## InfiniFrame.Js
 
@@ -140,36 +138,43 @@ These wrap the browser's `element.setPointerCapture(pointerId)` / `element.relea
 
 ### Available handlers
 
-| Handler name | Triggered by | What it does |
-|-------------|--------------|--------------|
-| `window_management` | `InfiniFrame.js` | Minimize, maximize, or close the window |
-| `fullscreen` | `InfiniFrame.js` | Toggle fullscreen mode |
-| `title_changed` | `InfiniFrame.js` | Update the native window title |
-| `open_external_target` | `InfiniFrame.js` | Open links with `target="_blank"` in the default browser |
+| Handler ID | Triggered by | What it does |
+|------------|--------------|--------------|
+| `__infiniframe:window:minimize` | `InfiniFrame.js` | Minimize the window |
+| `__infiniframe:window:maximize` | `InfiniFrame.js` | Maximize the window |
+| `__infiniframe:window:close` | `InfiniFrame.js` | Close the window |
+| `__infiniframe:fullscreen:enter` | `InfiniFrame.js` | Enter fullscreen |
+| `__infiniframe:fullscreen:exit` | `InfiniFrame.js` | Exit fullscreen |
+| `__infiniframe:title:change` | `InfiniFrame.js` | Update the native window title |
+| `__infiniframe:open:external` | `InfiniFrame.js` | Open links with `target="_blank"` in the default browser |
 
 These are used internally by `InfiniFrameWindowDragArea`, `InfiniFrameWindowButton`, and related components — you do not need to call them manually unless you are building custom components
 
 ### Sending a window management message from custom JavaScript
 
+All messages follow the `"handlerId;payload"` format — payload is optional:
+
 ```js
-window.external.sendMessage(JSON.stringify({
-    type: "window_management",
-    action: "minimize"  // "minimize" | "maximize" | "close"
-}));
+window.external.sendMessage("__infiniframe:window:minimize");
+window.external.sendMessage("__infiniframe:window:maximize");
+window.external.sendMessage("__infiniframe:window:close");
 ```
 
 ```js
-window.external.sendMessage(JSON.stringify({
-    type: "title_changed",
-    title: "New Window Title"
-}));
+// Title payload is the new title string
+window.external.sendMessage("__infiniframe:title:change;New Window Title");
 ```
 
 ```js
-window.external.sendMessage(JSON.stringify({
-    type: "fullscreen",
-    enabled: true
-}));
+window.external.sendMessage("__infiniframe:fullscreen:enter");
+window.external.sendMessage("__infiniframe:fullscreen:exit");
+```
+
+When using `InfiniFrame.js`, you can go through its API instead:
+
+```js
+window.infiniFrame.HostMessaging.sendMessageToHost("__infiniframe:window:minimize");
+window.infiniFrame.HostMessaging.sendMessageToHost("__infiniframe:title:change", "New Title");
 ```
 
 ## Exchanging Structured Data
@@ -208,5 +213,5 @@ builder.Events.WebMessageReceived.Add(raw => {
 
 ## Examples
 
-- [InfiniFrameExample.WebApp.Vue](../../examples/InfiniFrameExample.WebApp.Vue/) — registers all four built-in message handlers (`fullscreen`, `open_external_target`, `title_changed`, `window_management`)
+- [InfiniFrameExample.WebApp.Vue](../../examples/InfiniFrameExample.WebApp.Vue/) — registers all built-in message handlers for window management, fullscreen, title change, and external links
 - [InfiniFrameExample.WebApp.React](../../examples/InfiniFrameExample.WebApp.React/) — custom scheme handler returning dynamic JavaScript, and a two-way messaging round-trip
