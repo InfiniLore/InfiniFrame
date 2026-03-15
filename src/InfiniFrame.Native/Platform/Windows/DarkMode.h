@@ -40,10 +40,10 @@ void RefreshNonClientArea(HWND hwnd) noexcept;
  */
 [[nodiscard]] bool IsColorSchemeChange(LPARAM l_param) noexcept;
 
-// ============================================================================
+// ---------------------------------------------------------------------------------------------------------------------
 // Internal UxTheme / DWM types (undocumented Win32 API surface)
 // These are required to call the dark-mode APIs at runtime via GetProcAddress
-// ============================================================================
+// ---------------------------------------------------------------------------------------------------------------------
 
 /** @brief Controls whether the immersive colour cache is used or refreshed */
 enum IMMERSIVE_HC_CACHE_MODE
