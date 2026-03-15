@@ -284,8 +284,6 @@ The following are open or previously reported issues in the Photino repositories
 | [photino.NET #257](https://github.com/tryphotino/photino.NET/issues/257) | `SetLogVerbosity(0)` still logs a message | Integer verbosity removed entirely. Replaced by `ILogger<IInfiniFrameWindow>` |
 | [photino.NET #232](https://github.com/tryphotino/photino.NET/issues/232) | Custom scheme handlers break `fetch`/`XHR` (CORS interference) | Scheme handler registration refactored. CORS headers handled correctly per platform |
 | [photino.native #175](https://github.com/tryphotino/photino.native/issues/175) | `SetTopmost` uses wrong Win32 style. `null` crash on Linux | Fixed Win32 `HWND_TOPMOST`/`HWND_NOTOPMOST` usage. `null` guards added on Linux |
-| [photino.NET #94](https://github.com/InfiniLore/InfiniFrame/issues/94) | `WaitForClose` acquires a global lock, breaking multi-window usage | Per-thread message loops. `WaitForClose` uses per-window synchronization |
-| [photino.NET #84](https://github.com/InfiniLore/InfiniFrame/issues/84) | `RegisterMessageHandler` throws on duplicate message IDs | Silently overwrites on duplicate registration |
 
 ## Removed Features
 
