@@ -86,10 +86,10 @@ InfiniFrame supports sourcing window configuration from `IConfiguration` under a
 
 | Photino | InfiniFrame | Notes |
 |---------|-------------|-------|
-| `PhotinoWindow.Load(Uri)` / `Load(string)` | Removed from runtime — use `SetStartUrl()` in builder | Initial URL must be set before `Build()` |
-| `PhotinoWindow.LoadRawString(string)` | Removed from runtime — use `SetStartString()` in builder | |
-| `PhotinoWindow.Center()` | Removed from runtime — use `builder.SetCentered(true)` | |
-| `PhotinoWindow.MoveTo(Point, bool)` / `Offset(Point)` | Removed — use `window.SetPosition(x, y)` | |
+| `PhotinoWindow.Load(Uri)` / `Load(string)` | `IInfiniFrameWindow.Load(Uri)` / `Load(string)` | Renamed and available at runtime; initial URL can also be set via `SetStartUrl()` in the builder |
+| `PhotinoWindow.LoadRawString(string)` | `IInfiniFrameWindow.LoadRawString(string)` | Available at runtime; initial HTML can also be set via `SetStartString()` in the builder |
+| `PhotinoWindow.Center()` | `IInfiniFrameWindow.Center()` / `CenterOnCurrentMonitor()` / `CenterOnMonitor(int)` | Available at runtime |
+| `PhotinoWindow.MoveTo(Point, bool)` / `Offset(Point)` | `window.SetLocation(x, y)` / `window.Offset(x, y)` | |
 | `PhotinoWindow.SetMinHeight(int)` / `SetMinWidth(int)` | Removed — use `SetMinSize(width, height)` | Consolidated |
 | `PhotinoWindow.SetMaxHeight(int)` / `SetMaxWidth(int)` | Removed — use `SetMaxSize(width, height)` | Consolidated |
 | `PhotinoWindow.SetLogVerbosity(int)` | Removed — see [Logging](#logging) | |
@@ -291,10 +291,6 @@ The following Photino features are not present in InfiniFrame:
 
 | Feature | Notes |
 |---------|-------|
-| `PhotinoWindow.Load(Uri)` / `Load(string)` runtime navigation | Set `StartUrl` at build time. Runtime navigation not exposed on `IInfiniFrameWindow` |
-| `PhotinoWindow.LoadRawString(string)` runtime method | Use `StartString` in builder |
-| `PhotinoWindow.Center()` runtime method | Use `builder.SetCentered(true)` |
-| `PhotinoWindow.MoveTo()` / `Offset()` runtime methods | Use `SetPosition(x, y)` |
 | `SetMinHeight` / `SetMinWidth` / `SetMaxHeight` / `SetMaxWidth` individual methods | Consolidated into `SetMinSize(w, h)` / `SetMaxSize(w, h)` |
 | `LogVerbosity` integer system | Replaced by `ILogger<IInfiniFrameWindow>` |
 | `MacOsVersion` static property | Removed |

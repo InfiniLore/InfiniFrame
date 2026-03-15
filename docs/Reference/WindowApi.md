@@ -19,6 +19,7 @@ Package: `InfiniLore.InfiniFrame`
   - [Dialogs](#dialogs)
   - [Notifications](#notifications)
   - [Custom Schemes](#custom-schemes)
+  - [Runtime Setters](#runtime-setters)
 - [IInfiniFrameWindowBuilder](#iinfiframewindowbuilder)
 - [IInfiniFrameWindowMessageHandlers](#iinfiframewindowmessagehandlers)
 
@@ -162,6 +163,70 @@ window.RegisterCustomSchemeHandler("data", (sender, scheme, url, out string? con
 ```
 
 Up to 16 custom scheme handlers can be registered in total (including those set before `Build()`)
+
+### Runtime Setters
+
+The following extension methods are available on `IInfiniFrameWindow` at runtime. All calls that touch native UI are automatically marshalled to the window thread — `Invoke` is not needed when calling these.
+
+#### Navigation
+
+| Method | Description |
+|--------|-------------|
+| `Load(Uri uri)` | Navigate to a URL |
+| `Load(string url)` | Navigate to a URL string |
+| `LoadRawString(string content)` | Load an HTML string directly |
+
+#### Appearance
+
+| Method | Description |
+|--------|-------------|
+| `SetTitle(string? title)` | Update the window title |
+| `SetIconFile(string path)` | Change the window icon (Windows and Linux only) |
+
+#### Size
+
+| Method | Description |
+|--------|-------------|
+| `SetSize(int width, int height)` / `SetSize(Size)` | Resize the window |
+| `SetWidth(int)` / `SetHeight(int)` | Resize a single dimension |
+| `SetMinSize(int width, int height)` / `SetMinSize(Size)` | Set the minimum allowed size |
+| `SetMaxSize(int width, int height)` / `SetMaxSize(Size)` | Set the maximum allowed size |
+| `Resize(int widthOffset, int heightOffset, ResizeOrigin origin)` | Resize by offset from a specific edge or corner |
+
+#### Position
+
+| Method | Description |
+|--------|-------------|
+| `SetLocation(int left, int top)` / `SetLocation(Point)` | Move to an absolute screen position |
+| `SetLeft(int)` / `SetTop(int)` | Set a single coordinate |
+| `Center()` | Re-center on the primary monitor |
+| `CenterOnCurrentMonitor()` | Center on the monitor the window is currently on |
+| `CenterOnMonitor(int index)` | Center on a specific monitor by index |
+| `Offset(int left, int top)` / `Offset(Point)` | Move relative to the current position |
+| `MoveWithinCurrentMonitorArea(int left, int top)` | Move to pixel coordinates within the current monitor's work area |
+
+#### Window State
+
+| Method | Description |
+|--------|-------------|
+| `SetMaximized(bool maximized)` | Maximize or restore the window |
+| `ToggleMaximized()` | Toggle between maximized and restored |
+| `SetMinimized(bool minimized)` | Minimize or restore the window |
+| `SetFullScreen(bool fullScreen)` | Enter or exit fullscreen |
+| `SetResizable(bool resizable)` | Enable or disable user resizing |
+| `SetTransparent(bool enabled)` | Enable or disable window transparency |
+| `SetTopMost(bool topMost)` | Pin the window above all others |
+| `SetFocused()` | Give the window keyboard focus |
+
+#### Browser
+
+| Method | Description |
+|--------|-------------|
+| `SetZoom(int zoom)` | Set the zoom level (100 = default) |
+| `SetZoomEnabled(bool enabled)` | Enable or disable user zoom |
+| `SetDevToolsEnabled(bool enabled)` | Show or hide developer tools |
+| `SetContextMenuEnabled(bool enabled)` | Enable or disable the right-click menu |
+| `ClearBrowserAutoFill()` | Clear the browser's autofill data |
 
 ## IInfiniFrameWindowBuilder
 

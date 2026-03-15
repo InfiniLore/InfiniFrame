@@ -252,7 +252,7 @@ builder.Events.WebMessageReceived.Add(message => {
 Or register a named handler through `IInfiniFrameWindowMessageHandlers`:
 
 ```csharp
-builder.MessageHandlers.Register("ping", message => {
+builder.MessageHandlers.RegisterMessageHandler("ping", (window, _) => {
     window.SendWebMessage("pong");
 });
 ```

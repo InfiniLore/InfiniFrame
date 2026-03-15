@@ -186,12 +186,13 @@ See the [JavaScript Interop Guide](JsInterop.md) for full details
 - Double-clicking on a `InfiniFrameWindowDragArea` does not automatically maximize — handle `@ondblclick` yourself if you want that behavior:
 
 ```razor
+@inject IInfiniFrameWindow Window
+
 <InfiniFrameWindowDragArea @ondblclick="ToggleMaximize">
     ...
 </InfiniFrameWindowDragArea>
 
 @code {
-    @inject IInfiniFrameJs InfiniJs
-    // Call window maximize via JS interop or IInfiniFrameWindow
+    void ToggleMaximize() => Window.ToggleMaximized();
 }
 ```
