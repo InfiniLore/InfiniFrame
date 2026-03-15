@@ -116,6 +116,10 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 - [Events](docs/Reference/Events.md) — Event system reference
 - [Types](docs/Reference/Types.md) — Enums, value types, and delegates
 
+### Migration
+
+- [Breaking Changes vs Photino.NET](docs/BreakingChanges.md) — API, namespace, event system, and behavioral differences from the original Photino projects
+
 ## Platform Requirements
 
 | Platform | Browser Engine | Requirement |
