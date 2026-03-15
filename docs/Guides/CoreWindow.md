@@ -157,6 +157,28 @@ window.WaitForClose()
 await window.WaitForCloseAsync()
 ```
 
+### STA requirement (Windows)
+
+WebView2 is COM-based and requires the thread that calls `Build()` to be STA. Without `[STAThread]`, the window opens but the browser control renders as a black screen, and `Build()` now throws `InvalidOperationException` to surface this early
+
+```csharp
+// Required for all InfiniFrame apps on Windows
+internal class Program {
+    [STAThread]
+    static void Main(string[] args) {
+        var window = InfiniFrameWindowBuilder.Create()
+            // ...
+            .Build();
+
+        window.WaitForClose();
+    }
+}
+```
+
+Top-level statements cannot carry `[STAThread]` so use an explicit `static void Main()` as shown above
+
+> **Note:** `[STAThread]` is silently ignored on `async Task Main`. The async continuation runs on thread pool threads (MTA). Never use `async Task Main` as the entry point for an InfiniFrame application. **Linux does not have this restriction** because GTK has no COM apartment model. The native constructor calls `gtk_init()` itself and implicitly claims whichever thread calls `Build()` as the GTK main thread
+
 ### Cross-thread invocation
 
 All UI operations must run on the window's thread — use `Invoke` to marshal work from a background thread:

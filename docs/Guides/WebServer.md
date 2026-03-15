@@ -178,6 +178,8 @@ app.Run();
 All window API calls from ASP.NET Core handlers must use `window.Invoke(...)` to marshal to the window thread
 Web server calls from window event handlers can be made directly since ASP.NET Core is thread-safe
 
+> **Windows:** The main thread must be STA. Add `[STAThread]` to your `Main` method and use an explicit `static void Main()` — top-level statements and `async Task Main` do not support STA correctly
+
 ---
 
 ## Examples

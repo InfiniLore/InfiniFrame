@@ -11,8 +11,6 @@ This guide walks you through installing InfiniFrame and creating your first nati
 - [Option 3 — Web Server](#option-3--web-server)
 - [Next Steps](#next-steps)
 
-
-
 ## Prerequisites
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download) or later (.NET 8, 9, and 10 are all supported)
@@ -26,8 +24,6 @@ This guide walks you through installing InfiniFrame and creating your first nati
 | Linux | `webkit2gtk-4.0` and `libgtk-3-dev` installed via your package manager |
 | macOS | macOS 10.15 Catalina or later (WKWebView is built into the OS) |
 
-
-
 ## Choose Your Integration
 
 InfiniFrame supports three integration models depending on your use case:
@@ -37,8 +33,6 @@ InfiniFrame supports three integration models depending on your use case:
 | Load a URL or HTML string in a window | `InfiniLore.InfiniFrame` |
 | Run a Blazor app inside a native window (no server) | `InfiniLore.InfiniFrame.BlazorWebView` |
 | Run an ASP.NET Core web app with a native window | `InfiniLore.InfiniFrame.WebServer` |
-
-
 
 ## Option 1 — Core Window
 
@@ -68,7 +62,7 @@ window.WaitForClose();
 The window opens immediately when `Build()` is called and runs on the current thread
 `WaitForClose()` blocks until the native window is destroyed
 
-
+> **Windows:** WebView2 requires the calling thread to be STA (single-threaded apartment). Add `[STAThread]` to your `Main` method. Top-level statements do not support `[STAThread]` directly — use an explicit `static void Main()` instead. Calling `Build()` on a non-STA thread will throw an `InvalidOperationException`
 
 ## Option 2 — Blazor WebView
 
