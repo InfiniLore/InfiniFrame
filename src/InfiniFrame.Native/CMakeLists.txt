@@ -21,6 +21,8 @@ endif()
 
 include(FetchContent)
 
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
     simdjson
     GIT_REPOSITORY https://github.com/simdjson/simdjson.git
@@ -199,6 +201,9 @@ if(WIN32)
             /Zc:lambda
             $<$<CONFIG:Debug>:/Od /MTd /Zi>
             $<$<CONFIG:Release>:/O2 /MT>
+        )
+        set_source_files_properties(Dependencies/wintoastlib.cpp PROPERTIES
+            COMPILE_OPTIONS "/W0"
         )
     else()
         target_compile_options(${PROJECT_NAME} PRIVATE

@@ -50,7 +50,7 @@ extern "C"
 	 * @param instance InfiniFrame instance
 	 * @param webView2RuntimePath Path to WebView2 runtime
 	 */
-	EXPORTED void InfiniFrame_setWebView2RuntimePath_win32(InfiniFrameWindow *instance, const AutoString webView2RuntimePath)
+	EXPORTED void InfiniFrame_setWebView2RuntimePath_win32(InfiniFrameWindow *, const AutoString webView2RuntimePath)
 	{
 		InfiniFrameWindow::SetWebView2RuntimePath(webView2RuntimePath);
 	}

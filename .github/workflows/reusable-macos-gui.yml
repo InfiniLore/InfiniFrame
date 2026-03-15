@@ -63,6 +63,8 @@ jobs:
                     path: |
                         src/InfiniFrame.Native/build
                     key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503

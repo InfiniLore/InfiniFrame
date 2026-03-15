@@ -1189,7 +1189,7 @@ void InfiniFrameWindow::AttachWebView()
 						EventRegistrationToken webMessageToken;
 						m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };", nullptr);
 						m_impl->_webviewWindow->add_WebMessageReceived(Callback<ICoreWebView2WebMessageReceivedEventHandler>(
-							[&](ICoreWebView2* webview, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
+							[&](ICoreWebView2*, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
 								wil::unique_cotaskmem_string message;
 								args->TryGetWebMessageAsString(&message);
 								m_impl->_webMessageReceivedCallback(message.get());
@@ -1199,7 +1199,7 @@ void InfiniFrameWindow::AttachWebView()
 						EventRegistrationToken webResourceRequestedToken;
 						m_impl->_webviewWindow->AddWebResourceRequestedFilter(L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
 						m_impl->_webviewWindow->add_WebResourceRequested(Callback<ICoreWebView2WebResourceRequestedEventHandler>(
-							[&](ICoreWebView2* sender, ICoreWebView2WebResourceRequestedEventArgs* args)
+							[&](ICoreWebView2*, ICoreWebView2WebResourceRequestedEventArgs* args)
 							{
 								ICoreWebView2WebResourceRequest* req;
 								args->get_Request(&req);
@@ -1245,7 +1245,7 @@ void InfiniFrameWindow::AttachWebView()
 						EventRegistrationToken permissionRequestedToken;
 						m_impl->_webviewWindow->add_PermissionRequested(
 							Callback<ICoreWebView2PermissionRequestedEventHandler>(
-								[&](ICoreWebView2* sender, ICoreWebView2PermissionRequestedEventArgs* args)	-> HRESULT {
+								[&](ICoreWebView2*, ICoreWebView2PermissionRequestedEventArgs* args) -> HRESULT {
 									if (m_impl->_grantBrowserPermissions)
 										args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
 									return S_OK;
@@ -1399,7 +1399,7 @@ void InfiniFrameWindow::ClearBrowserAutoFill()
 			profile2->ClearBrowsingData(
 				dataKinds,
 				Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>(
-					[this](HRESULT error)
+					[this](HRESULT)
 					-> HRESULT {
 						return S_OK;
 					})

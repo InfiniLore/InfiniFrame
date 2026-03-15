@@ -42,7 +42,7 @@ public:
      * @brief Called when the user clicks an action button on the notification
      * @param actionIndex Zero-based index of the activated button (unused; delegates to toastActivated())
      */
-    void toastActivated(int actionIndex) const override
+    void toastActivated(int) const override
     {
         toastActivated();
     }
@@ -51,7 +51,7 @@ public:
      * @brief Called when the user submits a text-input reply on the notification
      * @param response User-entered text (unused; delegates to toastActivated())
      */
-    void toastActivated(std::wstring response) const override
+    void toastActivated(std::wstring) const override
     {
         toastActivated();
     }
@@ -60,7 +60,7 @@ public:
      * @brief Called when the notification is dismissed without activation
      * @param state Reason for dismissal (timeout, user swipe, app hide, etc.)
      */
-    void toastDismissed(WinToastDismissalReason state) const override {}
+    void toastDismissed(WinToastDismissalReason) const override {}
 
     /** @brief Called when the notification fails to display */
     void toastFailed() const override {}
