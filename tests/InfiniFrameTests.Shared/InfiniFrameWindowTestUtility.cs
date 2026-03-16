@@ -44,21 +44,18 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder.SetStartString(StartString);
-
         builder?.Invoke(windowBuilder);
 
-        IInfiniFrameWindow window = windowBuilder.Build();
-
-        var utility = new InfiniFrameWindowTestUtility {
-            Window = window
-        };
+        var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var thread = new Thread(() => {
             try {
+                IInfiniFrameWindow window = windowBuilder.Build();
+                windowSource.SetResult(window);
                 window.WaitForClose();
             }
-            catch {
-                // Ignore shutdown exceptions during test cleanup.
+            catch (Exception ex) {
+                windowSource.TrySetException(ex);
             }
         }) {
             IsBackground = true
@@ -67,9 +64,12 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         if (OperatingSystem.IsWindows())
             thread.SetApartmentState(ApartmentState.STA);
 
-        utility._windowThread = thread;
-
         thread.Start();
+
+        var utility = new InfiniFrameWindowTestUtility {
+            Window = windowSource.Task.GetAwaiter().GetResult(),
+            _windowThread = thread
+        };
 
         return utility;
     }
