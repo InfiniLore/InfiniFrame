@@ -96,6 +96,9 @@ jobs:
                         xfonts-base
                     version: 1.0
 
+            -   name: Compile GSettings schemas
+                run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
+
             -   name: Restore dependencies
                 run: dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 

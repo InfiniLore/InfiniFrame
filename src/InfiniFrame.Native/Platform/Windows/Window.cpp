@@ -1008,6 +1008,7 @@ void InfiniFrameWindow::SetTitle(AutoString title)
 
 void InfiniFrameWindow::SetTopmost(const bool topmost)
 {
+	m_impl->_topmost = topmost;
 	LONG_PTR style = GetWindowLongPtr(m_impl->_hWnd, GWL_EXSTYLE);
 	if (topmost) style |= WS_EX_TOPMOST;
 	else style &= (~WS_EX_TOPMOST);
@@ -1281,6 +1282,10 @@ void InfiniFrameWindow::AttachWebView()
 						RefitContent();
 
 						FocusWebView2();
+
+						// Re-apply if topmost was requested
+						if (m_impl->_topmost)
+							SetTopmost(true);
 
 						return S_OK;
 					}).Get());
