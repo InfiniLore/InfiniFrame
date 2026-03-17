@@ -131,17 +131,17 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 | Linux | WebKit2GTK | GTK 3+ |
 | macOS | WKWebView | macOS 10.15 Catalina or later |
 
-## Repo history
+## Repo History
 
 This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of
 the [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
 and [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server) repositories were merged into this.
 By merging the histories, it was possible to ease further development, especially whilst also preserving the original
-commit history and attribution from the contributors of Photino.
+commit history and attribution from the contributors of Photino
 
 This was also done for the [Photino.Native](https://github.com/tryphotino/photino.Native) library, but given the
 extensive work that had already been done, git was seemingly unable to fully merge the commit history without losing the
-original commit history.
+original commit history
 
 ## License
 
