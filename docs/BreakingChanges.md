@@ -12,7 +12,7 @@ InfiniFrame is a complete, independent rework of [Photino.NET](https://github.co
 - [Logging](#logging)
 - [Native C++ Interface](#native-c-interface)
 - [Known Photino Issues Addressed](#known-photino-issues-addressed)
-- [Removed Features](#removed-features)
+- [Removed or Replaced Features](#removed-or-replaced-features)
 
 ## Package and Namespace
 
@@ -285,7 +285,7 @@ The following are open or previously reported issues in the Photino repositories
 | [photino.NET #232](https://github.com/tryphotino/photino.NET/issues/232) | Custom scheme handlers break `fetch`/`XHR` (CORS interference) | Scheme handler registration refactored. CORS headers handled correctly per platform |
 | [photino.native #175](https://github.com/tryphotino/photino.native/issues/175) | `SetTopmost` uses wrong Win32 style. `null` crash on Linux | Fixed Win32 `HWND_TOPMOST`/`HWND_NOTOPMOST` usage. `null` guards added on Linux |
 
-## Removed Features
+## Removed or Replaced Features
 
 The following Photino features are not present in InfiniFrame:
 
