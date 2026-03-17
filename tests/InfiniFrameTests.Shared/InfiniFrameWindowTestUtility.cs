@@ -46,16 +46,20 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         windowBuilder.SetStartString(StartString);
         builder?.Invoke(windowBuilder);
 
-        var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
+        // Create the window in the current (main) thread
+        IInfiniFrameWindow window = windowBuilder.Build();
 
+        var utility = new InfiniFrameWindowTestUtility {
+            Window = window
+        };
+
+        // Run WaitForClose in a separate thread to keep the window alive without blocking tests
         var thread = new Thread(() => {
             try {
-                IInfiniFrameWindow window = windowBuilder.Build();
-                windowSource.SetResult(window);
                 window.WaitForClose();
             }
-            catch (Exception ex) {
-                windowSource.TrySetException(ex);
+            catch {
+                // Ignore shutdown exceptions during test cleanup
             }
         }) {
             IsBackground = true
@@ -64,12 +68,9 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         if (OperatingSystem.IsWindows())
             thread.SetApartmentState(ApartmentState.STA);
 
-        thread.Start();
+        utility._windowThread = thread;
 
-        var utility = new InfiniFrameWindowTestUtility {
-            Window = windowSource.Task.GetAwaiter().GetResult(),
-            _windowThread = thread
-        };
+        thread.Start();
 
         return utility;
     }
