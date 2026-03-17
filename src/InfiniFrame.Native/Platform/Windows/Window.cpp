@@ -770,8 +770,8 @@ AutoString InfiniFrameWindow::GetTitle() const
 
 void InfiniFrameWindow::GetTopmost(bool* topmost) const
 {
-	LONG lStyles = GetWindowLong(m_impl->_hWnd, GWL_EXSTYLE);
-	*topmost = (lStyles & WS_EX_TOPMOST) != 0;
+	// Return the stored intent rather than the live HWND style
+	*topmost = m_impl->_topmost;
 }
 
 void InfiniFrameWindow::GetZoom(int* zoom) const
