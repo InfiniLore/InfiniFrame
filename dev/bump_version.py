@@ -6,6 +6,7 @@ from pathlib import Path
 
 # Adjust the path to be relative from the dev directory
 FILE = Path(__file__).parent.parent / "src" / "Directory.Build.props"
+CMAKE_FILE = Path(__file__).parent.parent / "src" / "InfiniFrame.Native" / "CMakeLists.txt"
 
 def validate_version(version: str) -> bool:
     """
@@ -51,6 +52,22 @@ def bump(version: str, part: str) -> str:
         new_version += f"-preview.{preview}"
     return new_version
 
+def update_cmake_version(cmake_path: Path, new_version: str) -> None:
+    """
+    Updates the version of the `InfiniFrame.Native` project in a `CMakeLists.txt` file.
+    """
+    text = cmake_path.read_text(encoding="utf-8")
+    updated, count = re.subn(
+        r'(?m)^(\s*project\(\s*InfiniFrame\.Native\s+VERSION\s+)\S+',
+        rf'\g<1>{new_version}',
+        text,
+        count=1,
+    )
+    if count == 0:
+        print("Error: Could not find InfiniFrame.Native version in CMakeLists.txt")
+        sys.exit(1)
+    cmake_path.write_text(updated, encoding="utf-8")
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: bump_version.py [major|minor|patch|preview|custom] [custom_version]")
@@ -60,6 +77,10 @@ def main():
 
     if not FILE.exists():
         print(f"Error: File not found: {FILE}")
+        sys.exit(1)
+
+    if not CMAKE_FILE.exists():
+        print(f"Error: File not found: {CMAKE_FILE}")
         sys.exit(1)
 
     tree = Et.parse(FILE)
@@ -89,6 +110,8 @@ def main():
 
     # keep XML formatting tidy
     tree.write(FILE, encoding="utf-8", xml_declaration=True)
+
+    update_cmake_version(CMAKE_FILE, new_version)
 
     print(f"Bumped version: {old_version} → {new_version}")
     print(new_version)  # Output for GitHub Actions to capture
