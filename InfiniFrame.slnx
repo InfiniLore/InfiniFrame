@@ -20,13 +20,7 @@
     <File Path=".github\workflows\workflow-pendingCheck.yml" />
     <File Path=".github\workflows\workflow-todo.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/workflows/lib/">
-    <File Path=".github/workflows/reusable-linux-gui.yml" />
-    <File Path=".github/workflows/reusable-macos-gui.yml" />
-    <File Path=".github/workflows/reusable-windows-gui.yml" />
-    <File Path=".github/workflows/reusable-windows-playwright.yml" />
-    <File Path=".github\workflows\reusable-multiPlatformTesting.yml" />
-  </Folder>
+  <Folder Name="/.dev-tools/github/workflows/lib/" />
   <Folder Name="/.dev-tools/py/">
     <File Path="dev/test_bump_version.py" />
     <File Path="dev\bump_version.py" />
