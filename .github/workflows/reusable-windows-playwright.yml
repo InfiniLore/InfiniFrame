@@ -6,6 +6,10 @@ on:
             pr_number:
                 type: string
                 required: true
+            checkout_ref:
+                type: string
+                required: false
+                default: ''
             target_sha:
                 type: string
                 required: true
@@ -32,7 +36,7 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v6
                 with:
-                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
             -   name: Setup .NET SDK

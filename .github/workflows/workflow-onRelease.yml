@@ -78,11 +78,25 @@ jobs:
 
             -   name: Commit and push changes
                 run: |
+                    set -euo pipefail
+                    TAG="${{ steps.bump.outputs.tag }}"
+
                     git add src/Directory.Build.props
-                    git commit -m "VersionBump : ${{ steps.bump.outputs.tag }}"
-                    git tag ${{ steps.bump.outputs.tag }}
-                    git push origin HEAD:${{ github.ref_name }}
-                    git push origin ${{ steps.bump.outputs.tag }}
+                    if ! git diff --cached --quiet; then
+                        git commit -m "VersionBump : $TAG"
+                        git push origin HEAD:${{ github.ref_name }}
+                    else
+                        echo "No version file changes detected; skipping commit push."
+                    fi
+
+                    if git ls-remote --tags origin "$TAG" | grep -q "refs/tags/$TAG$"; then
+                        echo "Tag $TAG already exists on origin; skipping tag push."
+                    else
+                        if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+                            git tag "$TAG"
+                        fi
+                        git push origin "$TAG"
+                    fi
     
     # ------------------------------------------------------------------------------------------------------------------
     # Run multi-platform tests first
@@ -94,6 +108,7 @@ jobs:
         uses: ./.github/workflows/reusable-multiPlatformTesting.yml
         with:
             pr_number: ''
+            checkout_ref: ${{ needs.bump-version.outputs.tag_name }}
             run_windows: true
             run_windows_playwright: false
             run_linux: true
@@ -195,7 +210,7 @@ jobs:
                         ~/Library/Caches/Homebrew
                         /usr/local/Cellar/gtk+3
                         /usr/local/Cellar/pkg-config
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-${{ hashFiles('.github/workflows/OnRelease.yml') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-${{ hashFiles('.github/workflows/workflow-onRelease.yml') }}
                     restore-keys: |
                         ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-
 
