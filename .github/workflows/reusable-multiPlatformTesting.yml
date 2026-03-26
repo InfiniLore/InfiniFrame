@@ -71,6 +71,9 @@ jobs:
         env:
             TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v6
+
             -   name: Set pending status for all arch/platforms
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -161,6 +164,9 @@ jobs:
         env:
             TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v6
+
             -   name: Mark skipped platform statuses
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
