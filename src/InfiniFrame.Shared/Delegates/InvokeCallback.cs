@@ -7,6 +7,5 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-//These are sent in during the request
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 internal delegate void InvokeCallback();

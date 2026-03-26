@@ -50,6 +50,9 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     public int Zoom { get; set; } = 100;
     public bool ZoomEnabled { get; set; } = true;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameNativeParameters ToParameters() {
         IntPtr[] customSchemeNameArray = new IntPtr[16];
         for (int i = 0; i < CustomSchemeNames.Count; i++) {

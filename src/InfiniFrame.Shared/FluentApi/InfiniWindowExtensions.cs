@@ -45,18 +45,18 @@ public static class InfiniWindowExtensions {
             // ––––––––––––––––––––––
             // Open a web URL string path
             if (path.Contains("http://") || path.Contains("https://"))
-                return Load(window, new Uri(path));
+                return window.Load(new Uri(path));
 
             // Open a file resource string path
             string absolutePath = Path.GetFullPath(path);
 
             // For a bundled app it can be necessary to consider
             // the app context base directory. Check there too.
-            if (File.Exists(absolutePath)) return Load(window, new Uri(absolutePath, UriKind.Absolute));
+            if (File.Exists(absolutePath)) return window.Load(new Uri(absolutePath, UriKind.Absolute));
 
             absolutePath = $"{AppContext.BaseDirectory}/{path}";
 
-            if (File.Exists(absolutePath)) return Load(window, new Uri(absolutePath, UriKind.Absolute));
+            if (File.Exists(absolutePath)) return window.Load(new Uri(absolutePath, UriKind.Absolute));
 
             window.Logger.LogWarning("File not found: {Path}", absolutePath);
             return window;
@@ -205,7 +205,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         /// <param name="location">Position as <see cref="Point" /></param>
         public T MoveWithinCurrentMonitorArea(Point location)
-            => MoveWithinCurrentMonitorArea(window, location.X, location.Y);
+            => window.MoveWithinCurrentMonitorArea(location.X, location.Y);
 
         /// <summary>
         /// Moves the native window to the specified location on the screen using a double value.
@@ -216,7 +216,7 @@ public static class InfiniWindowExtensions {
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
         public T MoveWithinCurrentMonitorArea(double left, double top)
-            => MoveWithinCurrentMonitorArea(window, (int)left, (int)top);
+            => window.MoveWithinCurrentMonitorArea((int)left, (int)top);
         #endregion
 
         #region Offset
@@ -247,7 +247,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         /// <param name="offset">Relative offset</param>
         public T Offset(Point offset)
-            => Offset(window, offset.X, offset.Y);
+            => window.Offset(offset.X, offset.Y);
 
         /// <summary>
         /// Moves the native window relative to its current location on the screen in pixels
@@ -259,7 +259,7 @@ public static class InfiniWindowExtensions {
         /// <param name="left">Relative offset from the left in pixels.</param>
         /// <param name="top">Relative offset from the top in pixels.</param>
         public T Offset(double left, double top)
-            => Offset(window, (int)left, (int)top);
+            => window.Offset((int)left, (int)top);
         #endregion
 
         #region SetTransparent
@@ -495,7 +495,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         /// <param name="size">Width &amp; Height</param>
         public T SetSize(Size size)
-            => SetSize(window, size.Width, size.Height);
+            => window.SetSize(size.Width, size.Height);
         #endregion
 
         #region SetLocation
@@ -529,7 +529,7 @@ public static class InfiniWindowExtensions {
         /// </returns>
         /// <param name="location">Location as a <see cref="Point" /></param>
         public T SetLocation(Point location)
-            => SetLocation(window, location.X, location.Y);
+            => window.SetLocation(location.X, location.Y);
         #endregion
 
         /// <summary>
@@ -554,18 +554,22 @@ public static class InfiniWindowExtensions {
                 }
 
                 Rectangle workArea = monitor.WorkArea;
-                if (maximized) {
-                    window.CachedPreMaximizedBounds = windowRect;
-                    InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
-                    InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
-                    window.Events.OnMaximized();
-                }
-                else if (!maximized && window.CachedPreMaximizedBounds != Rectangle.Empty) {
-                    Rectangle oldRect = window.CachedPreMaximizedBounds;
-                    InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
-                    InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
-                    window.CachedPreMaximizedBounds = Rectangle.Empty;
-                    window.Events.OnRestored();
+                switch (maximized) {
+                    case true:
+                        window.CachedPreMaximizedBounds = windowRect;
+                        InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
+                        InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
+                        window.Events.OnMaximized();
+                        break;
+
+                    case false when window.CachedPreMaximizedBounds != Rectangle.Empty: {
+                        Rectangle oldRect = window.CachedPreMaximizedBounds;
+                        InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
+                        InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
+                        window.CachedPreMaximizedBounds = Rectangle.Empty;
+                        window.Events.OnRestored();
+                        break;
+                    }
                 }
             });
             return window;
@@ -641,7 +645,7 @@ public static class InfiniWindowExtensions {
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
         public T SetMaxSize(Size size)
-            => SetMaxSize(window, size.Width, size.Height);
+            => window.SetMaxSize(size.Width, size.Height);
 
         /// <summary>
         /// Sets the maximum height of the native window in pixels.
@@ -651,7 +655,7 @@ public static class InfiniWindowExtensions {
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
         public T SetMaxHeight(int maxHeight)
-            => SetMaxSize(window, window.MaxWidth, maxHeight);
+            => window.SetMaxSize(window.MaxWidth, maxHeight);
 
         /// <summary>
         /// Sets the maximum width for the native window.
@@ -661,7 +665,7 @@ public static class InfiniWindowExtensions {
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance with the updated maximum width.
         /// </returns>
         public T SetMaxWidth(int maxWidth)
-            => SetMaxSize(window, maxWidth, window.MaxHeight);
+            => window.SetMaxSize(maxWidth, window.MaxHeight);
 
         /// <summary>
         ///     Sets whether the native window is minimized (hidden).
@@ -703,7 +707,7 @@ public static class InfiniWindowExtensions {
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
         public T SetMinSize(Size size)
-            => SetMinSize(window, size.Width, size.Height);
+            => window.SetMinSize(size.Width, size.Height);
 
         /// <summary>
         /// Sets the minimum height of the window.
@@ -713,7 +717,7 @@ public static class InfiniWindowExtensions {
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
         /// </returns>
         public T SetMinHeight(int minHeight)
-            => SetMinSize(window, window.MinWidth, minHeight);
+            => window.SetMinSize(window.MinWidth, minHeight);
 
         /// <summary>
         /// Sets the minimum width of the native window.
@@ -723,7 +727,7 @@ public static class InfiniWindowExtensions {
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance for method chaining.
         /// </returns>
         public T SetMinWidth(int minWidth)
-            => SetMinSize(window, minWidth, window.MinHeight);
+            => window.SetMinSize(minWidth, window.MinHeight);
 
         /// <summary>
         ///     Sets the native window <see cref="IInfiniFrameWindow.Title" />.

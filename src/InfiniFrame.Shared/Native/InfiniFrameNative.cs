@@ -235,8 +235,7 @@ public static partial class InfiniFrameNative {
     #endregion
 
     #region Overloads
-    internal static string? PtrToNativeString(IntPtr ptr)
-    {
+    internal static string? PtrToNativeString(IntPtr ptr) {
         if (ptr == IntPtr.Zero) return null;
 
         return OperatingSystem.IsWindows()
