@@ -1,41 +1,100 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import argparse
 import json
 import os
-import sys
 import urllib.error
-import urllib.parse
 import urllib.request
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import Literal, Never, TypedDict
+
+JsonPrimitive = str | int | float | bool | None
+JsonValue = JsonPrimitive | list["JsonValue"] | dict[str, "JsonValue"]
 
 
-def request_json(method, url, token, payload=None):
+class CheckRun(TypedDict, total=False):
+    id: int
+    name: str
+    status: str
+
+
+@dataclass(frozen=True)
+class Args:
+    repo: str
+    sha: str
+    context: str
+    state: Literal["pending", "success", "failure", "error"]
+    description: str
+    target_url: str
+    token_env: str
+    allow_status_422: bool
+    complete_check_runs: bool
+    check_conclusion: Literal[
+        "action_required",
+        "cancelled",
+        "failure",
+        "neutral",
+        "success",
+        "skipped",
+        "stale",
+        "timed_out",
+    ]
+    check_summary: str
+    require_update: bool
+
+
+def fail(message: str, details: JsonValue | None = None) -> Never:
+    print(message)
+    if details is not None:
+        print(json.dumps(details))
+    raise SystemExit(1)
+
+
+def request_json(
+    method: str,
+    url: str,
+    token: str,
+    payload: dict[str, JsonValue] | None = None,
+) -> tuple[int, dict[str, JsonValue]]:
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
         "Content-Type": "application/json",
     }
-    data = None
+    data: bytes | None = None
     if payload is not None:
         data = json.dumps(payload).encode("utf-8")
+
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             body = resp.read().decode("utf-8")
-            parsed = json.loads(body) if body else {}
-            return resp.status, parsed
+            parsed: dict[str, JsonValue]
+            if body:
+                loaded = json.loads(body)
+                parsed = loaded if isinstance(loaded, dict) else {"raw": loaded}
+            else:
+                parsed = {}
+            return int(resp.status), parsed
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
-        try:
-            parsed = json.loads(body) if body else {}
-        except json.JSONDecodeError:
-            parsed = {"raw": body}
-        return exc.code, parsed
+        parsed: dict[str, JsonValue]
+        if body:
+            try:
+                loaded = json.loads(body)
+                parsed = loaded if isinstance(loaded, dict) else {"raw": loaded}
+            except json.JSONDecodeError:
+                parsed = {"raw": body}
+        else:
+            parsed = {}
+        return int(exc.code), parsed
 
 
-def post_status(args, token):
+def post_status(args: Args, token: str) -> bool:
     url = f"https://api.github.com/repos/{args.repo}/statuses/{args.sha}"
-    payload = {
+    payload: dict[str, JsonValue] = {
         "state": args.state,
         "context": args.context,
         "description": args.description,
@@ -44,6 +103,7 @@ def post_status(args, token):
     code, body = request_json("POST", url, token, payload)
     if 200 <= code < 300:
         return True
+
     if args.allow_status_422 and code == 422:
         print(
             f"Status update returned HTTP 422 for '{args.context}'. "
@@ -51,28 +111,28 @@ def post_status(args, token):
         )
         print(json.dumps(body))
         return False
-    print(f"Failed to post status for '{args.context}' (HTTP {code}).")
-    print(json.dumps(body))
-    sys.exit(1)
+
+    fail(f"Failed to post status for '{args.context}' (HTTP {code}).", body)
 
 
-def complete_matching_check_runs(args, token):
+def complete_matching_check_runs(args: Args, token: str) -> bool:
     list_url = (
         f"https://api.github.com/repos/{args.repo}/commits/"
         f"{args.sha}/check-runs?per_page=100"
     )
     code, body = request_json("GET", list_url, token)
     if not (200 <= code < 300):
-        print(f"Failed to list check-runs for '{args.context}' (HTTP {code}).")
-        print(json.dumps(body))
-        sys.exit(1)
+        fail(f"Failed to list check-runs for '{args.context}' (HTTP {code}).", body)
 
-    check_runs = body.get("check_runs", [])
+    raw_runs = body.get("check_runs", [])
+    check_runs: list[CheckRun] = raw_runs if isinstance(raw_runs, list) else []
+
     matching = [
         run
         for run in check_runs
         if run.get("name") == args.context
-        and run.get("status") in ("queued", "in_progress")
+           and run.get("status") in ("queued", "in_progress")
+           and isinstance(run.get("id"), int)
     ]
 
     if not matching:
@@ -81,12 +141,10 @@ def complete_matching_check_runs(args, token):
 
     completed_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     updated_any = False
-    for run in sorted(matching, key=lambda r: r.get("id", 0)):
-        check_id = run.get("id")
-        if check_id is None:
-            continue
+    for run in sorted(matching, key=lambda r: int(r["id"])):
+        check_id = int(run["id"])
         patch_url = f"https://api.github.com/repos/{args.repo}/check-runs/{check_id}"
-        payload = {
+        payload: dict[str, JsonValue] = {
             "status": "completed",
             "conclusion": args.check_conclusion,
             "completed_at": completed_at,
@@ -97,24 +155,28 @@ def complete_matching_check_runs(args, token):
         }
         patch_code, patch_body = request_json("PATCH", patch_url, token, payload)
         if not (200 <= patch_code < 300):
-            print(
+            fail(
                 f"Failed to complete check-run {check_id} for "
-                f"'{args.context}' (HTTP {patch_code})."
+                f"'{args.context}' (HTTP {patch_code}).",
+                patch_body,
             )
-            print(json.dumps(patch_body))
-            sys.exit(1)
         updated_any = True
     return updated_any
 
 
-def parse_args():
+def parse_args() -> Args:
     parser = argparse.ArgumentParser(
         description="Sync commit status and optional queued check-runs for one context."
     )
     parser.add_argument("--repo", required=True, help="owner/repo")
     parser.add_argument("--sha", required=True, help="Commit SHA")
     parser.add_argument("--context", required=True, help="Status/check context name")
-    parser.add_argument("--state", required=True, help="pending|success|failure|error")
+    parser.add_argument(
+        "--state",
+        required=True,
+        choices=["pending", "success", "failure", "error"],
+        help="pending|success|failure|error",
+    )
     parser.add_argument("--description", required=True, help="Short description")
     parser.add_argument("--target-url", required=True, help="Target URL for status/check")
     parser.add_argument(
@@ -135,6 +197,16 @@ def parse_args():
     parser.add_argument(
         "--check-conclusion",
         default="success",
+        choices=[
+            "action_required",
+            "cancelled",
+            "failure",
+            "neutral",
+            "success",
+            "skipped",
+            "stale",
+            "timed_out",
+        ],
         help="Conclusion for completed check-runs",
     )
     parser.add_argument(
@@ -147,15 +219,28 @@ def parse_args():
         action="store_true",
         help="Fail when neither status nor check-run update succeeded",
     )
-    return parser.parse_args()
+    ns = parser.parse_args()
+    return Args(
+        repo=str(ns.repo),
+        sha=str(ns.sha),
+        context=str(ns.context),
+        state=ns.state,
+        description=str(ns.description),
+        target_url=str(ns.target_url),
+        token_env=str(ns.token_env),
+        allow_status_422=bool(ns.allow_status_422),
+        complete_check_runs=bool(ns.complete_check_runs),
+        check_conclusion=ns.check_conclusion,
+        check_summary=str(ns.check_summary),
+        require_update=bool(ns.require_update),
+    )
 
 
-def main():
+def main() -> int:
     args = parse_args()
     token = os.getenv(args.token_env, "").strip()
     if not token:
-        print(f"Missing token in environment variable: {args.token_env}")
-        return 1
+        fail(f"Missing token in environment variable: {args.token_env}")
 
     status_posted = post_status(args, token)
     check_completed = False
@@ -163,12 +248,10 @@ def main():
         check_completed = complete_matching_check_runs(args, token)
 
     if args.require_update and not status_posted and not check_completed:
-        print(
-            f"Neither commit status nor check-run was updated for '{args.context}'."
-        )
-        return 1
+        fail(f"Neither commit status nor check-run was updated for '{args.context}'.")
+
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

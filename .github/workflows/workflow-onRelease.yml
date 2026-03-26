@@ -29,12 +29,18 @@ permissions:
     statuses: write
 
 jobs:
+    # noinspection UndefinedAction
+    python-tests:
+        name: Run Python Script Tests
+        uses: ./.github/workflows/reusable-python-tests.yml
+
     # ------------------------------------------------------------------------------------------------------------------
     # Bump version, commit, and tag
     # ------------------------------------------------------------------------------------------------------------------
     bump-version:
         name: Bump Version
         runs-on: ubuntu-latest
+        needs: python-tests
         if: github.ref == 'refs/heads/core'
         outputs:
             new_version: ${{ steps.bump.outputs.version }}

@@ -1,52 +1,51 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pytest
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
 from bump_version import bump, validate_version
 
-def run() -> int:
-    failures = 0
 
-    def check(actual, expected, label):
-        nonlocal failures
-        if actual != expected:
-            failures += 1
-            print(f"FAIL: {label}\n  expected: {expected}\n  actual:   {actual}")
-        else:
-            print(f"PASS: {label}")
+@pytest.mark.parametrize(
+    ("version", "expected"),
+    [
+        ("1.2.3", True),
+        ("1.2.3-preview.1", True),
+        ("1.2", False),
+        ("1.2.3-preview", False),
+        ("v1.2.3", False),
+    ],
+)
+def test_validate_version(version: str, expected: bool) -> None:
+    assert validate_version(version) is expected
 
-    # validate_version tests
-    check(validate_version("1.2.3"), True, "validate stable")
-    check(validate_version("1.2.3-preview.1"), True, "validate preview")
-    check(validate_version("1.2"), False, "reject short version")
-    check(validate_version("1.2.3-preview"), False, "reject missing preview number")
-    check(validate_version("v1.2.3"), False, "reject prefixed version")
 
-    # bump tests for stable versions
-    check(bump("1.2.3", "patch"), "1.2.4", "stable patch bump")
-    check(bump("1.2.3", "minor"), "1.3.0", "stable minor bump")
-    check(bump("1.2.3", "major"), "2.0.0", "stable major bump")
-    check(bump("1.2.3", "preview"), "1.2.3-preview.1", "stable preview bump")
+@pytest.mark.parametrize(
+    ("version", "part", "expected"),
+    [
+        ("1.2.3", "patch", "1.2.4"),
+        ("1.2.3", "minor", "1.3.0"),
+        ("1.2.3", "major", "2.0.0"),
+        ("1.2.3", "preview", "1.2.3-preview.1"),
+        ("1.2.3-preview.5", "patch", "1.2.4-preview.0"),
+        ("1.2.3-preview.5", "minor", "1.3.0-preview.0"),
+        ("1.2.3-preview.5", "major", "2.0.0-preview.0"),
+        ("1.2.3-preview.5", "preview", "1.2.3-preview.6"),
+    ],
+)
+def test_bump(version: str, part: str, expected: str) -> None:
+    # noinspection PyTypeChecker
+    assert bump(version, part) == expected
 
-    # bump tests for preview versions
-    check(bump("1.2.3-preview.5", "patch"), "1.2.4-preview.0", "preview patch bump")
-    check(bump("1.2.3-preview.5", "minor"), "1.3.0-preview.0", "preview minor bump")
-    check(bump("1.2.3-preview.5", "major"), "2.0.0-preview.0", "preview major bump")
-    check(bump("1.2.3-preview.5", "preview"), "1.2.3-preview.6", "preview increment bump")
 
-    # unknown part should raise
-    try:
+def test_bump_unknown_part_raises_value_error() -> None:
+    with pytest.raises(ValueError):
+        # noinspection PyTypeChecker
         bump("1.2.3", "banana")
-        failures += 1
-        print("FAIL: unknown bump part should raise ValueError")
-    except ValueError:
-        print("PASS: unknown bump part raises ValueError")
-
-    if failures:
-        print(f"\n{failures} test(s) failed.")
-        return 1
-
-    print("\nAll tests passed.")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(run())
-

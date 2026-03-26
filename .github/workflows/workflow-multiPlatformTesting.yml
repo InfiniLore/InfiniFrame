@@ -25,8 +25,14 @@ on:
                 default: true
 
 jobs:
+    # noinspection UndefinedAction
+    python-tests:
+        name: Run Python Script Tests
+        uses: ./.github/workflows/reusable-python-tests.yml
+
     # noinspection UndefinedAction, UndefinedParamsPresent
     run:
+        needs: python-tests
         uses: ./.github/workflows/reusable-multiPlatformTesting.yml
         with:
             pr_number: ${{ inputs.pr_number }}
