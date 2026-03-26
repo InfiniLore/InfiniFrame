@@ -18,6 +18,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
 
         permissions:
+            checks: write
             statuses: write
             pull-requests: read
 
@@ -42,6 +43,7 @@ jobs:
                   PR_NUMBER_INPUT: ${{ inputs.pr_number }}
                   PR_NUMBER_EVENT: ${{ github.event.pull_request.number }}
                   SHA_EVENT: ${{ github.event.pull_request.head.sha }}
+                  FORK_EVENT: ${{ github.event.pull_request.head.repo.fork }}
               run: |
                   set -euo pipefail
 
@@ -49,12 +51,14 @@ jobs:
                   WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/workflow-multiPlatformTesting.yml"
                   PR_NUMBER=""
                   SHA=""
+                  IS_FORK=""
 
                   if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
                     PR_NUMBER="${PR_NUMBER_INPUT}"
                   else
                     PR_NUMBER="${PR_NUMBER_EVENT}"
                     SHA="${SHA_EVENT}"
+                    IS_FORK="${FORK_EVENT}"
                   fi
 
                   if [ -z "${PR_NUMBER}" ] || [ "${PR_NUMBER}" = "null" ]; then
@@ -79,6 +83,13 @@ jobs:
                     fi
 
                     SHA="$(jq -r '.head.sha' "$pr_response")"
+                    HEAD_REPO="$(jq -r '.head.repo.full_name' "$pr_response")"
+                    BASE_REPO_FROM_PR="$(jq -r '.base.repo.full_name' "$pr_response")"
+                    if [ "${HEAD_REPO}" != "${BASE_REPO_FROM_PR}" ]; then
+                      IS_FORK="true"
+                    else
+                      IS_FORK="false"
+                    fi
                     rm -f "$pr_response"
                   fi
 
@@ -87,30 +98,67 @@ jobs:
                     exit 1
                   fi
 
+                  if [ -z "${IS_FORK}" ] || [ "${IS_FORK}" = "null" ]; then
+                    echo "Failed to determine fork status for PR #${PR_NUMBER}."
+                    exit 1
+                  fi
+
+                  echo "PR #${PR_NUMBER} fork=${IS_FORK}. Selecting check type..."
+
                   while read context; do
-                    echo "Setting pending status for $context"
+                    if [ "${IS_FORK}" = "true" ]; then
+                      echo "Creating queued check run for $context (fork PR)"
 
-                    payload=$(jq -nc \
-                      --arg state "pending" \
-                      --arg context "$context" \
-                      --arg description "Waiting for manual trigger via workflow_dispatch." \
-                      --arg target_url "$WORKFLOW_URL" \
-                      '{state: $state, context: $context, description: $description, target_url: $target_url}')
+                      payload=$(jq -nc \
+                        --arg name "$context" \
+                        --arg head_sha "$SHA" \
+                        --arg status "queued" \
+                        --arg details_url "$WORKFLOW_URL" \
+                        --arg title "Awaiting manual trigger" \
+                        --arg summary "Waiting for manual trigger via workflow_dispatch." \
+                        '{name: $name, head_sha: $head_sha, status: $status, details_url: $details_url, output: {title: $title, summary: $summary}}')
 
-                    response_file="$(mktemp)"
-                    http_status=$(curl -sS -o "$response_file" -w "%{http_code}" -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      "${API_BASE}/statuses/${SHA}" \
-                      -d "$payload")
+                      response_file="$(mktemp)"
+                      http_status=$(curl -sS -o "$response_file" -w "%{http_code}" -X POST \
+                        -H "Authorization: Bearer $GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github+json" \
+                        "${API_BASE}/check-runs" \
+                        -d "$payload")
 
-                    if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
-                      echo "Failed to set pending status for '$context' (HTTP ${http_status})."
-                      echo "Response:"
-                      cat "$response_file"
+                      if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
+                        echo "Failed to create queued check run for '$context' (HTTP ${http_status})."
+                        echo "Response:"
+                        cat "$response_file"
+                        rm -f "$response_file"
+                        exit 1
+                      fi
+
                       rm -f "$response_file"
-                      exit 1
-                    fi
+                    else
+                      echo "Setting pending status for $context (same-repo PR)"
 
-                    rm -f "$response_file"
+                      payload=$(jq -nc \
+                        --arg state "pending" \
+                        --arg context "$context" \
+                        --arg description "Waiting for manual trigger via workflow_dispatch." \
+                        --arg target_url "$WORKFLOW_URL" \
+                        '{state: $state, context: $context, description: $description, target_url: $target_url}')
+
+                      response_file="$(mktemp)"
+                      http_status=$(curl -sS -o "$response_file" -w "%{http_code}" -X POST \
+                        -H "Authorization: Bearer $GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github+json" \
+                        "${API_BASE}/statuses/${SHA}" \
+                        -d "$payload")
+
+                      if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
+                        echo "Failed to set pending status for '$context' (HTTP ${http_status})."
+                        echo "Response:"
+                        cat "$response_file"
+                        rm -f "$response_file"
+                        exit 1
+                      fi
+
+                      rm -f "$response_file"
+                    fi
                   done <<< "${{ steps.contexts.outputs.list }}"
