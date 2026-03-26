@@ -26,6 +26,7 @@ jobs:
             WORKFLOW_URL: ${{ inputs.workflow_url }}
         permissions:
             statuses: write
+            checks: write
 
         strategy:
             fail-fast: false
@@ -163,18 +164,17 @@ jobs:
                       $DESCRIPTION = "Windows Playwright tests failed (${{ matrix.framework }})"
                     }
 
-                    $body = @{
-                      state       = $STATUS
-                      context     = "Manual MultiPlatform CI - Windows Playwright (${{ matrix.framework }})"
-                      description = $DESCRIPTION
-                      target_url  = "${env:WORKFLOW_URL}"
-                    } | ConvertTo-Json
+                    $CONTEXT = "Manual MultiPlatform CI - Windows Playwright (${{ matrix.framework }})"
+                    $CONCLUSION = if ($STATUS -eq "success") { "success" } else { "failure" }
 
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
-                      -Method POST `
-                      -Headers @{
-                        "Authorization" = "Bearer $env:GITHUB_TOKEN"
-                        "Accept"        = "application/vnd.github+json"
-                      } `
-                      -Body $body `
-                      -ContentType "application/json"
+                    python .github/scripts/sync_github_checks.py `
+                      --repo "${{ github.repository }}" `
+                      --sha "$env:TARGET_SHA" `
+                      --context "$CONTEXT" `
+                      --state "$STATUS" `
+                      --description "$DESCRIPTION" `
+                      --target-url "$env:WORKFLOW_URL" `
+                      --allow-status-422 `
+                      --complete-check-runs `
+                      --check-conclusion "$CONCLUSION" `
+                      --check-summary "$DESCRIPTION"

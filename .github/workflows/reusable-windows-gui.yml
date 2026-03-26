@@ -36,6 +36,7 @@ jobs:
                         libName: windows
         permissions:
             statuses: write
+            checks: write
 
         steps:
             -   name: Checkout repository
@@ -137,19 +138,17 @@ jobs:
                     }
 
                     $CONTEXT = "Manual MultiPlatform CI - Windows/${{ matrix.arch }}"
+                    $CONCLUSION = if ($STATUS -eq "success") { "success" } else { "failure" }
 
-                    $body = @{
-                      state       = $STATUS
-                      context     = $CONTEXT
-                      description = $DESCRIPTION
-                      target_url  = "${env:WORKFLOW_URL}"
-                    } | ConvertTo-Json
-
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
-                      -Method POST `
-                      -Headers @{
-                        "Authorization" = "Bearer $env:GITHUB_TOKEN"
-                        "Accept"        = "application/vnd.github+json"
-                      } `
-                      -Body $body `
-                      -ContentType "application/json"
+                    python .github/scripts/sync_github_checks.py `
+                      --repo "${{ github.repository }}" `
+                      --sha "$env:TARGET_SHA" `
+                      --context "$CONTEXT" `
+                      --state "$STATUS" `
+                      --description "$DESCRIPTION" `
+                      --target-url "$env:WORKFLOW_URL" `
+                      --allow-status-422 `
+                      --complete-check-runs `
+                      --check-conclusion "$CONCLUSION" `
+                      --check-summary "$DESCRIPTION" `
+                      --require-update

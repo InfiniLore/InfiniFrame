@@ -28,8 +28,9 @@
     <File Path=".github/workflows/reusable-windows-playwright.yml" />
   </Folder>
   <Folder Name="/.dev-tools/py/">
-    <File Path="dev/test_bump_version.py" />
-    <File Path="dev\bump_version.py" />
+    <File Path=".github/scripts/test_bump_version.py" />
+    <File Path=".github/scripts/bump_version.py" />
+    <File Path=".github/scripts/sync_github_checks.py" />
   </Folder>
   <Folder Name="/.dev-tools/web/">
     <File Path="package.json" />

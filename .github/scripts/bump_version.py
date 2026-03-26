@@ -4,9 +4,9 @@ import re
 import xml.etree.ElementTree as Et
 from pathlib import Path
 
-# Adjust the path to be relative from the dev directory
-FILE = Path(__file__).parent.parent / "src" / "Directory.Build.props"
-CMAKE_FILE = Path(__file__).parent.parent / "src" / "InfiniFrame.Native" / "CMakeLists.txt"
+# Resolve paths from repository root: .github/scripts -> repo root is three levels up
+FILE = Path(__file__).parent.parent.parent / "src" / "Directory.Build.props"
+CMAKE_FILE = Path(__file__).parent.parent.parent / "src" / "InfiniFrame.Native" / "CMakeLists.txt"
 
 def validate_version(version: str) -> bool:
     """
@@ -113,7 +113,7 @@ def main():
 
     update_cmake_version(CMAKE_FILE, new_version)
 
-    print(f"Bumped version: {old_version} → {new_version}")
+    print(f"Bumped version: {old_version} -> {new_version}")
     print(new_version)  # Output for GitHub Actions to capture
 
 if __name__ == "__main__":

@@ -60,15 +60,14 @@ jobs:
             -   name: Bump version
                 id: bump
                 run: |
-                    cd dev
                     if [ "${{ inputs.version_bump }}" == "custom" ]; then
                         if [ -z "${{ inputs.custom_version }}" ]; then
                             echo "Error: custom_version is required when version_bump is 'custom'"
                             exit 1
                         fi
-                        VERSION=$(python bump_version.py custom "${{ inputs.custom_version }}" | tail -n 1)
+                        VERSION=$(python .github/scripts/bump_version.py custom "${{ inputs.custom_version }}" | tail -n 1)
                     else
-                        VERSION=$(python bump_version.py ${{ inputs.version_bump }} | tail -n 1)
+                        VERSION=$(python .github/scripts/bump_version.py ${{ inputs.version_bump }} | tail -n 1)
                     fi
                     TAG="v${VERSION}"
 
