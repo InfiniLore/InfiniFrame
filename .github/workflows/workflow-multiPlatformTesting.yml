@@ -27,7 +27,7 @@ on:
 jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent
     run:
-        uses: ./.github/workflows/lib/reusable-multiPlatformTesting.yml
+        uses: ./.github/workflows/reusable-multiPlatformTesting.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             run_windows: ${{ inputs.run_windows }}
