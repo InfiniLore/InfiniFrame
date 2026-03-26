@@ -67,7 +67,7 @@ jobs:
                     restore-keys: |
                         ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
 
-            -   name: Cache and install desktop environment
+            -   name: Install desktop environment packages
                 uses: awalsh128/cache-apt-pkgs-action@latest
                 with:
                     packages: >
