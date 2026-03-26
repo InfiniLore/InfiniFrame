@@ -93,7 +93,7 @@ jobs:
     linux-gui:
         if: ${{ inputs.run_linux == true }}
         needs: [prepare, mark-pending]
-        uses: ./.github/workflows/reusable-linux-gui.yml
+        uses: ./.github/workflows/lib/reusable-linux-gui.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             target_sha: ${{ needs.prepare.outputs.sha }}
@@ -104,7 +104,7 @@ jobs:
     windows-gui:
         if: ${{ inputs.run_windows == true }}
         needs: [prepare, mark-pending]
-        uses: ./.github/workflows/reusable-windows-gui.yml
+        uses: ./.github/workflows/lib/reusable-windows-gui.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             target_sha: ${{ needs.prepare.outputs.sha }}
@@ -115,7 +115,7 @@ jobs:
     windows-playwright:
         if: ${{ inputs.run_windows_playwright == true }}
         needs: [prepare, mark-pending]
-        uses: ./.github/workflows/reusable-windows-playwright.yml
+        uses: ./.github/workflows/lib/reusable-windows-playwright.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             target_sha: ${{ needs.prepare.outputs.sha }}
@@ -126,7 +126,7 @@ jobs:
     macos-gui:
         if: ${{ inputs.run_macos == true }}
         needs: [prepare, mark-pending]
-        uses: ./.github/workflows/reusable-macos-gui.yml
+        uses: ./.github/workflows/lib/reusable-macos-gui.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             target_sha: ${{ needs.prepare.outputs.sha }}

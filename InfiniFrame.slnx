@@ -12,18 +12,20 @@
     <File Path="InfiniFrame.GitHubActions.Windows.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
-    <File Path=".github\workflows\workflow-todo.yml" />
     <File Path=".github/dependabot.yml" />
-    <File Path=".github\workflows\workflow-pendingCheck.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/workflows/">
     <File Path=".github/workflows/workflow-multiPlatformTesting.yml" />
     <File Path=".github\workflows\workflow-onRelease.yml" />
+    <File Path=".github\workflows\workflow-pendingCheck.yml" />
+    <File Path=".github\workflows\workflow-todo.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/reusables/">
-    <File Path=".github/workflows/reusable-linux-gui.yml" />
-    <File Path=".github/workflows/reusable-macos-gui.yml" />
-    <File Path=".github/workflows/reusable-windows-gui.yml" />
-    <File Path=".github/workflows/reusable-windows-playwright.yml" />
-    <File Path=".github\workflows\reusable-multiPlatformTesting.yml" />
+  <Folder Name="/.dev-tools/github/workflows/lib/">
+    <File Path=".github/workflows/lib/reusable-linux-gui.yml" />
+    <File Path=".github/workflows/lib/reusable-macos-gui.yml" />
+    <File Path=".github/workflows/lib/reusable-multiPlatformTesting.yml" />
+    <File Path=".github/workflows/lib/reusable-windows-gui.yml" />
+    <File Path=".github/workflows/lib/reusable-windows-playwright.yml" />
   </Folder>
   <Folder Name="/.dev-tools/py/">
     <File Path="dev/test_bump_version.py" />

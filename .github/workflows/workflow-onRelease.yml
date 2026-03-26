@@ -91,7 +91,7 @@ jobs:
     run-tests:
         name: Run Multi-Platform Tests
         needs: bump-version
-        uses: ./.github/workflows/reusable-multiPlatformTesting.yml
+        uses: ./.github/workflows/lib/reusable-multiPlatformTesting.yml
         with:
             pr_number: ''
             run_windows: true

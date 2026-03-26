@@ -71,6 +71,7 @@ jobs:
                 uses: awalsh128/cache-apt-pkgs-action@latest
                 with:
                     packages: >
+                        pkg-config
                         gnome-shell
                         gnome-session
                         gnome-settings-daemon

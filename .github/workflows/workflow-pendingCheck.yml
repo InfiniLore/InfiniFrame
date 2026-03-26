@@ -1,20 +1,26 @@
-﻿name: "Workflow: Pending Checks"
+name: "Workflow: Pending Checks"
 
 on:
     pull_request_target:
         types: [opened, synchronize, reopened, ready_for_review]
+    workflow_dispatch:
+        inputs:
+            pr_number:
+                description: "Pull request number to mark with pending checks"
+                required: true
+                type: number
 
 jobs:
     mark-pending:
         name: Mark PR as Pending
         runs-on: ubuntu-latest
-        
-        if: github.event.pull_request.draft == false
-        
+
+        if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
+
         permissions:
-            statuses: write
+            checks: write
             pull-requests: read
-        
+
         steps:
             - name: Define contexts
               id: contexts
@@ -28,60 +34,80 @@ jobs:
                   echo "Manual MultiPlatform CI - macOS/arm64" >> $GITHUB_OUTPUT
                   echo "EOF" >> $GITHUB_OUTPUT
 
-            - name: Set pending statuses
-              if: github.event.pull_request.head.repo.fork == false
+            - name: Set pending checks
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  SHA: ${{ github.event.pull_request.head.sha }}
-                  PR_NUMBER: ${{ github.event.pull_request.number }}
-                  HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+                  BASE_REPO: ${{ github.repository }}
+                  EVENT_NAME: ${{ github.event_name }}
+                  PR_NUMBER_INPUT: ${{ inputs.pr_number }}
+                  PR_NUMBER_EVENT: ${{ github.event.pull_request.number }}
+                  SHA_EVENT: ${{ github.event.pull_request.head.sha }}
               run: |
                   set -euo pipefail
 
-                  API_BASE="https://api.github.com/repos/${HEAD_REPO}"
+                  API_BASE="https://api.github.com/repos/${BASE_REPO}"
                   WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/workflow-multiPlatformTesting.yml"
+                  PR_NUMBER=""
+                  SHA=""
+
+                  if [ "${EVENT_NAME}" = "workflow_dispatch" ]; then
+                    PR_NUMBER="${PR_NUMBER_INPUT}"
+                  else
+                    PR_NUMBER="${PR_NUMBER_EVENT}"
+                    SHA="${SHA_EVENT}"
+                  fi
+
+                  if [ -z "${PR_NUMBER}" ] || [ "${PR_NUMBER}" = "null" ]; then
+                    echo "Invalid PR number: '${PR_NUMBER}'"
+                    exit 1
+                  fi
 
                   if [ -z "${SHA}" ] || [ "${SHA}" = "null" ]; then
-                    echo "Invalid PR head SHA: '${SHA}'"
-                    exit 1
+                    echo "Resolving head SHA for PR #${PR_NUMBER}..."
+                    pr_response="$(mktemp)"
+                    pr_status=$(curl -sS -o "$pr_response" -w "%{http_code}" \
+                      -H "Authorization: Bearer $GITHUB_TOKEN" \
+                      -H "Accept: application/vnd.github+json" \
+                      "${API_BASE}/pulls/${PR_NUMBER}")
+
+                    if [ "$pr_status" -lt 200 ] || [ "$pr_status" -ge 300 ]; then
+                      echo "Failed to fetch PR #${PR_NUMBER} (HTTP ${pr_status})."
+                      echo "Response:"
+                      cat "$pr_response"
+                      rm -f "$pr_response"
+                      exit 1
+                    fi
+
+                    SHA="$(jq -r '.head.sha' "$pr_response")"
+                    rm -f "$pr_response"
                   fi
 
-                  echo "Validating SHA exists in PR head repository context..."
-                  commit_response="$(mktemp)"
-                  commit_status=$(curl -sS -o "$commit_response" -w "%{http_code}" \
-                    -H "Authorization: Bearer $GITHUB_TOKEN" \
-                    -H "Accept: application/vnd.github+json" \
-                    "${API_BASE}/commits/${SHA}")
-
-                  if [ "$commit_status" -lt 200 ] || [ "$commit_status" -ge 300 ]; then
-                    echo "Commit lookup failed for SHA ${SHA} on PR #${PR_NUMBER} (HTTP ${commit_status})."
-                    echo "Response:"
-                    cat "$commit_response"
-                    rm -f "$commit_response"
+                  if [ -z "${SHA}" ] || [ "${SHA}" = "null" ]; then
+                    echo "Invalid PR head SHA after resolution: '${SHA}'"
                     exit 1
                   fi
-
-                  rm -f "$commit_response"
 
                   while read context; do
-                    echo "Setting pending for $context"
+                    echo "Creating queued check run for $context"
 
                     payload=$(jq -nc \
-                      --arg state "pending" \
-                      --arg context "$context" \
-                      --arg description "Waiting for manual trigger via workflow_dispatch." \
-                      --arg target_url "$WORKFLOW_URL" \
-                      '{state: $state, context: $context, description: $description, target_url: $target_url}')
+                      --arg name "$context" \
+                      --arg head_sha "$SHA" \
+                      --arg status "queued" \
+                      --arg details_url "$WORKFLOW_URL" \
+                      --arg title "Awaiting manual trigger" \
+                      --arg summary "Waiting for manual trigger via workflow_dispatch." \
+                      '{name: $name, head_sha: $head_sha, status: $status, details_url: $details_url, output: {title: $title, summary: $summary}}')
 
                     response_file="$(mktemp)"
                     http_status=$(curl -sS -o "$response_file" -w "%{http_code}" -X POST \
                       -H "Authorization: Bearer $GITHUB_TOKEN" \
                       -H "Accept: application/vnd.github+json" \
-                      "${API_BASE}/statuses/${SHA}" \
+                      "${API_BASE}/check-runs" \
                       -d "$payload")
 
                     if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
-                      echo "Failed to set pending status for '$context' (HTTP ${http_status})."
+                      echo "Failed to create queued check run for '$context' (HTTP ${http_status})."
                       echo "Response:"
                       cat "$response_file"
                       rm -f "$response_file"
@@ -90,9 +116,3 @@ jobs:
 
                     rm -f "$response_file"
                   done <<< "${{ steps.contexts.outputs.list }}"
-
-            - name: Skip fork PRs
-              if: github.event.pull_request.head.repo.fork == true
-              run: |
-                  echo "Skipping pending status updates for fork PR #${{ github.event.pull_request.number }}."
-                  echo "GITHUB_TOKEN in pull_request_target does not have commit status write access on fork repositories."
