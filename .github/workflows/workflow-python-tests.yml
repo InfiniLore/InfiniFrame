@@ -20,4 +20,5 @@ on:
 jobs:
     # noinspection UndefinedAction
     run:
+        name: Run Python Script Tests
         uses: ./.github/workflows/reusable-python-tests.yml

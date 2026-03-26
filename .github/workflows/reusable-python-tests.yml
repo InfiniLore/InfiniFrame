@@ -5,7 +5,7 @@ on:
 
 jobs:
     python-tests:
-        name: Python Script Tests
+        name: Run Python Script Tests
         runs-on: ubuntu-latest
 
         steps:

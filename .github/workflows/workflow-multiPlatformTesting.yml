@@ -32,6 +32,7 @@ jobs:
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     run:
+        name: Run MultiPlatform Tests
         needs: python-tests
         uses: ./.github/workflows/reusable-multiPlatformTesting.yml
         with:
