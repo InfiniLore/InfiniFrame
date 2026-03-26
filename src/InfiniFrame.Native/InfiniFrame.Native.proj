@@ -53,7 +53,7 @@
         <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel" />
 
         <!-- Linux -->
-        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)" />
+        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S ." />
         <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel" />
 
         <!-- macOS -->
