@@ -724,6 +724,56 @@ extern "C"
 	}
 
 	/**
+	 * @brief Set closing callback
+	 * @param instance InfiniFrame instance
+	 * @param callback Closing callback
+	 */
+	EXPORTED void InfiniFrame_SetClosingCallback(InfiniFrameWindow *instance, const ClosingCallback callback)
+	{
+		instance->SetClosingCallback(callback);
+	}
+
+	/**
+	 * @brief Set focus-in callback
+	 * @param instance InfiniFrame instance
+	 * @param callback Focus-in callback
+	 */
+	EXPORTED void InfiniFrame_SetFocusInCallback(InfiniFrameWindow *instance, const FocusInCallback callback)
+	{
+		instance->SetFocusInCallback(callback);
+	}
+
+	/**
+	 * @brief Set focus-out callback
+	 * @param instance InfiniFrame instance
+	 * @param callback Focus-out callback
+	 */
+	EXPORTED void InfiniFrame_SetFocusOutCallback(InfiniFrameWindow *instance, const FocusOutCallback callback)
+	{
+		instance->SetFocusOutCallback(callback);
+	}
+
+	/**
+	 * @brief Set moved callback
+	 * @param instance InfiniFrame instance
+	 * @param callback Moved callback
+	 */
+	EXPORTED void InfiniFrame_SetMovedCallback(InfiniFrameWindow *instance, const MovedCallback callback)
+	{
+		instance->SetMovedCallback(callback);
+	}
+
+	/**
+	 * @brief Set resized callback
+	 * @param instance InfiniFrame instance
+	 * @param callback Resized callback
+	 */
+	EXPORTED void InfiniFrame_SetResizedCallback(InfiniFrameWindow *instance, const ResizedCallback callback)
+	{
+		instance->SetResizedCallback(callback);
+	}
+
+	/**
 	 * @brief Invoke callback on UI thread
 	 * @param instance InfiniFrame instance
 	 * @param callback Callback to invoke
