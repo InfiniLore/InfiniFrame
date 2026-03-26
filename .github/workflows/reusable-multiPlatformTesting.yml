@@ -7,6 +7,11 @@ on:
                 description: 'PR number to test. Leave empty to test the current trigger commit (github.sha).'
                 type: string
                 required: true
+            checkout_ref:
+                description: 'Explicit git ref to checkout in downstream test jobs.'
+                type: string
+                required: false
+                default: ''
             run_windows:
                 description: 'Run Windows GUI tests'
                 type: boolean
@@ -66,26 +71,32 @@ jobs:
         env:
             TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v6
+
             -   name: Set pending status for all arch/platforms
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
+                    set -euo pipefail
                     echo "Posting pending statuses for all Manual MultiPlatform CI contexts"
 
                     OS_LIST=("Linux" "Windows" "macOS")
                     ARCHES=("x64" "arm64")
-
                     for OS in "${OS_LIST[@]}"; do
                       for ARCH in "${ARCHES[@]}"; do
                         CONTEXT="Manual MultiPlatform CI - ${OS}/${ARCH}"
                         DESCRIPTION="${OS}/${ARCH} tests"
                         echo "Setting pending: $CONTEXT"
 
-                        curl -X POST \
-                          -H "Authorization: Bearer $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github+json" \
-                          "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" \
-                          -d "{\"state\":\"pending\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
+                        python .github/scripts/sync_github_checks.py \
+                          --repo "${{ github.repository }}" \
+                          --sha "$TARGET_SHA" \
+                          --context "$CONTEXT" \
+                          --state pending \
+                          --description "$DESCRIPTION" \
+                          --target-url "$WORKFLOW_URL" \
+                          --allow-status-422
                       done
                     done
 
@@ -96,6 +107,7 @@ jobs:
         uses: ./.github/workflows/reusable-linux-gui.yml
         with:
             pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
@@ -107,6 +119,7 @@ jobs:
         uses: ./.github/workflows/reusable-windows-gui.yml
         with:
             pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
@@ -118,6 +131,7 @@ jobs:
         uses: ./.github/workflows/reusable-windows-playwright.yml
         with:
             pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
@@ -129,6 +143,7 @@ jobs:
         uses: ./.github/workflows/reusable-macos-gui.yml
         with:
             pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
@@ -145,13 +160,18 @@ jobs:
             - macos-gui
         permissions:
             statuses: write
+            checks: write
         env:
             TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v6
+
             -   name: Mark skipped platform statuses
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
+                    set -euo pipefail
                     declare -A OS_INPUT_MAP=(
                       ["Linux"]="${{ inputs.run_linux }}"
                       ["Windows"]="${{ inputs.run_windows }}"
@@ -166,11 +186,18 @@ jobs:
                           CONTEXT="Manual MultiPlatform CI - ${OS}/${ARCH}"
                           echo "Marking $CONTEXT as skipped"
 
-                          curl -X POST \
-                            -H "Authorization: Bearer $GITHUB_TOKEN" \
-                            -H "Accept: application/vnd.github+json" \
-                            "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" \
-                            -d "{\"state\":\"success\",\"context\":\"$CONTEXT\",\"description\":\"skipped\",\"target_url\":\"$WORKFLOW_URL\"}"
+                          python .github/scripts/sync_github_checks.py \
+                            --repo "${{ github.repository }}" \
+                            --sha "$TARGET_SHA" \
+                            --context "$CONTEXT" \
+                            --state success \
+                            --description "skipped" \
+                            --target-url "$WORKFLOW_URL" \
+                            --allow-status-422 \
+                            --complete-check-runs \
+                            --check-conclusion success \
+                            --check-summary "Skipped because this platform was not selected for this run." \
+                            --require-update
                         done
                       fi
                     done

@@ -1,0 +1,24 @@
+name: "Workflow: Python Script Tests"
+
+on:
+    pull_request:
+        branches:
+            - core
+        paths:
+            - .github/scripts/**
+            - .github/workflows/reusable-python-tests.yml
+            - .github/workflows/workflow-python-tests.yml
+    push:
+        branches:
+            - core
+        paths:
+            - .github/scripts/**
+            - .github/workflows/reusable-python-tests.yml
+            - .github/workflows/workflow-python-tests.yml
+    workflow_dispatch:
+
+jobs:
+    # noinspection UndefinedAction
+    run:
+        name: Run Python Script Tests
+        uses: ./.github/workflows/reusable-python-tests.yml

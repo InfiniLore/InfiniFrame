@@ -6,6 +6,10 @@ on:
             pr_number:
                 type: string
                 required: true
+            checkout_ref:
+                type: string
+                required: false
+                default: ''
             target_sha:
                 type: string
                 required: true
@@ -22,6 +26,7 @@ jobs:
             WORKFLOW_URL: ${{ inputs.workflow_url }}
         permissions:
             statuses: write
+            checks: write
 
         strategy:
             fail-fast: false
@@ -32,7 +37,7 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v6
                 with:
-                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
             -   name: Setup .NET SDK
@@ -159,18 +164,17 @@ jobs:
                       $DESCRIPTION = "Windows Playwright tests failed (${{ matrix.framework }})"
                     }
 
-                    $body = @{
-                      state       = $STATUS
-                      context     = "Manual MultiPlatform CI - Windows Playwright (${{ matrix.framework }})"
-                      description = $DESCRIPTION
-                      target_url  = "${env:WORKFLOW_URL}"
-                    } | ConvertTo-Json
+                    $CONTEXT = "Manual MultiPlatform CI - Windows Playwright (${{ matrix.framework }})"
+                    $CONCLUSION = if ($STATUS -eq "success") { "success" } else { "failure" }
 
-                    Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/statuses/$env:TARGET_SHA" `
-                      -Method POST `
-                      -Headers @{
-                        "Authorization" = "Bearer $env:GITHUB_TOKEN"
-                        "Accept"        = "application/vnd.github+json"
-                      } `
-                      -Body $body `
-                      -ContentType "application/json"
+                    python .github/scripts/sync_github_checks.py `
+                      --repo "${{ github.repository }}" `
+                      --sha "$env:TARGET_SHA" `
+                      --context "$CONTEXT" `
+                      --state "$STATUS" `
+                      --description "$DESCRIPTION" `
+                      --target-url "$env:WORKFLOW_URL" `
+                      --allow-status-422 `
+                      --complete-check-runs `
+                      --check-conclusion "$CONCLUSION" `
+                      --check-summary "$DESCRIPTION"

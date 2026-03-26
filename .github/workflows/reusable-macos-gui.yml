@@ -7,6 +7,10 @@ on:
                 type: string
                 default: ''
                 required: true
+            checkout_ref:
+                type: string
+                default: ''
+                required: false
             target_sha:
                 type: string
                 required: true
@@ -33,12 +37,13 @@ jobs:
                         libName: osx
         permissions:
             statuses: write
+            checks: write
 
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v6
                 with:
-                    ref: ${{ inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref }}
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
             -   name: Setup .NET SDK
@@ -127,15 +132,23 @@ jobs:
                     if [ "${{ job.status }}" == "success" ]; then
                       STATUS="success"
                       DESCRIPTION="macOS tests passed"
+                      CONCLUSION="success"
                     else
                       STATUS="failure"
                       DESCRIPTION="macOS tests failed"
+                      CONCLUSION="failure"
                     fi
 
                     CONTEXT="Manual MultiPlatform CI - macOS/${{ matrix.arch }}"
-
-                    curl -X POST \
-                      -H "Authorization: Bearer $GITHUB_TOKEN" \
-                      -H "Accept: application/vnd.github+json" \
-                      "https://api.github.com/repos/${{ github.repository }}/statuses/$TARGET_SHA" \
-                      -d "{\"state\":\"$STATUS\",\"context\":\"$CONTEXT\",\"description\":\"$DESCRIPTION\",\"target_url\":\"$WORKFLOW_URL\"}"
+                    python .github/scripts/sync_github_checks.py \
+                      --repo "${{ github.repository }}" \
+                      --sha "$TARGET_SHA" \
+                      --context "$CONTEXT" \
+                      --state "$STATUS" \
+                      --description "$DESCRIPTION" \
+                      --target-url "$WORKFLOW_URL" \
+                      --allow-status-422 \
+                      --complete-check-runs \
+                      --check-conclusion "$CONCLUSION" \
+                      --check-summary "$DESCRIPTION" \
+                      --require-update
