@@ -9,8 +9,6 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
-    private IInfiniFrameWindow Sender { get; set; } = null!;
-
     public InfiniFrameOrderedEvent<Point> WindowLocationChanged { get; } = new();
     public InfiniFrameOrderedEvent<Size> WindowSizeChanged { get; } = new();
     public InfiniFrameOrderedEvent WindowFocusIn { get; } = new();
@@ -24,6 +22,7 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     public InfiniFrameOrderedEvent WindowCreating { get; } = new();
     public InfiniFrameOrderedEvent WindowCreated { get; } = new();
 
+    private IInfiniFrameWindow Sender { get; set; } = null!;
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

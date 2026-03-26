@@ -61,6 +61,8 @@ jobs:
                 with:
                     path: src\InfiniFrame.Native\build
                     key: ${{ runner.os }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+                    restore-keys: |
+                        ${{ runner.os }}-cmake-v2-
 
             -   name: Cache WebView2 installer
                 id: cache-webview2

@@ -14,11 +14,11 @@ public static partial class InfiniFrameNative {
     #region Register
     // ReSharper disable once UnusedMethodReturnValue.Local
     [LibraryImport(DllName, EntryPoint = InfiniFrame_register_win32, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial IntPtr RegisterWin32(IntPtr hInstance);
+    internal static partial void RegisterWin32(IntPtr hInstance);
 
     // ReSharper disable once UnusedMethodReturnValue.Local
     [LibraryImport(DllName, EntryPoint = InfiniFrame_register_mac, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial IntPtr RegisterMac();
+    internal static partial void RegisterMac();
     #endregion
 
     #region CTOR-DTOR
@@ -118,11 +118,11 @@ public static partial class InfiniFrameNative {
     [LibraryImport(DllName, EntryPoint = InfiniFrame_GetZoomEnabled, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void GetZoomEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool zoomEnabled);
 
-    [LibraryImport(DllName, EntryPoint = InfiniFrame_GetIconFileName, SetLastError = true, StringMarshalling = StringMarshalling.Utf16), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    [LibraryImport(DllName, EntryPoint = InfiniFrame_GetIconFileName, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial IntPtr GetIconFileName(IntPtr instance);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_GetFocused, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial void GetFocused(IntPtr instance, [MarshalAs(UnmanagedType.Bool)] out bool isFocused);
+    internal static partial void GetFocused(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool isFocused);
     #endregion
 
     #region MARSHAL CALLS FROM Non-UI Thread to UI Thread
@@ -153,10 +153,6 @@ public static partial class InfiniFrameNative {
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_SetFullScreen, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void SetFullScreen(IntPtr instance, [MarshalAs(UnmanagedType.I1)] bool fullScreen);
-
-    // ReSharper disable once UnusedMember.Local
-    [LibraryImport(DllName, EntryPoint = InfiniFrame_SetGrantBrowserPermissions, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial void SetGrantBrowserPermissions(IntPtr instance, [MarshalAs(UnmanagedType.I1)] bool grant);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_SetMaximized, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void SetMaximized(IntPtr instance, [MarshalAs(UnmanagedType.I1)] bool maximized);
@@ -202,15 +198,14 @@ public static partial class InfiniFrameNative {
     [LibraryImport(DllName, EntryPoint = InfiniFrame_Center, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void Center(IntPtr instance);
 
+    [LibraryImport(DllName, EntryPoint = InfiniFrame_Restore, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void Restore(IntPtr instance);
+
     [LibraryImport(DllName, EntryPoint = InfiniFrame_ClearBrowserAutoFill, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void ClearBrowserAutoFill(IntPtr instance);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_SendWebMessage, SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void SendWebMessage(IntPtr instance, string message);
-
-    // ReSharper disable once UnusedMember.Local
-    [LibraryImport(DllName, EntryPoint = InfiniFrame_ShowMessage, SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial void ShowMessage(IntPtr instance, string title, string body, uint type);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_ShowNotification, SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void ShowNotification(IntPtr instance, string title, string body);
@@ -227,7 +222,7 @@ public static partial class InfiniFrameNative {
     internal static partial IntPtr ShowOpenFolder(IntPtr inst, string title, string defaultPath, [MarshalAs(UnmanagedType.I1)] bool multiSelect, out int resultCount);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_ShowSaveFile, SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial IntPtr ShowSaveFile(IntPtr inst, string title, string defaultPath, string[] filters, int filtersCount);
+    internal static partial IntPtr ShowSaveFile(IntPtr inst, string title, string defaultPath, string[] filters, int filtersCount, string? defaultFileName);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_ShowMessage, SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameDialogResult ShowMessage(IntPtr inst, string title, string text, InfiniFrameDialogButtons buttons, InfiniFrameDialogIcon icon);
@@ -240,6 +235,14 @@ public static partial class InfiniFrameNative {
     #endregion
 
     #region Overloads
+    internal static string? PtrToNativeString(IntPtr ptr) {
+        if (ptr == IntPtr.Zero) return null;
+
+        return OperatingSystem.IsWindows()
+            ? Marshal.PtrToStringUni(ptr)
+            : Marshal.PtrToStringUTF8(ptr);
+    }
+
     internal static void GetHeight(IntPtr instance, out int height) => GetSize(instance, out _, out height);
     internal static void GetWidth(IntPtr instance, out int width) => GetSize(instance, out width, out _);
 
@@ -268,17 +271,17 @@ public static partial class InfiniFrameNative {
 
     internal static void GetUserAgent(IntPtr instance, out string? userAgent) {
         IntPtr ptr = GetUserAgent(instance);
-        userAgent = Marshal.PtrToStringAuto(ptr);
+        userAgent = PtrToNativeString(ptr);
     }
 
     internal static void GetTitle(IntPtr instance, out string title) {
         IntPtr ptr = GetTitle(instance);
-        title = Marshal.PtrToStringAuto(ptr) ?? string.Empty;// The way on how infiniFrame works internally is that the title is always an empty string when we set it to null on our end.
+        title = PtrToNativeString(ptr) ?? string.Empty;// The way on how infiniFrame works internally is that the title is always an empty string when we set it to null on our end.
     }
 
     internal static void GetIconFileName(IntPtr instance, out string iconFileName) {
         IntPtr ptr = GetIconFileName(instance);
-        iconFileName = Marshal.PtrToStringAuto(ptr) ?? string.Empty;
+        iconFileName = PtrToNativeString(ptr) ?? string.Empty;
     }
     #endregion
 }

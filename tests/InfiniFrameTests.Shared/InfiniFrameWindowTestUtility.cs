@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using JetBrains.Annotations;
+using System.Runtime.Versioning;
 
 namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -44,32 +45,67 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder.SetStartString(StartString);
-
         builder?.Invoke(windowBuilder);
 
-        IInfiniFrameWindow window = windowBuilder.Build();
+        // Windows: WebView2 requires STA thread for COM initialization
+        // Linux: GTK implicitly treats the calling thread as the main UI thread
+        // macOS: Similar to Linux, but with additional main-thread restrictions for menu operations
+        if (OperatingSystem.IsWindows()) {
+            return CreateOnStaThread(windowBuilder);
+        }
+        else {
+            // On Linux/macOS, create the window in the current thread to ensure proper GTK initialization
+            IInfiniFrameWindow window = windowBuilder.Build();
 
-        var utility = new InfiniFrameWindowTestUtility {
-            Window = window
-        };
+            var utility = new InfiniFrameWindowTestUtility {
+                Window = window
+            };
+
+            var thread = new Thread(() => {
+                try {
+                    window.WaitForClose();
+                }
+                catch {
+                    // Ignore shutdown exceptions during test cleanup
+                }
+            }) {
+                IsBackground = true
+            };
+
+            utility._windowThread = thread;
+            thread.Start();
+
+            return utility;
+        }
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static InfiniFrameWindowTestUtility CreateOnStaThread(
+        InfiniFrameWindowBuilder windowBuilder
+    ) {
+        var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var thread = new Thread(() => {
             try {
+                IInfiniFrameWindow window = windowBuilder.Build();
+                windowSource.SetResult(window);
                 window.WaitForClose();
             }
-            catch {
-                // Ignore shutdown exceptions during test cleanup.
+            catch (Exception ex) {
+                windowSource.TrySetException(ex);
             }
         }) {
-            IsBackground = true
+            IsBackground = true,
+            Name = "InfiniFrame Test Window Thread"
         };
-
-        if (OperatingSystem.IsWindows())
-            thread.SetApartmentState(ApartmentState.STA);
-
-        utility._windowThread = thread;
+        thread.SetApartmentState(ApartmentState.STA);
 
         thread.Start();
+
+        var utility = new InfiniFrameWindowTestUtility {
+            Window = windowSource.Task.GetAwaiter().GetResult(),
+            _windowThread = thread
+        };
 
         return utility;
     }

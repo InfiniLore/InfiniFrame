@@ -31,7 +31,14 @@
     <ItemGroup>
         <!-- Include all project files for VS Solution Explorer -->
         <None Include="CMakeLists.txt" />
-        <None Include="**/*.*" Exclude="CMakeLists.txt;" />
+        <None Include="**/*.*" Exclude="CMakeLists.txt;"/>
+        
+        <None Remove="artifacts\**\*" />
+        <None Remove="build\**\*" />
+        <None Remove="cmake-build-debug-linux\**\*" />
+        <None Remove="cmake-build-debug-windows\**\*" />
+        <None Remove="cmake-build-debug\**\*" />
+        <None Remove="packages\**\*" />
     </ItemGroup>
 
     <!-- Build target -->
@@ -43,15 +50,15 @@
 
         <!-- Windows -->
         <Exec Condition="$(IsWindows)" Command="cmake -B $(CMakeBuildDir) -S . -A $(CMakeArch)" />
-        <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
-        
+        <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel" />
+
         <!-- Linux -->
         <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)" />
-        <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
+        <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel" />
 
         <!-- macOS -->
         <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S ." />
-        <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration)" />
+        <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel" />
 
         <!-- Copy native binaries -->
         <MakeDir Directories="$(NativeOutputDir)" />

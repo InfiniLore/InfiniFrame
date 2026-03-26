@@ -8,15 +8,14 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandlers {
-    private ConcurrentDictionary<string, Action<IInfiniFrameWindow, string?>> Handlers { get; } = new();
     public bool IsEmpty => Handlers.IsEmpty;
 
+    private ConcurrentDictionary<string, Action<IInfiniFrameWindow, string?>> Handlers { get; } = new();
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public void RegisterMessageHandler(string messageId, Action<IInfiniFrameWindow, string?> handler) {
-        if (!Handlers.TryAdd(messageId, handler))
-            throw new ArgumentException($"A handler for message '{messageId}' is already registered.", nameof(messageId));
+        Handlers.AddOrUpdate(messageId, handler, (_, _) => handler);
     }
 
     public void Handle(IInfiniFrameWindow window, string message) {

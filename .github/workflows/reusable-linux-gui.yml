@@ -64,6 +64,8 @@ jobs:
                     path: |
                         src/InfiniFrame.Native/build
                     key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
 
             -   name: Cache and install desktop environment
                 uses: awalsh128/cache-apt-pkgs-action@latest
@@ -93,6 +95,9 @@ jobs:
                         fonts-liberation
                         xfonts-base
                     version: 1.0
+
+            -   name: Compile GSettings schemas
+                run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 
             -   name: Restore dependencies
                 run: dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503

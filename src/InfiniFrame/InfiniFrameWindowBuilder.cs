@@ -20,8 +20,14 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     private InfiniFrameWindowBuilder() {}
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
     public static InfiniFrameWindowBuilder Create() => new();
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameNativeParameters GetParameters(IServiceProvider? provider = null) {
         if (provider is null) return Configuration.ToParameters();
 
