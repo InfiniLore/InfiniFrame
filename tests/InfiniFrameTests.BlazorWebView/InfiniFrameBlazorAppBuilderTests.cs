@@ -22,7 +22,6 @@ public class InfiniFrameBlazorAppBuilderTests {
         // Act
         var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, builder => {
             builder.SetBrowserControlInitParameters(initParameters);
-            
         });
         
         // Assert
