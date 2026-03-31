@@ -20,8 +20,8 @@ Package: `InfiniLore.InfiniFrame`
   - [Notifications](#notifications)
   - [Custom Schemes](#custom-schemes)
   - [Runtime Setters](#runtime-setters)
-- [IInfiniFrameWindowBuilder](#iinfiframewindowbuilder)
-- [IInfiniFrameWindowMessageHandlers](#iinfiframewindowmessagehandlers)
+- [IInfiniFrameWindowBuilder](#iinfiniframewindowbuilder)
+- [IInfiniFrameWindowMessageHandlers](#iinfiniframewindowmessagehandlers)
 
 ## Properties
 

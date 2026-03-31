@@ -184,6 +184,6 @@ Web server calls from window event handlers can be made directly since ASP.NET C
 
 ## Examples
 
-- [InfiniFrameExample.WebApp.Blazor](../../examples/InfiniFrameExample.WebApp.Blazor/) — Blazor Server with InteractiveServerComponents, HttpClient factory, and InfiniFrameJs
-- [InfiniFrameExample.WebApp.React](../../examples/InfiniFrameExample.WebApp.React/) — React frontend with custom scheme handler and two-way messaging
-- [InfiniFrameExample.WebApp.Vue](../../examples/InfiniFrameExample.WebApp.Vue/) — Vue.js frontend with all built-in JS message handlers
+- `InfiniFrameExample.WebApp.Blazor` (`examples/InfiniFrameExample.WebApp.Blazor`) - Blazor Server with InteractiveServerComponents, HttpClient factory, and InfiniFrameJs
+- `InfiniFrameExample.WebApp.React` (`examples/InfiniFrameExample.WebApp.React`) - React frontend with custom scheme handler and two-way messaging
+- `InfiniFrameExample.WebApp.Vue` (`examples/InfiniFrameExample.WebApp.Vue`) - Vue.js frontend with all built-in JS message handlers

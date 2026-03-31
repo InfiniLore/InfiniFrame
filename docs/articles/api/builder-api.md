@@ -235,4 +235,4 @@ builder
     .RegisterWindowClosingRequestedHandler(window => false)
 ```
 
-For the full event API, see the [Events Reference](Events.md)
+For the full event API, see the [Events Reference](events.md)

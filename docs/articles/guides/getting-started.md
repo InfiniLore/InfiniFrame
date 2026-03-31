@@ -158,7 +158,7 @@ The start URL is automatically read from `ASPNETCORE_URLS` or the `urls` configu
 
 ## Next Steps
 
-- [Core Window Guide](Guides/CoreWindow.md) — Window events, messaging, dialogs, custom schemes
-- [Blazor Guide](Guides/Blazor.md) — DI, file providers, component configuration
-- [Web Server Guide](Guides/WebServer.md) — ASP.NET Core pipeline, DI access, graceful shutdown
-- [Builder API Reference](Reference/BuilderApi.md) — All window configuration options
+- [Core Window Guide](core-window.md) — Window events, messaging, dialogs, custom schemes
+- [Blazor Guide](blazor-webview.md) — DI, file providers, component configuration
+- [Web Server Guide](web-server.md) — ASP.NET Core pipeline, DI access, graceful shutdown
+- [Builder API Reference](../api/builder-api.md) — All window configuration options

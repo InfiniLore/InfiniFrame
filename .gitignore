@@ -353,3 +353,10 @@ healthchecksdb
 /examples/InfiniFrameExample.WebApp.React/wwwroot/
 /examples/InfiniFrameExample.WebApp.Vue/wwwroot/
 /tests/InfiniFrameTests.Playwright/wwwroot/
+
+# DocFX generated outputs
+/docs/_site/
+/docs/api/*.yml
+/docs/api/toc.yml
+/docs/api/.manifest
+!/docs/api/index.md

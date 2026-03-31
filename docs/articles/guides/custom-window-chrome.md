@@ -177,7 +177,7 @@ If you are building your own drag components, you can use `IInfiniFrameJs` direc
 }
 ```
 
-See the [JavaScript Interop Guide](JsInterop.md) for full details
+See the [JavaScript Interop Guide](javascript-interop.md) for full details
 
 ## Styling Tips
 

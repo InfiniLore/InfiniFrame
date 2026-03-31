@@ -213,5 +213,5 @@ builder.Events.WebMessageReceived.Add(raw => {
 
 ## Examples
 
-- [InfiniFrameExample.WebApp.Vue](../../examples/InfiniFrameExample.WebApp.Vue/) — registers all built-in message handlers for window management, fullscreen, title change, and external links
-- [InfiniFrameExample.WebApp.React](../../examples/InfiniFrameExample.WebApp.React/) — custom scheme handler returning dynamic JavaScript, and a two-way messaging round-trip
+- `InfiniFrameExample.WebApp.Vue` (`examples/InfiniFrameExample.WebApp.Vue`) - registers all built-in message handlers for window management, fullscreen, title change, and external links
+- `InfiniFrameExample.WebApp.React` (`examples/InfiniFrameExample.WebApp.React`) - custom scheme handler returning dynamic JavaScript, and a two-way messaging round-trip

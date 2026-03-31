@@ -92,7 +92,7 @@ builder.Build().Run();
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `WindowBuilder` | `IInfiniFrameWindowBuilder` | Fluent window configuration — all options from the [Builder API](../Reference/BuilderApi.md) |
+| `WindowBuilder` | `IInfiniFrameWindowBuilder` | Fluent window configuration — all options from the [Builder API](../api/builder-api.md) |
 | `Services` | `IServiceCollection` | Standard .NET DI container |
 | `RootComponents` | `RootComponentList` | Maps Blazor components to CSS selectors in index.html |
 
@@ -198,9 +198,9 @@ DisposeAsync()  ← Disposes all services
 
 Combine with `InfiniLore.InfiniFrame.Blazor` for a fully custom title bar
 
-See the [Custom Window Chrome Guide](CustomChrome.md) for details
+See the [Custom Window Chrome Guide](custom-window-chrome.md) for details
 
 ## Examples
 
-- [InfiniFrameExample.BlazorWebView](../../examples/InfiniFrameExample.BlazorWebView/) — minimal Blazor app with window configuration and Serilog
-- [InfiniFrameExample.BlazorWebView.MultiWindowSample](../../examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/) — multiple windows each hosting a different Blazor component
+- `InfiniFrameExample.BlazorWebView` (`examples/InfiniFrameExample.BlazorWebView`) - minimal Blazor app with window configuration and Serilog
+- `InfiniFrameExample.BlazorWebView.MultiWindowSample` (`examples/InfiniFrameExample.BlazorWebView.MultiWindowSample`) - multiple windows each hosting a different Blazor component
