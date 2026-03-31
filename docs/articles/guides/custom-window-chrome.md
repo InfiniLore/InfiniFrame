@@ -59,11 +59,11 @@ A button that performs a window action (minimize, maximize, or close):
 <InfiniFrameWindowButton Action="WindowAction.Close" />
 ```
 
-| `WindowAction` | Description |
-|----------------|-------------|
-| `Minimize` | Minimizes the window to the taskbar |
-| `Maximize` | Maximizes or restores the window |
-| `Close` | Closes the window and exits the application |
+| `WindowAction` | Description                                 |
+|----------------|---------------------------------------------|
+| `Minimize`     | Minimizes the window to the taskbar         |
+| `Maximize`     | Maximizes or restores the window            |
+| `Close`        | Closes the window and exits the application |
 
 Each button is styled via its `.razor.css` scoped stylesheet — override the styles in your own CSS by targeting the component's generated class or wrapping it in a styled container
 
@@ -177,7 +177,7 @@ If you are building your own drag components, you can use `IInfiniFrameJs` direc
 }
 ```
 
-See the [JavaScript Interop Guide](JsInterop.md) for full details
+See the [JavaScript Interop Guide](javascript-interop.md) for full details
 
 ## Styling Tips
 

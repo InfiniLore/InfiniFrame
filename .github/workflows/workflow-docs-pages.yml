@@ -1,0 +1,23 @@
+name: "Workflow: Docs to GitHub Pages"
+
+on:
+    push:
+        branches:
+            - core
+        paths:
+            - "docs/**"
+            - "src/**"
+            - ".github/workflows/workflow-docs-pages.yml"
+            - ".github/workflows/reusable-docs-pages.yml"
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+jobs:
+    deploy-docs:
+        name: Build and Deploy Docs
+        uses: ./.github/workflows/reusable-docs-pages.yml
+        secrets: inherit

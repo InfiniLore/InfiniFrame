@@ -1,0 +1,10 @@
+- name: Guides
+  href: articles/guides/
+- name: Concepts
+  href: articles/concepts/
+- name: API
+  href: articles/cpp/
+- name: C# API Reference
+  href: api/index.md
+- name: C++ API Reference
+  href: articles/cpp/native-cpp-reference.md

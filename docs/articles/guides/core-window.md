@@ -234,7 +234,7 @@ builder.Events.WindowClosing.Add((window, cancel) => {
 });
 ```
 
-See the [Events Reference](../Reference/Events.md) for the full event system documentation
+See the generated C# API reference for the full event system documentation
 
 ## Web Messaging
 
@@ -383,5 +383,5 @@ var window = builder.Build(serviceProvider);
 
 ## Examples
 
-- [InfiniFrameExample.WebApp.React](../../examples/InfiniFrameExample.WebApp.React/) — custom URL scheme handler and web messaging with DI-resolved services
-- [InfiniFrameExample.BlazorWebView](../../examples/InfiniFrameExample.BlazorWebView/) — window builder configuration with size, position, and icon
+- `InfiniFrameExample.WebApp.React` (`examples/InfiniFrameExample.WebApp.React`) - custom URL scheme handler and web messaging with DI-resolved services
+- `InfiniFrameExample.BlazorWebView` (`examples/InfiniFrameExample.BlazorWebView`) - window builder configuration with size, position, and icon

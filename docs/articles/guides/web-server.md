@@ -48,10 +48,10 @@ app.Run();
 
 `InfiniFrameWebApplication.CreateBuilder(args)` returns an `InfiniFrameWebApplicationBuilder` with two properties:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `WebApp` | `WebApplicationBuilder` | Standard ASP.NET Core builder — add services, configure Kestrel, etc. |
-| `Window` | `InfiniFrameWindowBuilder` | Fluent window configuration |
+| Property | Type                       | Description                                                           |
+|----------|----------------------------|-----------------------------------------------------------------------|
+| `WebApp` | `WebApplicationBuilder`    | Standard ASP.NET Core builder — add services, configure Kestrel, etc. |
+| `Window` | `InfiniFrameWindowBuilder` | Fluent window configuration                                           |
 
 ### Configuring the window
 
@@ -170,10 +170,10 @@ app.Run();
 
 ## Thread Model
 
-| Thread | Runs |
-|--------|------|
-| Main thread | Native window (UI thread) |
-| Background thread | ASP.NET Core / Kestrel |
+| Thread            | Runs                      |
+|-------------------|---------------------------|
+| Main thread       | Native window (UI thread) |
+| Background thread | ASP.NET Core / Kestrel    |
 
 All window API calls from ASP.NET Core handlers must use `window.Invoke(...)` to marshal to the window thread
 Web server calls from window event handlers can be made directly since ASP.NET Core is thread-safe
@@ -184,6 +184,6 @@ Web server calls from window event handlers can be made directly since ASP.NET C
 
 ## Examples
 
-- [InfiniFrameExample.WebApp.Blazor](../../examples/InfiniFrameExample.WebApp.Blazor/) — Blazor Server with InteractiveServerComponents, HttpClient factory, and InfiniFrameJs
-- [InfiniFrameExample.WebApp.React](../../examples/InfiniFrameExample.WebApp.React/) — React frontend with custom scheme handler and two-way messaging
-- [InfiniFrameExample.WebApp.Vue](../../examples/InfiniFrameExample.WebApp.Vue/) — Vue.js frontend with all built-in JS message handlers
+- `InfiniFrameExample.WebApp.Blazor` (`examples/InfiniFrameExample.WebApp.Blazor`) - Blazor Server with InteractiveServerComponents, HttpClient factory, and InfiniFrameJs
+- `InfiniFrameExample.WebApp.React` (`examples/InfiniFrameExample.WebApp.React`) - React frontend with custom scheme handler and two-way messaging
+- `InfiniFrameExample.WebApp.Vue` (`examples/InfiniFrameExample.WebApp.Vue`) - Vue.js frontend with all built-in JS message handlers

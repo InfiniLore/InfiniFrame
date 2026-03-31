@@ -198,7 +198,7 @@ public static class InfiniWindowExtensions {
 
         /// <summary>
         ///     Moves the native window to the specified location on the screen in pixels
-        ///     using <see cref="IInfiniFrameWindow.Left" /> (X) and <see cref="IInfiniFrameWindow.Top" /> (Y) properties.
+        ///     using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y) properties.
         /// </summary>
         /// <returns>
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
@@ -222,7 +222,7 @@ public static class InfiniWindowExtensions {
         #region Offset
         /// <summary>
         ///     Moves the native window relative to its current location on the screen in pixels
-        ///     using <see cref="IInfiniFrameWindow.Left" /> (X) and <see cref="IInfiniFrameWindow.Top" /> (Y) properties.
+        ///     using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y) properties.
         /// </summary>
         /// <returns>
         ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
@@ -251,7 +251,7 @@ public static class InfiniWindowExtensions {
 
         /// <summary>
         /// Moves the native window relative to its current location on the screen in pixels
-        /// using <see cref="IInfiniFrameWindow.Left" /> (X) and <see cref="IInfiniFrameWindow.Top" /> (Y) properties.
+        /// using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y) properties.
         /// </summary>
         /// <returns>
         /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
@@ -379,7 +379,7 @@ public static class InfiniWindowExtensions {
 
         #region SetHeight
         /// <summary>
-        ///     Sets the native window <see cref="IInfiniFrameWindow.Height" /> in pixels.
+        ///     Sets the native window <see cref="IHasInfiniFrameProperties.Height" /> in pixels.
         ///     Default is 0.
         /// </summary>
         /// <returns>
@@ -431,7 +431,7 @@ public static class InfiniWindowExtensions {
 
         #region SetLeft
         /// <summary>
-        ///     Sets the native window to a new <see cref="IInfiniFrameWindow.Left" /> (X) coordinate in pixels.
+        ///     Sets the native window to a new <see cref="IHasInfiniFrameProperties.Left" /> (X) coordinate in pixels.
         ///     Default is 0.
         /// </summary>
         /// <returns>
@@ -470,8 +470,8 @@ public static class InfiniWindowExtensions {
 
         #region SetSize
         /// <summary>
-        ///     Sets the native window Size. This represents the <see cref="IInfiniFrameWindow.Width" /> and the
-        ///     <see cref="IInfiniFrameWindow.Height" /> of the window in pixels.
+        ///     Sets the native window Size. This represents the <see cref="IHasInfiniFrameProperties.Width" /> and the
+        ///     <see cref="IHasInfiniFrameProperties.Height" /> of the window in pixels.
         ///     The default Size is 0,0.
         /// </summary>
         /// <returns>
@@ -486,8 +486,8 @@ public static class InfiniWindowExtensions {
             return window;
         }
         /// <summary>
-        ///     Sets the native window Size. This represents the <see cref="IInfiniFrameWindow.Width" /> and the
-        ///     <see cref="IInfiniFrameWindow.Height" /> of the window in pixels.
+        ///     Sets the native window Size. This represents the <see cref="IHasInfiniFrameProperties.Width" /> and the
+        ///     <see cref="IHasInfiniFrameProperties.Height" /> of the window in pixels.
         ///     The default Size is 0,0.
         /// </summary>
         /// <returns>
@@ -520,7 +520,7 @@ public static class InfiniWindowExtensions {
         }
 
         /// <summary>
-        ///     Sets the native window <see cref="IInfiniFrameWindow.Left" /> (X) and <see cref="IInfiniFrameWindow.Top" /> coordinates (Y)
+        ///     Sets the native window <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> coordinates (Y)
         ///     in pixels.
         ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
         /// </summary>
@@ -730,7 +730,7 @@ public static class InfiniWindowExtensions {
             => window.SetMinSize(minWidth, window.MinHeight);
 
         /// <summary>
-        ///     Sets the native window <see cref="IInfiniFrameWindow.Title" />.
+        ///     Sets the native window <see cref="IHasInfiniFrameProperties.Title" />.
         ///     Default is "InfiniFrame".
         /// </summary>
         /// <returns>
@@ -753,7 +753,7 @@ public static class InfiniWindowExtensions {
         }
 
         /// <summary>
-        ///     Sets the native window <see cref="IInfiniFrameWindow.Top" /> (Y) coordinate in pixels.
+        ///     Sets the native window <see cref="IHasInfiniFrameProperties.Top" /> (Y) coordinate in pixels.
         ///     Default is 0.
         /// </summary>
         /// <returns>
@@ -806,7 +806,7 @@ public static class InfiniWindowExtensions {
         }
 
         /// <summary>
-        ///     Sets the native browser control <see cref="IInfiniFrameWindow.Zoom" />.
+        ///     Sets the native browser control <see cref="IHasInfiniFrameProperties.Zoom" />.
         ///     Default is 100.
         /// </summary>
         /// <returns>

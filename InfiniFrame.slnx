@@ -2,6 +2,7 @@
   <Folder Name="/.dev-tools/">
     <File Path=".gitignore" />
     <File Path="InfiniFrame.GitHubActions.WindowsPlaywright.slnf" />
+    <File Path="LICENSE" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="global.json" />
@@ -15,6 +16,7 @@
     <File Path=".github/dependabot.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/">
+    <File Path=".github/workflows/workflow-docs-pages.yml" />
     <File Path=".github/workflows/workflow-multiPlatformTesting.yml" />
     <File Path=".github\workflows\workflow-onRelease.yml" />
     <File Path=".github\workflows\workflow-pendingCheck.yml" />
@@ -22,6 +24,7 @@
     <File Path=".github\workflows\workflow-todo.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/reusables/">
+    <File Path=".github/workflows/reusable-docs-pages.yml" />
     <File Path=".github/workflows/reusable-linux-gui.yml" />
     <File Path=".github/workflows/reusable-macos-gui.yml" />
     <File Path=".github/workflows/reusable-multiPlatformTesting.yml" />
@@ -41,21 +44,7 @@
     <File Path="webpack.config.js" />
   </Folder>
   <Folder Name="/docs/">
-    <File Path="docs/BreakingChanges.md" />
-    <File Path="docs/GettingStarted.md" />
-  </Folder>
-  <Folder Name="/docs/Guides/">
-    <File Path="docs/Guides/Blazor.md" />
-    <File Path="docs/Guides/CoreWindow.md" />
-    <File Path="docs/Guides/CustomChrome.md" />
-    <File Path="docs/Guides/JsInterop.md" />
-    <File Path="docs/Guides/WebServer.md" />
-  </Folder>
-  <Folder Name="/docs/Reference/">
-    <File Path="docs/Reference/BuilderApi.md" />
-    <File Path="docs/Reference/Events.md" />
-    <File Path="docs/Reference/Types.md" />
-    <File Path="docs/Reference/WindowApi.md" />
+    <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />
   </Folder>
   <Folder Name="/example/">
     <Project Path="examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/InfiniFrameExample.BlazorWebView.MultiWindowSample.csproj" />
