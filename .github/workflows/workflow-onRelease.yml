@@ -22,6 +22,10 @@ on:
                 description: 'Publish to NuGet after building'
                 type: boolean
                 default: true
+            publish_docs:
+                description: 'Publish documentation to GitHub Pages'
+                type: boolean
+                default: true
 
 permissions:
     contents: write
@@ -435,7 +439,7 @@ jobs:
     publish-docs:
         name: Publish Docs to GitHub Pages
         needs: [release, bump-version]
-        if: inputs.publish_to_nuget
+        if: inputs.publish_docs
         uses: ./.github/workflows/reusable-docs-pages.yml
         with:
             checkout_ref: ${{ needs.bump-version.outputs.tag_name }}

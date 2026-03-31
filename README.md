@@ -129,6 +129,7 @@ Requirements:
 
 - `docfx` (required)
 - `Doxygen` (required for generated C++ API reference)
+- `Node.js`/`npm` (required for `npx moxygen` during C++ API reference generation)
 
 Run:
 
