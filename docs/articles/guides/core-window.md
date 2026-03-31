@@ -234,7 +234,7 @@ builder.Events.WindowClosing.Add((window, cancel) => {
 });
 ```
 
-See the [Events Reference](../api/events.md) for the full event system documentation
+See the generated C# API reference for the full event system documentation
 
 ## Web Messaging
 

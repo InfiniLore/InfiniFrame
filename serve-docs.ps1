@@ -10,5 +10,6 @@ if (-not (Get-Command docfx -ErrorAction SilentlyContinue)) {
 }
 
 docfx metadata $ConfigPath
+& "$PSScriptRoot/docs/scripts/update-cpp-api.ps1" -AutoInstallDoxygen
 docfx build $ConfigPath
 docfx serve $SitePath

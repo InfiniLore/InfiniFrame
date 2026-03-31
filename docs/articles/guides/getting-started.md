@@ -161,4 +161,4 @@ The start URL is automatically read from `ASPNETCORE_URLS` or the `urls` configu
 - [Core Window Guide](core-window.md) — Window events, messaging, dialogs, custom schemes
 - [Blazor Guide](blazor-webview.md) — DI, file providers, component configuration
 - [Web Server Guide](web-server.md) — ASP.NET Core pipeline, DI access, graceful shutdown
-- [Builder API Reference](../api/builder-api.md) — All window configuration options
+- Generated C# API Reference (`docs/api`, via `docfx metadata`) — Complete member-level reference

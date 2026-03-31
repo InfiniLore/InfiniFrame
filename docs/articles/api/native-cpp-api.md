@@ -28,3 +28,5 @@ InfiniFrame native API documentation is hosted inside DocFX as conceptual refere
 - `Exports.cpp`: exported C ABI used by the managed layer.
 
 For detailed behavior, see source comments in the files above. This page is maintained in DocFX to keep C++ documentation and C# documentation in one navigation model.
+
+For generated member-level C++ reference, see [Native C++ API Reference (Generated)](native-cpp-reference.md).

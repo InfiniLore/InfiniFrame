@@ -42,8 +42,16 @@ jobs:
           dotnet tool install --global docfx --version 2.78.5
           "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
+      - name: Install Doxygen
+        shell: pwsh
+        run: choco install doxygen.install -y --no-progress
+
       - name: Generate API Metadata
         run: docfx metadata docs/docfx.json
+
+      - name: Generate C++ API Markdown
+        shell: pwsh
+        run: ./docs/scripts/update-cpp-api.ps1 -Required
 
       - name: Build Docs Site
         run: docfx build docs/docfx.json

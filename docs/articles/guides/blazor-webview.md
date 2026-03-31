@@ -92,7 +92,7 @@ builder.Build().Run();
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `WindowBuilder` | `IInfiniFrameWindowBuilder` | Fluent window configuration — all options from the [Builder API](../api/builder-api.md) |
+| `WindowBuilder` | `IInfiniFrameWindowBuilder` | Fluent window configuration — all options from the generated C# API reference |
 | `Services` | `IServiceCollection` | Standard .NET DI container |
 | `RootComponents` | `RootComponentList` | Maps Blazor components to CSS selectors in index.html |
 

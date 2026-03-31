@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <None Include="**/*"
-          Exclude="bin/**;obj/**;_site/**;api/**/*.yml;api/toc.yml;api/.manifest" />
+          Exclude="bin/**;obj/**;_site/**;.doxygen/**;api/**/*.yml;api/toc.yml;api/.manifest" />
   </ItemGroup>
 
   <ItemGroup>
