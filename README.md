@@ -102,26 +102,39 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 
 ## Documentation
 
-- [Getting Started](docs/GettingStarted.md) — Installation, first app, platform requirements
+- [Docs Home](https://infiniframe.dev/docs/)
+- [Getting Started](https://infiniframe.dev/docs/articles/guides/getting-started.html) — Installation, first app, platform requirements
 
 ### Guides
 
-- [Core Window](docs/Guides/CoreWindow.md) — Builder pattern, configuration, events, messaging
-- [Blazor WebView](docs/Guides/Blazor.md) — Hosting a full Blazor app in a native window
-- [Web Server](docs/Guides/WebServer.md) — ASP.NET Core + native window integration
-- [Custom Window Chrome](docs/Guides/CustomChrome.md) — Chromeless windows with Blazor components
-- [JavaScript Interop](docs/Guides/JsInterop.md) — Communicating between JS and C#
+- [Core Window](https://infiniframe.dev/docs/articles/guides/core-window.html) — Builder pattern, configuration, events, messaging
+- [Blazor WebView](https://infiniframe.dev/docs/articles/guides/blazor-webview.html) — Hosting a full Blazor app in a native window
+- [Web Server](https://infiniframe.dev/docs/articles/guides/web-server.html) — ASP.NET Core + native window integration
+- [Custom Window Chrome](https://infiniframe.dev/docs/articles/guides/custom-window-chrome.html) — Chromeless windows with Blazor components
+- [JavaScript Interop](https://infiniframe.dev/docs/articles/guides/javascript-interop.html) — Communicating between JS and C#
 
 ### API Reference
 
-- [Window API](docs/Reference/WindowApi.md) — `IInfiniFrameWindow` full reference
-- [Builder API](docs/Reference/BuilderApi.md) — All fluent builder methods
-- [Events](docs/Reference/Events.md) — Event system reference
-- [Types](docs/Reference/Types.md) — Enums, value types, and delegates
+- [Native C++ API Guide](https://infiniframe.dev/docs/articles/api/native-cpp-api.html)
+- [Native C++ API Reference (Generated)](https://infiniframe.dev/docs/articles/api/native-cpp-reference.html)
+- [Generated C# API Reference](https://infiniframe.dev/docs/api/)
 
 ### Migration
 
-- [Breaking Changes vs Photino.NET](docs/BreakingChanges.md) — API, namespace, event system, and behavioral differences from the original Photino projects
+- [Breaking Changes vs Photino.NET](https://infiniframe.dev/docs/articles/concepts/breaking-changes-from-photino.html) — API, namespace, event system, and behavioral differences from the original Photino projects
+
+### Build Docs Locally
+
+Requirements:
+
+- `docfx` (required)
+- `Doxygen` (required for generated C++ API reference)
+
+Run:
+
+```powershell
+.\docs\scripts\serve-docs.ps1
+```
 
 ## Platform Requirements
 
