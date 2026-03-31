@@ -14,7 +14,7 @@
           ]
         }
       ],
-      "dest": "api",
+      "dest": "api/cs",
       "properties": {
         "TargetFramework": "net10.0",
         "Configuration": "Release",
@@ -30,8 +30,9 @@
           "toc.yml",
           "articles/**/*.md",
           "articles/**/toc.yml",
-          "api/**/*.yml",
-          "api/**/*.md"
+          "api/cs/**/*.yml",
+          "api/cpp/**/*.md",
+          "api/cpp/**/toc.yml"
         ],
         "exclude": [
           "**/bin/**",

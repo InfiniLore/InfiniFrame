@@ -6,5 +6,5 @@ InfiniFrame documentation is organized into Guides, Concepts, and API references
 
 - [Guides](articles/guides/getting-started.md)
 - [Concepts](articles/concepts/breaking-changes-from-photino.md)
-- [Generated C# API Reference](api/index.md)
-- [Generated C++ API Reference](articles/cpp/native-cpp-reference.md)
+- [Generated C# API Reference](api/cs/InfiniFrame.yml)
+- [Generated C++ API Reference](api/cpp/native-cpp-reference.md)

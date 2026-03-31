@@ -359,4 +359,6 @@ healthchecksdb
 /docs/api/*.yml
 /docs/api/toc.yml
 /docs/api/.manifest
+/docs/api/cs/
+/docs/api/cpp/native-cpp-reference.md
 /docs/.doxygen/

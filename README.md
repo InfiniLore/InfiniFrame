@@ -116,8 +116,8 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 ### API Reference
 
 - [Native C++ API Guide](https://docs.infiniframe.dev/articles/cpp/native-cpp-api.html)
-- [Native C++ API Reference (Generated)](https://docs.infiniframe.dev/articles/cpp/native-cpp-reference.html)
-- [Generated C# API Reference](https://docs.infiniframe.dev/api/)
+- [Native C++ API Reference (Generated)](https://docs.infiniframe.dev/api/cpp/native-cpp-reference.html)
+- [Generated C# API Reference](https://docs.infiniframe.dev/api/cs/)
 
 ### Migration
 
