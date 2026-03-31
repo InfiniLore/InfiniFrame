@@ -69,6 +69,8 @@ public class InfiniFrameBlazorAppBuilderTests {
     [Test]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
+    [SkipUtility.SkipOnMacOs("Given init parameters are not supported on macOS")]
+    [SkipUtility.SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct) {
         // Arrange
         string[] args = Array.Empty<string>();
