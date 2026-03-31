@@ -18,21 +18,21 @@ This guide walks you through installing InfiniFrame and creating your first nati
 
 ### Platform-specific requirements
 
-| Platform | Requirement |
-|----------|-------------|
-| Windows | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) — pre-installed on Windows 11; available as a redistributable for Windows 10 |
-| Linux | `webkit2gtk-4.0` and `libgtk-3-dev` installed via your package manager |
-| macOS | macOS 10.15 Catalina or later (WKWebView is built into the OS) |
+| Platform | Requirement                                                                                                                                                     |
+|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Windows  | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) — pre-installed on Windows 11; available as a redistributable for Windows 10 |
+| Linux    | `webkit2gtk-4.0` and `libgtk-3-dev` installed via your package manager                                                                                          |
+| macOS    | macOS 10.15 Catalina or later (WKWebView is built into the OS)                                                                                                  |
 
 ## Choose Your Integration
 
 InfiniFrame supports three integration models depending on your use case:
 
-| Use Case | Package |
-|----------|---------|
-| Load a URL or HTML string in a window | `InfiniLore.InfiniFrame` |
+| Use Case                                            | Package                                |
+|-----------------------------------------------------|----------------------------------------|
+| Load a URL or HTML string in a window               | `InfiniLore.InfiniFrame`               |
 | Run a Blazor app inside a native window (no server) | `InfiniLore.InfiniFrame.BlazorWebView` |
-| Run an ASP.NET Core web app with a native window | `InfiniLore.InfiniFrame.WebServer` |
+| Run an ASP.NET Core web app with a native window    | `InfiniLore.InfiniFrame.WebServer`     |
 
 ## Option 1 — Core Window
 

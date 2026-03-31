@@ -102,26 +102,26 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 
 ## Documentation
 
-- [Docs Home](https://infiniframe.dev/docs/)
-- [Getting Started](https://infiniframe.dev/docs/articles/guides/getting-started.html) — Installation, first app, platform requirements
+- [Docs Home](https://docs.infiniframe.dev/)
+- [Getting Started](https://docs.infiniframe.dev/articles/guides/getting-started.html) — Installation, first app, platform requirements
 
 ### Guides
 
-- [Core Window](https://infiniframe.dev/docs/articles/guides/core-window.html) — Builder pattern, configuration, events, messaging
-- [Blazor WebView](https://infiniframe.dev/docs/articles/guides/blazor-webview.html) — Hosting a full Blazor app in a native window
-- [Web Server](https://infiniframe.dev/docs/articles/guides/web-server.html) — ASP.NET Core + native window integration
-- [Custom Window Chrome](https://infiniframe.dev/docs/articles/guides/custom-window-chrome.html) — Chromeless windows with Blazor components
-- [JavaScript Interop](https://infiniframe.dev/docs/articles/guides/javascript-interop.html) — Communicating between JS and C#
+- [Core Window](https://docs.infiniframe.dev/articles/guides/core-window.html) — Builder pattern, configuration, events, messaging
+- [Blazor WebView](https://docs.infiniframe.dev/articles/guides/blazor-webview.html) — Hosting a full Blazor app in a native window
+- [Web Server](https://docs.infiniframe.dev/articles/guides/web-server.html) — ASP.NET Core + native window integration
+- [Custom Window Chrome](https://docs.infiniframe.dev/articles/guides/custom-window-chrome.html) — Chromeless windows with Blazor components
+- [JavaScript Interop](https://docs.infiniframe.dev/articles/guides/javascript-interop.html) — Communicating between JS and C#
 
 ### API Reference
 
-- [Native C++ API Guide](https://infiniframe.dev/docs/articles/cpp/native-cpp-api.html)
-- [Native C++ API Reference (Generated)](https://infiniframe.dev/docs/articles/cpp/native-cpp-reference.html)
-- [Generated C# API Reference](https://infiniframe.dev/docs/api/)
+- [Native C++ API Guide](https://docs.infiniframe.dev/articles/cpp/native-cpp-api.html)
+- [Native C++ API Reference (Generated)](https://docs.infiniframe.dev/articles/cpp/native-cpp-reference.html)
+- [Generated C# API Reference](https://docs.infiniframe.dev/api/)
 
 ### Migration
 
-- [Breaking Changes vs Photino.NET](https://infiniframe.dev/docs/articles/concepts/breaking-changes-from-photino.html) — API, namespace, event system, and behavioral differences from the original Photino projects
+- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/articles/concepts/breaking-changes-from-photino.html) — API, namespace, event system, and behavioral differences from the original Photino projects
 
 ### Build Docs Locally
 
@@ -160,3 +160,4 @@ original commit history
 ## License
 
 Unlike the other projects in the InfiniLore ecosystem, this repo follows the same [Apache 2.0 License](LICENSE) as the original Photino projects
+

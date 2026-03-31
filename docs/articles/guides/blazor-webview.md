@@ -90,11 +90,11 @@ builder.Build().Run();
 
 `InfiniFrameBlazorAppBuilder` exposes three properties for configuration:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `WindowBuilder` | `IInfiniFrameWindowBuilder` | Fluent window configuration — all options from the generated C# API reference |
-| `Services` | `IServiceCollection` | Standard .NET DI container |
-| `RootComponents` | `RootComponentList` | Maps Blazor components to CSS selectors in index.html |
+| Property         | Type                        | Description                                                                   |
+|------------------|-----------------------------|-------------------------------------------------------------------------------|
+| `WindowBuilder`  | `IInfiniFrameWindowBuilder` | Fluent window configuration — all options from the generated C# API reference |
+| `Services`       | `IServiceCollection`        | Standard .NET DI container                                                    |
+| `RootComponents` | `RootComponentList`         | Maps Blazor components to CSS selectors in index.html                         |
 
 ### Configuring the window separately
 
@@ -111,12 +111,12 @@ builder.WithInfiniFrameWindowBuilder(w => w
 
 The following services are automatically registered and available for injection:
 
-| Service | Lifetime | Description |
-|---------|----------|-------------|
-| `IInfiniFrameWindow` | Singleton | The native window instance |
-| `IInfiniFrameJs` | Scoped | JavaScript interop utilities |
-| `HttpClient` | Scoped | Preconfigured for in-process requests |
-| `Dispatcher` | Singleton | Blazor's component dispatcher |
+| Service              | Lifetime  | Description                           |
+|----------------------|-----------|---------------------------------------|
+| `IInfiniFrameWindow` | Singleton | The native window instance            |
+| `IInfiniFrameJs`     | Scoped    | JavaScript interop utilities          |
+| `HttpClient`         | Scoped    | Preconfigured for in-process requests |
+| `Dispatcher`         | Singleton | Blazor's component dispatcher         |
 
 ### Injecting the window in a component
 

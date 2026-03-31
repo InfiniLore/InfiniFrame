@@ -59,7 +59,8 @@
       "_disableContribution": true
     },
     "sitemap": {
-      "baseUrl": "https://infiniframe.dev/docs"
+      "baseUrl": "https://docs.infiniframe.dev"
     }
   }
 }
+

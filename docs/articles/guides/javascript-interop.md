@@ -138,15 +138,15 @@ These wrap the browser's `element.setPointerCapture(pointerId)` / `element.relea
 
 ### Available handlers
 
-| Handler ID | Triggered by | What it does |
-|------------|--------------|--------------|
-| `__infiniframe:window:minimize` | `InfiniFrame.js` | Minimize the window |
-| `__infiniframe:window:maximize` | `InfiniFrame.js` | Maximize the window |
-| `__infiniframe:window:close` | `InfiniFrame.js` | Close the window |
-| `__infiniframe:fullscreen:enter` | `InfiniFrame.js` | Enter fullscreen |
-| `__infiniframe:fullscreen:exit` | `InfiniFrame.js` | Exit fullscreen |
-| `__infiniframe:title:change` | `InfiniFrame.js` | Update the native window title |
-| `__infiniframe:open:external` | `InfiniFrame.js` | Open links with `target="_blank"` in the default browser |
+| Handler ID                       | Triggered by     | What it does                                             |
+|----------------------------------|------------------|----------------------------------------------------------|
+| `__infiniframe:window:minimize`  | `InfiniFrame.js` | Minimize the window                                      |
+| `__infiniframe:window:maximize`  | `InfiniFrame.js` | Maximize the window                                      |
+| `__infiniframe:window:close`     | `InfiniFrame.js` | Close the window                                         |
+| `__infiniframe:fullscreen:enter` | `InfiniFrame.js` | Enter fullscreen                                         |
+| `__infiniframe:fullscreen:exit`  | `InfiniFrame.js` | Exit fullscreen                                          |
+| `__infiniframe:title:change`     | `InfiniFrame.js` | Update the native window title                           |
+| `__infiniframe:open:external`    | `InfiniFrame.js` | Open links with `target="_blank"` in the default browser |
 
 These are used internally by `InfiniFrameWindowDragArea`, `InfiniFrameWindowButton`, and related components — you do not need to call them manually unless you are building custom components
 
