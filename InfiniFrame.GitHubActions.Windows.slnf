@@ -12,7 +12,7 @@
             "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
             "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
             "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj",
-            "tests\\InfiniFrameTests.Blazor\\InfiniFrameTests.Blazor.csproj"
+            "tests\\InfiniFrameTests.BlazorWebView\\InfiniFrameTests.BlazorWebView.csproj"
         ]
     }
 }

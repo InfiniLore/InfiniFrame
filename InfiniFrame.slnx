@@ -79,7 +79,7 @@
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
     <File Path="tests/Directory.Build.targets" />
-    <Project Path="tests/InfiniFrameTests.Blazor/InfiniFrameTests.Blazor.csproj" />
+    <Project Path="tests/InfiniFrameTests.BlazorWebView/InfiniFrameTests.BlazorWebView.csproj" />
     <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
     <Project Path="tests/InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     <Project Path="tests/InfiniFrameTests.WebServer/InfiniFrameTests.WebServer.csproj" />
