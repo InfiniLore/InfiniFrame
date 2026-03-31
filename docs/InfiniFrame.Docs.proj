@@ -9,8 +9,4 @@
     <None Include="**/*"
           Exclude="bin/**;obj/**;_site/**;.doxygen/**;api/**/*.yml;api/toc.yml;api/.manifest" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="api\" />
-  </ItemGroup>
 </Project>
