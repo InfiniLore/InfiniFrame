@@ -28,6 +28,8 @@ permissions:
     packages: write
     statuses: write
     checks: write
+    pages: write
+    id-token: write
 
 jobs:
     # noinspection UndefinedAction
@@ -424,3 +426,17 @@ jobs:
                         --api-key "$GITHUB_TOKEN" \
                         --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
                         --skip-duplicate
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Publish docs after release pipeline completes
+    # ------------------------------------------------------------------------------------------------------------------
+            
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    publish-docs:
+        name: Publish Docs to GitHub Pages
+        needs: [release, bump-version]
+        if: inputs.publish_to_nuget
+        uses: ./.github/workflows/reusable-docs-pages.yml
+        with:
+            checkout_ref: ${{ needs.bump-version.outputs.tag_name }}
+        secrets: inherit
