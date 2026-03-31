@@ -1,14 +1,6 @@
 name: "Workflow: Docs to GitHub Pages"
 
 on:
-    push:
-        branches:
-            - core
-        paths:
-            - "docs/**"
-            - "src/**"
-            - ".github/workflows/workflow-docs-pages.yml"
-            - ".github/workflows/reusable-docs-pages.yml"
     workflow_dispatch:
 
 permissions:
