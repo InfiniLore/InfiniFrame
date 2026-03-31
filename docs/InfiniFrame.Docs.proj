@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <NoBuild>true</NoBuild>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="**/*"
+          Exclude="bin/**;obj/**;_site/**;api/**/*.yml;api/toc.yml;api/.manifest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="api\" />
+  </ItemGroup>
+</Project>

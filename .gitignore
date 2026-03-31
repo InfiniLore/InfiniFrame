@@ -359,4 +359,3 @@ healthchecksdb
 /docs/api/*.yml
 /docs/api/toc.yml
 /docs/api/.manifest
-!/docs/api/index.md

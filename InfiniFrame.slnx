@@ -41,33 +41,7 @@
     <File Path="webpack.config.js" />
   </Folder>
   <Folder Name="/docs/">
-    <File Path="docs/docfx.json" />
-    <File Path="docs/index.md" />
-    <File Path="docs/toc.yml" />
-  </Folder>
-  <Folder Name="/docs/api/">
-    <File Path="docs/api/index.md" />
-  </Folder>
-  <Folder Name="/docs/articles/api/">
-    <File Path="docs/articles/api/builder-api.md" />
-    <File Path="docs/articles/api/events.md" />
-    <File Path="docs/articles/api/native-cpp-api.md" />
-    <File Path="docs/articles/api/toc.yml" />
-    <File Path="docs/articles/api/types.md" />
-    <File Path="docs/articles/api/window-api.md" />
-  </Folder>
-  <Folder Name="/docs/articles/concepts/">
-    <File Path="docs/articles/concepts/breaking-changes-from-photino.md" />
-    <File Path="docs/articles/concepts/toc.yml" />
-  </Folder>
-  <Folder Name="/docs/articles/guides/">
-    <File Path="docs/articles/guides/blazor-webview.md" />
-    <File Path="docs/articles/guides/core-window.md" />
-    <File Path="docs/articles/guides/custom-window-chrome.md" />
-    <File Path="docs/articles/guides/getting-started.md" />
-    <File Path="docs/articles/guides/javascript-interop.md" />
-    <File Path="docs/articles/guides/toc.yml" />
-    <File Path="docs/articles/guides/web-server.md" />
+    <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />
   </Folder>
   <Folder Name="/example/">
     <Project Path="examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/InfiniFrameExample.BlazorWebView.MultiWindowSample.csproj" />
