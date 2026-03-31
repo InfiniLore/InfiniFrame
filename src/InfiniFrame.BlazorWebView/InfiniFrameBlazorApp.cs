@@ -14,17 +14,23 @@ public class InfiniFrameBlazorApp(
     RootComponentList rootComponents,
     IInfiniFrameJsComponentConfiguration? rootComponentConfiguration = null
 ) : IAsyncDisposable {
+    public IServiceProvider ServiceProvider { get; }= provider;
+    private RootComponentList RootComponents { get; }= rootComponents;
+    private IInfiniFrameJsComponentConfiguration? RootComponentConfiguration { get; }= rootComponentConfiguration;
 
     private bool _disposed;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void Run() {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        var window = provider.GetRequiredService<IInfiniFrameWindow>();
+        var window = ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
-        if (rootComponentConfiguration is not null) {
-            foreach ((Type, string) component in rootComponents) {
-                rootComponentConfiguration.Add(component.Item1, component.Item2);
+        if (RootComponentConfiguration is not null) {
+            foreach ((Type, string) component in RootComponents) {
+                RootComponentConfiguration.Add(component.Item1, component.Item2);
             }
         }
 
@@ -43,7 +49,7 @@ public class InfiniFrameBlazorApp(
         _disposed = true;
 
         try {
-            switch (provider) {
+            switch (ServiceProvider) {
                 case ServiceProvider serviceProvider: {
                     await serviceProvider.DisposeAsync();
                     break;
@@ -61,7 +67,7 @@ public class InfiniFrameBlazorApp(
             }
         }
         catch (Exception e) {
-            var logger = provider.GetService<ILogger<InfiniFrameBlazorApp>>();
+            var logger = ServiceProvider.GetService<ILogger<InfiniFrameBlazorApp>>();
             logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
         }
 

@@ -17,9 +17,16 @@ public class InfiniFrameBlazorAppBuilder {
     public IServiceCollection Services { get; } = new ServiceCollection();
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameBlazorAppBuilder() {}
 
-    public static InfiniFrameBlazorAppBuilder CreateDefault(string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) => CreateDefault(null, args, windowBuilder);
+    public static InfiniFrameBlazorAppBuilder CreateDefault(
+        string[]? args = null,
+        Action<IInfiniFrameWindowBuilder>? windowBuilder = null
+    ) 
+        => CreateDefault(null, args, windowBuilder);
 
     public static InfiniFrameBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) {
         // We don't use the args for anything right now, but we want to accept them
