@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 
 $docsRoot = Split-Path -Parent $PSScriptRoot
 $repoRoot = Split-Path -Parent $docsRoot
-$outputFile = Join-Path $docsRoot "articles/api/native-cpp-reference.md"
+$outputFile = Join-Path $docsRoot "articles/cpp/native-cpp-reference.md"
 $doxygenRoot = Join-Path $docsRoot ".doxygen"
 $xmlDir = Join-Path $doxygenRoot "xml"
 $doxyfilePath = Join-Path $doxygenRoot "Doxyfile.generated"

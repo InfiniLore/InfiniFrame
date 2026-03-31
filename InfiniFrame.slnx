@@ -2,6 +2,7 @@
   <Folder Name="/.dev-tools/">
     <File Path=".gitignore" />
     <File Path="InfiniFrame.GitHubActions.WindowsPlaywright.slnf" />
+    <File Path="LICENSE" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="global.json" />

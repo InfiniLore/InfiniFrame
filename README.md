@@ -11,14 +11,14 @@ Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebVie
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame?label=InfiniLore.InfiniFrame)](https://www.nuget.org/packages/InfiniLore.InfiniFrame) | Core window builder and runtime |
-| [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Shared?label=InfiniLore.InfiniFrame.Shared)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Shared) | Shared interfaces, types, enums, and delegates |
-| [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Blazor?label=InfiniLore.InfiniFrame.Blazor)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Blazor) | Pre-built Blazor components for custom window chrome |
-| [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.BlazorWebView?label=InfiniLore.InfiniFrame.BlazorWebView)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.BlazorWebView) | Full Blazor app integration inside a native window |
-| [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.WebServer?label=InfiniLore.InfiniFrame.WebServer)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.WebServer) | ASP.NET Core web app running inside a native window |
-| [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Js?label=InfiniLore.InfiniFrame.Js)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Js) | JavaScript and Blazor interop utilities |
+| Description                                          | Package                                                                                                                                                                                         |
+|------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Core window builder and runtime                      | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame?label=InfiniLore.InfiniFrame)](https://www.nuget.org/packages/InfiniLore.InfiniFrame)                                           |
+| Shared interfaces, types, enums, and delegates       | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Shared?label=InfiniLore.InfiniFrame.Shared)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Shared)                      |
+| Pre-built Blazor components for custom window chrome | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Blazor?label=InfiniLore.InfiniFrame.Blazor)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Blazor)                      |
+| Full Blazor app integration inside a native window   | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.BlazorWebView?label=InfiniLore.InfiniFrame.BlazorWebView)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.BlazorWebView) |
+| ASP.NET Core web app running inside a native window  | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.WebServer?label=InfiniLore.InfiniFrame.WebServer)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.WebServer)             |
+| JavaScript and Blazor interop utilities              | [![NuGet](https://img.shields.io/nuget/v/InfiniLore.InfiniFrame.Js?label=InfiniLore.InfiniFrame.Js)](https://www.nuget.org/packages/InfiniLore.InfiniFrame.Js)                                  |
 
 ## Quick Start
 
@@ -92,13 +92,13 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 
 ## Examples
 
-| Example | What it demonstrates |
-|---------|---------------------|
-| [BlazorWebView](examples/InfiniFrameExample.BlazorWebView/) | Basic Blazor app in a native window |
+| Example                                                                                         | What it demonstrates                                          |
+|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| [BlazorWebView](examples/InfiniFrameExample.BlazorWebView/)                                     | Basic Blazor app in a native window                           |
 | [BlazorWebView.MultiWindowSample](examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/) | Multiple independent windows with different Blazor components |
-| [WebApp.Blazor](examples/InfiniFrameExample.WebApp.Blazor/) | Blazor Server hosted via ASP.NET Core |
-| [WebApp.React](examples/InfiniFrameExample.WebApp.React/) | React frontend with custom scheme handler and web messaging |
-| [WebApp.Vue](examples/InfiniFrameExample.WebApp.Vue/) | Vue.js frontend with all built-in JS message handlers |
+| [WebApp.Blazor](examples/InfiniFrameExample.WebApp.Blazor/)                                     | Blazor Server hosted via ASP.NET Core                         |
+| [WebApp.React](examples/InfiniFrameExample.WebApp.React/)                                       | React frontend with custom scheme handler and web messaging   |
+| [WebApp.Vue](examples/InfiniFrameExample.WebApp.Vue/)                                           | Vue.js frontend with all built-in JS message handlers         |
 
 ## Documentation
 
@@ -115,8 +115,8 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 
 ### API Reference
 
-- [Native C++ API Guide](https://infiniframe.dev/docs/articles/api/native-cpp-api.html)
-- [Native C++ API Reference (Generated)](https://infiniframe.dev/docs/articles/api/native-cpp-reference.html)
+- [Native C++ API Guide](https://infiniframe.dev/docs/articles/cpp/native-cpp-api.html)
+- [Native C++ API Reference (Generated)](https://infiniframe.dev/docs/articles/cpp/native-cpp-reference.html)
 - [Generated C# API Reference](https://infiniframe.dev/docs/api/)
 
 ### Migration
@@ -139,11 +139,11 @@ Run:
 
 ## Platform Requirements
 
-| Platform | Browser Engine | Requirement |
-|----------|----------------|-------------|
-| Windows | WebView2 (Chromium) | Windows 10 or later, WebView2 Runtime |
-| Linux | WebKit2GTK | GTK 3+ |
-| macOS | WKWebView | macOS 10.15 Catalina or later |
+| Platform | Browser Engine      | Requirement                           |
+|----------|---------------------|---------------------------------------|
+| Windows  | WebView2 (Chromium) | Windows 10 or later, WebView2 Runtime |
+| Linux    | WebKit2GTK          | GTK 3+                                |
+| macOS    | WKWebView           | macOS 10.15 Catalina or later         |
 
 ## Repo History
 
