@@ -62,10 +62,63 @@ jobs:
 
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
 
+    docs-validation:
+        name: Validate Docs Build (No Warnings)
+        runs-on: ubuntu-latest
+        needs: prepare
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || needs.prepare.outputs.sha }}
+
+            -   name: Setup .NET SDK
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Setup Node.js
+                uses: actions/setup-node@v5
+                with:
+                    node-version: 22
+
+            -   name: Install docfx
+                run: dotnet tool install --global docfx --version 2.78.5
+
+            -   name: Add .NET tools to PATH
+                run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+            -   name: Install Doxygen
+                run: |
+                    sudo apt-get update
+                    sudo apt-get install -y doxygen
+
+            -   name: Generate API metadata
+                run: docfx metadata docs/docfx.json
+
+            -   name: Generate C++ API markdown
+                shell: pwsh
+                run: ./docs/scripts/update-cpp-api.ps1 -Required
+
+            -   name: Build docs (fail on warnings/errors)
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    docfx build docs/docfx.json 2>&1 | tee /tmp/docfx-build.log
+
+                    if grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
+                      echo "DocFX reported warnings; failing docs validation."
+                      exit 1
+                    fi
+
     mark-pending:
         name: Mark Manual CI as Pending
         runs-on: ubuntu-latest
-        needs: prepare
+        needs: [prepare, docs-validation]
         permissions:
             statuses: write
         env:
