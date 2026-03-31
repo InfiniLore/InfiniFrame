@@ -29,7 +29,7 @@ public class InfiniFrameBlazorAppBuilder {
         appBuilder.Services.AddOptions<InfiniFrameBlazorAppConfiguration>();
 
         appBuilder.Services
-            .AddSingleton(fileProvider ?? new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot")))
+            .AddSingleton(ConfigureFileProvider(fileProvider))
             .AddScoped(static sp => {
                 var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
@@ -47,7 +47,29 @@ public class InfiniFrameBlazorAppBuilder {
             .AddSingleton(appBuilder.WindowBuilder)
             .AddSingleton(appBuilder.RootComponents);
 
+        windowBuilder?.Invoke(appBuilder.WindowBuilder);
+
         return appBuilder;
+    }
+
+    /// <summary>
+    /// Configures the file provider to be used by the application.
+    /// If a custom <see cref="IFileProvider"/> is provided, that instance will be used.
+    /// Otherwise, a default provider will be configured based on the application's "wwwroot" directory.
+    /// </summary>
+    /// <param name="fileProvider">
+    /// An optional <see cref="IFileProvider"/> instance.
+    /// </param>
+    /// <returns>
+    /// An instance of <see cref="IFileProvider"/> that represents either the specified file provider
+    /// or the default provider if none is supplied.
+    /// </returns>
+    private static IFileProvider ConfigureFileProvider(IFileProvider? fileProvider) {
+        if (fileProvider is not null) return fileProvider;
+
+        string defaultWwwrootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
+        if (!Directory.Exists(defaultWwwrootPath)) return new NullFileProvider();
+        return new PhysicalFileProvider(defaultWwwrootPath);
     }
 
     public InfiniFrameBlazorAppBuilder WithInfiniFrameWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {

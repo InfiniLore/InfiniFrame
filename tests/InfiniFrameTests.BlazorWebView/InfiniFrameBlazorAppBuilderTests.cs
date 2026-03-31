@@ -12,7 +12,6 @@ namespace InfiniFrameTests.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilderTests {
     [Test]
-    [DisplayName($"{nameof(InfiniFrameBlazorAppBuilderTests)}.{nameof(SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork(CancellationToken ct) {
@@ -34,7 +33,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
     
     [Test]
-    [DisplayName($"{nameof(InfiniFrameBlazorAppBuilderTests)}.{nameof(SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWork(CancellationToken ct) {
