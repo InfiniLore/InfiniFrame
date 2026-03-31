@@ -27,6 +27,7 @@ permissions:
     contents: write
     packages: write
     statuses: write
+    checks: write
 
 jobs:
     # noinspection UndefinedAction
