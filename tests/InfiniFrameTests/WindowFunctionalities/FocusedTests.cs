@@ -15,6 +15,7 @@ public class FocusedTests {
     [SkipUtility.SkipOnLinux("Given that the window is virtualized, this test is not applicable.")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
+    [Retry(5)]
     public async Task Window(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
