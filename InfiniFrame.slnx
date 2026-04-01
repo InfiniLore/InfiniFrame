@@ -66,6 +66,9 @@
     <File Path="Directory.Packages.props" />
     <File Path="src\Directory.Build.props" />
   </Folder>
+  <Folder Name="/src/tools/">
+    <Project Path="src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
     <File Path="tests/Directory.Build.targets" />
