@@ -5,37 +5,18 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
-        <!-- Pack tool integration (opt-in for AfterBuild). -->
-        <InfiniFramePackAfterBuild>false</InfiniFramePackAfterBuild>
+        <InfiniFramePackAfterBuild>true</InfiniFramePackAfterBuild>
         <InfiniFramePackRid>auto</InfiniFramePackRid>
         <InfiniFramePackSelfContained>true</InfiniFramePackSelfContained>
-        <InfiniFramePackToolFramework>net10.0</InfiniFramePackToolFramework>
-        <InfiniFramePackOutput></InfiniFramePackOutput>
-        <InfiniFramePackNoRestore>false</InfiniFramePackNoRestore>
-        <InfiniFramePackVerbose>false</InfiniFramePackVerbose>
-
-        <InfiniFrameRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\'))</InfiniFrameRepositoryRoot>
-        <InfiniFramePackToolProject>$(InfiniFrameRepositoryRoot)src\InfiniFrame.Tools.Pack\InfiniFrame.Tools.Pack.csproj</InfiniFramePackToolProject>
-
-        <_InfiniFramePackOutputArg Condition="'$(InfiniFramePackOutput)'!=''"> --output &quot;$(InfiniFramePackOutput)&quot;</_InfiniFramePackOutputArg>
-        <_InfiniFramePackNoRestoreArg Condition="'$(InfiniFramePackNoRestore)'=='true'"> --no-restore</_InfiniFramePackNoRestoreArg>
-        <_InfiniFramePackVerboseArg Condition="'$(InfiniFramePackVerbose)'=='true'"> --verbose</_InfiniFramePackVerboseArg>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
     </ItemGroup>
 
-    <Target Name="InfiniFramePackPublish">
-        <Error Condition="!Exists('$(InfiniFramePackToolProject)')"
-               Text="InfiniFrame pack tool project was not found: $(InfiniFramePackToolProject)" />
-
-        <Exec Command="dotnet run --project &quot;$(InfiniFramePackToolProject)&quot; --framework $(InfiniFramePackToolFramework) -- publish &quot;$(MSBuildProjectFullPath)&quot; --rid $(InfiniFramePackRid) --configuration $(Configuration) --framework $(TargetFramework) --self-contained $(InfiniFramePackSelfContained)$(_InfiniFramePackOutputArg)$(_InfiniFramePackNoRestoreArg)$(_InfiniFramePackVerboseArg)" />
-    </Target>
-
-    <Target Name="InfiniFramePackPublishAfterBuild"
+    <Target Name="InfiniFramePackAfterBuild"
             AfterTargets="Build"
-            Condition="'$(InfiniFramePackAfterBuild)'=='true'">
-        <CallTarget Targets="InfiniFramePackPublish" />
+            Condition="'$(InfiniFramePackAfterBuild)'=='true' and '$(PublishSingleFile)'!='true'">
+        <Exec Command="dotnet run --project &quot;$(MSBuildProjectDirectory)\..\..\src\InfiniFrame.Tools.Pack\InfiniFrame.Tools.Pack.csproj&quot; --framework net10.0 -- publish &quot;$(MSBuildProjectFullPath)&quot; --rid $(InfiniFramePackRid) --configuration $(Configuration) --framework $(TargetFramework) --self-contained $(InfiniFramePackSelfContained)" />
     </Target>
 </Project>
