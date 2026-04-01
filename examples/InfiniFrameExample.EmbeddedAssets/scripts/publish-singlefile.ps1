@@ -59,25 +59,19 @@ function Resolve-NativeInfoFromRid([string]$rid) {
         "win-*" {
             $platform = if ($rid -like "*arm64*") { "arm64" } else { "x64" }
             return @{
-                OsDir = "windows"
                 Platform = $platform
-                Files = @("InfiniFrame.Native.dll", "WebView2Loader.dll")
             }
         }
         "linux-*" {
             $platform = if ($rid -like "*arm64*") { "arm64" } else { "x64" }
             return @{
-                OsDir = "linux"
                 Platform = $platform
-                Files = @("InfiniFrame.Native.so")
             }
         }
         "osx-*" {
             $platform = if ($rid -like "*arm64*") { "arm64" } else { "x64" }
             return @{
-                OsDir = "osx"
                 Platform = $platform
-                Files = @("InfiniFrame.Native.dylib")
             }
         }
         default {
@@ -132,11 +126,14 @@ $publishArgs = @(
     $projectPath,
     "-p:PublishProfile=$resolvedProfile",
     "-p:SolutionDir=$repoRoot\",
-    "-p:BuildNativeOnPublish=false"
+    "-p:BuildNativeOnPublish=false",
+    "--nologo"
 )
 
-if ($SkipNativeBuild) {
-    $publishArgs += "-p:BuildNativeOnPublish=false"
+$publishDir = Join-Path $projectDir "bin/Release/net10.0/$rid/publish"
+if (Test-Path $publishDir) {
+    Write-Host "Cleaning previous publish directory: $publishDir"
+    Remove-Item -Path $publishDir -Recurse -Force
 }
 
 dotnet @publishArgs
@@ -145,26 +142,4 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE"
 }
 
-# Ensure native binaries exist next to the published executable.
-$nativeSourceDir = Join-Path $repoRoot "artifacts/native/$($nativeInfo.OsDir)/$($nativeInfo.Platform)/Release"
-$publishDir = Join-Path $projectDir "bin/Release/net10.0/$rid/publish"
-
-foreach ($file in $nativeInfo.Files) {
-    $source = Join-Path $nativeSourceDir $file
-    if (-not (Test-Path $source)) {
-        throw "Required native file not found: $source"
-    }
-
-    Copy-Item $source (Join-Path $publishDir $file) -Force
-}
-
-if ($rid -like "win-*") {
-    $buildOutDir = Join-Path $projectDir "bin/Release/net10.0/$rid"
-    foreach ($file in $nativeInfo.Files) {
-        $source = Join-Path $nativeSourceDir $file
-        Copy-Item $source (Join-Path $buildOutDir $file) -Force
-    }
-}
-
 Write-Host "Publish completed: $publishDir"
-Write-Host "Native runtime copied from: $nativeSourceDir"

@@ -3,8 +3,12 @@
         <BuildNativeOnPublish>true</BuildNativeOnPublish>
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\'))</RepositoryRoot>
         <NativeProjectPath>$(RepositoryRoot)\src\InfiniFrame.Native\InfiniFrame.Native.proj</NativeProjectPath>
+        <NativeOsDir Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">windows</NativeOsDir>
+        <NativeOsDir Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('linux-'))">linux</NativeOsDir>
+        <NativeOsDir Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx-'))">osx</NativeOsDir>
         <NativePlatform Condition="$([System.String]::Copy('$(RuntimeIdentifier)').Contains('arm64'))">arm64</NativePlatform>
         <NativePlatform Condition="'$(NativePlatform)'==''">x64</NativePlatform>
+        <NativeArtifactsDir>$(RepositoryRoot)\artifacts\native\$(NativeOsDir)\$(NativePlatform)\$(Configuration)</NativeArtifactsDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,39 +16,62 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- Keep wwwroot visible in IDE but never copied physically to output/publish. -->
-        <Content Update="wwwroot\**\*">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-        </Content>
-        <None Update="wwwroot\**\*">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-            <Visible>true</Visible>
-        </None>
+        <!-- Embed all web assets as <AssemblyName>.wwwroot.<path>. -->
+        <EmbeddedResource Include="wwwroot\**\*"
+                          LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
+
+        <!-- Remove default item classifications so only embedded resources are used. -->
+        <Content Remove="wwwroot\**\*" />
+        <None Remove="wwwroot\**\*" />
     </ItemGroup>
 
-    <Target Name="EmbedWwwrootFiles" BeforeTargets="PrepareResources">
-        <ItemGroup>
-            <!-- Embedded resources map to <AssemblyName>.wwwroot.<path>. -->
-            <EmbeddedResource Include="wwwroot\**\*"
-                              LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
-        </ItemGroup>
-    </Target>
+    <ItemGroup Condition="'$(NativeOsDir)'=='windows'">
+        <EmbeddedResource Include="$(NativeArtifactsDir)\InfiniFrame.Native.dll"
+                          LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).InfiniFrame.Native.dll" />
+        <EmbeddedResource Include="$(NativeArtifactsDir)\WebView2Loader.dll"
+                          LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).WebView2Loader.dll" />
+    </ItemGroup>
 
-    <Target Name="RemovePublishedWwwrootFolder" AfterTargets="Publish">
-        <!-- Ensure publish output is embedded-only (no physical wwwroot folder). -->
+    <ItemGroup Condition="'$(NativeOsDir)'=='linux'">
+        <EmbeddedResource Include="$(NativeArtifactsDir)\InfiniFrame.Native.so"
+                          LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).InfiniFrame.Native.so" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(NativeOsDir)'=='osx'">
+        <EmbeddedResource Include="$(NativeArtifactsDir)\InfiniFrame.Native.dylib"
+                          LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).InfiniFrame.Native.dylib" />
+    </ItemGroup>
+
+    <Target Name="RemovePublishedArtifactsForSingleFile" AfterTargets="Publish">
+        <!-- Ensure publish output is embedded-only (no physical wwwroot or native files). -->
         <RemoveDir Directories="$(PublishDir)wwwroot" />
+        <Delete Files="$(PublishDir)InfiniFrame.Native.dll" />
+        <Delete Files="$(PublishDir)WebView2Loader.dll" />
+        <Delete Files="$(PublishDir)InfiniFrame.Native.so" />
+        <Delete Files="$(PublishDir)InfiniFrame.Native.dylib" />
     </Target>
 
     <Target Name="BuildNativeRuntimeForPublish"
-            BeforeTargets="Publish"
+            BeforeTargets="CoreCompile"
             Condition="'$(BuildNativeOnPublish)'=='true' and $([MSBuild]::IsOSPlatform('Windows')) and Exists('$(NativeProjectPath)')">
         <Message Text="Building native runtime before publish: $(NativeProjectPath) (Platform=$(NativePlatform), Configuration=$(Configuration))"
                  Importance="High" />
         <MSBuild Projects="$(NativeProjectPath)"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=$(NativePlatform);SolutionDir=$(RepositoryRoot)\" />
+    </Target>
+
+    <Target Name="RemoveTransitiveNativeFilesFromPublish"
+            AfterTargets="ComputeFilesToPublish">
+        <ItemGroup>
+            <!-- Remove native runtime files contributed by project references.
+                 They are embedded separately and extracted at runtime. -->
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+                                   Condition="'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.dll'
+                                           or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='WebView2Loader.dll'
+                                           or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.so'
+                                           or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.dylib'" />
+        </ItemGroup>
     </Target>
 
 </Project>

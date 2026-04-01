@@ -6,6 +6,8 @@ namespace InfiniFrameExample.EmbeddedAssets;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
+        NativeSingleFileBootstrap.Initialize();
+
         IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
             .SetTitle("InfiniFrame Embedded wwwroot")
             .SetSize(new Size(960, 640))
