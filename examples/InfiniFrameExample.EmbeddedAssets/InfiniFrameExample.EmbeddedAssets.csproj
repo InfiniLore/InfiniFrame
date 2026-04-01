@@ -1,77 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <BuildNativeOnPublish>true</BuildNativeOnPublish>
-        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\'))</RepositoryRoot>
-        <NativeProjectPath>$(RepositoryRoot)\src\InfiniFrame.Native\InfiniFrame.Native.proj</NativeProjectPath>
-        <NativeOsDir Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">windows</NativeOsDir>
-        <NativeOsDir Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('linux-'))">linux</NativeOsDir>
-        <NativeOsDir Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx-'))">osx</NativeOsDir>
-        <NativePlatform Condition="$([System.String]::Copy('$(RuntimeIdentifier)').Contains('arm64'))">arm64</NativePlatform>
-        <NativePlatform Condition="'$(NativePlatform)'==''">x64</NativePlatform>
-        <NativeArtifactsDir>$(RepositoryRoot)\artifacts\native\$(NativeOsDir)\$(NativePlatform)\$(Configuration)</NativeArtifactsDir>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <!-- Pack tool integration (opt-in for AfterBuild). -->
+        <InfiniFramePackAfterBuild>false</InfiniFramePackAfterBuild>
+        <InfiniFramePackRid>auto</InfiniFramePackRid>
+        <InfiniFramePackSelfContained>true</InfiniFramePackSelfContained>
+        <InfiniFramePackToolFramework>net10.0</InfiniFramePackToolFramework>
+        <InfiniFramePackOutput></InfiniFramePackOutput>
+        <InfiniFramePackNoRestore>false</InfiniFramePackNoRestore>
+        <InfiniFramePackVerbose>false</InfiniFramePackVerbose>
+
+        <InfiniFrameRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\'))</InfiniFrameRepositoryRoot>
+        <InfiniFramePackToolProject>$(InfiniFrameRepositoryRoot)src\InfiniFrame.Tools.Pack\InfiniFrame.Tools.Pack.csproj</InfiniFramePackToolProject>
+
+        <_InfiniFramePackOutputArg Condition="'$(InfiniFramePackOutput)'!=''"> --output &quot;$(InfiniFramePackOutput)&quot;</_InfiniFramePackOutputArg>
+        <_InfiniFramePackNoRestoreArg Condition="'$(InfiniFramePackNoRestore)'=='true'"> --no-restore</_InfiniFramePackNoRestoreArg>
+        <_InfiniFramePackVerboseArg Condition="'$(InfiniFramePackVerbose)'=='true'"> --verbose</_InfiniFramePackVerboseArg>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <!-- Embed all web assets as <AssemblyName>.wwwroot.<path>. -->
-        <EmbeddedResource Include="wwwroot\**\*"
-                          LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
+    <Target Name="InfiniFramePackPublish">
+        <Error Condition="!Exists('$(InfiniFramePackToolProject)')"
+               Text="InfiniFrame pack tool project was not found: $(InfiniFramePackToolProject)" />
 
-        <!-- Remove default item classifications so only embedded resources are used. -->
-        <Content Remove="wwwroot\**\*" />
-        <None Remove="wwwroot\**\*" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(NativeOsDir)'=='windows'">
-        <EmbeddedResource Include="$(NativeArtifactsDir)\InfiniFrame.Native.dll"
-                          LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).InfiniFrame.Native.dll" />
-        <EmbeddedResource Include="$(NativeArtifactsDir)\WebView2Loader.dll"
-                          LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).WebView2Loader.dll" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(NativeOsDir)'=='linux'">
-        <EmbeddedResource Include="$(NativeArtifactsDir)\InfiniFrame.Native.so"
-                          LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).InfiniFrame.Native.so" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(NativeOsDir)'=='osx'">
-        <EmbeddedResource Include="$(NativeArtifactsDir)\InfiniFrame.Native.dylib"
-                          LogicalName="$(AssemblyName).native.$(RuntimeIdentifier).InfiniFrame.Native.dylib" />
-    </ItemGroup>
-
-    <Target Name="RemovePublishedArtifactsForSingleFile" AfterTargets="Publish">
-        <!-- Ensure publish output is embedded-only (no physical wwwroot or native files). -->
-        <RemoveDir Directories="$(PublishDir)wwwroot" />
-        <Delete Files="$(PublishDir)InfiniFrame.Native.dll" />
-        <Delete Files="$(PublishDir)WebView2Loader.dll" />
-        <Delete Files="$(PublishDir)InfiniFrame.Native.so" />
-        <Delete Files="$(PublishDir)InfiniFrame.Native.dylib" />
+        <Exec Command="dotnet run --project &quot;$(InfiniFramePackToolProject)&quot; --framework $(InfiniFramePackToolFramework) -- publish &quot;$(MSBuildProjectFullPath)&quot; --rid $(InfiniFramePackRid) --configuration $(Configuration) --framework $(TargetFramework) --self-contained $(InfiniFramePackSelfContained)$(_InfiniFramePackOutputArg)$(_InfiniFramePackNoRestoreArg)$(_InfiniFramePackVerboseArg)" />
     </Target>
 
-    <Target Name="BuildNativeRuntimeForPublish"
-            BeforeTargets="CoreCompile"
-            Condition="'$(BuildNativeOnPublish)'=='true' and $([MSBuild]::IsOSPlatform('Windows')) and Exists('$(NativeProjectPath)')">
-        <Message Text="Building native runtime before publish: $(NativeProjectPath) (Platform=$(NativePlatform), Configuration=$(Configuration))"
-                 Importance="High" />
-        <MSBuild Projects="$(NativeProjectPath)"
-                 Targets="Build"
-                 Properties="Configuration=$(Configuration);Platform=$(NativePlatform);SolutionDir=$(RepositoryRoot)\" />
+    <Target Name="InfiniFramePackPublishAfterBuild"
+            AfterTargets="Build"
+            Condition="'$(InfiniFramePackAfterBuild)'=='true'">
+        <CallTarget Targets="InfiniFramePackPublish" />
     </Target>
-
-    <Target Name="RemoveTransitiveNativeFilesFromPublish"
-            AfterTargets="ComputeFilesToPublish">
-        <ItemGroup>
-            <!-- Remove native runtime files contributed by project references.
-                 They are embedded separately and extracted at runtime. -->
-            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
-                                   Condition="'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.dll'
-                                           or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='WebView2Loader.dll'
-                                           or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.so'
-                                           or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.dylib'" />
-        </ItemGroup>
-    </Target>
-
 </Project>

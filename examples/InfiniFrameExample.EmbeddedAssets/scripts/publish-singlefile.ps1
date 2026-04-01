@@ -12,51 +12,42 @@ $ErrorActionPreference = "Stop"
 
 $projectDir = Split-Path -Parent $PSScriptRoot
 $projectPath = Join-Path $projectDir "InfiniFrameExample.EmbeddedAssets.csproj"
-$repoRoot = Split-Path -Parent (Split-Path -Parent $projectDir)
-$toolProject = Join-Path $repoRoot "src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj"
 
 if (-not (Test-Path $projectPath)) {
     throw "Project file not found at: $projectPath"
 }
 
-if (-not (Test-Path $toolProject)) {
-    throw "InfiniFrame.Tools.Pack project not found at: $toolProject"
-}
-
-$toolArgs = @(
-    "run",
-    "--project", $toolProject,
-    "--",
-    "publish",
+$msbuildArgs = @(
+    "msbuild",
     $projectPath,
-    "--rid", $Rid,
-    "--configuration", $Configuration,
-    "--framework", $Framework,
-    "--self-contained", $SelfContained.ToString().ToLowerInvariant()
+    "-t:InfiniFramePackPublish",
+    "-p:Configuration=$Configuration",
+    "-p:TargetFramework=$Framework",
+    "-p:InfiniFramePackRid=$Rid",
+    "-p:InfiniFramePackSelfContained=$($SelfContained.ToString().ToLowerInvariant())"
 )
 
 if (-not [string]::IsNullOrWhiteSpace($Output)) {
-    $toolArgs += @("--output", $Output)
+    $msbuildArgs += "-p:InfiniFramePackOutput=$Output"
 }
 
 if ($NoRestore) {
-    $toolArgs += "--no-restore"
+    $msbuildArgs += "-p:InfiniFramePackNoRestore=true"
 }
 
 if ($Verbose) {
-    $toolArgs += "--verbose"
+    $msbuildArgs += "-p:InfiniFramePackVerbose=true"
 }
 
-Write-Host "Publishing via InfiniFrame.Tools.Pack..."
-Write-Host "Tool: $toolProject"
+Write-Host "Publishing via MSBuild target InfiniFramePackPublish..."
 Write-Host "Project: $projectPath"
 Write-Host "RID: $Rid | Configuration: $Configuration | Framework: $Framework | SelfContained: $SelfContained"
 if (-not [string]::IsNullOrWhiteSpace($Output)) {
     Write-Host "Output: $Output"
 }
 
-dotnet @toolArgs
+dotnet @msbuildArgs
 
 if ($LASTEXITCODE -ne 0) {
-    throw "InfiniFrame.Tools.Pack publish failed with exit code $LASTEXITCODE"
+    throw "InfiniFramePackPublish failed with exit code $LASTEXITCODE"
 }
