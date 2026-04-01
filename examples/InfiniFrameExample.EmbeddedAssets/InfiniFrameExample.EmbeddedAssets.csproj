@@ -1,4 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <BuildNativeOnPublish>true</BuildNativeOnPublish>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\'))</RepositoryRoot>
+        <NativeProjectPath>$(RepositoryRoot)\src\InfiniFrame.Native\InfiniFrame.Native.proj</NativeProjectPath>
+        <NativePlatform Condition="$([System.String]::Copy('$(RuntimeIdentifier)').Contains('arm64'))">arm64</NativePlatform>
+        <NativePlatform Condition="'$(NativePlatform)'==''">x64</NativePlatform>
+    </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
@@ -28,6 +35,16 @@
     <Target Name="RemovePublishedWwwrootFolder" AfterTargets="Publish">
         <!-- Ensure publish output is embedded-only (no physical wwwroot folder). -->
         <RemoveDir Directories="$(PublishDir)wwwroot" />
+    </Target>
+
+    <Target Name="BuildNativeRuntimeForPublish"
+            BeforeTargets="Publish"
+            Condition="'$(BuildNativeOnPublish)'=='true' and $([MSBuild]::IsOSPlatform('Windows')) and Exists('$(NativeProjectPath)')">
+        <Message Text="Building native runtime before publish: $(NativeProjectPath) (Platform=$(NativePlatform), Configuration=$(Configuration))"
+                 Importance="High" />
+        <MSBuild Projects="$(NativeProjectPath)"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=$(NativePlatform);SolutionDir=$(RepositoryRoot)\" />
     </Target>
 
 </Project>
