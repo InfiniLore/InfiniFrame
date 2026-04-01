@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
+using InfiniFrame.StaticAssets;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
@@ -20,6 +21,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public required IInfiniFrameWindow? Parent { get; init; }
     public required IInfiniFrameWindowEvents Events { get; init; }
     public required IInfiniFrameWindowMessageHandlers MessageHandlers { get; init; }
+    internal StaticAssetSettings? StaticAssets { get; init; }
 
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
@@ -722,6 +724,18 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         CustomSchemes.TryAdd(scheme, null);
         CustomSchemes[scheme] += handler;
         return this;
+    }
+
+    public bool TryResolveStaticAssetUri(string path, out Uri uri) {
+        uri = null!;
+        if (StaticAssets is null) return false;
+
+        return StaticAssetSchemeHandler.TryResolveUri(
+            StaticAssets.FileProvider,
+            path,
+            StaticAssets.BaseUri,
+            StaticAssets.DefaultDocument,
+            out uri);
     }
 
     /// <summary>

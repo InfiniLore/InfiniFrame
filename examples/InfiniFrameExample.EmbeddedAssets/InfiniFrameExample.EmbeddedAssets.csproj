@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Keep wwwroot visible in IDE but never copied physically to output/publish. -->
+        <Content Update="wwwroot\**\*">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </Content>
+        <None Update="wwwroot\**\*">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+            <Visible>true</Visible>
+        </None>
+    </ItemGroup>
+
+    <Target Name="EmbedWwwrootFiles" BeforeTargets="PrepareResources">
+        <ItemGroup>
+            <!-- Embedded resources map to <AssemblyName>.wwwroot.<path>. -->
+            <EmbeddedResource Include="wwwroot\**\*"
+                              LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="RemovePublishedWwwrootFolder" AfterTargets="Publish">
+        <!-- Ensure publish output is embedded-only (no physical wwwroot folder). -->
+        <RemoveDir Directories="$(PublishDir)wwwroot" />
+    </Target>
+
+</Project>

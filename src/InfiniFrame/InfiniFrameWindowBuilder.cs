@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
+using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public IInfiniFrameWindowEvents Events { get; internal set; } = new InfiniFrameWindowEvents();
     public IInfiniFrameWindowMessageHandlers MessageHandlers { get; } = new InfiniFrameWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
+    internal StaticAssetSettings? StaticAssets { get; set; }
 
     private InfiniFrameWindowBuilder() {}
 
@@ -62,7 +64,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             CustomSchemes = CustomSchemeHandlers,
             Parent = null,
             Events = Events,
-            MessageHandlers = MessageHandlers
+            MessageHandlers = MessageHandlers,
+            StaticAssets = StaticAssets
         };
 
         Events.WebMessageReceived.Add(MessageHandlers.Handle);
