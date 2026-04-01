@@ -11,10 +11,14 @@ internal static class Program {
     public static async Task<int> Main(string[] args) {
         try {
             ParseResult parse = CommandLine.Parse(args);
-            if (!parse.ShowUsage) return await PublishService.PublishAsync(parse.Options!);
 
-            CommandLine.PrintUsage();
-            return parse.ExitCode;
+            // ReSharper disable once InvertIf
+            if (parse.ShowUsage) {
+                CommandLine.PrintUsage();
+                return parse.ExitCode;
+            }
+
+            return await PublishService.PublishAsync(parse.Options);
 
         }
         catch (Exception ex) {

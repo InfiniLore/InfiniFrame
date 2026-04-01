@@ -1,15 +1,22 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
+
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class ParseResult {
-    public bool ShowUsage { get; init; }
-    public int ExitCode { get; init; }
-    public PublishOptions? Options { get; init; }
+    [MemberNotNullWhen(false, nameof(Options))]
+    public bool ShowUsage { get; private init; }
+    
+    public int ExitCode { get; private init; }
+    public PublishOptions? Options { get; private init; }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public static ParseResult Success(PublishOptions options) => new() {
         ShowUsage = false,
         ExitCode = 0,

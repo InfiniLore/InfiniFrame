@@ -19,7 +19,7 @@ namespace InfiniFrame.Utilities;
 internal static class InvokeUtilities {
     public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IInfiniFrameWindow, T> callback) {
         T? value = default;
-        bool completed = false;
+        bool completed;
         window.Invoke(() => {
             value = callback(window);
             completed = true;
@@ -30,7 +30,7 @@ internal static class InvokeUtilities {
 
     public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IntPtr, T> callback) {
         T? value = default;
-        bool completed = false;
+        bool completed;
         window.Invoke(() => {
             value = callback(window.InstanceHandle);
             completed = true;
@@ -41,7 +41,7 @@ internal static class InvokeUtilities {
 
     public static T InvokeAndReturn<T>(IInfiniFrameWindow window, FuncWithOut<T> callback) {
         T? value = default;
-        bool completed = false;
+        bool completed;
         window.Invoke(() => {
             callback(window.InstanceHandle, out value);
             completed = true;

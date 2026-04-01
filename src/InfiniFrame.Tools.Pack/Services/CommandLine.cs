@@ -7,15 +7,20 @@ namespace InfiniFrame.Tools.Pack.Services;
 // -----------------------------------------------------------------------------------------------------------------
 internal static class CommandLine {
     public static ParseResult Parse(string[] args) {
-        if (args.Length == 0 || IsHelp(args[0])) {
-            return ParseResult.Usage(0);
-        }
+        string? firstArg = args.FirstOrDefault();
+        if (args.Length == 0 || firstArg is null || IsHelp(firstArg)) return ParseResult.Usage(0);
 
-        string command = args[0].Trim().ToLowerInvariant();
+        string command = firstArg.Trim().ToLowerInvariant();
 
-        return string.Equals(command, "publish", StringComparison.Ordinal)
-            ? ParseResult.Success(ParsePublishOptions(args.Skip(1).ToArray()))
-            : throw new InvalidOperationException($"Unknown command '{args[0]}'.");
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (!command.StartsWith("publish", StringComparison.Ordinal)) throw new InvalidOperationException($"Unknown command '{args[0]}'.");
+        
+        string[] argsWithoutCommand = args.Skip(1).ToArray();
+        if (argsWithoutCommand.Length == 0) return ParseResult.Usage(0);
+        
+        PublishOptions result = ParsePublishOptions(argsWithoutCommand);
+        
+        return ParseResult.Success(result);
     }
 
     public static void PrintUsage() {
@@ -36,8 +41,6 @@ internal static class CommandLine {
     private static bool IsHelp(string value) => value is "-h" or "--help" or "help";
 
     private static PublishOptions ParsePublishOptions(string[] args) {
-        if (args.Length == 0) throw new InvalidOperationException("Missing project path.");
-
         var options = new PublishOptions {
             ProjectPath = string.Empty,
             Rid = "auto",
@@ -48,14 +51,13 @@ internal static class CommandLine {
         int index = 0;
         while (index < args.Length) {
             string token = args[index];
-            if (!token.StartsWith("-", StringComparison.Ordinal)) {
-                if (string.IsNullOrWhiteSpace(options.ProjectPath)) {
-                    options.ProjectPath = token;
-                    index++;
-                    continue;
-                }
+            if (!token.StartsWith('-')) {
+                if (!string.IsNullOrWhiteSpace(options.ProjectPath)) throw new InvalidOperationException($"Unexpected argument '{token}'.");
 
-                throw new InvalidOperationException($"Unexpected argument '{token}'.");
+                options.ProjectPath = token;
+                index++;
+                continue;
+
             }
 
             switch (token) {

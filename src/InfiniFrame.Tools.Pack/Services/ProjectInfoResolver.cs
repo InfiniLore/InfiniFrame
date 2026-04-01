@@ -15,9 +15,9 @@ internal static class ProjectInfoResolver {
         if (!string.IsNullOrWhiteSpace(targetFramework)) return targetFramework;
 
         string? targetFrameworks = FindSingleValue(root, "TargetFrameworks");
-        if (string.IsNullOrWhiteSpace(targetFrameworks)) {
-            throw new InvalidOperationException("Could not resolve target framework from project file. Use --framework.");
-        }
+        
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (string.IsNullOrWhiteSpace(targetFrameworks)) throw new InvalidOperationException("Could not resolve target framework from project file. Use --framework.");
 
         return targetFrameworks.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).First();
     }

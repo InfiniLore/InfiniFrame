@@ -32,7 +32,7 @@ internal static class PublishService {
 
         using var tempTargets = TempTargetsFile.Create();
 
-        var publishArgs = new List<string> {
+        List<string> publishArgs = [
             "publish",
             projectPath,
             "-c", options.Configuration,
@@ -51,7 +51,7 @@ internal static class PublishService {
             $"-p:InfiniFramePackNativeArtifactsDir={paths.NativeArtifactsDir}",
             $"-p:CustomAfterMicrosoftCommonTargets={tempTargets.Path}",
             options.Verbose ? "-v:normal" : "-v:minimal"
-        };
+        ];
 
         if (options.NoRestore) publishArgs.Add("--no-restore");
 

@@ -6,16 +6,18 @@ namespace InfiniFrame.Tools.Pack.Services;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class TempTargetsFile : IDisposable {
-    private TempTargetsFile(string path) {
-        Path = path;
-    }
+    public string Path { get; private init; } = null!;
 
-    public string Path { get; }
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public static TempTargetsFile Create() {
         string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"infiniframe-pack-{Guid.NewGuid():N}.targets");
         File.WriteAllText(path, BuildContents());
-        return new TempTargetsFile(path);
+        
+        return new TempTargetsFile {
+            Path = path
+        };
     }
 
     public void Dispose() {
@@ -28,6 +30,7 @@ internal sealed class TempTargetsFile : IDisposable {
     }
 
     private static string BuildContents() {
+        // lang=msbuild
         return """
             <Project>
               <ItemGroup Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)' and Exists('$(MSBuildProjectDirectory)\\wwwroot')">
