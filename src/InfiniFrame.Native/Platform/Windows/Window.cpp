@@ -1164,6 +1164,41 @@ void InfiniFrameWindow::AttachWebView()
 	if (startupString.length() > 0)
 		options->put_AdditionalBrowserArguments(startupString.c_str());
 
+	// Register custom schemes with WebView2 so top-level navigations like app://... are allowed.
+	if (!m_impl->_customSchemeNames.empty())
+	{
+		wil::com_ptr<ICoreWebView2EnvironmentOptions4> options4;
+		if (SUCCEEDED(options->QueryInterface(IID_PPV_ARGS(&options4))) && options4)
+		{
+			std::vector<wil::com_ptr<ICoreWebView2CustomSchemeRegistration>> registrations;
+			registrations.reserve(m_impl->_customSchemeNames.size());
+
+			for (const auto& schemeName : m_impl->_customSchemeNames)
+			{
+				auto registration = Microsoft::WRL::Make<CoreWebView2CustomSchemeRegistration>(schemeName.c_str());
+				if (!registration)
+					continue;
+
+				// We use app://localhost/... URIs, so authority is expected.
+				registration->put_HasAuthorityComponent(TRUE);
+				registration->put_TreatAsSecure(TRUE);
+				registrations.emplace_back(registration);
+			}
+
+			if (!registrations.empty())
+			{
+				std::vector<ICoreWebView2CustomSchemeRegistration*> rawRegistrations;
+				rawRegistrations.reserve(registrations.size());
+				for (auto& registration : registrations)
+					rawRegistrations.emplace_back(registration.get());
+
+				options4->SetCustomSchemeRegistrations(
+					static_cast<UINT32>(rawRegistrations.size()),
+					rawRegistrations.data());
+			}
+		}
+	}
+
 	HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(runtimePath, m_impl->_temporaryFilesPath.empty() ? nullptr : m_impl->_temporaryFilesPath.c_str(), options.Get(),
 		Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
 			[&](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {

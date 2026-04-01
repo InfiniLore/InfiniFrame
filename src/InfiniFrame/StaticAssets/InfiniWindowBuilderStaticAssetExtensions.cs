@@ -35,6 +35,15 @@ public static class InfiniWindowBuilderStaticAssetExtensions {
                 physicalWwwrootPath,
                 includePhysicalFallback);
 
+            IFileInfo defaultDoc = provider.GetFileInfo(normalizedDefaultDocument);
+            if (!defaultDoc.Exists || defaultDoc.IsDirectory) {
+                string assemblyName = (assembly ?? Assembly.GetEntryAssembly() ?? typeof(InfiniWindowBuilderStaticAssetExtensions).Assembly)
+                    .GetName().Name ?? "<unknown>";
+                throw new InvalidOperationException(
+                    $"Static asset '{normalizedDefaultDocument}' was not found via configured providers. " +
+                    $"Expected embedded naming like '{assemblyName}.wwwroot.{normalizedDefaultDocument.Replace('/', '.')}'.");
+            }
+
             concreteBuilder.StaticAssets = new StaticAssetSettings {
                 FileProvider = provider,
                 BaseUri = baseUri,

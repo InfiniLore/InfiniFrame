@@ -15,16 +15,22 @@ public static class FileProviderFactory {
         bool includePhysicalFallback = true
     ) {
         assembly ??= Assembly.GetEntryAssembly() ?? typeof(FileProviderFactory).Assembly;
+        string assemblyName = assembly.GetName().Name ?? throw new InvalidOperationException("Unable to determine assembly name for embedded wwwroot resolution.");
 
-        var embeddedProvider = new EmbeddedFileProvider(assembly, "wwwroot");
-        if (!includePhysicalFallback) return embeddedProvider;
+        // Preferred embedded naming: <AssemblyName>.wwwroot.<path>
+        var embeddedProvider = new EmbeddedFileProvider(assembly, $"{assemblyName}.wwwroot");
+        // Compatibility with resources embedded as "wwwroot.<path>".
+        var legacyEmbeddedProvider = new EmbeddedFileProvider(assembly, "wwwroot");
+
+        IFileProvider provider = new CompositeFileProvider(embeddedProvider, legacyEmbeddedProvider);
+        if (!includePhysicalFallback) return provider;
 
         string fallbackPath = physicalWwwrootPath
             ?? Path.Combine(AppContext.BaseDirectory, "wwwroot");
 
-        if (!Directory.Exists(fallbackPath)) return embeddedProvider;
+        if (!Directory.Exists(fallbackPath)) return provider;
 
         var physicalProvider = new PhysicalFileProvider(fallbackPath);
-        return new CompositeFileProvider(embeddedProvider, physicalProvider);
+        return new CompositeFileProvider(provider, physicalProvider);
     }
 }

@@ -8,16 +8,26 @@ namespace InfiniFrame.StaticAssets;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class StaticAssetSchemeHandler {
+    private static readonly bool TraceEnabled =
+        string.Equals(Environment.GetEnvironmentVariable("INFINIFRAME_TRACE_STATIC_ASSETS"), "1", StringComparison.Ordinal);
+
     public static NetCustomSchemeDelegate Create(IFileProvider fileProvider, string defaultDocument) {
         return (_, _, url, out contentType) => {
             contentType = null;
 
-            if (!TryGetAssetPath(url, defaultDocument, out string assetPath)) return null;
+            if (!TryGetAssetPath(url, defaultDocument, out string assetPath)) {
+                Trace($"Rejected URL path: {url}");
+                return null;
+            }
 
             IFileInfo file = fileProvider.GetFileInfo(assetPath);
-            if (!file.Exists || file.IsDirectory) return null;
+            if (!file.Exists || file.IsDirectory) {
+                Trace($"Miss: {assetPath} (from {url})");
+                return null;
+            }
 
             contentType = GetContentType(assetPath);
+            Trace($"Hit: {assetPath} ({contentType})");
             return file.CreateReadStream();
         };
     }
@@ -82,5 +92,17 @@ internal static class StaticAssetSchemeHandler {
             ".map" => "application/json; charset=utf-8",
             _ => "application/octet-stream"
         };
+    }
+
+    private static void Trace(string message) {
+        if (!TraceEnabled) return;
+
+        try {
+            string logPath = Path.Combine(Path.GetTempPath(), "infiniframe-static-assets.log");
+            File.AppendAllText(logPath, $"[{DateTime.UtcNow:O}] {message}{Environment.NewLine}");
+        }
+        catch {
+            // Never fail request handling due to tracing.
+        }
     }
 }

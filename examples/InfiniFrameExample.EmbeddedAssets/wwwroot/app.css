@@ -1,5 +1,5 @@
 :root {
-    color-scheme: light dark;
+    color-scheme: light;
     font-family: Segoe UI, sans-serif;
 }
 
@@ -9,6 +9,7 @@ body {
     display: grid;
     place-items: center;
     background: linear-gradient(135deg, #f1f5f9, #dbeafe);
+    color: #0f172a;
 }
 
 main {

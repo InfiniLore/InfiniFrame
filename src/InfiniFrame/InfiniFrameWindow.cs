@@ -33,6 +33,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
     private int _shutdownStarted;
+    private static readonly bool TraceStaticAssets =
+        string.Equals(Environment.GetEnvironmentVariable("INFINIFRAME_TRACE_STATIC_ASSETS"), "1", StringComparison.Ordinal);
 
     #region PROPERTIES
     /// <summary>
@@ -758,6 +760,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType) {
         contentType = null;
         numBytes = 0;
+        TraceScheme($"Request: {url}");
         int colonPos = url.IndexOf(':');
 
         if (colonPos < 0)
@@ -767,11 +770,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         if (!CustomSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
             Logger.LogWarning("No handler registered for scheme '{Scheme}'", scheme);
+            TraceScheme($"No handler for scheme '{scheme}'");
         }
 
         Stream? responseStream = handler?.Invoke(this, scheme, url, out contentType);
 
         if (responseStream is null) {
+            Logger.LogWarning("Custom scheme handler returned no content for URL '{Url}'", url);
+            TraceScheme($"No response: {url}");
             // Webview should pass through request to normal handlers (e.g., network)
             // or handle as 404 otherwise
             return 0;
@@ -784,8 +790,20 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         responseStream.CopyTo(ms);
 
         numBytes = (int)ms.Position;
+        TraceScheme($"Response: {url} bytes={numBytes} contentType={contentType ?? "<null>"}");
         IntPtr buffer = Marshal.AllocCoTaskMem(numBytes);
         Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
         return buffer;
+    }
+
+    private static void TraceScheme(string message) {
+        if (!TraceStaticAssets) return;
+        try {
+            string logPath = Path.Combine(Path.GetTempPath(), "infiniframe-scheme-callback.log");
+            File.AppendAllText(logPath, $"[{DateTime.UtcNow:O}] {message}{Environment.NewLine}");
+        }
+        catch {
+            // Best-effort tracing only.
+        }
     }
 }
