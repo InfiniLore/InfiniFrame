@@ -1,4 +1,4 @@
-name: "Shared: Reusable Docs to GitHub Pages"
+name: "Shared: Release Docs"
 on:
     workflow_call:
         inputs:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
     build:
-        name: Build DocFX Site
+        name: Build Docs
         runs-on: windows-latest
 
         steps:
@@ -28,7 +28,7 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
 
-            -   name: Setup .NET SDK
+            -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -49,7 +49,7 @@ jobs:
             -   name: Generate API Metadata
                 run: docfx metadata docs/docfx.json
 
-            -   name: Generate C++ API Markdown
+            -   name: Generate C++ Docs
                 shell: pwsh
                 run: ./docs/scripts/update-cpp-api.ps1 -Required
 
@@ -65,7 +65,7 @@ jobs:
                     path: docs/_site
 
     deploy:
-        name: Deploy to GitHub Pages
+        name: Deploy Docs
         needs: build
         runs-on: ubuntu-latest
         environment:

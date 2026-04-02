@@ -1,4 +1,4 @@
-name: "Shared: Reusable MultiPlatform Testing"
+name: "Shared: Platform Tests"
 on:
     workflow_call:
         inputs:
@@ -33,13 +33,13 @@ env:
 
 jobs:
     prepare:
-        name: Resolve PR commit
+        name: Resolve Target SHA
         runs-on: ubuntu-latest
         outputs:
             sha: ${{ steps.resolve.outputs.sha }}
 
         steps:
-            -   name: Resolve PR head SHA
+            -   name: Resolve PR SHA
                 id: resolve
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,17 +62,17 @@ jobs:
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
 
     docs-validation:
-        name: Validate Docs Build (No Warnings)
+        name: Validate Docs
         runs-on: ubuntu-latest
         needs: prepare
 
         steps:
-            -   name: Checkout repository
+            -   name: Checkout
                 uses: actions/checkout@v6
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || needs.prepare.outputs.sha }}
 
-            -   name: Setup .NET SDK
+            -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -80,15 +80,15 @@ jobs:
                         9.x
                         10.x
 
-            -   name: Setup Node.js
+            -   name: Setup Node
                 uses: actions/setup-node@v5
                 with:
                     node-version: 22
 
-            -   name: Install docfx
+            -   name: Install DocFX
                 run: dotnet tool install --global docfx --version 2.78.5
 
-            -   name: Add .NET tools to PATH
+            -   name: Add Tools Path
                 run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
             -   name: Install Doxygen
@@ -96,14 +96,14 @@ jobs:
                     sudo apt-get update
                     sudo apt-get install -y doxygen
 
-            -   name: Generate API metadata
+            -   name: Generate API Metadata
                 run: docfx metadata docs/docfx.json
 
-            -   name: Generate C++ API markdown
+            -   name: Generate C++ Docs
                 shell: pwsh
                 run: ./docs/scripts/update-cpp-api.ps1 -Required
 
-            -   name: Build docs (fail on warnings/errors)
+            -   name: Build Docs
                 shell: bash
                 run: |
                     set -euo pipefail
@@ -115,7 +115,7 @@ jobs:
                     fi
 
     mark-pending:
-        name: Mark Manual CI as Pending
+        name: Set Pending Checks
         runs-on: ubuntu-latest
         needs: [prepare, docs-validation]
         permissions:
@@ -123,10 +123,10 @@ jobs:
         env:
             TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         steps:
-            -   name: Checkout repository
+            -   name: Checkout
                 uses: actions/checkout@v6
 
-            -   name: Set pending status for all arch/platforms
+            -   name: Set Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
@@ -154,6 +154,7 @@ jobs:
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     linux-gui:
+        name: Linux GUI Tests
         if: ${{ inputs.run_linux == true }}
         needs: [prepare, mark-pending]
         uses: ./.github/workflows/shared-testing-gui-linux.yml
@@ -166,6 +167,7 @@ jobs:
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     windows-gui:
+        name: Windows GUI Tests
         if: ${{ inputs.run_windows == true }}
         needs: [prepare, mark-pending]
         uses: ./.github/workflows/shared-testing-gui-windows.yml
@@ -178,6 +180,7 @@ jobs:
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     windows-playwright:
+        name: Windows Playwright Tests
         if: ${{ inputs.run_windows_playwright == true }}
         needs: [prepare, mark-pending]
         uses: ./.github/workflows/shared-testing-playwright-windows.yml
@@ -190,6 +193,7 @@ jobs:
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     macos-gui:
+        name: macOS GUI Tests
         if: ${{ inputs.run_macos == true }}
         needs: [prepare, mark-pending]
         uses: ./.github/workflows/shared-testing-gui-macos.yml
@@ -201,7 +205,7 @@ jobs:
         secrets: inherit
 
     mark-skipped:
-        name: Mark Skipped Platforms
+        name: Mark Skipped Checks
         runs-on: ubuntu-latest
         if: ${{ always() }}
         needs:
@@ -216,10 +220,10 @@ jobs:
         env:
             TARGET_SHA: ${{ needs.prepare.outputs.sha }}
         steps:
-            -   name: Checkout repository
+            -   name: Checkout
                 uses: actions/checkout@v6
 
-            -   name: Mark skipped platform statuses
+            -   name: Mark Skipped
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |

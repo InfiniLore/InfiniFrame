@@ -1,4 +1,4 @@
-name: "CI: Release to Nuget"
+name: "CI: Release"
 on:
     workflow_dispatch:
         inputs:
@@ -37,7 +37,7 @@ permissions:
 jobs:
     # noinspection UndefinedAction
     python-tests:
-        name: Run Python Script Tests
+        name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ jobs:
                     git config user.name "github-actions[bot]"
                     git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            -   name: Bump version
+            -   name: Bump Version
                 id: bump
                 run: |
                     if [ "${{ inputs.version_bump }}" == "custom" ]; then
@@ -87,7 +87,7 @@ jobs:
                     echo "tag=$TAG" >> $GITHUB_OUTPUT
                     echo "Bumped to version: $VERSION (tag: $TAG)"
 
-            -   name: Commit and push changes
+            -   name: Commit and Push
                 run: |
                     set -euo pipefail
                     TAG="${{ steps.bump.outputs.tag }}"
@@ -114,7 +114,7 @@ jobs:
     # ------------------------------------------------------------------------------------------------------------------
     # noinspection UndefinedAction, UndefinedParamsPresent
     run-tests:
-        name: Run Multi-Platform Tests
+        name: Platform Tests
         needs: bump-version
         uses: ./.github/workflows/shared-testing.yml
         with:
@@ -130,7 +130,7 @@ jobs:
     # Build multi-architecture binaries
     # ------------------------------------------------------------------------------------------------------------------
     build:
-        name: Build ${{ matrix.os }} / ${{ matrix.arch }}
+        name: Build Native (${{ matrix.os }}/${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
         needs: [bump-version, run-tests]
         strategy:
@@ -167,7 +167,7 @@ jobs:
                     ref: ${{ needs.bump-version.outputs.tag_name }}
                     fetch-depth: 1
 
-            -   name: Setup .NET SDK
+            -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -176,7 +176,7 @@ jobs:
                         10.x
 
             # Cache NuGet packages
-            -   name: Cache NuGet packages
+            -   name: Cache NuGet
                 uses: actions/cache@v5
                 with:
                     path: ${{ startsWith(matrix.os, 'windows') && '~\.nuget\packages' || '~/.nuget/packages' }}
@@ -199,7 +199,7 @@ jobs:
                         ${{ matrix.os }}-${{ matrix.arch }}-cmake-
 
             # Cache APT packages (Linux only)
-            -   name: Cache and install GTK3 dependencies
+            -   name: Install GTK3 Deps
                 if: startsWith(matrix.os, 'ubuntu')
                 uses: awalsh128/cache-apt-pkgs-action@latest
                 with:
@@ -213,7 +213,7 @@ jobs:
                     version: 1.0
 
             # Cache Homebrew packages (macOS only)
-            -   name: Cache Homebrew packages
+            -   name: Cache Homebrew
                 if: startsWith(matrix.os, 'macos')
                 uses: actions/cache@v5
                 with:
@@ -231,7 +231,7 @@ jobs:
                     brew list gtk+3 >/dev/null 2>&1 || brew install gtk+3
                     brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
 
-            -   name: Build InfiniFrame.Native
+            -   name: Build Native
                 shell: bash
                 run: |
                     dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
@@ -240,7 +240,7 @@ jobs:
                         -p:SolutionDir="${{ github.workspace }}/" \
                         -p:Platform=${{ matrix.arch }}
 
-            -   name: Upload build artifact
+            -   name: Upload Build Artifact
                 uses: actions/upload-artifact@v7
                 with:
                     name: native-${{ matrix.libName }}-${{ matrix.arch }}
@@ -250,7 +250,7 @@ jobs:
     # Release + pack
     # ------------------------------------------------------------------------------------------------------------------
     release:
-        name: Create GitHub Release
+        name: Publish Release
         runs-on: ubuntu-latest
         needs: [bump-version, build]
 
@@ -261,7 +261,7 @@ jobs:
                     ref: ${{ needs.bump-version.outputs.tag_name }}
                     fetch-depth: 1
 
-            -   name: Setup .NET SDK
+            -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -270,7 +270,7 @@ jobs:
                         10.x
 
             # Cache .NET packages
-            -   name: Cache .NET packages
+            -   name: Cache NuGet
                 uses: actions/cache@v5
                 with:
                     path: ~/.nuget/packages
@@ -281,12 +281,12 @@ jobs:
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
 
-            -   name: Download build artifacts
+            -   name: Download Build Artifacts
                 uses: actions/download-artifact@v8
                 with:
                     path: artifacts/native
 
-            -   name: Normalize native folder structure
+            -   name: Normalize Artifacts
                 run: |
                     set -e
                     
@@ -315,7 +315,7 @@ jobs:
                         fi
                     done
 
-            -   name: Verify native artifacts
+            -   name: Verify Artifacts
                 run: |
                     echo "Checking native build artifacts..."
                     EXPECTED_ARTIFACTS=(
@@ -344,7 +344,7 @@ jobs:
                       exit 1
                     fi
 
-            -   name: Build .NET (pack solution)
+            -   name: Build Pack Solution
                 run: |
                     dotnet restore InfiniFrame.GitHubActions.Pack.slnf /p:NoWarn=NU1503
                     
@@ -359,13 +359,13 @@ jobs:
                       --configuration Release \
                       -o ./release
 
-            -   name: Upload NuGet packages as artifact
+            -   name: Upload NuGet Artifacts
                 uses: actions/upload-artifact@v7
                 with:
                     name: nuget-packages-${{ needs.bump-version.outputs.tag_name }}
                     path: ./release/*.nupkg
 
-            -   name: Verify native libraries in Shared NuGet package
+            -   name: Verify Package Natives
                 run: |
                     # Find the Shared package (PACKAGE ID, not namespace)
                     PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
@@ -401,7 +401,7 @@ jobs:
                       exit 1
                     fi
 
-            -   name: Create GitHub Release
+            -   name: Publish Release
                 uses: softprops/action-gh-release@v2
                 with:
                     tag_name: ${{ needs.bump-version.outputs.tag_name }}
@@ -420,7 +420,7 @@ jobs:
                       --source https://api.nuget.org/v3/index.json \
                       --skip-duplicate
 
-            -   name: Push to GitHub Packages
+            -   name: Push GitHub Packages
                 if: inputs.publish_to_nuget
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -436,7 +436,7 @@ jobs:
             
     # noinspection UndefinedAction, UndefinedParamsPresent
     publish-docs:
-        name: Publish Docs to GitHub Pages
+        name: Publish Docs
         needs: [release, bump-version]
         if: inputs.publish_docs
         uses: ./.github/workflows/shared-release-docs.yml

@@ -1,4 +1,4 @@
-name: "CI: TODO to Issues"
+name: "CI: Todo Sync"
 on:
     push:
         branches:
@@ -8,12 +8,13 @@ on:
 
 jobs:
     todo-to-issue:
+        name: Sync Todo Issues
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - name: TODO to Issue
+            - name: Sync Todo Issues
               uses: alstr/todo-to-issue-action@v5
               with:
                   PROJECT: organization/InfiniLore/1

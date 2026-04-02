@@ -1,4 +1,4 @@
-name: "CI: Python Script Tests"
+name: "CI: Python Tests"
 on:
     pull_request:
         branches:
@@ -19,5 +19,5 @@ on:
 jobs:
     # noinspection UndefinedAction
     run:
-        name: Run Python Script Tests
+        name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml

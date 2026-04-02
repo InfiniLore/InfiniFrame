@@ -11,7 +11,7 @@ on:
 
 jobs:
     mark-pending:
-        name: Mark PR as Pending
+        name: Set Pending Checks
         runs-on: ubuntu-latest
 
         if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
@@ -22,7 +22,7 @@ jobs:
             pull-requests: read
 
         steps:
-            - name: Define contexts
+            - name: Define Checks
               id: contexts
               run: |
                   echo "list<<EOF" >> $GITHUB_OUTPUT
@@ -34,7 +34,7 @@ jobs:
                   echo "Manual MultiPlatform CI - macOS/arm64" >> $GITHUB_OUTPUT
                   echo "EOF" >> $GITHUB_OUTPUT
 
-            - name: Set pending statuses
+            - name: Set Pending
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   BASE_REPO: ${{ github.repository }}

@@ -1,4 +1,4 @@
-name: "CI: MultiPlatform Testing"
+name: "CI: Platform Tests"
 on:
     workflow_dispatch:
         inputs:
@@ -26,12 +26,12 @@ on:
 jobs:
     # noinspection UndefinedAction
     python-tests:
-        name: Run Python Script Tests
+        name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     run:
-        name: Run MultiPlatform Tests
+        name: Platform Tests
         needs: python-tests
         uses: ./.github/workflows/shared-testing.yml
         with:

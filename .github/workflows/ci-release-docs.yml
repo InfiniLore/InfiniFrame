@@ -1,4 +1,4 @@
-name: "CI: Docs to GitHub Pages"
+name: "CI: Release Docs"
 on:
     workflow_dispatch:
 
@@ -10,6 +10,6 @@ permissions:
 jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent
     deploy-docs:
-        name: Build and Deploy Docs
+        name: Publish Docs
         uses: ./.github/workflows/shared-release-docs.yml
         secrets: inherit

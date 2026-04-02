@@ -1,4 +1,4 @@
-name: "Shared: Reusable Windows Playwright Tests"
+name: "Shared: Playwright Tests Windows"
 on:
     workflow_call:
         inputs:
@@ -18,7 +18,7 @@ on:
 
 jobs:
     windows-playwright:
-        name: Test - Windows Playwright (${{ matrix.framework }})
+        name: Windows Playwright (${{ matrix.framework }})
         runs-on: windows-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -33,13 +33,13 @@ jobs:
                 framework: [ net8.0, net9.0, net10.0 ]
 
         steps:
-            -   name: Checkout repository
+            -   name: Checkout
                 uses: actions/checkout@v6
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
-            -   name: Setup .NET SDK
+            -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -47,7 +47,7 @@ jobs:
                         9.x
                         10.x
 
-            -   name: Cache .NET packages
+            -   name: Cache NuGet
                 uses: actions/cache@v5
                 with:
                     path: ~\.nuget\packages
@@ -68,7 +68,7 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-cmake-v2-
 
-            -   name: Cache WebView2 installer
+            -   name: Cache WebView2
                 id: cache-webview2
                 uses: actions/cache@v5
                 with:
@@ -84,10 +84,10 @@ jobs:
                     }
                     Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
 
-            -   name: Restore dependencies
+            -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.WindowsPlaywright.slnf /p:NoWarn=NU1503
 
-            -   name: Build (Release)
+            -   name: Build Release
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                       --configuration Release `
@@ -98,7 +98,7 @@ jobs:
                       --configuration Release `
                       --no-restore
 
-            -   name: Cache Playwright browsers
+            -   name: Cache Playwright Browsers
                 id: cache-playwright
                 uses: actions/cache@v5
                 with:
@@ -108,7 +108,7 @@ jobs:
                         playwright-${{ runner.os }}-${{ matrix.framework }}-
                         playwright-${{ runner.os }}-
 
-            -   name: Install Playwright browsers (.NET)
+            -   name: Install Playwright Browsers
                 if: steps.cache-playwright.outputs.cache-hit != 'true'
                 working-directory: tests/InfiniFrameTests.Playwright
                 shell: pwsh
@@ -120,7 +120,7 @@ jobs:
 
                     pwsh $script install
 
-            -   name: Verify Native DLLs for testing (${{ matrix.framework }})
+            -   name: Verify Native Binaries (${{ matrix.framework }})
                 shell: pwsh
                 run: |
                     $binPath = "tests/InfiniFrameTests.Playwright/bin/Release/${{ matrix.framework }}"
@@ -131,25 +131,25 @@ jobs:
                       }
                     }
                     
-            -   name: Expose GitHub Actions Runtime
+            -   name: Export Actions Runtime
                 uses: actions/github-script@v8
                 with:
                     script: |
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run Playwright tests (${{ matrix.framework }})
+            -   name: Run Playwright (${{ matrix.framework }})
                 working-directory: tests/InfiniFrameTests.Playwright/
                 run: dotnet test --configuration Release --no-build --no-restore --framework ${{ matrix.framework }}
 
-            -   name: Upload Playwright test results
+            -   name: Upload Playwright Logs
                 if: always()
                 uses: actions/upload-artifact@v7
                 with:
                     name: playwright-test-results-${{ matrix.framework }}
                     path: tests/InfiniFrameTests.Playwright/TestResults
 
-            -   name: Update Windows Playwright status
+            -   name: Update Playwright Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

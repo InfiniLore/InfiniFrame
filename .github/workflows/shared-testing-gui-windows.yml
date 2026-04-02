@@ -1,4 +1,4 @@
-name: "Shared: Reusable Windows GUI Tests"
+name: "Shared: GUI Tests Windows"
 on:
     workflow_call:
         inputs:
@@ -18,7 +18,7 @@ on:
 
 jobs:
     windows-gui:
-        name: Test - Windows/${{ matrix.arch }}
+        name: Windows GUI (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -38,13 +38,13 @@ jobs:
             checks: write
 
         steps:
-            -   name: Checkout repository
+            -   name: Checkout
                 uses: actions/checkout@v6
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
-            -   name: Setup .NET SDK
+            -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -52,7 +52,7 @@ jobs:
                         9.x
                         10.x
 
-            -   name: Cache .NET packages
+            -   name: Cache NuGet
                 uses: actions/cache@v5
                 with:
                     path: ~\.nuget\packages
@@ -74,10 +74,10 @@ jobs:
                     restore-keys: |
                         ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
 
-            -   name: Restore dependencies
+            -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
 
-            -   name: Build (Release)
+            -   name: Build Release
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                       --configuration Release `
@@ -89,7 +89,7 @@ jobs:
                       --configuration Release `
                       --no-restore
 
-            -   name: Verify Native DLLs for testing
+            -   name: Verify Native Binaries
                 run: |
                     $nativeDll = "tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dll"
                     $webView2 = "tests/InfiniFrameTests/bin/Release/net9.0/WebView2Loader.dll"
@@ -106,7 +106,7 @@ jobs:
 
                     Write-Host "All native DLLs present"
 
-            -   name: Run tests
+            -   name: Run Tests
                 run: |
                     echo "Running tests on Windows..."
                     dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
@@ -114,7 +114,7 @@ jobs:
                       --no-build `
                       --no-restore
 
-            -   name: Upload test results as artifact
+            -   name: Upload Test Logs
                 if: failure()
                 uses: actions/upload-artifact@v7
                 with:
@@ -123,7 +123,7 @@ jobs:
                         **/TestResults/*.log
                         **/TestResults/*.trx
 
-            -   name: Update Windows status
+            -   name: Update Windows Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
