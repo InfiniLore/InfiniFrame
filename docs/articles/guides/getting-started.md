@@ -64,6 +64,32 @@ The window opens immediately when `Build()` is called and runs on the current th
 
 > **Windows:** WebView2 requires the calling thread to be STA (single-threaded apartment). Add `[STAThread]` to your `Main` method. Top-level statements do not support `[STAThread]` directly — use an explicit `static void Main()` instead. Calling `Build()` on a non-STA thread will throw an `InvalidOperationException`
 
+### Single-file/native packaging bootstrap
+
+If you package your app with embedded native binaries (for example via `InfiniFrame.Tools.Pack`), initialize the single-file bootstrap before building your first window:
+
+```csharp
+using InfiniFrame;
+
+public static class Program {
+    [STAThread]
+    public static void Main(string[] args) {
+        InfiniFrameSingleFileBootstrap.Initialize();
+
+        var window = InfiniFrameWindowBuilder.Create()
+            .SetTitle("Hello, InfiniFrame")
+            .SetSize(1280, 720)
+            .Center()
+            .SetStartUrl("https://example.com")
+            .Build();
+
+        window.WaitForClose();
+    }
+}
+```
+
+You only need this for packaged outputs that embed native runtime files as resources. Standard development runs (`dotnet run`) do not require it.
+
 ## Option 2 — Blazor WebView
 
 This integration runs a Blazor application entirely in-process — no server, no HTTP port

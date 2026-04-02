@@ -49,6 +49,7 @@
   <Folder Name="/example/">
     <Project Path="examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/InfiniFrameExample.BlazorWebView.MultiWindowSample.csproj" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
+    <Project Path="examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.Blazor/InfiniFrameExample.WebApp.Blazor.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.React/InfiniFrameExample.WebApp.React.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.Vue/InfiniFrameExample.WebApp.Vue.csproj" />
@@ -65,12 +66,16 @@
     <File Path="Directory.Packages.props" />
     <File Path="src\Directory.Build.props" />
   </Folder>
+  <Folder Name="/src/tools/">
+    <Project Path="src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
     <File Path="tests/Directory.Build.targets" />
     <Project Path="tests/InfiniFrameTests.BlazorWebView/InfiniFrameTests.BlazorWebView.csproj" />
     <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
     <Project Path="tests/InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
+    <Project Path="tests/InfiniFrameTests.Tools.Pack/InfiniFrameTests.Tools.Pack.csproj" />
     <Project Path="tests/InfiniFrameTests.WebServer/InfiniFrameTests.WebServer.csproj" />
     <Project Path="tests/InfiniFrameTests/InfiniFrameTests.csproj" />
   </Folder>

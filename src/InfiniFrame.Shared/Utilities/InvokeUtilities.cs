@@ -19,6 +19,7 @@ namespace InfiniFrame.Utilities;
 internal static class InvokeUtilities {
     public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IInfiniFrameWindow, T> callback) {
         T? value = default;
+        // ReSharper disable once RedundantAssignment
         bool completed = false;
         window.Invoke(() => {
             value = callback(window);
@@ -30,6 +31,7 @@ internal static class InvokeUtilities {
 
     public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IntPtr, T> callback) {
         T? value = default;
+        // ReSharper disable once RedundantAssignment
         bool completed = false;
         window.Invoke(() => {
             value = callback(window.InstanceHandle);
@@ -41,6 +43,7 @@ internal static class InvokeUtilities {
 
     public static T InvokeAndReturn<T>(IInfiniFrameWindow window, FuncWithOut<T> callback) {
         T? value = default;
+        // ReSharper disable once RedundantAssignment
         bool completed = false;
         window.Invoke(() => {
             callback(window.InstanceHandle, out value);

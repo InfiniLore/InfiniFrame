@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <!--suppress MsbuildTargetFrameworkTagInspection -->
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <OutputType>Exe</OutputType>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>infiniframe-pack</ToolCommandName>
+        <PackageId>InfiniFrame.Tools.Pack</PackageId>
+        <Description>Single-command packaging tool for InfiniFrame apps.</Description>
+        <PackageTags>infiniframe;dotnet-tool;publish;single-file</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack"/>
+    </ItemGroup>
+</Project>

@@ -22,6 +22,10 @@
   <ItemGroup>
     <PackageVersion Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.85.0" />
     <PackageVersion Include="JetBrains.Annotations" Version="2025.2.4" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.5" />
@@ -30,8 +34,8 @@
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageVersion Include="TUnit" Version="1.24.0" />
-    <PackageVersion Include="TUnit.Core" Version="1.24.0" />
-    <PackageVersion Include="TUnit.Playwright" Version="1.24.0" />
+    <PackageVersion Include="TUnit" Version="1.24.18" />
+    <PackageVersion Include="TUnit.Core" Version="1.24.18" />
+    <PackageVersion Include="TUnit.Playwright" Version="1.24.18" />
   </ItemGroup>
 </Project>

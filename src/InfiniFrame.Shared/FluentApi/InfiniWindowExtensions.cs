@@ -58,6 +58,9 @@ public static class InfiniWindowExtensions {
 
             if (File.Exists(absolutePath)) return window.Load(new Uri(absolutePath, UriKind.Absolute));
 
+            if (window.TryResolveStaticAssetUri(path, out Uri staticAssetUri))
+                return window.Load(staticAssetUri);
+
             window.Logger.LogWarning("File not found: {Path}", absolutePath);
             return window;
         }

@@ -12,12 +12,13 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
-
+    public StaticAssetSettings? StaticAssets { get; set; }
+    
     public IInfiniFrameWindowConfiguration Configuration { get; } = new InfiniFrameWindowConfiguration();
     public IInfiniFrameWindowEvents Events { get; internal set; } = new InfiniFrameWindowEvents();
     public IInfiniFrameWindowMessageHandlers MessageHandlers { get; } = new InfiniFrameWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
-
+    
     private InfiniFrameWindowBuilder() {}
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -62,7 +63,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             CustomSchemes = CustomSchemeHandlers,
             Parent = null,
             Events = Events,
-            MessageHandlers = MessageHandlers
+            MessageHandlers = MessageHandlers,
+            StaticAssets = StaticAssets
         };
 
         Events.WebMessageReceived.Add(MessageHandlers.Handle);

@@ -273,8 +273,16 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings *settings
 void InfiniFrameWindow::Impl::AddCustomSchemeHandlers()
 {
 	WebKitWebContext *context = webkit_web_context_get_default();
+	WebKitSecurityManager *securityManager = webkit_web_context_get_security_manager(context);
 	for (const auto &value : _customSchemeNames)
 	{
+		if (securityManager != nullptr && g_ascii_strcasecmp(value.c_str(), "app") == 0)
+		{
+			// Mirror Windows behavior for embedded static assets:
+			// only app:// is explicitly treated as a secure custom scheme.
+			webkit_security_manager_register_uri_scheme_as_secure(securityManager, value.c_str());
+		}
+
 		webkit_web_context_register_uri_scheme(
 			context, value.c_str(),
 			reinterpret_cast<WebKitURISchemeRequestCallback>(HandleCustomSchemeRequest),
