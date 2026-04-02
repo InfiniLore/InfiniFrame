@@ -6,6 +6,17 @@ namespace InfiniFrame.Tools.Pack.Services;
 // Methods
 // -----------------------------------------------------------------------------------------------------------------
 internal static class CommandLine {
+    /// <summary>
+    /// Parses command-line arguments into a normalized <see cref="PublishOptions"/> model or a usage response.
+    /// </summary>
+    /// <param name="args">Raw command-line arguments.</param>
+    /// <returns>A parse result that indicates whether usage should be shown or publish options are ready.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the command is unknown, required arguments are missing, or unsupported options are provided.
+    /// </exception>
+    /// <exception cref="FormatException">
+    /// Thrown when <c>--self-contained</c> receives a value that is not a valid boolean.
+    /// </exception>
     public static ParseResult Parse(string[] args) {
         string? firstArg = args.FirstOrDefault();
         if (args.Length == 0 || firstArg is null || IsHelp(firstArg)) return ParseResult.Usage(0);
@@ -23,6 +34,9 @@ internal static class CommandLine {
         return ParseResult.Success(result);
     }
 
+    /// <summary>
+    /// Prints the CLI usage text for the pack tool.
+    /// </summary>
     public static void PrintUsage() {
         Console.WriteLine("InfiniFrame.Pack");
         Console.WriteLine("Usage:");

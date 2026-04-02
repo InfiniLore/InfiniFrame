@@ -6,6 +6,16 @@ namespace InfiniFrame.Tools.Pack.Services;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class RepoLayout {
+    /// <summary>
+    /// Resolves repository-relative paths required by the pack pipeline.
+    /// </summary>
+    /// <param name="projectDirectory">Directory containing the project to publish.</param>
+    /// <param name="rid">Resolved runtime identifier.</param>
+    /// <param name="configuration">Build configuration.</param>
+    /// <returns>Resolved repository and native artifact paths.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when no repository root containing the native project can be located.
+    /// </exception>
     public static RepoPaths Resolve(string projectDirectory, string rid, string configuration) {
         string repoRoot = ResolveRepositoryRoot(projectDirectory);
         string nativeProjectPath = Path.Combine(repoRoot, "src", "InfiniFrame.Native", "InfiniFrame.Native.proj");

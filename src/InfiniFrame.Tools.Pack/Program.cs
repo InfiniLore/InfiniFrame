@@ -8,6 +8,13 @@ namespace InfiniFrame.Tools.Pack;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class Program {
+    /// <summary>
+    /// Parses command-line arguments and executes the requested pack operation.
+    /// </summary>
+    /// <param name="args">The command-line arguments passed to the tool process.</param>
+    /// <returns>
+    /// <c>0</c> when usage is shown successfully or publish completes successfully; otherwise, a non-zero exit code.
+    /// </returns>
     public static async Task<int> Main(string[] args) {
         try {
             ParseResult parse = CommandLine.Parse(args);

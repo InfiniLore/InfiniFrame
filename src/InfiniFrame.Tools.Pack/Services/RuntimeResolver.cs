@@ -8,6 +8,14 @@ namespace InfiniFrame.Tools.Pack.Services;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class RuntimeResolver {
+    /// <summary>
+    /// Resolves the runtime identifier to use for publish.
+    /// </summary>
+    /// <param name="requestedRid">Requested RID, or <c>auto</c> to infer from the current OS and architecture.</param>
+    /// <returns>A concrete runtime identifier.</returns>
+    /// <exception cref="PlatformNotSupportedException">
+    /// Thrown when automatic RID resolution is requested on an unsupported OS or architecture.
+    /// </exception>
     public static string ResolveRid(string requestedRid) {
         if (!string.Equals(requestedRid, "auto", StringComparison.OrdinalIgnoreCase)) return requestedRid;
 
@@ -38,6 +46,12 @@ internal static class RuntimeResolver {
         throw new PlatformNotSupportedException("Unsupported OS for auto RID resolution.");
     }
 
+    /// <summary>
+    /// Resolves the native artifact OS directory segment from a RID.
+    /// </summary>
+    /// <param name="rid">Runtime identifier.</param>
+    /// <returns><c>windows</c>, <c>linux</c>, or <c>osx</c>.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the RID is unsupported.</exception>
     public static string ResolveNativeOsDir(string rid) {
         // ReSharper disable thrice ConvertIfStatementToReturnStatement
         if (rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return "windows";
@@ -47,6 +61,11 @@ internal static class RuntimeResolver {
         throw new InvalidOperationException($"Unsupported RID for native artifact resolution: {rid}");
     }
 
+    /// <summary>
+    /// Resolves the native build platform from a RID.
+    /// </summary>
+    /// <param name="rid">Runtime identifier.</param>
+    /// <returns><c>arm64</c> when the RID includes <c>arm64</c>; otherwise <c>x64</c>.</returns>
     public static string ResolveNativePlatform(string rid) => rid.Contains("arm64", StringComparison.OrdinalIgnoreCase) 
         ? "arm64" 
         : "x64";

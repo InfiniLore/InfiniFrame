@@ -1,5 +1,7 @@
 - name: Getting Started
   href: getting-started.md
+- name: Packaging Tool
+  href: pack-tool.md
 - name: Core Window
   href: core-window.md
 - name: Blazor WebView

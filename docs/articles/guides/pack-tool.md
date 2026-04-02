@@ -1,0 +1,169 @@
+# InfiniFrame.Tools.Pack Guide
+
+`InfiniFrame.Tools.Pack` is a .NET tool that packages an InfiniFrame application into a single-file executable while embedding:
+
+- `wwwroot` content
+- Native InfiniFrame runtime binaries for the selected runtime identifier (RID)
+
+This guide covers how to install the tool, run it, and avoid common packaging issues.
+
+## Contents
+
+- [Overview](#overview)
+- [How It Works](#how-it-works)
+- [Install and Setup](#install-and-setup)
+- [Install from NuGet](#install-from-nuget)
+- [Command Syntax](#command-syntax)
+- [Usage Examples](#usage-examples)
+- [Common Patterns](#common-patterns)
+- [Edge Cases and Pitfalls](#edge-cases-and-pitfalls)
+
+## Overview
+
+Use `InfiniFrame.Tools.Pack` when you want a single distributable output for an InfiniFrame app.
+
+Compared to a regular `dotnet publish`, the tool additionally:
+
+- Builds the native InfiniFrame runtime project for your target platform
+- Verifies required native artifacts exist before publish starts
+- Injects custom MSBuild targets so `wwwroot` and native runtime files are embedded as resources
+- Cleans unpacked runtime artifacts from the final publish directory
+
+## How It Works
+
+At a high level, `infiniframe-pack publish` runs this pipeline:
+
+1. Parse CLI options and resolve defaults (`RID`, framework, output path).
+2. Locate the repository root by walking up from your app project directory until `src/InfiniFrame.Native/InfiniFrame.Native.proj` is found.
+3. Build native runtime artifacts under `artifacts/native/<os>/<platform>/<configuration>`.
+4. Run `dotnet publish` in single-file mode with custom MSBuild targets.
+5. Remove unpacked `wwwroot` and native runtime files from the publish folder.
+
+## Install and Setup
+
+### Prerequisites
+
+- .NET 10 SDK (or a compatible SDK for your repo setup)
+- An InfiniFrame repository checkout containing `src/InfiniFrame.Native/InfiniFrame.Native.proj`
+- A publishable app `.csproj` inside that repository tree
+
+### Build and install from source (local feed)
+
+From the repository root:
+
+```bash
+dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
+dotnet tool install --local --add-source ./src/InfiniFrame.Tools.Pack/bin/Release InfiniFrame.Tools.Pack
+```
+
+Run with:
+
+```bash
+dotnet tool run infiniframe-pack --help
+```
+
+## Install from NuGet
+
+If the package is published to NuGet, you can install it directly without building from source.
+
+### Global install
+
+```bash
+dotnet tool install --global InfiniFrame.Tools.Pack
+```
+
+Run with:
+
+```bash
+infiniframe-pack --help
+```
+
+### Update or uninstall
+
+```bash
+dotnet tool update --global InfiniFrame.Tools.Pack
+dotnet tool uninstall --global InfiniFrame.Tools.Pack
+```
+
+## Command Syntax
+
+```bash
+dotnet tool run infiniframe-pack publish <project.csproj> [options]
+```
+
+Options:
+
+- `--rid <RID|auto>`: Target runtime identifier. Default is `auto`.
+- `--configuration <Config>`: Build configuration. Default is `Release`.
+- `--framework <TFM>`: Target framework. Default is `TargetFramework`, or first `TargetFrameworks` entry.
+- `--self-contained <true|false>`: Self-contained publish mode. Default is `true`.
+- `--output <path>`: Publish output directory. Default is `bin/<Config>/<TFM>/<RID>/publish`.
+- `--no-restore`: Skip restore during publish.
+- `--verbose`: Use normal verbosity for native build and publish.
+
+## Usage Examples
+
+### Basic publish with defaults
+
+```bash
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj
+```
+
+### Publish for a specific runtime
+
+```bash
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
+```
+
+### Multi-targeted app, choose framework explicitly
+
+```bash
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --framework net10.0
+```
+
+### Custom output and faster inner-loop publish
+
+```bash
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj \
+  --configuration Debug \
+  --no-restore \
+  --output artifacts/publish/MyApp-win-x64 \
+  --verbose
+```
+
+## Common Patterns
+
+### CI-friendly deterministic output paths
+
+Pass an explicit `--output` directory so build artifacts land in a stable path:
+
+```bash
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --output artifacts/publish/MyApp
+```
+
+### Packaging multiple RIDs
+
+Run the tool once per RID and separate outputs:
+
+```bash
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64 --output artifacts/publish/MyApp-win-x64
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid linux-x64 --output artifacts/publish/MyApp-linux-x64
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid osx-arm64 --output artifacts/publish/MyApp-osx-arm64
+```
+
+### Prefer explicit `--framework` for multi-targeting projects
+
+If your project uses `TargetFrameworks`, pass `--framework` to avoid accidental changes when framework order is edited.
+
+## Edge Cases and Pitfalls
+
+- The tool is repository-layout aware, not repo-agnostic.
+  It requires `src/InfiniFrame.Native/InfiniFrame.Native.proj` to exist in a parent directory of the app project.
+- `--rid auto` only supports current OS with `x64` or `arm64`.
+  Other architectures throw a platform-not-supported error.
+- Existing output folders are deleted before publish.
+  Do not point `--output` to a directory with files you need to keep.
+- If your project defines `TargetFrameworks` and you omit `--framework`, the first framework entry is used.
+- Native build runs before `dotnet publish`.
+  If native artifacts are missing or build fails, packaging stops early.
+- `--self-contained` must be `true` or `false` (case-insensitive boolean parsing).

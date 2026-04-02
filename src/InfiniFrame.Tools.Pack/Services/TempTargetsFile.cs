@@ -5,12 +5,23 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+/// Represents a temporary MSBuild targets file used to customize publish behavior for InfiniFrame packaging.
+/// </summary>
 internal sealed class TempTargetsFile : IDisposable {
+    /// <summary>
+    /// Gets the full path to the generated targets file.
+    /// </summary>
     public string Path { get; private init; } = null!;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    
+    /// <summary>
+    /// Creates and writes a temporary targets file that embeds web assets and native runtime artifacts.
+    /// </summary>
+    /// <returns>A disposable handle for the created targets file.</returns>
     public static TempTargetsFile Create() {
         string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"infiniframe-pack-{Guid.NewGuid():N}.targets");
         File.WriteAllText(path, BuildContents());
@@ -20,6 +31,9 @@ internal sealed class TempTargetsFile : IDisposable {
         };
     }
 
+    /// <summary>
+    /// Deletes the temporary targets file if it still exists.
+    /// </summary>
     public void Dispose() {
         try {
             if (File.Exists(Path)) File.Delete(Path);

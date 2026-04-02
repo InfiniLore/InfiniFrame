@@ -10,6 +10,19 @@ namespace InfiniFrame.Tools.Pack.Services;
 internal static class PublishService {
     private const string DotNet = "dotnet";
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+     
+    /// <summary>
+    /// Executes the full InfiniFrame publish pipeline for a project.
+    /// </summary>
+    /// <param name="options">Publish options parsed from the command line.</param>
+    /// <returns>The process exit code of the publish operation.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the target project file does not exist.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when repository layout cannot be resolved, native build fails, or required artifacts are missing.
+    /// </exception>
     public static async Task<int> PublishAsync(PublishOptions options) {
         string projectPath = Path.GetFullPath(options.ProjectPath);
         if (!File.Exists(projectPath)) throw new FileNotFoundException("Project file not found", projectPath);

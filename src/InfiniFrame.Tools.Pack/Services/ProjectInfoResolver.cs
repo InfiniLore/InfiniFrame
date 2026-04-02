@@ -8,6 +8,16 @@ namespace InfiniFrame.Tools.Pack.Services;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class ProjectInfoResolver {
+    /// <summary>
+    /// Resolves the target framework from a project file.
+    /// </summary>
+    /// <param name="projectPath">Path to a project file.</param>
+    /// <returns>
+    /// The value of <c>TargetFramework</c>, or the first framework from <c>TargetFrameworks</c> when multi-targeted.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when no framework can be resolved from the project file.
+    /// </exception>
     public static string ResolveFramework(string projectPath) {
         XElement root = LoadProjectRoot(projectPath);
 
@@ -22,6 +32,13 @@ internal static class ProjectInfoResolver {
         return targetFrameworks.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).First();
     }
 
+    /// <summary>
+    /// Resolves the assembly name used to determine the expected single-file output name.
+    /// </summary>
+    /// <param name="projectPath">Path to a project file.</param>
+    /// <returns>
+    /// The <c>AssemblyName</c> value when present; otherwise the project file name without extension.
+    /// </returns>
     public static string ResolveAssemblyName(string projectPath) {
         XElement root = LoadProjectRoot(projectPath);
         string? assemblyName = FindSingleValue(root, "AssemblyName");
