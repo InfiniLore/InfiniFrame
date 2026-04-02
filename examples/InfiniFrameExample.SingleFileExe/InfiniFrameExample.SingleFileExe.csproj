@@ -16,7 +16,7 @@
 
     <Target Name="InfiniFramePackAfterBuild"
             AfterTargets="Build"
-            Condition="'$(InfiniFramePackAfterBuild)'=='true' and '$(PublishSingleFile)'!='true'">
+            Condition="'$(InfiniFramePackAfterBuild)'=='true' and '$(PublishSingleFile)'!='true' and '$(InfiniFramePackInvoked)'!='true'">
         <Exec Command="dotnet run --project &quot;$(MSBuildProjectDirectory)\..\..\src\InfiniFrame.Tools.Pack\InfiniFrame.Tools.Pack.csproj&quot; --framework net10.0 -- publish &quot;$(MSBuildProjectFullPath)&quot; --rid $(InfiniFramePackRid) --configuration $(Configuration) --framework $(TargetFramework) --self-contained $(InfiniFramePackSelfContained)" />
     </Target>
 </Project>
