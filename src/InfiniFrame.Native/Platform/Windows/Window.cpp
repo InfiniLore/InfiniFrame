@@ -1179,9 +1179,13 @@ void InfiniFrameWindow::AttachWebView()
 				if (!registration)
 					continue;
 
-				// We use app://localhost/... URIs, so authority is expected.
-				registration->put_HasAuthorityComponent(TRUE);
-				registration->put_TreatAsSecure(TRUE);
+				// Only the embedded-assets scheme uses app://localhost/... and should be
+				// treated as secure with an authority component.
+				if (_wcsicmp(schemeName.c_str(), L"app") == 0)
+				{
+					registration->put_HasAuthorityComponent(TRUE);
+					registration->put_TreatAsSecure(TRUE);
+				}
 				registrations.emplace_back(registration);
 			}
 
