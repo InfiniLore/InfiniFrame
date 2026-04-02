@@ -1,11 +1,15 @@
 <img src="assets/badge.png" alt="logo" height="76"/> 
 
-*A modern and cross-platform native window framework for .NET that lets you build desktop applications using web technologies — load any URL, render HTML strings, or embed a full Blazor application inside a native window*
+*A modern and cross-platform native window framework for .NET that lets you build desktop applications using web
+technologies — load any URL, render HTML strings, or embed a full Blazor application inside a native window*
 
 Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
 
-> **Note:** This project is a modern rework of  [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
-> and [Photino.Native](https://github.com/tryphotino/photino.Native) and is not affiliated with or endorsed by the original Photino authors
+> **Note:** This project is a modern rework
+>
+of  [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
+> and [Photino.Native](https://github.com/tryphotino/photino.Native) and is not affiliated with or endorsed by the
+> original Photino authors
 
 [![Workflow: MultiPlatform Testing](https://github.com/InfiniLore/InfiniFrame/actions/workflows/workflow-multiPlatformTesting.yml/badge.svg)](https://github.com/InfiniLore/InfiniFrame/actions/workflows/workflow-multiPlatformTesting.yml)
 
@@ -88,7 +92,8 @@ Your Application
         └── InfiniFrame.Native (internal) ← C++ platform layer
 ```
 
-Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is needed for a given application type — they are independent integration paths
+Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is needed for a given application type —
+they are independent integration paths
 
 ## Examples
 
@@ -103,15 +108,20 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 ## Documentation
 
 - [Docs Home](https://docs.infiniframe.dev/)
-- [Getting Started](https://docs.infiniframe.dev/articles/guides/getting-started.html) — Installation, first app, platform requirements
+- [Getting Started](https://docs.infiniframe.dev/articles/guides/getting-started.html) — Installation, first app,
+  platform requirements
 
 ### Guides
 
-- [Core Window](https://docs.infiniframe.dev/articles/guides/core-window.html) — Builder pattern, configuration, events, messaging
-- [Blazor WebView](https://docs.infiniframe.dev/articles/guides/blazor-webview.html) — Hosting a full Blazor app in a native window
+- [Core Window](https://docs.infiniframe.dev/articles/guides/core-window.html) — Builder pattern, configuration, events,
+  messaging
+- [Blazor WebView](https://docs.infiniframe.dev/articles/guides/blazor-webview.html) — Hosting a full Blazor app in a
+  native window
 - [Web Server](https://docs.infiniframe.dev/articles/guides/web-server.html) — ASP.NET Core + native window integration
-- [Custom Window Chrome](https://docs.infiniframe.dev/articles/guides/custom-window-chrome.html) — Chromeless windows with Blazor components
-- [JavaScript Interop](https://docs.infiniframe.dev/articles/guides/javascript-interop.html) — Communicating between JS and C#
+- [Custom Window Chrome](https://docs.infiniframe.dev/articles/guides/custom-window-chrome.html) — Chromeless windows
+  with Blazor components
+- [JavaScript Interop](https://docs.infiniframe.dev/articles/guides/javascript-interop.html) — Communicating between JS
+  and C#
 
 ### API Reference
 
@@ -121,7 +131,8 @@ Only one of `BlazorWebView`, `WebServer`, or the core `InfiniFrame` package is n
 
 ### Migration
 
-- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/articles/concepts/breaking-changes-from-photino.html) — API, namespace, event system, and behavioral differences from the original Photino projects
+- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/articles/concepts/breaking-changes-from-photino.html) —
+  API, namespace, event system, and behavioral differences from the original Photino projects
 
 ### Build Docs Locally
 
@@ -159,5 +170,6 @@ original commit history
 
 ## License
 
-Unlike the other projects in the InfiniLore ecosystem, this repo follows the same [Apache 2.0 License](LICENSE) as the original Photino projects
+Unlike the other projects in the InfiniLore ecosystem, this repo follows the same [Apache 2.0 License](LICENSE) as the
+original Photino projects
 

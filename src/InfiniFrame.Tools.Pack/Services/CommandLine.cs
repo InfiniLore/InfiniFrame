@@ -7,15 +7,15 @@ namespace InfiniFrame.Tools.Pack.Services;
 // -----------------------------------------------------------------------------------------------------------------
 internal static class CommandLine {
     /// <summary>
-    /// Parses command-line arguments into a normalized <see cref="PublishOptions"/> model or a usage response.
+    ///     Parses command-line arguments into a normalized <see cref="PublishOptions" /> model or a usage response.
     /// </summary>
     /// <param name="args">Raw command-line arguments.</param>
     /// <returns>A parse result that indicates whether usage should be shown or publish options are ready.</returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the command is unknown, required arguments are missing, or unsupported options are provided.
+    ///     Thrown when the command is unknown, required arguments are missing, or unsupported options are provided.
     /// </exception>
     /// <exception cref="FormatException">
-    /// Thrown when <c>--self-contained</c> receives a value that is not a valid boolean.
+    ///     Thrown when <c>--self-contained</c> receives a value that is not a valid boolean.
     /// </exception>
     public static ParseResult Parse(string[] args) {
         string? firstArg = args.FirstOrDefault();
@@ -25,17 +25,17 @@ internal static class CommandLine {
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (!command.StartsWith("publish", StringComparison.Ordinal)) throw new InvalidOperationException($"Unknown command '{args[0]}'.");
-        
+
         string[] argsWithoutCommand = args.Skip(1).ToArray();
         if (argsWithoutCommand.Length == 0) return ParseResult.Usage(0);
-        
+
         PublishOptions result = ParsePublishOptions(argsWithoutCommand);
-        
+
         return ParseResult.Success(result);
     }
 
     /// <summary>
-    /// Prints the CLI usage text for the pack tool.
+    ///     Prints the CLI usage text for the pack tool.
     /// </summary>
     public static void PrintUsage() {
         Console.WriteLine("InfiniFrame.Pack");

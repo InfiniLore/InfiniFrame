@@ -35,7 +35,14 @@ public class NativeRuntimeBuilderTests {
 
         // Act & Assert
         await Assert.ThrowsAsync<FileNotFoundException>(async () => {
-            await NativeRuntimeBuilder.BuildAsync(missingProjectPath, TemporaryDirectory.Path, "Release", "x64", verbose: false);
+            await NativeRuntimeBuilder.BuildAsync(
+                missingProjectPath,
+                TemporaryDirectory.Path,
+                "Release",
+                "x64",
+                Path.Combine(TemporaryDirectory.Path, "artifacts", "native", "windows", "x64", "Release"),
+                false
+            );
         });
     }
 

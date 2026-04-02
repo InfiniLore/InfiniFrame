@@ -8,6 +8,17 @@ namespace InfiniFrameTests.Tools.Pack.TestUtilities;
 internal sealed class TemporaryDirectory : IDisposable {
     public string Path { get; private init; } = null!;
 
+    public void Dispose() {
+        if (!Directory.Exists(Path)) return;
+
+        try {
+            Directory.Delete(Path, true);
+        }
+        catch {
+            // no-op
+        }
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -15,16 +26,5 @@ internal sealed class TemporaryDirectory : IDisposable {
         string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"infiniframe-tools-pack-tests-{Guid.NewGuid():N}");
         Directory.CreateDirectory(path);
         return new TemporaryDirectory { Path = path };
-    }
-
-    public void Dispose() {
-        if (!Directory.Exists(Path)) return;
-
-        try {
-            Directory.Delete(Path, recursive: true);
-        }
-        catch {
-            // no-op
-        }
     }
 }

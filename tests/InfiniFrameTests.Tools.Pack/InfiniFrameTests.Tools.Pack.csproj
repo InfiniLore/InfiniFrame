@@ -7,9 +7,9 @@
     <ItemGroup>
         <PackageReference Include="TUnit"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniFrame.Tools.Pack\InfiniFrame.Tools.Pack.csproj" />
+        <ProjectReference Include="..\..\src\InfiniFrame.Tools.Pack\InfiniFrame.Tools.Pack.csproj"/>
     </ItemGroup>
 
 </Project>

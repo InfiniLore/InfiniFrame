@@ -16,6 +16,7 @@ dotnet InfiniFrame.Tools.Pack publish <path-to-app.csproj>
 ```
 
 Options:
+
 - `--rid <RID|auto>`
 - `--configuration <Config>`
 - `--framework <TFM>`

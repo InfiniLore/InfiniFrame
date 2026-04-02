@@ -9,12 +9,12 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class RuntimeResolver {
     /// <summary>
-    /// Resolves the runtime identifier to use for publish.
+    ///     Resolves the runtime identifier to use for publish.
     /// </summary>
     /// <param name="requestedRid">Requested RID, or <c>auto</c> to infer from the current OS and architecture.</param>
     /// <returns>A concrete runtime identifier.</returns>
     /// <exception cref="PlatformNotSupportedException">
-    /// Thrown when automatic RID resolution is requested on an unsupported OS or architecture.
+    ///     Thrown when automatic RID resolution is requested on an unsupported OS or architecture.
     /// </exception>
     public static string ResolveRid(string requestedRid) {
         if (!string.Equals(requestedRid, "auto", StringComparison.OrdinalIgnoreCase)) return requestedRid;
@@ -37,7 +37,7 @@ internal static class RuntimeResolver {
             case Architecture.RiscV64:
             default: throw new PlatformNotSupportedException("Only x64 and arm64 are supported for auto RID resolution.");
         }
-        
+
         // ReSharper disable thrice ConvertIfStatementToReturnStatement
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return $"win-{arch}";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return $"linux-{arch}";
@@ -47,7 +47,7 @@ internal static class RuntimeResolver {
     }
 
     /// <summary>
-    /// Resolves the native artifact OS directory segment from a RID.
+    ///     Resolves the native artifact OS directory segment from a RID.
     /// </summary>
     /// <param name="rid">Runtime identifier.</param>
     /// <returns><c>windows</c>, <c>linux</c>, or <c>osx</c>.</returns>
@@ -62,11 +62,11 @@ internal static class RuntimeResolver {
     }
 
     /// <summary>
-    /// Resolves the native build platform from a RID.
+    ///     Resolves the native build platform from a RID.
     /// </summary>
     /// <param name="rid">Runtime identifier.</param>
     /// <returns><c>arm64</c> when the RID includes <c>arm64</c>; otherwise <c>x64</c>.</returns>
-    public static string ResolveNativePlatform(string rid) => rid.Contains("arm64", StringComparison.OrdinalIgnoreCase) 
-        ? "arm64" 
+    public static string ResolveNativePlatform(string rid) => rid.Contains("arm64", StringComparison.OrdinalIgnoreCase)
+        ? "arm64"
         : "x64";
 }

@@ -25,7 +25,7 @@ Use `InfiniFrame.Tools.Pack` when you want a single distributable output for an 
 
 Compared to a regular `dotnet publish`, the tool additionally:
 
-- Builds the native InfiniFrame runtime project for your target platform
+- Resolves native InfiniFrame runtime files from publish output
 - Verifies required native artifacts exist before publish starts
 - Injects custom MSBuild targets so `wwwroot` and native runtime files are embedded as resources
 - Cleans unpacked runtime artifacts from the final publish directory
@@ -37,18 +37,17 @@ Because native files are embedded as resources, your app must initialize the run
 At a high level, `infiniframe-pack publish` runs this pipeline:
 
 1. Parse CLI options and resolve defaults (`RID`, framework, output path).
-2. Locate the repository root by walking up from your app project directory until `src/InfiniFrame.Native/InfiniFrame.Native.proj` is found.
-3. Build native runtime artifacts under `artifacts/native/<os>/<platform>/<configuration>`.
-4. Run `dotnet publish` in single-file mode with custom MSBuild targets.
-5. Remove unpacked `wwwroot` and native runtime files from the publish folder.
+2. Resolve native runtime artifacts from a preflight `dotnet publish` output (repo-agnostic, works for NuGet consumers).
+3. Run `dotnet publish` in single-file mode with custom MSBuild targets.
+4. Remove unpacked `wwwroot` and native runtime files from the publish folder.
 
 ## Install and Setup
 
 ### Prerequisites
 
 - .NET 10 SDK (or a compatible SDK for your repo setup)
-- An InfiniFrame repository checkout containing `src/InfiniFrame.Native/InfiniFrame.Native.proj`
-- A publishable app `.csproj` inside that repository tree
+- A publishable app `.csproj`
+- An app publish output that includes InfiniFrame native runtime files for the selected RID
 
 ### Build and install from source (local feed)
 
@@ -102,7 +101,7 @@ Options:
 - `--self-contained <true|false>`: Self-contained publish mode. Default is `true`.
 - `--output <path>`: Publish output directory. Default is `bin/<Config>/<TFM>/<RID>/publish`.
 - `--no-restore`: Skip restore during publish.
-- `--verbose`: Use normal verbosity for native build and publish.
+- `--verbose`: Use normal verbosity for preflight and final publish.
 
 ## Usage Examples
 
@@ -188,13 +187,13 @@ Why this is required:
 
 ## Edge Cases and Pitfalls
 
-- The tool is repository-layout aware, not repo-agnostic.
-  It requires `src/InfiniFrame.Native/InfiniFrame.Native.proj` to exist in a parent directory of the app project.
+- If preflight publish output does not contain required native files for the selected RID, the tool exits with a dedicated dependency-missing failure.
+  The process exit code is `2`.
 - `--rid auto` only supports current OS with `x64` or `arm64`.
   Other architectures throw a platform-not-supported error.
 - Existing output folders are deleted before publish.
   Do not point `--output` to a directory with files you need to keep.
 - If your project defines `TargetFrameworks` and you omit `--framework`, the first framework entry is used.
-- Native build runs before `dotnet publish`.
-  If native artifacts are missing or build fails, packaging stops early.
+- The tool performs a preflight `dotnet publish` before final single-file publish.
+  If native artifacts are missing in preflight output, packaging stops early.
 - `--self-contained` must be `true` or `false` (case-insensitive boolean parsing).

@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Services;
 using InfiniFrameTests.Tools.Pack.TestUtilities;
 
@@ -46,7 +47,7 @@ public class PublishServiceTests {
     }
 
     [Test]
-    public async Task PublishAsync_Throws_WhenNativeBuildFails() {
+    public async Task PublishAsync_ThrowsKnownFailure_WhenNativeDependencyIsMissingFromPublishOutput() {
         // Arrange
         string repoRoot = TemporaryDirectory.Path;
 
@@ -77,10 +78,13 @@ public class PublishServiceTests {
             Output = outputPath
         };
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => {
-                await PublishService.PublishAsync(options);
-            })
-            .WithMessage("Native build failed with exit code 1.");
+        // Act
+        var exception = await Assert.ThrowsAsync<NativeDependencyNotFoundException>(async () => {
+            await PublishService.PublishAsync(options);
+        });
+
+        // Assert
+        await Assert.That(exception).IsNotNull();
+        await Assert.That(exception!.Message.Contains("Could not resolve required InfiniFrame native artifacts from project publish output.", StringComparison.Ordinal)).IsTrue();
     }
 }

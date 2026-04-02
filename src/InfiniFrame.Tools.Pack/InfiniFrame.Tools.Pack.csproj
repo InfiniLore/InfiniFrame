@@ -11,7 +11,7 @@
         <Description>Single-command packaging tool for InfiniFrame apps.</Description>
         <PackageTags>infiniframe;dotnet-tool;publish;single-file</PackageTags>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack"/>
     </ItemGroup>
