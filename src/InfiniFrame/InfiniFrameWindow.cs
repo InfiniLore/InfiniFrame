@@ -425,7 +425,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         string scheme = url[..colonPos].ToLower();
 
         if (!CustomSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
-            Logger.LogWarning("No handler registered for scheme '{Scheme}'", scheme);
+            Logger.LogWarning("No custom scheme handler registered for {Scheme}", scheme);
         }
 
         Stream? responseStream = handler?.Invoke(this, scheme, url, out contentType);
@@ -444,7 +444,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         responseStream.CopyTo(ms);
 
         numBytes = (int)ms.Position;
-        Logger.LogDebug("Custom scheme response: {Url} bytes={NumBytes} contentType={ContentType}",
+        Logger.LogDebug("Custom scheme response for {Url}. {NumBytes} bytes, ContentType={ContentType}",
             url, numBytes, contentType ?? "<null>");
         IntPtr buffer = Marshal.AllocCoTaskMem(numBytes);
         Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);

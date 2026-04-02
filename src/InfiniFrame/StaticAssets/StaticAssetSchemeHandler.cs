@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-
 namespace InfiniFrame.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -12,21 +11,21 @@ internal static class StaticAssetSchemeHandler {
     public static NetCustomSchemeDelegate Create(IFileProvider fileProvider, string defaultDocument) {
         return (sender, scheme, url, out contentType) => {
             contentType = null;
-            if (sender is not InfiniFrameWindow { Logger: var logger}) return null;
+            if (sender is not IInfiniFrameWindow { Logger: var logger }) return null;
 
             if (!TryGetAssetPath(url, defaultDocument, out string assetPath)) {
-                logger.LogDebug("Rejected custom scheme URL for '{Scheme}': {Url}", scheme, url);
+                logger.LogDebug("Rejected custom scheme path for {Scheme}: {Url}", scheme, url);
                 return null;
             }
 
             IFileInfo file = fileProvider.GetFileInfo(assetPath);
             if (!file.Exists || file.IsDirectory) {
-                logger.LogDebug("Custom scheme miss for '{Scheme}': {AssetPath} (from {Url})", scheme, assetPath, url);
+                logger.LogDebug("Custom scheme miss for {Scheme}: {AssetPath} (from {Url})", scheme, assetPath, url);
                 return null;
             }
 
             contentType = GetContentType(assetPath);
-            logger.LogDebug("Custom scheme hit for '{Scheme}': {AssetPath} ({ContentType})", scheme, assetPath, contentType);
+            logger.LogDebug("Custom scheme hit for {Scheme}: {AssetPath} ({ContentType})", scheme, assetPath, contentType);
             return file.CreateReadStream();
         };
     }
