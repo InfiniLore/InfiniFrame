@@ -2,32 +2,31 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class StaticAssetSchemeHandler {
-    private static readonly bool TraceEnabled =
-        string.Equals(Environment.GetEnvironmentVariable("INFINIFRAME_TRACE_STATIC_ASSETS"), "1", StringComparison.Ordinal);
-
     public static NetCustomSchemeDelegate Create(IFileProvider fileProvider, string defaultDocument) {
-        return (_, _, url, out contentType) => {
+        return (sender, scheme, url, out contentType) => {
             contentType = null;
+            if (sender is not InfiniFrameWindow { Logger: var logger}) return null;
 
             if (!TryGetAssetPath(url, defaultDocument, out string assetPath)) {
-                Trace($"Rejected URL path: {url}");
+                logger.LogDebug("Rejected custom scheme URL for '{Scheme}': {Url}", scheme, url);
                 return null;
             }
 
             IFileInfo file = fileProvider.GetFileInfo(assetPath);
             if (!file.Exists || file.IsDirectory) {
-                Trace($"Miss: {assetPath} (from {url})");
+                logger.LogDebug("Custom scheme miss for '{Scheme}': {AssetPath} (from {Url})", scheme, assetPath, url);
                 return null;
             }
 
             contentType = GetContentType(assetPath);
-            Trace($"Hit: {assetPath} ({contentType})");
+            logger.LogDebug("Custom scheme hit for '{Scheme}': {AssetPath} ({ContentType})", scheme, assetPath, contentType);
             return file.CreateReadStream();
         };
     }
@@ -68,7 +67,7 @@ internal static class StaticAssetSchemeHandler {
         if (assetPath.EndsWith('/')) assetPath += defaultDocument;
 
         assetPath = assetPath.Replace('\\', '/');
-        if (assetPath.Contains("..", StringComparison.Ordinal)) return false;
+        if (assetPath.Split('/', StringSplitOptions.RemoveEmptyEntries).Any(segment => segment == "..")) return false;
 
         return true;
     }
@@ -92,17 +91,5 @@ internal static class StaticAssetSchemeHandler {
             ".map" => "application/json; charset=utf-8",
             _ => "application/octet-stream"
         };
-    }
-
-    private static void Trace(string message) {
-        if (!TraceEnabled) return;
-
-        try {
-            string logPath = Path.Combine(Path.GetTempPath(), "infiniframe-static-assets.log");
-            File.AppendAllText(logPath, $"[{DateTime.UtcNow:O}] {message}{Environment.NewLine}");
-        }
-        catch {
-            // Never fail request handling due to tracing.
-        }
     }
 }

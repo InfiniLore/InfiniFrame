@@ -7,6 +7,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents {
     bool UseDefaultLogger { get; set; }
+    StaticAssetSettings? StaticAssets { get; set; }
 
     IInfiniFrameWindowConfiguration Configuration { get; }
     IInfiniFrameWindowMessageHandlers MessageHandlers { get; }

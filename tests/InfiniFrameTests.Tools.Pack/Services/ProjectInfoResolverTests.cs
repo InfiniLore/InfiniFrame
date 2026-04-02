@@ -83,7 +83,7 @@ public class ProjectInfoResolverTests {
                 ProjectInfoResolver.ResolveFramework(projectPath);
                 return Task.CompletedTask;
             })
-            .WithMessage("Could not resolve target framework from project file. Use --framework.");
+            .WithMessage("Could not resolve target framework from project evaluation. Use --framework.");
     }
 
     [Test]

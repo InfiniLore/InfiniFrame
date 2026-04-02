@@ -3,11 +3,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.FileProviders;
 
-namespace InfiniFrame.StaticAssets;
+// ReSharper disable once CheckNamespace
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class StaticAssetSettings {
+public sealed class StaticAssetSettings {
     public required IFileProvider FileProvider { get; init; }
     public required string BaseUri { get; init; }
     public required string DefaultDocument { get; init; }

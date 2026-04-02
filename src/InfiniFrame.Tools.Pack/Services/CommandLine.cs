@@ -50,6 +50,7 @@ internal static class CommandLine {
         Console.WriteLine("  --output <path>               Publish output directory");
         Console.WriteLine("  --no-restore                  Skip restore");
         Console.WriteLine("  --verbose                     Verbose publish output");
+        Console.WriteLine("  --force-clean-output          Allow deleting non-default output directories");
     }
 
     private static bool IsHelp(string value) => value is "-h" or "--help" or "help";
@@ -96,6 +97,10 @@ internal static class CommandLine {
                     break;
                 case "--verbose":
                     options.Verbose = true;
+                    index++;
+                    break;
+                case "--force-clean-output":
+                    options.ForceCleanOutput = true;
                     index++;
                     break;
                 default:

@@ -22,6 +22,7 @@ public static class InfiniFrameSingleFileBootstrap {
     private const string WebView2LoaderLibraryName = "WebView2Loader";
     private const string WebView2LoaderFileName = "WebView2Loader.dll";
 
+    private static readonly object InitLock = new();
     private static int _initialized;
     private static string? _nativeDir;
 
@@ -30,20 +31,30 @@ public static class InfiniFrameSingleFileBootstrap {
     /// <see cref="NativeLibrary"/> resolver for InfiniFrame native loading.
     /// </summary>
     public static void Initialize() {
-        if (Interlocked.Exchange(ref _initialized, 1) != 0) return;
+        lock (InitLock) {
+            if (_initialized != 0) return;
 
-        Assembly entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
-        string rid = GetRuntimeIdentifier();
+            Assembly entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+            string rid = GetRuntimeIdentifier();
 
-        string version = entryAssembly.GetName().Version?.ToString() ?? "0.0.0";
-        string uniqueId = $"{Environment.ProcessId}_{Guid.NewGuid()}";
-        _nativeDir = Path.Combine(Path.GetTempPath(), "InfiniFrame", "native",
-            entryAssembly.GetName().Name ?? "app", rid, version, uniqueId);
+            string version = entryAssembly.GetName().Version?.ToString() ?? "0.0.0";
+            string uniqueId = $"{Environment.ProcessId}_{Guid.NewGuid()}";
+            _nativeDir = Path.Combine(Path.GetTempPath(), "InfiniFrame", "native",
+                entryAssembly.GetName().Name ?? "app", rid, version, uniqueId);
 
-        Directory.CreateDirectory(_nativeDir);
-        ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
+            try {
+                Directory.CreateDirectory(_nativeDir);
+                ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
+                NativeLibrary.SetDllImportResolver(typeof(InfiniFrameNative).Assembly, ResolveNativeLibrary);
 
-        NativeLibrary.SetDllImportResolver(typeof(InfiniFrameNative).Assembly, ResolveNativeLibrary);
+                AppDomain.CurrentDomain.ProcessExit += (_, _) => TryCleanupNativeDirectory();
+                _initialized = 1;
+            }
+            catch {
+                _nativeDir = null;
+                throw;
+            }
+        }
     }
 
     private static IntPtr ResolveNativeLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath) {
@@ -127,5 +138,16 @@ public static class InfiniFrameSingleFileBootstrap {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return ["InfiniFrame.Native.dylib"];
 
         throw new PlatformNotSupportedException("Unsupported OS for native bootstrap.");
+    }
+
+    private static void TryCleanupNativeDirectory() {
+        if (string.IsNullOrWhiteSpace(_nativeDir)) return;
+
+        try {
+            if (Directory.Exists(_nativeDir)) Directory.Delete(_nativeDir, true);
+        }
+        catch {
+            // Best-effort cleanup.
+        }
     }
 }

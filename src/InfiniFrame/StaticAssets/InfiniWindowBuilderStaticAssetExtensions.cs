@@ -21,10 +21,6 @@ public static class InfiniWindowBuilderStaticAssetExtensions {
             bool includePhysicalFallback = true,
             bool setStartUrl = true
         ) {
-            if (builder is not InfiniFrameWindowBuilder concreteBuilder) {
-                throw new NotSupportedException("UseEmbeddedWwwrootAssets currently requires InfiniFrameWindowBuilder.");
-            }
-
             string normalizedScheme = scheme.Trim().ToLowerInvariant();
             string normalizedHost = host.Trim();
             string normalizedDefaultDocument = defaultDocument.TrimStart('/').Replace('\\', '/');
@@ -44,7 +40,7 @@ public static class InfiniWindowBuilderStaticAssetExtensions {
                     $"Expected embedded naming like '{assemblyName}.wwwroot.{normalizedDefaultDocument.Replace('/', '.')}'.");
             }
 
-            concreteBuilder.StaticAssets = new StaticAssetSettings {
+            builder.StaticAssets = new StaticAssetSettings {
                 FileProvider = provider,
                 BaseUri = baseUri,
                 DefaultDocument = normalizedDefaultDocument

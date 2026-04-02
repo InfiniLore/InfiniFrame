@@ -51,6 +51,7 @@
     <ItemGroup>
         <PackageReference Include="JetBrains.Annotations"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Options"/>
     </ItemGroup>

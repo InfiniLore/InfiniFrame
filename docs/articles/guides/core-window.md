@@ -413,4 +413,4 @@ var window = builder.Build(serviceProvider);
 
 - `InfiniFrameExample.WebApp.React` (`examples/InfiniFrameExample.WebApp.React`) - custom URL scheme handler and web messaging with DI-resolved services
 - `InfiniFrameExample.BlazorWebView` (`examples/InfiniFrameExample.BlazorWebView`) - window builder configuration with size, position, and icon
-- `InfiniFrameExample.EmbeddedAssets` (`examples/InfiniFrameExample.EmbeddedAssets`) - embedded static assets and single-file native bootstrap
+- `InfiniFrameExample.SingleFileExe` (`examples/InfiniFrameExample.SingleFileExe`) - embedded static assets and single-file native bootstrap

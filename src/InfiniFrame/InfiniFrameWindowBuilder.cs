@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
-using InfiniFrame.StaticAssets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,13 +12,13 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
-
+    public StaticAssetSettings? StaticAssets { get; set; }
+    
     public IInfiniFrameWindowConfiguration Configuration { get; } = new InfiniFrameWindowConfiguration();
     public IInfiniFrameWindowEvents Events { get; internal set; } = new InfiniFrameWindowEvents();
     public IInfiniFrameWindowMessageHandlers MessageHandlers { get; } = new InfiniFrameWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
-    internal StaticAssetSettings? StaticAssets { get; set; }
-
+    
     private InfiniFrameWindowBuilder() {}
 
     // -----------------------------------------------------------------------------------------------------------------

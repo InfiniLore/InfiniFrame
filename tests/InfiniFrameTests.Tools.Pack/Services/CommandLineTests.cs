@@ -82,6 +82,7 @@ public class CommandLineTests {
         await Assert.That(result.Options.Output).IsNull();
         await Assert.That(result.Options.NoRestore).IsFalse();
         await Assert.That(result.Options.Verbose).IsFalse();
+        await Assert.That(result.Options.ForceCleanOutput).IsFalse();
     }
 
     [Test]
@@ -96,7 +97,8 @@ public class CommandLineTests {
             "--self-contained", "false",
             "--output", "out",
             "--no-restore",
-            "--verbose"
+            "--verbose",
+            "--force-clean-output"
         ];
 
         // Act
@@ -113,6 +115,7 @@ public class CommandLineTests {
         await Assert.That(result.Options.Output).IsEqualTo("out");
         await Assert.That(result.Options.NoRestore).IsTrue();
         await Assert.That(result.Options.Verbose).IsTrue();
+        await Assert.That(result.Options.ForceCleanOutput).IsTrue();
     }
 
     [Test]

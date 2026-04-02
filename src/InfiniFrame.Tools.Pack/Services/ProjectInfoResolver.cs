@@ -1,56 +1,44 @@
 // ---------------------------------------------------------------------------------------------------------------------
-// Imports
+// Code
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Xml.Linq;
-
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class ProjectInfoResolver {
     /// <summary>
-    ///     Resolves the target framework from a project file.
+    ///     Resolves the target framework from evaluated MSBuild properties.
     /// </summary>
     /// <param name="projectPath">Path to a project file.</param>
     /// <returns>
     ///     The value of <c>TargetFramework</c>, or the first framework from <c>TargetFrameworks</c> when multi-targeted.
     /// </returns>
     /// <exception cref="InvalidOperationException">
-    ///     Thrown when no framework can be resolved from the project file.
+    ///     Thrown when no framework can be resolved from evaluated project properties.
     /// </exception>
     public static string ResolveFramework(string projectPath) {
-        XElement root = LoadProjectRoot(projectPath);
-
-        string? targetFramework = FindSingleValue(root, "TargetFramework");
+        string? targetFramework = MsBuildPropertyResolver.TryGetProperty(projectPath, "TargetFramework");
         if (!string.IsNullOrWhiteSpace(targetFramework)) return targetFramework;
 
-        string? targetFrameworks = FindSingleValue(root, "TargetFrameworks");
-
+        string? targetFrameworks = MsBuildPropertyResolver.TryGetProperty(projectPath, "TargetFrameworks");
+        
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (string.IsNullOrWhiteSpace(targetFrameworks)) throw new InvalidOperationException("Could not resolve target framework from project file. Use --framework.");
+        if (string.IsNullOrWhiteSpace(targetFrameworks)) {
+            throw new InvalidOperationException("Could not resolve target framework from project evaluation. Use --framework.");
+        }
 
         return targetFrameworks.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).First();
     }
 
     /// <summary>
-    ///     Resolves the assembly name used to determine the expected single-file output name.
+    ///     Resolves the assembly name using evaluated MSBuild properties.
     /// </summary>
     /// <param name="projectPath">Path to a project file.</param>
     /// <returns>
     ///     The <c>AssemblyName</c> value when present; otherwise the project file name without extension.
     /// </returns>
     public static string ResolveAssemblyName(string projectPath) {
-        XElement root = LoadProjectRoot(projectPath);
-        string? assemblyName = FindSingleValue(root, "AssemblyName");
+        string? assemblyName = MsBuildPropertyResolver.TryGetProperty(projectPath, "AssemblyName");
         return string.IsNullOrWhiteSpace(assemblyName) ? Path.GetFileNameWithoutExtension(projectPath) : assemblyName;
-    }
-
-    private static XElement LoadProjectRoot(string projectPath) {
-        XDocument document = XDocument.Load(projectPath);
-        return document.Root ?? throw new InvalidOperationException("Invalid project file.");
-    }
-
-    private static string? FindSingleValue(XElement root, string localName) {
-        return root.Descendants().FirstOrDefault(x => x.Name.LocalName == localName)?.Value.Trim();
     }
 }

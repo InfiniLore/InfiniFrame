@@ -9,6 +9,7 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class PublishService {
     private const string DotNet = "dotnet";
+    private const int MissingMainOutputExitCode = 3;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -38,7 +39,7 @@ internal static class PublishService {
         PrintPublishSummary(projectPath, framework, rid, options.SelfContained, output, nativeArtifacts.Directory);
 
         // Safe recursive deletion
-        if (Directory.Exists(output)) SafeDeleteDirectory(output);
+        if (Directory.Exists(output)) SafeDeleteDirectory(output, projectDirectory, options.ForceCleanOutput);
         Directory.CreateDirectory(output);
 
         try {
@@ -51,16 +52,16 @@ internal static class PublishService {
                 rid,
                 output,
                 nativeArtifacts.Directory,
-                tempTargets.Path,
-                isPreflight: false
+                tempTargets.Path
             );
 
             int exitCode = await ProcessRunner.RunAsync(DotNet, publishArgs);
             if (exitCode != 0) return exitCode;
 
             PublishOutputCleaner.Cleanup(output);
-            PrintOutputSummary(output, ResolveExpectedMainOutputPath(output, assemblyName, rid));
-            return 0;
+            string expectedMainOutput = ResolveExpectedMainOutputPath(output, assemblyName, rid);
+            bool foundMainOutput = PrintOutputSummary(output, expectedMainOutput);
+            return foundMainOutput ? 0 : MissingMainOutputExitCode;
         }
         finally {
             if (nativeArtifacts.DeleteWhenDone && Directory.Exists(nativeArtifacts.Directory)) {
@@ -89,7 +90,8 @@ internal static class PublishService {
         Console.WriteLine($"  NativeArtifacts: {nativeArtifacts}");
     }
 
-    private static void PrintOutputSummary(string output, string expectedMainOutput) {
+    private static bool PrintOutputSummary(string output, string expectedMainOutput) {
+        bool foundMainOutput = File.Exists(expectedMainOutput);
         if (!File.Exists(expectedMainOutput)) {
             Console.WriteLine("[InfiniFrame.Pack] Publish succeeded, but expected single-file output was not found.");
         }
@@ -100,6 +102,8 @@ internal static class PublishService {
         foreach (string file in files.Select(Path.GetFileName).Where(x => !string.IsNullOrWhiteSpace(x)).OrderBy(x => x)!) {
             Console.WriteLine($"  - {file}");
         }
+
+        return foundMainOutput;
     }
 
     private static async Task<ResolvedNativeArtifacts> ResolveNativeArtifactsAsync(
@@ -111,35 +115,36 @@ internal static class PublishService {
         string preflightDirectory = Path.Combine(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
         Directory.CreateDirectory(preflightDirectory);
 
-        int preflightExitCode = await ProcessRunner.RunAsync(DotNet,
-            BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true));
-
-        if (preflightExitCode != 0) {
-            throw new InvalidOperationException($"Preflight publish failed with exit code {preflightExitCode}.");
-        }
-
         try {
-            NativeRuntimeBuilder.ValidateArtifacts(preflightDirectory, rid);
-            return new ResolvedNativeArtifacts(preflightDirectory, true);
+            int preflightExitCode = await ProcessRunner.RunAsync(DotNet,
+                BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true));
+
+            if (preflightExitCode != 0) {
+                throw new InvalidOperationException($"Preflight publish failed with exit code {preflightExitCode}.");
+            }
+
+            try {
+                NativeRuntimeBuilder.ValidateArtifacts(preflightDirectory, rid);
+                return new ResolvedNativeArtifacts(preflightDirectory, true);
+            }
+            catch (InvalidOperationException preflightValidationError) {
+                throw new NativeDependencyNotFoundException(
+                    "Could not resolve required InfiniFrame native artifacts from project publish output. " +
+                    "Ensure InfiniFrame is included as a dependency for this project/RID and that native runtime files are produced, " +
+                    "and that publish preserves native runtime files. " +
+                    $"Details: {preflightValidationError.Message}"
+                );
+            }
         }
-        catch (InvalidOperationException preflightValidationError) {
-            throw new NativeDependencyNotFoundException(
-                "Could not resolve required InfiniFrame native artifacts from project publish output. " +
-                "Ensure InfiniFrame is included as a dependency for this project/RID and that native runtime files are produced, " +
-                "and that publish preserves native runtime files. " +
-                $"Details: {preflightValidationError.Message}"
-            );
+        catch {
+            if (Directory.Exists(preflightDirectory)) Directory.Delete(preflightDirectory, true);
+            throw;
         }
     }
 
-    private static void SafeDeleteDirectory(string path) {
+    private static void SafeDeleteDirectory(string path, string projectDirectory, bool forceCleanOutput) {
         string fullPath = Path.GetFullPath(path);
-
-        if (string.IsNullOrWhiteSpace(fullPath)) throw new InvalidOperationException("Cannot delete an empty path.");
-
-        // Reject root drives
-        string? root = Path.GetPathRoot(fullPath);
-        if (string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException($"Refusing to delete root directory '{fullPath}'.");
+        OutputPathSafety.EnsureOutputCanBeDeleted(fullPath, projectDirectory, forceCleanOutput);
 
         // Log deletion for transparency
         Console.WriteLine($"[InfiniFrame.Pack] Cleaning previous output folder: {fullPath}");

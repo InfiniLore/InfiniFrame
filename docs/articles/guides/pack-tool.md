@@ -102,6 +102,7 @@ Options:
 - `--output <path>`: Publish output directory. Default is `bin/<Config>/<TFM>/<RID>/publish`.
 - `--no-restore`: Skip restore during publish.
 - `--verbose`: Use normal verbosity for preflight and final publish.
+- `--force-clean-output`: Allow recursive deletion of non-default output folders before publish.
 
 ## Usage Examples
 
@@ -192,8 +193,10 @@ Why this is required:
 - `--rid auto` only supports current OS with `x64` or `arm64`.
   Other architectures throw a platform-not-supported error.
 - Existing output folders are deleted before publish.
-  Do not point `--output` to a directory with files you need to keep.
+  By default, only project-local `bin/...` outputs are allowed to be cleaned.
+  Use `--force-clean-output` to allow cleaning custom output folders.
 - If your project defines `TargetFrameworks` and you omit `--framework`, the first framework entry is used.
 - The tool performs a preflight `dotnet publish` before final single-file publish.
   If native artifacts are missing in preflight output, packaging stops early.
 - `--self-contained` must be `true` or `false` (case-insensitive boolean parsing).
+- If final output does not contain the expected main single-file executable, the tool exits with a non-zero code.
