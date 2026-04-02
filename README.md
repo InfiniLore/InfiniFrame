@@ -10,7 +10,7 @@ Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebVie
 > and [Photino.Native](https://github.com/tryphotino/photino.Native) and is not affiliated with or endorsed by the
 > original Photino authors
 
-[![Workflow: MultiPlatform Testing](https://github.com/InfiniLore/InfiniFrame/actions/workflows/workflow-multiPlatformTesting.yml/badge.svg)](https://github.com/InfiniLore/InfiniFrame/actions/workflows/workflow-multiPlatformTesting.yml)
+[![CI: Platform Tests](https://github.com/InfiniLore/InfiniFrame/actions/workflows/ci-testing.yml/badge.svg)](https://github.com/InfiniLore/InfiniFrame/actions/workflows/ci-testing.yml)
 
 ## Packages
 
