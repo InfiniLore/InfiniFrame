@@ -20,7 +20,7 @@
     <File Path=".github/workflows/ci-testing.yml" />
     <File Path=".github\workflows\ci-release.yml" />
     <File Path=".github\workflows\ci-pendingCheck.yml" />
-    <File Path=".github/workflows/ci-testing-pything.yml" />
+    <File Path=".github/workflows/ci-testing-python.yml" />
     <File Path=".github\workflows\ci-todo.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/scripts/">
