@@ -6,8 +6,7 @@ technologies — load any URL, render HTML strings, or embed a full Blazor appli
 Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
 
 > **Note:** This project is a modern rework
->
-of  [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
+> of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
 > and [Photino.Native](https://github.com/tryphotino/photino.Native) and is not affiliated with or endorsed by the
 > original Photino authors
 
@@ -105,6 +104,16 @@ they are independent integration paths
 | [WebApp.React](examples/InfiniFrameExample.WebApp.React/)                                       | React frontend with custom scheme handler and web messaging   |
 | [WebApp.Vue](examples/InfiniFrameExample.WebApp.Vue/)                                           | Vue.js frontend with all built-in JS message handlers         |
 
+## Single-File Executable Packing
+
+Use the custom .NET tool `InfiniFrame-Pack` to package your app into a single executable with embedded native
+dependencies.
+See [`/docs`](docs/articles/guides/pack-tool.md) for full usage details and options.
+
+```powershell
+dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
+```
+
 ## Documentation
 
 - [Docs Home](https://docs.infiniframe.dev/)
@@ -172,4 +181,3 @@ original commit history
 
 Unlike the other projects in the InfiniLore ecosystem, this repo follows the same [Apache 2.0 License](LICENSE) as the
 original Photino projects
-
