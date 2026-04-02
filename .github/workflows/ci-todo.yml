@@ -1,0 +1,34 @@
+name: "CI: Todo Sync"
+on:
+    push:
+        branches:
+            - core
+        paths-ignore:
+            - .github/workflows/ci-todo.yml
+
+jobs:
+    todo-to-issue:
+        name: Sync Todo Issues
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+
+            -   name: Sync Todo Issues
+                uses: alstr/todo-to-issue-action@v5
+                with:
+                    PROJECT: organization/InfiniLore/1
+                    PROJECTS_SECRET: ${{ secrets.PROJECTS_SECRET }}
+                    ISSUE_TEMPLATE: |
+                        ### 📝 Todo : ** {{ title }} **
+                        
+                        **Description:**  
+                        {{ body }}
+                        
+                        **Code Snippet:**
+                        {{ snippet }}
+                        
+                        **File:**  
+                        {{ url }}
+                    IDENTIFIERS: '[{"name": "TODO", "labels": ["todo"]}]'
+                    CLOSE_ISSUES: "true"

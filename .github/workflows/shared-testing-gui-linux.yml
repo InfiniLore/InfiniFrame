@@ -1,5 +1,4 @@
-name: Reusable Linux GUI Tests
-
+name: "Shared: GUI Tests Linux"
 on:
     workflow_call:
         inputs:
@@ -19,7 +18,7 @@ on:
 
 jobs:
     linux-gui:
-        name: Test - Linux/${{ matrix.arch }}
+        name: Linux GUI (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -43,7 +42,7 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
-            -   name: Setup .NET SDK
+            -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -51,7 +50,7 @@ jobs:
                         9.x
                         10.x
 
-            -   name: Cache .NET packages
+            -   name: Cache NuGet
                 uses: actions/cache@v5
                 with:
                     path: ~/.nuget/packages
@@ -71,7 +70,7 @@ jobs:
                     restore-keys: |
                         ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
 
-            -   name: Install desktop environment packages
+            -   name: Install Desktop Deps
                 uses: awalsh128/cache-apt-pkgs-action@latest
                 with:
                     packages: >
@@ -104,10 +103,10 @@ jobs:
             -   name: Compile GSettings schemas
                 run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 
-            -   name: Restore dependencies
+            -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Linux.slnf /p:NoWarn=NU1503
 
-            -   name: Build (Release)
+            -   name: Build Release
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
                       --configuration Release \
@@ -119,7 +118,7 @@ jobs:
                       --configuration Release \
                       --no-restore
 
-            -   name: Verify Native DLLs for testing
+            -   name: Verify Native Binaries
                 run: |
                     nativeSo="tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.so"
 
@@ -130,7 +129,7 @@ jobs:
 
                     echo "All native DLLs present"
 
-            -   name: Start desktop environment and run tests
+            -   name: Run GUI Tests
                 run: |
                     echo "Starting desktop environment..."
 
@@ -196,7 +195,7 @@ jobs:
                       --no-build \
                       --no-restore
 
-            -   name: Display test logs on failure
+            -   name: Show Test Logs
                 if: failure()
                 run: |
                     echo "=== Xvfb/Mutter logs ==="
@@ -224,7 +223,7 @@ jobs:
                     echo "=== All files in TestResults directories ==="
                     find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
 
-            -   name: Upload test results as artifact
+            -   name: Upload Test Logs
                 if: failure()
                 uses: actions/upload-artifact@v7
                 with:
@@ -233,7 +232,7 @@ jobs:
                         **/TestResults/*.log
                         **/TestResults/*.trx
 
-            -   name: Update Linux status
+            -   name: Update Linux Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

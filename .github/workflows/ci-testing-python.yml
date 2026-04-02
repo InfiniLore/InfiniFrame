@@ -1,0 +1,23 @@
+name: "CI: Python Tests"
+on:
+    pull_request:
+        branches:
+            - core
+        paths:
+            - .github/scripts/**
+            - .github/workflows/shared-testing-python.yml
+            - .github/workflows/ci-testing-python.yml
+    push:
+        branches:
+            - core
+        paths:
+            - .github/scripts/**
+            - .github/workflows/shared-testing-python.yml
+            - .github/workflows/ci-testing-python.yml
+    workflow_dispatch:
+
+jobs:
+    # noinspection UndefinedAction
+    run:
+        name: Python Tests
+        uses: ./.github/workflows/shared-testing-python.yml
