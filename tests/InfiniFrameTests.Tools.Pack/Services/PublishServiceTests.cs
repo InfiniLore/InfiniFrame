@@ -29,7 +29,6 @@ public class PublishServiceTests {
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [DisplayName($"{nameof(PublishServiceTests)}.{nameof(PublishAsync_Throws_WhenProjectFileDoesNotExist)}")]
     public async Task PublishAsync_Throws_WhenProjectFileDoesNotExist() {
         // Arrange
         var options = new PublishOptions {
@@ -47,7 +46,6 @@ public class PublishServiceTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(PublishServiceTests)}.{nameof(PublishAsync_Throws_WhenNativeBuildFails)}")]
     public async Task PublishAsync_Throws_WhenNativeBuildFails() {
         // Arrange
         string repoRoot = TemporaryDirectory.Path;

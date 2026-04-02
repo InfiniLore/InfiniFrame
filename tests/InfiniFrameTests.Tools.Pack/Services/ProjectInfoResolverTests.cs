@@ -29,7 +29,6 @@ public class ProjectInfoResolverTests {
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [DisplayName($"{nameof(ProjectInfoResolverTests)}.{nameof(ResolveFramework_ReturnsTargetFramework_WhenDefined)}")]
     public async Task ResolveFramework_ReturnsTargetFramework_WhenDefined() {
         // Arrange
         string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
@@ -49,7 +48,6 @@ public class ProjectInfoResolverTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(ProjectInfoResolverTests)}.{nameof(ResolveFramework_ReturnsFirstTargetFramework_WhenMultipleAreDefined)}")]
     public async Task ResolveFramework_ReturnsFirstTargetFramework_WhenMultipleAreDefined() {
         // Arrange
         string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
@@ -69,7 +67,6 @@ public class ProjectInfoResolverTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(ProjectInfoResolverTests)}.{nameof(ResolveFramework_Throws_WhenNoTargetFrameworkIsDefined)}")]
     public async Task ResolveFramework_Throws_WhenNoTargetFrameworkIsDefined() {
         // Arrange
         string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
@@ -90,7 +87,6 @@ public class ProjectInfoResolverTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(ProjectInfoResolverTests)}.{nameof(ResolveAssemblyName_ReturnsAssemblyName_WhenDefined)}")]
     public async Task ResolveAssemblyName_ReturnsAssemblyName_WhenDefined() {
         // Arrange
         string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
@@ -110,7 +106,6 @@ public class ProjectInfoResolverTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(ProjectInfoResolverTests)}.{nameof(ResolveAssemblyName_ReturnsProjectFileName_WhenAssemblyNameIsMissing)}")]
     public async Task ResolveAssemblyName_ReturnsProjectFileName_WhenAssemblyNameIsMissing() {
         // Arrange
         string projectPath = Path.Combine(TemporaryDirectory.Path, "MyApp.csproj");

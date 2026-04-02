@@ -29,7 +29,6 @@ public class RepoLayoutTests {
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [DisplayName($"{nameof(RepoLayoutTests)}.{nameof(Resolve_ReturnsExpectedPaths_WhenRepositoryStructureIsValid)}")]
     public async Task Resolve_ReturnsExpectedPaths_WhenRepositoryStructureIsValid() {
         // Arrange
         string repoRoot = TemporaryDirectory.Path;
@@ -52,7 +51,6 @@ public class RepoLayoutTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RepoLayoutTests)}.{nameof(Resolve_Throws_WhenRepositoryRootCannotBeFound)}")]
     public async Task Resolve_Throws_WhenRepositoryRootCannotBeFound() {
         // Arrange
         string projectDirectory = Path.Combine(TemporaryDirectory.Path, "samples", "app");

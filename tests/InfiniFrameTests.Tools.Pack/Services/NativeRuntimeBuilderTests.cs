@@ -29,7 +29,6 @@ public class NativeRuntimeBuilderTests {
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [DisplayName($"{nameof(NativeRuntimeBuilderTests)}.{nameof(BuildAsync_Throws_WhenNativeProjectDoesNotExist)}")]
     public async Task BuildAsync_Throws_WhenNativeProjectDoesNotExist() {
         // Arrange
         string missingProjectPath = Path.Combine(TemporaryDirectory.Path, "InfiniFrame.Native.proj");
@@ -41,7 +40,6 @@ public class NativeRuntimeBuilderTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(NativeRuntimeBuilderTests)}.{nameof(ValidateArtifacts_Throws_WhenArtifactsDirectoryIsMissing)}")]
     public async Task ValidateArtifacts_Throws_WhenArtifactsDirectoryIsMissing() {
         // Arrange
         string missingDirectory = Path.Combine(Path.GetTempPath(), $"missing-artifacts-{Guid.NewGuid():N}");
@@ -55,7 +53,6 @@ public class NativeRuntimeBuilderTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(NativeRuntimeBuilderTests)}.{nameof(ValidateArtifacts_Throws_WhenWindowsRequiredArtifactIsMissing)}")]
     public async Task ValidateArtifacts_Throws_WhenWindowsRequiredArtifactIsMissing() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
@@ -71,7 +68,6 @@ public class NativeRuntimeBuilderTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(NativeRuntimeBuilderTests)}.{nameof(ValidateArtifacts_DoesNotThrow_ForWindowsWhenAllRequiredArtifactsExist)}")]
     public async Task ValidateArtifacts_DoesNotThrow_ForWindowsWhenAllRequiredArtifactsExist() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
@@ -87,7 +83,6 @@ public class NativeRuntimeBuilderTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(NativeRuntimeBuilderTests)}.{nameof(ValidateArtifacts_DoesNotThrow_ForLinuxWhenRequiredArtifactExists)}")]
     public async Task ValidateArtifacts_DoesNotThrow_ForLinuxWhenRequiredArtifactExists() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
@@ -101,7 +96,6 @@ public class NativeRuntimeBuilderTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(NativeRuntimeBuilderTests)}.{nameof(ValidateArtifacts_DoesNotThrow_ForOsxWhenRequiredArtifactExists)}")]
     public async Task ValidateArtifacts_DoesNotThrow_ForOsxWhenRequiredArtifactExists() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
@@ -115,7 +109,6 @@ public class NativeRuntimeBuilderTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(NativeRuntimeBuilderTests)}.{nameof(ValidateArtifacts_Throws_WhenRidIsUnsupported)}")]
     public async Task ValidateArtifacts_Throws_WhenRidIsUnsupported() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;

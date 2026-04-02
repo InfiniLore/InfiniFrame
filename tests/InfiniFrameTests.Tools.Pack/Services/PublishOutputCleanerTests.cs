@@ -29,7 +29,6 @@ public class PublishOutputCleanerTests {
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [DisplayName($"{nameof(PublishOutputCleanerTests)}.{nameof(Cleanup_RemovesWwwrootAndNativeRuntimeFiles_WhenTheyExist)}")]
     public async Task Cleanup_RemovesWwwrootAndNativeRuntimeFiles_WhenTheyExist() {
         // Arrange
         string output = TemporaryDirectory.Path;
@@ -52,7 +51,6 @@ public class PublishOutputCleanerTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(PublishOutputCleanerTests)}.{nameof(Cleanup_DoesNotThrow_WhenTargetFilesDoNotExist)}")]
     public async Task Cleanup_DoesNotThrow_WhenTargetFilesDoNotExist() {
         // Arrange
         string output = TemporaryDirectory.Path;

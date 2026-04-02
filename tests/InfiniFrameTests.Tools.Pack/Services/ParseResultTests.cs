@@ -9,7 +9,6 @@ namespace InfiniFrameTests.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ParseResultTests {
     [Test]
-    [DisplayName($"{nameof(ParseResultTests)}.{nameof(Success_ReturnsNonUsageResultWithOptions)}")]
     public async Task Success_ReturnsNonUsageResultWithOptions() {
         // Arrange
         var options = new PublishOptions {
@@ -29,7 +28,6 @@ public class ParseResultTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(ParseResultTests)}.{nameof(Usage_ReturnsUsageResultWithoutOptions)}")]
     public async Task Usage_ReturnsUsageResultWithoutOptions() {
         // Arrange
         const int exitCode = 7;

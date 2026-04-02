@@ -9,7 +9,6 @@ namespace InfiniFrameTests.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 public class CommandLineTests {
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_ReturnsUsage_WhenArgsAreEmpty)}")]
     public async Task Parse_ReturnsUsage_WhenArgsAreEmpty() {
         // Arrange
         string[] args = [];
@@ -24,7 +23,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_ReturnsUsage_WhenHelpIsRequested)}")]
     public async Task Parse_ReturnsUsage_WhenHelpIsRequested() {
         // Arrange
         string[] args = ["--help"];
@@ -39,7 +37,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_Throws_WhenCommandIsUnknown)}")]
     public async Task Parse_Throws_WhenCommandIsUnknown() {
         // Arrange
         string[] args = ["unknown"];
@@ -52,7 +49,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_ReturnsUsage_WhenPublishHasNoArguments)}")]
     public async Task Parse_ReturnsUsage_WhenPublishHasNoArguments() {
         // Arrange
         string[] args = ["publish"];
@@ -67,7 +63,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_ReturnsDefaultPublishOptions_WhenOnlyProjectPathIsProvided)}")]
     public async Task Parse_ReturnsDefaultPublishOptions_WhenOnlyProjectPathIsProvided() {
         // Arrange
         string[] args = ["publish", "MyApp.csproj"];
@@ -90,7 +85,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_ReturnsConfiguredPublishOptions_WhenAllOptionsAreProvided)}")]
     public async Task Parse_ReturnsConfiguredPublishOptions_WhenAllOptionsAreProvided() {
         // Arrange
         string[] args = [
@@ -122,7 +116,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_Throws_WhenSecondPositionalArgumentIsProvided)}")]
     public async Task Parse_Throws_WhenSecondPositionalArgumentIsProvided() {
         // Arrange
         string[] args = ["publish", "MyApp.csproj", "extra"];
@@ -135,7 +128,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_Throws_WhenOptionIsUnknown)}")]
     public async Task Parse_Throws_WhenOptionIsUnknown() {
         // Arrange
         string[] args = ["publish", "MyApp.csproj", "--not-real"];
@@ -148,7 +140,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_Throws_WhenOptionValueIsMissing)}")]
     public async Task Parse_Throws_WhenOptionValueIsMissing() {
         // Arrange
         string[] args = ["publish", "MyApp.csproj", "--rid"];
@@ -161,7 +152,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_Throws_WhenProjectPathIsMissing)}")]
     public async Task Parse_Throws_WhenProjectPathIsMissing() {
         // Arrange
         string[] args = ["publish", "--rid", "win-x64"];
@@ -174,7 +164,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(Parse_Throws_WhenSelfContainedValueIsInvalid)}")]
     public async Task Parse_Throws_WhenSelfContainedValueIsInvalid() {
         // Arrange
         string[] args = ["publish", "MyApp.csproj", "--self-contained", "not-a-bool"];
@@ -187,7 +176,6 @@ public class CommandLineTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(CommandLineTests)}.{nameof(PrintUsage_ExecutesWithoutThrowing)}")]
     public async Task PrintUsage_ExecutesWithoutThrowing() {
         // Arrange
 

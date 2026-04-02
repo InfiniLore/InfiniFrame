@@ -9,7 +9,6 @@ namespace InfiniFrameTests.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ProcessRunnerTests {
     [Test]
-    [DisplayName($"{nameof(ProcessRunnerTests)}.{nameof(RunAsync_ReturnsZero_ForSuccessfulCommand)}")]
     public async Task RunAsync_ReturnsZero_ForSuccessfulCommand() {
         // Arrange
         const string fileName = "dotnet";
@@ -23,7 +22,6 @@ public class ProcessRunnerTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(ProcessRunnerTests)}.{nameof(RunAsync_ReturnsNonZero_ForFailingCommand)}")]
     public async Task RunAsync_ReturnsNonZero_ForFailingCommand() {
         // Arrange
         const string fileName = "dotnet";
@@ -37,7 +35,6 @@ public class ProcessRunnerTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(ProcessRunnerTests)}.{nameof(RunAsync_Throws_WhenExecutableDoesNotExist)}")]
     public async Task RunAsync_Throws_WhenExecutableDoesNotExist() {
         // Arrange
         string fileName = $"definitely-not-a-real-executable-{Guid.NewGuid():N}";

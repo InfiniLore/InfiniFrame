@@ -9,7 +9,6 @@ namespace InfiniFrameTests.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TempTargetsFileTests {
     [Test]
-    [DisplayName($"{nameof(TempTargetsFileTests)}.{nameof(Create_CreatesTargetsFileWithExpectedContents)}")]
     public async Task Create_CreatesTargetsFileWithExpectedContents() {
         // Arrange
 
@@ -25,7 +24,6 @@ public class TempTargetsFileTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(TempTargetsFileTests)}.{nameof(Dispose_DeletesCreatedTargetsFile)}")]
     public async Task Dispose_DeletesCreatedTargetsFile() {
         // Arrange
         var tempTargetsFile = TempTargetsFile.Create();
@@ -39,7 +37,6 @@ public class TempTargetsFileTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(TempTargetsFileTests)}.{nameof(Dispose_DoesNotThrow_WhenFileWasDeletedExternally)}")]
     public async Task Dispose_DoesNotThrow_WhenFileWasDeletedExternally() {
         // Arrange
         var tempTargetsFile = TempTargetsFile.Create();
