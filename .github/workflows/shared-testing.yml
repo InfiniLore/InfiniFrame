@@ -117,7 +117,7 @@ jobs:
     mark-pending:
         name: Set Pending Checks
         runs-on: ubuntu-latest
-        needs: [prepare, docs-validation]
+        needs: [ prepare, docs-validation ]
         permissions:
             statuses: write
         env:
@@ -156,7 +156,7 @@ jobs:
     linux-gui:
         name: Linux GUI Tests
         if: ${{ inputs.run_linux == true }}
-        needs: [prepare, mark-pending]
+        needs: [ prepare, mark-pending ]
         uses: ./.github/workflows/shared-testing-gui-linux.yml
         with:
             pr_number: ${{ inputs.pr_number }}
@@ -169,7 +169,7 @@ jobs:
     windows-gui:
         name: Windows GUI Tests
         if: ${{ inputs.run_windows == true }}
-        needs: [prepare, mark-pending]
+        needs: [ prepare, mark-pending ]
         uses: ./.github/workflows/shared-testing-gui-windows.yml
         with:
             pr_number: ${{ inputs.pr_number }}
@@ -182,7 +182,7 @@ jobs:
     windows-playwright:
         name: Windows Playwright Tests
         if: ${{ inputs.run_windows_playwright == true }}
-        needs: [prepare, mark-pending]
+        needs: [ prepare, mark-pending ]
         uses: ./.github/workflows/shared-testing-playwright-windows.yml
         with:
             pr_number: ${{ inputs.pr_number }}
@@ -195,7 +195,7 @@ jobs:
     macos-gui:
         name: macOS GUI Tests
         if: ${{ inputs.run_macos == true }}
-        needs: [prepare, mark-pending]
+        needs: [ prepare, mark-pending ]
         uses: ./.github/workflows/shared-testing-gui-macos.yml
         with:
             pr_number: ${{ inputs.pr_number }}

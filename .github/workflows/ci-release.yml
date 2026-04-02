@@ -132,7 +132,7 @@ jobs:
     build:
         name: Build Native (${{ matrix.os }}/${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
-        needs: [bump-version, run-tests]
+        needs: [ bump-version, run-tests ]
         strategy:
             fail-fast: false
             matrix:
@@ -252,7 +252,7 @@ jobs:
     release:
         name: Publish Release
         runs-on: ubuntu-latest
-        needs: [bump-version, build]
+        needs: [ bump-version, build ]
 
         steps:
             -   name: Checkout
@@ -429,15 +429,15 @@ jobs:
                         --api-key "$GITHUB_TOKEN" \
                         --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
                         --skip-duplicate
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # Publish docs after release pipeline completes
-    # ------------------------------------------------------------------------------------------------------------------
             
+            # ------------------------------------------------------------------------------------------------------------------
+            # Publish docs after release pipeline completes
+            # ------------------------------------------------------------------------------------------------------------------
+    
     # noinspection UndefinedAction, UndefinedParamsPresent
     publish-docs:
         name: Publish Docs
-        needs: [release, bump-version]
+        needs: [ release, bump-version ]
         if: inputs.publish_docs
         uses: ./.github/workflows/shared-release-docs.yml
         with:
