@@ -16,6 +16,7 @@ This guide covers how to install the tool, run it, and avoid common packaging is
 - [Command Syntax](#command-syntax)
 - [Usage Examples](#usage-examples)
 - [Common Patterns](#common-patterns)
+- [App Bootstrap Requirement](#app-bootstrap-requirement)
 - [Edge Cases and Pitfalls](#edge-cases-and-pitfalls)
 
 ## Overview
@@ -28,6 +29,8 @@ Compared to a regular `dotnet publish`, the tool additionally:
 - Verifies required native artifacts exist before publish starts
 - Injects custom MSBuild targets so `wwwroot` and native runtime files are embedded as resources
 - Cleans unpacked runtime artifacts from the final publish directory
+
+Because native files are embedded as resources, your app must initialize the runtime resolver at startup with `InfiniFrameSingleFileBootstrap.Initialize()`.
 
 ## How It Works
 
@@ -154,6 +157,34 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid osx-arm64 
 ### Prefer explicit `--framework` for multi-targeting projects
 
 If your project uses `TargetFrameworks`, pass `--framework` to avoid accidental changes when framework order is edited.
+
+## App Bootstrap Requirement
+
+After packaging with `InfiniFrame.Tools.Pack`, initialize the single-file bootstrap before creating a window:
+
+```csharp
+using InfiniFrame;
+
+public static class Program {
+    [STAThread]
+    public static void Main(string[] args) {
+        InfiniFrameSingleFileBootstrap.Initialize();
+
+        var window = InfiniFrameWindowBuilder.Create()
+            .SetTitle("My App")
+            .SetSize(1280, 720)
+            .Center()
+            .Build();
+
+        window.WaitForClose();
+    }
+}
+```
+
+Why this is required:
+
+- `infiniframe-pack publish` embeds `InfiniFrame.Native` and platform loader files (`WebView2Loader.dll` on Windows) as resources.
+- `InfiniFrameSingleFileBootstrap.Initialize()` extracts them to a temporary RID-specific folder and registers a native resolver so P/Invoke can load them.
 
 ## Edge Cases and Pitfalls
 

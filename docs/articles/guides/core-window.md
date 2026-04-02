@@ -5,6 +5,7 @@ This guide covers everything available through the `InfiniLore.InfiniFrame` pack
 ## Contents
 
 - [Building a Window](#building-a-window)
+- [Single-File Native Packaging](#single-file-native-packaging)
 - [Window Configuration](#window-configuration)
 - [Browser Features](#browser-features)
 - [Runtime Window Control](#runtime-window-control)
@@ -34,6 +35,33 @@ window.WaitForClose();
 
 `Build()` creates and displays the native window immediately on the calling thread
 The returned `IInfiniFrameWindow` gives you full control over the window at runtime
+
+## Single-File Native Packaging
+
+When your app is published as a single-file executable with embedded InfiniFrame native binaries, call `InfiniFrameSingleFileBootstrap.Initialize()` before creating any windows.
+
+```csharp
+using InfiniFrame;
+
+public static class Program {
+    [STAThread]
+    public static void Main(string[] args) {
+        InfiniFrameSingleFileBootstrap.Initialize();
+
+        var window = InfiniFrameWindowBuilder.Create()
+            .SetTitle("My App")
+            .SetSize(1280, 720)
+            .Center()
+            .SetStartUrl("app://index.html")
+            .Build();
+
+        window.WaitForClose();
+    }
+}
+```
+
+`Initialize()` is idempotent and safe to call once at startup.
+Use it for packaged deployments created by `InfiniFrame.Tools.Pack` (or any equivalent flow that embeds native files as resources), not for standard development runs where native binaries are already present beside your app.
 
 ## Window Configuration
 
@@ -385,3 +413,4 @@ var window = builder.Build(serviceProvider);
 
 - `InfiniFrameExample.WebApp.React` (`examples/InfiniFrameExample.WebApp.React`) - custom URL scheme handler and web messaging with DI-resolved services
 - `InfiniFrameExample.BlazorWebView` (`examples/InfiniFrameExample.BlazorWebView`) - window builder configuration with size, position, and icon
+- `InfiniFrameExample.EmbeddedAssets` (`examples/InfiniFrameExample.EmbeddedAssets`) - embedded static assets and single-file native bootstrap
