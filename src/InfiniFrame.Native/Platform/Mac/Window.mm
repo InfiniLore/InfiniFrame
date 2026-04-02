@@ -286,6 +286,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
     for (const auto & scheme : m_impl->_customSchemeNames)
     {
+        // Note:
+        // Unlike WebView2 (Windows) and WebKitGTK (Linux security manager),
+        // WKURLSchemeHandler does not expose per-scheme "secure"/authority flags.
+        // We still register all custom schemes here for routing, but "app" trust
+        // semantics cannot be configured at the same granularity on macOS.
         m_impl->AddCustomScheme(scheme.c_str(), m_impl->_customSchemeCallback);
     }
 
