@@ -7,7 +7,6 @@ using InfiniFrame.Native;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -36,12 +35,10 @@ public static class InfiniFrameSingleFileBootstrap {
         Assembly entryAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
         string rid = GetRuntimeIdentifier();
 
-        _nativeDir = Path.Combine(
-            Path.GetTempPath(),
-            "InfiniFrame",
-            "native",
-            entryAssembly.GetName().Name ?? "app",
-            rid);
+        string version = entryAssembly.GetName().Version?.ToString() ?? "0.0.0";
+        string uniqueId = $"{Environment.ProcessId}_{Guid.NewGuid()}";
+        _nativeDir = Path.Combine(Path.GetTempPath(), "InfiniFrame", "native",
+            entryAssembly.GetName().Name ?? "app", rid, version, uniqueId);
 
         Directory.CreateDirectory(_nativeDir);
         ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
@@ -51,7 +48,7 @@ public static class InfiniFrameSingleFileBootstrap {
 
     private static IntPtr ResolveNativeLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath) {
         if (_nativeDir is null || libraryName is not NativeDll.DllName and not WebView2LoaderLibraryName) return IntPtr.Zero;
-        
+
         string fileName = libraryName switch {
             NativeDll.DllName when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => "InfiniFrame.Native.dll",
             NativeDll.DllName when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => "InfiniFrame.Native.so",
@@ -87,20 +84,36 @@ public static class InfiniFrameSingleFileBootstrap {
     }
 
     private static void ExtractEmbeddedNative(Assembly assembly, string rid, IReadOnlyCollection<string> fileNames) {
+        var missingResources = new List<string>();
+
         foreach (string fileName in fileNames) {
             string resourceName = $"{assembly.GetName().Name}.native.{rid}.{fileName}";
             using Stream? resourceStream = assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream is null) continue;
+            if (resourceStream is null) {
+                missingResources.Add(resourceName);
+                continue;
+            }
 
             string destinationPath = Path.Combine(_nativeDir!, fileName);
-            using var destination = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.Read);
+
+            // Avoid overwriting existing files
+            if (File.Exists(destinationPath)) continue;
+
+            using var destination = new FileStream(destinationPath, FileMode.CreateNew, FileAccess.Write, FileShare.Read);
             resourceStream.CopyTo(destination);
+        }
+
+        if (missingResources.Count > 0) {
+            throw new InvalidOperationException(
+                $"InfiniFrame bootstrap failed. Missing embedded native resources for RID '{rid}': " +
+                string.Join(", ", missingResources)
+            );
         }
     }
 
     private static string GetRuntimeIdentifier() {
         string arch = RuntimeInformation.OSArchitecture == Architecture.Arm64 ? "arm64" : "x64";
-        
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return $"win-{arch}";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return $"linux-{arch}";
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return $"osx-{arch}";

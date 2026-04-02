@@ -24,7 +24,7 @@ internal static class CommandLine {
         string command = firstArg.Trim().ToLowerInvariant();
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (!command.StartsWith("publish", StringComparison.Ordinal)) throw new InvalidOperationException($"Unknown command '{args[0]}'.");
+        if (!command.Equals("publish", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException($"Unknown command '{args[0]}'.");
 
         string[] argsWithoutCommand = args.Skip(1).ToArray();
         if (argsWithoutCommand.Length == 0) return ParseResult.Usage(0);

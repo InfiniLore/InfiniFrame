@@ -11,8 +11,16 @@ dotnet tool install --local --add-source ./src/InfiniFrame.Tools.Pack/bin/Releas
 
 ## Usage
 
+Local tool:
+
 ```bash
-dotnet InfiniFrame.Tools.Pack publish <path-to-app.csproj>
+dotnet tool run infiniframe-pack publish <path-to-app.csproj>
+```
+
+Global tool:
+
+```bash
+infiniframe-pack publish <path-to-app.csproj>
 ```
 
 Options:

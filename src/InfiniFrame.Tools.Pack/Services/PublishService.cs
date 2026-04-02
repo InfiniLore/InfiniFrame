@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Exceptions;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -38,41 +37,29 @@ internal static class PublishService {
 
         PrintPublishSummary(projectPath, framework, rid, options.SelfContained, output, nativeArtifacts.Directory);
 
-        if (Directory.Exists(output)) Directory.Delete(output, true);
+        // Safe recursive deletion
+        if (Directory.Exists(output)) SafeDeleteDirectory(output);
         Directory.CreateDirectory(output);
 
         try {
             using var tempTargets = TempTargetsFile.Create();
 
-            List<string> publishArgs = [
-                "publish",
+            List<string> publishArgs = BuildPublishArguments(
+                options,
                 projectPath,
-                "-c", options.Configuration,
-                "-r", rid,
-                "-f", framework,
-                "--output", output,
-                "-p:InfiniFramePackInvoked=true",
-                "-p:PublishSingleFile=true",
-                $"-p:SelfContained={options.SelfContained.ToString().ToLowerInvariant()}",
-                "-p:IncludeNativeLibrariesForSelfExtract=true",
-                "-p:IncludeAllContentForSelfExtract=true",
-                "-p:EnableCompressionInSingleFile=true",
-                "-p:DebugType=none",
-                "-p:DebugSymbols=false",
-                $"-p:InfiniFramePackRootProject={projectPath}",
-                $"-p:InfiniFramePackRuntimeIdentifier={rid}",
-                $"-p:InfiniFramePackNativeArtifactsDir={nativeArtifacts.Directory}",
-                $"-p:CustomAfterMicrosoftCommonTargets={tempTargets.Path}",
-                options.Verbose ? "-v:normal" : "-v:minimal"
-            ];
-
-            if (options.NoRestore) publishArgs.Add("--no-restore");
+                framework,
+                rid,
+                output,
+                nativeArtifacts.Directory,
+                tempTargets.Path,
+                isPreflight: false
+            );
 
             int exitCode = await ProcessRunner.RunAsync(DotNet, publishArgs);
             if (exitCode != 0) return exitCode;
 
             PublishOutputCleaner.Cleanup(output);
-            PrintOutputSummary(output, ResolveExpectedMainOutputPath(output, assemblyName));
+            PrintOutputSummary(output, ResolveExpectedMainOutputPath(output, assemblyName, rid));
             return 0;
         }
         finally {
@@ -87,10 +74,10 @@ internal static class PublishService {
             ? Path.Combine(projectDirectory, "bin", options.Configuration, framework, rid, "publish")
             : Path.GetFullPath(options.Output!);
 
-    private static string ResolveExpectedMainOutputPath(string output, string assemblyName) =>
-        RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? Path.Combine(output, $"{assemblyName}.exe")
-            : Path.Combine(output, assemblyName);
+    private static string ResolveExpectedMainOutputPath(string output, string assemblyName, string rid) {
+        string extension = rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? ".exe" : "";
+        return Path.Combine(output, $"{assemblyName}{extension}");
+    }
 
     private static void PrintPublishSummary(string projectPath, string framework, string rid, bool selfContained, string output, string nativeArtifacts) {
         Console.WriteLine("[InfiniFrame.Pack] Publishing single-file app");
@@ -123,7 +110,10 @@ internal static class PublishService {
     ) {
         string preflightDirectory = Path.Combine(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
         Directory.CreateDirectory(preflightDirectory);
-        int preflightExitCode = await RunPreflightPublishAsync(options, projectPath, framework, rid, preflightDirectory);
+
+        int preflightExitCode = await ProcessRunner.RunAsync(DotNet,
+            BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true));
+
         if (preflightExitCode != 0) {
             throw new InvalidOperationException($"Preflight publish failed with exit code {preflightExitCode}.");
         }
@@ -142,24 +132,68 @@ internal static class PublishService {
         }
     }
 
-    private static async Task<int> RunPreflightPublishAsync(PublishOptions options, string projectPath, string framework, string rid, string outputDirectory) {
-        List<string> publishArgs = [
+    private static void SafeDeleteDirectory(string path) {
+        string fullPath = Path.GetFullPath(path);
+
+        if (string.IsNullOrWhiteSpace(fullPath)) throw new InvalidOperationException("Cannot delete an empty path.");
+
+        // Reject root drives
+        string? root = Path.GetPathRoot(fullPath);
+        if (string.Equals(fullPath, root, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException($"Refusing to delete root directory '{fullPath}'.");
+
+        // Log deletion for transparency
+        Console.WriteLine($"[InfiniFrame.Pack] Cleaning previous output folder: {fullPath}");
+
+        try {
+            Directory.Delete(fullPath, true);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) {
+            throw new InvalidOperationException($"Failed to delete output folder '{fullPath}': {ex.Message}", ex);
+        }
+    }
+
+    private static List<string> BuildPublishArguments(
+        PublishOptions options,
+        string projectPath,
+        string framework,
+        string rid,
+        string output,
+        string? nativeArtifactsDir = null,
+        string? customTargetsPath = null,
+        bool isPreflight = false
+    ) {
+        List<string> args = [
             "publish",
             projectPath,
             "-c", options.Configuration,
             "-r", rid,
             "-f", framework,
-            "--output", outputDirectory,
+            "--output", output,
             "-p:InfiniFramePackInvoked=true",
-            "-p:PublishSingleFile=false",
             $"-p:SelfContained={options.SelfContained.ToString().ToLowerInvariant()}",
             "-p:IncludeNativeLibrariesForSelfExtract=true",
             options.Verbose ? "-v:normal" : "-v:minimal"
         ];
 
-        if (options.NoRestore) publishArgs.Add("--no-restore");
-        return await ProcessRunner.RunAsync(DotNet, publishArgs);
-    }
+        if (isPreflight) {
+            args.Add("-p:PublishSingleFile=false");
+        }
+        else {
+            args.AddRange([
+                "-p:PublishSingleFile=true",
+                "-p:IncludeAllContentForSelfExtract=true",
+                "-p:EnableCompressionInSingleFile=true",
+                "-p:DebugType=none",
+                "-p:DebugSymbols=false",
+                $"-p:InfiniFramePackRootProject={projectPath}",
+                $"-p:InfiniFramePackRuntimeIdentifier={rid}",
+                $"-p:InfiniFramePackNativeArtifactsDir={nativeArtifactsDir}",
+                $"-p:CustomAfterMicrosoftCommonTargets={customTargetsPath}"
+            ]);
+        }
 
-    private sealed record ResolvedNativeArtifacts(string Directory, bool DeleteWhenDone);
+        if (options.NoRestore) args.Add("--no-restore");
+
+        return args;
+    }
 }
