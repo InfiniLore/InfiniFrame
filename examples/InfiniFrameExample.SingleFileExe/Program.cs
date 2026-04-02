@@ -1,8 +1,13 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using System.Drawing;
 
-namespace InfiniFrameExample.EmbeddedAssets;
-
+namespace InfiniFrameExample.SingleFileExe;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
@@ -16,7 +21,8 @@ public static class Program {
                 scheme: "app",
                 includePhysicalFallback: true,
                 physicalWwwrootPath: Path.Combine(AppContext.BaseDirectory, "wwwroot"),
-                setStartUrl: true)
+                setStartUrl: true
+            )
             .Build();
 
         window.WaitForClose();
