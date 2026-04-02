@@ -1,5 +1,4 @@
-name: Reusable macOS GUI Tests
-
+name: "Shared: Reusable macOS GUI Tests"
 on:
     workflow_call:
         inputs:

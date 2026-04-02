@@ -1,5 +1,4 @@
-name: Reusable Docs to GitHub Pages
-
+name: "Shared: Reusable Docs to GitHub Pages"
 on:
     workflow_call:
         inputs:

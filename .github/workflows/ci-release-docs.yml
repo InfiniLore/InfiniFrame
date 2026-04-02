@@ -1,5 +1,4 @@
-name: "Workflow: Docs to GitHub Pages"
-
+name: "CI: Docs to GitHub Pages"
 on:
     workflow_dispatch:
 
@@ -9,7 +8,8 @@ permissions:
     id-token: write
 
 jobs:
+    # noinspection UndefinedAction, UndefinedParamsPresent
     deploy-docs:
         name: Build and Deploy Docs
-        uses: ./.github/workflows/reusable-docs-pages.yml
+        uses: ./.github/workflows/shared-release-docs.yml
         secrets: inherit

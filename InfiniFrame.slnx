@@ -16,27 +16,27 @@
     <File Path=".github/dependabot.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/">
-    <File Path=".github/workflows/workflow-docs-pages.yml" />
-    <File Path=".github/workflows/workflow-multiPlatformTesting.yml" />
-    <File Path=".github\workflows\workflow-onRelease.yml" />
-    <File Path=".github\workflows\workflow-pendingCheck.yml" />
-    <File Path=".github/workflows/workflow-python-tests.yml" />
-    <File Path=".github\workflows\workflow-todo.yml" />
-  </Folder>
-  <Folder Name="/.dev-tools/github/workflows/reusables/">
-    <File Path=".github/workflows/reusable-docs-pages.yml" />
-    <File Path=".github/workflows/reusable-linux-gui.yml" />
-    <File Path=".github/workflows/reusable-macos-gui.yml" />
-    <File Path=".github/workflows/reusable-multiPlatformTesting.yml" />
-    <File Path=".github/workflows/reusable-python-tests.yml" />
-    <File Path=".github/workflows/reusable-windows-gui.yml" />
-    <File Path=".github/workflows/reusable-windows-playwright.yml" />
+    <File Path=".github/workflows/ci-release-docs.yml" />
+    <File Path=".github/workflows/ci-testing.yml" />
+    <File Path=".github\workflows\ci-release.yml" />
+    <File Path=".github\workflows\ci-pendingCheck.yml" />
+    <File Path=".github/workflows/ci-testing-pything.yml" />
+    <File Path=".github\workflows\ci-todo.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/scripts/">
     <File Path=".github/scripts/bump_version.py" />
     <File Path=".github/scripts/sync_github_checks.py" />
     <File Path=".github/scripts/test_bump_version.py" />
     <File Path=".github/scripts/test_sync_github_checks.py" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/workflows/shared/">
+    <File Path=".github/workflows/shared-release-docs.yml" />
+    <File Path=".github/workflows/shared-testing-gui-linux.yml" />
+    <File Path=".github/workflows/shared-testing-gui-macos.yml" />
+    <File Path=".github/workflows/shared-testing.yml" />
+    <File Path=".github/workflows/shared-testing-python.yml" />
+    <File Path=".github/workflows/shared-testing-gui-windows.yml" />
+    <File Path=".github/workflows/shared-testing-playwright-windows.yml" />
   </Folder>
   <Folder Name="/.dev-tools/web/">
     <File Path="package.json" />

@@ -1,5 +1,4 @@
-name: Reusable Windows Playwright Tests
-
+name: "Shared: Reusable Windows Playwright Tests"
 on:
     workflow_call:
         inputs:

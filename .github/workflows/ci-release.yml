@@ -1,5 +1,4 @@
-name: "Workflow: Release to Nuget"
-
+name: "CI: Release to Nuget"
 on:
     workflow_dispatch:
         inputs:
@@ -39,7 +38,7 @@ jobs:
     # noinspection UndefinedAction
     python-tests:
         name: Run Python Script Tests
-        uses: ./.github/workflows/reusable-python-tests.yml
+        uses: ./.github/workflows/shared-testing-python.yml
 
     # ------------------------------------------------------------------------------------------------------------------
     # Bump version, commit, and tag
@@ -117,7 +116,7 @@ jobs:
     run-tests:
         name: Run Multi-Platform Tests
         needs: bump-version
-        uses: ./.github/workflows/reusable-multiPlatformTesting.yml
+        uses: ./.github/workflows/shared-testing.yml
         with:
             pr_number: ''
             checkout_ref: ${{ needs.bump-version.outputs.tag_name }}
@@ -222,7 +221,7 @@ jobs:
                         ~/Library/Caches/Homebrew
                         /usr/local/Cellar/gtk+3
                         /usr/local/Cellar/pkg-config
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-${{ hashFiles('.github/workflows/workflow-onRelease.yml') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-${{ hashFiles('.github/workflows/ci-release.yml') }}
                     restore-keys: |
                         ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-
 
@@ -440,7 +439,7 @@ jobs:
         name: Publish Docs to GitHub Pages
         needs: [release, bump-version]
         if: inputs.publish_docs
-        uses: ./.github/workflows/reusable-docs-pages.yml
+        uses: ./.github/workflows/shared-release-docs.yml
         with:
             checkout_ref: ${{ needs.bump-version.outputs.tag_name }}
         secrets: inherit

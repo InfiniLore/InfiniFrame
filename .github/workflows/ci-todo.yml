@@ -1,11 +1,10 @@
-name: "Workflow: TODO to Issues"
-
+name: "CI: TODO to Issues"
 on:
     push:
         branches:
             - core
         paths-ignore:
-            - .github/workflows/workflow-todo.yml
+            - .github/workflows/ci-todo.yml
 
 jobs:
     todo-to-issue:

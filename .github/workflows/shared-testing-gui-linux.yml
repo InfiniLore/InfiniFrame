@@ -1,5 +1,4 @@
-name: Reusable Linux GUI Tests
-
+name: "Shared: Reusable Linux GUI Tests"
 on:
     workflow_call:
         inputs:

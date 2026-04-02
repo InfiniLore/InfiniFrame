@@ -1,5 +1,4 @@
-name: Reusable MultiPlatform Testing
-
+name: "Shared: Reusable MultiPlatform Testing"
 on:
     workflow_call:
         inputs:
@@ -157,7 +156,7 @@ jobs:
     linux-gui:
         if: ${{ inputs.run_linux == true }}
         needs: [prepare, mark-pending]
-        uses: ./.github/workflows/reusable-linux-gui.yml
+        uses: ./.github/workflows/shared-testing-gui-linux.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -169,7 +168,7 @@ jobs:
     windows-gui:
         if: ${{ inputs.run_windows == true }}
         needs: [prepare, mark-pending]
-        uses: ./.github/workflows/reusable-windows-gui.yml
+        uses: ./.github/workflows/shared-testing-gui-windows.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -181,7 +180,7 @@ jobs:
     windows-playwright:
         if: ${{ inputs.run_windows_playwright == true }}
         needs: [prepare, mark-pending]
-        uses: ./.github/workflows/reusable-windows-playwright.yml
+        uses: ./.github/workflows/shared-testing-playwright-windows.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -193,7 +192,7 @@ jobs:
     macos-gui:
         if: ${{ inputs.run_macos == true }}
         needs: [prepare, mark-pending]
-        uses: ./.github/workflows/reusable-macos-gui.yml
+        uses: ./.github/workflows/shared-testing-gui-macos.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}

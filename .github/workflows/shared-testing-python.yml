@@ -1,5 +1,4 @@
-name: Reusable Python Script Tests
-
+name: "Shared: Reusable Python Script Tests"
 on:
     workflow_call:
 

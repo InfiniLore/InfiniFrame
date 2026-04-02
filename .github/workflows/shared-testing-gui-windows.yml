@@ -1,5 +1,4 @@
-name: Reusable Windows GUI Tests
-
+name: "Shared: Reusable Windows GUI Tests"
 on:
     workflow_call:
         inputs:

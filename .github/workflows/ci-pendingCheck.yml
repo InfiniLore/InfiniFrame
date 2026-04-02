@@ -1,5 +1,4 @@
-name: "Workflow: Pending Checks"
-
+name: "CI: Pending Checks"
 on:
     pull_request_target:
         types: [opened, synchronize, reopened, ready_for_review]
@@ -48,7 +47,7 @@ jobs:
                   set -euo pipefail
 
                   API_BASE="https://api.github.com/repos/${BASE_REPO}"
-                  WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/workflow-multiPlatformTesting.yml"
+                  WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/workflows/ci-testing.yml"
                   PR_NUMBER=""
                   SHA=""
                   IS_FORK=""
