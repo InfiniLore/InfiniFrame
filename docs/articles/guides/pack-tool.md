@@ -1,6 +1,6 @@
-# InfiniFrame.Tools.Pack Guide
+# InfiniLore.InfiniFrame.Tools.Pack Guide
 
-`InfiniFrame.Tools.Pack` is a .NET tool that packages an InfiniFrame application into a single-file executable while embedding:
+`InfiniLore.InfiniFrame.Tools.Pack` is a .NET tool that packages an InfiniFrame application into a single-file executable while embedding:
 
 - `wwwroot` content
 - Native InfiniFrame runtime binaries for the selected runtime identifier (RID)
@@ -21,7 +21,7 @@ This guide covers how to install the tool, run it, and avoid common packaging is
 
 ## Overview
 
-Use `InfiniFrame.Tools.Pack` when you want a single distributable output for an InfiniFrame app.
+Use `InfiniLore.InfiniFrame.Tools.Pack` when you want a single distributable output for an InfiniFrame app.
 
 Compared to a regular `dotnet publish`, the tool additionally:
 
@@ -55,7 +55,7 @@ From the repository root:
 
 ```bash
 dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
-dotnet tool install --local --add-source ./src/InfiniFrame.Tools.Pack/bin/Release InfiniFrame.Tools.Pack
+dotnet tool install --local --add-source ./src/InfiniFrame.Tools.Pack/bin/Release InfiniLore.InfiniFrame.Tools.Pack
 ```
 
 Run with:
@@ -71,7 +71,7 @@ If the package is published to NuGet, you can install it directly without buildi
 ### Global install
 
 ```bash
-dotnet tool install --global InfiniFrame.Tools.Pack
+dotnet tool install --global InfiniLore.InfiniFrame.Tools.Pack
 ```
 
 Run with:
@@ -83,8 +83,8 @@ infiniframe-pack --help
 ### Update or uninstall
 
 ```bash
-dotnet tool update --global InfiniFrame.Tools.Pack
-dotnet tool uninstall --global InfiniFrame.Tools.Pack
+dotnet tool update --global InfiniLore.InfiniFrame.Tools.Pack
+dotnet tool uninstall --global InfiniLore.InfiniFrame.Tools.Pack
 ```
 
 ## Command Syntax
@@ -160,7 +160,7 @@ If your project uses `TargetFrameworks`, pass `--framework` to avoid accidental 
 
 ## App Bootstrap Requirement
 
-After packaging with `InfiniFrame.Tools.Pack`, initialize the single-file bootstrap before creating a window:
+After packaging with `InfiniLore.InfiniFrame.Tools.Pack`, initialize the single-file bootstrap before creating a window:
 
 ```csharp
 using InfiniFrame;
