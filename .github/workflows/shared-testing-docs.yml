@@ -1,4 +1,4 @@
-﻿name: Docs Validation
+name: "Shared: Docs Tests"
 
 on:
     workflow_call:
@@ -11,7 +11,7 @@ on:
 
 jobs:
     docs-validation:
-        name: Validate Docs
+        name: CI Testing - Docs
         runs-on: ubuntu-latest
         
         steps:
@@ -80,7 +80,7 @@ jobs:
                     python .github/scripts/sync_github_checks.py \
                       --repo "${GITHUB_REPOSITORY}" \
                       --sha "${GITHUB_SHA}" \
-                      --context "Docs Validation" \
+                      --context "CI Testing - Docs" \
                       --state pending \
                       --description "Docs validation in progress" \
                       --target-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
@@ -119,7 +119,7 @@ jobs:
                     python .github/scripts/sync_github_checks.py \
                       --repo "${GITHUB_REPOSITORY}" \
                       --sha "${GITHUB_SHA}" \
-                      --context "Docs Validation" \
+                      --context "CI Testing - Docs" \
                       --state $STATUS \
                       --description "$SUMMARY" \
                       --target-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
