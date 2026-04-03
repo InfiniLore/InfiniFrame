@@ -9,7 +9,14 @@ permissions:
 
 jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent
+    docs-validation:
+        name: Validate Docs
+        uses: ./.github/workflows/shared-testing-docs.yml
+        secrets: inherit
+            
+    # noinspection UndefinedAction, UndefinedParamsPresent
     deploy-docs:
         name: Publish Docs
+        needs: docs-validation
         uses: ./.github/workflows/shared-release-docs.yml
         secrets: inherit
