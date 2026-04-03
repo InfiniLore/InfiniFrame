@@ -85,7 +85,7 @@ jobs:
                         ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.MacOs.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
 
             -   name: Build Native
                 run: |
@@ -96,7 +96,7 @@ jobs:
                       /p:Platform=${{ matrix.arch }}
 
             -   name: Build Release
-                run: dotnet build InfiniFrame.GitHubActions.MacOs.slnf --configuration Release --no-restore
+                run: dotnet build InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-restore
 
             -   name: Verify Native Binaries
                 run: |
@@ -123,7 +123,7 @@ jobs:
 
                     echo "=== Running Tests ==="
 
-                    dotnet test --solution InfiniFrame.GitHubActions.MacOs.slnf \
+                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
                       --no-build \
                       --no-restore
