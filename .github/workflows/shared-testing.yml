@@ -70,6 +70,8 @@ jobs:
         uses: ./.github/workflows/shared-testing-docs.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+        secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     linux-gui:

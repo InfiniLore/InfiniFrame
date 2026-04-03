@@ -17,6 +17,7 @@ on:
                 required: true
 
 jobs:
+    # noinspection UndefinedAction, UndefinedParamsPresent
     windows-gui:
         name: Windows GUI (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
@@ -47,16 +48,15 @@ jobs:
             -   name: Set Windows Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    $CONTEXT = "CI Testing - Windows/${{ matrix.arch }}"
-                    python .github/scripts/sync_github_checks.py `
-                      --repo "${{ github.repository }}" `
-                      --sha "$env:TARGET_SHA" `
-                      --context "$CONTEXT" `
-                      --state pending `
-                      --description "Windows tests in progress" `
-                      --target-url "$env:WORKFLOW_URL" `
-                      --allow-status-422
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows/${{ matrix.arch }}
+                    state: pending
+                    status-description: Windows tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
 
             -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
@@ -141,27 +141,16 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    if ("${{ job.status }}" -eq "success") {
-                      $STATUS = "success"
-                      $DESCRIPTION = "Windows tests passed"
-                    } else {
-                      $STATUS = "failure"
-                      $DESCRIPTION = "Windows tests failed"
-                    }
-
-                    $CONTEXT = "CI Testing - Windows/${{ matrix.arch }}"
-                    $CONCLUSION = if ($STATUS -eq "success") { "success" } else { "failure" }
-
-                    python .github/scripts/sync_github_checks.py `
-                      --repo "${{ github.repository }}" `
-                      --sha "$env:TARGET_SHA" `
-                      --context "$CONTEXT" `
-                      --state "$STATUS" `
-                      --description "$DESCRIPTION" `
-                      --target-url "$env:WORKFLOW_URL" `
-                      --allow-status-422 `
-                      --complete-check-runs `
-                      --check-conclusion "$CONCLUSION" `
-                      --check-summary "$DESCRIPTION" `
-                      --require-update
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows/${{ matrix.arch }}
+                    state: ${{ job.status == 'success' && 'success' || 'failure' }}
+                    status-description: ${{ job.status == 'success' && 'Windows tests passed' || 'Windows tests failed' }}
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+                    complete-check-runs: 'true'
+                    check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
+                    check-summary: ${{ job.status == 'success' && 'Windows tests passed' || 'Windows tests failed' }}
+                    require-update: 'true'

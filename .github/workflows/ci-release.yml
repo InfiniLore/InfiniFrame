@@ -124,6 +124,7 @@ jobs:
             run_windows_playwright: false
             run_linux: true
             run_macos: true
+            run_docs: true
         secrets: inherit
     
     # ------------------------------------------------------------------------------------------------------------------

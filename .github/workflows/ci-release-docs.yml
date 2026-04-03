@@ -6,12 +6,16 @@ permissions:
     contents: read
     pages: write
     id-token: write
+    statuses: write
+    checks: write
 
 jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent
     docs-validation:
         name: Validate Docs
         uses: ./.github/workflows/shared-testing-docs.yml
+        with:
+            target_sha: ${{ github.sha }}
         secrets: inherit
             
     # noinspection UndefinedAction, UndefinedParamsPresent

@@ -17,6 +17,7 @@ on:
                 required: true
 
 jobs:
+    # noinspection UndefinedAction, UndefinedParamsPresent
     windows-playwright:
         name: Windows Playwright (${{ matrix.framework }})
         runs-on: windows-latest
@@ -42,17 +43,15 @@ jobs:
             -   name: Set Playwright Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                shell: pwsh
-                run: |
-                    $CONTEXT = "CI Testing - Windows Playwright (${{ matrix.framework }})"
-                    python .github/scripts/sync_github_checks.py `
-                      --repo "${{ github.repository }}" `
-                      --sha "$env:TARGET_SHA" `
-                      --context "$CONTEXT" `
-                      --state pending `
-                      --description "Windows Playwright tests in progress (${{ matrix.framework }})" `
-                      --target-url "$env:WORKFLOW_URL" `
-                      --allow-status-422
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Playwright (${{ matrix.framework }})
+                    state: pending
+                    status-description: Windows Playwright tests in progress (${{ matrix.framework }})
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
 
             -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
@@ -168,28 +167,16 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                shell: pwsh
-                run: |
-                    if ("${{ job.status }}" -eq "success") {
-                      $STATUS = "success"
-                      $DESCRIPTION = "Windows Playwright tests passed (${{ matrix.framework }})"
-                    } else {
-                      $STATUS = "failure"
-                      $DESCRIPTION = "Windows Playwright tests failed (${{ matrix.framework }})"
-                    }
-
-                    $CONTEXT = "CI Testing - Windows Playwright (${{ matrix.framework }})"
-                    $CONCLUSION = if ($STATUS -eq "success") { "success" } else { "failure" }
-
-                    python .github/scripts/sync_github_checks.py `
-                      --repo "${{ github.repository }}" `
-                      --sha "$env:TARGET_SHA" `
-                      --context "$CONTEXT" `
-                      --state "$STATUS" `
-                      --description "$DESCRIPTION" `
-                      --target-url "$env:WORKFLOW_URL" `
-                      --allow-status-422 `
-                      --complete-check-runs `
-                      --check-conclusion "$CONCLUSION" `
-                      --check-summary "$DESCRIPTION" `
-                      --require-update
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Playwright (${{ matrix.framework }})
+                    state: ${{ job.status == 'success' && 'success' || 'failure' }}
+                    status-description: ${{ job.status == 'success' && format('Windows Playwright tests passed ({0})', matrix.framework) || format('Windows Playwright tests failed ({0})', matrix.framework) }}
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+                    complete-check-runs: 'true'
+                    check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
+                    check-summary: ${{ job.status == 'success' && format('Windows Playwright tests passed ({0})', matrix.framework) || format('Windows Playwright tests failed ({0})', matrix.framework) }}
+                    require-update: 'true'

@@ -1,0 +1,71 @@
+name: Sync GitHub Check Context
+description: Post commit status and optionally complete matching queued/in-progress check runs.
+
+inputs:
+  repo:
+    description: owner/repo
+    required: true
+  sha:
+    description: Commit SHA
+    required: true
+  context:
+    description: Status/check context name
+    required: true
+  state:
+    description: pending|success|failure|error
+    required: true
+  status-description:
+    description: Short status description
+    required: true
+  target-url:
+    description: URL to link from the status/check
+    required: true
+  token-env:
+    description: Environment variable that contains a GitHub token
+    required: false
+    default: GITHUB_TOKEN
+  allow-status-422:
+    description: Treat status HTTP 422 as non-fatal
+    required: false
+    default: "false"
+  complete-check-runs:
+    description: Complete matching queued/in-progress check runs
+    required: false
+    default: "false"
+  check-conclusion:
+    description: Conclusion for completed check runs
+    required: false
+    default: success
+  check-summary:
+    description: Summary for completed check run output
+    required: false
+    default: ""
+  require-update:
+    description: Fail if neither status nor check run could be updated
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Sync status/check
+      shell: pwsh
+      run: |
+        $argsList = @(
+          ".github/scripts/sync_github_checks.py",
+          "--repo", "${{ inputs.repo }}",
+          "--sha", "${{ inputs.sha }}",
+          "--context", "${{ inputs.context }}",
+          "--state", "${{ inputs.state }}",
+          "--description", "${{ inputs['status-description'] }}",
+          "--target-url", "${{ inputs['target-url'] }}",
+          "--token-env", "${{ inputs['token-env'] }}",
+          "--check-conclusion", "${{ inputs['check-conclusion'] }}",
+          "--check-summary", "${{ inputs['check-summary'] }}"
+        )
+
+        if ("${{ inputs['allow-status-422'] }}" -eq "true") { $argsList += "--allow-status-422" }
+        if ("${{ inputs['complete-check-runs'] }}" -eq "true") { $argsList += "--complete-check-runs" }
+        if ("${{ inputs['require-update'] }}" -eq "true") { $argsList += "--require-update" }
+
+        python @argsList

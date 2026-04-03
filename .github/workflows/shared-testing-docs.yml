@@ -8,17 +8,29 @@ on:
                 type: string
                 required: false
                 default: ''
+            target_sha:
+                description: 'Commit SHA used for status/check updates'
+                type: string
+                required: true
+
+permissions:
+    contents: read
+    statuses: write
+    checks: write
 
 jobs:
+    # noinspection UndefinedAction, UndefinedParamsPresent
     docs-validation:
         name: CI Testing - Docs
         runs-on: ubuntu-latest
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
         
         steps:
             -   name: Checkout
                 uses: actions/checkout@v6
                 with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.sha }}
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
             
             -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
@@ -69,15 +81,15 @@ jobs:
             -   name: Set Docs Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    python .github/scripts/sync_github_checks.py \
-                      --repo "${GITHUB_REPOSITORY}" \
-                      --sha "${GITHUB_SHA}" \
-                      --context "CI Testing - Docs" \
-                      --state pending \
-                      --description "Docs validation in progress" \
-                      --target-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
-                      --allow-status-422
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ env.TARGET_SHA }}
+                    context: CI Testing - Docs
+                    state: pending
+                    status-description: Docs validation in progress
+                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+                    allow-status-422: 'true'
             
             -   name: Generate API Metadata
                 run: docfx metadata docs/docfx.json
@@ -87,17 +99,12 @@ jobs:
                 run: ./docs/scripts/update-cpp-api.ps1 -Required
             
             -   name: Build Docs
-                id: build_docs
                 shell: bash
                 run: |
                     set -euo pipefail
-                    echo "DOCS_FAILED=false" >> $GITHUB_ENV
-                    
+
                     docfx build docs/docfx.json 2>&1 | tee /tmp/docfx-build.log
-                    BUILD_EXIT_CODE=${PIPESTATUS[0]}
-                    
-                    if [ "$BUILD_EXIT_CODE" -ne 0 ] || grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
-                      echo "DOCS_FAILED=true" >> $GITHUB_ENV
+                    if grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
                       exit 1
                     fi
             
@@ -105,25 +112,16 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    STATUS="success"
-                    CONCLUSION="success"
-                    SUMMARY="Docs validation finished successfully"
-                    
-                    if [ "${DOCS_FAILED:-false}" = "true" ]; then
-                      STATUS="failure"
-                      CONCLUSION="failure"
-                      SUMMARY="Docs validation failed due to warnings or errors"
-                    fi
-                    
-                    python .github/scripts/sync_github_checks.py \
-                      --repo "${GITHUB_REPOSITORY}" \
-                      --sha "${GITHUB_SHA}" \
-                      --context "CI Testing - Docs" \
-                      --state $STATUS \
-                      --description "$SUMMARY" \
-                      --target-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
-                      --allow-status-422 \
-                      --complete-check-runs \
-                      --check-conclusion $CONCLUSION \
-                      --check-summary "$SUMMARY"
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ env.TARGET_SHA }}
+                    context: CI Testing - Docs
+                    state: ${{ job.status == 'success' && 'success' || 'failure' }}
+                    status-description: ${{ job.status == 'success' && 'Docs validation finished successfully' || 'Docs validation failed due to warnings or errors' }}
+                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+                    allow-status-422: 'true'
+                    complete-check-runs: 'true'
+                    check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
+                    check-summary: ${{ job.status == 'success' && 'Docs validation finished successfully' || 'Docs validation failed due to warnings or errors' }}
+                    require-update: 'true'
