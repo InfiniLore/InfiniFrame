@@ -35,6 +35,12 @@ jobs:
                         9.x
                         10.x
 
+            -   name: Validate PackageId Prefix
+                run: |
+                    python .github/scripts/validate_package_id_prefix.py \
+                      --slnf InfiniFrame.GitHubActions.Release.slnf \
+                      --prefix InfiniLore
+
             -   name: Cache NuGet
                 uses: actions/cache@v5
                 with:
