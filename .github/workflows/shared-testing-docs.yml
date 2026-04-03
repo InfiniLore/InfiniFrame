@@ -65,14 +65,7 @@ jobs:
                 uses: awalsh128/cache-apt-pkgs-action@latest
                 with:
                     packages: doxygen
-            
-            -   name: Generate API Metadata
-                run: docfx metadata docs/docfx.json
-
-            -   name: Generate C++ Docs
-                shell: pwsh
-                run: ./docs/scripts/update-cpp-api.ps1 -Required
-            
+                    
             -   name: Set Docs Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,6 +78,13 @@ jobs:
                       --description "Docs validation in progress" \
                       --target-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
                       --allow-status-422
+            
+            -   name: Generate API Metadata
+                run: docfx metadata docs/docfx.json
+
+            -   name: Generate C++ Docs
+                shell: pwsh
+                run: ./docs/scripts/update-cpp-api.ps1 -Required
             
             -   name: Build Docs
                 id: build_docs
