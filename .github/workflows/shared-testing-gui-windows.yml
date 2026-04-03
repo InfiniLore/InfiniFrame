@@ -90,7 +90,7 @@ jobs:
                         ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Windows.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
 
             -   name: Build Release
                 run: |
@@ -100,7 +100,7 @@ jobs:
                       -p:SolutionDir="${{ github.workspace }}/" `
                       -p:Platform=${{ matrix.arch }}
 
-                    dotnet build InfiniFrame.GitHubActions.Windows.slnf `
+                    dotnet build InfiniFrame.GitHubActions.Testing.slnf `
                       --configuration Release `
                       --no-restore
 
@@ -124,7 +124,7 @@ jobs:
             -   name: Run Tests
                 run: |
                     echo "Running tests on Windows..."
-                    dotnet test --solution InfiniFrame.GitHubActions.Windows.slnf `
+                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore

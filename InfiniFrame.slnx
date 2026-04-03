@@ -1,16 +1,14 @@
 <Solution>
   <Folder Name="/.dev-tools/">
     <File Path=".gitignore" />
-    <File Path="InfiniFrame.GitHubActions.WindowsPlaywright.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Testing.Playwright.slnf" />
     <File Path="LICENSE" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="global.json" />
-    <File Path="InfiniFrame.GitHubActions.Linux.slnf" />
-    <File Path="InfiniFrame.GitHubActions.MacOs.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Testing.slnf" />
     <File Path="InfiniFrame.GitHubActions.Release.slnf" />
     <File Path="InfiniFrame.GitHubActions.slnf" />
-    <File Path="InfiniFrame.GitHubActions.Windows.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/dependabot.yml" />

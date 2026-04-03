@@ -1,4 +1,4 @@
-﻿{
+{
     "solution": {
         "path": "InfiniFrame.slnx",
         "projects": [
@@ -10,11 +10,11 @@
             "src\\InfiniFrame.Tools.Pack\\InfiniFrame.Tools.Pack.csproj",
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
 
-            "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
             "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
+            "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
+            "tests\\InfiniFrameTests.BlazorWebView\\InfiniFrameTests.BlazorWebView.csproj",
             "tests\\InfiniFrameTests.Tools.Pack\\InfiniFrameTests.Tools.Pack.csproj",
-            "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj",
-            "tests\\InfiniFrameTests.BlazorWebView\\InfiniFrameTests.BlazorWebView.csproj"
+            "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj"
         ]
     }
 }
