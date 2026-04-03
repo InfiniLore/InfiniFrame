@@ -21,6 +21,12 @@
   <Folder Name="/.dev-tools/github/actions/sync-check/">
     <File Path=".github/actions/sync-check/action.yml" />
   </Folder>
+  <Folder Name="/.dev-tools/github/scripts/">
+    <File Path=".github/scripts/bump_version.py" />
+    <File Path=".github/scripts/sync_github_checks.py" />
+    <File Path=".github/scripts/test_bump_version.py" />
+    <File Path=".github/scripts/test_sync_github_checks.py" />
+  </Folder>
   <Folder Name="/.dev-tools/github/workflows/">
     <File Path=".github/workflows/ci-release-docs.yml" />
     <File Path=".github/workflows/ci-testing.yml" />
@@ -29,12 +35,6 @@
     <File Path=".github\workflows\ci-todo.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/" />
-  <Folder Name="/.dev-tools/github/workflows/scripts/">
-    <File Path=".github/scripts/bump_version.py" />
-    <File Path=".github/scripts/sync_github_checks.py" />
-    <File Path=".github/scripts/test_bump_version.py" />
-    <File Path=".github/scripts/test_sync_github_checks.py" />
-  </Folder>
   <Folder Name="/.dev-tools/github/workflows/shared/">
     <File Path=".github/workflows/shared-release-docs.yml" />
     <File Path=".github/workflows/shared-testing-docs.yml" />
