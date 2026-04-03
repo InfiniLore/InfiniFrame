@@ -15,50 +15,111 @@ jobs:
         runs-on: ubuntu-latest
         
         steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-              with:
-                  ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.sha }}
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.sha }}
+            
+            -   name: Setup .NET
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: 10.x
 
-            - name: Setup .NET
-              uses: actions/setup-dotnet@v5
-              with:
-                  dotnet-version: |
-                      8.x
-                      9.x
-                      10.x
+            -   name: Setup Node
+                uses: actions/setup-node@v6
+                with:
+                    node-version: 22
+            
+            -   name: Cache .NET Tools & NuGet
+                uses: actions/cache@v5
+                with:
+                    path: |
+                        ~/.nuget/packages
+                        ~/.dotnet/tools
+                    key: dotnet-tools-${{ runner.os }}-docfx-2.78.5
+                    restore-keys: |
+                        dotnet-tools-${{ runner.os }}-docfx-
+            
+            -   name: Install DocFX if needed
+                run: |
+                    set -euo pipefail
+                    REQUIRED_VERSION=2.78.5
+                    
+                    if command -v docfx >/dev/null 2>&1; then
+                        INSTALLED_VERSION=$(docfx --version | awk '{print $NF}')
+                        if [ "$INSTALLED_VERSION" != "$REQUIRED_VERSION" ]; then
+                            echo "DocFX version mismatch ($INSTALLED_VERSION), reinstalling..."
+                            dotnet tool update --global docfx --version $REQUIRED_VERSION
+                        else
+                            echo "DocFX $REQUIRED_VERSION already installed, skipping install."
+                        fi
+                    else
+                        echo "DocFX not found, installing..."
+                        dotnet tool install --global docfx --version $REQUIRED_VERSION
+                    fi
 
-            - name: Setup Node
-              uses: actions/setup-node@v5
-              with:
-                  node-version: 22
+            -   name: Add Tools Path
+                run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+            
+            -   name: Install Deps
+                uses: awalsh128/cache-apt-pkgs-action@latest
+                with:
+                    packages: doxygen
+            
+            -   name: Generate API Metadata
+                run: docfx metadata docs/docfx.json
 
-            - name: Install DocFX
-              run: dotnet tool install --global docfx --version 2.78.5
-
-            - name: Add Tools Path
-              run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-            - name: Install Desktop Deps
-              uses: awalsh128/cache-apt-pkgs-action@latest
-              with:
-                    packages: >
-                        doxygen
-
-            - name: Generate API Metadata
-              run: docfx metadata docs/docfx.json
-
-            - name: Generate C++ Docs
-              shell: pwsh
-              run: ./docs/scripts/update-cpp-api.ps1 -Required
-
-            - name: Build Docs
-              shell: bash
-              run: |
-                  set -euo pipefail
-                  docfx build docs/docfx.json 2>&1 | tee /tmp/docfx-build.log
-                  
-                  if grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
-                    echo "DocFX reported warnings; failing docs validation."
-                    exit 1
-                  fi
+            -   name: Generate C++ Docs
+                shell: pwsh
+                run: ./docs/scripts/update-cpp-api.ps1 -Required
+            
+            -   name: Set Docs Pending
+                run: |
+                    python .github/scripts/sync_github_checks.py \
+                      --repo "${GITHUB_REPOSITORY}" \
+                      --sha "${GITHUB_SHA}" \
+                      --context "Docs Validation" \
+                      --state pending \
+                      --description "Docs validation in progress" \
+                      --target-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+                      --allow-status-422
+            
+            -   name: Build Docs
+                id: build_docs
+                shell: bash
+                run: |
+                    set -euo pipefail
+                    echo "DOCS_FAILED=false" >> $GITHUB_ENV
+                    
+                    docfx build docs/docfx.json 2>&1 | tee /tmp/docfx-build.log
+                    BUILD_EXIT_CODE=${PIPESTATUS[0]}
+                    
+                    if [ "$BUILD_EXIT_CODE" -ne 0 ] || grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
+                      echo "DOCS_FAILED=true" >> $GITHUB_ENV
+                      exit 1
+                    fi
+            
+            -   name: Complete Docs Check
+                if: always()
+                run: |
+                    STATUS="success"
+                    CONCLUSION="success"
+                    SUMMARY="Docs validation finished successfully"
+                    
+                    if [ "${DOCS_FAILED:-false}" = "true" ]; then
+                      STATUS="failure"
+                      CONCLUSION="failure"
+                      SUMMARY="Docs validation failed due to warnings or errors"
+                    fi
+                    
+                    python .github/scripts/sync_github_checks.py \
+                      --repo "${GITHUB_REPOSITORY}" \
+                      --sha "${GITHUB_SHA}" \
+                      --context "Docs Validation" \
+                      --state $STATUS \
+                      --description "$SUMMARY" \
+                      --target-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+                      --allow-status-422 \
+                      --complete-check-runs \
+                      --check-conclusion $CONCLUSION \
+                      --check-summary "$SUMMARY"
