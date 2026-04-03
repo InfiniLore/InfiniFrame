@@ -124,3 +124,72 @@ jobs:
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
+
+    mark-skipped:
+        name: Mark Skipped Checks
+        runs-on: ubuntu-latest
+        if: ${{ always() }}
+        needs:
+            - prepare
+            - docs-validation
+            - linux-gui
+            - windows-gui
+            - windows-playwright
+            - macos-gui
+        permissions:
+            statuses: write
+            checks: write
+        env:
+            TARGET_SHA: ${{ needs.prepare.outputs.sha }}
+            WORKFLOW_URL: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+
+            -   name: Mark skipped contexts
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    set -euo pipefail
+
+                    mark_context() {
+                      local context="$1"
+                      python .github/scripts/sync_github_checks.py \
+                        --repo "${{ github.repository }}" \
+                        --sha "$TARGET_SHA" \
+                        --context "$context" \
+                        --state success \
+                        --description "skipped" \
+                        --target-url "$WORKFLOW_URL" \
+                        --allow-status-422 \
+                        --complete-check-runs \
+                        --check-conclusion success \
+                        --check-summary "Skipped because this check was not selected for this run." \
+                        --require-update \
+                        --create-check-run-if-missing
+                    }
+
+                    if [[ "${{ inputs.run_linux }}" != "true" ]]; then
+                      mark_context "CI Testing - Linux/x64"
+                      mark_context "CI Testing - Linux/arm64"
+                    fi
+
+                    if [[ "${{ inputs.run_windows }}" != "true" ]]; then
+                      mark_context "CI Testing - Windows/x64"
+                      mark_context "CI Testing - Windows/arm64"
+                    fi
+
+                    if [[ "${{ inputs.run_macos }}" != "true" ]]; then
+                      mark_context "CI Testing - macOS/x64"
+                      mark_context "CI Testing - macOS/arm64"
+                    fi
+
+                    if [[ "${{ inputs.run_windows_playwright }}" != "true" ]]; then
+                      mark_context "CI Testing - Windows Playwright (net8.0)"
+                      mark_context "CI Testing - Windows Playwright (net9.0)"
+                      mark_context "CI Testing - Windows Playwright (net10.0)"
+                    fi
+
+                    if [[ "${{ inputs.run_docs }}" != "true" ]]; then
+                      mark_context "CI Testing - Docs"
+                    fi

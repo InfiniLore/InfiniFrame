@@ -43,6 +43,7 @@ class Args:
     ]
     check_summary: str
     require_update: bool
+    create_check_run_if_missing: bool
 
 
 def fail(message: str, details: JsonValue | None = None) -> Never:
@@ -137,7 +138,31 @@ def complete_matching_check_runs(args: Args, token: str) -> bool:
 
     if not matching:
         print(f"No queued check-runs found for '{args.context}'.")
-        return False
+        if not args.create_check_run_if_missing:
+            return False
+
+        create_url = f"https://api.github.com/repos/{args.repo}/check-runs"
+        payload: dict[str, JsonValue] = {
+            "name": args.context,
+            "head_sha": args.sha,
+            "status": "completed",
+            "conclusion": args.check_conclusion,
+            "completed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "details_url": args.target_url,
+            "output": {
+                "title": args.context,
+                "summary": args.check_summary or args.description,
+            },
+        }
+        create_code, create_body = request_json("POST", create_url, token, payload)
+        if not (200 <= create_code < 300):
+            fail(
+                f"Failed to create completed check-run for '{args.context}' "
+                f"(HTTP {create_code}).",
+                create_body,
+            )
+        print(f"Created completed check-run for '{args.context}'.")
+        return True
 
     completed_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     updated_any = False
@@ -219,6 +244,11 @@ def parse_args() -> Args:
         action="store_true",
         help="Fail when neither status nor check-run update succeeded",
     )
+    parser.add_argument(
+        "--create-check-run-if-missing",
+        action="store_true",
+        help="Create a completed check-run when no queued/in_progress run exists",
+    )
     ns = parser.parse_args()
     return Args(
         repo=str(ns.repo),
@@ -233,6 +263,7 @@ def parse_args() -> Args:
         check_conclusion=ns.check_conclusion,
         check_summary=str(ns.check_summary),
         require_update=bool(ns.require_update),
+        create_check_run_if_missing=bool(ns.create_check_run_if_missing),
     )
 
 

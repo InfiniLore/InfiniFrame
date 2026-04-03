@@ -153,3 +153,4 @@ jobs:
                     check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
                     check-summary: ${{ job.status == 'success' && 'macOS tests passed' || 'macOS tests failed' }}
                     require-update: 'true'
+                    create-check-run-if-missing: 'true'

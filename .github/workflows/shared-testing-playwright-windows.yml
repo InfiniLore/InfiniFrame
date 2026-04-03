@@ -180,3 +180,4 @@ jobs:
                     check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
                     check-summary: ${{ job.status == 'success' && format('Windows Playwright tests passed ({0})', matrix.framework) || format('Windows Playwright tests failed ({0})', matrix.framework) }}
                     require-update: 'true'
+                    create-check-run-if-missing: 'true'

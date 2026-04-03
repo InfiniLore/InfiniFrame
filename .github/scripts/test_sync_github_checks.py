@@ -28,6 +28,7 @@ def make_args(**overrides: Any) -> sgc.Args:
         check_conclusion="success",
         check_summary="",
         require_update=False,
+        create_check_run_if_missing=False,
     )
     return sgc.Args(**{**base.__dict__, **overrides})
 
@@ -55,6 +56,30 @@ def test_post_status_raises_on_disallowed_422(monkeypatch: pytest.MonkeyPatch) -
 def test_complete_matching_check_runs_returns_false_when_no_matches(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sgc, "request_json", lambda method, url, token, payload=None: (200, {"check_runs": []}))
     assert sgc.complete_matching_check_runs(make_args(), "token") is False
+
+
+def test_complete_matching_check_runs_creates_when_no_matches_and_enabled(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, str, dict[str, sgc.JsonValue] | None]] = []
+
+    # noinspection PyUnusedLocal
+    def fake_request(
+        method: str,
+        url: str,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
+    ) -> tuple[int, dict[str, sgc.JsonValue]]:
+        calls.append((method, url, payload))
+        if method == "GET":
+            return 200, {"check_runs": []}
+        return 201, {}
+
+    monkeypatch.setattr(sgc, "request_json", fake_request)
+
+    assert sgc.complete_matching_check_runs(make_args(create_check_run_if_missing=True), "token") is True
+    assert [method for method, _, _ in calls] == ["GET", "POST"]
+    assert calls[1][1] == "https://api.github.com/repos/owner/repo/check-runs"
 
 
 def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytest.MonkeyPatch) -> None:

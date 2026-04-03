@@ -51,30 +51,28 @@ jobs:
                     key: dotnet-tools-${{ runner.os }}-docfx-2.78.5
                     restore-keys: |
                         dotnet-tools-${{ runner.os }}-docfx-
+
+            -   name: Add Tools Path
+                run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
             
             -   name: Install DocFX if needed
                 run: |
                     set -euo pipefail
                     REQUIRED_VERSION=2.78.5
                     
-                    if command -v docfx >/dev/null 2>&1; then
-                        INSTALLED_VERSION=$(docfx --version | awk '{print $NF}')
-                        if [ "$INSTALLED_VERSION" != "$REQUIRED_VERSION" ]; then
-                            echo "DocFX version mismatch ($INSTALLED_VERSION), reinstalling..."
-                            dotnet tool update --global docfx --version $REQUIRED_VERSION
-                        else
-                            echo "DocFX $REQUIRED_VERSION already installed, skipping install."
-                        fi
+                    INSTALLED_VERSION=$(dotnet tool list --global | awk '$1=="docfx"{print $2}')
+                    if [ "$INSTALLED_VERSION" = "$REQUIRED_VERSION" ]; then
+                        echo "DocFX $REQUIRED_VERSION already installed, skipping install."
+                    elif [ -n "$INSTALLED_VERSION" ]; then
+                        echo "DocFX version mismatch ($INSTALLED_VERSION), reinstalling..."
+                        dotnet tool update --global docfx --version $REQUIRED_VERSION
                     else
                         echo "DocFX not found, installing..."
                         dotnet tool install --global docfx --version $REQUIRED_VERSION
                     fi
 
-            -   name: Add Tools Path
-                run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-            
             -   name: Install Deps
-                uses: awalsh128/cache-apt-pkgs-action@latest
+                uses: awalsh128/cache-apt-pkgs-action@v1
                 with:
                     packages: doxygen
                     
@@ -125,3 +123,4 @@ jobs:
                     check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
                     check-summary: ${{ job.status == 'success' && 'Docs validation finished successfully' || 'Docs validation failed due to warnings or errors' }}
                     require-update: 'true'
+                    create-check-run-if-missing: 'true'

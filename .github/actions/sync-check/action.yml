@@ -44,6 +44,10 @@ inputs:
     description: Fail if neither status nor check run could be updated
     required: false
     default: "false"
+  create-check-run-if-missing:
+    description: Create a completed check run if no queued/in-progress run exists
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -67,5 +71,6 @@ runs:
         if ("${{ inputs['allow-status-422'] }}" -eq "true") { $argsList += "--allow-status-422" }
         if ("${{ inputs['complete-check-runs'] }}" -eq "true") { $argsList += "--complete-check-runs" }
         if ("${{ inputs['require-update'] }}" -eq "true") { $argsList += "--require-update" }
+        if ("${{ inputs['create-check-run-if-missing'] }}" -eq "true") { $argsList += "--create-check-run-if-missing" }
 
         python @argsList

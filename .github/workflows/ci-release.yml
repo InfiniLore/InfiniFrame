@@ -437,7 +437,7 @@ jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent
     publish-docs:
         name: Publish Docs
-        needs: [ bump-version, build ]
+        needs: [ release, bump-version ]
         if: inputs.publish_docs
         uses: ./.github/workflows/shared-release-docs.yml
         with:
