@@ -34,14 +34,17 @@
   </Folder>
   <Folder Name="/.dev-tools/github/actions/" />
   <Folder Name="/.dev-tools/github/workflows/shared/">
-    <File Path=".github/workflows/shared-release-docs.yml" />
+    <File Path=".github/workflows/shared-release-build.yml" />
+    <File Path=".github/workflows/shared-release-bump-version.yml" />
+    <File Path=".github/workflows/shared-release-publish-docs.yml" />
+    <File Path=".github/workflows/shared-release-publish.yml" />
     <File Path=".github/workflows/shared-testing-docs.yml" />
     <File Path=".github/workflows/shared-testing-gui-linux.yml" />
     <File Path=".github/workflows/shared-testing-gui-macos.yml" />
-    <File Path=".github/workflows/shared-testing.yml" />
-    <File Path=".github/workflows/shared-testing-python.yml" />
     <File Path=".github/workflows/shared-testing-gui-windows.yml" />
     <File Path=".github/workflows/shared-testing-playwright-windows.yml" />
+    <File Path=".github/workflows/shared-testing-python.yml" />
+    <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
   <Folder Name="/.dev-tools/web/">
     <File Path="package.json" />

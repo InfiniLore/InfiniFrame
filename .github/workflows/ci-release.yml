@@ -36,86 +36,14 @@ permissions:
 
 jobs:
     # noinspection UndefinedAction
-    python-tests:
+    tests-python:
         name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # Bump version, commit, and tag
-    # ------------------------------------------------------------------------------------------------------------------
-    bump-version:
-        name: Bump Version
-        runs-on: ubuntu-latest
-        needs: python-tests
-        if: github.ref == 'refs/heads/core'
-        outputs:
-            new_version: ${{ steps.bump.outputs.version }}
-            tag_name: ${{ steps.bump.outputs.tag }}
-
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v6
-                with:
-                    fetch-depth: 0
-                    token: ${{ secrets.RELEASE_TOKEN }}
-
-            -   name: Setup Python
-                uses: actions/setup-python@v6
-                with:
-                    python-version: '3.x'
-
-            -   name: Configure Git
-                run: |
-                    git config user.name "github-actions[bot]"
-                    git config user.email "github-actions[bot]@users.noreply.github.com"
-
-            -   name: Bump Version
-                id: bump
-                run: |
-                    if [ "${{ inputs.version_bump }}" == "custom" ]; then
-                        if [ -z "${{ inputs.custom_version }}" ]; then
-                            echo "Error: custom_version is required when version_bump is 'custom'"
-                            exit 1
-                        fi
-                        VERSION=$(python .github/scripts/bump_version.py custom "${{ inputs.custom_version }}" | tail -n 1)
-                    else
-                        VERSION=$(python .github/scripts/bump_version.py ${{ inputs.version_bump }} | tail -n 1)
-                    fi
-                    TAG="v${VERSION}"
-
-                    echo "version=$VERSION" >> $GITHUB_OUTPUT
-                    echo "tag=$TAG" >> $GITHUB_OUTPUT
-                    echo "Bumped to version: $VERSION (tag: $TAG)"
-
-            -   name: Commit and Push
-                run: |
-                    set -euo pipefail
-                    TAG="${{ steps.bump.outputs.tag }}"
-
-                    git add src/Directory.Build.props
-                    if ! git diff --cached --quiet; then
-                        git commit -m "VersionBump : $TAG"
-                        git push origin HEAD:${{ github.ref_name }}
-                    else
-                        echo "No version file changes detected; skipping commit push."
-                    fi
-
-                    if git ls-remote --tags origin "$TAG" | grep -q "refs/tags/$TAG$"; then
-                        echo "Tag $TAG already exists on origin; skipping tag push."
-                    else
-                        if ! git rev-parse "$TAG" >/dev/null 2>&1; then
-                            git tag "$TAG"
-                        fi
-                        git push origin "$TAG"
-                    fi
-    
-    # ------------------------------------------------------------------------------------------------------------------
-    # Run multi-platform tests first
-    # ------------------------------------------------------------------------------------------------------------------
     # noinspection UndefinedAction, UndefinedParamsPresent
-    run-tests:
+    tests-platform:
         name: Platform Tests
-        needs: bump-version
+        needs: tests-python
         uses: ./.github/workflows/shared-testing.yml
         with:
             pr_number: ''
@@ -126,320 +54,48 @@ jobs:
             run_macos: true
             run_docs: true
         secrets: inherit
-    
+
     # ------------------------------------------------------------------------------------------------------------------
-    # Build multi-architecture binaries
+    # Bump version, commit, and tag
     # ------------------------------------------------------------------------------------------------------------------
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    bump-version:
+        name: Bump Version
+        needs: tests-platform
+        if: github.ref == 'refs/heads/core'
+        uses: ./.github/workflows/shared-release-bump-version.yml
+        with:
+            version_bump: ${{ inputs.version_bump }}
+            custom_version: ${{ inputs.custom_version }}
+        secrets: inherit
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
     build:
-        name: Build Native (${{ matrix.os }}/${{ matrix.arch }})
-        runs-on: ${{ matrix.os }}
-        needs: [ bump-version, run-tests ]
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    -   os: ubuntu-latest
-                        arch: x64
-                        libName: linux
-                    -   os: ubuntu-24.04-arm
-                        arch: arm64
-                        libName: linux
-                    -   os: windows-latest
-                        arch: x64
-                        libName: windows
-                    -   os: windows-11-arm
-                        arch: arm64
-                        libName: windows
-                    -   os: macos-15-intel
-                        arch: x64
-                        libName: osx
-                    -   os: macos-latest
-                        arch: arm64
-                        libName: osx
-        env:
-            DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-            DOTNET_CLI_TELEMETRY_OPTOUT: 1
-            Configuration: Release
+        name: Build Native
+        needs: bump-version
+        uses: ./.github/workflows/shared-release-build.yml
+        with:
+            tag_name: ${{ needs.bump-version.outputs.tag_name }}
+        secrets: inherit
 
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v6
-                with:
-                    ref: ${{ needs.bump-version.outputs.tag_name }}
-                    fetch-depth: 1
-
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-
-            # Cache NuGet packages
-            -   name: Cache NuGet
-                uses: actions/cache@v5
-                with:
-                    path: ${{ startsWith(matrix.os, 'windows') && '~\.nuget\packages' || '~/.nuget/packages' }}
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
-
-            -   name: Setup CMake
-                uses: lukka/get-cmake@latest
-
-            # Cache CMake build
-            -   name: Cache CMake build
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        src/InfiniFrame.Native/build
-                        src/InfiniFrame.Native/CMakeFiles
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-
-
-            # Cache APT packages (Linux only)
-            -   name: Install GTK3 Deps
-                if: startsWith(matrix.os, 'ubuntu')
-                uses: awalsh128/cache-apt-pkgs-action@latest
-                with:
-                    packages: >
-                        libgtk-3-dev
-                        libwebkit2gtk-4.1-dev
-                        libssl-dev
-                        libcurl4-openssl-dev
-                        zlib1g-dev
-                        libnotify-dev
-                    version: 1.0
-
-            # Cache Homebrew packages (macOS only)
-            -   name: Cache Homebrew
-                if: startsWith(matrix.os, 'macos')
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        ~/Library/Caches/Homebrew
-                        /usr/local/Cellar/gtk+3
-                        /usr/local/Cellar/pkg-config
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-${{ hashFiles('.github/workflows/ci-release.yml') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-
-
-            -   name: Install GTK3 (macOS)
-                if: startsWith(matrix.os, 'macos')
-                run: |
-                    brew list gtk+3 >/dev/null 2>&1 || brew install gtk+3
-                    brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
-
-            -   name: Build Native
-                shell: bash
-                run: |
-                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
-                        --configuration Release \
-                        --no-restore \
-                        -p:SolutionDir="${{ github.workspace }}/" \
-                        -p:Platform=${{ matrix.arch }}
-
-            -   name: Upload Build Artifact
-                uses: actions/upload-artifact@v7
-                with:
-                    name: native-${{ matrix.libName }}-${{ matrix.arch }}
-                    path: ${{ github.workspace }}/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # Release + pack
-    # ------------------------------------------------------------------------------------------------------------------
-    release:
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    publish:
         name: Publish Release
-        runs-on: ubuntu-latest
-        needs: [ bump-version, build ]
+        needs: [ build, bump-version ]
+        uses: ./.github/workflows/shared-release-publish.yml
+        with:
+            tag_name: ${{ needs.bump-version.outputs.tag_name }}
+            new_version: ${{ needs.bump-version.outputs.new_version }}
+            publish_to_nuget: ${{ inputs.publish_to_nuget }}
+        secrets: inherit
 
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v6
-                with:
-                    ref: ${{ needs.bump-version.outputs.tag_name }}
-                    fetch-depth: 1
-
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-
-            # Cache .NET packages
-            -   name: Cache NuGet
-                uses: actions/cache@v5
-                with:
-                    path: ~/.nuget/packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-nuget-
-
-            -   name: Setup CMake
-                uses: lukka/get-cmake@latest
-
-            -   name: Download Build Artifacts
-                uses: actions/download-artifact@v8
-                with:
-                    path: artifacts/native
-
-            -   name: Normalize Artifacts
-                run: |
-                    set -e
-                    
-                    # Ensure final structure exists
-                    mkdir -p artifacts/native/windows/x64/Release
-                    mkdir -p artifacts/native/windows/arm64/Release
-                    mkdir -p artifacts/native/linux/x64/Release
-                    mkdir -p artifacts/native/linux/arm64/Release
-                    mkdir -p artifacts/native/osx/x64/Release
-                    mkdir -p artifacts/native/osx/arm64/Release
-                    
-                    # Map downloaded artifact folders into final layout
-                    declare -A MAP
-                    MAP["native-windows-x64"]="artifacts/native/windows/x64/Release"
-                    MAP["native-windows-arm64"]="artifacts/native/windows/arm64/Release"
-                    MAP["native-linux-x64"]="artifacts/native/linux/x64/Release"
-                    MAP["native-linux-arm64"]="artifacts/native/linux/arm64/Release"
-                    MAP["native-osx-x64"]="artifacts/native/osx/x64/Release"
-                    MAP["native-osx-arm64"]="artifacts/native/osx/arm64/Release"
-                    
-                    for key in "${!MAP[@]}"; do
-                        src="artifacts/native/$key"
-                        dest="${MAP[$key]}"
-                        if [ -d "$src" ]; then
-                            mv "$src"/* "$dest"/ 2>/dev/null || true
-                        fi
-                    done
-
-            -   name: Verify Artifacts
-                run: |
-                    echo "Checking native build artifacts..."
-                    EXPECTED_ARTIFACTS=(
-                      "windows/x64/Release/InfiniFrame.Native.dll"
-                      "windows/x64/Release/WebView2Loader.dll"
-                      "windows/arm64/Release/InfiniFrame.Native.dll"
-                      "windows/arm64/Release/WebView2Loader.dll"
-                      "linux/x64/Release/InfiniFrame.Native.so"
-                      "linux/arm64/Release/InfiniFrame.Native.so"
-                      "osx/x64/Release/InfiniFrame.Native.dylib"
-                      "osx/arm64/Release/InfiniFrame.Native.dylib"
-                    )
-                    
-                    MISSING=0
-                    for file in "${EXPECTED_ARTIFACTS[@]}"; do
-                      if [ ! -f "./artifacts/native/$file" ]; then
-                        echo "❌ Missing artifact: $file"
-                        MISSING=$((MISSING+1))
-                      else
-                        echo "✅ Found: $file"
-                      fi
-                    done
-                    
-                    if [ $MISSING -gt 0 ]; then
-                      echo "❌ $MISSING artifact(s) missing! Aborting."
-                      exit 1
-                    fi
-
-            -   name: Build Pack Solution
-                run: |
-                    dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
-                    
-                    dotnet build InfiniFrame.GitHubActions.Release.slnf \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=${{ github.workspace }}/
-
-            -   name: Pack
-                run: |
-                    dotnet pack InfiniFrame.GitHubActions.Release.slnf \
-                      --configuration Release \
-                      -o ./release
-
-            -   name: Upload NuGet Artifacts
-                uses: actions/upload-artifact@v7
-                with:
-                    name: nuget-packages-${{ needs.bump-version.outputs.tag_name }}
-                    path: ./release/*.nupkg
-
-            -   name: Verify Package Natives
-                run: |
-                    # Find the Shared package (PACKAGE ID, not namespace)
-                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
-                    
-                    if [ -z "$PACKAGE" ]; then
-                        echo "❌ No Shared package found in ./release !"
-                        exit 1
-                    fi
-                    
-                    EXPECTED=(
-                      "runtimes/win-x64/native/InfiniFrame.Native.dll"
-                      "runtimes/win-x64/native/WebView2Loader.dll"
-                      "runtimes/win-arm64/native/InfiniFrame.Native.dll"
-                      "runtimes/win-arm64/native/WebView2Loader.dll"
-                      "runtimes/linux-x64/native/InfiniFrame.Native.so"
-                      "runtimes/linux-arm64/native/InfiniFrame.Native.so"
-                      "runtimes/osx-x64/native/InfiniFrame.Native.dylib"
-                      "runtimes/osx-arm64/native/InfiniFrame.Native.dylib"
-                    )
-                    
-                    MISSING=0
-                    for f in "${EXPECTED[@]}"; do
-                      if ! unzip -l "$PACKAGE" | grep -q "$f"; then
-                        echo "❌ Missing $f in $PACKAGE"
-                        MISSING=$((MISSING+1))
-                      else
-                        echo "✅ Found $f"
-                      fi
-                    done
-                    
-                    if [ $MISSING -gt 0 ]; then
-                      echo "❌ $MISSING native file(s) missing in Shared package! Aborting."
-                      exit 1
-                    fi
-
-            -   name: Publish Release
-                uses: softprops/action-gh-release@v2
-                with:
-                    tag_name: ${{ needs.bump-version.outputs.tag_name }}
-                    name: Release ${{ needs.bump-version.outputs.new_version }}
-                    generate_release_notes: true
-                    files: ./release/*.nupkg
-                    prerelease: ${{ contains(needs.bump-version.outputs.new_version, 'preview') }}
-
-            -   name: Push to NuGet
-                if: inputs.publish_to_nuget
-                env:
-                    NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-                run: |
-                    dotnet nuget push "./release/*.nupkg" \
-                      --api-key "$NUGET_API_KEY" \
-                      --source https://api.nuget.org/v3/index.json \
-                      --skip-duplicate
-
-            -   name: Push GitHub Packages
-                if: inputs.publish_to_nuget
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    dotnet nuget push "./release/*.nupkg" \
-                        --api-key "$GITHUB_TOKEN" \
-                        --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-                        --skip-duplicate
-    
-    # ------------------------------------------------------------------------------------------------------------------
-    # Publish docs after release pipeline completes
-    # ------------------------------------------------------------------------------------------------------------------
     # noinspection UndefinedAction, UndefinedParamsPresent
     publish-docs:
         name: Publish Docs
-        needs: [ release, bump-version ]
+        needs: [ publish, bump-version ]
         if: inputs.publish_docs
-        uses: ./.github/workflows/shared-release-docs.yml
+        uses: ./.github/workflows/shared-release-publish-docs.yml
         with:
             checkout_ref: ${{ needs.bump-version.outputs.tag_name }}
         secrets: inherit
+

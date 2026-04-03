@@ -1,0 +1,193 @@
+name: "Shared: Release Publish"
+on:
+    workflow_call:
+        inputs:
+            tag_name:
+                description: 'Release tag name to publish from'
+                required: true
+                type: string
+            new_version:
+                description: 'Calculated release version'
+                required: true
+                type: string
+            publish_to_nuget:
+                description: 'Publish packages to NuGet and GitHub Packages'
+                required: true
+                type: boolean
+
+jobs:
+    release:
+        name: Publish Release
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.tag_name }}
+                    fetch-depth: 1
+
+            -   name: Setup .NET
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache NuGet
+                uses: actions/cache@v5
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-nuget-
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+
+            -   name: Download Build Artifacts
+                uses: actions/download-artifact@v8
+                with:
+                    path: artifacts/native
+
+            -   name: Normalize Artifacts
+                run: |
+                    set -e
+
+                    mkdir -p artifacts/native/windows/x64/Release
+                    mkdir -p artifacts/native/windows/arm64/Release
+                    mkdir -p artifacts/native/linux/x64/Release
+                    mkdir -p artifacts/native/linux/arm64/Release
+                    mkdir -p artifacts/native/osx/x64/Release
+                    mkdir -p artifacts/native/osx/arm64/Release
+
+                    declare -A MAP
+                    MAP["native-windows-x64"]="artifacts/native/windows/x64/Release"
+                    MAP["native-windows-arm64"]="artifacts/native/windows/arm64/Release"
+                    MAP["native-linux-x64"]="artifacts/native/linux/x64/Release"
+                    MAP["native-linux-arm64"]="artifacts/native/linux/arm64/Release"
+                    MAP["native-osx-x64"]="artifacts/native/osx/x64/Release"
+                    MAP["native-osx-arm64"]="artifacts/native/osx/arm64/Release"
+
+                    for key in "${!MAP[@]}"; do
+                        src="artifacts/native/$key"
+                        dest="${MAP[$key]}"
+                        if [ -d "$src" ]; then
+                            mv "$src"/* "$dest"/ 2>/dev/null || true
+                        fi
+                    done
+
+            -   name: Verify Artifacts
+                run: |
+                    echo "Checking native build artifacts..."
+                    EXPECTED_ARTIFACTS=(
+                      "windows/x64/Release/InfiniFrame.Native.dll"
+                      "windows/x64/Release/WebView2Loader.dll"
+                      "windows/arm64/Release/InfiniFrame.Native.dll"
+                      "windows/arm64/Release/WebView2Loader.dll"
+                      "linux/x64/Release/InfiniFrame.Native.so"
+                      "linux/arm64/Release/InfiniFrame.Native.so"
+                      "osx/x64/Release/InfiniFrame.Native.dylib"
+                      "osx/arm64/Release/InfiniFrame.Native.dylib"
+                    )
+
+                    MISSING=0
+                    for file in "${EXPECTED_ARTIFACTS[@]}"; do
+                      if [ ! -f "./artifacts/native/$file" ]; then
+                        echo "❌ Missing artifact: $file"
+                        MISSING=$((MISSING+1))
+                      else
+                        echo "✅ Found: $file"
+                      fi
+                    done
+
+                    if [ $MISSING -gt 0 ]; then
+                      echo "❌ $MISSING artifact(s) missing! Aborting."
+                      exit 1
+                    fi
+
+            -   name: Build Pack Solution
+                run: |
+                    dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
+
+                    dotnet build InfiniFrame.GitHubActions.Release.slnf \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir=${{ github.workspace }}/
+
+            -   name: Pack
+                run: |
+                    dotnet pack InfiniFrame.GitHubActions.Release.slnf \
+                      --configuration Release \
+                      -o ./release
+
+            -   name: Upload NuGet Artifacts
+                uses: actions/upload-artifact@v7
+                with:
+                    name: nuget-packages-${{ inputs.tag_name }}
+                    path: ./release/*.nupkg
+
+            -   name: Verify Package Natives
+                run: |
+                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
+
+                    if [ -z "$PACKAGE" ]; then
+                        echo "❌ No Shared package found in ./release !"
+                        exit 1
+                    fi
+
+                    EXPECTED=(
+                      "runtimes/win-x64/native/InfiniFrame.Native.dll"
+                      "runtimes/win-x64/native/WebView2Loader.dll"
+                      "runtimes/win-arm64/native/InfiniFrame.Native.dll"
+                      "runtimes/win-arm64/native/WebView2Loader.dll"
+                      "runtimes/linux-x64/native/InfiniFrame.Native.so"
+                      "runtimes/linux-arm64/native/InfiniFrame.Native.so"
+                      "runtimes/osx-x64/native/InfiniFrame.Native.dylib"
+                      "runtimes/osx-arm64/native/InfiniFrame.Native.dylib"
+                    )
+
+                    MISSING=0
+                    for f in "${EXPECTED[@]}"; do
+                      if ! unzip -l "$PACKAGE" | grep -q "$f"; then
+                        echo "❌ Missing $f in $PACKAGE"
+                        MISSING=$((MISSING+1))
+                      else
+                        echo "✅ Found $f"
+                      fi
+                    done
+
+                    if [ $MISSING -gt 0 ]; then
+                      echo "❌ $MISSING native file(s) missing in Shared package! Aborting."
+                      exit 1
+                    fi
+
+            -   name: Publish Release
+                uses: softprops/action-gh-release@v2
+                with:
+                    tag_name: ${{ inputs.tag_name }}
+                    name: Release ${{ inputs.new_version }}
+                    generate_release_notes: true
+                    files: ./release/*.nupkg
+                    prerelease: ${{ contains(inputs.new_version, 'preview') }}
+
+            -   name: Push to NuGet
+                if: inputs.publish_to_nuget
+                env:
+                    NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+                run: |
+                    dotnet nuget push "./release/*.nupkg" \
+                      --api-key "$NUGET_API_KEY" \
+                      --source https://api.nuget.org/v3/index.json \
+                      --skip-duplicate
+
+            -   name: Push GitHub Packages
+                if: inputs.publish_to_nuget
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    dotnet nuget push "./release/*.nupkg" \
+                        --api-key "$GITHUB_TOKEN" \
+                        --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+                        --skip-duplicate

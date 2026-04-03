@@ -1,0 +1,121 @@
+name: "Shared: Release Build"
+on:
+    workflow_call:
+        inputs:
+            tag_name:
+                description: 'Git tag to checkout for native builds'
+                required: true
+                type: string
+
+jobs:
+    build:
+        name: Build Native (${{ matrix.os }}/${{ matrix.arch }})
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        arch: x64
+                        libName: linux
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        libName: linux
+                    -   os: windows-latest
+                        arch: x64
+                        libName: windows
+                    -   os: windows-11-arm
+                        arch: arm64
+                        libName: windows
+                    -   os: macos-15-intel
+                        arch: x64
+                        libName: osx
+                    -   os: macos-latest
+                        arch: arm64
+                        libName: osx
+        env:
+            DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+            DOTNET_CLI_TELEMETRY_OPTOUT: 1
+            Configuration: Release
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.tag_name }}
+                    fetch-depth: 1
+
+            -   name: Setup .NET
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache NuGet
+                uses: actions/cache@v5
+                with:
+                    path: ${{ startsWith(matrix.os, 'windows') && '~\.nuget\packages' || '~/.nuget/packages' }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+
+            -   name: Cache CMake build
+                uses: actions/cache@v5
+                with:
+                    path: |
+                        src/InfiniFrame.Native/build
+                        src/InfiniFrame.Native/CMakeFiles
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-
+
+            -   name: Install GTK3 Deps
+                if: startsWith(matrix.os, 'ubuntu')
+                uses: awalsh128/cache-apt-pkgs-action@latest
+                with:
+                    packages: >
+                        libgtk-3-dev
+                        libwebkit2gtk-4.1-dev
+                        libssl-dev
+                        libcurl4-openssl-dev
+                        zlib1g-dev
+                        libnotify-dev
+                    version: 1.0
+
+            -   name: Cache Homebrew
+                if: startsWith(matrix.os, 'macos')
+                uses: actions/cache@v5
+                with:
+                    path: |
+                        ~/Library/Caches/Homebrew
+                        /usr/local/Cellar/gtk+3
+                        /usr/local/Cellar/pkg-config
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-${{ hashFiles('.github/workflows/ci-release.yml') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-brew-gtk3-
+
+            -   name: Install GTK3 (macOS)
+                if: startsWith(matrix.os, 'macos')
+                run: |
+                    brew list gtk+3 >/dev/null 2>&1 || brew install gtk+3
+                    brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
+
+            -   name: Build Native
+                shell: bash
+                run: |
+                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
+                        --configuration Release \
+                        --no-restore \
+                        -p:SolutionDir="${{ github.workspace }}/" \
+                        -p:Platform=${{ matrix.arch }}
+
+            -   name: Upload Build Artifact
+                uses: actions/upload-artifact@v7
+                with:
+                    name: native-${{ matrix.libName }}-${{ matrix.arch }}
+                    path: ${{ github.workspace }}/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**

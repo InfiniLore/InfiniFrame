@@ -11,5 +11,6 @@ jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent
     deploy-docs:
         name: Publish Docs
-        uses: ./.github/workflows/shared-release-docs.yml
+        uses: ./.github/workflows/shared-release-publish-docs.yml
         secrets: inherit
+

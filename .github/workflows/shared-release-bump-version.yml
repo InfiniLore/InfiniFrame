@@ -1,0 +1,85 @@
+name: "Shared: Release Bump Version"
+on:
+    workflow_call:
+        inputs:
+            version_bump:
+                description: 'Version bump type'
+                required: true
+                type: string
+            custom_version:
+                description: 'Custom version (only used if "custom" is selected, e.g., 1.0.0 or 1.0.0-preview.1)'
+                required: false
+                type: string
+                default: ''
+        outputs:
+            new_version:
+                description: 'Calculated semantic version'
+                value: ${{ jobs.bump-version.outputs.new_version }}
+            tag_name:
+                description: 'Created git tag name'
+                value: ${{ jobs.bump-version.outputs.tag_name }}
+
+jobs:
+    bump-version:
+        name: Bump Version
+        runs-on: ubuntu-latest
+        outputs:
+            new_version: ${{ steps.bump.outputs.version }}
+            tag_name: ${{ steps.bump.outputs.tag }}
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    fetch-depth: 0
+                    token: ${{ secrets.RELEASE_TOKEN }}
+
+            -   name: Setup Python
+                uses: actions/setup-python@v6
+                with:
+                    python-version: '3.x'
+
+            -   name: Configure Git
+                run: |
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            -   name: Bump Version
+                id: bump
+                run: |
+                    if [ "${{ inputs.version_bump }}" == "custom" ]; then
+                        if [ -z "${{ inputs.custom_version }}" ]; then
+                            echo "Error: custom_version is required when version_bump is 'custom'"
+                            exit 1
+                        fi
+                        VERSION=$(python .github/scripts/bump_version.py custom "${{ inputs.custom_version }}" | tail -n 1)
+                    else
+                        VERSION=$(python .github/scripts/bump_version.py ${{ inputs.version_bump }} | tail -n 1)
+                    fi
+                    TAG="v${VERSION}"
+
+                    echo "version=$VERSION" >> $GITHUB_OUTPUT
+                    echo "tag=$TAG" >> $GITHUB_OUTPUT
+                    echo "Bumped to version: $VERSION (tag: $TAG)"
+
+            -   name: Commit and Push
+                run: |
+                    set -euo pipefail
+                    TAG="${{ steps.bump.outputs.tag }}"
+
+                    git add src/Directory.Build.props
+                    if ! git diff --cached --quiet; then
+                        git commit -m "VersionBump : $TAG"
+                        git push origin HEAD:${{ github.ref_name }}
+                    else
+                        echo "No version file changes detected; skipping commit push."
+                    fi
+
+                    if git ls-remote --tags origin "$TAG" | grep -q "refs/tags/$TAG$"; then
+                        echo "Tag $TAG already exists on origin; skipping tag push."
+                    else
+                        if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+                            git tag "$TAG"
+                        fi
+                        git push origin "$TAG"
+                    fi
