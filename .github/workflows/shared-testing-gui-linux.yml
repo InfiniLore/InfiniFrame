@@ -42,6 +42,20 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
+            -   name: Set Linux Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    CONTEXT="CI Testing - Linux/${{ matrix.arch }}"
+                    python .github/scripts/sync_github_checks.py \
+                      --repo "${{ github.repository }}" \
+                      --sha "$TARGET_SHA" \
+                      --context "$CONTEXT" \
+                      --state pending \
+                      --description "Linux tests in progress" \
+                      --target-url "$WORKFLOW_URL" \
+                      --allow-status-422
+
             -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
@@ -247,7 +261,7 @@ jobs:
                       CONCLUSION="failure"
                     fi
 
-                    CONTEXT="Manual MultiPlatform CI - Linux/${{ matrix.arch }}"
+                    CONTEXT="CI Testing - Linux/${{ matrix.arch }}"
                     python .github/scripts/sync_github_checks.py \
                       --repo "${{ github.repository }}" \
                       --sha "$TARGET_SHA" \

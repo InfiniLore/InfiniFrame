@@ -39,6 +39,21 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
+            -   name: Set Playwright Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                shell: pwsh
+                run: |
+                    $CONTEXT = "CI Testing - Windows Playwright (${{ matrix.framework }})"
+                    python .github/scripts/sync_github_checks.py `
+                      --repo "${{ github.repository }}" `
+                      --sha "$env:TARGET_SHA" `
+                      --context "$CONTEXT" `
+                      --state pending `
+                      --description "Windows Playwright tests in progress (${{ matrix.framework }})" `
+                      --target-url "$env:WORKFLOW_URL" `
+                      --allow-status-422
+
             -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
@@ -163,7 +178,7 @@ jobs:
                       $DESCRIPTION = "Windows Playwright tests failed (${{ matrix.framework }})"
                     }
 
-                    $CONTEXT = "Manual MultiPlatform CI - Windows Playwright (${{ matrix.framework }})"
+                    $CONTEXT = "CI Testing - Windows Playwright (${{ matrix.framework }})"
                     $CONCLUSION = if ($STATUS -eq "success") { "success" } else { "failure" }
 
                     python .github/scripts/sync_github_checks.py `
@@ -176,4 +191,5 @@ jobs:
                       --allow-status-422 `
                       --complete-check-runs `
                       --check-conclusion "$CONCLUSION" `
-                      --check-summary "$DESCRIPTION"
+                      --check-summary "$DESCRIPTION" `
+                      --require-update

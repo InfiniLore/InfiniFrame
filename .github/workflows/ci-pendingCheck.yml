@@ -26,12 +26,12 @@ jobs:
                 id: contexts
                 run: |
                     echo "list<<EOF" >> $GITHUB_OUTPUT
-                    echo "Manual MultiPlatform CI - Linux/x64" >> $GITHUB_OUTPUT
-                    echo "Manual MultiPlatform CI - Linux/arm64" >> $GITHUB_OUTPUT
-                    echo "Manual MultiPlatform CI - Windows/x64" >> $GITHUB_OUTPUT
-                    echo "Manual MultiPlatform CI - Windows/arm64" >> $GITHUB_OUTPUT
-                    echo "Manual MultiPlatform CI - macOS/x64" >> $GITHUB_OUTPUT
-                    echo "Manual MultiPlatform CI - macOS/arm64" >> $GITHUB_OUTPUT
+                    echo "CI Testing - Linux/x64" >> $GITHUB_OUTPUT
+                    echo "CI Testing - Linux/arm64" >> $GITHUB_OUTPUT
+                    echo "CI Testing - Windows/x64" >> $GITHUB_OUTPUT
+                    echo "CI Testing - Windows/arm64" >> $GITHUB_OUTPUT
+                    echo "CI Testing - macOS/x64" >> $GITHUB_OUTPUT
+                    echo "CI Testing - macOS/arm64" >> $GITHUB_OUTPUT
                     echo "EOF" >> $GITHUB_OUTPUT
 
             -   name: Set Pending

@@ -18,7 +18,7 @@ def make_args(**overrides: Any) -> sgc.Args:
     base = sgc.Args(
         repo="owner/repo",
         sha="abc123",
-        context="Manual MultiPlatform CI - Linux/x64",
+        context="CI Testing - Linux/x64",
         state="success",
         description="Linux tests passed",
         target_url="https://example.invalid/run/1",
@@ -74,9 +74,9 @@ def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytes
                 {
                     "check_runs": [
                         {"id": 3, "name": "Other", "status": "queued"},
-                        {"id": 2, "name": "Manual MultiPlatform CI - Linux/x64", "status": "in_progress"},
-                        {"id": 1, "name": "Manual MultiPlatform CI - Linux/x64", "status": "queued"},
-                        {"id": 4, "name": "Manual MultiPlatform CI - Linux/x64", "status": "completed"},
+                        {"id": 2, "name": "CI Testing - Linux/x64", "status": "in_progress"},
+                        {"id": 1, "name": "CI Testing - Linux/x64", "status": "queued"},
+                        {"id": 4, "name": "CI Testing - Linux/x64", "status": "completed"},
                     ]
                 },
             )
