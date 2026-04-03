@@ -22,8 +22,12 @@
   <Folder Name="/.dev-tools/github/scripts/">
     <File Path=".github/scripts/bump_version.py" />
     <File Path=".github/scripts/sync_github_checks.py" />
+    <File Path=".github/scripts/validate_package_id_prefix.py" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/scripts/tests/">
     <File Path=".github/scripts/test_bump_version.py" />
     <File Path=".github/scripts/test_sync_github_checks.py" />
+    <File Path=".github/scripts/test_validate_package_id_prefix.py" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/">
     <File Path=".github/workflows/ci-release-docs.yml" />

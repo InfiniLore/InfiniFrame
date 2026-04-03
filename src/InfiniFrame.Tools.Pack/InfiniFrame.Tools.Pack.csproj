@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>infiniframe-pack</ToolCommandName>
-        <PackageId>InfiniFrame.Tools.Pack</PackageId>
+        <PackageId>InfiniLore.InfiniFrame.Tools.Pack</PackageId>
         <Description>Single-command packaging tool for InfiniFrame apps.</Description>
         <PackageTags>infiniframe;dotnet-tool;publish;single-file</PackageTags>
     </PropertyGroup>

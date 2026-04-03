@@ -61,7 +61,7 @@ public static class Program {
 ```
 
 `Initialize()` is idempotent and safe to call once at startup.
-Use it for packaged deployments created by `InfiniFrame.Tools.Pack` (or any equivalent flow that embeds native files as resources), not for standard development runs where native binaries are already present beside your app.
+Use it for packaged deployments created by `InfiniLore.InfiniFrame.Tools.Pack` (or any equivalent flow that embeds native files as resources), not for standard development runs where native binaries are already present beside your app.
 
 ## Window Configuration
 
