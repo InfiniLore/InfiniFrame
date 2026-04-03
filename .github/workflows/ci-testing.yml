@@ -22,6 +22,10 @@ on:
                 description: 'Run macOS GUI tests'
                 type: boolean
                 default: true
+            run_docs:
+                description: 'Run docs validation'
+                type: boolean
+                default: true
 
 jobs:
     # noinspection UndefinedAction
@@ -40,4 +44,5 @@ jobs:
             run_windows_playwright: ${{ inputs.run_windows_playwright }}
             run_linux: ${{ inputs.run_linux }}
             run_macos: ${{ inputs.run_macos }}
+            run_docs: ${{ inputs.run_docs }}
         secrets: inherit

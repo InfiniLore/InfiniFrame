@@ -27,6 +27,10 @@ on:
                 description: 'Run macOS GUI tests'
                 type: boolean
                 required: true
+            run_docs:
+                description: 'Run docs validation'
+                type: boolean
+                required: true
 
 env:
     WORKFLOW_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -64,6 +68,7 @@ jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent
     docs-validation:
         name: Validate Docs
+        if: ${{ inputs.run_docs == true }}
         needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-docs.yml
         with:
