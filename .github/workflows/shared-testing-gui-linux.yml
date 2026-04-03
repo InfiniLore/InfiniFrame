@@ -42,6 +42,21 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
+            -   name: Set Linux Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Linux/${{ matrix.arch }}
+                    state: pending
+                    status-description: Linux tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+
             -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
@@ -236,27 +251,14 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    if [ "${{ job.status }}" == "success" ]; then
-                      STATUS="success"
-                      DESCRIPTION="Linux tests passed"
-                      CONCLUSION="success"
-                    else
-                      STATUS="failure"
-                      DESCRIPTION="Linux tests failed"
-                      CONCLUSION="failure"
-                    fi
-
-                    CONTEXT="Manual MultiPlatform CI - Linux/${{ matrix.arch }}"
-                    python .github/scripts/sync_github_checks.py \
-                      --repo "${{ github.repository }}" \
-                      --sha "$TARGET_SHA" \
-                      --context "$CONTEXT" \
-                      --state "$STATUS" \
-                      --description "$DESCRIPTION" \
-                      --target-url "$WORKFLOW_URL" \
-                      --allow-status-422 \
-                      --complete-check-runs \
-                      --check-conclusion "$CONCLUSION" \
-                      --check-summary "$DESCRIPTION" \
-                      --require-update
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Linux/${{ matrix.arch }}
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: Linux tests passed
+                    failure-description: Linux tests failed

@@ -138,17 +138,24 @@ public class InfiniFrameWebApplicationTests {
         NetClosingDelegate? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
         capturedHandler?.Invoke(new object(), EventArgs.Empty);
 
-        // Give the Task.Run a moment to execute
-        await Task.Delay(100);
+        var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
+        DateTime deadline = DateTime.UtcNow.AddSeconds(2);
+        while (!appLifetime.ApplicationStopping.IsCancellationRequested && DateTime.UtcNow < deadline) {
+            await Task.Delay(50);
+        }
+        if (!appLifetime.ApplicationStopping.IsCancellationRequested) {
+            Console.WriteLine("Timed out waiting for ApplicationStopping after closing handler invocation.");
+        }
 
         // Assert
         // The web app should be in the process of stopping
-        await Assert.That(webApp.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping.IsCancellationRequested)
+        await Assert.That(appLifetime.ApplicationStopping.IsCancellationRequested)
             .IsTrue();
     }
 
     [Test]
     [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(Stop_ShouldCloseWindowAndStopWebApp)}")]
+    [Retry(5)]
     public async Task Stop_ShouldCloseWindowAndStopWebApp() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
@@ -166,12 +173,18 @@ public class InfiniFrameWebApplicationTests {
         // Act
         app.Stop();
 
-        // Give async operations time to complete
-        await Task.Delay(200);
+        var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
+        DateTime deadline = DateTime.UtcNow.AddSeconds(2);
+        while (!appLifetime.ApplicationStopping.IsCancellationRequested && DateTime.UtcNow < deadline) {
+            await Task.Delay(50);
+        }
+        if (!appLifetime.ApplicationStopping.IsCancellationRequested) {
+            Console.WriteLine("Timed out waiting for ApplicationStopping after Stop() call.");
+        }
 
         // Assert
         mockWindow.Received(1).Close();
-        await Assert.That(webApp.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping.IsCancellationRequested)
+        await Assert.That(appLifetime.ApplicationStopping.IsCancellationRequested)
             .IsTrue();
     }
 

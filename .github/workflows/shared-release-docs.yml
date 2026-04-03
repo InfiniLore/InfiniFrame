@@ -17,7 +17,7 @@ concurrency:
     group: pages
     cancel-in-progress: true
 
-jobs:
+jobs:           
     build:
         name: Build Docs
         runs-on: windows-latest
@@ -54,7 +54,13 @@ jobs:
                 run: ./docs/scripts/update-cpp-api.ps1 -Required
 
             -   name: Build Docs Site
-                run: docfx build docs/docfx.json
+                shell: pwsh
+                run: |
+                    $logPath = Join-Path $env:RUNNER_TEMP "docfx-build.log"
+                    docfx build docs/docfx.json 2>&1 | Tee-Object -FilePath $logPath
+                    if (Select-String -Path $logPath -Pattern '^\s*[1-9][0-9]* warning\(s\)' -Quiet) {
+                        throw "DocFX reported warnings."
+                    }
 
             -   name: Setup Pages
                 uses: actions/configure-pages@v5

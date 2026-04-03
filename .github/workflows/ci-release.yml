@@ -124,6 +124,7 @@ jobs:
             run_windows_playwright: false
             run_linux: true
             run_macos: true
+            run_docs: true
         secrets: inherit
     
     # ------------------------------------------------------------------------------------------------------------------
@@ -429,11 +430,10 @@ jobs:
                         --api-key "$GITHUB_TOKEN" \
                         --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
                         --skip-duplicate
-            
-            # ------------------------------------------------------------------------------------------------------------------
-            # Publish docs after release pipeline completes
-            # ------------------------------------------------------------------------------------------------------------------
     
+    # ------------------------------------------------------------------------------------------------------------------
+    # Publish docs after release pipeline completes
+    # ------------------------------------------------------------------------------------------------------------------
     # noinspection UndefinedAction, UndefinedParamsPresent
     publish-docs:
         name: Publish Docs

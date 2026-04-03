@@ -44,6 +44,21 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
+            -   name: Set Windows Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows/${{ matrix.arch }}
+                    state: pending
+                    status-description: Windows tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+
             -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
@@ -127,27 +142,14 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                run: |
-                    if ("${{ job.status }}" -eq "success") {
-                      $STATUS = "success"
-                      $DESCRIPTION = "Windows tests passed"
-                    } else {
-                      $STATUS = "failure"
-                      $DESCRIPTION = "Windows tests failed"
-                    }
-
-                    $CONTEXT = "Manual MultiPlatform CI - Windows/${{ matrix.arch }}"
-                    $CONCLUSION = if ($STATUS -eq "success") { "success" } else { "failure" }
-
-                    python .github/scripts/sync_github_checks.py `
-                      --repo "${{ github.repository }}" `
-                      --sha "$env:TARGET_SHA" `
-                      --context "$CONTEXT" `
-                      --state "$STATUS" `
-                      --description "$DESCRIPTION" `
-                      --target-url "$env:WORKFLOW_URL" `
-                      --allow-status-422 `
-                      --complete-check-runs `
-                      --check-conclusion "$CONCLUSION" `
-                      --check-summary "$DESCRIPTION" `
-                      --require-update
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows/${{ matrix.arch }}
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: Windows tests passed
+                    failure-description: Windows tests failed
