@@ -34,7 +34,9 @@ def _load_projects_from_solution_filter(slnf_path: Path) -> list[Path]:
     for raw_project in raw_projects:
         if not isinstance(raw_project, str):
             raise ValueError(f"Invalid project path entry in {slnf_path}: {raw_project!r}")
-        projects.append((REPO_ROOT / Path(raw_project)).resolve())
+        # .slnf may contain Windows separators even when running on Linux/macOS runners.
+        normalized = raw_project.replace("\\", "/")
+        projects.append((REPO_ROOT / Path(normalized)).resolve())
     return projects
 
 

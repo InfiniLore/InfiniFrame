@@ -57,6 +57,17 @@ def test_load_projects_from_solution_filter_supports_utf8_bom(tmp_path: Path, mo
     assert projects == [(tmp_path / "src/App/App.csproj").resolve()]
 
 
+def test_load_projects_from_solution_filter_normalizes_windows_separators(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(vpp, "REPO_ROOT", tmp_path)
+    slnf = tmp_path / "release.slnf"
+    _write_slnf(slnf, [r"src\App\App.csproj"])
+
+    projects = vpp._load_projects_from_solution_filter(slnf)
+    assert projects == [(tmp_path / "src/App/App.csproj").resolve()]
+
+
 def test_main_succeeds_when_all_package_ids_match_prefix(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
