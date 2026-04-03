@@ -74,6 +74,8 @@ jobs:
                 run: ./docs/scripts/update-cpp-api.ps1 -Required
             
             -   name: Set Docs Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     python .github/scripts/sync_github_checks.py \
                       --repo "${GITHUB_REPOSITORY}" \
@@ -101,6 +103,8 @@ jobs:
             
             -   name: Complete Docs Check
                 if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
                     STATUS="success"
                     CONCLUSION="success"
