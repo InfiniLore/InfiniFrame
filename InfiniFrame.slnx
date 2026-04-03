@@ -8,7 +8,7 @@
     <File Path="global.json" />
     <File Path="InfiniFrame.GitHubActions.Linux.slnf" />
     <File Path="InfiniFrame.GitHubActions.MacOs.slnf" />
-    <File Path="InfiniFrame.GitHubActions.Pack.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Release.slnf" />
     <File Path="InfiniFrame.GitHubActions.slnf" />
     <File Path="InfiniFrame.GitHubActions.Windows.slnf" />
   </Folder>
