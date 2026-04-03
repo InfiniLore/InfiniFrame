@@ -60,6 +60,14 @@ jobs:
                     fi
 
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
+    
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    docs-validation:
+        name: Validate Docs
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-docs.yml
+        with:
+            checkout_ref: ${{ inputs.checkout_ref }}
 
     mark-pending:
         name: Set Pending Checks
@@ -98,14 +106,6 @@ jobs:
                           --allow-status-422
                       done
                     done
-        
-    # noinspection UndefinedAction, UndefinedParamsPresent
-    docs-validation:
-        name: Validate Docs
-        needs: [ prepare, mark-pending ]
-        uses: ./.github/workflows/shared-testing-docs.yml
-        with:
-            checkout_ref: ${{ inputs.checkout_ref }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     linux-gui:
