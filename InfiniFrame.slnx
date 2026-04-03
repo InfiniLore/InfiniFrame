@@ -31,6 +31,7 @@
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/shared/">
     <File Path=".github/workflows/shared-release-docs.yml" />
+    <File Path=".github/workflows/shared-testing-docs.yml" />
     <File Path=".github/workflows/shared-testing-gui-linux.yml" />
     <File Path=".github/workflows/shared-testing-gui-macos.yml" />
     <File Path=".github/workflows/shared-testing.yml" />

@@ -1,0 +1,64 @@
+﻿name: Docs Validation
+
+on:
+    workflow_call:
+        inputs:
+            checkout_ref:
+                description: 'Git ref to checkout (optional)'
+                type: string
+                required: false
+                default: ''
+
+jobs:
+    docs-validation:
+        name: Validate Docs
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.sha }}
+
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v5
+              with:
+                  dotnet-version: |
+                      8.x
+                      9.x
+                      10.x
+
+            - name: Setup Node
+              uses: actions/setup-node@v5
+              with:
+                  node-version: 22
+
+            - name: Install DocFX
+              run: dotnet tool install --global docfx --version 2.78.5
+
+            - name: Add Tools Path
+              run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+            - name: Install Desktop Deps
+              uses: awalsh128/cache-apt-pkgs-action@latest
+              with:
+                    packages: >
+                        doxygen
+
+            - name: Generate API Metadata
+              run: docfx metadata docs/docfx.json
+
+            - name: Generate C++ Docs
+              shell: pwsh
+              run: ./docs/scripts/update-cpp-api.ps1 -Required
+
+            - name: Build Docs
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  docfx build docs/docfx.json 2>&1 | tee /tmp/docfx-build.log
+                  
+                  if grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
+                    echo "DocFX reported warnings; failing docs validation."
+                    exit 1
+                  fi
