@@ -152,7 +152,7 @@ public class InfiniFrameWebApplicationTests {
 
     [Test]
     [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(Stop_ShouldCloseWindowAndStopWebApp)}")]
-    [Retry(5)] // Sometimes the test fails on the first try because the runner is slow
+    [Retry(5)]
     public async Task Stop_ShouldCloseWindowAndStopWebApp() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
@@ -170,12 +170,15 @@ public class InfiniFrameWebApplicationTests {
         // Act
         app.Stop();
 
-        // Give async operations time to complete
-        await Task.Delay(1000);
+        var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
+        DateTime deadline = DateTime.UtcNow.AddSeconds(2);
+        while (!appLifetime.ApplicationStopping.IsCancellationRequested && DateTime.UtcNow < deadline) {
+            await Task.Delay(50);
+        }
 
         // Assert
         mockWindow.Received(1).Close();
-        await Assert.That(webApp.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping.IsCancellationRequested)
+        await Assert.That(appLifetime.ApplicationStopping.IsCancellationRequested)
             .IsTrue();
     }
 
