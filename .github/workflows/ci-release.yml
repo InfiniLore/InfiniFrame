@@ -429,15 +429,14 @@ jobs:
                         --api-key "$GITHUB_TOKEN" \
                         --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
                         --skip-duplicate
-            
-            # ------------------------------------------------------------------------------------------------------------------
-            # Publish docs after release pipeline completes
-            # ------------------------------------------------------------------------------------------------------------------
     
+    # ------------------------------------------------------------------------------------------------------------------
+    # Publish docs after release pipeline completes
+    # ------------------------------------------------------------------------------------------------------------------
     # noinspection UndefinedAction, UndefinedParamsPresent
     publish-docs:
         name: Publish Docs
-        needs: [ release, bump-version ]
+        needs: [ bump-version, build ]
         if: inputs.publish_docs
         uses: ./.github/workflows/shared-release-docs.yml
         with:
