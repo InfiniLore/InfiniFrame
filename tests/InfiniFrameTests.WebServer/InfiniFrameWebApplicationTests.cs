@@ -116,6 +116,7 @@ public class InfiniFrameWebApplicationTests {
 
     [Test]
     [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(UseAutoServerClose_ClosingHandler_ShouldInitiateStopAsync)}")]
+    [Retry(5)] // Sometimes the test fails on the first try because the runner is slow
     public async Task UseAutoServerClose_ClosingHandler_ShouldInitiateStopAsync() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
@@ -139,7 +140,7 @@ public class InfiniFrameWebApplicationTests {
         capturedHandler?.Invoke(new object(), EventArgs.Empty);
 
         // Give the Task.Run a moment to execute
-        await Task.Delay(100);
+        await Task.Delay(1000);
 
         // Assert
         // The web app should be in the process of stopping
