@@ -168,19 +168,14 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
-                uses: ./.github/actions/sync-check
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
                 # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
                     context: CI Testing - Windows Playwright (${{ matrix.framework }})
-                    state: ${{ job.status == 'success' && 'success' || 'failure' }}
-                    status-description: ${{ job.status == 'success' && format('Windows Playwright tests passed ({0})', matrix.framework) || format('Windows Playwright tests failed ({0})', matrix.framework) }}
                     target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
-                    complete-check-runs: 'true'
-                    check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
-                    check-summary: ${{ job.status == 'success' && format('Windows Playwright tests passed ({0})', matrix.framework) || format('Windows Playwright tests failed ({0})', matrix.framework) }}
-                    require-update: 'true'
-                    create-check-run-if-missing: 'true'
+                    job-status: ${{ job.status }}
+                    success-description: Windows Playwright tests passed (${{ matrix.framework }})
+                    failure-description: Windows Playwright tests failed (${{ matrix.framework }})

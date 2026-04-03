@@ -141,19 +141,14 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
-                uses: ./.github/actions/sync-check
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
                 # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
                     context: CI Testing - macOS/${{ matrix.arch }}
-                    state: ${{ job.status == 'success' && 'success' || 'failure' }}
-                    status-description: ${{ job.status == 'success' && 'macOS tests passed' || 'macOS tests failed' }}
                     target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
-                    complete-check-runs: 'true'
-                    check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
-                    check-summary: ${{ job.status == 'success' && 'macOS tests passed' || 'macOS tests failed' }}
-                    require-update: 'true'
-                    create-check-run-if-missing: 'true'
+                    job-status: ${{ job.status }}
+                    success-description: macOS tests passed
+                    failure-description: macOS tests failed

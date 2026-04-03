@@ -80,6 +80,9 @@ def test_complete_matching_check_runs_creates_when_no_matches_and_enabled(
     assert sgc.complete_matching_check_runs(make_args(create_check_run_if_missing=True), "token") is True
     assert [method for method, _, _ in calls] == ["GET", "POST"]
     assert calls[1][1] == "https://api.github.com/repos/owner/repo/check-runs"
+    assert calls[1][2] is not None
+    assert calls[1][2]["head_sha"] == "abc123"
+    assert calls[1][2]["conclusion"] == "success"
 
 
 def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -115,6 +118,83 @@ def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytes
         "https://api.github.com/repos/owner/repo/check-runs/1",
         "https://api.github.com/repos/owner/repo/check-runs/2",
     ]
+
+
+def test_complete_matching_check_runs_updates_existing_completed_when_same_target(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, str, dict[str, sgc.JsonValue] | None]] = []
+
+    # noinspection PyUnusedLocal
+    def fake_request(
+        method: str,
+        url: str,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
+    ) -> tuple[int, dict[str, sgc.JsonValue]]:
+        calls.append((method, url, payload))
+        if method == "GET":
+            return (
+                200,
+                {
+                    "check_runs": [
+                        {
+                            "id": 9,
+                            "name": "CI Testing - Linux/x64",
+                            "status": "completed",
+                            "details_url": "https://example.invalid/run/1",
+                        }
+                    ]
+                },
+            )
+        return 200, {}
+
+    monkeypatch.setattr(sgc, "request_json", fake_request)
+
+    assert sgc.complete_matching_check_runs(make_args(create_check_run_if_missing=True), "token") is True
+    assert [method for method, _, _ in calls] == ["GET", "PATCH"]
+    assert calls[1][1] == "https://api.github.com/repos/owner/repo/check-runs/9"
+
+
+def test_complete_matching_check_runs_fallback_create_on_list_404_when_enabled(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, str, dict[str, sgc.JsonValue] | None]] = []
+
+    # noinspection PyUnusedLocal
+    def fake_request(
+        method: str,
+        url: str,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
+    ) -> tuple[int, dict[str, sgc.JsonValue]]:
+        calls.append((method, url, payload))
+        if method == "GET":
+            return 404, {"message": "Not Found"}
+        return 201, {}
+
+    monkeypatch.setattr(sgc, "request_json", fake_request)
+
+    assert sgc.complete_matching_check_runs(make_args(create_check_run_if_missing=True), "token") is True
+    assert [method for method, _, _ in calls] == ["GET", "POST"]
+
+
+def test_complete_matching_check_runs_raises_on_create_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+    # noinspection PyUnusedLocal
+    def fake_request(
+        method: str,
+        url: str,
+        token: str,
+        payload: dict[str, sgc.JsonValue] | None = None,
+    ) -> tuple[int, dict[str, sgc.JsonValue]]:
+        if method == "GET":
+            return 200, {"check_runs": []}
+        return 500, {"message": "boom"}
+
+    monkeypatch.setattr(sgc, "request_json", fake_request)
+
+    with pytest.raises(SystemExit):
+        sgc.complete_matching_check_runs(make_args(create_check_run_if_missing=True), "token")
 
 
 def test_main_fails_when_require_update_and_no_updates(monkeypatch: pytest.MonkeyPatch) -> None:

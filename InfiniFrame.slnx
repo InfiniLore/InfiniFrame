@@ -23,6 +23,7 @@
     <File Path=".github\workflows\ci-todo.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/">
+    <File Path=".github/actions/sync-check-finalize/action.yml" />
     <File Path=".github/actions/sync-check/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/workflows/scripts/">

@@ -34,7 +34,10 @@ jobs:
             -   name: Setup .NET
                 uses: actions/setup-dotnet@v5
                 with:
-                    dotnet-version: 10.x
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
 
             -   name: Setup Node
                 uses: actions/setup-node@v6
@@ -111,19 +114,14 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
-                uses: ./.github/actions/sync-check
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
                 # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
                     context: CI Testing - Docs
-                    state: ${{ job.status == 'success' && 'success' || 'failure' }}
-                    status-description: ${{ job.status == 'success' && 'Docs validation finished successfully' || 'Docs validation failed due to warnings or errors' }}
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    allow-status-422: 'true'
-                    complete-check-runs: 'true'
-                    check-conclusion: ${{ job.status == 'success' && 'success' || 'failure' }}
-                    check-summary: ${{ job.status == 'success' && 'Docs validation finished successfully' || 'Docs validation failed due to warnings or errors' }}
-                    require-update: 'true'
-                    create-check-run-if-missing: 'true'
+                    job-status: ${{ job.status }}
+                    success-description: Docs validation finished successfully
+                    failure-description: Docs validation failed due to warnings or errors

@@ -143,6 +143,9 @@ public class InfiniFrameWebApplicationTests {
         while (!appLifetime.ApplicationStopping.IsCancellationRequested && DateTime.UtcNow < deadline) {
             await Task.Delay(50);
         }
+        if (!appLifetime.ApplicationStopping.IsCancellationRequested) {
+            Console.WriteLine("Timed out waiting for ApplicationStopping after closing handler invocation.");
+        }
 
         // Assert
         // The web app should be in the process of stopping
@@ -174,6 +177,9 @@ public class InfiniFrameWebApplicationTests {
         DateTime deadline = DateTime.UtcNow.AddSeconds(2);
         while (!appLifetime.ApplicationStopping.IsCancellationRequested && DateTime.UtcNow < deadline) {
             await Task.Delay(50);
+        }
+        if (!appLifetime.ApplicationStopping.IsCancellationRequested) {
+            Console.WriteLine("Timed out waiting for ApplicationStopping after Stop() call.");
         }
 
         // Assert
