@@ -17,7 +17,6 @@ on:
                 required: true
 
 jobs:
-    # noinspection UndefinedAction, UndefinedParamsPresent
     linux-gui:
         name: Linux GUI (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
@@ -46,7 +45,9 @@ jobs:
             -   name: Set Linux Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
@@ -250,7 +251,9 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}

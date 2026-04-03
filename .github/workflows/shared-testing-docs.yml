@@ -19,7 +19,6 @@ permissions:
     checks: write
 
 jobs:
-    # noinspection UndefinedAction, UndefinedParamsPresent
     docs-validation:
         name: CI Testing - Docs
         runs-on: ubuntu-latest
@@ -79,7 +78,9 @@ jobs:
             -   name: Set Docs Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction, UndefinedParamsPresent
                 uses: ./.github/actions/sync-check
+                # noinspection UndefinedAction, UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
@@ -110,7 +111,9 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
