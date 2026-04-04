@@ -530,6 +530,20 @@ void InfiniFrameWindow::GetSize(int* width, int* height) const
     if (height) *height = static_cast<int>(roundf(size.height));
 }
 
+void InfiniFrameWindow::GetMaxSize(int* width, int* height) const
+{
+    NSSize maxSize = [m_impl->_window maxSize];
+    if (width) *width = static_cast<int>(roundf(maxSize.width));
+    if (height) *height = static_cast<int>(roundf(maxSize.height));
+}
+
+void InfiniFrameWindow::GetMinSize(int* width, int* height) const
+{
+    NSSize minSize = [m_impl->_window minSize];
+    if (width) *width = static_cast<int>(roundf(minSize.width));
+    if (height) *height = static_cast<int>(roundf(minSize.height));
+}
+
 AutoString InfiniFrameWindow::GetTitle() const
 {
     return const_cast<AutoString>(m_impl->_windowTitle.c_str());

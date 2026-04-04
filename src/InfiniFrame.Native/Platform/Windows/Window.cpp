@@ -763,6 +763,18 @@ void InfiniFrameWindow::GetSize(int* width, int* height) const
 	if (height) *height = rect.bottom - rect.top;
 }
 
+void InfiniFrameWindow::GetMaxSize(int* width, int* height) const
+{
+	if (width) *width = m_impl->_maxWidth;
+	if (height) *height = m_impl->_maxHeight;
+}
+
+void InfiniFrameWindow::GetMinSize(int* width, int* height) const
+{
+	if (width) *width = m_impl->_minWidth;
+	if (height) *height = m_impl->_minHeight;
+}
+
 AutoString InfiniFrameWindow::GetTitle() const
 {
 	return const_cast<AutoString>(m_impl->_windowTitle.c_str());

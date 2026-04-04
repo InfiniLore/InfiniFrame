@@ -327,6 +327,28 @@ extern "C"
 	}
 
 	/**
+	 * @brief Get the window maximum size constraints
+	 * @param instance InfiniFrame instance
+	 * @param width Output: maximum window width
+	 * @param height Output: maximum window height
+	 */
+	EXPORTED void InfiniFrame_GetMaxSize(InfiniFrameWindow *instance, int *width, int *height)
+	{
+		instance->GetMaxSize(width, height);
+	}
+
+	/**
+	 * @brief Get the window minimum size constraints
+	 * @param instance InfiniFrame instance
+	 * @param width Output: minimum window width
+	 * @param height Output: minimum window height
+	 */
+	EXPORTED void InfiniFrame_GetMinSize(InfiniFrameWindow *instance, int *width, int *height)
+	{
+		instance->GetMinSize(width, height);
+	}
+
+	/**
 	 * @brief Get window title
 	 * @param instance InfiniFrame instance
 	 * @return Window title string

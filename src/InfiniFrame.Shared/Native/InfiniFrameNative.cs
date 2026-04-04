@@ -100,6 +100,12 @@ public static partial class InfiniFrameNative {
     [LibraryImport(DllName, EntryPoint = InfiniFrame_GetSize, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void GetSize(IntPtr instance, out int width, out int height);
 
+    [LibraryImport(DllName, EntryPoint = InfiniFrame_GetMaxSize, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void GetMaxSize(IntPtr instance, out int maxWidth, out int maxHeight);
+
+    [LibraryImport(DllName, EntryPoint = InfiniFrame_GetMinSize, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial void GetMinSize(IntPtr instance, out int minWidth, out int minHeight);
+
     [LibraryImport(DllName, EntryPoint = InfiniFrame_GetTitle, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial IntPtr GetTitle(IntPtr instance);
 
@@ -245,12 +251,26 @@ public static partial class InfiniFrameNative {
 
     internal static void GetHeight(IntPtr instance, out int height) => GetSize(instance, out _, out height);
     internal static void GetWidth(IntPtr instance, out int width) => GetSize(instance, out width, out _);
+    internal static void GetMaxHeight(IntPtr instance, out int maxHeight) => GetMaxSize(instance, out _, out maxHeight);
+    internal static void GetMaxWidth(IntPtr instance, out int maxWidth) => GetMaxSize(instance, out maxWidth, out _);
+    internal static void GetMinHeight(IntPtr instance, out int minHeight) => GetMinSize(instance, out _, out minHeight);
+    internal static void GetMinWidth(IntPtr instance, out int minWidth) => GetMinSize(instance, out minWidth, out _);
 
     internal static void GetLeft(IntPtr instance, out int left) => GetPosition(instance, out left, out _);
     internal static void GetTop(IntPtr instance, out int top) => GetPosition(instance, out _, out top);
 
     internal static void GetSize(IntPtr instance, out Size size) {
         GetSize(instance, out int width, out int height);
+        size = new Size(width, height);
+    }
+
+    internal static void GetMaxSize(IntPtr instance, out Size size) {
+        GetMaxSize(instance, out int width, out int height);
+        size = new Size(width, height);
+    }
+
+    internal static void GetMinSize(IntPtr instance, out Size size) {
+        GetMinSize(instance, out int width, out int height);
         size = new Size(width, height);
     }
 

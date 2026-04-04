@@ -632,10 +632,6 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T SetMaxSize(int maxWidth, int maxHeight) {
             window.Logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
-
-            window.MaxWidth = maxWidth;
-            window.MaxHeight = maxHeight;
-
             window.Invoke(() => InfiniFrameNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight));
             return window;
         }
@@ -694,10 +690,6 @@ public static class InfiniWindowExtensions {
         /// </returns>
         public T SetMinSize(int minWidth, int minHeight) {
             window.Logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
-
-            window.MinHeight = minHeight;
-            window.MinWidth = minWidth;
-
             window.Invoke(() => InfiniFrameNative.SetMinSize(window.InstanceHandle, minWidth, minHeight));
             return window;
         }

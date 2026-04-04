@@ -83,11 +83,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
         window.StartupParameters = startupParameters;
 
-        window.MaxHeight = startupParameters.MaxHeight;
-        window.MaxWidth = startupParameters.MaxWidth;
-        window.MinHeight = startupParameters.MinHeight;
-        window.MinWidth = startupParameters.MinWidth;
-
         // window.IconFilePath = startupParameters.WindowIconFile;
 
         Events.CompleteSetup(window);

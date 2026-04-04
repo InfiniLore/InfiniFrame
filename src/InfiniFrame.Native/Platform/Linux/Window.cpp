@@ -629,6 +629,18 @@ void InfiniFrameWindow::GetSize(int *width, int *height) const
 	gtk_window_get_size(GTK_WINDOW(m_impl->_window), width, height);
 }
 
+void InfiniFrameWindow::GetMaxSize(int *width, int *height) const
+{
+	if (width) *width = m_impl->_maxWidth;
+	if (height) *height = m_impl->_maxHeight;
+}
+
+void InfiniFrameWindow::GetMinSize(int *width, int *height) const
+{
+	if (width) *width = m_impl->_minWidth;
+	if (height) *height = m_impl->_minHeight;
+}
+
 AutoString InfiniFrameWindow::GetTitle() const
 {
 	return const_cast<AutoString>(gtk_window_get_title(GTK_WINDOW(m_impl->_window)));
@@ -773,6 +785,8 @@ void InfiniFrameWindow::SetResizable(const bool resizable)
 
 void InfiniFrameWindow::SetMinSize(const int width, const int height)
 {
+	m_impl->_minWidth = width;
+	m_impl->_minHeight = height;
 	m_impl->_hints.min_width = width;
 	m_impl->_hints.min_height = height;
 
@@ -785,6 +799,8 @@ void InfiniFrameWindow::SetMinSize(const int width, const int height)
 
 void InfiniFrameWindow::SetMaxSize(const int width, const int height)
 {
+	m_impl->_maxWidth = width;
+	m_impl->_maxHeight = height;
 	m_impl->_hints.max_width = width;
 	m_impl->_hints.max_height = height;
 

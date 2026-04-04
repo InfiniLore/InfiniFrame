@@ -635,7 +635,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     ///<summary>Gets or set the maximum size of the native window in pixels.</summary>
     public Size MaxSize {
-        get => new(MaxWidth, MaxHeight);
+        get => InstanceHandle == IntPtr.Zero
+            ? new Size(StartupParameters.MaxWidth, StartupParameters.MaxHeight)
+            : InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetMaxSize);
         set {
             MaxWidth = value.Width;
             MaxHeight = value.Height;
@@ -643,10 +645,36 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     }
 
     ///<summary>Gets or sets the native window maximum height in pixels.</summary>
-    public int MaxHeight { get; set; }
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MaxHeight {
+        get => InstanceHandle == IntPtr.Zero
+            ? StartupParameters.MaxHeight
+            : InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMaxHeight);
+        set {
+            if (InstanceHandle == IntPtr.Zero) {
+                StartupParameters.MaxHeight = value;
+                return;
+            }
+
+            Invoke(() => InfiniFrameNative.SetMaxSize(InstanceHandle, MaxWidth, value));
+        }
+    }
 
     ///<summary>Gets or sets the native window maximum width in pixels.</summary>
-    public int MaxWidth { get; set; }
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MaxWidth {
+        get => InstanceHandle == IntPtr.Zero
+            ? StartupParameters.MaxWidth
+            : InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMaxWidth);
+        set {
+            if (InstanceHandle == IntPtr.Zero) {
+                StartupParameters.MaxWidth = value;
+                return;
+            }
+
+            Invoke(() => InfiniFrameNative.SetMaxSize(InstanceHandle, value, MaxHeight));
+        }
+    }
 
     /// <summary>
     ///     Gets or sets whether the native window is minimized (hidden).
@@ -657,7 +685,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     ///<summary>Gets or set the minimum size of the native window in pixels.</summary>
     public Size MinSize {
-        get => new(MinWidth, MinHeight);
+        get => InstanceHandle == IntPtr.Zero
+            ? new Size(StartupParameters.MinWidth, StartupParameters.MinHeight)
+            : InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetMinSize);
         set {
             MinWidth = value.Width;
             MinHeight = value.Height;
@@ -665,10 +695,36 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     }
 
     ///<summary>Gets or sets the native window minimum height in pixels.</summary>
-    public int MinHeight { get; set; }
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MinHeight {
+        get => InstanceHandle == IntPtr.Zero
+            ? StartupParameters.MinHeight
+            : InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMinHeight);
+        set {
+            if (InstanceHandle == IntPtr.Zero) {
+                StartupParameters.MinHeight = value;
+                return;
+            }
+
+            Invoke(() => InfiniFrameNative.SetMinSize(InstanceHandle, MinWidth, value));
+        }
+    }
 
     ///<summary>Gets or sets the native window minimum width in pixels.</summary>
-    public int MinWidth { get; set; }
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MinWidth {
+        get => InstanceHandle == IntPtr.Zero
+            ? StartupParameters.MinWidth
+            : InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMinWidth);
+        set {
+            if (InstanceHandle == IntPtr.Zero) {
+                StartupParameters.MinWidth = value;
+                return;
+            }
+
+            Invoke(() => InfiniFrameNative.SetMinSize(InstanceHandle, value, MinHeight));
+        }
+    }
 
     /// <summary>
     ///     Gets or sets whether the user can resize the native window.
