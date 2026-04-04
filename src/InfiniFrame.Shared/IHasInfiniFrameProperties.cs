@@ -24,10 +24,10 @@ public interface IHasInfiniFrameProperties {
     int Left { get; }
     int Top { get; }
     bool Maximized { get; }
-    int MaxWidth { get; set; }
-    int MaxHeight { get; set; }
-    int MinWidth { get; set; }
-    int MinHeight { get; set; }
+    int MaxWidth { get; }
+    int MaxHeight { get; }
+    int MinWidth { get; }
+    int MinHeight { get; }
     bool Minimized { get; }
     bool Resizable { get; }
     int Width { get; }
