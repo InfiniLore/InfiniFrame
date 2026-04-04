@@ -1,4 +1,4 @@
-<img src="https://github.com/InfiniLore/InfiniFrame/blob/55d361552f290077e3d525181c2be10e2d588eab/assets/badge.png" alt="logo" height="76"/> 
+<img src="https://raw.githubusercontent.com/InfiniLore/InfiniFrame/refs/heads/core/assets/badge.png" alt="logo" height="76"/> 
 
 *A modern and cross-platform native window framework for .NET that lets you build desktop applications using web
 technologies — load any URL, render HTML strings, or embed a full Blazor application inside a native window*
