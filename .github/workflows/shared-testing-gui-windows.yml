@@ -122,6 +122,13 @@ jobs:
 
                     Write-Host "All native DLLs present"
 
+            -   name: Export Actions Runtime
+                uses: actions/github-script@v8
+                with:
+                    script: |
+                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+                        core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
+
             -   name: Run Tests
                 run: |
                     echo "Running tests on Windows..."
