@@ -5,7 +5,6 @@ using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Services;
 using InfiniFrameTests.Tools.Pack.TestUtilities;
 using System.Diagnostics;
-using System.Text;
 
 namespace InfiniFrameTests.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -232,25 +231,20 @@ public class PublishServiceTests {
             RedirectStandardError = true
         };
 
-        var standardOutput = new StringBuilder();
-        var standardError = new StringBuilder();
-
-        using var process = new Process { StartInfo = startInfo };
-        process.OutputDataReceived += (_, args) => {
-            if (!string.IsNullOrWhiteSpace(args.Data)) standardOutput.AppendLine(args.Data);
-        };
-        process.ErrorDataReceived += (_, args) => {
-            if (!string.IsNullOrWhiteSpace(args.Data)) standardError.AppendLine(args.Data);
-        };
+        using var process = new Process();
+        process.StartInfo = startInfo;
 
         if (!process.Start()) throw new InvalidOperationException($"Failed to start process: {fileName}");
 
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
+        Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
+        string standardOutput = await standardOutputTask;
+        string standardError = await standardErrorTask;
 
-        return new ProcessResult(process.ExitCode, standardOutput.ToString(), standardError.ToString());
+        return new ProcessResult(process.ExitCode, standardOutput, standardError);
     }
 
+    // ReSharper disable once NotAccessedPositionalProperty.Local
     private sealed record ProcessResult(int ExitCode, string StandardOutput, string StandardError);
 }
