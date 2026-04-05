@@ -54,7 +54,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/${{ matrix.arch }}
+                    context: CI Testing - GUI/macOS/${{ matrix.arch }}
                     state: pending
                     status-description: macOS tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -155,7 +155,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/${{ matrix.arch }}
+                    context: CI Testing - GUI/macOS/${{ matrix.arch }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: macOS tests passed

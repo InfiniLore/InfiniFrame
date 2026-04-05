@@ -54,7 +54,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows/${{ matrix.arch }}
+                    context: CI Testing - GUI/Windows/${{ matrix.arch }}
                     state: pending
                     status-description: Windows tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -156,7 +156,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows/${{ matrix.arch }}
+                    context: CI Testing - GUI/Windows/${{ matrix.arch }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Windows tests passed

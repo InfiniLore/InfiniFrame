@@ -52,7 +52,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Linux/${{ matrix.arch }}
+                    context: CI Testing - GUI/Linux/${{ matrix.arch }}
                     state: pending
                     status-description: Linux tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -265,7 +265,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Linux/${{ matrix.arch }}
+                    context: CI Testing - GUI/Linux/${{ matrix.arch }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Linux tests passed
