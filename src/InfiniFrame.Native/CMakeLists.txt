@@ -21,12 +21,18 @@ endif()
 
 set(SIMDJSON_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/simdjson")
 set(SIMDUTF_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/simdutf")
+set(WINTOASTLIB_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/wintoastlib")
 
 if(NOT EXISTS "${SIMDJSON_VENDOR_DIR}/simdjson.cpp" OR NOT EXISTS "${SIMDJSON_VENDOR_DIR}/simdjson.h")
     message(FATAL_ERROR "Vendored simdjson files are missing. Expected simdjson.cpp and simdjson.h in ${SIMDJSON_VENDOR_DIR}.")
 endif()
 if(NOT EXISTS "${SIMDUTF_VENDOR_DIR}/simdutf.cpp" OR NOT EXISTS "${SIMDUTF_VENDOR_DIR}/simdutf.h")
     message(FATAL_ERROR "Vendored simdutf files are missing. Expected simdutf.cpp and simdutf.h in ${SIMDUTF_VENDOR_DIR}.")
+endif()
+if(WIN32)
+    if(NOT EXISTS "${WINTOASTLIB_VENDOR_DIR}/wintoastlib.cpp" OR NOT EXISTS "${WINTOASTLIB_VENDOR_DIR}/wintoastlib.h")
+        message(FATAL_ERROR "Vendored wintoastlib files are missing. Expected wintoastlib.cpp and wintoastlib.h in ${WINTOASTLIB_VENDOR_DIR}.")
+    endif()
 endif()
 
 add_library(simdjson_vendor STATIC "${SIMDJSON_VENDOR_DIR}/simdjson.cpp")
@@ -36,6 +42,13 @@ add_library(simdjson::simdjson ALIAS simdjson_vendor)
 add_library(simdutf_vendor STATIC "${SIMDUTF_VENDOR_DIR}/simdutf.cpp")
 target_include_directories(simdutf_vendor PUBLIC "${SIMDUTF_VENDOR_DIR}")
 add_library(simdutf::simdutf ALIAS simdutf_vendor)
+
+
+if (WIN32)
+    add_library(wintoastlib_vendor STATIC "${WINTOASTLIB_VENDOR_DIR}/wintoastlib.cpp")
+    target_include_directories(wintoastlib_vendor PUBLIC "${WINTOASTLIB_VENDOR_DIR}")
+    add_library(wintoastlib::wintoastlib ALIAS wintoastlib_vendor)
+endif ()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
@@ -53,7 +66,6 @@ set(WINDOWS_SOURCES
     Platform/Windows/Window.cpp
     Platform/Windows/DarkMode.cpp
     Platform/Windows/Dialog.cpp
-    Dependencies/wintoastlib/wintoastlib.cpp
 )
 
 set(LINUX_SOURCES
@@ -176,6 +188,7 @@ if(WIN32)
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
         simdutf::simdutf
+        wintoastlib::wintoastlib
         kernel32 user32 gdi32 winspool comdlg32 advapi32
         shell32 ole32 oleaut32 uuid odbc32 odbccp32 shlwapi shcore
         "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib"
@@ -199,9 +212,6 @@ if(WIN32)
             /Zc:lambda
             $<$<CONFIG:Debug>:/Od /MTd /Zi>
             $<$<CONFIG:Release>:/O2 /MT>
-        )
-        set_source_files_properties(Dependencies/wintoastlib/wintoastlib.cpp PROPERTIES
-            COMPILE_OPTIONS "/W0"
         )
     else()
         target_compile_options(${PROJECT_NAME} PRIVATE
