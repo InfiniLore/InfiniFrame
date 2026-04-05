@@ -1,0 +1,104 @@
+name: Bug report
+description: Report a bug to help us improve
+title: "[BUG] "
+labels: ["bug" ]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐛 Bug Report
+        Thanks for taking the time to report a bug! Please fill in the details below.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this issue?
+      options:
+        - Critical (crash, data loss)
+        - High (major feature broken)
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: What is the problem?
+      placeholder: A clear and concise description of the bug...
+    validations:
+      required: false
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: How do we reproduce this issue?
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What should have happened?
+    validations:
+      required: false
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      placeholder: What actually happened?
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error Output
+      description: Paste any logs or stack traces
+      render: shell
+
+  - type: textarea
+    id: repro_code
+    attributes:
+      label: Minimal reproduction
+      description: Provide a minimal code sample or link to a repo if possible
+
+  - type: input
+    id: dotnet
+    attributes:
+      label: .NET Version
+      placeholder: e.g. .NET 10.0
+
+  - type: input
+    id: project_version
+    attributes:
+      label: Project Version / Commit
+      placeholder: e.g. v1.2.3 or commit hash
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      placeholder: e.g. Windows 11, Linux, macOS
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues
+          required: true
+        - label: I can reproduce this consistently
+          required: true
+        - label: I included logs and/or a reproduction
+          required: true
