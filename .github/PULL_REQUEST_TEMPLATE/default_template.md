@@ -1,6 +1,5 @@
 ## PR Overview
 <!-- Briefly describe what this PR introduces or changes. -->
-<!-- e.g., "Adds multi-threaded rendering for Nexities ECS framework" -->
 
 ## Type of Change
 <!-- Select the option(s) that best describe your PR by replacing [ ] with [x] -->
@@ -17,7 +16,7 @@
 <!-- Which part(s) of InfiniFrame does this touch? Select all that apply -->
 <!-- Aligns with the issue templates "Scope" dropdown -->
 
-- [ ] InfiniFrame.Core
+- [ ] InfiniFrame
 - [ ] InfiniFrame.Blazor
 - [ ] InfiniFrame.BlazorWebView
 - [ ] InfiniFrame.Js
@@ -26,7 +25,7 @@
 - [ ] InfiniFrame.WebServer
 - [ ] InfiniFrameExample
 - [ ] InfiniFrameTests
-- [ ] Other:
+- [ ] Other: 
 
 ## Changes Introduced
 <!-- List key changes made in this PR -->
