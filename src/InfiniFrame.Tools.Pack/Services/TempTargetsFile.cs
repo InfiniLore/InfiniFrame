@@ -54,7 +54,7 @@ internal sealed class TempTargetsFile : IDisposable {
 
     private static string BuildContents() =>
         // lang=msbuild
-        """
+        $"""
         <Project>
           <ItemGroup Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)' and Exists('$(MSBuildProjectDirectory)\\wwwroot')">
             <_InfiniFramePackWwwroot Include="wwwroot\\**\\*" />
@@ -66,39 +66,38 @@ internal sealed class TempTargetsFile : IDisposable {
           </ItemGroup>
 
           <ItemGroup Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)' and Exists('$(InfiniFramePackNativeArtifactsDir)')">
-            <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)\\InfiniFrame.Native.dll"
-                              Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('win-')) and Exists('$(InfiniFramePackNativeArtifactsDir)\\InfiniFrame.Native.dll')"
-                              LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).InfiniFrame.Native.dll" />
-            <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)\\WebView2Loader.dll"
-                              Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('win-')) and Exists('$(InfiniFramePackNativeArtifactsDir)\\WebView2Loader.dll')"
-                              LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).WebView2Loader.dll" />
-            <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)\\InfiniFrame.Native.so"
-                              Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('linux-')) and Exists('$(InfiniFramePackNativeArtifactsDir)\\InfiniFrame.Native.so')"
-                              LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).InfiniFrame.Native.so" />
-            <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)\\InfiniFrame.Native.dylib"
-                              Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('osx-')) and Exists('$(InfiniFramePackNativeArtifactsDir)\\InfiniFrame.Native.dylib')"
-                              LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).InfiniFrame.Native.dylib" />
+        {BuildNativeEmbeddedResourceItems()}
           </ItemGroup>
 
           <Target Name="InfiniFramePackRemoveTransitiveNativeFiles" AfterTargets="ComputeFilesToPublish"
                   Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)'">
             <ItemGroup>
               <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
-                                     Condition="'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.dll'
-                                             or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='WebView2Loader.dll'
-                                             or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.so'
-                                             or '%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='InfiniFrame.Native.dylib'" />
+                                     Condition="{BuildResolvedFileRemovalCondition()}" />
             </ItemGroup>
           </Target>
 
           <Target Name="InfiniFramePackCleanupPublishArtifacts" AfterTargets="Publish"
                   Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)'">
             <RemoveDir Directories="$(PublishDir)wwwroot" />
-            <Delete Files="$(PublishDir)InfiniFrame.Native.dll" />
-            <Delete Files="$(PublishDir)WebView2Loader.dll" />
-            <Delete Files="$(PublishDir)InfiniFrame.Native.so" />
-            <Delete Files="$(PublishDir)InfiniFrame.Native.dylib" />
+        {BuildDeleteItems()}
           </Target>
         </Project>
         """;
+
+    private static string BuildNativeEmbeddedResourceItems() => string.Join(Environment.NewLine,
+        InfiniFrameNativeArtifactManifest.RidArtifacts.Select(artifact => $$"""
+            <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)\\{{artifact.FileName}}"
+                              Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('{{artifact.RidPrefix}}')) and Exists('$(InfiniFramePackNativeArtifactsDir)\\{{artifact.FileName}}')"
+                              LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).{{artifact.FileName}}" />
+        """.TrimEnd()));
+
+    private static string BuildResolvedFileRemovalCondition() => string.Join(
+        $"{Environment.NewLine}                                             or ",
+        InfiniFrameNativeArtifactManifest.AllFileNames.Select(fileName =>
+            $"'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='{fileName}'")
+    );
+
+    private static string BuildDeleteItems() => string.Join(Environment.NewLine,
+        InfiniFrameNativeArtifactManifest.AllFileNames.Select(fileName => $"        <Delete Files=\"$(PublishDir){fileName}\" />"));
 }
