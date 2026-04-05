@@ -82,6 +82,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             headers.TryGetValue("Content-Type", out contentType);
             return content;
         }
+
         contentType = null;
         return null;
     }
@@ -104,7 +105,9 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 await LazyWindow.Value.SendWebMessageAsync(message);
             }
         }
-        catch (ChannelClosedException) {}
+        catch (ChannelClosedException) {
+            // ignored
+        }
     }
 
     protected override ValueTask DisposeAsyncCore() {
