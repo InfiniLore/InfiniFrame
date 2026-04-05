@@ -87,4 +87,22 @@ public class PublishServiceTests {
         await Assert.That(exception).IsNotNull();
         await Assert.That(exception!.Message.Contains("Could not resolve required InfiniFrame native artifacts from project publish output.", StringComparison.Ordinal)).IsTrue();
     }
+
+    [Test]
+    public async Task ValidateOutputShape_ReturnsUnexpectedEntries_WhenExtraPayloadFilesRemain() {
+        // Arrange
+        string output = TemporaryDirectory.Path;
+        string expectedMainOutput = Path.Join(output, "SampleApp.exe");
+        await File.WriteAllTextAsync(expectedMainOutput, "main");
+        await File.WriteAllTextAsync(Path.Join(output, "leftover.payload"), "extra");
+        Directory.CreateDirectory(Path.Join(output, "nested-assets"));
+
+        // Act
+        PublishService.OutputShapeValidation validation = PublishService.ValidateOutputShape(output, expectedMainOutput);
+
+        // Assert
+        await Assert.That(validation.FoundMainOutput).IsTrue();
+        await Assert.That(validation.UnexpectedEntries).Contains("leftover.payload");
+        await Assert.That(validation.UnexpectedEntries).Contains("nested-assets");
+    }
 }

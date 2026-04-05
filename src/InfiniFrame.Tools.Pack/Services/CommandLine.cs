@@ -19,7 +19,7 @@ internal static class CommandLine {
     /// </exception>
     public static ParseResult Parse(string[] args) {
         string? firstArg = args.FirstOrDefault();
-        if (args.Length == 0 || firstArg is null || IsHelp(firstArg)) return ParseResult.Usage(0);
+        if (args.Length == 0 || firstArg is null || IsHelp(firstArg)) return ParseResult.Usage(ExitCodes.Success);
 
         string command = firstArg.Trim().ToLowerInvariant();
 
@@ -27,7 +27,7 @@ internal static class CommandLine {
         if (!command.Equals("publish", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException($"Unknown command '{args[0]}'.");
 
         string[] argsWithoutCommand = args.Skip(1).ToArray();
-        if (argsWithoutCommand.Length == 0) return ParseResult.Usage(0);
+        if (argsWithoutCommand.Length == 0) return ParseResult.Usage(ExitCodes.Success);
 
         PublishOptions result = ParsePublishOptions(argsWithoutCommand);
 

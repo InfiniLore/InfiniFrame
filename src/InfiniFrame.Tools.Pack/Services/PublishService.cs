@@ -9,7 +9,6 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class PublishService {
     private const string DotNet = "dotnet";
-    private const int MissingMainOutputExitCode = 3;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -60,8 +59,11 @@ internal static class PublishService {
 
             PublishOutputCleaner.Cleanup(output);
             string expectedMainOutput = ResolveExpectedMainOutputPath(output, assemblyName, rid);
-            bool foundMainOutput = PrintOutputSummary(output, expectedMainOutput);
-            return foundMainOutput ? 0 : MissingMainOutputExitCode;
+            OutputShapeValidation validation = ValidateOutputShape(output, expectedMainOutput);
+            PrintOutputSummary(output, expectedMainOutput, validation.UnexpectedEntries);
+
+            if (!validation.FoundMainOutput) return ExitCodes.MissingMainOutput;
+            return validation.UnexpectedEntries.Length == 0 ? ExitCodes.Success : ExitCodes.UnexpectedOutputShape;
         }
         finally {
             if (nativeArtifacts.DeleteWhenDone && Directory.Exists(nativeArtifacts.Directory)) {
@@ -90,10 +92,32 @@ internal static class PublishService {
         Console.WriteLine($"  NativeArtifacts: {nativeArtifacts}");
     }
 
-    private static bool PrintOutputSummary(string output, string expectedMainOutput) {
-        bool foundMainOutput = File.Exists(expectedMainOutput);
+    internal static OutputShapeValidation ValidateOutputShape(string output, string expectedMainOutput) {
+        string normalizedExpectedMainOutput = Path.GetFullPath(expectedMainOutput);
+        bool foundMainOutput = File.Exists(normalizedExpectedMainOutput);
+        string[] unexpectedFiles = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly)
+            .Where(file => !string.Equals(Path.GetFullPath(file), normalizedExpectedMainOutput, StringComparison.OrdinalIgnoreCase))
+            .Select(file => Path.GetFileName(file))
+            .Where(fileName => !string.IsNullOrWhiteSpace(fileName))
+            .ToArray();
+        string[] unexpectedDirectories = Directory.GetDirectories(output, "*", SearchOption.TopDirectoryOnly)
+            .Select(directory => Path.GetFileName(directory))
+            .Where(directoryName => !string.IsNullOrWhiteSpace(directoryName))
+            .ToArray();
+        string[] unexpectedEntries = unexpectedFiles
+            .Concat(unexpectedDirectories)
+            .OrderBy(entry => entry, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return new OutputShapeValidation(foundMainOutput, unexpectedEntries);
+    }
+
+    private static void PrintOutputSummary(string output, string expectedMainOutput, string[] unexpectedEntries) {
         if (!File.Exists(expectedMainOutput)) {
             Console.WriteLine("[InfiniFrame.Pack] Publish succeeded, but expected single-file output was not found.");
+        }
+        else if (unexpectedEntries.Length != 0) {
+            Console.WriteLine("[InfiniFrame.Pack] Publish output contains unexpected entries.");
         }
 
         string[] files = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly);
@@ -103,7 +127,12 @@ internal static class PublishService {
             Console.WriteLine($"  - {file}");
         }
 
-        return foundMainOutput;
+        if (unexpectedEntries.Length == 0) return;
+
+        Console.WriteLine("  Unexpected entries:");
+        foreach (string unexpectedEntry in unexpectedEntries) {
+            Console.WriteLine($"  - {unexpectedEntry}");
+        }
     }
 
     private static async Task<ResolvedNativeArtifacts> ResolveNativeArtifactsAsync(
@@ -115,7 +144,7 @@ internal static class PublishService {
         string preflightDirectory = Path.Join(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
         Directory.CreateDirectory(preflightDirectory);
 
-        var preflightValidated = false;
+        bool preflightValidated = false;
         try {
             int preflightExitCode = await ProcessRunner.RunAsync(DotNet,
                 BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true));
@@ -202,4 +231,6 @@ internal static class PublishService {
 
         return args;
     }
+
+    internal readonly record struct OutputShapeValidation(bool FoundMainOutput, string[] UnexpectedEntries);
 }

@@ -9,9 +9,6 @@ namespace InfiniFrame.Tools.Pack;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class Program {
-    private const int GenericFailureExitCode = 1;
-    private const int NativeDependencyMissingExitCode = 2;
-
     /// <summary>
     ///     Parses command-line arguments and executes the requested pack operation.
     /// </summary>
@@ -34,11 +31,11 @@ internal static class Program {
         }
         catch (NativeDependencyNotFoundException ex) {
             await Console.Error.WriteLineAsync($"[InfiniFrame.Pack] ERROR: {ex.Message}");
-            return NativeDependencyMissingExitCode;
+            return ExitCodes.NativeDependencyMissing;
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
             await Console.Error.WriteLineAsync($"[InfiniFrame.Pack] ERROR: {ex.Message}");
-            return GenericFailureExitCode;
+            return ExitCodes.GenericFailure;
         }
     }
 

@@ -37,7 +37,7 @@ internal sealed class ParseResult {
     /// <returns>A parse result that can be passed to publish.</returns>
     public static ParseResult Success(PublishOptions options) => new() {
         ShowUsage = false,
-        ExitCode = 0,
+        ExitCode = ExitCodes.Success,
         Options = options
     };
 
