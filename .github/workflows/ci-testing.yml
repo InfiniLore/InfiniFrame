@@ -1,6 +1,10 @@
 name: "CI: Platform Tests"
+
 permissions:
     contents: read
+    statuses: write
+    checks: write
+
 on:
     workflow_dispatch:
         inputs:

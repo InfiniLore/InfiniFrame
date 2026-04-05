@@ -34,6 +34,7 @@ jobs:
                         arch: arm64
                         libName: linux
         permissions:
+            contents: read
             statuses: write
             checks: write
         steps:
