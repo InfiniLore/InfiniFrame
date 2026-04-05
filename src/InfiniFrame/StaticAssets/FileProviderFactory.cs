@@ -30,7 +30,7 @@ public static class FileProviderFactory {
 
         if (!includePhysicalFallback) return new CompositeFileProvider(providers);
 
-        string fallbackPath = physicalWwwrootPath ?? Path.Combine(AppContext.BaseDirectory, "wwwroot");
+        string fallbackPath = physicalWwwrootPath ?? Path.Join(AppContext.BaseDirectory, "wwwroot");
 
         if (!Directory.Exists(fallbackPath)) return new CompositeFileProvider(providers);
 
