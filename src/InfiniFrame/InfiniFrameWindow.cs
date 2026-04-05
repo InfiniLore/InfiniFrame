@@ -326,9 +326,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             if (OperatingSystem.IsWindows())
                 Invoke(() => InfiniFrameNative.RegisterWin32(NativeType));
             else if (OperatingSystem.IsMacOS())
-                Invoke(() => InfiniFrameNative.RegisterMac());
+                Invoke(InfiniFrameNative.RegisterMac);
 
-            Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(ref StartupParameters));
+            Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in StartupParameters));
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
             int lastError = 0;
