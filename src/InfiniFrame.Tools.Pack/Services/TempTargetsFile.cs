@@ -56,13 +56,13 @@ internal sealed class TempTargetsFile : IDisposable {
         // lang=msbuild
         $"""
         <Project>
-          <ItemGroup Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)' and Exists('$(MSBuildProjectDirectory)\\wwwroot')">
-            <_InfiniFramePackWwwroot Include="wwwroot\\**\\*" />
+          <ItemGroup Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)' and Exists('$(MSBuildProjectDirectory)/wwwroot')">
+            <_InfiniFramePackWwwroot Include="wwwroot/**/*" />
             <_InfiniFramePackWwwroot Remove="@(EmbeddedResource)" />
             <EmbeddedResource Include="@(_InfiniFramePackWwwroot)"
                               LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
-            <Content Remove="wwwroot\\**\\*" />
-            <None Remove="wwwroot\\**\\*" />
+            <Content Remove="wwwroot/**/*" />
+            <None Remove="wwwroot/**/*" />
           </ItemGroup>
 
           <ItemGroup Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)' and Exists('$(InfiniFramePackNativeArtifactsDir)')">
@@ -79,7 +79,7 @@ internal sealed class TempTargetsFile : IDisposable {
 
           <Target Name="InfiniFramePackCleanupPublishArtifacts" AfterTargets="Publish"
                   Condition="'$(MSBuildProjectFullPath)' == '$(InfiniFramePackRootProject)'">
-            <RemoveDir Directories="$(PublishDir)wwwroot" />
+            <RemoveDir Directories="$(PublishDir)/wwwroot" />
         {BuildDeleteItems()}
           </Target>
         </Project>
@@ -87,8 +87,8 @@ internal sealed class TempTargetsFile : IDisposable {
 
     private static string BuildNativeEmbeddedResourceItems() => string.Join(Environment.NewLine,
         InfiniFrameNativeArtifactManifest.RidArtifacts.Select(artifact => $$"""
-            <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)\\{{artifact.FileName}}"
-                              Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('{{artifact.RidPrefix}}')) and Exists('$(InfiniFramePackNativeArtifactsDir)\\{{artifact.FileName}}')"
+            <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)/{{artifact.FileName}}"
+                              Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('{{artifact.RidPrefix}}')) and Exists('$(InfiniFramePackNativeArtifactsDir)/{{artifact.FileName}}')"
                               LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).{{artifact.FileName}}" />
         """.TrimEnd()));
 
@@ -99,5 +99,5 @@ internal sealed class TempTargetsFile : IDisposable {
     );
 
     private static string BuildDeleteItems() => string.Join(Environment.NewLine,
-        InfiniFrameNativeArtifactManifest.AllFileNames.Select(fileName => $"        <Delete Files=\"$(PublishDir){fileName}\" />"));
+        InfiniFrameNativeArtifactManifest.AllFileNames.Select(fileName => $"        <Delete Files=\"$(PublishDir)/{fileName}\" />"));
 }

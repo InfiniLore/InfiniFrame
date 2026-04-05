@@ -21,7 +21,8 @@ public class TempTargetsFileTests {
         string contents = await File.ReadAllTextAsync(tempTargetsFile.Path);
         await Assert.That(contents).Contains("InfiniFramePackCleanupPublishArtifacts");
         await Assert.That(contents).Contains("InfiniFramePackRemoveTransitiveNativeFiles");
-        await Assert.That(contents).Contains("wwwroot\\\\**\\\\*");
+        await Assert.That(contents).Contains("wwwroot/**/*");
+        await Assert.That(contents).Contains("$(PublishDir)/");
         foreach (string nativeFileName in InfiniFrameNativeArtifactManifest.AllFileNames) {
             await Assert.That(contents).Contains(nativeFileName);
         }
