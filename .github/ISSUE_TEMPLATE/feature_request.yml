@@ -76,7 +76,7 @@ body:
     id: implementation
     attributes:
       label: Possible implementation
-      description: Optional: suggest API design, structure, or approach
+      description: "Optional: suggest API design, structure, or approach"
 
   - type: textarea
     id: context
