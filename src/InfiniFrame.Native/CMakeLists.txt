@@ -20,7 +20,28 @@ endif()
 # ----------------------------------------------------------------------------------------------------------------------
 
 include("${CMAKE_SOURCE_DIR}/cmake/NativeDependencies.cmake")
-infiniframe_setup_dependencies()
+infiniframe_add_vendor_static_library("simdjson" "${CMAKE_SOURCE_DIR}/Dependencies/simdjson" "simdjson.cpp" "simdjson.h")
+infiniframe_add_vendor_static_library("simdutf" "${CMAKE_SOURCE_DIR}/Dependencies/simdutf" "simdutf.cpp" "simdutf.h")
+
+if(WIN32)
+    infiniframe_add_vendor_static_library("wintoastlib" "${CMAKE_SOURCE_DIR}/Dependencies/wintoastlib" "wintoastlib.cpp" "wintoastlib.h")
+
+    set(_packages_config_path "${CMAKE_SOURCE_DIR}/packages.config")
+    if(NOT EXISTS "${_packages_config_path}")
+        message(FATAL_ERROR "packages.config not found at ${_packages_config_path}")
+    endif()
+
+    infiniframe_restore_nuget_packages("${_packages_config_path}")
+    infiniframe_detect_windows_arch_dir(_win_arch_dir)
+    infiniframe_read_package_version("${_packages_config_path}" "Microsoft.Web.WebView2" _webview2_version)
+    infiniframe_read_package_version("${_packages_config_path}" "Microsoft.Windows.ImplementationLibrary" _winimpl_version)
+    infiniframe_resolve_webview2_base_dir("${_webview2_version}" _webview2_base_dir)
+    infiniframe_resolve_wil_include_dir("${_winimpl_version}" _wil_include_dir)
+    infiniframe_add_imported_windows_sdk_targets("${_webview2_base_dir}" "${_win_arch_dir}" "${_wil_include_dir}")
+
+    set(INFINIFRAME_WEBVIEW2_BASE_DIR "${_webview2_base_dir}" PARENT_SCOPE)
+    set(INFINIFRAME_WINDOWS_ARCH_DIR "${_win_arch_dir}" PARENT_SCOPE)
+endif()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
