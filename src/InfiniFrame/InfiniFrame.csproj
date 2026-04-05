@@ -16,10 +16,6 @@
         <PackageReference Include="Microsoft.Extensions.FileProviders.Physical"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
-        <PackageReference Include="Polyfill">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>

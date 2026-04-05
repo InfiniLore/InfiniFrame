@@ -11,10 +11,6 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
-        <PackageReference Include="Polyfill">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>

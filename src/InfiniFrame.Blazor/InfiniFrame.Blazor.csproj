@@ -7,11 +7,4 @@
         <ProjectReference Include="..\InfiniFrame\InfiniFrame.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Polyfill">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-    </ItemGroup>
-
 </Project>
