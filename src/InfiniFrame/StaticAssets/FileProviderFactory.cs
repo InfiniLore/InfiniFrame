@@ -19,18 +19,25 @@ public static class FileProviderFactory {
 
         // Preferred embedded naming: <AssemblyName>.wwwroot.<path>
         var embeddedProvider = new EmbeddedFileProvider(assembly, $"{assemblyName}.wwwroot");
+        
         // Compatibility with resources embedded as "wwwroot.<path>".
         var legacyEmbeddedProvider = new EmbeddedFileProvider(assembly, "wwwroot");
 
-        IFileProvider provider = new CompositeFileProvider(embeddedProvider, legacyEmbeddedProvider);
-        if (!includePhysicalFallback) return provider;
+        var providers = new List<IFileProvider> {
+            embeddedProvider,
+            legacyEmbeddedProvider
+        };
 
-        string fallbackPath = physicalWwwrootPath
-            ?? Path.Join(AppContext.BaseDirectory, "wwwroot");
+        if (!includePhysicalFallback) return new CompositeFileProvider(providers);
 
-        if (!Directory.Exists(fallbackPath)) return provider;
+        string fallbackPath = physicalWwwrootPath ?? Path.Combine(AppContext.BaseDirectory, "wwwroot");
+
+        if (!Directory.Exists(fallbackPath)) return new CompositeFileProvider(providers);
 
         var physicalProvider = new PhysicalFileProvider(fallbackPath);
-        return new CompositeFileProvider(provider, physicalProvider);
+        providers.Add(physicalProvider);
+
+        return new CompositeFileProvider(providers);
+
     }
 }
