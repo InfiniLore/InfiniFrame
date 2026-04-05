@@ -15,7 +15,7 @@ internal static class PublishOutputCleaner {
         if (Directory.Exists(wwwroot)) Directory.Delete(wwwroot, true);
 
         IEnumerable<string> enumerable = NativeRuntimeBuilder.NativeRuntimeFiles
-            .Select(file => Path.Combine(output, file));
+            .Select(file => Path.IsPathRooted(file) ? file : Path.Combine(output, file));
         
         foreach (string fullPath in enumerable) {
             if (File.Exists(fullPath)) File.Delete(fullPath);
