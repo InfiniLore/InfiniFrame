@@ -136,6 +136,24 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj \
 
 ## Common Patterns
 
+### MSBuild integration (for `InfiniFramePackAfterBuild`)
+
+If your project runs packaging from an MSBuild target (for example with `$(InfiniFramePackCommand)`), the tool command
+must be available on the machine first.
+
+For repo development, build and install from `src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj`:
+
+```bash
+dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
+dotnet tool install --global --add-source ./src/InfiniFrame.Tools.Pack/bin/Release InfiniLore.InfiniFrame.Tools.Pack
+```
+
+If you cannot install globally, set your project to use a different command, for example:
+
+```bash
+-p:InfiniFramePackCommand="dotnet tool run infiniframe-pack"
+```
+
 ### CI-friendly deterministic output paths
 
 Pass an explicit `--output` directory so build artifacts land in a stable path:

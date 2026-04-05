@@ -110,6 +110,14 @@ Use the custom .NET tool `InfiniFrame-Pack` to package your app into a single ex
 dependencies.
 See [`/docs`](docs/articles/guides/pack-tool.md) for full usage details and options.
 
+Install the tool first before running packaging commands (including the `InfiniFrameExample.SingleFileExe` post-build
+pack target):
+
+```powershell
+dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
+dotnet tool install --global --add-source .\src\InfiniFrame.Tools.Pack\bin\Release InfiniLore.InfiniFrame.Tools.Pack
+```
+
 ```powershell
 dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 ```
