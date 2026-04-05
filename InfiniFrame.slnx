@@ -15,11 +15,20 @@
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/dependabot.yml" />
   </Folder>
+  <Folder Name="/.dev-tools/github/actions/run-pack-publish/">
+    <File Path=".github/actions/run-pack-publish/action.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/actions/setup-pack-tool/">
+    <File Path=".github/actions/setup-pack-tool/action.yml" />
+  </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check-finalize/">
     <File Path=".github/actions/sync-check-finalize/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check/">
     <File Path=".github/actions/sync-check/action.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/actions/validate-pack-output/">
+    <File Path=".github/actions/validate-pack-output/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/scripts/">
     <File Path=".github/scripts/bump_version.py" />
@@ -51,6 +60,8 @@
     <File Path=".github/workflows/shared-testing-gui-linux.yml" />
     <File Path=".github/workflows/shared-testing-gui-macos.yml" />
     <File Path=".github/workflows/shared-testing-gui-windows.yml" />
+    <File Path=".github/workflows/shared-testing-pack-linux.yml" />
+    <File Path=".github/workflows/shared-testing-pack-macos.yml" />
     <File Path=".github/workflows/shared-testing-pack-windows.yml" />
     <File Path=".github/workflows/shared-testing-playwright-windows.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />

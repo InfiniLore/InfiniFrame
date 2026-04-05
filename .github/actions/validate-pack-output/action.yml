@@ -1,0 +1,56 @@
+name: Validate Pack Output
+description: Verifies output shape contains only main executable and no forbidden unpacked payload entries.
+
+inputs:
+  output-dir:
+    description: Packed publish output directory
+    required: true
+  main-output-name:
+    description: Main output filename expected in output directory
+    required: true
+  forbidden-entries:
+    description: Newline-delimited entry names that must not exist in output directory
+    required: false
+    default: |
+      wwwroot
+      InfiniFrame.Native.dll
+      WebView2Loader.dll
+      InfiniFrame.Native.so
+      InfiniFrame.Native.dylib
+
+runs:
+  using: composite
+  steps:
+    - name: Validate output shape
+      shell: pwsh
+      run: |
+        $outputDir = "${{ inputs['output-dir'] }}"
+        $mainOutputName = "${{ inputs['main-output-name'] }}"
+        $mainOutput = Join-Path $outputDir $mainOutputName
+
+        if (-not (Test-Path $mainOutput -PathType Leaf)) {
+          throw "Expected single-file output is missing: $mainOutput"
+        }
+
+        $unexpectedEntries = Get-ChildItem -Path $outputDir -Force | Where-Object { $_.Name -ne $mainOutputName }
+        if ($unexpectedEntries.Count -gt 0) {
+          $names = ($unexpectedEntries | Select-Object -ExpandProperty Name) -join ", "
+          throw "Publish output shape invalid. Unexpected entries: $names"
+        }
+
+        $forbiddenEntries = @()
+        $forbiddenRaw = "${{ inputs['forbidden-entries'] }}"
+        $forbiddenRaw -split "`r?`n" | ForEach-Object {
+          $entry = $_.Trim()
+          if (-not [string]::IsNullOrWhiteSpace($entry)) {
+            $forbiddenEntries += $entry
+          }
+        }
+
+        foreach ($forbidden in $forbiddenEntries) {
+          if (Test-Path (Join-Path $outputDir $forbidden)) {
+            throw "Found unpacked payload in publish output: $forbidden"
+          }
+        }
+
+        Write-Host "Pack output validated successfully."

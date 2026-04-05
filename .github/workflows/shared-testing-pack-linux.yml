@@ -1,4 +1,4 @@
-name: "Shared: Pack Tool E2E Windows"
+name: "Shared: Pack Tool E2E Linux"
 on:
     workflow_call:
         inputs:
@@ -27,12 +27,12 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    -   os: windows-latest
+                    -   os: ubuntu-latest
                         arch: x64
-                        rid: win-x64
-                    -   os: windows-11-arm
+                        rid: linux-x64
+                    -   os: ubuntu-24.04-arm
                         arch: arm64
-                        rid: win-arm64
+                        rid: linux-arm64
         permissions:
             contents: read
             statuses: write
@@ -54,9 +54,9 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Pack Tool/Windows/${{ matrix.arch }}
+                    context: CI Testing - Pack Tool/Linux/${{ matrix.arch }}
                     state: pending
-                    status-description: Pack tool end-to-end validation in progress
+                    status-description: Pack tool Linux end-to-end validation in progress
                     target-url: ${{ inputs.workflow_url }}
                     allow-status-422: 'true'
 
@@ -71,23 +71,37 @@ jobs:
             -   name: Cache NuGet
                 uses: actions/cache@v5
                 with:
-                    path: ~\.nuget\packages
+                    path: ~/.nuget/packages
                     key: ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
                     restore-keys: |
                         ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-nuget-
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
-                with:
-                    cmakeVersion: "4.0.0"
 
             -   name: Cache CMake build
                 uses: actions/cache@v5
                 with:
-                    path: src\InfiniFrame.Native\build
+                    path: src/InfiniFrame.Native/build
                     key: ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
                     restore-keys: |
                         ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-cmake-
+
+            -   name: Install Native Build Deps
+                uses: awalsh128/cache-apt-pkgs-action@latest
+                with:
+                    packages: >
+                        pkg-config
+                        libwebkit2gtk-4.1-dev
+                        libgtk-3-dev
+                        libglib2.0-dev
+                        libgdk-pixbuf2.0-dev
+                        libpango1.0-dev
+                        libatk1.0-dev
+                        libharfbuzz-dev
+                        libepoxy-dev
+                        libx11-dev
+                    version: 1.0
 
             -   name: Restore
                 run: |
@@ -97,10 +111,10 @@ jobs:
 
             -   name: Build Native Runtime (${{ matrix.rid }})
                 run: |
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
-                      --configuration Release `
-                      --no-restore `
-                      -p:SolutionDir="${{ github.workspace }}/" `
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      -p:SolutionDir="${{ github.workspace }}/" \
                       -p:Platform=${{ matrix.arch }}
 
             -   name: Setup Pack Tool
@@ -122,7 +136,7 @@ jobs:
                 # noinspection UndefinedParamsPresent
                 with:
                     output-dir: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
-                    main-output-name: InfiniFrameExample.SingleFileExe.exe
+                    main-output-name: InfiniFrameExample.SingleFileExe
 
             -   name: Update Pack Check
                 if: always()
@@ -134,8 +148,8 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Pack Tool/Windows/${{ matrix.arch }}
+                    context: CI Testing - Pack Tool/Linux/${{ matrix.arch }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
-                    success-description: Pack tool end-to-end validation passed
-                    failure-description: Pack tool end-to-end validation failed
+                    success-description: Pack tool Linux end-to-end validation passed
+                    failure-description: Pack tool Linux end-to-end validation failed
