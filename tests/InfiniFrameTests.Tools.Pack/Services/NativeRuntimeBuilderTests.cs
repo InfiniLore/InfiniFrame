@@ -29,24 +29,6 @@ public class NativeRuntimeBuilderTests {
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task BuildAsync_Throws_WhenNativeProjectDoesNotExist() {
-        // Arrange
-        string missingProjectPath = Path.Join(TemporaryDirectory.Path, "InfiniFrame.Native.proj");
-
-        // Act & Assert
-        await Assert.ThrowsAsync<FileNotFoundException>(async () => {
-            await NativeRuntimeBuilder.BuildAsync(
-                missingProjectPath,
-                TemporaryDirectory.Path,
-                "Release",
-                "x64",
-                Path.Join(TemporaryDirectory.Path, "artifacts", "native", "windows", "x64", "Release"),
-                false
-            );
-        });
-    }
-
-    [Test]
     public async Task ValidateArtifacts_Throws_WhenArtifactsDirectoryIsMissing() {
         // Arrange
         string missingDirectory = Path.Join(Path.GetTempPath(), $"missing-artifacts-{Guid.NewGuid():N}");

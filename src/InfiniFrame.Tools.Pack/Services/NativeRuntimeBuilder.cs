@@ -2,15 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics.CodeAnalysis;
-using Serilog;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class NativeRuntimeBuilder {
-    private static readonly ILogger Logger = Log.ForContext(typeof(NativeRuntimeBuilder));
-
     /// <summary>
     ///     The native runtime file names that are stripped from final publish output after embedding.
     /// </summary>
@@ -20,44 +17,6 @@ internal static class NativeRuntimeBuilder {
         "InfiniFrame.Native.so",
         "InfiniFrame.Native.dylib"
     ];
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-
-    /// <summary>
-    ///     Builds the native InfiniFrame runtime project for the resolved platform.
-    /// </summary>
-    /// <param name="nativeProjectPath">Path to <c>InfiniFrame.Native.proj</c>.</param>
-    /// <param name="nativeProjectDirectory">Directory containing <paramref name="nativeProjectPath" />.</param>
-    /// <param name="configuration">Build configuration, typically <c>Debug</c> or <c>Release</c>.</param>
-    /// <param name="platform">Native platform value passed to MSBuild (for example, <c>x64</c>).</param>
-    /// <param name="nativeArtifactsDir">Directory where native build artifacts are copied.</param>
-    /// <param name="verbose"><see langword="true" /> to use normal verbosity; otherwise minimal verbosity.</param>
-    /// <exception cref="FileNotFoundException">Thrown when <paramref name="nativeProjectPath" /> does not exist.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the native build process exits with a non-zero code.</exception>
-    public static async Task BuildAsync(string nativeProjectPath, string nativeProjectDirectory, string configuration, string platform, string nativeArtifactsDir, bool verbose) {
-        if (!File.Exists(nativeProjectPath)) throw new FileNotFoundException("InfiniFrame native project was not found.", nativeProjectPath);
-
-        Logger.Information("[InfiniFrame.Pack] Building native runtime");
-        Logger.Information("  NativeProject: {NativeProjectPath}", nativeProjectPath);
-        Logger.Information("  Configuration: {Configuration}", configuration);
-        Logger.Information("  Platform: {Platform}", platform);
-        Logger.Information("  NativeArtifacts: {NativeArtifactsDir}", nativeArtifactsDir);
-
-        List<string> buildArgs = [
-            "msbuild",
-            nativeProjectPath,
-            "-t:Build",
-            $"-p:Configuration={configuration}",
-            $"-p:Platform={platform}",
-            $"-p:NativeOutputDir={nativeArtifactsDir}",
-            verbose ? "-v:normal" : "-v:minimal"
-        ];
-
-        int exitCode = await ProcessRunner.RunAsync("dotnet", buildArgs, nativeProjectDirectory);
-        if (exitCode != 0) throw new InvalidOperationException($"Native build failed with exit code {exitCode}.");
-    }
 
     /// <summary>
     ///     Validates that all required native artifacts for a RID are present in the artifact directory.
