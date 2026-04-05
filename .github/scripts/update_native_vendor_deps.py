@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-MANIFEST_PATH = REPO_ROOT / ".github" / "vendor" / "native-vendor-deps.json"
+MANIFEST_PATH = REPO_ROOT / "native-vendor-deps.json"
 
 
 def request_json(url: str, token: str) -> dict[str, Any]:
@@ -82,22 +82,26 @@ def update_manifest(manifest_path: Path, check_only: bool) -> int:
         repo = library.get("repo")
         current_tag = library.get("tag")
         assets = library.get("assets", [])
+        source_files = library.get("source_files", [])
         licenses = library.get("license_files", [])
 
         if not isinstance(name, str) or not isinstance(repo, str) or not isinstance(current_tag, str):
             raise RuntimeError("Each library must define string 'name', 'repo', and 'tag'")
-        if not isinstance(assets, list) or not isinstance(licenses, list):
-            raise RuntimeError(f"Library {name} has invalid assets or license_files")
+        if not isinstance(assets, list) or not isinstance(source_files, list) or not isinstance(licenses, list):
+            raise RuntimeError(f"Library {name} has invalid assets, source_files, or license_files")
 
         latest_tag, latest_assets = get_latest_release(repo, token)
 
         has_missing_files = False
-        for asset_entry in assets:
-            if not isinstance(asset_entry, dict):
-                raise RuntimeError(f"Library {name} has invalid asset entry")
-            destination = asset_entry.get("destination")
-            if isinstance(destination, str) and not (REPO_ROOT / destination).exists():
-                has_missing_files = True
+        for entries in (assets, source_files, licenses):
+            for asset_entry in entries:
+                if not isinstance(asset_entry, dict):
+                    raise RuntimeError(f"Library {name} has invalid file entry")
+                destination = asset_entry.get("destination")
+                if isinstance(destination, str) and not (REPO_ROOT / destination).exists():
+                    has_missing_files = True
+                    break
+            if has_missing_files:
                 break
 
         needs_update = latest_tag != current_tag
@@ -129,6 +133,20 @@ def update_manifest(manifest_path: Path, check_only: bool) -> int:
             destination_path = REPO_ROOT / destination
             print(f"  downloading {asset_name} -> {destination}")
             download_file(download_url, destination_path, token)
+
+        for source_entry in source_files:
+            if not isinstance(source_entry, dict):
+                raise RuntimeError(f"Library {name} has invalid source_files entry")
+
+            source = source_entry.get("source")
+            destination = source_entry.get("destination")
+            if not isinstance(source, str) or not isinstance(destination, str):
+                raise RuntimeError(f"Library {name} has invalid source file definition")
+
+            resolved_source = source.replace("{tag}", latest_tag)
+            destination_path = REPO_ROOT / destination
+            print(f"  downloading source -> {destination}")
+            download_file(resolved_source, destination_path, token)
 
         for license_entry in licenses:
             if not isinstance(license_entry, dict):

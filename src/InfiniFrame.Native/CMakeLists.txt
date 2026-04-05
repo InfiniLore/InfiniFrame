@@ -19,8 +19,8 @@ endif()
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
 
-set(SIMDJSON_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/vendor/simdjson")
-set(SIMDUTF_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/vendor/simdutf")
+set(SIMDJSON_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/simdjson")
+set(SIMDUTF_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/simdutf")
 
 if(NOT EXISTS "${SIMDJSON_VENDOR_DIR}/simdjson.cpp" OR NOT EXISTS "${SIMDJSON_VENDOR_DIR}/simdjson.h")
     message(FATAL_ERROR "Vendored simdjson files are missing. Expected simdjson.cpp and simdjson.h in ${SIMDJSON_VENDOR_DIR}.")
@@ -53,7 +53,7 @@ set(WINDOWS_SOURCES
     Platform/Windows/Window.cpp
     Platform/Windows/DarkMode.cpp
     Platform/Windows/Dialog.cpp
-    Dependencies/wintoastlib.cpp
+    Dependencies/wintoastlib/wintoastlib.cpp
 )
 
 set(LINUX_SOURCES
@@ -200,7 +200,7 @@ if(WIN32)
             $<$<CONFIG:Debug>:/Od /MTd /Zi>
             $<$<CONFIG:Release>:/O2 /MT>
         )
-        set_source_files_properties(Dependencies/wintoastlib.cpp PROPERTIES
+        set_source_files_properties(Dependencies/wintoastlib/wintoastlib.cpp PROPERTIES
             COMPILE_OPTIONS "/W0"
         )
     else()

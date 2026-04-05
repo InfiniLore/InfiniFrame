@@ -1,10 +1,11 @@
 # Vendored Native Dependencies
 
-This directory contains vendored release artifacts used by `InfiniFrame.Native`.
+`src/InfiniFrame.Native/Dependencies` contains vendored native dependency artifacts used by `InfiniFrame.Native`.
 
 ## Libraries
 - `simdjson` from `simdjson/simdjson`
 - `simdutf` from `simdutf/simdutf`
+- `wintoastlib` from `mohabouje/WinToast`
 
 ## Update Process
 Run:
@@ -13,5 +14,5 @@ Run:
 python .github/scripts/update_native_vendor_deps.py
 ```
 
-The dependency manifest is at `.github/vendor/native-vendor-deps.json`.
+The dependency manifest is at `native-vendor-deps.json` in the repository root.
 A scheduled GitHub Action also runs weekly and opens a PR when updates are available.

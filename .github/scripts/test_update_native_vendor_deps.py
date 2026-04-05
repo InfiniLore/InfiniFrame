@@ -20,6 +20,7 @@ def write_manifest(path: Path, tag: str) -> None:
                         "destination": "vendor/simdjson.h",
                     }
                 ],
+                "source_files": [],
                 "license_files": [
                     {
                         "source": "https://example.invalid/{tag}/LICENSE",
@@ -49,6 +50,14 @@ def test_check_only_returns_2_when_update_available(monkeypatch, tmp_path: Path)
 def test_update_downloads_files_and_updates_manifest(monkeypatch, tmp_path: Path) -> None:
     manifest_path = tmp_path / "manifest.json"
     write_manifest(manifest_path, "v1.0.0")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["libraries"][0]["source_files"] = [
+        {
+            "source": "https://example.invalid/{tag}/simdjson.cpp",
+            "destination": "vendor/simdjson.cpp",
+        }
+    ]
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
 
     downloads: list[tuple[str, Path]] = []
 
@@ -65,8 +74,13 @@ def test_update_downloads_files_and_updates_manifest(monkeypatch, tmp_path: Path
     result = upd.update_manifest(manifest_path, check_only=False)
 
     assert result == 0
-    assert [url for url, _ in downloads] == ["https://dl/h", "https://example.invalid/v1.1.0/LICENSE"]
+    assert [url for url, _ in downloads] == [
+        "https://dl/h",
+        "https://example.invalid/v1.1.0/simdjson.cpp",
+        "https://example.invalid/v1.1.0/LICENSE",
+    ]
     assert (tmp_path / "vendor" / "simdjson.h").exists()
+    assert (tmp_path / "vendor" / "simdjson.cpp").exists()
     assert (tmp_path / "vendor" / "LICENSE").exists()
 
     loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -80,6 +94,8 @@ def test_no_update_returns_0(monkeypatch, tmp_path: Path) -> None:
     asset_file = tmp_path / "vendor" / "simdjson.h"
     asset_file.parent.mkdir(parents=True, exist_ok=True)
     asset_file.write_text("present", encoding="utf-8")
+    license_file = tmp_path / "vendor" / "LICENSE"
+    license_file.write_text("present", encoding="utf-8")
 
     monkeypatch.setattr(upd, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(upd, "get_latest_release", lambda repo, token: ("v1.1.0", {"simdjson.h": "https://dl"}))

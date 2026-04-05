@@ -3,6 +3,7 @@
     <File Path=".gitignore" />
     <File Path="InfiniFrame.GitHubActions.Testing.Playwright.slnf" />
     <File Path="LICENSE" />
+    <File Path="native-vendor-deps.json" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path="global.json" />
