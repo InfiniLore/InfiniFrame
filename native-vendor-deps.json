@@ -1,0 +1,78 @@
+{
+  "libraries": [
+    {
+      "name": "simdjson",
+      "repo": "simdjson/simdjson",
+      "tag": "v4.6.1",
+      "assets": [
+        {
+          "asset": "simdjson.h",
+          "destination": "src/InfiniFrame.Native/Dependencies/simdjson/simdjson.h"
+        },
+        {
+          "asset": "simdjson.cpp",
+          "destination": "src/InfiniFrame.Native/Dependencies/simdjson/simdjson.cpp"
+        }
+      ],
+      "source_files": [],
+      "license_files": [
+        {
+          "source": "https://raw.githubusercontent.com/simdjson/simdjson/{tag}/LICENSE",
+          "destination": "src/InfiniFrame.Native/Dependencies/simdjson/LICENSE"
+        }
+      ]
+    },
+    {
+      "name": "simdutf",
+      "repo": "simdutf/simdutf",
+      "tag": "v8.2.0",
+      "assets": [
+        {
+          "asset": "simdutf.h",
+          "destination": "src/InfiniFrame.Native/Dependencies/simdutf/simdutf.h"
+        },
+        {
+          "asset": "simdutf.cpp",
+          "destination": "src/InfiniFrame.Native/Dependencies/simdutf/simdutf.cpp"
+        },
+        {
+          "asset": "simdutf_c.h",
+          "destination": "src/InfiniFrame.Native/Dependencies/simdutf/simdutf_c.h"
+        }
+      ],
+      "source_files": [],
+      "license_files": [
+        {
+          "source": "https://raw.githubusercontent.com/simdutf/simdutf/{tag}/LICENSE-MIT",
+          "destination": "src/InfiniFrame.Native/Dependencies/simdutf/LICENSE-MIT"
+        },
+        {
+          "source": "https://raw.githubusercontent.com/simdutf/simdutf/{tag}/LICENSE-APACHE",
+          "destination": "src/InfiniFrame.Native/Dependencies/simdutf/LICENSE-APACHE"
+        }
+      ]
+    },
+    {
+      "name": "wintoastlib",
+      "repo": "mohabouje/WinToast",
+      "tag": "v1.3.2",
+      "assets": [],
+      "source_files": [
+        {
+          "source": "https://raw.githubusercontent.com/mohabouje/WinToast/{tag}/include/wintoastlib.h",
+          "destination": "src/InfiniFrame.Native/Dependencies/wintoastlib/wintoastlib.h"
+        },
+        {
+          "source": "https://raw.githubusercontent.com/mohabouje/WinToast/{tag}/src/wintoastlib.cpp",
+          "destination": "src/InfiniFrame.Native/Dependencies/wintoastlib/wintoastlib.cpp"
+        }
+      ],
+      "license_files": [
+        {
+          "source": "https://raw.githubusercontent.com/mohabouje/WinToast/{tag}/LICENSE.txt",
+          "destination": "src/InfiniFrame.Native/Dependencies/wintoastlib/LICENSE.txt"
+        }
+      ]
+    }
+  ]
+}

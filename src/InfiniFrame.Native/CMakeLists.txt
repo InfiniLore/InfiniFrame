@@ -19,25 +19,13 @@ endif()
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
 
-include(FetchContent)
+include("${CMAKE_SOURCE_DIR}/cmake/NativeDependencies.cmake")
 
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON CACHE BOOL "" FORCE)
+include("${CMAKE_SOURCE_DIR}/cmake/Platform.Windows.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/Platform.MacOS.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/Platform.Linux.cmake")
 
-FetchContent_Declare(
-    simdjson
-    GIT_REPOSITORY https://github.com/simdjson/simdjson.git
-    GIT_TAG v4.4.0
-    GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(simdjson)
-
-FetchContent_Declare(
-    simdutf
-    GIT_REPOSITORY https://github.com/simdutf/simdutf.git
-    GIT_TAG v8.2.0
-    GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(simdutf)
+infiniframe_setup_dependencies()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
@@ -55,7 +43,6 @@ set(WINDOWS_SOURCES
     Platform/Windows/Window.cpp
     Platform/Windows/DarkMode.cpp
     Platform/Windows/Dialog.cpp
-    Dependencies/wintoastlib.cpp
 )
 
 set(LINUX_SOURCES
@@ -94,226 +81,28 @@ set(HEADER_FILES
     Platform/Mac/UrlSchemeHandler.h
 )
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Windows Build
-# ----------------------------------------------------------------------------------------------------------------------
-
 if(WIN32)
-    add_library(${PROJECT_NAME} SHARED 
-        ${COMMON_SOURCES} 
-        ${TEST_SOURCES} 
-        ${WINDOWS_SOURCES} 
-        ${HEADER_FILES}
+    infiniframe_configure_windows_target(
+        ${PROJECT_NAME}
+        "${COMMON_SOURCES}"
+        "${TEST_SOURCES}"
+        "${WINDOWS_SOURCES}"
+        "${HEADER_FILES}"
     )
-
-    execute_process(
-        COMMAND nuget restore "${CMAKE_SOURCE_DIR}/packages.config" 
-                -PackagesDirectory "${CMAKE_SOURCE_DIR}/packages"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        RESULT_VARIABLE NUGET_RESULT
-    )
-    if(NOT NUGET_RESULT EQUAL 0)
-        message(FATAL_ERROR "NuGet restore failed")
-    endif()
-
-    if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
-        set(ARCH_DIR "arm64")
-        set(OUTPUT_ARCH_DIR "arm64")
-    elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
-        set(ARCH_DIR "x64")
-        set(OUTPUT_ARCH_DIR "x64")
-    else()
-        set(ARCH_DIR "x64")
-        set(OUTPUT_ARCH_DIR "x64")
-    endif()
-
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_NAME "InfiniFrame.Native"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
-    )
-
-    set(WEBVIEW2_VERSION "1.0.3856.49" CACHE STRING "WebView2 version")
-    
-    set(WEBVIEW2_BASE_DIR "")
-    set(WEBVIEW2_BASE_DIR_CANDIDATES
-        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native"
-        "$ENV{USERPROFILE}/.nuget/packages/microsoft.web.webview2/${WEBVIEW2_VERSION}/build/native"
-    )
-    foreach(_cand IN LISTS WEBVIEW2_BASE_DIR_CANDIDATES)
-        if(EXISTS "${_cand}/include/WebView2.h")
-            set(WEBVIEW2_BASE_DIR "${_cand}")
-            break()
-        endif()
-    endforeach()
-
-    if(NOT WEBVIEW2_BASE_DIR)
-        message(FATAL_ERROR "WebView2 headers not found")
-    endif()
-
-    set(WINIMPL_VERSION "1.0.260126.7" CACHE STRING "Windows Implementation Library version")
-    set(WINIMPL_INCLUDE_DIR "")
-    set(WINIMPL_BASE_DIR_CANDIDATES
-        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}"
-        "$ENV{USERPROFILE}/.nuget/packages/microsoft.windows.implementationlibrary/${WINIMPL_VERSION}"
-    )
-    foreach(_cand IN LISTS WINIMPL_BASE_DIR_CANDIDATES)
-        if(EXISTS "${_cand}/include/wil/com.h")
-            set(WINIMPL_INCLUDE_DIR "${_cand}/include")
-            break()
-        elseif(EXISTS "${_cand}/build/native/include/wil/com.h")
-            set(WINIMPL_INCLUDE_DIR "${_cand}/build/native/include")
-            break()
-        endif()
-    endforeach()
-
-    if(NOT WINIMPL_INCLUDE_DIR)
-        message(FATAL_ERROR "WIL headers not found")
-    endif()
-
-    target_include_directories(${PROJECT_NAME} PRIVATE
-        "${CMAKE_SOURCE_DIR}"
-        "${WEBVIEW2_BASE_DIR}/include"
-        "${WINIMPL_INCLUDE_DIR}"
-    )
-
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        simdutf::simdutf
-        kernel32 user32 gdi32 winspool comdlg32 advapi32
-        shell32 ole32 oleaut32 uuid odbc32 odbccp32 shlwapi shcore
-        "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib"
-    )
-
-    target_compile_definitions(${PROJECT_NAME} PRIVATE
-        WIN32
-        _WINDOWS
-        UNICODE
-        _UNICODE
-        NOMINMAX
-        $<$<CONFIG:Debug>:_DEBUG>
-        $<$<CONFIG:Release>:NDEBUG>
-    )
-
-    if(MSVC)
-        target_compile_options(${PROJECT_NAME} PRIVATE
-            /W4
-            /permissive-
-            /Zc:__cplusplus
-            /Zc:lambda
-            $<$<CONFIG:Debug>:/Od /MTd /Zi>
-            $<$<CONFIG:Release>:/O2 /MT>
-        )
-        set_source_files_properties(Dependencies/wintoastlib.cpp PROPERTIES
-            COMPILE_OPTIONS "/W0"
-        )
-    else()
-        target_compile_options(${PROJECT_NAME} PRIVATE
-            -Wall -Wextra
-            $<$<CONFIG:Debug>:-O0 -g>
-            $<$<CONFIG:Release>:-O2>
-        )
-    endif()
-
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        LINK_FLAGS "/SUBSYSTEM:WINDOWS"
-    )
-
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2Loader.dll"
-        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/WebView2Loader.dll"
-        COMMENT "Copying WebView2Loader.dll"
-    )
-
-# ----------------------------------------------------------------------------------------------------------------------
-# macOS Build
-# ----------------------------------------------------------------------------------------------------------------------
-
 elseif(APPLE)
-    configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
-    configure_file(Exports.Tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.Tests.mm COPYONLY)
-
-    add_library(${PROJECT_NAME} SHARED
-        ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm
-        ${CMAKE_CURRENT_BINARY_DIR}/Exports.Tests.mm
-        ${MAC_SOURCES}
-        ${HEADER_FILES}
+    infiniframe_configure_macos_target(
+        ${PROJECT_NAME}
+        "${MAC_SOURCES}"
+        "${HEADER_FILES}"
     )
-
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR})
-
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        PREFIX ""
-        OUTPUT_NAME "InfiniFrame.Native"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-        OSX_ARCHITECTURES "x86_64;arm64"
-    )
-
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        simdjson::simdjson
-        "-framework Cocoa"
-        "-framework WebKit"
-        "-framework UserNotifications"
-        "-framework Security"
-    )
-
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wall -Wextra
-        -O2
-        -fPIC
-    )
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Linux Build
-# ----------------------------------------------------------------------------------------------------------------------
-
 elseif(UNIX)
-    add_library(${PROJECT_NAME} SHARED 
-        ${COMMON_SOURCES} 
-        ${TEST_SOURCES} 
-        ${LINUX_SOURCES} 
-        ${HEADER_FILES}
+    infiniframe_configure_linux_target(
+        ${PROJECT_NAME}
+        "${COMMON_SOURCES}"
+        "${TEST_SOURCES}"
+        "${LINUX_SOURCES}"
+        "${HEADER_FILES}"
     )
-
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
-        set(ARCH_DIR "arm64")
-        set(OUTPUT_ARCH_DIR "arm64")
-    else()
-        set(ARCH_DIR "x64")
-        set(OUTPUT_ARCH_DIR "x64")
-    endif()
-
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_NAME "InfiniFrame.Native"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
-        PREFIX ""
-    )
-
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-    pkg_check_modules(WEBKIT2 REQUIRED webkit2gtk-4.1)
-    pkg_check_modules(LIBNOTIFY REQUIRED libnotify)
-
-    target_include_directories(${PROJECT_NAME} PRIVATE
-        "${CMAKE_SOURCE_DIR}"
-        ${GTK3_INCLUDE_DIRS}
-        ${WEBKIT2_INCLUDE_DIRS}
-        ${LIBNOTIFY_INCLUDE_DIRS}
-    )
-
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        simdjson::simdjson
-        ${GTK3_LIBRARIES}
-        ${WEBKIT2_LIBRARIES}
-        ${LIBNOTIFY_LIBRARIES}
-    )
-
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wall -Wextra
-        -O2
-        -fPIC
-    )
-
 endif()
 
 # ----------------------------------------------------------------------------------------------------------------------
