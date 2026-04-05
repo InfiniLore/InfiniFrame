@@ -46,7 +46,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     private ILogger<InfiniFrameWindow> GetDefaultLogger() {
         if (!UseDefaultLogger)
             return LoggerFactory.Create(config => {
-                config.ClearProviders();// Remove default console logger
+                config.ClearProviders(); // Remove default console logger
             }).CreateLogger<InfiniFrameWindow>();
 
         return LoggerFactory.Create(config => {
