@@ -36,6 +36,8 @@ internal static class NativeDll {
     internal const string InfiniFrame_GetResizable = nameof(InfiniFrame_GetResizable);
     internal const string InfiniFrame_GetScreenDpi = nameof(InfiniFrame_GetScreenDpi);
     internal const string InfiniFrame_GetSize = nameof(InfiniFrame_GetSize);
+    internal const string InfiniFrame_GetMaxSize = nameof(InfiniFrame_GetMaxSize);
+    internal const string InfiniFrame_GetMinSize = nameof(InfiniFrame_GetMinSize);
     internal const string InfiniFrame_GetTitle = nameof(InfiniFrame_GetTitle);
     internal const string InfiniFrame_GetTopmost = nameof(InfiniFrame_GetTopmost);
     internal const string InfiniFrame_GetZoom = nameof(InfiniFrame_GetZoom);

@@ -206,6 +206,20 @@ public:
     void GetSize(int *width, int *height) const;
 
     /**
+     * @brief Get the maximum allowed window size
+     * @param width  Output: maximum width in pixels
+     * @param height Output: maximum height in pixels
+     */
+    void GetMaxSize(int *width, int *height) const;
+
+    /**
+     * @brief Get the minimum allowed window size
+     * @param width  Output: minimum width in pixels
+     * @param height Output: minimum height in pixels
+     */
+    void GetMinSize(int *width, int *height) const;
+
+    /**
      * @brief Get the window title bar text
      * @return UTF-8 title string; caller must free with InfiniFrame_FreeString
      */

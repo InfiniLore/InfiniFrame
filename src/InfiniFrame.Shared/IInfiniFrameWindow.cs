@@ -22,8 +22,8 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     uint ScreenDpi { get; }
     Guid Id { get; }
     Point Location { get; }
-    Size MaxSize { get; set; }
-    Size MinSize { get; set; }
+    Size MaxSize { get; }
+    Size MinSize { get; }
     Size Size { get; }
     IInfiniFrameWindow? Parent { get; }
     int ManagedThreadId { get; }
