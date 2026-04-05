@@ -10,6 +10,8 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class PublishService {
     private const string DotNet = "dotnet";
+    private static readonly StringComparison PathComparison =
+        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
     private static readonly ILogger Logger = Log.ForContext(typeof(PublishService));
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -98,7 +100,7 @@ internal static class PublishService {
         string normalizedExpectedMainOutput = Path.GetFullPath(expectedMainOutput);
         bool foundMainOutput = File.Exists(normalizedExpectedMainOutput);
         string[] unexpectedFiles = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly)
-            .Where(file => !string.Equals(Path.GetFullPath(file), normalizedExpectedMainOutput, StringComparison.OrdinalIgnoreCase))
+            .Where(file => !string.Equals(Path.GetFullPath(file), normalizedExpectedMainOutput, PathComparison))
             .Select(file => Path.GetFileName(file))
             .Where(fileName => !string.IsNullOrWhiteSpace(fileName))
             .ToArray();

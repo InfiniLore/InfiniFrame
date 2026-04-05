@@ -213,6 +213,28 @@ public class PublishServiceTests {
         await Assert.That(validation.UnexpectedEntries).Contains("nested-assets");
     }
 
+    [Test]
+    public async Task ValidateOutputShape_UsesPlatformPathCasingRules() {
+        // Arrange
+        string output = TemporaryDirectory.Path;
+        string actualMainOutput = Path.Join(output, "SampleApp.exe");
+        string expectedMainOutput = Path.Join(output, "sampleapp.exe");
+        await File.WriteAllTextAsync(actualMainOutput, "main");
+
+        // Act
+        PublishService.OutputShapeValidation validation = PublishService.ValidateOutputShape(output, expectedMainOutput);
+
+        // Assert
+        if (OperatingSystem.IsWindows()) {
+            await Assert.That(validation.FoundMainOutput).IsTrue();
+            await Assert.That(validation.UnexpectedEntries.Length).IsEqualTo(0);
+            return;
+        }
+
+        await Assert.That(validation.FoundMainOutput).IsFalse();
+        await Assert.That(validation.UnexpectedEntries).Contains("SampleApp.exe");
+    }
+
     private static string FindRepoRoot() {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
         while (current is not null) {
