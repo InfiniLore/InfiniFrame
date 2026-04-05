@@ -19,25 +19,23 @@ endif()
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
 
-include(FetchContent)
+set(SIMDJSON_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/vendor/simdjson")
+set(SIMDUTF_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/vendor/simdutf")
 
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON CACHE BOOL "" FORCE)
+if(NOT EXISTS "${SIMDJSON_VENDOR_DIR}/simdjson.cpp" OR NOT EXISTS "${SIMDJSON_VENDOR_DIR}/simdjson.h")
+    message(FATAL_ERROR "Vendored simdjson files are missing. Expected simdjson.cpp and simdjson.h in ${SIMDJSON_VENDOR_DIR}.")
+endif()
+if(NOT EXISTS "${SIMDUTF_VENDOR_DIR}/simdutf.cpp" OR NOT EXISTS "${SIMDUTF_VENDOR_DIR}/simdutf.h")
+    message(FATAL_ERROR "Vendored simdutf files are missing. Expected simdutf.cpp and simdutf.h in ${SIMDUTF_VENDOR_DIR}.")
+endif()
 
-FetchContent_Declare(
-    simdjson
-    GIT_REPOSITORY https://github.com/simdjson/simdjson.git
-    GIT_TAG v4.4.0
-    GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(simdjson)
+add_library(simdjson_vendor STATIC "${SIMDJSON_VENDOR_DIR}/simdjson.cpp")
+target_include_directories(simdjson_vendor PUBLIC "${SIMDJSON_VENDOR_DIR}")
+add_library(simdjson::simdjson ALIAS simdjson_vendor)
 
-FetchContent_Declare(
-    simdutf
-    GIT_REPOSITORY https://github.com/simdutf/simdutf.git
-    GIT_TAG v8.2.0
-    GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(simdutf)
+add_library(simdutf_vendor STATIC "${SIMDUTF_VENDOR_DIR}/simdutf.cpp")
+target_include_directories(simdutf_vendor PUBLIC "${SIMDUTF_VENDOR_DIR}")
+add_library(simdutf::simdutf ALIAS simdutf_vendor)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
