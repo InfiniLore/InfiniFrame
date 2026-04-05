@@ -19,100 +19,8 @@ endif()
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
 
-set(SIMDJSON_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/simdjson")
-set(SIMDUTF_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/simdutf")
-set(WINTOASTLIB_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Dependencies/wintoastlib")
-
-if(NOT EXISTS "${SIMDJSON_VENDOR_DIR}/simdjson.cpp" OR NOT EXISTS "${SIMDJSON_VENDOR_DIR}/simdjson.h")
-    message(FATAL_ERROR "Vendored simdjson files are missing. Expected simdjson.cpp and simdjson.h in ${SIMDJSON_VENDOR_DIR}.")
-endif()
-if(NOT EXISTS "${SIMDUTF_VENDOR_DIR}/simdutf.cpp" OR NOT EXISTS "${SIMDUTF_VENDOR_DIR}/simdutf.h")
-    message(FATAL_ERROR "Vendored simdutf files are missing. Expected simdutf.cpp and simdutf.h in ${SIMDUTF_VENDOR_DIR}.")
-endif()
-if(WIN32)
-    if(NOT EXISTS "${WINTOASTLIB_VENDOR_DIR}/wintoastlib.cpp" OR NOT EXISTS "${WINTOASTLIB_VENDOR_DIR}/wintoastlib.h")
-        message(FATAL_ERROR "Vendored wintoastlib files are missing. Expected wintoastlib.cpp and wintoastlib.h in ${WINTOASTLIB_VENDOR_DIR}.")
-    endif()
-endif()
-
-add_library(simdjson_vendor STATIC "${SIMDJSON_VENDOR_DIR}/simdjson.cpp")
-target_include_directories(simdjson_vendor PUBLIC "${SIMDJSON_VENDOR_DIR}")
-add_library(simdjson::simdjson ALIAS simdjson_vendor)
-
-add_library(simdutf_vendor STATIC "${SIMDUTF_VENDOR_DIR}/simdutf.cpp")
-target_include_directories(simdutf_vendor PUBLIC "${SIMDUTF_VENDOR_DIR}")
-add_library(simdutf::simdutf ALIAS simdutf_vendor)
-
-
-if (WIN32)
-    add_library(wintoastlib_vendor STATIC "${WINTOASTLIB_VENDOR_DIR}/wintoastlib.cpp")
-    target_include_directories(wintoastlib_vendor PUBLIC "${WINTOASTLIB_VENDOR_DIR}")
-    add_library(wintoastlib::wintoastlib ALIAS wintoastlib_vendor)
-
-    execute_process(
-        COMMAND nuget restore "${CMAKE_SOURCE_DIR}/packages.config"
-                -PackagesDirectory "${CMAKE_SOURCE_DIR}/packages"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        RESULT_VARIABLE NUGET_RESULT
-    )
-    if(NOT NUGET_RESULT EQUAL 0)
-        message(FATAL_ERROR "NuGet restore failed")
-    endif()
-
-    if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
-        set(ARCH_DIR "arm64")
-    elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
-        set(ARCH_DIR "x64")
-    else()
-        set(ARCH_DIR "x64")
-    endif()
-
-    set(WEBVIEW2_VERSION "1.0.3856.49" CACHE STRING "WebView2 version")
-    set(WEBVIEW2_BASE_DIR "")
-    set(WEBVIEW2_BASE_DIR_CANDIDATES
-        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native"
-        "$ENV{USERPROFILE}/.nuget/packages/microsoft.web.webview2/${WEBVIEW2_VERSION}/build/native"
-    )
-    foreach(_cand IN LISTS WEBVIEW2_BASE_DIR_CANDIDATES)
-        if(EXISTS "${_cand}/include/WebView2.h")
-            set(WEBVIEW2_BASE_DIR "${_cand}")
-            break()
-        endif()
-    endforeach()
-    if(NOT WEBVIEW2_BASE_DIR)
-        message(FATAL_ERROR "WebView2 headers not found")
-    endif()
-
-    add_library(webview2::sdk INTERFACE IMPORTED)
-    set_target_properties(webview2::sdk PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${WEBVIEW2_BASE_DIR}/include"
-        INTERFACE_LINK_LIBRARIES "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib"
-    )
-
-    set(WINIMPL_VERSION "1.0.260126.7" CACHE STRING "Windows Implementation Library version")
-    set(WINIMPL_INCLUDE_DIR "")
-    set(WINIMPL_BASE_DIR_CANDIDATES
-        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}"
-        "$ENV{USERPROFILE}/.nuget/packages/microsoft.windows.implementationlibrary/${WINIMPL_VERSION}"
-    )
-    foreach(_cand IN LISTS WINIMPL_BASE_DIR_CANDIDATES)
-        if(EXISTS "${_cand}/include/wil/com.h")
-            set(WINIMPL_INCLUDE_DIR "${_cand}/include")
-            break()
-        elseif(EXISTS "${_cand}/build/native/include/wil/com.h")
-            set(WINIMPL_INCLUDE_DIR "${_cand}/build/native/include")
-            break()
-        endif()
-    endforeach()
-    if(NOT WINIMPL_INCLUDE_DIR)
-        message(FATAL_ERROR "WIL headers not found")
-    endif()
-
-    add_library(wil::headers INTERFACE IMPORTED)
-    set_target_properties(wil::headers PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${WINIMPL_INCLUDE_DIR}"
-    )
-endif ()
+include("${CMAKE_SOURCE_DIR}/cmake/NativeDependencies.cmake")
+infiniframe_setup_dependencies()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
@@ -180,17 +88,9 @@ if(WIN32)
         ${HEADER_FILES}
     )
 
-    if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
-        set(OUTPUT_ARCH_DIR "arm64")
-    elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
-        set(OUTPUT_ARCH_DIR "x64")
-    else()
-        set(OUTPUT_ARCH_DIR "x64")
-    endif()
-
     set_target_properties(${PROJECT_NAME} PROPERTIES
         OUTPUT_NAME "InfiniFrame.Native"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${INFINIFRAME_WINDOWS_OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
     )
 
     target_include_directories(${PROJECT_NAME} PRIVATE
@@ -239,7 +139,7 @@ if(WIN32)
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2Loader.dll"
+        "${INFINIFRAME_WEBVIEW2_BASE_DIR}/${INFINIFRAME_WINDOWS_ARCH_DIR}/WebView2Loader.dll"
         "$<TARGET_FILE_DIR:${PROJECT_NAME}>/WebView2Loader.dll"
         COMMENT "Copying WebView2Loader.dll"
     )
