@@ -53,6 +53,16 @@ At a high level, `infiniframe-pack publish` runs this pipeline:
 
 From the repository root:
 
+```powershell
+.\src\InfiniFrame.Tools.Pack\install-or-update-pack-tool.ps1
+```
+
+```bash
+bash ./src/InfiniFrame.Tools.Pack/install-or-update-pack-tool.sh
+```
+
+Manual alternative:
+
 ```bash
 dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
 dotnet tool install --local --add-source ./src/InfiniFrame.Tools.Pack/bin/Release InfiniLore.InfiniFrame.Tools.Pack
@@ -142,6 +152,16 @@ If your project runs packaging from an MSBuild target (for example with `$(Infin
 must be available on the machine first.
 
 For repo development, build and install from `src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj`:
+
+```powershell
+.\src\InfiniFrame.Tools.Pack\install-or-update-pack-tool.ps1
+```
+
+```bash
+bash ./src/InfiniFrame.Tools.Pack/install-or-update-pack-tool.sh
+```
+
+Manual alternative:
 
 ```bash
 dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
