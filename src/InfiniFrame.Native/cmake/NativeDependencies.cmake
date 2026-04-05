@@ -17,7 +17,6 @@
 # Variables exported to parent scope (Windows only):
 # - `INFINIFRAME_WEBVIEW2_BASE_DIR`
 # - `INFINIFRAME_WINDOWS_ARCH_DIR`
-# - `INFINIFRAME_WINDOWS_OUTPUT_ARCH_DIR`
 
 # Resolve the first base directory candidate that contains a required relative path.
 # Usage:
@@ -99,13 +98,10 @@ function(infiniframe_setup_dependencies)
 
     if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
         set(_win_arch_dir "arm64")
-        set(_win_output_arch_dir "arm64")
     elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
         set(_win_arch_dir "x64")
-        set(_win_output_arch_dir "x64")
     else()
         set(_win_arch_dir "x64")
-        set(_win_output_arch_dir "x64")
     endif()
 
     set(_packages_config_path "${CMAKE_SOURCE_DIR}/packages.config")
@@ -157,5 +153,4 @@ function(infiniframe_setup_dependencies)
 
     set(INFINIFRAME_WEBVIEW2_BASE_DIR "${_webview2_base_dir}" PARENT_SCOPE)
     set(INFINIFRAME_WINDOWS_ARCH_DIR "${_win_arch_dir}" PARENT_SCOPE)
-    set(INFINIFRAME_WINDOWS_OUTPUT_ARCH_DIR "${_win_output_arch_dir}" PARENT_SCOPE)
 endfunction()
