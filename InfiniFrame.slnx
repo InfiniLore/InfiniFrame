@@ -15,11 +15,11 @@
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/dependabot.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/run-pack-publish/">
-    <File Path=".github/actions/run-pack-publish/action.yml" />
+  <Folder Name="/.dev-tools/github/actions/packtool-publish/">
+    <File Path=".github/actions/packtool-publish/action.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/setup-pack-tool/">
-    <File Path=".github/actions/setup-pack-tool/action.yml" />
+  <Folder Name="/.dev-tools/github/actions/packtool-setup/">
+    <File Path=".github/actions/packtool-setup/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check-finalize/">
     <File Path=".github/actions/sync-check-finalize/action.yml" />
@@ -27,8 +27,8 @@
   <Folder Name="/.dev-tools/github/actions/sync-check/">
     <File Path=".github/actions/sync-check/action.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/validate-pack-output/">
-    <File Path=".github/actions/validate-pack-output/action.yml" />
+  <Folder Name="/.dev-tools/github/actions/packtool-validate/">
+    <File Path=".github/actions/packtool-validate/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/scripts/">
     <File Path=".github/scripts/bump_version.py" />

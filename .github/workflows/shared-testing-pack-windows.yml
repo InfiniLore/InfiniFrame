@@ -18,7 +18,7 @@ on:
 
 jobs:
     pack-tool-e2e:
-        name: Pack Tool E2E (${{ matrix.arch }})
+        name: Windows Pack Tool E2E (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -105,11 +105,11 @@ jobs:
 
             -   name: Setup Pack Tool
                 # noinspection UndefinedAction
-                uses: ./.github/actions/setup-pack-tool
+                uses: ./.github/actions/packtool-setup
 
             -   name: Run Pack Tool
                 # noinspection UndefinedAction
-                uses: ./.github/actions/run-pack-publish
+                uses: ./.github/actions/packtool-publish
                 # noinspection UndefinedParamsPresent
                 with:
                     project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
@@ -118,11 +118,17 @@ jobs:
 
             -   name: Validate Packed Output
                 # noinspection UndefinedAction
-                uses: ./.github/actions/validate-pack-output
+                uses: ./.github/actions/packtool-validate
                 # noinspection UndefinedParamsPresent
                 with:
                     output-dir: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
                     main-output-name: InfiniFrameExample.SingleFileExe.exe
+                    forbidden-entries: |
+                        wwwroot
+                        InfiniFrame.Native.dll
+                        WebView2Loader.dll
+                        InfiniFrame.Native.so
+                        InfiniFrame.Native.dylib
 
             -   name: Update Pack Check
                 if: always()

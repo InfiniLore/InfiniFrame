@@ -14,27 +14,34 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Pack tool project
-      shell: pwsh
+    - name: Build tool project
+      shell: bash
       run: |
-        dotnet pack "${{ inputs['tool-project'] }}" -c Release --no-restore -o "${{ inputs['package-output'] }}"
+        dotnet build "${{ inputs['tool-project'] }}" -c Release --no-restore
+
+    - name: Pack tool project
+      shell: bash
+      run: |
+        dotnet pack "${{ inputs['tool-project'] }}" -c Release --no-build --no-restore -o "${{ inputs['package-output'] }}"
 
     - name: Install or update global tool
-      shell: pwsh
+      shell: bash
       run: |
-        try {
+        if dotnet tool list --global | grep -q "InfiniLore.InfiniFrame.Tools.Pack"; then
           dotnet tool update --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
-        }
-        catch {
+        else
           dotnet tool install --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
-        }
+        fi
 
     - name: Add global tools path
-      shell: pwsh
+      shell: bash
       run: |
-        "$HOME/.dotnet/tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+        if [ -n "${USERPROFILE:-}" ]; then
+          echo "$USERPROFILE/.dotnet/tools" >> "$GITHUB_PATH"
+        fi
 
     - name: Verify tool command
-      shell: pwsh
+      shell: bash
       run: |
         infiniframe-pack --help

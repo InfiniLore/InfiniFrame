@@ -28,11 +28,12 @@ runs:
   using: composite
   steps:
     - name: Run pack publish
-      shell: pwsh
+      shell: bash
       run: |
-        infiniframe-pack publish "${{ inputs.project }}" `
-          --rid "${{ inputs.rid }}" `
-          --configuration "${{ inputs.configuration }}" `
-          --framework "${{ inputs.framework }}" `
-          --self-contained "${{ inputs['self-contained'] }}" `
+        set -euo pipefail
+        infiniframe-pack publish "${{ inputs.project }}" \
+          --rid "${{ inputs.rid }}" \
+          --configuration "${{ inputs.configuration }}" \
+          --framework "${{ inputs.framework }}" \
+          --self-contained "${{ inputs['self-contained'] }}" \
           --output "${{ inputs.output }}"
