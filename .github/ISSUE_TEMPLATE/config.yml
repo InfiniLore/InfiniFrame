@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/InfiniLore/InfiniFrame/discussions
+    about: Ask questions, share ideas, or start discussions
+
+  - name: 💬 Discord Community
+    url: https://discord.gg/DBCkxGcAQm
+    about: Get real-time help from the community
