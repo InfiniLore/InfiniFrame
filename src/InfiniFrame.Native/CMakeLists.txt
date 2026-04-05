@@ -48,6 +48,70 @@ if (WIN32)
     add_library(wintoastlib_vendor STATIC "${WINTOASTLIB_VENDOR_DIR}/wintoastlib.cpp")
     target_include_directories(wintoastlib_vendor PUBLIC "${WINTOASTLIB_VENDOR_DIR}")
     add_library(wintoastlib::wintoastlib ALIAS wintoastlib_vendor)
+
+    execute_process(
+        COMMAND nuget restore "${CMAKE_SOURCE_DIR}/packages.config"
+                -PackagesDirectory "${CMAKE_SOURCE_DIR}/packages"
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        RESULT_VARIABLE NUGET_RESULT
+    )
+    if(NOT NUGET_RESULT EQUAL 0)
+        message(FATAL_ERROR "NuGet restore failed")
+    endif()
+
+    if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
+        set(ARCH_DIR "arm64")
+    elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
+        set(ARCH_DIR "x64")
+    else()
+        set(ARCH_DIR "x64")
+    endif()
+
+    set(WEBVIEW2_VERSION "1.0.3856.49" CACHE STRING "WebView2 version")
+    set(WEBVIEW2_BASE_DIR "")
+    set(WEBVIEW2_BASE_DIR_CANDIDATES
+        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native"
+        "$ENV{USERPROFILE}/.nuget/packages/microsoft.web.webview2/${WEBVIEW2_VERSION}/build/native"
+    )
+    foreach(_cand IN LISTS WEBVIEW2_BASE_DIR_CANDIDATES)
+        if(EXISTS "${_cand}/include/WebView2.h")
+            set(WEBVIEW2_BASE_DIR "${_cand}")
+            break()
+        endif()
+    endforeach()
+    if(NOT WEBVIEW2_BASE_DIR)
+        message(FATAL_ERROR "WebView2 headers not found")
+    endif()
+
+    add_library(webview2::sdk INTERFACE IMPORTED)
+    set_target_properties(webview2::sdk PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${WEBVIEW2_BASE_DIR}/include"
+        INTERFACE_LINK_LIBRARIES "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib"
+    )
+
+    set(WINIMPL_VERSION "1.0.260126.7" CACHE STRING "Windows Implementation Library version")
+    set(WINIMPL_INCLUDE_DIR "")
+    set(WINIMPL_BASE_DIR_CANDIDATES
+        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}"
+        "$ENV{USERPROFILE}/.nuget/packages/microsoft.windows.implementationlibrary/${WINIMPL_VERSION}"
+    )
+    foreach(_cand IN LISTS WINIMPL_BASE_DIR_CANDIDATES)
+        if(EXISTS "${_cand}/include/wil/com.h")
+            set(WINIMPL_INCLUDE_DIR "${_cand}/include")
+            break()
+        elseif(EXISTS "${_cand}/build/native/include/wil/com.h")
+            set(WINIMPL_INCLUDE_DIR "${_cand}/build/native/include")
+            break()
+        endif()
+    endforeach()
+    if(NOT WINIMPL_INCLUDE_DIR)
+        message(FATAL_ERROR "WIL headers not found")
+    endif()
+
+    add_library(wil::headers INTERFACE IMPORTED)
+    set_target_properties(wil::headers PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${WINIMPL_INCLUDE_DIR}"
+    )
 endif ()
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -116,24 +180,11 @@ if(WIN32)
         ${HEADER_FILES}
     )
 
-    execute_process(
-        COMMAND nuget restore "${CMAKE_SOURCE_DIR}/packages.config" 
-                -PackagesDirectory "${CMAKE_SOURCE_DIR}/packages"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        RESULT_VARIABLE NUGET_RESULT
-    )
-    if(NOT NUGET_RESULT EQUAL 0)
-        message(FATAL_ERROR "NuGet restore failed")
-    endif()
-
     if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
-        set(ARCH_DIR "arm64")
         set(OUTPUT_ARCH_DIR "arm64")
     elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
-        set(ARCH_DIR "x64")
         set(OUTPUT_ARCH_DIR "x64")
     else()
-        set(ARCH_DIR "x64")
         set(OUTPUT_ARCH_DIR "x64")
     endif()
 
@@ -142,56 +193,17 @@ if(WIN32)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${OUTPUT_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
     )
 
-    set(WEBVIEW2_VERSION "1.0.3856.49" CACHE STRING "WebView2 version")
-    
-    set(WEBVIEW2_BASE_DIR "")
-    set(WEBVIEW2_BASE_DIR_CANDIDATES
-        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${WEBVIEW2_VERSION}/build/native"
-        "$ENV{USERPROFILE}/.nuget/packages/microsoft.web.webview2/${WEBVIEW2_VERSION}/build/native"
-    )
-    foreach(_cand IN LISTS WEBVIEW2_BASE_DIR_CANDIDATES)
-        if(EXISTS "${_cand}/include/WebView2.h")
-            set(WEBVIEW2_BASE_DIR "${_cand}")
-            break()
-        endif()
-    endforeach()
-
-    if(NOT WEBVIEW2_BASE_DIR)
-        message(FATAL_ERROR "WebView2 headers not found")
-    endif()
-
-    set(WINIMPL_VERSION "1.0.260126.7" CACHE STRING "Windows Implementation Library version")
-    set(WINIMPL_INCLUDE_DIR "")
-    set(WINIMPL_BASE_DIR_CANDIDATES
-        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${WINIMPL_VERSION}"
-        "$ENV{USERPROFILE}/.nuget/packages/microsoft.windows.implementationlibrary/${WINIMPL_VERSION}"
-    )
-    foreach(_cand IN LISTS WINIMPL_BASE_DIR_CANDIDATES)
-        if(EXISTS "${_cand}/include/wil/com.h")
-            set(WINIMPL_INCLUDE_DIR "${_cand}/include")
-            break()
-        elseif(EXISTS "${_cand}/build/native/include/wil/com.h")
-            set(WINIMPL_INCLUDE_DIR "${_cand}/build/native/include")
-            break()
-        endif()
-    endforeach()
-
-    if(NOT WINIMPL_INCLUDE_DIR)
-        message(FATAL_ERROR "WIL headers not found")
-    endif()
-
     target_include_directories(${PROJECT_NAME} PRIVATE
         "${CMAKE_SOURCE_DIR}"
-        "${WEBVIEW2_BASE_DIR}/include"
-        "${WINIMPL_INCLUDE_DIR}"
     )
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
         simdutf::simdutf
         wintoastlib::wintoastlib
+        webview2::sdk
+        wil::headers
         kernel32 user32 gdi32 winspool comdlg32 advapi32
         shell32 ole32 oleaut32 uuid odbc32 odbccp32 shlwapi shcore
-        "${WEBVIEW2_BASE_DIR}/${ARCH_DIR}/WebView2LoaderStatic.lib"
     )
 
     target_compile_definitions(${PROJECT_NAME} PRIVATE
