@@ -46,8 +46,11 @@ internal static class MonitorsUtility {
             double windowFraction = windowArea > 0 ? (double)overlap / windowArea : 0.0;
 
             // choose the monitor with the highest fraction (tie-break: larger absolute overlap)
-            if (!(windowFraction > bestWindowFraction) && (!(Math.Abs(windowFraction - bestWindowFraction) < double.Epsilon) || overlap <= bestOverlap)) continue;
-
+            bool isBetter = windowFraction > bestWindowFraction 
+                || Math.Abs(windowFraction - bestWindowFraction) < double.Epsilon 
+                && overlap > bestOverlap;
+            if (!isBetter) continue;
+            
             bestWindowFraction = windowFraction;
             bestOverlap = overlap;
             bestIndex = i;
@@ -68,7 +71,7 @@ internal static class MonitorsUtility {
             double dx = monitorCenter.X - windowCenter.X;
             double dy = monitorCenter.Y - windowCenter.Y;
             double distSq = dx * dx + dy * dy;
-            if (!(distSq < bestDistSq)) continue;
+            if (distSq >= bestDistSq) continue;
 
             bestDistSq = distSq;
             monitor = m;
