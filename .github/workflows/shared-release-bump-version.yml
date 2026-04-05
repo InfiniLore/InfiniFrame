@@ -23,6 +23,8 @@ jobs:
     bump-version:
         name: Bump Version
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
         outputs:
             new_version: ${{ steps.bump.outputs.version }}
             tag_name: ${{ steps.bump.outputs.tag }}
