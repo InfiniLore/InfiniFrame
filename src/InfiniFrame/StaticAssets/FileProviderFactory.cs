@@ -26,7 +26,7 @@ public static class FileProviderFactory {
         if (!includePhysicalFallback) return provider;
 
         string fallbackPath = physicalWwwrootPath
-            ?? Path.Combine(AppContext.BaseDirectory, "wwwroot");
+            ?? Path.Join(AppContext.BaseDirectory, "wwwroot");
 
         if (!Directory.Exists(fallbackPath)) return provider;
 

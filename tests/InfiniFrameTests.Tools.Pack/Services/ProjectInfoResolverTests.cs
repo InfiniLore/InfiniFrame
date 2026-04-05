@@ -31,7 +31,7 @@ public class ProjectInfoResolverTests {
     [Test]
     public async Task ResolveFramework_ReturnsTargetFramework_WhenDefined() {
         // Arrange
-        string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
+        string projectPath = Path.Join(TemporaryDirectory.Path, "App.csproj");
         await File.WriteAllTextAsync(projectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
@@ -50,7 +50,7 @@ public class ProjectInfoResolverTests {
     [Test]
     public async Task ResolveFramework_ReturnsFirstTargetFramework_WhenMultipleAreDefined() {
         // Arrange
-        string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
+        string projectPath = Path.Join(TemporaryDirectory.Path, "App.csproj");
         await File.WriteAllTextAsync(projectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
@@ -69,7 +69,7 @@ public class ProjectInfoResolverTests {
     [Test]
     public async Task ResolveFramework_Throws_WhenNoTargetFrameworkIsDefined() {
         // Arrange
-        string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
+        string projectPath = Path.Join(TemporaryDirectory.Path, "App.csproj");
         await File.WriteAllTextAsync(projectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
@@ -89,7 +89,7 @@ public class ProjectInfoResolverTests {
     [Test]
     public async Task ResolveAssemblyName_ReturnsAssemblyName_WhenDefined() {
         // Arrange
-        string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
+        string projectPath = Path.Join(TemporaryDirectory.Path, "App.csproj");
         await File.WriteAllTextAsync(projectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
@@ -108,7 +108,7 @@ public class ProjectInfoResolverTests {
     [Test]
     public async Task ResolveAssemblyName_ReturnsProjectFileName_WhenAssemblyNameIsMissing() {
         // Arrange
-        string projectPath = Path.Combine(TemporaryDirectory.Path, "MyApp.csproj");
+        string projectPath = Path.Join(TemporaryDirectory.Path, "MyApp.csproj");
         await File.WriteAllTextAsync(projectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>

@@ -35,7 +35,7 @@ internal sealed class TempTargetsFile : IDisposable {
     /// </summary>
     /// <returns>A disposable handle for the created targets file.</returns>
     public static TempTargetsFile Create() {
-        string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"infiniframe-pack-{Guid.NewGuid():N}.targets");
+        string path = System.IO.Path.Join(System.IO.Path.GetTempPath(), $"infiniframe-pack-{Guid.NewGuid():N}.targets");
         File.WriteAllText(path, BuildContents());
 
         return new TempTargetsFile {

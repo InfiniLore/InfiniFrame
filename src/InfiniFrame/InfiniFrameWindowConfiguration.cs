@@ -37,7 +37,7 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     public bool SmoothScrollingEnabled { get; set; } = true;
     public string? StartString { get; set; }
     public string? StartUrl { get; set; }
-    public string? TemporaryFilesPath { get; set; } = Path.Combine(Path.GetTempPath(), "infiniframe");
+    public string? TemporaryFilesPath { get; set; } = Path.Join(Path.GetTempPath(), "infiniframe");
     public string Title { get; set; } = "InfiniFrame";
     public int Top { get; set; }
     public bool TopMost { get; set; }

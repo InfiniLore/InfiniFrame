@@ -15,7 +15,7 @@ internal static class OutputPathSafety {
             throw new InvalidOperationException($"Refusing to delete root directory '{fullPath}'.");
         }
 
-        string projectBinDirectory = Path.GetFullPath(Path.Combine(projectDirectory, "bin"));
+        string projectBinDirectory = Path.GetFullPath(Path.Join(projectDirectory, "bin"));
         if (IsUnderDirectory(fullPath, projectBinDirectory)) return;
 
         if (!forceCleanOutput) {
