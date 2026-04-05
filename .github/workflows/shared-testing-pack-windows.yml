@@ -1,0 +1,161 @@
+name: "Shared: Pack Tool E2E Windows"
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                required: true
+            checkout_ref:
+                type: string
+                required: false
+                default: ''
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+jobs:
+    pack-tool-e2e:
+        name: Pack Tool E2E
+        runs-on: windows-latest
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        permissions:
+            contents: read
+            statuses: write
+            checks: write
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Set Pack Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Pack Tool
+                    state: pending
+                    status-description: Pack tool end-to-end validation in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+
+            -   name: Setup .NET
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache NuGet
+                uses: actions/cache@v5
+                with:
+                    path: ~\.nuget\packages
+                    key: ${{ runner.os }}-pack-e2e-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-pack-e2e-nuget-
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+                with:
+                    cmakeVersion: "4.0.0"
+
+            -   name: Cache CMake build
+                uses: actions/cache@v5
+                with:
+                    path: src\InfiniFrame.Native\build
+                    key: ${{ runner.os }}-pack-e2e-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
+                    restore-keys: |
+                        ${{ runner.os }}-pack-e2e-cmake-
+
+            -   name: Restore
+                run: |
+                    dotnet restore src/InfiniFrame.Native/InfiniFrame.Native.proj /p:NoWarn=NU1503
+                    dotnet restore src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj /p:NoWarn=NU1503
+                    dotnet restore examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj /p:NoWarn=NU1503
+
+            -   name: Build Native Runtime (win-x64)
+                run: |
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
+                      --configuration Release `
+                      --no-restore `
+                      -p:SolutionDir="${{ github.workspace }}/" `
+                      -p:Platform=x64
+
+            -   name: Build and Install Pack Tool
+                shell: pwsh
+                run: |
+                    $source = Join-Path $env:GITHUB_WORKSPACE "artifacts\dotnet-tools"
+                    dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release --no-restore -o $source
+
+                    try {
+                      dotnet tool update --global InfiniLore.InfiniFrame.Tools.Pack --add-source $source --ignore-failed-sources
+                    }
+                    catch {
+                      dotnet tool install --global InfiniLore.InfiniFrame.Tools.Pack --add-source $source --ignore-failed-sources
+                    }
+
+                    $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
+                    infiniframe-pack --help
+
+            -   name: Run Pack Tool
+                shell: pwsh
+                run: |
+                    $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
+                    infiniframe-pack publish "examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj" `
+                      --rid win-x64 `
+                      --configuration Release `
+                      --framework net10.0 `
+                      --self-contained true `
+                      --output "artifacts/pack-e2e/InfiniFrameExample.SingleFileExe"
+
+            -   name: Validate Packed Output
+                shell: pwsh
+                run: |
+                    $publishDir = "artifacts/pack-e2e/InfiniFrameExample.SingleFileExe"
+                    $mainOutput = Join-Path $publishDir "InfiniFrameExample.SingleFileExe.exe"
+
+                    if (-not (Test-Path $mainOutput -PathType Leaf)) {
+                      throw "Expected single-file output is missing: $mainOutput"
+                    }
+
+                    $unexpectedEntries = Get-ChildItem -Path $publishDir -Force | Where-Object { $_.Name -ne "InfiniFrameExample.SingleFileExe.exe" }
+                    if ($unexpectedEntries.Count -gt 0) {
+                      $names = ($unexpectedEntries | Select-Object -ExpandProperty Name) -join ", "
+                      throw "Publish output shape invalid. Unexpected entries: $names"
+                    }
+
+                    foreach ($forbidden in @("wwwroot", "InfiniFrame.Native.dll", "WebView2Loader.dll", "InfiniFrame.Native.so", "InfiniFrame.Native.dylib")) {
+                      if (Test-Path (Join-Path $publishDir $forbidden)) {
+                        throw "Found unpacked payload in publish output: $forbidden"
+                      }
+                    }
+
+                    Write-Host "Pack output validated successfully."
+
+            -   name: Update Pack Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Pack Tool
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: Pack tool end-to-end validation passed
+                    failure-description: Pack tool end-to-end validation failed

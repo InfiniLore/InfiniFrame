@@ -32,6 +32,10 @@ on:
                 description: 'Run docs validation'
                 type: boolean
                 default: true
+            run_pack:
+                description: 'Run pack tool end-to-end validation'
+                type: boolean
+                default: true
 
 jobs:
     # noinspection UndefinedAction
@@ -51,4 +55,5 @@ jobs:
             run_linux: ${{ inputs.run_linux }}
             run_macos: ${{ inputs.run_macos }}
             run_docs: ${{ inputs.run_docs }}
+            run_pack: ${{ inputs.run_pack }}
         secrets: inherit

@@ -53,6 +53,7 @@ jobs:
             run_linux: true
             run_macos: true
             run_docs: true
+            run_pack: true
         secrets: inherit
 
     # ------------------------------------------------------------------------------------------------------------------
