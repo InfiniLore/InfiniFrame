@@ -44,3 +44,4 @@ Options:
 - `--output <path>`
 - `--no-restore`
 - `--verbose`
+- `--force-clean-output` (warning: allows recursive deletion of non-default output directories)
