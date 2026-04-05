@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.ComponentModel;
 using static InfiniFrame.Js.Utilities.RegisterWindowCreatedUtility;
 
 namespace InfiniFrame.Js.MessageHandlers;
@@ -32,8 +33,14 @@ public static class OpenExternalTargetWebMessageHandler {
             };
             Process.Start(psi);
         }
-        catch (Exception ex) {
-            window.Logger.LogError("Failed to open external: {ex}", ex);
+        catch (Win32Exception ex) {
+            window.Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
+        }
+        catch (InvalidOperationException ex) {
+            window.Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
+        }
+        catch (PlatformNotSupportedException ex) {
+            window.Logger.LogError(ex, "Failed to open external URL: {Uri}", uri);
         }
     }
 }

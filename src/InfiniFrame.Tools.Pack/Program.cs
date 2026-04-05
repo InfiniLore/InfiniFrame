@@ -36,9 +36,12 @@ internal static class Program {
             await Console.Error.WriteLineAsync($"[InfiniFrame.Pack] ERROR: {ex.Message}");
             return NativeDependencyMissingExitCode;
         }
-        catch (Exception ex) {
+        catch (Exception ex) when (IsNonFatalException(ex)) {
             await Console.Error.WriteLineAsync($"[InfiniFrame.Pack] ERROR: {ex.Message}");
             return GenericFailureExitCode;
         }
     }
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
 }

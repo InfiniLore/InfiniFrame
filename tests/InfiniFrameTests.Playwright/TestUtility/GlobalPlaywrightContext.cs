@@ -64,7 +64,10 @@ public static class GlobalPlaywrightContext {
         try {
             Browser?.CloseAsync().GetAwaiter().GetResult();
         }
-        catch {
+        catch (PlaywrightException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
             // ignored
         }
 

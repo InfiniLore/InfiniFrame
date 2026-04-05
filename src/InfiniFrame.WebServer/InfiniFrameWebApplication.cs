@@ -61,7 +61,7 @@ public class InfiniFrameWebApplication {
 
                     _webAppThread.Interrupt();
                 }
-                catch (Exception e) {
+                catch (Exception e) when (IsNonFatalException(e)) {
                     Window.Logger.LogError(e, "Error stopping web app");
                 }
             });
@@ -87,4 +87,7 @@ public class InfiniFrameWebApplication {
             _webAppThread.Interrupt();
         }
     }
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
 }

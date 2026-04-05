@@ -21,7 +21,16 @@ internal sealed class TempTargetsFile : IDisposable {
         try {
             if (File.Exists(Path)) File.Delete(Path);
         }
-        catch {
+        catch (IOException) {
+            // no-op
+        }
+        catch (UnauthorizedAccessException) {
+            // no-op
+        }
+        catch (NotSupportedException) {
+            // no-op
+        }
+        catch (ArgumentException) {
             // no-op
         }
     }

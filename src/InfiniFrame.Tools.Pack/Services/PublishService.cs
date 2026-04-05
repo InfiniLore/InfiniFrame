@@ -115,6 +115,7 @@ internal static class PublishService {
         string preflightDirectory = Path.Join(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
         Directory.CreateDirectory(preflightDirectory);
 
+        var preflightValidated = false;
         try {
             int preflightExitCode = await ProcessRunner.RunAsync(DotNet,
                 BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true));
@@ -125,6 +126,7 @@ internal static class PublishService {
 
             try {
                 NativeRuntimeBuilder.ValidateArtifacts(preflightDirectory, rid);
+                preflightValidated = true;
                 return new ResolvedNativeArtifacts(preflightDirectory, true);
             }
             catch (InvalidOperationException preflightValidationError) {
@@ -136,9 +138,8 @@ internal static class PublishService {
                 );
             }
         }
-        catch {
-            if (Directory.Exists(preflightDirectory)) Directory.Delete(preflightDirectory, true);
-            throw;
+        finally {
+            if (!preflightValidated && Directory.Exists(preflightDirectory)) Directory.Delete(preflightDirectory, true);
         }
     }
 

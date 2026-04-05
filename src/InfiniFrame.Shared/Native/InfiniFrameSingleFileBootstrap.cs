@@ -42,6 +42,7 @@ public static class InfiniFrameSingleFileBootstrap {
             _nativeDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "native",
                 entryAssembly.GetName().Name ?? "app", rid, version, uniqueId);
 
+            var initialized = false;
             try {
                 Directory.CreateDirectory(_nativeDir);
                 ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
@@ -49,10 +50,10 @@ public static class InfiniFrameSingleFileBootstrap {
 
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => TryCleanupNativeDirectory();
                 _initialized = 1;
+                initialized = true;
             }
-            catch {
-                _nativeDir = null;
-                throw;
+            finally {
+                if (!initialized) _nativeDir = null;
             }
         }
     }
@@ -89,7 +90,13 @@ public static class InfiniFrameSingleFileBootstrap {
         try {
             NativeLibrary.Load(dependencyPath);
         }
-        catch {
+        catch (DllNotFoundException) {
+            // Keep resolver non-fatal; the primary load surfaces detailed errors.
+        }
+        catch (BadImageFormatException) {
+            // Keep resolver non-fatal; the primary load surfaces detailed errors.
+        }
+        catch (FileLoadException) {
             // Keep resolver non-fatal; the primary load surfaces detailed errors.
         }
     }
@@ -146,7 +153,10 @@ public static class InfiniFrameSingleFileBootstrap {
         try {
             if (Directory.Exists(_nativeDir)) Directory.Delete(_nativeDir, true);
         }
-        catch {
+        catch (IOException) {
+            // Best-effort cleanup.
+        }
+        catch (UnauthorizedAccessException) {
             // Best-effort cleanup.
         }
     }

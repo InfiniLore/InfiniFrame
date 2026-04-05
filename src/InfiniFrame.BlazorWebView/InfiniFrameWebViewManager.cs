@@ -110,7 +110,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     protected override ValueTask DisposeAsyncCore() {
         //complete channel
         try { _channel.Writer.Complete(); }
-        catch {
+        catch (ChannelClosedException) {
             // ignored
         }
 

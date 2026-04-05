@@ -14,7 +14,10 @@ internal sealed class TemporaryDirectory : IDisposable {
         try {
             Directory.Delete(Path, true);
         }
-        catch {
+        catch (IOException) {
+            // no-op
+        }
+        catch (UnauthorizedAccessException) {
             // no-op
         }
     }

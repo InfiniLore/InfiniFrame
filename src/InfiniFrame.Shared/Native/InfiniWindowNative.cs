@@ -35,7 +35,10 @@ public static class InfiniWindowNative {
             // and should manage its lifetime, or you need a corresponding delete call
             return result;
         }
-        catch (Exception ex) {
+        catch (ArgumentException ex) {
+            throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
+        }
+        catch (InvalidOperationException ex) {
             throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
         }
     }

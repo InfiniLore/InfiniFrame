@@ -64,7 +64,7 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
 
                 app.WebApp.StopAsync(cancellationToken).GetAwaiter().GetResult();
             }
-            catch (Exception ex) {
+            catch (Exception ex) when (IsNonFatalException(ex)) {
                 ready.TrySetException(ex);
             }
         }) {
@@ -89,18 +89,27 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
         try {
             Window.Close();
         }
-        catch {
+        catch (ApplicationException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
             // ignored
         }
 
         try {
             WebApplication.StopAsync().GetAwaiter().GetResult();
         }
-        catch {
+        catch (OperationCanceledException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
             // ignored
         }
 
         if (!_thread.Join(TimeSpan.FromSeconds(5)))
             _thread.Interrupt();
     }
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
 }
