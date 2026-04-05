@@ -33,4 +33,30 @@ catch {
     Write-Host "[InfiniFrame.Tools.Pack] Installed $packageId ($packageVersion)."
 }
 
+$globalToolsDir = Join-Path $env:USERPROFILE ".dotnet\tools"
+$currentPathEntries = $env:PATH -split ';'
+if ($currentPathEntries -notcontains $globalToolsDir) {
+    $env:PATH = "$env:PATH;$globalToolsDir"
+    Write-Host "[InfiniFrame.Tools.Pack] Added $globalToolsDir to current session PATH."
+}
+
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+$userPathEntries = @()
+if (-not [string]::IsNullOrWhiteSpace($userPath)) {
+    $userPathEntries = $userPath -split ';'
+}
+
+if ($userPathEntries -notcontains $globalToolsDir) {
+    $newUserPath = if ([string]::IsNullOrWhiteSpace($userPath)) {
+        $globalToolsDir
+    }
+    else {
+        "$userPath;$globalToolsDir"
+    }
+
+    [Environment]::SetEnvironmentVariable("Path", $newUserPath, "User")
+    Write-Host "[InfiniFrame.Tools.Pack] Added $globalToolsDir to user PATH."
+    Write-Host "[InfiniFrame.Tools.Pack] Restart your terminal/IDE so new processes pick up the PATH change."
+}
+
 Write-Host "[InfiniFrame.Tools.Pack] Done. Command: $toolCommand"
