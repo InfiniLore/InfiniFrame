@@ -11,11 +11,13 @@ internal static class PublishOutputCleaner {
     /// </summary>
     /// <param name="output">Publish output directory.</param>
     public static void Cleanup(string output) {
-        string wwwroot = Path.Combine(output, "wwwroot");
+        string wwwroot = Path.Join(output, "wwwroot");
         if (Directory.Exists(wwwroot)) Directory.Delete(wwwroot, true);
 
-        foreach (string file in NativeRuntimeBuilder.NativeRuntimeFiles) {
-            string fullPath = Path.Combine(output, file);
+        IEnumerable<string> enumerable = NativeRuntimeBuilder.NativeRuntimeFiles
+            .Select(file => Path.IsPathRooted(file) ? file : Path.Combine(output, file));
+        
+        foreach (string fullPath in enumerable) {
             if (File.Exists(fullPath)) File.Delete(fullPath);
         }
     }

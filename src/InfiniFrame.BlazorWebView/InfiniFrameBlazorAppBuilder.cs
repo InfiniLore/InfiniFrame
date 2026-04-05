@@ -74,7 +74,7 @@ public class InfiniFrameBlazorAppBuilder {
     private static IFileProvider ConfigureFileProvider(IFileProvider? fileProvider) {
         if (fileProvider is not null) return fileProvider;
 
-        string defaultWwwrootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
+        string defaultWwwrootPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
         if (!Directory.Exists(defaultWwwrootPath)) return new NullFileProvider();
         return new PhysicalFileProvider(defaultWwwrootPath);
     }

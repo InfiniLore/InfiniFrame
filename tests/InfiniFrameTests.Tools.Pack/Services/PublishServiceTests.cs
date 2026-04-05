@@ -33,7 +33,7 @@ public class PublishServiceTests {
     public async Task PublishAsync_Throws_WhenProjectFileDoesNotExist() {
         // Arrange
         var options = new PublishOptions {
-            ProjectPath = Path.Combine(Path.GetTempPath(), $"missing-project-{Guid.NewGuid():N}.csproj"),
+            ProjectPath = Path.Join(Path.GetTempPath(), $"missing-project-{Guid.NewGuid():N}.csproj"),
             Rid = "auto",
             Configuration = "Release",
             Framework = "net10.0",
@@ -51,13 +51,13 @@ public class PublishServiceTests {
         // Arrange
         string repoRoot = TemporaryDirectory.Path;
 
-        string nativeProjectPath = Path.Combine(repoRoot, "src", "InfiniFrame.Native", "InfiniFrame.Native.proj");
+        string nativeProjectPath = Path.Join(repoRoot, "src", "InfiniFrame.Native", "InfiniFrame.Native.proj");
         Directory.CreateDirectory(Path.GetDirectoryName(nativeProjectPath)!);
         await File.WriteAllTextAsync(nativeProjectPath, "<Project></Project>");
 
-        string appDirectory = Path.Combine(repoRoot, "samples", "app");
+        string appDirectory = Path.Join(repoRoot, "samples", "app");
         Directory.CreateDirectory(appDirectory);
-        string appProjectPath = Path.Combine(appDirectory, "SampleApp.csproj");
+        string appProjectPath = Path.Join(appDirectory, "SampleApp.csproj");
         await File.WriteAllTextAsync(appProjectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
@@ -66,7 +66,7 @@ public class PublishServiceTests {
         </Project>
         """);
 
-        string outputPath = Path.Combine(repoRoot, "publish-output");
+        string outputPath = Path.Join(repoRoot, "publish-output");
         string rid = RuntimeResolver.ResolveRid("auto");
 
         var options = new PublishOptions {

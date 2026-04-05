@@ -2,28 +2,24 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
+using System.Runtime.CompilerServices;
 using static InfiniFrame.Native.NativeDll;
 
 namespace InfiniFrame.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class InfiniWindowNative {
-    #pragma warning disable SYSLIB1054
-    [DllImport(
-        DllName,
-        EntryPoint = InfiniWindowTests_NativeParametersReturnAsIs,
-        CallingConvention = CallingConvention.Cdecl,
-        SetLastError = true
-    )]
-    private static extern void NativeParametersReturnAsIs(
-        [In] ref InfiniFrameNativeParameters parameters,
+public static partial class InfiniWindowNative {
+    [LibraryImport( DllName, EntryPoint = InfiniWindowTests_NativeParametersReturnAsIs, SetLastError = true),
+     UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial void NativeParametersReturnAsIs(
+        [MarshalUsing(typeof(InfiniFrameNativeParametersMarshaller))] in InfiniFrameNativeParameters parameters,
         out IntPtr newParameters
     );
-    #pragma warning restore SYSLIB1054
 
     internal static InfiniFrameNativeParameters NativeParametersReturnAsIs(ref InfiniFrameNativeParameters parameters) {
-        NativeParametersReturnAsIs(ref parameters, out IntPtr newParametersPtr);
+        NativeParametersReturnAsIs(in parameters, out IntPtr newParametersPtr);
 
         if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
 
@@ -35,7 +31,10 @@ public static class InfiniWindowNative {
             // and should manage its lifetime, or you need a corresponding delete call
             return result;
         }
-        catch (Exception ex) {
+        catch (ArgumentException ex) {
+            throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
+        }
+        catch (InvalidOperationException ex) {
             throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
         }
     }

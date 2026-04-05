@@ -36,7 +36,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         IConfigurationSection? section = config?.GetSection("InfiniFrame");
 
         IInfiniFrameWindowConfiguration configuration = Configuration;
-        if (section.Exists()) {
+        if (section is not null && section.Exists()) {
             configuration = section.Get<InfiniFrameWindowConfiguration>() ?? Configuration;
         }
 
@@ -46,7 +46,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     private ILogger<InfiniFrameWindow> GetDefaultLogger() {
         if (!UseDefaultLogger)
             return LoggerFactory.Create(config => {
-                config.ClearProviders();// Remove default console logger
+                config.ClearProviders(); // Remove default console logger
             }).CreateLogger<InfiniFrameWindow>();
 
         return LoggerFactory.Create(config => {

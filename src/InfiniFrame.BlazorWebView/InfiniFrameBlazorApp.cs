@@ -66,11 +66,14 @@ public class InfiniFrameBlazorApp(
                 }
             }
         }
-        catch (Exception e) {
+        catch (Exception e) when (IsNonFatalException(e)) {
             var logger = ServiceProvider.GetService<ILogger<InfiniFrameBlazorApp>>();
             logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
         }
 
         GC.SuppressFinalize(this);
     }
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
 }

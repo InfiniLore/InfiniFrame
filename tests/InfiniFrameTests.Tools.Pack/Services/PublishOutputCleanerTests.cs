@@ -32,12 +32,12 @@ public class PublishOutputCleanerTests {
     public async Task Cleanup_RemovesWwwrootAndNativeRuntimeFiles_WhenTheyExist() {
         // Arrange
         string output = TemporaryDirectory.Path;
-        string wwwroot = Path.Combine(output, "wwwroot");
+        string wwwroot = Path.Join(output, "wwwroot");
 
         Directory.CreateDirectory(wwwroot);
-        await File.WriteAllTextAsync(Path.Combine(wwwroot, "index.html"), "<html></html>");
+        await File.WriteAllTextAsync(Path.Join(wwwroot, "index.html"), "<html></html>");
         foreach (string file in NativeRuntimeBuilder.NativeRuntimeFiles) {
-            await File.WriteAllTextAsync(Path.Combine(output, file), string.Empty);
+            await File.WriteAllTextAsync(Path.Join(output, file), string.Empty);
         }
 
         // Act
@@ -46,7 +46,7 @@ public class PublishOutputCleanerTests {
         // Assert
         await Assert.That(Directory.Exists(wwwroot)).IsFalse();
         foreach (string file in NativeRuntimeBuilder.NativeRuntimeFiles) {
-            await Assert.That(File.Exists(Path.Combine(output, file))).IsFalse();
+            await Assert.That(File.Exists(Path.Join(output, file))).IsFalse();
         }
     }
 

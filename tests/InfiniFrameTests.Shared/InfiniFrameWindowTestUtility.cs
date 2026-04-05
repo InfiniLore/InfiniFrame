@@ -65,7 +65,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
                 try {
                     window.WaitForClose();
                 }
-                catch {
+                catch (ApplicationException) {
                     // Ignore shutdown exceptions during test cleanup
                 }
             }) {
@@ -91,7 +91,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
                 windowSource.SetResult(window);
                 window.WaitForClose();
             }
-            catch (Exception ex) {
+            catch (Exception ex) when (IsNonFatalException(ex)) {
                 windowSource.TrySetException(ex);
             }
         }) {
@@ -120,7 +120,10 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         try {
             Window.Close();
         }
-        catch {
+        catch (ApplicationException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
             // ignored
         }
 
@@ -131,8 +134,17 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
             if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
                 _windowThread.Interrupt();
         }
-        catch {
+        catch (ThreadInterruptedException) {
+            // ignored
+        }
+        catch (ThreadStateException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
             // ignored
         }
     }
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
 }

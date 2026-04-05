@@ -39,9 +39,10 @@ public static class InfiniFrameSingleFileBootstrap {
 
             string version = entryAssembly.GetName().Version?.ToString() ?? "0.0.0";
             string uniqueId = $"{Environment.ProcessId}_{Guid.NewGuid()}";
-            _nativeDir = Path.Combine(Path.GetTempPath(), "InfiniFrame", "native",
+            _nativeDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "native",
                 entryAssembly.GetName().Name ?? "app", rid, version, uniqueId);
 
+            var initialized = false;
             try {
                 Directory.CreateDirectory(_nativeDir);
                 ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
@@ -49,10 +50,10 @@ public static class InfiniFrameSingleFileBootstrap {
 
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => TryCleanupNativeDirectory();
                 _initialized = 1;
+                initialized = true;
             }
-            catch {
-                _nativeDir = null;
-                throw;
+            finally {
+                if (!initialized) _nativeDir = null;
             }
         }
     }
@@ -70,7 +71,7 @@ public static class InfiniFrameSingleFileBootstrap {
 
         if (string.IsNullOrWhiteSpace(fileName)) return IntPtr.Zero;
 
-        string fullPath = Path.Combine(_nativeDir, fileName);
+        string fullPath = Path.Join(_nativeDir, fileName);
         if (!File.Exists(fullPath)) return IntPtr.Zero;
 
         if (libraryName == NativeDll.DllName && OperatingSystem.IsWindows()) {
@@ -83,13 +84,19 @@ public static class InfiniFrameSingleFileBootstrap {
     private static void TryPreloadDependency(string fileName) {
         if (_nativeDir is null) return;
 
-        string dependencyPath = Path.Combine(_nativeDir, fileName);
+        string dependencyPath = Path.Join(_nativeDir, fileName);
         if (!File.Exists(dependencyPath)) return;
 
         try {
             NativeLibrary.Load(dependencyPath);
         }
-        catch {
+        catch (DllNotFoundException) {
+            // Keep resolver non-fatal; the primary load surfaces detailed errors.
+        }
+        catch (BadImageFormatException) {
+            // Keep resolver non-fatal; the primary load surfaces detailed errors.
+        }
+        catch (FileLoadException) {
             // Keep resolver non-fatal; the primary load surfaces detailed errors.
         }
     }
@@ -105,7 +112,7 @@ public static class InfiniFrameSingleFileBootstrap {
                 continue;
             }
 
-            string destinationPath = Path.Combine(_nativeDir!, fileName);
+            string destinationPath = Path.Join(_nativeDir!, fileName);
 
             // Avoid overwriting existing files
             if (File.Exists(destinationPath)) continue;
@@ -146,7 +153,10 @@ public static class InfiniFrameSingleFileBootstrap {
         try {
             if (Directory.Exists(_nativeDir)) Directory.Delete(_nativeDir, true);
         }
-        catch {
+        catch (IOException) {
+            // Best-effort cleanup.
+        }
+        catch (UnauthorizedAccessException) {
             // Best-effort cleanup.
         }
     }

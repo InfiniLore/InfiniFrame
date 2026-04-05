@@ -21,7 +21,16 @@ internal sealed class TempTargetsFile : IDisposable {
         try {
             if (File.Exists(Path)) File.Delete(Path);
         }
-        catch {
+        catch (IOException) {
+            // no-op
+        }
+        catch (UnauthorizedAccessException) {
+            // no-op
+        }
+        catch (NotSupportedException) {
+            // no-op
+        }
+        catch (ArgumentException) {
             // no-op
         }
     }
@@ -35,7 +44,7 @@ internal sealed class TempTargetsFile : IDisposable {
     /// </summary>
     /// <returns>A disposable handle for the created targets file.</returns>
     public static TempTargetsFile Create() {
-        string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"infiniframe-pack-{Guid.NewGuid():N}.targets");
+        string path = System.IO.Path.Join(System.IO.Path.GetTempPath(), $"infiniframe-pack-{Guid.NewGuid():N}.targets");
         File.WriteAllText(path, BuildContents());
 
         return new TempTargetsFile {

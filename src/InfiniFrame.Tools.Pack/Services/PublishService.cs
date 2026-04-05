@@ -72,12 +72,12 @@ internal static class PublishService {
 
     private static string ResolveOutputPath(PublishOptions options, string projectDirectory, string framework, string rid) =>
         string.IsNullOrWhiteSpace(options.Output)
-            ? Path.Combine(projectDirectory, "bin", options.Configuration, framework, rid, "publish")
+            ? Path.Join(projectDirectory, "bin", options.Configuration, framework, rid, "publish")
             : Path.GetFullPath(options.Output!);
 
     private static string ResolveExpectedMainOutputPath(string output, string assemblyName, string rid) {
         string extension = rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? ".exe" : "";
-        return Path.Combine(output, $"{assemblyName}{extension}");
+        return Path.Join(output, $"{assemblyName}{extension}");
     }
 
     private static void PrintPublishSummary(string projectPath, string framework, string rid, bool selfContained, string output, string nativeArtifacts) {
@@ -112,9 +112,10 @@ internal static class PublishService {
         string framework,
         string rid
     ) {
-        string preflightDirectory = Path.Combine(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
+        string preflightDirectory = Path.Join(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
         Directory.CreateDirectory(preflightDirectory);
 
+        var preflightValidated = false;
         try {
             int preflightExitCode = await ProcessRunner.RunAsync(DotNet,
                 BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true));
@@ -125,6 +126,7 @@ internal static class PublishService {
 
             try {
                 NativeRuntimeBuilder.ValidateArtifacts(preflightDirectory, rid);
+                preflightValidated = true;
                 return new ResolvedNativeArtifacts(preflightDirectory, true);
             }
             catch (InvalidOperationException preflightValidationError) {
@@ -136,9 +138,8 @@ internal static class PublishService {
                 );
             }
         }
-        catch {
-            if (Directory.Exists(preflightDirectory)) Directory.Delete(preflightDirectory, true);
-            throw;
+        finally {
+            if (!preflightValidated && Directory.Exists(preflightDirectory)) Directory.Delete(preflightDirectory, true);
         }
     }
 

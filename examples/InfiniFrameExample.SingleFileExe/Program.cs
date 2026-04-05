@@ -20,7 +20,7 @@ public static class Program {
             .UseEmbeddedWwwrootAssets(
                 scheme: "app",
                 includePhysicalFallback: true,
-                physicalWwwrootPath: Path.Combine(AppContext.BaseDirectory, "wwwroot"),
+                physicalWwwrootPath: Path.Join(AppContext.BaseDirectory, "wwwroot"),
                 setStartUrl: true
             )
             .Build();

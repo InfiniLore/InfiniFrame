@@ -14,7 +14,13 @@ public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) 
         try {
             await jsRuntime.InvokeVoidAsync("infiniFrame.setPointerCapture", ct, elementReference, pointerId);
         }
-        catch (Exception ex) {
+        catch (OperationCanceledException) when (ct.IsCancellationRequested) {
+            // ignore cancellation
+        }
+        catch (JSException ex) {
+            logger.LogError(ex, "Something went wrong during setPointerCapture");
+        }
+        catch (InvalidOperationException ex) {
             logger.LogError(ex, "Something went wrong during setPointerCapture");
         }
     }
@@ -23,7 +29,13 @@ public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) 
         try {
             await jsRuntime.InvokeVoidAsync("infiniFrame.releasePointerCapture", ct, elementReference, pointerId);
         }
-        catch (Exception ex) {
+        catch (OperationCanceledException) when (ct.IsCancellationRequested) {
+            // ignore cancellation
+        }
+        catch (JSException ex) {
+            logger.LogError(ex, "Something went wrong during releasePointerCapture");
+        }
+        catch (InvalidOperationException ex) {
             logger.LogError(ex, "Something went wrong during releasePointerCapture");
         }
     }

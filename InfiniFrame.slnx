@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/.dev-tools/">
+    <File Path=".gitattributes" />
     <File Path=".gitignore" />
     <File Path="InfiniFrame.GitHubActions.Testing.Playwright.slnf" />
     <File Path="LICENSE" />
