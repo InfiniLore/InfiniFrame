@@ -1,4 +1,6 @@
 name: "CI: Platform Tests"
+permissions:
+    contents: read
 on:
     workflow_dispatch:
         inputs:
