@@ -359,6 +359,7 @@ public static class InfiniWindowExtensions {
                         InfiniFrameNative.SetFullScreen(window.InstanceHandle, true);
                         return;
                     }
+
                     Rectangle currentMonitorArea = currentMonitor.MonitorArea;
 
                     InfiniFrameNative.SetFullScreen(window.InstanceHandle, true);
@@ -557,22 +558,19 @@ public static class InfiniWindowExtensions {
                 }
 
                 Rectangle workArea = monitor.WorkArea;
-                switch (maximized) {
-                    case true:
-                        window.CachedPreMaximizedBounds = windowRect;
-                        InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
-                        InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
-                        window.Events.OnMaximized();
-                        break;
+                if (maximized) {
+                    window.CachedPreMaximizedBounds = windowRect;
+                    InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
+                    InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
+                    window.Events.OnMaximized();
+                }
 
-                    case false when window.CachedPreMaximizedBounds != Rectangle.Empty: {
-                        Rectangle oldRect = window.CachedPreMaximizedBounds;
-                        InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
-                        InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
-                        window.CachedPreMaximizedBounds = Rectangle.Empty;
-                        window.Events.OnRestored();
-                        break;
-                    }
+                else if (window.CachedPreMaximizedBounds != Rectangle.Empty) {
+                    Rectangle oldRect = window.CachedPreMaximizedBounds;
+                    InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
+                    InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
+                    window.CachedPreMaximizedBounds = Rectangle.Empty;
+                    window.Events.OnRestored();
                 }
             });
             return window;
@@ -933,6 +931,7 @@ public static class InfiniWindowExtensions {
                     width = max.Width;
                     x = originalX;
                 }
+
                 if (height >= max.Height) {
                     height = max.Height;
                     y = originalY;
@@ -942,6 +941,7 @@ public static class InfiniWindowExtensions {
                     width = min.Width;
                     x = originalX;
                 }
+
                 if (height <= min.Height) {
                     height = min.Height;
                     y = originalY;
