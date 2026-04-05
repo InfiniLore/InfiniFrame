@@ -16,6 +16,9 @@ on:
             - .github/workflows/ci-testing-python.yml
     workflow_dispatch:
 
+permissions:
+    contents: read
+
 jobs:
     # noinspection UndefinedAction
     run:

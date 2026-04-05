@@ -1,4 +1,8 @@
 name: "Shared: Platform Tests"
+permissions:
+    contents: read
+    statuses: write
+    checks: write
 on:
     workflow_call:
         inputs:

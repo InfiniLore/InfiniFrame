@@ -1,4 +1,6 @@
 name: "Shared: Python Tests"
+permissions:
+    contents: read
 on:
     workflow_call:
 

@@ -24,6 +24,7 @@ jobs:
             TARGET_SHA: ${{ inputs.target_sha }}
             WORKFLOW_URL: ${{ inputs.workflow_url }}
         permissions:
+            contents: read
             statuses: write
             checks: write
 
