@@ -4,6 +4,8 @@
 using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Services;
 using InfiniFrameTests.Tools.Pack.TestUtilities;
+using System.Diagnostics;
+using System.Text;
 
 namespace InfiniFrameTests.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -89,6 +91,112 @@ public class PublishServiceTests {
     }
 
     [Test]
+    public async Task PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame() {
+        // Arrange
+        string repoRoot = FindRepoRoot();
+        string appDirectory = Path.Join(TemporaryDirectory.Path, "minimal-app");
+        Directory.CreateDirectory(appDirectory);
+
+        string appProjectPath = Path.Join(appDirectory, "MinimalPublishApp.csproj");
+        string infiniFrameProjectPath = Path.Join(repoRoot, "src", "InfiniFrame", "InfiniFrame.csproj");
+
+        await File.WriteAllTextAsync(appProjectPath, $$"""
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <OutputType>Exe</OutputType>
+            <TargetFramework>net10.0</TargetFramework>
+            <ImplicitUsings>enable</ImplicitUsings>
+            <Nullable>enable</Nullable>
+          </PropertyGroup>
+          <ItemGroup>
+            <ProjectReference Include="{{infiniFrameProjectPath}}" />
+          </ItemGroup>
+        </Project>
+        """);
+
+        await File.WriteAllTextAsync(Path.Join(appDirectory, "Program.cs"), """
+        Console.WriteLine("InfiniFrame pack integration test");
+        """);
+
+        string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
+        string rid = RuntimeResolver.ResolveRid("auto");
+        string expectedMainOutput = Path.Join(outputPath, rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? "MinimalPublishApp.exe" : "MinimalPublishApp");
+
+        var options = new PublishOptions {
+            ProjectPath = appProjectPath,
+            Rid = rid,
+            Configuration = "Release",
+            Framework = "net10.0",
+            SelfContained = true,
+            Output = outputPath
+        };
+
+        // Act
+        int exitCode = await PublishService.PublishAsync(options);
+
+        // Assert
+        await Assert.That(exitCode).IsEqualTo(ExitCodes.Success);
+        await Assert.That(File.Exists(expectedMainOutput)).IsTrue();
+        await Assert.That(Directory.GetFileSystemEntries(outputPath, "*", SearchOption.TopDirectoryOnly).Length).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully() {
+        // Arrange
+        string repoRoot = FindRepoRoot();
+        string appDirectory = Path.Join(TemporaryDirectory.Path, "launch-smoke-app");
+        Directory.CreateDirectory(appDirectory);
+
+        string appProjectPath = Path.Join(appDirectory, "LaunchSmokeApp.csproj");
+        string infiniFrameProjectPath = Path.Join(repoRoot, "src", "InfiniFrame", "InfiniFrame.csproj");
+        const string startupMarker = "BOOTSTRAP_SMOKE_OK";
+
+        await File.WriteAllTextAsync(appProjectPath, $$"""
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <OutputType>Exe</OutputType>
+            <TargetFramework>net10.0</TargetFramework>
+            <ImplicitUsings>enable</ImplicitUsings>
+            <Nullable>enable</Nullable>
+          </PropertyGroup>
+          <ItemGroup>
+            <ProjectReference Include="{{infiniFrameProjectPath}}" />
+          </ItemGroup>
+        </Project>
+        """);
+
+        await File.WriteAllTextAsync(Path.Join(appDirectory, "Program.cs"), $$"""
+        using InfiniFrame;
+
+        InfiniFrameSingleFileBootstrap.Initialize();
+        Console.WriteLine("{{startupMarker}}");
+        return 0;
+        """);
+
+        string outputPath = Path.Join(TemporaryDirectory.Path, "launch-smoke-publish-output");
+        string rid = RuntimeResolver.ResolveRid("auto");
+        string publishedExecutable = Path.Join(outputPath, rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? "LaunchSmokeApp.exe" : "LaunchSmokeApp");
+
+        var options = new PublishOptions {
+            ProjectPath = appProjectPath,
+            Rid = rid,
+            Configuration = "Release",
+            Framework = "net10.0",
+            SelfContained = true,
+            Output = outputPath
+        };
+
+        // Act
+        int publishExitCode = await PublishService.PublishAsync(options);
+        ProcessResult runResult = await RunProcessAndCaptureAsync(publishedExecutable, appDirectory);
+
+        // Assert
+        await Assert.That(publishExitCode).IsEqualTo(ExitCodes.Success);
+        await Assert.That(runResult.ExitCode).IsEqualTo(0);
+        await Assert.That(runResult.StandardOutput.Contains(startupMarker, StringComparison.Ordinal)).IsTrue();
+    }
+
+    [Test]
     public async Task ValidateOutputShape_ReturnsUnexpectedEntries_WhenExtraPayloadFilesRemain() {
         // Arrange
         string output = TemporaryDirectory.Path;
@@ -105,4 +213,44 @@ public class PublishServiceTests {
         await Assert.That(validation.UnexpectedEntries).Contains("leftover.payload");
         await Assert.That(validation.UnexpectedEntries).Contains("nested-assets");
     }
+
+    private static string FindRepoRoot() {
+        DirectoryInfo? current = new(AppContext.BaseDirectory);
+        while (current is not null) {
+            if (File.Exists(Path.Join(current.FullName, "InfiniFrame.slnx"))) return current.FullName;
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not locate repository root containing InfiniFrame.slnx.");
+    }
+
+    private static async Task<ProcessResult> RunProcessAndCaptureAsync(string fileName, string workingDirectory) {
+        var startInfo = new ProcessStartInfo(fileName) {
+            WorkingDirectory = workingDirectory,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        var standardOutput = new StringBuilder();
+        var standardError = new StringBuilder();
+
+        using var process = new Process { StartInfo = startInfo };
+        process.OutputDataReceived += (_, args) => {
+            if (!string.IsNullOrWhiteSpace(args.Data)) standardOutput.AppendLine(args.Data);
+        };
+        process.ErrorDataReceived += (_, args) => {
+            if (!string.IsNullOrWhiteSpace(args.Data)) standardError.AppendLine(args.Data);
+        };
+
+        if (!process.Start()) throw new InvalidOperationException($"Failed to start process: {fileName}");
+
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        await process.WaitForExitAsync();
+
+        return new ProcessResult(process.ExitCode, standardOutput.ToString(), standardError.ToString());
+    }
+
+    private sealed record ProcessResult(int ExitCode, string StandardOutput, string StandardError);
 }
