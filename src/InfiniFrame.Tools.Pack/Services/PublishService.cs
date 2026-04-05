@@ -61,7 +61,10 @@ internal static class PublishService {
             int exitCode = await ProcessRunner.RunAsync(DotNet, publishArgs);
             if (exitCode != 0) return exitCode;
 
-            PublishOutputCleaner.Cleanup(output);
+            string[] cleanupWarnings = PublishOutputCleaner.Cleanup(output);
+            foreach (string warning in cleanupWarnings) {
+                Logger.Warning("[InfiniFrame.Pack] {CleanupWarning}", warning);
+            }
             string expectedMainOutput = ResolveExpectedMainOutputPath(output, assemblyName, rid);
             OutputShapeValidation validation = ValidateOutputShape(output, expectedMainOutput);
             PrintOutputSummary(output, expectedMainOutput, validation.UnexpectedEntries);
