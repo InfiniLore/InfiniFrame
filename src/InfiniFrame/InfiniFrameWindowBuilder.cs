@@ -36,7 +36,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         IConfigurationSection? section = config?.GetSection("InfiniFrame");
 
         IInfiniFrameWindowConfiguration configuration = Configuration;
-        if (section.Exists()) {
+        if (section is not null && section.Exists()) {
             configuration = section.Get<InfiniFrameWindowConfiguration>() ?? Configuration;
         }
 
