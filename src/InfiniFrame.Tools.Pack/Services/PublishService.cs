@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Exceptions;
+using Serilog;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -9,6 +10,7 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class PublishService {
     private const string DotNet = "dotnet";
+    private static readonly ILogger Logger = Log.ForContext(typeof(PublishService));
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -83,13 +85,13 @@ internal static class PublishService {
     }
 
     private static void PrintPublishSummary(string projectPath, string framework, string rid, bool selfContained, string output, string nativeArtifacts) {
-        Console.WriteLine("[InfiniFrame.Pack] Publishing single-file app");
-        Console.WriteLine($"  Project: {projectPath}");
-        Console.WriteLine($"  Framework: {framework}");
-        Console.WriteLine($"  RID: {rid}");
-        Console.WriteLine($"  SelfContained: {selfContained}");
-        Console.WriteLine($"  Output: {output}");
-        Console.WriteLine($"  NativeArtifacts: {nativeArtifacts}");
+        Logger.Information("[InfiniFrame.Pack] Publishing single-file app");
+        Logger.Information("  Project: {ProjectPath}", projectPath);
+        Logger.Information("  Framework: {Framework}", framework);
+        Logger.Information("  RID: {Rid}", rid);
+        Logger.Information("  SelfContained: {SelfContained}", selfContained);
+        Logger.Information("  Output: {Output}", output);
+        Logger.Information("  NativeArtifacts: {NativeArtifacts}", nativeArtifacts);
     }
 
     internal static OutputShapeValidation ValidateOutputShape(string output, string expectedMainOutput) {
@@ -114,24 +116,24 @@ internal static class PublishService {
 
     private static void PrintOutputSummary(string output, string expectedMainOutput, string[] unexpectedEntries) {
         if (!File.Exists(expectedMainOutput)) {
-            Console.WriteLine("[InfiniFrame.Pack] Publish succeeded, but expected single-file output was not found.");
+            Logger.Warning("[InfiniFrame.Pack] Publish succeeded, but expected single-file output was not found.");
         }
         else if (unexpectedEntries.Length != 0) {
-            Console.WriteLine("[InfiniFrame.Pack] Publish output contains unexpected entries.");
+            Logger.Warning("[InfiniFrame.Pack] Publish output contains unexpected entries.");
         }
 
         string[] files = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly);
-        Console.WriteLine("[InfiniFrame.Pack] Completed");
-        Console.WriteLine($"  Files in output: {files.Length}");
+        Logger.Information("[InfiniFrame.Pack] Completed");
+        Logger.Information("  Files in output: {FileCount}", files.Length);
         foreach (string file in files.Select(Path.GetFileName).Where(x => !string.IsNullOrWhiteSpace(x)).OrderBy(x => x)!) {
-            Console.WriteLine($"  - {file}");
+            Logger.Information("  - {File}", file);
         }
 
         if (unexpectedEntries.Length == 0) return;
 
-        Console.WriteLine("  Unexpected entries:");
+        Logger.Warning("  Unexpected entries:");
         foreach (string unexpectedEntry in unexpectedEntries) {
-            Console.WriteLine($"  - {unexpectedEntry}");
+            Logger.Warning("  - {UnexpectedEntry}", unexpectedEntry);
         }
     }
 
@@ -177,7 +179,7 @@ internal static class PublishService {
         OutputPathSafety.EnsureOutputCanBeDeleted(fullPath, projectDirectory, forceCleanOutput);
 
         // Log deletion for transparency
-        Console.WriteLine($"[InfiniFrame.Pack] Cleaning previous output folder: {fullPath}");
+        Logger.Information("[InfiniFrame.Pack] Cleaning previous output folder: {OutputDirectory}", fullPath);
 
         try {
             Directory.Delete(fullPath, true);

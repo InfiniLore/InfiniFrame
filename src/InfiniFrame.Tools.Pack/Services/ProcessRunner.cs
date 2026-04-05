@@ -2,12 +2,15 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics;
+using Serilog;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class ProcessRunner {
+    private static readonly ILogger Logger = Log.ForContext(typeof(ProcessRunner));
+
     /// <summary>
     ///     Runs an external process, streams stdout/stderr to the current console, and returns the process exit code.
     /// </summary>
@@ -33,11 +36,11 @@ internal static class ProcessRunner {
         process.EnableRaisingEvents = true;
 
         process.OutputDataReceived += (_, e) => {
-            if (!string.IsNullOrWhiteSpace(e.Data)) Console.WriteLine(e.Data);
+            if (!string.IsNullOrWhiteSpace(e.Data)) Logger.Information("{ProcessOutput}", e.Data);
         };
 
         process.ErrorDataReceived += (_, e) => {
-            if (!string.IsNullOrWhiteSpace(e.Data)) Console.Error.WriteLine(e.Data);
+            if (!string.IsNullOrWhiteSpace(e.Data)) Logger.Error("{ProcessError}", e.Data);
         };
 
         if (!process.Start()) throw new InvalidOperationException($"Failed to start process: {fileName}");

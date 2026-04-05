@@ -2,12 +2,15 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics.CodeAnalysis;
+using Serilog;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class NativeRuntimeBuilder {
+    private static readonly ILogger Logger = Log.ForContext(typeof(NativeRuntimeBuilder));
+
     /// <summary>
     ///     The native runtime file names that are stripped from final publish output after embedding.
     /// </summary>
@@ -36,11 +39,11 @@ internal static class NativeRuntimeBuilder {
     public static async Task BuildAsync(string nativeProjectPath, string nativeProjectDirectory, string configuration, string platform, string nativeArtifactsDir, bool verbose) {
         if (!File.Exists(nativeProjectPath)) throw new FileNotFoundException("InfiniFrame native project was not found.", nativeProjectPath);
 
-        Console.WriteLine("[InfiniFrame.Pack] Building native runtime");
-        Console.WriteLine($"  NativeProject: {nativeProjectPath}");
-        Console.WriteLine($"  Configuration: {configuration}");
-        Console.WriteLine($"  Platform: {platform}");
-        Console.WriteLine($"  NativeArtifacts: {nativeArtifactsDir}");
+        Logger.Information("[InfiniFrame.Pack] Building native runtime");
+        Logger.Information("  NativeProject: {NativeProjectPath}", nativeProjectPath);
+        Logger.Information("  Configuration: {Configuration}", configuration);
+        Logger.Information("  Platform: {Platform}", platform);
+        Logger.Information("  NativeArtifacts: {NativeArtifactsDir}", nativeArtifactsDir);
 
         List<string> buildArgs = [
             "msbuild",

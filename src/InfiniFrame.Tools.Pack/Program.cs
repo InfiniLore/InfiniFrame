@@ -3,6 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Services;
+using Serilog;
+using Serilog.Events;
 
 namespace InfiniFrame.Tools.Pack;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,6 +19,13 @@ internal static class Program {
     ///     <c>0</c> when usage is shown successfully or publish completes successfully; otherwise, a non-zero exit code.
     /// </returns>
     public static async Task<int> Main(string[] args) {
+        bool verbose = args.Any(arg => string.Equals(arg, "--verbose", StringComparison.OrdinalIgnoreCase));
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Is(verbose ? LogEventLevel.Debug : LogEventLevel.Information)
+            .Enrich.WithProperty("Tool", "InfiniFrame.Pack")
+            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .CreateLogger();
+
         try {
             ParseResult parse = CommandLine.Parse(args);
 
@@ -30,12 +39,15 @@ internal static class Program {
 
         }
         catch (NativeDependencyNotFoundException ex) {
-            await Console.Error.WriteLineAsync($"[InfiniFrame.Pack] ERROR: {ex.Message}");
+            Log.Error(ex, "[InfiniFrame.Pack] ERROR: {Message}", ex.Message);
             return ExitCodes.NativeDependencyMissing;
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
-            await Console.Error.WriteLineAsync($"[InfiniFrame.Pack] ERROR: {ex.Message}");
+            Log.Error(ex, "[InfiniFrame.Pack] ERROR: {Message}", ex.Message);
             return ExitCodes.GenericFailure;
+        }
+        finally {
+            await Log.CloseAndFlushAsync();
         }
     }
 
