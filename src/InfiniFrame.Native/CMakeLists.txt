@@ -20,11 +20,12 @@ endif()
 # ----------------------------------------------------------------------------------------------------------------------
 
 include("${CMAKE_SOURCE_DIR}/cmake/NativeDependencies.cmake")
-infiniframe_setup_dependencies()
 
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.Windows.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.MacOS.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.Linux.cmake")
+
+infiniframe_setup_dependencies()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files

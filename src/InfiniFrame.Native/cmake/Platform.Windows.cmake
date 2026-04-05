@@ -1,3 +1,10 @@
+# Configure the Windows native target.
+# Params:
+# - target_name: final CMake target name (usually `${PROJECT_NAME}`)
+# - common_sources: list of cross-platform source files
+# - test_sources: list of test/helper source files compiled into the native target
+# - windows_sources: list of Windows-only source files
+# - header_files: list of header files for IDE organization
 function(infiniframe_configure_windows_target target_name common_sources test_sources windows_sources header_files)
     add_library(${target_name} SHARED
         ${common_sources}

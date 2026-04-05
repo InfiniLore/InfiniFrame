@@ -1,3 +1,8 @@
+# Configure the macOS native target.
+# Params:
+# - target_name: final CMake target name (usually `${PROJECT_NAME}`)
+# - mac_sources: list of macOS-only source files
+# - header_files: list of header files for IDE organization
 function(infiniframe_configure_macos_target target_name mac_sources header_files)
     configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
     configure_file(Exports.Tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.Tests.mm COPYONLY)
