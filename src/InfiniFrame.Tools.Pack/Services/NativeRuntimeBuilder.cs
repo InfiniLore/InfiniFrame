@@ -67,8 +67,10 @@ internal static class NativeRuntimeBuilder {
     public static void ValidateArtifacts(string nativeArtifactsDir, string rid) {
         if (!Directory.Exists(nativeArtifactsDir)) throw new InvalidOperationException($"Native artifacts directory was not found: {nativeArtifactsDir}");
 
-        foreach (string file in RequiredFilesForRid(rid)) {
-            string path = Path.Join(nativeArtifactsDir, file);
+        IEnumerable<string> enumerable = RequiredFilesForRid(rid)
+            .Select(file => Path.Combine(nativeArtifactsDir, file));
+        
+        foreach (string path in enumerable) {
             if (!File.Exists(path)) throw new InvalidOperationException($"Required native artifact was not found: {path}");
         }
     }

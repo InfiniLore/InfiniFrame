@@ -14,8 +14,10 @@ internal static class PublishOutputCleaner {
         string wwwroot = Path.Join(output, "wwwroot");
         if (Directory.Exists(wwwroot)) Directory.Delete(wwwroot, true);
 
-        foreach (string file in NativeRuntimeBuilder.NativeRuntimeFiles) {
-            string fullPath = Path.Join(output, file);
+        IEnumerable<string> enumerable = NativeRuntimeBuilder.NativeRuntimeFiles
+            .Select(file => Path.Combine(output, file));
+        
+        foreach (string fullPath in enumerable) {
             if (File.Exists(fullPath)) File.Delete(fullPath);
         }
     }
