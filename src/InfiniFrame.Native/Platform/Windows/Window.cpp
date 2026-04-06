@@ -623,7 +623,7 @@ void InfiniFrameWindow::Close()
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 {
 	if (!m_impl->_webviewController) { *enabled = m_impl->_transparentEnabled; return; }
-	ICoreWebView2Controller2* controller2 = nullptr;
+	wil::com_ptr<ICoreWebView2Controller2> controller2;
 	if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2)
 	{
 		*enabled = m_impl->_transparentEnabled;
@@ -637,7 +637,7 @@ void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
 {
 	if (!m_impl->_webviewWindow) { *enabled = m_impl->_contextMenuEnabled; return; }
-	ICoreWebView2Settings* settings = nullptr;
+	wil::com_ptr<ICoreWebView2Settings> settings;
 	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_AreDefaultContextMenusEnabled(reinterpret_cast<BOOL*>(enabled));
 }
@@ -645,7 +645,7 @@ void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
 void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const
 {
 	if (!m_impl->_webviewWindow) { *enabled = m_impl->_zoomEnabled; return; }
-	ICoreWebView2Settings* settings = nullptr;
+	wil::com_ptr<ICoreWebView2Settings> settings;
 	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_IsZoomControlEnabled(reinterpret_cast<BOOL*>(enabled));
 }
@@ -653,7 +653,7 @@ void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const
 void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
 {
 	if (!m_impl->_webviewWindow) { *enabled = m_impl->_devToolsEnabled; return; }
-	ICoreWebView2Settings* settings = nullptr;
+	wil::com_ptr<ICoreWebView2Settings> settings;
 	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 		settings->get_AreDevToolsEnabled(reinterpret_cast<BOOL*>(enabled));
 }
@@ -836,7 +836,7 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled)
 {
 	m_impl->_transparentEnabled = enabled;
 	if (!m_impl->_webviewController || !m_impl->_webviewWindow) return;
-	ICoreWebView2Controller2* controller2 = nullptr;
+	wil::com_ptr<ICoreWebView2Controller2> controller2;
 	if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2) return;
 	COREWEBVIEW2_COLOR backgroundColor;
 	controller2->get_DefaultBackgroundColor(&backgroundColor);
@@ -849,7 +849,7 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled)
 {
 	m_impl->_contextMenuEnabled = enabled;
 	if (!m_impl->_webviewWindow) return;
-	ICoreWebView2Settings* settings = nullptr;
+	wil::com_ptr<ICoreWebView2Settings> settings;
 	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 	{
 		settings->put_AreDefaultContextMenusEnabled(enabled);
@@ -861,7 +861,7 @@ void InfiniFrameWindow::SetZoomEnabled(const bool enabled)
 {
 	m_impl->_zoomEnabled = enabled;
 	if (!m_impl->_webviewWindow) return;
-	ICoreWebView2Settings* settings = nullptr;
+	wil::com_ptr<ICoreWebView2Settings> settings;
 	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 	{
 		settings->put_IsZoomControlEnabled(enabled);
@@ -873,7 +873,7 @@ void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled)
 {
 	m_impl->_devToolsEnabled = enabled;
 	if (!m_impl->_webviewWindow) return;
-	ICoreWebView2Settings* settings = nullptr;
+	wil::com_ptr<ICoreWebView2Settings> settings;
 	if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
 	{
 		settings->put_AreDevToolsEnabled(enabled);
@@ -1231,12 +1231,13 @@ void InfiniFrameWindow::AttachWebView()
 						if (envResult != S_OK) { return envResult; }
 						m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
 
-						ICoreWebView2Settings* Settings;
-						m_impl->_webviewWindow->get_Settings(&Settings);
-						Settings->put_AreHostObjectsAllowed(TRUE);
-						Settings->put_IsScriptEnabled(TRUE);
-						Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
-						Settings->put_IsWebMessageEnabled(TRUE);
+						wil::com_ptr<ICoreWebView2Settings> settings;
+						HRESULT settingsResult = m_impl->_webviewWindow->get_Settings(&settings);
+						if (FAILED(settingsResult) || !settings) { return FAILED(settingsResult) ? settingsResult : E_FAIL; }
+						settings->put_AreHostObjectsAllowed(TRUE);
+						settings->put_IsScriptEnabled(TRUE);
+						settings->put_AreDefaultScriptDialogsEnabled(TRUE);
+						settings->put_IsWebMessageEnabled(TRUE);
 
 						EventRegistrationToken webMessageToken;
 						m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };", nullptr);
