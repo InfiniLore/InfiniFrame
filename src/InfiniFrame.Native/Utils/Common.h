@@ -60,32 +60,32 @@ inline const std::error_category& errorCategory() noexcept {
 
         std::string message(int ev) const override {
             switch (static_cast<ErrorCode>(ev)) {
-            case ErrorCode::Success:
-                return "Success";
-            case ErrorCode::InvalidArgument:
-                return "Invalid argument";
-            case ErrorCode::NotInitialized:
-                return "Not initialized";
-            case ErrorCode::PlatformNotSupported:
-                return "Platform not supported";
-            case ErrorCode::WebViewError:
-                return "WebView error";
-            case ErrorCode::EncodingError:
-                return "Encoding error";
-            case ErrorCode::MemoryError:
-                return "Memory error";
-            case ErrorCode::IoError:
-                return "I/O error";
-            case ErrorCode::NullPointer:
-                return "Null pointer";
-            case ErrorCode::InterfaceNotAvailable:
-                return "Interface not available";
-            case ErrorCode::PropertyAccessFailed:
-                return "Property access failed";
-            case ErrorCode::WindowNotFound:
-                return "Window not found";
-            default:
-                return "Unknown error";
+                case ErrorCode::Success:
+                    return "Success";
+                case ErrorCode::InvalidArgument:
+                    return "Invalid argument";
+                case ErrorCode::NotInitialized:
+                    return "Not initialized";
+                case ErrorCode::PlatformNotSupported:
+                    return "Platform not supported";
+                case ErrorCode::WebViewError:
+                    return "WebView error";
+                case ErrorCode::EncodingError:
+                    return "Encoding error";
+                case ErrorCode::MemoryError:
+                    return "Memory error";
+                case ErrorCode::IoError:
+                    return "I/O error";
+                case ErrorCode::NullPointer:
+                    return "Null pointer";
+                case ErrorCode::InterfaceNotAvailable:
+                    return "Interface not available";
+                case ErrorCode::PropertyAccessFailed:
+                    return "Property access failed";
+                case ErrorCode::WindowNotFound:
+                    return "Window not found";
+                default:
+                    return "Unknown error";
             }
         }
     };
@@ -99,7 +99,8 @@ inline std::error_code make_error_code(ErrorCode e) noexcept {
 
 namespace std {
     template <>
-    struct is_error_code_enum<ErrorCode> : true_type {};
+    struct is_error_code_enum<ErrorCode> : true_type {
+    };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

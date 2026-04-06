@@ -12,12 +12,14 @@
  * Receives messages posted by JavaScript via window.chrome.webview.postMessage
  * and forwards them to the registered WebMessageReceivedCallback
  */
-@ interface UiDelegate : NSObject<WKUIDelegate, WKScriptMessageHandler>{
-    @public
-    NSWindow * window;                                     /// The host NSWindow
-    InfiniFrameWindow * infiniFrame;                       /// The InfiniFrameWindow instance this delegate belongs to
+@ interface UiDelegate :
+    NSObject<WKUIDelegate, WKScriptMessageHandler>{
+        @public
+         NSWindow * window;                                     /// The host NSWindow
+         InfiniFrameWindow * infiniFrame
+;                       /// The InfiniFrameWindow instance this delegate belongs to
     WebMessageReceivedCallback webMessageReceivedCallback; /// Callback invoked with each incoming web message
 
-}
+    }
 @ end
 #endif

@@ -2,13 +2,16 @@
 Language: Cpp
 BasedOnStyle: LLVM
 AccessModifierOffset: -4
+AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignOperands: false
 AlignTrailingComments: false
 AllowShortBlocksOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
+AlwaysBreakAfterDefinitionReturnType: false
 AlwaysBreakTemplateDeclarations: Yes
+BinPackParameters: false
 BraceWrapping: 
   AfterCaseLabel: false
   AfterClass: false
@@ -39,7 +42,10 @@ IncludeCategories:
   - Regex: '.*'
     Priority: 3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
+IndentAccessModifiers: True
+IndentCaseLabels: true
 IndentWidth: 4
+IndentWrappedFunctionNames: true
 InsertNewlineAtEOF: true
 MacroBlockBegin: ''
 MacroBlockEnd: ''

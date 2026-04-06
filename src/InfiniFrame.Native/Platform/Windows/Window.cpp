@@ -100,7 +100,8 @@ namespace {
         const size_t written = simdutf::convert_valid_utf8_to_utf16(
             utf8,
             utf8Length,
-            reinterpret_cast<char16_t*>(utf16.data()));
+            reinterpret_cast<char16_t*>(utf16.data())
+            );
         utf16.resize(written);
 
         return {
@@ -125,7 +126,8 @@ namespace {
         const size_t written = simdutf::convert_valid_utf16_to_utf8(
             utf16,
             utf16Length,
-            utf8.data());
+            utf8.data()
+            );
         utf8.resize(written);
 
         return utf8;
@@ -146,36 +148,37 @@ struct ShowMessageParams {
 
 namespace detail {
     class BrushManager {
-    public:
-        static BrushManager& instance() noexcept {
-            static BrushManager inst;
-            return inst;
-        }
-
-        HBRUSH dark() const noexcept {
-            return static_cast<HBRUSH>(m_darkBrush.get());
-        }
-
-        HBRUSH light() const noexcept {
-            return static_cast<HBRUSH>(m_lightBrush.get());
-        }
-
-    private:
-        BrushManager() noexcept {
-            m_darkBrush.reset(CreateSolidBrush(RGB(0, 0, 0)));
-            m_lightBrush.reset(CreateSolidBrush(RGB(255, 255, 255)));
-        }
-
-        ~BrushManager() noexcept = default;
-
-        struct HBRUSHDeleter {
-            void operator()(void* h) const noexcept {
-                if (h) DeleteObject(static_cast<HBRUSH>(h));
+        public:
+            static BrushManager& instance() noexcept {
+                static BrushManager inst;
+                return inst;
             }
-        };
 
-        std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
-        std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
+            HBRUSH dark() const noexcept {
+                return static_cast<HBRUSH>(m_darkBrush.get());
+            }
+
+            HBRUSH light() const noexcept {
+                return static_cast<HBRUSH>(m_lightBrush.get());
+            }
+
+        private:
+            BrushManager() noexcept {
+                m_darkBrush.reset(CreateSolidBrush(RGB(0, 0, 0)));
+                m_lightBrush.reset(CreateSolidBrush(RGB(255, 255, 255)));
+            }
+
+            ~BrushManager() noexcept = default;
+
+            struct HBRUSHDeleter {
+                void operator()(void* h) const noexcept {
+                    if (h)
+                        DeleteObject(static_cast<HBRUSH>(h));
+                }
+            };
+
+            std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
+            std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
     };
 } // namespace detail
 
@@ -195,8 +198,8 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
     wcx.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
     wcx.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcx.hbrBackground = IsDarkModeEnabled()
-                            ? detail::BrushManager::instance().dark()
-                            : detail::BrushManager::instance().light();
+        ? detail::BrushManager::instance().dark()
+        : detail::BrushManager::instance().light();
     wcx.lpszMenuName = nullptr;
     wcx.lpszClassName = CLASS_NAME;
     wcx.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
@@ -209,8 +212,10 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl = std::make_unique<Impl>();
     if (initParams->Size != sizeof(InfiniFrameInitParams)) {
-        auto msg = std::format(L"Initial parameters passed are {} bytes, but expected {} bytes.",
-                               initParams->Size, sizeof(InfiniFrameInitParams));
+        auto msg = std::format(
+            L"Initial parameters passed are {} bytes, but expected {} bytes.",
+            initParams->Size, sizeof(InfiniFrameInitParams)
+            );
         MessageBox(nullptr, msg.c_str(), L"Native Initialization Failed", MB_OK);
         exit(0);
     }
@@ -294,8 +299,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         normalizedHeight = CW_USEDEFAULT;
     }
     else {
-        if (normalizedWidth < 0) normalizedWidth = CW_USEDEFAULT;
-        if (normalizedHeight < 0) normalizedHeight = CW_USEDEFAULT;
+        if (normalizedWidth < 0)
+            normalizedWidth = CW_USEDEFAULT;
+        if (normalizedHeight < 0)
+            normalizedHeight = CW_USEDEFAULT;
     }
 
     if (initParams->UseOsDefaultLocation) {
@@ -311,17 +318,26 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     }
 
     if (initParams->Chromeless) {
-        if (normalizedLeft == CW_USEDEFAULT && normalizedTop == CW_USEDEFAULT) centerOnInitialize = true;
-        if (normalizedLeft == CW_USEDEFAULT) normalizedLeft = 0;
-        if (normalizedTop == CW_USEDEFAULT) normalizedTop = 0;
-        if (normalizedHeight == CW_USEDEFAULT) normalizedHeight = 600;
-        if (normalizedWidth == CW_USEDEFAULT) normalizedWidth = 800;
+        if (normalizedLeft == CW_USEDEFAULT && normalizedTop == CW_USEDEFAULT)
+            centerOnInitialize = true;
+        if (normalizedLeft == CW_USEDEFAULT)
+            normalizedLeft = 0;
+        if (normalizedTop == CW_USEDEFAULT)
+            normalizedTop = 0;
+        if (normalizedHeight == CW_USEDEFAULT)
+            normalizedHeight = 600;
+        if (normalizedWidth == CW_USEDEFAULT)
+            normalizedWidth = 800;
     }
 
-    if (normalizedHeight > initParams->MaxHeight) normalizedHeight = initParams->MaxHeight;
-    if (normalizedHeight < initParams->MinHeight && initParams->MinHeight > 0) normalizedHeight = initParams->MinHeight;
-    if (normalizedWidth > initParams->MaxWidth) normalizedWidth = initParams->MaxWidth;
-    if (normalizedWidth < initParams->MinWidth && initParams->MinWidth > 0) normalizedWidth = initParams->MinWidth;
+    if (normalizedHeight > initParams->MaxHeight)
+        normalizedHeight = initParams->MaxHeight;
+    if (normalizedHeight < initParams->MinHeight && initParams->MinHeight > 0)
+        normalizedHeight = initParams->MinHeight;
+    if (normalizedWidth > initParams->MaxWidth)
+        normalizedWidth = initParams->MaxWidth;
+    if (normalizedWidth < initParams->MinWidth && initParams->MinWidth > 0)
+        normalizedWidth = initParams->MinWidth;
 
 
     //Create the window
@@ -338,7 +354,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         nullptr, //Menu
         _hInstance, //Instance handle
         this //Additional application data
-    );
+        );
     {
         std::lock_guard<std::mutex> lock(hwndMapMutex);
         hwndToInfiniFrame[m_impl->_hWnd] = this;
@@ -377,7 +393,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     Show(isAlreadyShown);
 }
 
-InfiniFrameWindow::~InfiniFrameWindow() {}
+InfiniFrameWindow::~InfiniFrameWindow() {
+}
 
 HWND InfiniFrameWindow::getHwnd() {
     return m_impl->_hWnd;
@@ -386,150 +403,150 @@ HWND InfiniFrameWindow::getHwnd() {
 
 LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {
     switch (uMsg) {
-    case WM_CREATE: {
-        EnableDarkMode(hwnd, true);
-        if (IsDarkModeEnabled())
+        case WM_CREATE: {
+            EnableDarkMode(hwnd, true);
+            if (IsDarkModeEnabled())
+                RefreshNonClientArea(hwnd);
+            break;
+        }
+        case WM_DPICHANGED: {
+            RECT* newWindowRect = static_cast<RECT*>(lParam);
+
+            SetWindowPos(
+                hwnd,
+                nullptr,
+                newWindowRect->left,
+                newWindowRect->top,
+                newWindowRect->right - newWindowRect->left,
+                newWindowRect->bottom - newWindowRect->top,
+                SWP_NOZORDER | SWP_NOACTIVATE
+                );
+
+            return 0;
+        }
+        case WM_SETTINGCHANGE: {
+            if (IsColorSchemeChange(lParam))
+                SendMessageW(hwnd, WM_THEMECHANGED, 0, 0);
+
+            break;
+        }
+        case WM_THEMECHANGED: {
+            EnableDarkMode(hwnd, IsDarkModeEnabled());
             RefreshNonClientArea(hwnd);
-        break;
-    }
-    case WM_DPICHANGED: {
-        RECT* newWindowRect = static_cast<RECT*>(lParam);
-
-        SetWindowPos(
-            hwnd,
-            nullptr,
-            newWindowRect->left,
-            newWindowRect->top,
-            newWindowRect->right - newWindowRect->left,
-            newWindowRect->bottom - newWindowRect->top,
-            SWP_NOZORDER | SWP_NOACTIVATE
-        );
-
-        return 0;
-    }
-    case WM_SETTINGCHANGE: {
-        if (IsColorSchemeChange(lParam))
-            SendMessageW(hwnd, WM_THEMECHANGED, 0, 0);
-
-        break;
-    }
-    case WM_THEMECHANGED: {
-        EnableDarkMode(hwnd, IsDarkModeEnabled());
-        RefreshNonClientArea(hwnd);
-        InvalidateRect(hwnd, nullptr, TRUE);
-        break;
-    }
-    case WM_PAINT: {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hwnd, &ps);
-
-        // Fill the background with the current theme color
-        if (IsDarkModeEnabled()) {
-            FillRect(hdc, &ps.rcPaint, detail::BrushManager::instance().dark());
+            InvalidateRect(hwnd, nullptr, TRUE);
+            break;
         }
-        else {
-            FillRect(hdc, &ps.rcPaint, detail::BrushManager::instance().light());
-        }
+        case WM_PAINT: {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
 
-        EndPaint(hwnd, &ps);
-        break;
-    }
-    case WM_ACTIVATE: {
-        InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
-        if (LOWORD(wParam) == WA_INACTIVE) {
-            instance->InvokeFocusOut();
+            // Fill the background with the current theme color
+            if (IsDarkModeEnabled()) {
+                FillRect(hdc, &ps.rcPaint, detail::BrushManager::instance().dark());
+            }
+            else {
+                FillRect(hdc, &ps.rcPaint, detail::BrushManager::instance().light());
+            }
+
+            EndPaint(hwnd, &ps);
+            break;
         }
-        else {
-            instance->FocusWebView2();
-            instance->InvokeFocusIn();
+        case WM_ACTIVATE: {
+            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            if (LOWORD(wParam) == WA_INACTIVE) {
+                instance->InvokeFocusOut();
+            }
+            else {
+                instance->FocusWebView2();
+                instance->InvokeFocusIn();
+
+                return 0;
+            }
+            break;
+        }
+        case WM_CLOSE: {
+            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            if (instance) {
+                bool doNotClose = instance->InvokeClose();
+
+                if (!doNotClose) {
+                    DestroyWindow(hwnd);
+                }
+            }
 
             return 0;
         }
-        break;
-    }
-    case WM_CLOSE: {
-        InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
-        if (instance) {
-            bool doNotClose = instance->InvokeClose();
-
-            if (!doNotClose) {
-                DestroyWindow(hwnd);
+        case WM_DESTROY: {
+            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            if (instance) {
+                instance->CloseWebView();
             }
-        }
+            {
+                std::lock_guard<std::mutex> lock(hwndMapMutex);
+                hwndToInfiniFrame.erase(hwnd);
+            }
+            // Terminate the message loop of the thread that owns this window
+            if (hwnd == messageLoopRootWindowHandle)
+                PostQuitMessage(0);
 
-        return 0;
-    }
-    case WM_DESTROY: {
-        InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
-        if (instance) {
-            instance->CloseWebView();
-        }
-        {
-            std::lock_guard<std::mutex> lock(hwndMapMutex);
-            hwndToInfiniFrame.erase(hwnd);
-        }
-        // Terminate the message loop of the thread that owns this window
-        if (hwnd == messageLoopRootWindowHandle)
-            PostQuitMessage(0);
-
-        return 0;
-    }
-    case WM_USER_INVOKE: {
-        auto callback = reinterpret_cast<ACTION>(wParam);
-        callback();
-        auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
-        {
-            std::lock_guard<std::mutex> guard(invokeLockMutex);
-            waitInfo->isCompleted = true;
-        }
-        waitInfo->completionNotifier.notify_one();
-        return 0;
-    }
-    case WM_GETMINMAXINFO: {
-        InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
-        if (instance == nullptr)
             return 0;
-
-        MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
-        if (instance->m_impl->_minWidth > 0)
-            mmi->ptMinTrackSize.x = instance->m_impl->_minWidth;
-        if (instance->m_impl->_minHeight > 0)
-            mmi->ptMinTrackSize.y = instance->m_impl->_minHeight;
-        if (instance->m_impl->_maxWidth < INT_MAX)
-            mmi->ptMaxTrackSize.x = instance->m_impl->_maxWidth;
-        if (instance->m_impl->_maxHeight < INT_MAX)
-            mmi->ptMaxTrackSize.y = instance->m_impl->_maxHeight;
-        return 0;
-    }
-    case WM_SIZE: {
-        InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
-        if (instance) {
-            instance->RefitContent();
-            int width, height;
-            instance->GetSize(&width, &height);
-            instance->InvokeResize(width, height);
-
-            if (LOWORD(wParam) == SIZE_MAXIMIZED) {
-                instance->InvokeMaximized();
-            }
-            else if (LOWORD(wParam) == SIZE_RESTORED) {
-                instance->InvokeRestored();
-            }
-            else if (LOWORD(wParam) == SIZE_MINIMIZED) {
-                instance->InvokeMinimized();
-            }
         }
-        return 0;
-    }
-    case WM_MOVE: {
-        InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
-        if (instance) {
-            int x, y;
-            instance->GetPosition(&x, &y);
-            instance->InvokeMove(x, y);
+        case WM_USER_INVOKE: {
+            auto callback = reinterpret_cast<ACTION>(wParam);
+            callback();
+            auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
+            {
+                std::lock_guard<std::mutex> guard(invokeLockMutex);
+                waitInfo->isCompleted = true;
+            }
+            waitInfo->completionNotifier.notify_one();
+            return 0;
         }
-        return 0;
-    }
+        case WM_GETMINMAXINFO: {
+            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            if (instance == nullptr)
+                return 0;
+
+            MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
+            if (instance->m_impl->_minWidth > 0)
+                mmi->ptMinTrackSize.x = instance->m_impl->_minWidth;
+            if (instance->m_impl->_minHeight > 0)
+                mmi->ptMinTrackSize.y = instance->m_impl->_minHeight;
+            if (instance->m_impl->_maxWidth < INT_MAX)
+                mmi->ptMaxTrackSize.x = instance->m_impl->_maxWidth;
+            if (instance->m_impl->_maxHeight < INT_MAX)
+                mmi->ptMaxTrackSize.y = instance->m_impl->_maxHeight;
+            return 0;
+        }
+        case WM_SIZE: {
+            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            if (instance) {
+                instance->RefitContent();
+                int width, height;
+                instance->GetSize(&width, &height);
+                instance->InvokeResize(width, height);
+
+                if (LOWORD(wParam) == SIZE_MAXIMIZED) {
+                    instance->InvokeMaximized();
+                }
+                else if (LOWORD(wParam) == SIZE_RESTORED) {
+                    instance->InvokeRestored();
+                }
+                else if (LOWORD(wParam) == SIZE_MINIMIZED) {
+                    instance->InvokeMinimized();
+                }
+            }
+            return 0;
+        }
+        case WM_MOVE: {
+            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            if (instance) {
+                int x, y;
+                instance->GetPosition(&x, &y);
+                instance->InvokeMove(x, y);
+            }
+            return 0;
+        }
     }
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -683,8 +700,10 @@ void InfiniFrameWindow::GetMinimized(bool* isMinimized) const {
 void InfiniFrameWindow::GetPosition(int* x, int* y) const {
     RECT rect = {};
     GetWindowRect(m_impl->_hWnd, &rect);
-    if (x) *x = rect.left;
-    if (y) *y = rect.top;
+    if (x)
+        *x = rect.left;
+    if (y)
+        *y = rect.top;
 }
 
 void InfiniFrameWindow::GetResizable(bool* resizable) const {
@@ -699,18 +718,24 @@ unsigned int InfiniFrameWindow::GetScreenDpi() const {
 void InfiniFrameWindow::GetSize(int* width, int* height) const {
     RECT rect = {};
     GetWindowRect(m_impl->_hWnd, &rect);
-    if (width) *width = rect.right - rect.left;
-    if (height) *height = rect.bottom - rect.top;
+    if (width)
+        *width = rect.right - rect.left;
+    if (height)
+        *height = rect.bottom - rect.top;
 }
 
 void InfiniFrameWindow::GetMaxSize(int* width, int* height) const {
-    if (width) *width = m_impl->_maxWidth;
-    if (height) *height = m_impl->_maxHeight;
+    if (width)
+        *width = m_impl->_maxWidth;
+    if (height)
+        *height = m_impl->_maxHeight;
 }
 
 void InfiniFrameWindow::GetMinSize(int* width, int* height) const {
-    if (width) *width = m_impl->_minWidth;
-    if (height) *height = m_impl->_minHeight;
+    if (width)
+        *width = m_impl->_minWidth;
+    if (height)
+        *height = m_impl->_minHeight;
 }
 
 AutoString InfiniFrameWindow::GetTitle() const {
@@ -723,7 +748,8 @@ void InfiniFrameWindow::GetTopmost(bool* topmost) const {
 }
 
 void InfiniFrameWindow::GetZoom(int* zoom) const {
-    if (zoom == nullptr) return;
+    if (zoom == nullptr)
+        return;
     if (m_impl->_webviewController == nullptr) {
         *zoom = m_impl->_zoom;
         return;
@@ -762,9 +788,11 @@ void InfiniFrameWindow::SendWebMessage(AutoString message) {
 
 void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
     m_impl->_transparentEnabled = enabled;
-    if (!m_impl->_webviewController || !m_impl->_webviewWindow) return;
+    if (!m_impl->_webviewController || !m_impl->_webviewWindow)
+        return;
     wil::com_ptr<ICoreWebView2Controller2> controller2;
-    if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2) return;
+    if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2)
+        return;
     COREWEBVIEW2_COLOR backgroundColor;
     controller2->get_DefaultBackgroundColor(&backgroundColor);
     backgroundColor.A = enabled ? 0 : 255;
@@ -774,7 +802,8 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
 
 void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
     m_impl->_contextMenuEnabled = enabled;
-    if (!m_impl->_webviewWindow) return;
+    if (!m_impl->_webviewWindow)
+        return;
     wil::com_ptr<ICoreWebView2Settings> settings;
     if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
         settings->put_AreDefaultContextMenusEnabled(enabled);
@@ -784,7 +813,8 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
 
 void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
     m_impl->_zoomEnabled = enabled;
-    if (!m_impl->_webviewWindow) return;
+    if (!m_impl->_webviewWindow)
+        return;
     wil::com_ptr<ICoreWebView2Settings> settings;
     if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
         settings->put_IsZoomControlEnabled(enabled);
@@ -794,7 +824,8 @@ void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
 
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
     m_impl->_devToolsEnabled = enabled;
-    if (!m_impl->_webviewWindow) return;
+    if (!m_impl->_webviewWindow)
+        return;
     wil::com_ptr<ICoreWebView2Settings> settings;
     if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
         settings->put_AreDevToolsEnabled(enabled);
@@ -817,14 +848,18 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
 
         if (GetMonitorInfoW(monitor, &monitorInfo)) {
             RECT rc = monitorInfo.rcMonitor;
-            SetWindowPos(m_impl->_hWnd, HWND_TOP,
-                         rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
-                         SWP_FRAMECHANGED | SWP_NOOWNERZORDER);
+            SetWindowPos(
+                m_impl->_hWnd, HWND_TOP,
+                rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+                SWP_FRAMECHANGED | SWP_NOOWNERZORDER
+                );
         }
         else {
-            SetWindowPos(m_impl->_hWnd, HWND_TOP,
-                         0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
-                         SWP_FRAMECHANGED | SWP_NOOWNERZORDER);
+            SetWindowPos(
+                m_impl->_hWnd, HWND_TOP,
+                0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
+                SWP_FRAMECHANGED | SWP_NOOWNERZORDER
+                );
         }
     }
     else {
@@ -834,9 +869,11 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
 
         if (m_impl->_hasSavedRect) {
             RECT& r = m_impl->_savedRect;
-            SetWindowPos(m_impl->_hWnd, HWND_TOP,
-                         r.left, r.top, r.right - r.left, r.bottom - r.top,
-                         SWP_FRAMECHANGED | SWP_NOOWNERZORDER);
+            SetWindowPos(
+                m_impl->_hWnd, HWND_TOP,
+                r.left, r.top, r.right - r.left, r.bottom - r.top,
+                SWP_FRAMECHANGED | SWP_NOOWNERZORDER
+                );
             m_impl->_hasSavedRect = false;
         }
     }
@@ -845,14 +882,19 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
 void InfiniFrameWindow::SetIconFile(const AutoString filename) {
     std::wstring wideFilename = ToUTF16String(filename);
     m_impl->_iconFileName = wideFilename;
-    if (wideFilename.empty()) return;
+    if (wideFilename.empty())
+        return;
 
-    HICON iconSmall = static_cast<HICON>(LoadImageW(nullptr, wideFilename.c_str(),
-                                                    IMAGE_ICON, 16, 16,
-                                                    LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED));
-    HICON iconBig = static_cast<HICON>(LoadImageW(nullptr, wideFilename.c_str(),
-                                                  IMAGE_ICON, 32, 32,
-                                                  LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED));
+    HICON iconSmall = static_cast<HICON>(LoadImageW(
+        nullptr, wideFilename.c_str(),
+        IMAGE_ICON, 16, 16,
+        LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED
+        ));
+    HICON iconBig = static_cast<HICON>(LoadImageW(
+        nullptr, wideFilename.c_str(),
+        IMAGE_ICON, 32, 32,
+        LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED
+        ));
 
     if (iconSmall && iconBig) {
         SendMessageW(m_impl->_hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(iconSmall));
@@ -904,8 +946,10 @@ void InfiniFrameWindow::SetPosition(const int x, const int y) {
 
 void InfiniFrameWindow::SetResizable(const bool resizable) {
     LONG_PTR style = GetWindowLongPtr(m_impl->_hWnd, GWL_STYLE);
-    if (resizable) style |= WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-    else style &= (~WS_THICKFRAME) & (~WS_MINIMIZEBOX) & (~WS_MAXIMIZEBOX);
+    if (resizable)
+        style |= WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+    else
+        style &= (~WS_THICKFRAME) & (~WS_MINIMIZEBOX) & (~WS_MAXIMIZEBOX);
     SetWindowLongPtr(m_impl->_hWnd, GWL_STYLE, style);
 }
 
@@ -927,27 +971,33 @@ void InfiniFrameWindow::SetTitle(AutoString title) {
 void InfiniFrameWindow::SetTopmost(const bool topmost) {
     m_impl->_topmost = topmost;
     LONG_PTR style = GetWindowLongPtr(m_impl->_hWnd, GWL_EXSTYLE);
-    if (topmost) style |= WS_EX_TOPMOST;
-    else style &= (~WS_EX_TOPMOST);
+    if (topmost)
+        style |= WS_EX_TOPMOST;
+    else
+        style &= (~WS_EX_TOPMOST);
     SetWindowLongPtr(m_impl->_hWnd, GWL_EXSTYLE, style);
     SetWindowPos(m_impl->_hWnd, topmost ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void InfiniFrameWindow::SetZoom(const int zoom) {
-    if (zoom < 25 || zoom > 500) return;
+    if (zoom < 25 || zoom > 500)
+        return;
 
     m_impl->_zoom = zoom;
-    if (m_impl->_webviewController == nullptr) return;
+    if (m_impl->_webviewController == nullptr)
+        return;
 
     const double newZoom = zoom / 100.0;
     m_impl->_webviewController->put_ZoomFactor(newZoom);
 }
 
 void InfiniFrameWindow::SetFocused() {
-    if (!m_impl->_hWnd) return;
+    if (!m_impl->_hWnd)
+        return;
 
     // If minimized, restore first
-    if (IsIconic(m_impl->_hWnd)) ShowWindow(m_impl->_hWnd, SW_RESTORE);
+    if (IsIconic(m_impl->_hWnd))
+        ShowWindow(m_impl->_hWnd, SW_RESTORE);
 
     // Try to request foreground rights
     AllowSetForegroundWindow(ASFW_ANY);
@@ -958,7 +1008,8 @@ void InfiniFrameWindow::SetFocused() {
     const DWORD thisThread = GetCurrentThreadId();
 
     // Temporarily attach thread inputs to improve the chances of success
-    if (fgThread && fgThread != thisThread) AttachThreadInput(fgThread, thisThread, TRUE);
+    if (fgThread && fgThread != thisThread)
+        AttachThreadInput(fgThread, thisThread, TRUE);
 
     ShowWindow(m_impl->_hWnd, SW_SHOW);
     SetForegroundWindow(m_impl->_hWnd);
@@ -966,7 +1017,8 @@ void InfiniFrameWindow::SetFocused() {
     SetActiveWindow(m_impl->_hWnd);
     SetFocus(m_impl->_hWnd);
 
-    if (fgThread && fgThread != thisThread) AttachThreadInput(fgThread, thisThread, FALSE);
+    if (fgThread && fgThread != thisThread)
+        AttachThreadInput(fgThread, thisThread, FALSE);
 
     // Also move focus to the embedded WebView2, if available
     FocusWebView2();
@@ -1020,8 +1072,10 @@ BOOL MonitorEnum(const HMONITOR monitor, HDC, LPRECT, const LPARAM arg) {
 
 void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const {
     if (callback) {
-        EnumDisplayMonitors(nullptr, nullptr, reinterpret_cast<MONITORENUMPROC>(MonitorEnum),
-                            reinterpret_cast<LPARAM>(callback));
+        EnumDisplayMonitors(
+            nullptr, nullptr, reinterpret_cast<MONITORENUMPROC>(MonitorEnum),
+            reinterpret_cast<LPARAM>(callback)
+            );
     }
 }
 
@@ -1030,9 +1084,11 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
     PostMessage(m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo));
 
     std::unique_lock<std::mutex> uLock(invokeLockMutex);
-    waitInfo.completionNotifier.wait(uLock, [&] {
-        return waitInfo.isCompleted;
-    });
+    waitInfo.completionNotifier.wait(
+        uLock, [&] {
+            return waitInfo.isCompleted;
+        }
+        );
 }
 
 std::string InfiniFrameWindow::ToUTF8String(const AutoString source) const {
@@ -1100,312 +1156,362 @@ void InfiniFrameWindow::AttachWebView() {
 
                 options4->SetCustomSchemeRegistrations(
                     static_cast<UINT32>(rawRegistrations.size()),
-                    rawRegistrations.data());
+                    rawRegistrations.data()
+                    );
             }
         }
     }
 
-    HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(runtimePath,
-                                                                 m_impl->_temporaryFilesPath.empty()
-                                                                     ? nullptr
-                                                                     : m_impl->_temporaryFilesPath.c_str(),
-                                                                 options.Get(),
-                                                                 Callback<
-                                                                     ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-                                                                     [&](const HRESULT result,
-                                                                         ICoreWebView2Environment* env) -> HRESULT {
-                                                                         if (result != S_OK) {
-                                                                             return result;
-                                                                         }
-                                                                         HRESULT envResult = env->QueryInterface(
-                                                                             &m_impl->_webviewEnvironment);
-                                                                         if (envResult != S_OK) {
-                                                                             return envResult;
-                                                                         }
+    HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(
+        runtimePath,
+        m_impl->_temporaryFilesPath.empty()
+        ? nullptr
+        : m_impl->_temporaryFilesPath.c_str(),
+        options.Get(),
+        Callback<
+            ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
+            [&](
+            const HRESULT result,
+            ICoreWebView2Environment* env
+            ) -> HRESULT {
+                if (result != S_OK) {
+                    return result;
+                }
+                HRESULT envResult = env->QueryInterface(
+                    &m_impl->_webviewEnvironment
+                    );
+                if (envResult != S_OK) {
+                    return envResult;
+                }
 
-                                                                         env->CreateCoreWebView2Controller(
-                                                                             m_impl->_hWnd,
-                                                                             Callback<
-                                                                                 ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                                                                                 [&](const HRESULT result,
-                                                                                 ICoreWebView2Controller* controller) ->
-                                                                                 HRESULT {
-                                                                                     if (result != S_OK) {
-                                                                                         return result;
-                                                                                     }
+                env->CreateCoreWebView2Controller(
+                    m_impl->_hWnd,
+                    Callback<
+                        ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
+                        [&](
+                        const HRESULT result,
+                        ICoreWebView2Controller* controller
+                        ) ->
+                        HRESULT {
+                            if (result != S_OK) {
+                                return result;
+                            }
 
-                                                                                     HRESULT envResult = controller->
-                                                                                         QueryInterface(
-                                                                                             &m_impl->
-                                                                                             _webviewController);
-                                                                                     if (envResult != S_OK) {
-                                                                                         return envResult;
-                                                                                     }
-                                                                                     m_impl->_webviewController->
-                                                                                         get_CoreWebView2(
-                                                                                             &m_impl->_webviewWindow);
+                            HRESULT envResult = controller->
+                                QueryInterface(
+                                    &m_impl->
+                                    _webviewController
+                                    );
+                            if (envResult != S_OK) {
+                                return envResult;
+                            }
+                            m_impl->_webviewController->
+                                    get_CoreWebView2(
+                                        &m_impl->_webviewWindow
+                                        );
 
-                                                                                     wil::com_ptr<ICoreWebView2Settings>
-                                                                                         settings;
-                                                                                     HRESULT settingsResult = m_impl->
-                                                                                         _webviewWindow->get_Settings(
-                                                                                             &settings);
-                                                                                     if (FAILED(settingsResult) || !
-                                                                                         settings) {
-                                                                                         return FAILED(settingsResult)
-                                                                                             ? settingsResult
-                                                                                             : E_FAIL;
-                                                                                     }
-                                                                                     settings->
-                                                                                         put_AreHostObjectsAllowed(
-                                                                                             TRUE);
-                                                                                     settings->put_IsScriptEnabled(
-                                                                                         TRUE);
-                                                                                     settings->
-                                                                                         put_AreDefaultScriptDialogsEnabled(
-                                                                                             TRUE);
-                                                                                     settings->put_IsWebMessageEnabled(
-                                                                                         TRUE);
+                            wil::com_ptr<ICoreWebView2Settings>
+                                settings;
+                            HRESULT settingsResult = m_impl->
+                                                     _webviewWindow->get_Settings(
+                                                         &settings
+                                                         );
+                            if (FAILED(settingsResult) || !
+                                settings) {
+                                return FAILED(settingsResult)
+                                    ? settingsResult
+                                    : E_FAIL;
+                            }
+                            settings->
+                                put_AreHostObjectsAllowed(
+                                    TRUE
+                                    );
+                            settings->put_IsScriptEnabled(
+                                TRUE
+                                );
+                            settings->
+                                put_AreDefaultScriptDialogsEnabled(
+                                    TRUE
+                                    );
+                            settings->put_IsWebMessageEnabled(
+                                TRUE
+                                );
 
-                                                                                     EventRegistrationToken
-                                                                                         webMessageToken;
-                                                                                     m_impl->_webviewWindow->
-                                                                                         AddScriptToExecuteOnDocumentCreated(
-                                                                                             L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };",
-                                                                                             nullptr);
-                                                                                     m_impl->_webviewWindow->
-                                                                                         add_WebMessageReceived(
-                                                                                             Callback<
-                                                                                                 ICoreWebView2WebMessageReceivedEventHandler>(
-                                                                                                 [&](ICoreWebView2*,
-                                                                                                 ICoreWebView2WebMessageReceivedEventArgs
-                                                                                                 * args) -> HRESULT {
-                                                                                                     wil::unique_cotaskmem_string
-                                                                                                         message;
-                                                                                                     args->
-                                                                                                         TryGetWebMessageAsString(
-                                                                                                             &message);
-                                                                                                     m_impl->
-                                                                                                         _webMessageReceivedCallback(
-                                                                                                             message.
-                                                                                                             get());
-                                                                                                     return S_OK;
-                                                                                                 }).Get(),
-                                                                                             &webMessageToken);
+                            EventRegistrationToken
+                                webMessageToken;
+                            m_impl->_webviewWindow->
+                                    AddScriptToExecuteOnDocumentCreated(
+                                        L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };",
+                                        nullptr
+                                        );
+                            m_impl->_webviewWindow->
+                                    add_WebMessageReceived(
+                                        Callback<
+                                            ICoreWebView2WebMessageReceivedEventHandler>(
+                                            [&](
+                                            ICoreWebView2*,
+                                            ICoreWebView2WebMessageReceivedEventArgs
+                                            * args
+                                            ) -> HRESULT {
+                                                wil::unique_cotaskmem_string
+                                                    message;
+                                                args->
+                                                    TryGetWebMessageAsString(
+                                                        &message
+                                                        );
+                                                m_impl->
+                                                    _webMessageReceivedCallback(
+                                                        message.
+                                                        get()
+                                                        );
+                                                return S_OK;
+                                            }
+                                            ).Get(),
+                                        &webMessageToken
+                                        );
 
-                                                                                     EventRegistrationToken
-                                                                                         webResourceRequestedToken;
-                                                                                     m_impl->_webviewWindow->
-                                                                                         AddWebResourceRequestedFilter(
-                                                                                             L"*",
-                                                                                             COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL);
-                                                                                     m_impl->_webviewWindow->
-                                                                                         add_WebResourceRequested(
-                                                                                             Callback<
-                                                                                                 ICoreWebView2WebResourceRequestedEventHandler>(
-                                                                                                 [&](ICoreWebView2*,
-                                                                                                 ICoreWebView2WebResourceRequestedEventArgs
-                                                                                                 * args) {
-                                                                                                     wil::com_ptr<
-                                                                                                             ICoreWebView2WebResourceRequest>
-                                                                                                         req;
-                                                                                                     if (FAILED(
-                                                                                                             args->
-                                                                                                             get_Request(
-                                                                                                                 &req))
-                                                                                                         || !
-                                                                                                         req)
-                                                                                                         return S_OK;
+                            EventRegistrationToken
+                                webResourceRequestedToken;
+                            m_impl->_webviewWindow->
+                                    AddWebResourceRequestedFilter(
+                                        L"*",
+                                        COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
+                                        );
+                            m_impl->_webviewWindow->
+                                    add_WebResourceRequested(
+                                        Callback<
+                                            ICoreWebView2WebResourceRequestedEventHandler>(
+                                            [&](
+                                            ICoreWebView2*,
+                                            ICoreWebView2WebResourceRequestedEventArgs
+                                            * args
+                                            ) {
+                                                wil::com_ptr<
+                                                        ICoreWebView2WebResourceRequest>
+                                                    req;
+                                                if (FAILED(
+                                                        args->
+                                                        get_Request(
+                                                            &req
+                                                            )
+                                                        )
+                                                    || !
+                                                    req)
+                                                    return S_OK;
 
-                                                                                                     wil::unique_cotaskmem_string
-                                                                                                         uri;
-                                                                                                     req->get_Uri(&uri);
-                                                                                                     std::wstring
-                                                                                                         uriString = uri
-                                                                                                             .get();
-                                                                                                     size_t colonPos =
-                                                                                                         uriString.find(
-                                                                                                             L':', 0);
-                                                                                                     if (colonPos > 0) {
-                                                                                                         std::wstring
-                                                                                                             scheme =
-                                                                                                                 uriString
-                                                                                                                 .substr(
-                                                                                                                     0,
-                                                                                                                     colonPos);
-                                                                                                         auto it =
-                                                                                                             std::find(
-                                                                                                                 m_impl
-                                                                                                                 ->
-                                                                                                                 _customSchemeNames
-                                                                                                                 .begin(),
-                                                                                                                 m_impl
-                                                                                                                 ->
-                                                                                                                 _customSchemeNames
-                                                                                                                 .end(),
-                                                                                                                 scheme);
+                                                wil::unique_cotaskmem_string
+                                                    uri;
+                                                req->get_Uri(&uri);
+                                                std::wstring
+                                                    uriString = uri
+                                                        .get();
+                                                size_t colonPos =
+                                                    uriString.find(
+                                                        L':', 0
+                                                        );
+                                                if (colonPos > 0) {
+                                                    std::wstring
+                                                        scheme =
+                                                            uriString
+                                                            .substr(
+                                                                0,
+                                                                colonPos
+                                                                );
+                                                    auto it =
+                                                        std::find(
+                                                            m_impl
+                                                            ->
+                                                            _customSchemeNames
+                                                            .begin(),
+                                                            m_impl
+                                                            ->
+                                                            _customSchemeNames
+                                                            .end(),
+                                                            scheme
+                                                            );
 
-                                                                                                         if (it !=
-                                                                                                             m_impl->
-                                                                                                             _customSchemeNames
-                                                                                                             .end() &&
-                                                                                                             m_impl->
-                                                                                                             _customSchemeCallback
-                                                                                                             !=
-                                                                                                             nullptr) {
-                                                                                                             int
-                                                                                                                 numBytes;
-                                                                                                             AutoString
-                                                                                                                 contentType
-                                                                                                                     = nullptr;
-                                                                                                             wil::unique_cotaskmem
-                                                                                                                 dotNetResponse(
-                                                                                                                     m_impl
-                                                                                                                     ->
-                                                                                                                     _customSchemeCallback(
-                                                                                                                         const_cast
-                                                                                                                         <AutoString>
-                                                                                                                         (uriString
-                                                                                                                             .c_str()),
-                                                                                                                         &numBytes,
-                                                                                                                         &contentType));
-                                                                                                             auto
-                                                                                                                 freeContentType
-                                                                                                                     = wil::scope_exit(
-                                                                                                                         [&
-                                                                                                                             contentType
-                                                                                                                         ] {
-                                                                                                                             CoTaskMemFree(
-                                                                                                                                 contentType);
-                                                                                                                         });
+                                                    if (it !=
+                                                        m_impl->
+                                                        _customSchemeNames
+                                                        .end() &&
+                                                        m_impl->
+                                                        _customSchemeCallback
+                                                        !=
+                                                        nullptr) {
+                                                        int
+                                                            numBytes;
+                                                        AutoString
+                                                            contentType
+                                                                = nullptr;
+                                                        wil::unique_cotaskmem
+                                                            dotNetResponse(
+                                                                m_impl
+                                                                ->
+                                                                _customSchemeCallback(
+                                                                    const_cast
+                                                                    <AutoString>
+                                                                    (uriString
+                                                                        .c_str()),
+                                                                    &numBytes,
+                                                                    &contentType
+                                                                    )
+                                                                );
+                                                        auto
+                                                            freeContentType
+                                                                = wil::scope_exit(
+                                                                    [&
+                                                                        contentType
+                                                                    ] {
+                                                                        CoTaskMemFree(
+                                                                            contentType
+                                                                            );
+                                                                    }
+                                                                    );
 
-                                                                                                             if (
-                                                                                                                 dotNetResponse
-                                                                                                                 !=
-                                                                                                                 nullptr
-                                                                                                                 &&
-                                                                                                                 contentType
-                                                                                                                 !=
-                                                                                                                 nullptr) {
-                                                                                                                 std::wstring
-                                                                                                                     contentTypeWS
-                                                                                                                         = contentType;
+                                                        if (
+                                                            dotNetResponse
+                                                            !=
+                                                            nullptr
+                                                            &&
+                                                            contentType
+                                                            !=
+                                                            nullptr) {
+                                                            std::wstring
+                                                                contentTypeWS
+                                                                    = contentType;
 
-                                                                                                                 wil::com_ptr
-                                                                                                                     <IStream>
-                                                                                                                     dataStream;
-                                                                                                                 dataStream
-                                                                                                                     .attach(
-                                                                                                                         SHCreateMemStream(
-                                                                                                                             reinterpret_cast
-                                                                                                                             <const
-                                                                                                                                 BYTE
-                                                                                                                                 *>
-                                                                                                                             (dotNetResponse
-                                                                                                                                 .get()),
-                                                                                                                             numBytes));
-                                                                                                                 if (!
-                                                                                                                     dataStream)
-                                                                                                                     return
-                                                                                                                         S_OK;
-                                                                                                                 wil::com_ptr
-                                                                                                                     <ICoreWebView2WebResourceResponse>
-                                                                                                                     response;
-                                                                                                                 m_impl
-                                                                                                                     ->
-                                                                                                                     _webviewEnvironment
-                                                                                                                     ->
-                                                                                                                     CreateWebResourceResponse(
-                                                                                                                         dataStream
-                                                                                                                         .get(),
-                                                                                                                         200,
-                                                                                                                         L"OK",
-                                                                                                                         (L"Content-Type: "
-                                                                                                                             + contentTypeWS)
-                                                                                                                         .c_str(),
-                                                                                                                         &response);
-                                                                                                                 args->
-                                                                                                                     put_Response(
-                                                                                                                         response
-                                                                                                                         .get());
-                                                                                                             }
-                                                                                                         }
-                                                                                                     }
+                                                            wil::com_ptr
+                                                                <IStream>
+                                                                dataStream;
+                                                            dataStream
+                                                                .attach(
+                                                                    SHCreateMemStream(
+                                                                        reinterpret_cast
+                                                                        <const
+                                                                            BYTE
+                                                                            *>
+                                                                        (dotNetResponse
+                                                                            .get()),
+                                                                        numBytes
+                                                                        )
+                                                                    );
+                                                            if (!
+                                                                dataStream)
+                                                                return
+                                                                    S_OK;
+                                                            wil::com_ptr
+                                                                <ICoreWebView2WebResourceResponse>
+                                                                response;
+                                                            m_impl
+                                                                ->
+                                                                _webviewEnvironment
+                                                                ->
+                                                                CreateWebResourceResponse(
+                                                                    dataStream
+                                                                    .get(),
+                                                                    200,
+                                                                    L"OK",
+                                                                    (L"Content-Type: "
+                                                                        + contentTypeWS)
+                                                                    .c_str(),
+                                                                    &response
+                                                                    );
+                                                            args->
+                                                                put_Response(
+                                                                    response
+                                                                    .get()
+                                                                    );
+                                                        }
+                                                    }
+                                                }
 
-                                                                                                     return S_OK;
-                                                                                                 }
-                                                                                             ).Get(),
-                                                                                             &webResourceRequestedToken);
+                                                return S_OK;
+                                            }
+                                            ).Get(),
+                                        &webResourceRequestedToken
+                                        );
 
-                                                                                     EventRegistrationToken
-                                                                                         permissionRequestedToken;
-                                                                                     m_impl->_webviewWindow->
-                                                                                         add_PermissionRequested(
-                                                                                             Callback<
-                                                                                                 ICoreWebView2PermissionRequestedEventHandler>(
-                                                                                                 [&](ICoreWebView2*,
-                                                                                                 ICoreWebView2PermissionRequestedEventArgs
-                                                                                                 * args) -> HRESULT {
-                                                                                                     if (m_impl->
-                                                                                                         _grantBrowserPermissions)
-                                                                                                         args->
-                                                                                                             put_State(
-                                                                                                                 COREWEBVIEW2_PERMISSION_STATE_ALLOW);
-                                                                                                     return S_OK;
-                                                                                                 })
-                                                                                             .Get(),
-                                                                                             &permissionRequestedToken);
+                            EventRegistrationToken
+                                permissionRequestedToken;
+                            m_impl->_webviewWindow->
+                                    add_PermissionRequested(
+                                        Callback<
+                                            ICoreWebView2PermissionRequestedEventHandler>(
+                                            [&](
+                                            ICoreWebView2*,
+                                            ICoreWebView2PermissionRequestedEventArgs
+                                            * args
+                                            ) -> HRESULT {
+                                                if (m_impl->
+                                                    _grantBrowserPermissions)
+                                                    args->
+                                                        put_State(
+                                                            COREWEBVIEW2_PERMISSION_STATE_ALLOW
+                                                            );
+                                                return S_OK;
+                                            }
+                                            )
+                                        .Get(),
+                                        &permissionRequestedToken
+                                        );
 
-                                                                                     if (!m_impl->_startUrl.empty())
-                                                                                         m_impl->_webviewWindow->
-                                                                                             Navigate(
-                                                                                                 m_impl->_startUrl.
-                                                                                                 c_str());
-                                                                                     else if (!m_impl->_startString.
-                                                                                         empty())
-                                                                                         m_impl->_webviewWindow->
-                                                                                             NavigateToString(
-                                                                                                 m_impl->_startString.
-                                                                                                 c_str());
-                                                                                     else {
-                                                                                         MessageBox(
-                                                                                             nullptr,
-                                                                                             L"Neither StartUrl nor StartString was specified",
-                                                                                             L"Native Initialization Failed",
-                                                                                             MB_OK);
-                                                                                         exit(0);
-                                                                                     }
+                            if (!m_impl->_startUrl.empty())
+                                m_impl->_webviewWindow->
+                                        Navigate(
+                                            m_impl->_startUrl.
+                                                    c_str()
+                                            );
+                            else if (!m_impl->_startString.
+                                              empty())
+                                m_impl->_webviewWindow->
+                                        NavigateToString(
+                                            m_impl->_startString.
+                                                    c_str()
+                                            );
+                            else {
+                                MessageBox(
+                                    nullptr,
+                                    L"Neither StartUrl nor StartString was specified",
+                                    L"Native Initialization Failed",
+                                    MB_OK
+                                    );
+                                exit(0);
+                            }
 
-                                                                                     if (m_impl->_contextMenuEnabled ==
-                                                                                         false)
-                                                                                         SetContextMenuEnabled(false);
+                            if (m_impl->_contextMenuEnabled ==
+                                false)
+                                SetContextMenuEnabled(false);
 
-                                                                                     if (m_impl->_zoomEnabled == false)
-                                                                                         SetZoomEnabled(false);
+                            if (m_impl->_zoomEnabled == false)
+                                SetZoomEnabled(false);
 
-                                                                                     if (m_impl->_devToolsEnabled ==
-                                                                                         false)
-                                                                                         SetDevToolsEnabled(false);
+                            if (m_impl->_devToolsEnabled ==
+                                false)
+                                SetDevToolsEnabled(false);
 
-                                                                                     if (m_impl->_transparentEnabled ==
-                                                                                         true)
-                                                                                         SetTransparentEnabled(true);
+                            if (m_impl->_transparentEnabled ==
+                                true)
+                                SetTransparentEnabled(true);
 
-                                                                                     if (m_impl->_zoom != 100)
-                                                                                         SetZoom(m_impl->_zoom);
+                            if (m_impl->_zoom != 100)
+                                SetZoom(m_impl->_zoom);
 
-                                                                                     RefitContent();
+                            RefitContent();
 
-                                                                                     FocusWebView2();
+                            FocusWebView2();
 
-                                                                                     // Re-apply if topmost was requested
-                                                                                     if (m_impl->_topmost)
-                                                                                         SetTopmost(true);
+                            // Re-apply if topmost was requested
+                            if (m_impl->_topmost)
+                                SetTopmost(true);
 
-                                                                                     return S_OK;
-                                                                                 }).Get());
-                                                                         return S_OK;
-                                                                     }).Get());
+                            return S_OK;
+                        }
+                        ).Get()
+                    );
+                return S_OK;
+            }
+            ).Get()
+        );
 
     if (envResult != S_OK) {
         _com_error err(envResult);
@@ -1451,7 +1557,8 @@ bool InfiniFrameWindow::InstallWebView2() {
             nullptr, // Use parent's environment block
             nullptr, // Use parent's starting directory
             &si, // Pointer to STARTUPINFO structure
-            &pi); // Pointer to PROCESS_INFORMATION structure
+            &pi
+            ); // Pointer to PROCESS_INFORMATION structure
 
         if (success) {
             // wait for the installation to complete
@@ -1499,17 +1606,23 @@ void InfiniFrameWindow::ClearBrowserAutoFill() {
         if (profile2) {
             COREWEBVIEW2_BROWSING_DATA_KINDS dataKinds =
                 (COREWEBVIEW2_BROWSING_DATA_KINDS)
-                (COREWEBVIEW2_BROWSING_DATA_KINDS_GENERAL_AUTOFILL |
-                    COREWEBVIEW2_BROWSING_DATA_KINDS_PASSWORD_AUTOSAVE);
+                (
+                    COREWEBVIEW2_BROWSING_DATA_KINDS_GENERAL_AUTOFILL |
+                    COREWEBVIEW2_BROWSING_DATA_KINDS_PASSWORD_AUTOSAVE
+                    );
 
             profile2->ClearBrowsingData(
                 dataKinds,
                 Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>(
-                    [this](HRESULT)
+                    [this](
+                    HRESULT
+                    )
                     -> HRESULT {
                         return S_OK;
-                    })
-                .Get());
+                    }
+                    )
+                .Get()
+                );
         }
     }
 }

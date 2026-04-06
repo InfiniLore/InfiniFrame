@@ -36,26 +36,26 @@ static std::once_flag flag_init_dark_mode_support;
 
 namespace {
     class ModuleHandle {
-    public:
-        ~ModuleHandle() {
-            if (_handle != nullptr) {
-                FreeLibrary(_handle);
+        public:
+            ~ModuleHandle() {
+                if (_handle != nullptr) {
+                    FreeLibrary(_handle);
+                }
             }
-        }
 
-        void reset(HMODULE handle) {
-            if (_handle != nullptr) {
-                FreeLibrary(_handle);
+            void reset(HMODULE handle) {
+                if (_handle != nullptr) {
+                    FreeLibrary(_handle);
+                }
+                _handle = handle;
             }
-            _handle = handle;
-        }
 
-        HMODULE get() const {
-            return _handle;
-        }
+            HMODULE get() const {
+                return _handle;
+            }
 
-    private:
-        HMODULE _handle = nullptr;
+        private:
+            HMODULE _handle = nullptr;
     };
 
     ModuleHandle g_uxtheme;
@@ -70,7 +70,8 @@ static void EnableDarkModeForApp() noexcept {
 [[nodiscard]] static DWORD GetBuildNumber() noexcept {
     auto RtlGetNtVersionNumbers =
         reinterpret_cast<RtlGetNtVersionNumbers_f>(GetProcAddress(
-            GetModuleHandleW(L"ntdll.dll"), "RtlGetNtVersionNumbers"));
+            GetModuleHandleW(L"ntdll.dll"), "RtlGetNtVersionNumbers"
+            ));
 
     if (RtlGetNtVersionNumbers == nullptr) {
         return 0;
@@ -87,10 +88,12 @@ static void EnableDarkModeForApp() noexcept {
 [[nodiscard]] static bool IsHighContrast() noexcept {
     HIGHCONTRASTW high_contrast;
     high_contrast.cbSize = sizeof(high_contrast);
-    if (SystemParametersInfoW(SPI_GETHIGHCONTRAST,
-                              sizeof(high_contrast),
-                              &high_contrast,
-                              FALSE) == TRUE) {
+    if (SystemParametersInfoW(
+        SPI_GETHIGHCONTRAST,
+        sizeof(high_contrast),
+        &high_contrast,
+        FALSE
+        ) == TRUE) {
         return (high_contrast.dwFlags & HCF_HIGHCONTRASTON) > 0;
     }
     return false;
@@ -104,7 +107,8 @@ static void InitDarkModeSupportOnce() noexcept {
     }
 
     g_uxtheme.reset(
-        LoadLibraryExW(L"uxtheme.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32));
+        LoadLibraryExW(L"uxtheme.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32)
+        );
 
     if (g_uxtheme.get() == nullptr) {
         return;
@@ -133,7 +137,8 @@ static void InitDarkModeSupportOnce() noexcept {
 
     SetWindowCompositionAttribute =
         reinterpret_cast<SetWindowCompositionAttribute_f>(GetProcAddress(
-            GetModuleHandleW(L"user32.dll"), "SetWindowCompositionAttribute"));
+            GetModuleHandleW(L"user32.dll"), "SetWindowCompositionAttribute"
+            ));
 
     if (RefreshImmersiveColorPolicyState != nullptr &&
         ShouldAppsUseDarkMode != nullptr &&
@@ -176,7 +181,9 @@ void RefreshNonClientArea(const HWND hwnd) noexcept {
 
     if (SetWindowCompositionAttribute != nullptr) {
         WINDOWCOMPOSITIONATTRIBDATA data = {
-            WCA_USEDARKMODECOLORS, &dark, sizeof(dark)
+            WCA_USEDARKMODECOLORS,
+            &dark,
+            sizeof(dark)
         };
         SetWindowCompositionAttribute(hwnd, &data);
     }
@@ -184,11 +191,13 @@ void RefreshNonClientArea(const HWND hwnd) noexcept {
 
 bool IsColorSchemeChange(const LPARAM l_param) noexcept {
     bool return_value = false;
-    if (l_param > 0 && CompareStringOrdinal(reinterpret_cast<LPCWCH>(l_param),
-                                            -1,
-                                            L"ImmersiveColorSet",
-                                            -1,
-                                            TRUE) == CSTR_EQUAL) {
+    if (l_param > 0 && CompareStringOrdinal(
+        reinterpret_cast<LPCWCH>(l_param),
+        -1,
+        L"ImmersiveColorSet",
+        -1,
+        TRUE
+        ) == CSTR_EQUAL) {
         RefreshImmersiveColorPolicyState();
         return_value = true;
     }

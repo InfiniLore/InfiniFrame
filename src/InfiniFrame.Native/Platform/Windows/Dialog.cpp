@@ -17,47 +17,49 @@
  * Used to ensure comdlg32 is available before activating the common-controls activation context
  */
 class Dll {
-public:
-    /** @brief Load the named DLL; handle is null if loading fails */
-    explicit Dll(const std::string& name);
-    /** @brief Unload the DLL if it was loaded successfully */
-    ~Dll();
-
-    /**
-     * @brief Type-safe wrapper around a single exported function retrieved via GetProcAddress
-     * @tparam T Function signature (e.g. BOOL(HWND, LPCWSTR))
-     */
-    template <typename T>
-    class Proc {
     public:
+        /** @brief Load the named DLL; handle is null if loading fails */
+        explicit Dll(const std::string& name);
+        /** @brief Unload the DLL if it was loaded successfully */
+        ~Dll();
+
         /**
-         * @brief Resolve a symbol from a loaded DLL
-         * @param lib DLL to search
-         * @param sym Exported symbol name
+         * @brief Type-safe wrapper around a single exported function retrieved via GetProcAddress
+         * @tparam T Function signature (e.g. BOOL(HWND, LPCWSTR))
          */
-        Proc(const Dll& lib, const std::string& sym)
-            : _mProc(static_cast<T*>(reinterpret_cast<void*>(GetProcAddress(lib._handle, sym.c_str())))) {}
+        template <typename T>
+        class Proc {
+            public:
+                /**
+                 * @brief Resolve a symbol from a loaded DLL
+                 * @param lib DLL to search
+                 * @param sym Exported symbol name
+                 */
+                Proc(const Dll& lib, const std::string& sym) :
+                    _mProc(static_cast<T*>(reinterpret_cast<void*>(GetProcAddress(lib._handle, sym.c_str())))) {
+                }
 
-        /** @brief Returns true if the symbol was resolved successfully */
-        explicit operator bool() const {
-            return _mProc != nullptr;
-        }
+                /** @brief Returns true if the symbol was resolved successfully */
+                explicit operator bool() const {
+                    return _mProc != nullptr;
+                }
 
-        /** @brief Returns the raw function pointer */
-        explicit operator T*() const {
-            return _mProc;
-        }
+                /** @brief Returns the raw function pointer */
+                explicit operator T*() const {
+                    return _mProc;
+                }
+
+            private:
+                T* _mProc;
+        };
 
     private:
-        T* _mProc;
-    };
-
-private:
-    HMODULE _handle;
+        HMODULE _handle;
 };
 
-inline Dll::Dll(const std::string& name)
-    : _handle(LoadLibraryA(name.c_str())) {}
+inline Dll::Dll(const std::string& name) :
+    _handle(LoadLibraryA(name.c_str())) {
+}
 
 inline Dll::~Dll() {
     if (_handle)
@@ -72,26 +74,26 @@ inline Dll::~Dll() {
  * embedded manifest resource (ID 124)
  */
 class NewStyleContext {
-public:
-    /** @brief Activate the Common Controls v6 context */
-    NewStyleContext();
-    /** @brief Deactivate the context */
-    ~NewStyleContext();
+    public:
+        /** @brief Activate the Common Controls v6 context */
+        NewStyleContext();
+        /** @brief Deactivate the context */
+        ~NewStyleContext();
 
-private:
-    /** @brief Create the activation context from shell32.dll's manifest; called once */
-    static HANDLE Create();
+    private:
+        /** @brief Create the activation context from shell32.dll's manifest; called once */
+        static HANDLE Create();
 
-    struct ActivationContextHolder {
-        HANDLE handle = INVALID_HANDLE_VALUE;
+        struct ActivationContextHolder {
+            HANDLE handle = INVALID_HANDLE_VALUE;
 
-        ~ActivationContextHolder() {
-            if (handle != INVALID_HANDLE_VALUE)
-                ReleaseActCtx(handle);
-        }
-    };
+            ~ActivationContextHolder() {
+                if (handle != INVALID_HANDLE_VALUE)
+                    ReleaseActCtx(handle);
+            }
+        };
 
-    ULONG_PTR _cookie = 0; /// Activation cookie returned by ActivateActCtx; used to deactivate
+        ULONG_PTR _cookie = 0; /// Activation cookie returned by ActivateActCtx; used to deactivate
 };
 
 inline NewStyleContext::NewStyleContext() {
@@ -151,10 +153,10 @@ T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst default
     static_assert(std::is_base_of<IFileDialog, T>::value, "T must inherit from IFileDialog");
     T* pfd = nullptr;
     const CLSID clsid = typeid(T) == typeid(IFileOpenDialog)
-                            ? CLSID_FileOpenDialog
-                            : typeid(T) == typeid(IFileSaveDialog)
-                            ? CLSID_FileSaveDialog
-                            : CLSID_FileOpenDialog;
+        ? CLSID_FileOpenDialog
+        : typeid(T) == typeid(IFileSaveDialog)
+        ? CLSID_FileSaveDialog
+        : CLSID_FileOpenDialog;
     HRESULT hr = CoCreateInstance(clsid, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
     if (SUCCEEDED(hr)) {
         pfd->SetTitle(title);
@@ -187,8 +189,13 @@ T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst default
  * @param wndInstance Window used for UTF-8 → UTF-16 conversion
  * @param filterStorage Backing storage for converted wide strings; must outlive the dialog
  */
-void AddFilters(IFileDialog* pfd, wchar_t** filters, const int filterCount, InfiniFrameWindow* wndInstance,
-                std::vector<std::wstring>& filterStorage) {
+void AddFilters(
+    IFileDialog* pfd,
+    wchar_t** filters,
+    const int filterCount,
+    InfiniFrameWindow* wndInstance,
+    std::vector<std::wstring>& filterStorage
+    ) {
     std::vector<COMDLG_FILTERSPEC> specs;
     for (int i = 0; i < filterCount; i++) {
         filterStorage.push_back(wndInstance->ToUTF16String(filters[i]));
@@ -254,8 +261,14 @@ AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount) {
     return nullptr;
 }
 
-AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString defaultPath, const bool multiSelect,
-                                            AutoString* filters, const int filterCount, int* resultCount) {
+AutoString* InfiniFrameDialog::ShowOpenFile(
+    AutoString title,
+    AutoString defaultPath,
+    const bool multiSelect,
+    AutoString* filters,
+    const int filterCount,
+    int* resultCount
+    ) {
     HRESULT hr;
     std::wstring wideTitle = _window->ToUTF16String(title);
     std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
@@ -286,8 +299,12 @@ AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString default
     return nullptr;
 }
 
-AutoString* InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, const bool multiSelect,
-                                              int* resultCount) {
+AutoString* InfiniFrameDialog::ShowOpenFolder(
+    AutoString title,
+    AutoString defaultPath,
+    const bool multiSelect,
+    int* resultCount
+    ) {
     HRESULT hr;
     std::wstring wideTitle = _window->ToUTF16String(title);
     std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
@@ -315,8 +332,13 @@ AutoString* InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defau
     return nullptr;
 }
 
-AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString* filters,
-                                           const int filterCount, AutoString defaultFileName) {
+AutoString InfiniFrameDialog::ShowSaveFile(
+    AutoString title,
+    AutoString defaultPath,
+    AutoString* filters,
+    const int filterCount,
+    AutoString defaultFileName
+    ) {
     HRESULT hr;
     std::wstring wideTitle = _window->ToUTF16String(title);
     std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
@@ -359,8 +381,12 @@ AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultP
     return nullptr;
 }
 
-DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, const DialogButtons buttons,
-                                            const DialogIcon icon) {
+DialogResult InfiniFrameDialog::ShowMessage(
+    AutoString title,
+    AutoString text,
+    const DialogButtons buttons,
+    const DialogIcon icon
+    ) {
     std::wstring wideTitle = _window->ToUTF16String(title);
     std::wstring wideText = _window->ToUTF16String(text);
     NewStyleContext ctx;
@@ -368,59 +394,59 @@ DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, c
     UINT flags = {};
 
     switch (icon) {
-    case DialogIcon::Info:
-        flags |= MB_ICONINFORMATION;
-        break;
-    case DialogIcon::Warning:
-        flags |= MB_ICONWARNING;
-        break;
-    case DialogIcon::Error:
-        flags |= MB_ICONERROR;
-        break;
-    case DialogIcon::Question:
-        flags |= MB_ICONQUESTION;
-        break;
+        case DialogIcon::Info:
+            flags |= MB_ICONINFORMATION;
+            break;
+        case DialogIcon::Warning:
+            flags |= MB_ICONWARNING;
+            break;
+        case DialogIcon::Error:
+            flags |= MB_ICONERROR;
+            break;
+        case DialogIcon::Question:
+            flags |= MB_ICONQUESTION;
+            break;
     }
 
     switch (buttons) {
-    case DialogButtons::Ok:
-        flags |= MB_OK;
-        break;
-    case DialogButtons::OkCancel:
-        flags |= MB_OKCANCEL;
-        break;
-    case DialogButtons::YesNo:
-        flags |= MB_YESNO;
-        break;
-    case DialogButtons::YesNoCancel:
-        flags |= MB_YESNOCANCEL;
-        break;
-    case DialogButtons::RetryCancel:
-        flags |= MB_RETRYCANCEL;
-        break;
-    case DialogButtons::AbortRetryIgnore:
-        flags |= MB_ABORTRETRYIGNORE;
-        break;
+        case DialogButtons::Ok:
+            flags |= MB_OK;
+            break;
+        case DialogButtons::OkCancel:
+            flags |= MB_OKCANCEL;
+            break;
+        case DialogButtons::YesNo:
+            flags |= MB_YESNO;
+            break;
+        case DialogButtons::YesNoCancel:
+            flags |= MB_YESNOCANCEL;
+            break;
+        case DialogButtons::RetryCancel:
+            flags |= MB_RETRYCANCEL;
+            break;
+        case DialogButtons::AbortRetryIgnore:
+            flags |= MB_ABORTRETRYIGNORE;
+            break;
     }
 
     const auto result = MessageBoxW(_window->getHwnd(), wideText.c_str(), wideTitle.c_str(), flags);
 
     switch (result) {
-    case IDCANCEL:
-        return DialogResult::Cancel;
-    case IDOK:
-        return DialogResult::Ok;
-    case IDYES:
-        return DialogResult::Yes;
-    case IDNO:
-        return DialogResult::No;
-    case IDABORT:
-        return DialogResult::Abort;
-    case IDRETRY:
-        return DialogResult::Retry;
-    case IDIGNORE:
-        return DialogResult::Ignore;
-    default:
-        return DialogResult::Cancel;
+        case IDCANCEL:
+            return DialogResult::Cancel;
+        case IDOK:
+            return DialogResult::Ok;
+        case IDYES:
+            return DialogResult::Yes;
+        case IDNO:
+            return DialogResult::No;
+        case IDABORT:
+            return DialogResult::Abort;
+        case IDRETRY:
+            return DialogResult::Retry;
+        case IDIGNORE:
+            return DialogResult::Ignore;
+        default:
+            return DialogResult::Cancel;
     }
 }

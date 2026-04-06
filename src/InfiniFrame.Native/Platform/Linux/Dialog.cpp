@@ -56,31 +56,39 @@ void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount) {
  * @param defaultFileName UTF-8 pre-filled filename for SaveFile; may be null
  * @return Heap-allocated array of UTF-8 path strings, or null if cancelled
  */
-AutoString* ShowDialog(const DialogType type, const AutoString title, const AutoString defaultPath,
-                       const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount,
-                       const AutoString defaultFileName = nullptr) {
+AutoString* ShowDialog(
+    const DialogType type,
+    const AutoString title,
+    const AutoString defaultPath,
+    const bool multiSelect,
+    AutoString* filters,
+    const int filterCount,
+    int* resultCount,
+    const AutoString defaultFileName = nullptr
+    ) {
     GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
     const char* buttonText = "_Open";
     switch (type) {
-    case OpenFile:
-        action = GTK_FILE_CHOOSER_ACTION_OPEN;
-        buttonText = "_Open";
-        break;
-    case OpenFolder:
-        action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
-        buttonText = "_Select";
-        break;
-    case SaveFile:
-        action = GTK_FILE_CHOOSER_ACTION_SAVE;
-        buttonText = "_Save";
-        break;
+        case OpenFile:
+            action = GTK_FILE_CHOOSER_ACTION_OPEN;
+            buttonText = "_Open";
+            break;
+        case OpenFolder:
+            action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
+            buttonText = "_Select";
+            break;
+        case SaveFile:
+            action = GTK_FILE_CHOOSER_ACTION_SAVE;
+            buttonText = "_Save";
+            break;
     }
 
     GtkWidget* dialog = gtk_file_chooser_dialog_new(
         title, nullptr, action,
         "_Cancel", GTK_RESPONSE_CANCEL,
         buttonText, GTK_RESPONSE_ACCEPT,
-        nullptr);
+        nullptr
+        );
 
     if (defaultPath != nullptr) {
         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), defaultPath);
@@ -126,23 +134,39 @@ AutoString* ShowDialog(const DialogType type, const AutoString title, const Auto
     }
 }
 
-InfiniFrameDialog::InfiniFrameDialog() {}
+InfiniFrameDialog::InfiniFrameDialog() {
+}
 
-InfiniFrameDialog::~InfiniFrameDialog() {}
+InfiniFrameDialog::~InfiniFrameDialog() {
+}
 
-AutoString* InfiniFrameDialog::ShowOpenFile(const AutoString title, const AutoString defaultPath,
-                                            const bool multiSelect, AutoString* filters, const int filterCount,
-                                            int* resultCount) {
+AutoString* InfiniFrameDialog::ShowOpenFile(
+    const AutoString title,
+    const AutoString defaultPath,
+    const bool multiSelect,
+    AutoString* filters,
+    const int filterCount,
+    int* resultCount
+    ) {
     return ShowDialog(OpenFile, title, defaultPath, multiSelect, filters, filterCount, resultCount);
 }
 
-AutoString* InfiniFrameDialog::ShowOpenFolder(const AutoString title, const AutoString defaultPath,
-                                              const bool multiSelect, int* resultCount) {
+AutoString* InfiniFrameDialog::ShowOpenFolder(
+    const AutoString title,
+    const AutoString defaultPath,
+    const bool multiSelect,
+    int* resultCount
+    ) {
     return ShowDialog(OpenFolder, title, defaultPath, multiSelect, nullptr, 0, resultCount);
 }
 
-AutoString InfiniFrameDialog::ShowSaveFile(const AutoString title, const AutoString defaultPath, AutoString* filters,
-                                           const int filterCount, const AutoString defaultFileName) {
+AutoString InfiniFrameDialog::ShowSaveFile(
+    const AutoString title,
+    const AutoString defaultPath,
+    AutoString* filters,
+    const int filterCount,
+    const AutoString defaultFileName
+    ) {
     char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
     if (result != nullptr) {
         char* value = result[0];
@@ -152,90 +176,96 @@ AutoString InfiniFrameDialog::ShowSaveFile(const AutoString title, const AutoStr
     return nullptr;
 }
 
-DialogResult InfiniFrameDialog::ShowMessage(const AutoString title, const AutoString text, const DialogButtons buttons,
-                                            const DialogIcon icon) {
+DialogResult InfiniFrameDialog::ShowMessage(
+    const AutoString title,
+    const AutoString text,
+    const DialogButtons buttons,
+    const DialogIcon icon
+    ) {
     GtkWidget* dialog;
     GtkMessageType type;
 
     switch (icon) {
-    case DialogIcon::Info:
-        type = GTK_MESSAGE_INFO;
-        break;
-    case DialogIcon::Warning:
-        type = GTK_MESSAGE_WARNING;
-        break;
-    case DialogIcon::Error:
-        type = GTK_MESSAGE_ERROR;
-        break;
-    case DialogIcon::Question:
-        type = GTK_MESSAGE_QUESTION;
-        break;
-    default:
-        type = GTK_MESSAGE_OTHER;
-        break;
+        case DialogIcon::Info:
+            type = GTK_MESSAGE_INFO;
+            break;
+        case DialogIcon::Warning:
+            type = GTK_MESSAGE_WARNING;
+            break;
+        case DialogIcon::Error:
+            type = GTK_MESSAGE_ERROR;
+            break;
+        case DialogIcon::Question:
+            type = GTK_MESSAGE_QUESTION;
+            break;
+        default:
+            type = GTK_MESSAGE_OTHER;
+            break;
     }
 
-    dialog = gtk_message_dialog_new(nullptr,
-                                    GTK_DIALOG_MODAL,
-                                    type,
-                                    GTK_BUTTONS_NONE,
-                                    "%s",
-                                    title);
+    dialog = gtk_message_dialog_new(
+        nullptr,
+        GTK_DIALOG_MODAL,
+        type,
+        GTK_BUTTONS_NONE,
+        "%s",
+        title
+        );
     gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dialog), text);
 
     switch (buttons) {
-    case DialogButtons::Ok:
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
-        break;
-    case DialogButtons::OkCancel:
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
-        break;
-    case DialogButtons::YesNo:
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", static_cast<gint>(DialogResult::Yes));
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", static_cast<gint>(DialogResult::No));
-        break;
-    case DialogButtons::YesNoCancel:
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", static_cast<gint>(DialogResult::Yes));
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", static_cast<gint>(DialogResult::No));
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
-        break;
-    case DialogButtons::RetryCancel:
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", static_cast<gint>(DialogResult::Retry));
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
-        break;
-    case DialogButtons::AbortRetryIgnore:
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Abort", static_cast<gint>(DialogResult::Abort));
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", static_cast<gint>(DialogResult::Retry));
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ignore", static_cast<gint>(DialogResult::Ignore));
-        break;
-    default:
-        gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
-        break;
+        case DialogButtons::Ok:
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
+            break;
+        case DialogButtons::OkCancel:
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
+            break;
+        case DialogButtons::YesNo:
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", static_cast<gint>(DialogResult::Yes));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", static_cast<gint>(DialogResult::No));
+            break;
+        case DialogButtons::YesNoCancel:
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Yes", static_cast<gint>(DialogResult::Yes));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_No", static_cast<gint>(DialogResult::No));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
+            break;
+        case DialogButtons::RetryCancel:
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", static_cast<gint>(DialogResult::Retry));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Cancel", static_cast<gint>(DialogResult::Cancel));
+            break;
+        case DialogButtons::AbortRetryIgnore:
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Abort", static_cast<gint>(DialogResult::Abort));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Retry", static_cast<gint>(DialogResult::Retry));
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ignore", static_cast<gint>(DialogResult::Ignore));
+            break;
+        default:
+            gtk_dialog_add_button(GTK_DIALOG(dialog), "_Ok", static_cast<gint>(DialogResult::Ok));
+            break;
     }
 
     gint result = gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
 
     switch (result) {
-    case GTK_RESPONSE_CLOSE:
-        return DialogResult::Cancel;
-    case static_cast<gint>(DialogResult::Ok):
-        return DialogResult::Ok;
-    case static_cast<gint>(DialogResult::Yes):
-        return DialogResult::Yes;
-    case static_cast<gint>(DialogResult::No):
-        return DialogResult::No;
-    case static_cast<gint>(DialogResult::Cancel):
-        return DialogResult::Cancel;
-    case static_cast<gint>(DialogResult::Abort):
-        return DialogResult::Abort;
-    case static_cast<gint>(DialogResult::Retry):
-        return DialogResult::Retry;
-    case static_cast<gint>(DialogResult::Ignore):
-        return DialogResult::Ignore;
-    default:
-        return DialogResult::Cancel;
+        case GTK_RESPONSE_CLOSE:
+            return DialogResult::Cancel;
+        case static_cast<gint>(DialogResult::Ok):
+            return DialogResult::Ok;
+        case static_cast<gint>(DialogResult::Yes):
+            return DialogResult::Yes;
+        case static_cast<gint>(DialogResult::No):
+            return DialogResult::No;
+        case static_cast<gint>(DialogResult::Cancel):
+            return DialogResult::Cancel;
+        case static_cast<gint>(DialogResult::Abort):
+            return DialogResult::Abort;
+        case static_cast<gint>(DialogResult::Retry):
+            return DialogResult::Retry;
+        case static_cast<gint>(DialogResult::Ignore):
+            return DialogResult::Ignore;
+        default:
+            return DialogResult::Cancel;
     }
 }
 #endif

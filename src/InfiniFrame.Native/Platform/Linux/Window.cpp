@@ -30,11 +30,13 @@ gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, gp
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, gpointer self);
 gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, gpointer self);
 gboolean on_focus_out_event(GtkWidget* widget, GdkEvent* event, gpointer self);
-gboolean on_webview_context_menu(WebKitWebView* web_view,
-                                 GtkWidget* default_menu,
-                                 WebKitHitTestResult* hit_test_result,
-                                 gboolean triggered_with_keyboard,
-                                 gpointer user_data);
+gboolean on_webview_context_menu(
+    WebKitWebView* web_view,
+    GtkWidget* default_menu,
+    WebKitHitTestResult* hit_test_result,
+    gboolean triggered_with_keyboard,
+    gpointer user_data
+    );
 gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, gpointer user_data);
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -81,8 +83,11 @@ static gboolean invokeCallback(const gpointer data) {
     return false;
 }
 
-static void HandleWebMessage(WebKitUserContentManager* contentManager, WebKitJavascriptResult* jsResult,
-                             const gpointer arg) {
+static void HandleWebMessage(
+    WebKitUserContentManager* contentManager,
+    WebKitJavascriptResult* jsResult,
+    const gpointer arg
+    ) {
     JSCValue* jsValue = webkit_javascript_result_get_js_value(jsResult);
     if (jsc_value_is_string(jsValue)) {
         AutoString str_value = jsc_value_to_string(jsValue);
@@ -112,34 +117,34 @@ static std::string escapeJsonString(std::string_view input) {
 
     for (char c : input) {
         switch (c) {
-        case '"':
-            result += "\\\"";
-            break;
-        case '\\':
-            result += "\\\\";
-            break;
-        case '\b':
-            result += "\\b";
-            break;
-        case '\f':
-            result += "\\f";
-            break;
-        case '\n':
-            result += "\\n";
-            break;
-        case '\r':
-            result += "\\r";
-            break;
-        case '\t':
-            result += "\\t";
-            break;
-        default:
-            if (static_cast<unsigned char>(c) < 0x20) {
-                std::format_to(std::back_inserter(result), "\\u{:04x}", static_cast<unsigned char>(c));
-            }
-            else {
-                result += c;
-            }
+            case '"':
+                result += "\\\"";
+                break;
+            case '\\':
+                result += "\\\\";
+                break;
+            case '\b':
+                result += "\\b";
+                break;
+            case '\f':
+                result += "\\f";
+                break;
+            case '\n':
+                result += "\\n";
+                break;
+            case '\r':
+                result += "\\r";
+                break;
+            case '\t':
+                result += "\\t";
+                break;
+            default:
+                if (static_cast<unsigned char>(c) < 0x20) {
+                    std::format_to(std::back_inserter(result), "\\u{:04x}", static_cast<unsigned char>(c));
+                }
+                else {
+                    result += c;
+                }
         }
     }
 
@@ -171,7 +176,8 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
         "media_playback_requires_user_gesture", _mediaAutoplayEnabled,
         "user_agent", _userAgent.c_str(),
 
-        NULL);
+        NULL
+        );
 
     if (!_browserControlInitParameters.empty())
         set_webkit_customsettings(settings);
@@ -198,47 +204,48 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings
         GValue* propertyValue = g_new0(GValue, 1);
 
         switch (value.type()) {
-        case simdjson::ondemand::json_type::string: {
-            std::string_view strVal;
-            if (value.get(strVal) == simdjson::SUCCESS) {
-                g_value_init(propertyValue, G_TYPE_STRING);
-                g_value_set_string(propertyValue, std::string(strVal).c_str());
-            }
-            break;
-        }
-        case simdjson::ondemand::json_type::boolean: {
-            bool boolVal;
-            if (value.get(boolVal) == simdjson::SUCCESS) {
-                g_value_init(propertyValue, G_TYPE_BOOLEAN);
-                g_value_set_boolean(propertyValue, boolVal);
-            }
-            break;
-        }
-        case simdjson::ondemand::json_type::number: {
-            int64_t intVal;
-            if (value.get(intVal) == simdjson::SUCCESS) {
-                g_value_init(propertyValue, G_TYPE_INT);
-                g_value_set_int(propertyValue, static_cast<int>(intVal));
-            }
-            else {
-                double doubleVal;
-                if (value.get(doubleVal) == simdjson::SUCCESS) {
-                    g_value_init(propertyValue, G_TYPE_DOUBLE);
-                    g_value_set_double(propertyValue, doubleVal);
+            case simdjson::ondemand::json_type::string: {
+                std::string_view strVal;
+                if (value.get(strVal) == simdjson::SUCCESS) {
+                    g_value_init(propertyValue, G_TYPE_STRING);
+                    g_value_set_string(propertyValue, std::string(strVal).c_str());
                 }
+                break;
             }
-            break;
-        }
-        default: {
-            GtkWidget* dialog = gtk_message_dialog_new(
-                nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-                "Invalid value type for key: %s", propertyName);
-            gtk_dialog_run(GTK_DIALOG(dialog));
-            gtk_widget_destroy(dialog);
-            g_free(propertyValue);
-            g_free(propertyName);
-            exit(0);
-        }
+            case simdjson::ondemand::json_type::boolean: {
+                bool boolVal;
+                if (value.get(boolVal) == simdjson::SUCCESS) {
+                    g_value_init(propertyValue, G_TYPE_BOOLEAN);
+                    g_value_set_boolean(propertyValue, boolVal);
+                }
+                break;
+            }
+            case simdjson::ondemand::json_type::number: {
+                int64_t intVal;
+                if (value.get(intVal) == simdjson::SUCCESS) {
+                    g_value_init(propertyValue, G_TYPE_INT);
+                    g_value_set_int(propertyValue, static_cast<int>(intVal));
+                }
+                else {
+                    double doubleVal;
+                    if (value.get(doubleVal) == simdjson::SUCCESS) {
+                        g_value_init(propertyValue, G_TYPE_DOUBLE);
+                        g_value_set_double(propertyValue, doubleVal);
+                    }
+                }
+                break;
+            }
+            default: {
+                GtkWidget* dialog = gtk_message_dialog_new(
+                    nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
+                    "Invalid value type for key: %s", propertyName
+                    );
+                gtk_dialog_run(GTK_DIALOG(dialog));
+                gtk_widget_destroy(dialog);
+                g_free(propertyValue);
+                g_free(propertyName);
+                exit(0);
+            }
         }
 
         g_object_set_property(G_OBJECT(settings), propertyName, propertyValue);
@@ -262,7 +269,8 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
             context, value.c_str(),
             reinterpret_cast<WebKitURISchemeRequestCallback>(HandleCustomSchemeRequest),
             reinterpret_cast<void*>(_customSchemeCallback),
-            nullptr);
+            nullptr
+            );
     }
 }
 
@@ -270,7 +278,8 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
 // Constructor / Destructor
 // ---------------------------------------------------------------------------------------------------------------------
 
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>()) {
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
+    m_impl(std::make_unique<Impl>()) {
     XInitThreads();
     gtk_init(nullptr, nullptr);
     notify_init(initParams->Title);
@@ -279,7 +288,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
             "Initial parameters passed are %i bytes, but expected %lu bytes.",
-            initParams->Size, sizeof(InfiniFrameInitParams));
+            initParams->Size, sizeof(InfiniFrameInitParams)
+            );
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
         exit(0);
@@ -394,28 +404,42 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
     if (initParams->Topmost)
         SetTopmost(true);
 
-    g_signal_connect(G_OBJECT(m_impl->_window), "configure-event",
-                     G_CALLBACK(on_configure_event), this);
+    g_signal_connect(
+        G_OBJECT(m_impl->_window), "configure-event",
+        G_CALLBACK(on_configure_event), this
+        );
 
-    g_signal_connect(G_OBJECT(m_impl->_window), "window-state-event",
-                     G_CALLBACK(on_window_state_event), this);
+    g_signal_connect(
+        G_OBJECT(m_impl->_window), "window-state-event",
+        G_CALLBACK(on_window_state_event), this
+        );
 
-    g_signal_connect(G_OBJECT(m_impl->_window), "delete-event",
-                     G_CALLBACK(on_widget_deleted), this);
+    g_signal_connect(
+        G_OBJECT(m_impl->_window), "delete-event",
+        G_CALLBACK(on_widget_deleted), this
+        );
 
     Show(false);
 
-    g_signal_connect(G_OBJECT(m_impl->_window), "focus-in-event",
-                     G_CALLBACK(on_focus_in_event), this);
+    g_signal_connect(
+        G_OBJECT(m_impl->_window), "focus-in-event",
+        G_CALLBACK(on_focus_in_event), this
+        );
 
-    g_signal_connect(G_OBJECT(m_impl->_window), "focus-out-event",
-                     G_CALLBACK(on_focus_out_event), this);
+    g_signal_connect(
+        G_OBJECT(m_impl->_window), "focus-out-event",
+        G_CALLBACK(on_focus_out_event), this
+        );
 
-    g_signal_connect(G_OBJECT(m_impl->_webview), "context-menu",
-                     G_CALLBACK(on_webview_context_menu), this);
+    g_signal_connect(
+        G_OBJECT(m_impl->_webview), "context-menu",
+        G_CALLBACK(on_webview_context_menu), this
+        );
 
-    g_signal_connect(G_OBJECT(m_impl->_webview), "permission-request",
-                     G_CALLBACK(on_permission_request), this);
+    g_signal_connect(
+        G_OBJECT(m_impl->_webview), "permission-request",
+        G_CALLBACK(on_permission_request), this
+        );
 
     m_impl->AddCustomSchemeHandlers();
 
@@ -445,7 +469,8 @@ void InfiniFrameWindow::Center() {
     if (d == nullptr) {
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-            "gdk_display_get_default() returned NULL");
+            "gdk_display_get_default() returned NULL"
+            );
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
         return;
@@ -457,7 +482,8 @@ void InfiniFrameWindow::Center() {
         if (m == nullptr) {
             GtkWidget* dialog = gtk_message_dialog_new(
                 nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-                "gdk_display_get_primary_monitor() returned NULL");
+                "gdk_display_get_primary_monitor() returned NULL"
+                );
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);
             return;
@@ -466,9 +492,11 @@ void InfiniFrameWindow::Center() {
 
     gdk_monitor_get_geometry(m, &screen);
 
-    gtk_window_move(GTK_WINDOW(m_impl->_window),
-                    (screen.width - windowWidth) / 2,
-                    (screen.height - windowHeight) / 2);
+    gtk_window_move(
+        GTK_WINDOW(m_impl->_window),
+        (screen.width - windowWidth) / 2,
+        (screen.height - windowHeight) / 2
+        );
 }
 
 void InfiniFrameWindow::ClearBrowserAutoFill() {
@@ -574,13 +602,17 @@ void InfiniFrameWindow::GetSize(int* width, int* height) const {
 }
 
 void InfiniFrameWindow::GetMaxSize(int* width, int* height) const {
-    if (width) *width = m_impl->_maxWidth;
-    if (height) *height = m_impl->_maxHeight;
+    if (width)
+        *width = m_impl->_maxWidth;
+    if (height)
+        *height = m_impl->_maxHeight;
 }
 
 void InfiniFrameWindow::GetMinSize(int* width, int* height) const {
-    if (width) *width = m_impl->_minWidth;
-    if (height) *height = m_impl->_minHeight;
+    if (width)
+        *width = m_impl->_minWidth;
+    if (height)
+        *height = m_impl->_minHeight;
 }
 
 AutoString InfiniFrameWindow::GetTitle() const {
@@ -648,7 +680,8 @@ void InfiniFrameWindow::SendWebMessage(const AutoString message) {
         nullptr,
         nullptr,
         webview_eval_finished,
-        nullptr);
+        nullptr
+        );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -715,7 +748,8 @@ void InfiniFrameWindow::SetMinSize(const int width, const int height) {
         GTK_WINDOW(m_impl->_window),
         nullptr,
         &m_impl->_hints,
-        (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+        (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE)
+        );
 }
 
 void InfiniFrameWindow::SetMaxSize(const int width, const int height) {
@@ -728,7 +762,8 @@ void InfiniFrameWindow::SetMaxSize(const int width, const int height) {
         GTK_WINDOW(m_impl->_window),
         nullptr,
         &m_impl->_hints,
-        (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+        (GdkWindowHints)(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE)
+        );
 }
 
 void InfiniFrameWindow::SetSize(const int width, const int height) {
@@ -782,11 +817,15 @@ void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoStrin
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    g_signal_connect(G_OBJECT(m_impl->_window), "destroy",
-                     G_CALLBACK(+[](GtkWidget*, gpointer) {
-                         gtk_main_quit();
-                     }),
-                     nullptr);
+    g_signal_connect(
+        G_OBJECT(m_impl->_window), "destroy",
+        G_CALLBACK(
+            +[](GtkWidget*, gpointer) {
+                gtk_main_quit();
+            }
+            ),
+        nullptr
+        );
     gtk_main();
 }
 
@@ -862,9 +901,11 @@ void InfiniFrameWindow::Invoke(const ACTION callback) {
     gdk_threads_add_idle(invokeCallback, &waitInfo);
 
     std::unique_lock<std::mutex> uLock(invokeLockMutex);
-    waitInfo.completionNotifier.wait(uLock, [&] {
-        return waitInfo.isCompleted;
-    });
+    waitInfo.completionNotifier.wait(
+        uLock, [&] {
+            return waitInfo.isCompleted;
+        }
+        );
 }
 
 [[nodiscard]] bool InfiniFrameWindow::InvokeClose() const noexcept {
@@ -936,13 +977,16 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
             "		window.__receiveMessageCallbacks.push(callback);"
             "	}"
             "};",
-            WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES, WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, nullptr, nullptr);
+            WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES, WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, nullptr, nullptr
+            );
         webkit_user_content_manager_add_script(contentManager, script);
         webkit_user_script_unref(script);
 
-        g_signal_connect(contentManager, "script-message-received::InfiniFrameInterop",
-                         G_CALLBACK(HandleWebMessage),
-                         reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback));
+        g_signal_connect(
+            contentManager, "script-message-received::InfiniFrameInterop",
+            G_CALLBACK(HandleWebMessage),
+            reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
+            );
         webkit_user_content_manager_register_script_message_handler(contentManager, "InfiniFrameInterop");
 
         if (!m_impl->_startUrl.empty())
@@ -952,7 +996,8 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         else {
             GtkWidget* dialog = gtk_message_dialog_new(
                 nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-                "Neither StartUrl nor StartString was specified");
+                "Neither StartUrl nor StartString was specified"
+                );
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);
             exit(0);
@@ -1002,7 +1047,8 @@ gboolean on_configure_event(GtkWidget* widget, GdkEvent* event, const gpointer s
         auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
         instance->OnConfigureEvent(
             event->configure.x, event->configure.y,
-            event->configure.width, event->configure.height);
+            event->configure.width, event->configure.height
+            );
     }
     return FALSE;
 }
@@ -1030,9 +1076,13 @@ gboolean on_focus_out_event(GtkWidget* widget, GdkEvent* event, const gpointer s
     return FALSE;
 }
 
-gboolean on_webview_context_menu(WebKitWebView* web_view, GtkWidget* default_menu,
-                                 WebKitHitTestResult* hit_test_result, gboolean triggered_with_keyboard,
-                                 const gpointer self) {
+gboolean on_webview_context_menu(
+    WebKitWebView* web_view,
+    GtkWidget* default_menu,
+    WebKitHitTestResult* hit_test_result,
+    gboolean triggered_with_keyboard,
+    const gpointer self
+    ) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
     bool contextMenuEnabled = false;
     instance->GetContextMenuEnabled(&contextMenuEnabled);
