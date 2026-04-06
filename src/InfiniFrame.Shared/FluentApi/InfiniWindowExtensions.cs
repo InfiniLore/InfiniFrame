@@ -418,17 +418,17 @@ public static class InfiniWindowExtensions {
         public T SetIconFile(string iconFilePath) {
             window.Logger.LogDebug(".SetIconFile({IconFile})", iconFilePath);
 
-            if (window.IconFilePath == iconFilePath) {
-                window.Logger.LogDebug("Icon file is already set to {IconFile}, skipping assignment", iconFilePath);
-                return window;
-            }
-
-            if (!IconFileUtilities.IsValidIconFile(iconFilePath)) {
+            if (!IconFileUtilities.TryResolveIconFilePath(iconFilePath, out string? resolvedIconFilePath)) {
                 window.Logger.LogWarning("Icon file {IconFile} does not exist or is an invalid file path.", iconFilePath);
                 return window;
             }
 
-            window.Invoke(() => InfiniFrameNative.SetIconFile(window.InstanceHandle, iconFilePath));
+            if (window.IconFilePath == resolvedIconFilePath) {
+                window.Logger.LogDebug("Icon file is already set to {IconFile}, skipping assignment", resolvedIconFilePath);
+                return window;
+            }
+
+            window.Invoke(() => InfiniFrameNative.SetIconFile(window.InstanceHandle, resolvedIconFilePath));
             return window;
         }
         #endregion

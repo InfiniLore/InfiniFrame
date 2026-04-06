@@ -17,7 +17,7 @@ internal static class InfiniFrameNativeParametersValidator {
         string? startString = parameters.StartString;
         string? windowIconFile = parameters.WindowIconFile;
 
-        bool result = true;
+        var result = true;
         if (string.IsNullOrWhiteSpace(startUrl) && string.IsNullOrWhiteSpace(startString)) {
             logger.LogError("No initial URL or HTML string was supplied in StartUrl or StartString for the browser control to navigate to.");
             result = false;
@@ -33,7 +33,8 @@ internal static class InfiniFrameNativeParametersValidator {
             result = false;
         }
 
-        if (!string.IsNullOrWhiteSpace(windowIconFile) && !File.Exists(windowIconFile)) {
+        if (!string.IsNullOrWhiteSpace(windowIconFile) &&
+            !IconFileUtilities.TryResolveIconFilePath(windowIconFile, out _)) {
             logger.LogError("WindowIconFile: {WindowIconFile} cannot be found", windowIconFile);
             result = false;
         }
@@ -45,7 +46,7 @@ internal static class InfiniFrameNativeParametersValidator {
 
         if (parameters is { Chromeless: true, Resizable: true }) {
             logger.LogWarning("When Chromeless and Resizable are set at the same time, the window will only show chromeless and not resizable");
-            // Not a breaking validation because it will run, just not as excpected
+            // Not a breaking validation because it will run, just not as expected
         }
 
         return result;
