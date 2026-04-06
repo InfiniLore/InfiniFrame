@@ -34,6 +34,40 @@ static constexpr DWORD WIN10_MINIMUM_BUILD_DARK_MODE = 18362;
 
 static std::once_flag flag_init_dark_mode_support;
 
+namespace
+{
+class ModuleHandle
+{
+public:
+    ~ModuleHandle()
+    {
+        if (_handle != nullptr)
+        {
+            FreeLibrary(_handle);
+        }
+    }
+
+    void reset(HMODULE handle)
+    {
+        if (_handle != nullptr)
+        {
+            FreeLibrary(_handle);
+        }
+        _handle = handle;
+    }
+
+    HMODULE get() const
+    {
+        return _handle;
+    }
+
+private:
+    HMODULE _handle = nullptr;
+};
+
+ModuleHandle g_uxtheme;
+}
+
 static void EnableDarkModeForApp() noexcept
 {
     if (SetPreferredAppMode != nullptr)
@@ -84,34 +118,34 @@ static void InitDarkModeSupportOnce() noexcept
         return;
     }
 
-    HMODULE uxtheme =
-        LoadLibraryExW(L"uxtheme.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    g_uxtheme.reset(
+        LoadLibraryExW(L"uxtheme.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32));
 
-    if (uxtheme == nullptr)
+    if (g_uxtheme.get() == nullptr)
     {
         return;
     }
 
     RefreshImmersiveColorPolicyState =
         reinterpret_cast<RefreshImmersiveColorPolicyState_f>(
-            GetProcAddress(uxtheme, MAKEINTRESOURCEA(104)));
+            GetProcAddress(g_uxtheme.get(), MAKEINTRESOURCEA(104)));
 
     GetIsImmersiveColorUsingHighContrast =
         reinterpret_cast<GetIsImmersiveColorUsingHighContrast_f>(
-            GetProcAddress(uxtheme, MAKEINTRESOURCEA(106)));
+            GetProcAddress(g_uxtheme.get(), MAKEINTRESOURCEA(106)));
 
     ShouldAppsUseDarkMode = reinterpret_cast<ShouldAppsUseDarkMode_f>(
-        GetProcAddress(uxtheme, MAKEINTRESOURCEA(132)));
+        GetProcAddress(g_uxtheme.get(), MAKEINTRESOURCEA(132)));
 
     AllowDarkModeForWindow = reinterpret_cast<AllowDarkModeForWindow_f>(
-        GetProcAddress(uxtheme, MAKEINTRESOURCEA(133)));
+        GetProcAddress(g_uxtheme.get(), MAKEINTRESOURCEA(133)));
 
     SetPreferredAppMode = reinterpret_cast<SetPreferredAppMode_f>(
-        GetProcAddress(uxtheme, MAKEINTRESOURCEA(135)));
+        GetProcAddress(g_uxtheme.get(), MAKEINTRESOURCEA(135)));
 
     IsDarkModeAllowedForWindow =
         reinterpret_cast<IsDarkModeAllowedForWindow_f>(
-            GetProcAddress(uxtheme, MAKEINTRESOURCEA(137)));
+            GetProcAddress(g_uxtheme.get(), MAKEINTRESOURCEA(137)));
 
     SetWindowCompositionAttribute =
         reinterpret_cast<SetWindowCompositionAttribute_f>(GetProcAddress(

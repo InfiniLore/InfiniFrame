@@ -84,20 +84,31 @@ public:
 private:
 	/** @brief Create the activation context from shell32.dll's manifest; called once */
 	static HANDLE Create();
+	struct ActivationContextHolder
+	{
+		HANDLE handle = INVALID_HANDLE_VALUE;
+
+		~ActivationContextHolder()
+		{
+			if (handle != INVALID_HANDLE_VALUE)
+				ReleaseActCtx(handle);
+		}
+	};
 	ULONG_PTR _cookie = 0; /// Activation cookie returned by ActivateActCtx; used to deactivate
 };
 
 inline NewStyleContext::NewStyleContext()
 {
-	static HANDLE hctx = Create();
+	static ActivationContextHolder actCtx{Create()};
 
-	if (hctx != INVALID_HANDLE_VALUE)
-		ActivateActCtx(hctx, &_cookie);
+	if (actCtx.handle != INVALID_HANDLE_VALUE)
+		ActivateActCtx(actCtx.handle, &_cookie);
 }
 
 inline NewStyleContext::~NewStyleContext()
 {
-	DeactivateActCtx(0, _cookie);
+	if (_cookie != 0)
+		DeactivateActCtx(0, _cookie);
 }
 
 inline HANDLE NewStyleContext::Create()
