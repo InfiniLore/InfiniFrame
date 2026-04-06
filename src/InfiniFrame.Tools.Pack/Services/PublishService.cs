@@ -270,7 +270,7 @@ internal static class PublishService {
         string? customTargetsPath = null,
         bool isPreflight = false
     ) {
-        bool selfContained = isPreflight ? false : options.SelfContained;
+        bool selfContained = !isPreflight && options.SelfContained;
         List<string> args = [
             "publish",
             projectPath,
