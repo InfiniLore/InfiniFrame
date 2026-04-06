@@ -54,10 +54,6 @@
         <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Options"/>
-        <PackageReference Include="Polyfill">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
     </ItemGroup>
 
     <ItemGroup Condition="'$(DocfxBuild)'!='true'">

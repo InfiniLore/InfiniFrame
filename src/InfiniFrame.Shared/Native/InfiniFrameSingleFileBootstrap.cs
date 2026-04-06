@@ -21,10 +21,18 @@ namespace InfiniFrame;
 public static class InfiniFrameSingleFileBootstrap {
     private const string WebView2LoaderLibraryName = InfiniFrameNativeArtifactManifest.WindowsLoaderLibraryName;
 
+    #if NET9_0_OR_GREATER
     private static readonly Lock InitLock = new();
+    #else
+    private static readonly object InitLock = new();
+    #endif
     private static int _initialized;
     private static string? _nativeDir;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    
     /// <summary>
     /// Extracts embedded native runtime binaries to a temporary runtime-identifier-specific folder and registers a
     /// <see cref="NativeLibrary"/> resolver for InfiniFrame native loading.
