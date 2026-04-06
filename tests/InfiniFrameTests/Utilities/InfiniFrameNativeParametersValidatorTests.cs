@@ -15,10 +15,10 @@ public class InfiniFrameNativeParametersValidatorTests {
     public async Task Validate_AcceptsRelativeIconPathFromAppBaseDirectory() {
         // Arrange
         var fileName = $"icon-{Guid.NewGuid():N}.ico";
-        string absolutePath = Path.Combine(AppContext.BaseDirectory, fileName);
+        string absolutePath = Path.Join(AppContext.BaseDirectory, fileName);
         await File.WriteAllTextAsync(absolutePath, "icon");
 
-        string temporaryCurrentDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        string temporaryCurrentDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(temporaryCurrentDirectory);
         string originalCurrentDirectory = Environment.CurrentDirectory;
 
