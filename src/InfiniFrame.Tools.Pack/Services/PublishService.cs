@@ -154,11 +154,12 @@ internal static class PublishService {
 
         bool preflightValidated = false;
         try {
-            int preflightExitCode = await ProcessRunner.RunAsync(DotNet,
-                BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true));
+            List<string> preflightArgs = BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true);
+            int preflightExitCode = await ProcessRunner.RunAsync(DotNet, preflightArgs);
 
             if (preflightExitCode != 0) {
-                throw new InvalidOperationException($"Preflight publish failed with exit code {preflightExitCode}.");
+                throw new InvalidOperationException(
+                    $"Preflight publish failed with exit code {preflightExitCode}. Command: {DotNet} {string.Join(' ', preflightArgs)}");
             }
 
             try {
@@ -205,6 +206,7 @@ internal static class PublishService {
         string? customTargetsPath = null,
         bool isPreflight = false
     ) {
+        bool selfContained = isPreflight ? false : options.SelfContained;
         List<string> args = [
             "publish",
             projectPath,
@@ -213,7 +215,7 @@ internal static class PublishService {
             "-f", framework,
             "--output", output,
             "-p:InfiniFramePackInvoked=true",
-            $"-p:SelfContained={options.SelfContained.ToString().ToLowerInvariant()}",
+            $"-p:SelfContained={selfContained.ToString().ToLowerInvariant()}",
             "-p:IncludeNativeLibrariesForSelfExtract=true",
             options.Verbose ? "-v:normal" : "-v:minimal"
         ];
