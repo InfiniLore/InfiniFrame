@@ -57,7 +57,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(DocfxBuild)'!='true' and '$(InfiniFramePackInvoked)'!='true'">
-        <ProjectReference Include="..\InfiniFrame.Native\InfiniFrame.Native.proj"/>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Native/InfiniFrame.Native.proj"/>
     </ItemGroup>
 
     <!-- Windows -->
