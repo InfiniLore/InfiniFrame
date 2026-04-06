@@ -3,15 +3,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Services;
+using Serilog;
+using Serilog.Events;
 
 namespace InfiniFrame.Tools.Pack;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class Program {
-    private const int GenericFailureExitCode = 1;
-    private const int NativeDependencyMissingExitCode = 2;
-
     /// <summary>
     ///     Parses command-line arguments and executes the requested pack operation.
     /// </summary>
@@ -20,6 +19,13 @@ internal static class Program {
     ///     <c>0</c> when usage is shown successfully or publish completes successfully; otherwise, a non-zero exit code.
     /// </returns>
     public static async Task<int> Main(string[] args) {
+        bool verbose = args.Any(arg => string.Equals(arg, "--verbose", StringComparison.OrdinalIgnoreCase));
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Is(verbose ? LogEventLevel.Debug : LogEventLevel.Information)
+            .Enrich.WithProperty("Tool", "InfiniFrame.Pack")
+            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .CreateLogger();
+
         try {
             ParseResult parse = CommandLine.Parse(args);
 
@@ -33,12 +39,15 @@ internal static class Program {
 
         }
         catch (NativeDependencyNotFoundException ex) {
-            await Console.Error.WriteLineAsync($"[InfiniFrame.Pack] ERROR: {ex.Message}");
-            return NativeDependencyMissingExitCode;
+            Log.Error(ex, "ERROR: {Message}", ex.Message);
+            return ExitCodes.NativeDependencyMissing;
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
-            await Console.Error.WriteLineAsync($"[InfiniFrame.Pack] ERROR: {ex.Message}");
-            return GenericFailureExitCode;
+            Log.Error(ex, "ERROR: {Message}", ex.Message);
+            return ExitCodes.GenericFailure;
+        }
+        finally {
+            await Log.CloseAndFlushAsync();
         }
     }
 

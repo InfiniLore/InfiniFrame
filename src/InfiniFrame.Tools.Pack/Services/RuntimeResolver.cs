@@ -46,27 +46,4 @@ internal static class RuntimeResolver {
         throw new PlatformNotSupportedException("Unsupported OS for auto RID resolution.");
     }
 
-    /// <summary>
-    ///     Resolves the native artifact OS directory segment from a RID.
-    /// </summary>
-    /// <param name="rid">Runtime identifier.</param>
-    /// <returns><c>windows</c>, <c>linux</c>, or <c>osx</c>.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when the RID is unsupported.</exception>
-    public static string ResolveNativeOsDir(string rid) {
-        // ReSharper disable thrice ConvertIfStatementToReturnStatement
-        if (rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return "windows";
-        if (rid.StartsWith("linux-", StringComparison.OrdinalIgnoreCase)) return "linux";
-        if (rid.StartsWith("osx-", StringComparison.OrdinalIgnoreCase)) return "osx";
-
-        throw new InvalidOperationException($"Unsupported RID for native artifact resolution: {rid}");
-    }
-
-    /// <summary>
-    ///     Resolves the native build platform from a RID.
-    /// </summary>
-    /// <param name="rid">Runtime identifier.</param>
-    /// <returns><c>arm64</c> when the RID includes <c>arm64</c>; otherwise <c>x64</c>.</returns>
-    public static string ResolveNativePlatform(string rid) => rid.Contains("arm64", StringComparison.OrdinalIgnoreCase)
-        ? "arm64"
-        : "x64";
 }

@@ -19,13 +19,20 @@ namespace InfiniFrame;
 /// single-file/native outputs that embed <c>InfiniFrame.Native</c> and platform loader dependencies.
 /// </remarks>
 public static class InfiniFrameSingleFileBootstrap {
-    private const string WebView2LoaderLibraryName = "WebView2Loader";
-    private const string WebView2LoaderFileName = "WebView2Loader.dll";
+    private const string WebView2LoaderLibraryName = InfiniFrameNativeArtifactManifest.WindowsLoaderLibraryName;
 
+    #if NET9_0_OR_GREATER
+    private static readonly Lock InitLock = new();
+    #else
     private static readonly object InitLock = new();
+    #endif
     private static int _initialized;
     private static string? _nativeDir;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    
     /// <summary>
     /// Extracts embedded native runtime binaries to a temporary runtime-identifier-specific folder and registers a
     /// <see cref="NativeLibrary"/> resolver for InfiniFrame native loading.
@@ -42,7 +49,7 @@ public static class InfiniFrameSingleFileBootstrap {
             _nativeDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "native",
                 entryAssembly.GetName().Name ?? "app", rid, version, uniqueId);
 
-            var initialized = false;
+            bool initialized = false;
             try {
                 Directory.CreateDirectory(_nativeDir);
                 ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
@@ -62,10 +69,8 @@ public static class InfiniFrameSingleFileBootstrap {
         if (_nativeDir is null || libraryName is not NativeDll.DllName and not WebView2LoaderLibraryName) return IntPtr.Zero;
 
         string fileName = libraryName switch {
-            NativeDll.DllName when RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => "InfiniFrame.Native.dll",
-            NativeDll.DllName when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => "InfiniFrame.Native.so",
-            NativeDll.DllName when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => "InfiniFrame.Native.dylib",
-            WebView2LoaderLibraryName => WebView2LoaderFileName,
+            NativeDll.DllName => InfiniFrameNativeArtifactManifest.ResolveNativeLibraryFileNameForCurrentPlatform(),
+            WebView2LoaderLibraryName => InfiniFrameNativeArtifactManifest.WindowsLoaderFileName,
             _ => string.Empty
         };
 
@@ -75,7 +80,7 @@ public static class InfiniFrameSingleFileBootstrap {
         if (!File.Exists(fullPath)) return IntPtr.Zero;
 
         if (libraryName == NativeDll.DllName && OperatingSystem.IsWindows()) {
-            TryPreloadDependency(WebView2LoaderFileName);
+            TryPreloadDependency(InfiniFrameNativeArtifactManifest.WindowsLoaderFileName);
         }
 
         return NativeLibrary.Load(fullPath);
@@ -140,11 +145,7 @@ public static class InfiniFrameSingleFileBootstrap {
     }
 
     private static string[] GetNativeFileNamesForCurrentPlatform() {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return ["InfiniFrame.Native.dll", WebView2LoaderFileName];
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return ["InfiniFrame.Native.so"];
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return ["InfiniFrame.Native.dylib"];
-
-        throw new PlatformNotSupportedException("Unsupported OS for native bootstrap.");
+        return InfiniFrameNativeArtifactManifest.RequiredFileNamesForCurrentPlatform();
     }
 
     private static void TryCleanupNativeDirectory() {

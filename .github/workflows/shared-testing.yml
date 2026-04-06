@@ -35,6 +35,10 @@ on:
                 description: 'Run docs validation'
                 type: boolean
                 required: true
+            run_pack:
+                description: 'Run pack tool end-to-end validation'
+                type: boolean
+                required: true
 
 jobs:
     prepare:
@@ -75,6 +79,45 @@ jobs:
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
+        secrets: inherit
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    pack-tool-e2e-windows:
+        name: Pack Tool E2E Windows
+        if: ${{ inputs.run_pack == true }}
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-pack-windows.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+        secrets: inherit
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    pack-tool-e2e-linux:
+        name: Pack Tool E2E Linux
+        if: ${{ inputs.run_pack == true }}
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-pack-linux.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+        secrets: inherit
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    pack-tool-e2e-macos:
+        name: Pack Tool E2E macOS
+        if: ${{ inputs.run_pack == true }}
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-pack-macos.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent

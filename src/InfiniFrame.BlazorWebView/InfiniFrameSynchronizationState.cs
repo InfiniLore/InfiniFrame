@@ -6,7 +6,6 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameSynchronizationState {
-
     #if NET9_0_OR_GREATER
     public readonly Lock Lock = new();
     #else

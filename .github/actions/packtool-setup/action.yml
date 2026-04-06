@@ -1,0 +1,47 @@
+name: Setup InfiniFrame Pack Tool
+description: Packs InfiniFrame.Tools.Pack and installs/updates the global infiniframe-pack command.
+
+inputs:
+  tool-project:
+    description: Path to InfiniFrame.Tools.Pack.csproj
+    required: false
+    default: src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj
+  package-output:
+    description: Directory where tool package artifacts are emitted
+    required: false
+    default: artifacts/dotnet-tools
+
+runs:
+  using: composite
+  steps:
+    - name: Build tool project
+      shell: bash
+      run: |
+        dotnet build "${{ inputs['tool-project'] }}" -c Release --no-restore
+
+    - name: Pack tool project
+      shell: bash
+      run: |
+        dotnet pack "${{ inputs['tool-project'] }}" -c Release --no-build --no-restore -o "${{ inputs['package-output'] }}"
+
+    - name: Install or update global tool
+      shell: bash
+      run: |
+        if dotnet tool list --global | grep -q "InfiniLore.InfiniFrame.Tools.Pack"; then
+          dotnet tool update --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
+        else
+          dotnet tool install --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
+        fi
+
+    - name: Add global tools path
+      shell: bash
+      run: |
+        echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+        if [ -n "${USERPROFILE:-}" ]; then
+          echo "$USERPROFILE/.dotnet/tools" >> "$GITHUB_PATH"
+        fi
+
+    - name: Verify tool command
+      shell: bash
+      run: |
+        infiniframe-pack --help

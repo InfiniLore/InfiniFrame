@@ -1,60 +1,20 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics.CodeAnalysis;
+using System.Buffers.Binary;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class NativeRuntimeBuilder {
-    /// <summary>
-    ///     The native runtime file names that are stripped from final publish output after embedding.
-    /// </summary>
-    public static readonly string[] NativeRuntimeFiles = [
-        "InfiniFrame.Native.dll",
-        "WebView2Loader.dll",
-        "InfiniFrame.Native.so",
-        "InfiniFrame.Native.dylib"
-    ];
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
+    private const ushort ImageFileMachineAmd64 = 0x8664;
+    private const ushort ImageFileMachineArm64 = 0xAA64;
 
     /// <summary>
-    ///     Builds the native InfiniFrame runtime project for the resolved platform.
+    ///     The native runtime file names that are stripped from the final publication output after embedding.
     /// </summary>
-    /// <param name="nativeProjectPath">Path to <c>InfiniFrame.Native.proj</c>.</param>
-    /// <param name="nativeProjectDirectory">Directory containing <paramref name="nativeProjectPath" />.</param>
-    /// <param name="configuration">Build configuration, typically <c>Debug</c> or <c>Release</c>.</param>
-    /// <param name="platform">Native platform value passed to MSBuild (for example, <c>x64</c>).</param>
-    /// <param name="nativeArtifactsDir">Directory where native build artifacts are copied.</param>
-    /// <param name="verbose"><see langword="true" /> to use normal verbosity; otherwise minimal verbosity.</param>
-    /// <exception cref="FileNotFoundException">Thrown when <paramref name="nativeProjectPath" /> does not exist.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the native build process exits with a non-zero code.</exception>
-    public static async Task BuildAsync(string nativeProjectPath, string nativeProjectDirectory, string configuration, string platform, string nativeArtifactsDir, bool verbose) {
-        if (!File.Exists(nativeProjectPath)) throw new FileNotFoundException("InfiniFrame native project was not found.", nativeProjectPath);
-
-        Console.WriteLine("[InfiniFrame.Pack] Building native runtime");
-        Console.WriteLine($"  NativeProject: {nativeProjectPath}");
-        Console.WriteLine($"  Configuration: {configuration}");
-        Console.WriteLine($"  Platform: {platform}");
-        Console.WriteLine($"  NativeArtifacts: {nativeArtifactsDir}");
-
-        List<string> buildArgs = [
-            "msbuild",
-            nativeProjectPath,
-            "-t:Build",
-            $"-p:Configuration={configuration}",
-            $"-p:Platform={platform}",
-            $"-p:NativeOutputDir={nativeArtifactsDir}",
-            verbose ? "-v:normal" : "-v:minimal"
-        ];
-
-        int exitCode = await ProcessRunner.RunAsync("dotnet", buildArgs, nativeProjectDirectory);
-        if (exitCode != 0) throw new InvalidOperationException($"Native build failed with exit code {exitCode}.");
-    }
+    public static readonly string[] NativeRuntimeFiles = InfiniFramePackNativeArtifactManifest.AllFileNames;
 
     /// <summary>
     ///     Validates that all required native artifacts for a RID are present in the artifact directory.
@@ -67,20 +27,71 @@ internal static class NativeRuntimeBuilder {
     public static void ValidateArtifacts(string nativeArtifactsDir, string rid) {
         if (!Directory.Exists(nativeArtifactsDir)) throw new InvalidOperationException($"Native artifacts directory was not found: {nativeArtifactsDir}");
 
-        IEnumerable<string> enumerable = RequiredFilesForRid(rid)
-            .Select(file => Path.IsPathRooted(file) ? file : Path.Join(nativeArtifactsDir, file));
+        string[] requiredPaths = RequiredFilesForRid(rid)
+            .Select(file => Path.IsPathRooted(file) ? file : Path.Join(nativeArtifactsDir, file))
+            .ToArray();
         
-        foreach (string path in enumerable) {
+        foreach (string path in requiredPaths) {
             if (!File.Exists(path)) throw new InvalidOperationException($"Required native artifact was not found: {path}");
+        }
+
+        foreach (string path in requiredPaths) {
+            ValidateArtifactArchitecture(path, rid);
         }
     }
 
-    [SuppressMessage("ReSharper", "ConvertIfStatementToReturnStatement")]
-    private static string[] RequiredFilesForRid(string rid) {
-        if (rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return ["InfiniFrame.Native.dll", "WebView2Loader.dll"];
-        if (rid.StartsWith("linux-", StringComparison.OrdinalIgnoreCase)) return ["InfiniFrame.Native.so"];
-        if (rid.StartsWith("osx-", StringComparison.OrdinalIgnoreCase)) return ["InfiniFrame.Native.dylib"];
+    private static string[] RequiredFilesForRid(string rid) => InfiniFramePackNativeArtifactManifest.RequiredFileNamesForRid(rid);
 
-        throw new InvalidOperationException($"Unsupported RID for native artifact validation: {rid}");
+    private static void ValidateArtifactArchitecture(string artifactPath, string rid) {
+        if (!rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return;
+
+        ushort expectedMachine = ExpectedPeMachineForRid(rid);
+        ushort actualMachine = ReadPeMachine(artifactPath);
+        if (actualMachine == expectedMachine) return;
+
+        throw new InvalidOperationException(
+            $"Native artifact architecture mismatch for '{artifactPath}'. " +
+            $"Expected {DescribePeMachine(expectedMachine)} for RID '{rid}', found {DescribePeMachine(actualMachine)}."
+        );
     }
+
+    private static ushort ExpectedPeMachineForRid(string rid) {
+        if (rid.EndsWith("-x64", StringComparison.OrdinalIgnoreCase)) return ImageFileMachineAmd64;
+        if (rid.EndsWith("-arm64", StringComparison.OrdinalIgnoreCase)) return ImageFileMachineArm64;
+        throw new InvalidOperationException($"Unsupported Windows RID for native artifact architecture validation: {rid}");
+    }
+
+    private static ushort ReadPeMachine(string path) {
+        using FileStream stream = File.OpenRead(path);
+        long length = stream.Length;
+        if (length < 0x40) throw new InvalidOperationException($"Native artifact is not a valid PE binary: {path}");
+
+        Span<byte> dosHeader = stackalloc byte[64];
+        stream.ReadExactly(dosHeader);
+
+        if (dosHeader[0] != (byte)'M' || dosHeader[1] != (byte)'Z') {
+            throw new InvalidOperationException($"Native artifact is not a valid PE binary: {path}");
+        }
+
+        int peHeaderOffset = BinaryPrimitives.ReadInt32LittleEndian(dosHeader[0x3C..0x40]);
+        if (peHeaderOffset < 0 || peHeaderOffset > length - 6) {
+            throw new InvalidOperationException($"Native artifact is not a valid PE binary: {path}");
+        }
+
+        stream.Position = peHeaderOffset;
+        Span<byte> pePrefixAndMachine = stackalloc byte[6];
+        stream.ReadExactly(pePrefixAndMachine);
+
+        if (pePrefixAndMachine[0] != (byte)'P' || pePrefixAndMachine[1] != (byte)'E' || pePrefixAndMachine[2] != 0 || pePrefixAndMachine[3] != 0) {
+            throw new InvalidOperationException($"Native artifact is not a valid PE binary: {path}");
+        }
+
+        return BinaryPrimitives.ReadUInt16LittleEndian(pePrefixAndMachine[4..6]);
+    }
+
+    private static string DescribePeMachine(ushort machine) => machine switch {
+        ImageFileMachineAmd64 => $"x64 (0x{machine:X4})",
+        ImageFileMachineArm64 => $"arm64 (0x{machine:X4})",
+        _ => $"0x{machine:X4}"
+    };
 }

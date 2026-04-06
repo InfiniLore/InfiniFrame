@@ -27,10 +27,8 @@ public class OutputPathSafetyTests {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(projectDirectory, "bin", "Release", "net10.0", "win-x64", "publish");
 
-        OutputPathSafety.EnsureOutputCanBeDeleted(outputPath, projectDirectory, forceCleanOutput: false);
-        bool executed = true;
-
-        await Assert.That(executed).IsTrue();
+        bool output = OutputPathSafety.EnsureOutputCanBeDeleted(outputPath, projectDirectory, forceCleanOutput: false);
+        await Assert.That(output).IsTrue();
     }
 
     [Test]
@@ -51,9 +49,26 @@ public class OutputPathSafetyTests {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
 
-        OutputPathSafety.EnsureOutputCanBeDeleted(outputPath, projectDirectory, forceCleanOutput: true);
-        bool executed = true;
+        bool output = OutputPathSafety.EnsureOutputCanBeDeleted(outputPath, projectDirectory, forceCleanOutput: true);
+        await Assert.That(output).IsTrue();
+    }
 
-        await Assert.That(executed).IsTrue();
+    [Test]
+    public async Task EnsureOutputCanBeDeleted_RejectsCaseMismatchForBinDirectory_OnCaseSensitivePlatforms() {
+        string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
+        string outputPath = Path.Join(projectDirectory, "BIN", "Release", "net10.0", "win-x64", "publish");
+
+        if (OperatingSystem.IsWindows()) {
+            bool output = OutputPathSafety.EnsureOutputCanBeDeleted(outputPath, projectDirectory, forceCleanOutput: false);
+            await Assert.That(output).IsTrue();
+            return;
+        }
+
+        InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
+            OutputPathSafety.EnsureOutputCanBeDeleted(outputPath, projectDirectory, forceCleanOutput: false);
+            return Task.CompletedTask;
+        }) ?? throw new InvalidOperationException("Expected exception was not thrown.");
+
+        await Assert.That(ex.Message).Contains("--force-clean-output");
     }
 }

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Exceptions;
+using Serilog;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -9,7 +10,9 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class PublishService {
     private const string DotNet = "dotnet";
-    private const int MissingMainOutputExitCode = 3;
+    private static readonly StringComparison PathComparison =
+        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+    private static readonly ILogger Logger = Log.ForContext(typeof(PublishService));
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -58,10 +61,16 @@ internal static class PublishService {
             int exitCode = await ProcessRunner.RunAsync(DotNet, publishArgs);
             if (exitCode != 0) return exitCode;
 
-            PublishOutputCleaner.Cleanup(output);
+            string[] cleanupWarnings = PublishOutputCleaner.Cleanup(output);
+            foreach (string warning in cleanupWarnings) {
+                Logger.Warning("{CleanupWarning}", warning);
+            }
             string expectedMainOutput = ResolveExpectedMainOutputPath(output, assemblyName, rid);
-            bool foundMainOutput = PrintOutputSummary(output, expectedMainOutput);
-            return foundMainOutput ? 0 : MissingMainOutputExitCode;
+            OutputShapeValidation validation = ValidateOutputShape(output, expectedMainOutput);
+            PrintOutputSummary(output, expectedMainOutput, validation.UnexpectedEntries);
+
+            if (!validation.FoundMainOutput) return ExitCodes.MissingMainOutput;
+            return validation.UnexpectedEntries.Length == 0 ? ExitCodes.Success : ExitCodes.UnexpectedOutputShape;
         }
         finally {
             if (nativeArtifacts.DeleteWhenDone && Directory.Exists(nativeArtifacts.Directory)) {
@@ -81,29 +90,57 @@ internal static class PublishService {
     }
 
     private static void PrintPublishSummary(string projectPath, string framework, string rid, bool selfContained, string output, string nativeArtifacts) {
-        Console.WriteLine("[InfiniFrame.Pack] Publishing single-file app");
-        Console.WriteLine($"  Project: {projectPath}");
-        Console.WriteLine($"  Framework: {framework}");
-        Console.WriteLine($"  RID: {rid}");
-        Console.WriteLine($"  SelfContained: {selfContained}");
-        Console.WriteLine($"  Output: {output}");
-        Console.WriteLine($"  NativeArtifacts: {nativeArtifacts}");
+        Logger.Information("Publishing single-file app");
+        Logger.Information("  Project: {ProjectPath}", projectPath);
+        Logger.Information("  Framework: {Framework}", framework);
+        Logger.Information("  RID: {Rid}", rid);
+        Logger.Information("  SelfContained: {SelfContained}", selfContained);
+        Logger.Information("  Output: {Output}", output);
+        Logger.Information("  NativeArtifacts: {NativeArtifacts}", nativeArtifacts);
     }
 
-    private static bool PrintOutputSummary(string output, string expectedMainOutput) {
-        bool foundMainOutput = File.Exists(expectedMainOutput);
+    internal static OutputShapeValidation ValidateOutputShape(string output, string expectedMainOutput) {
+        string normalizedExpectedMainOutput = Path.GetFullPath(expectedMainOutput);
+        string[] outputFiles = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly);
+        bool foundMainOutput = outputFiles.Any(file => string.Equals(Path.GetFullPath(file), normalizedExpectedMainOutput, PathComparison));
+        string[] unexpectedFiles = outputFiles
+            .Where(file => !string.Equals(Path.GetFullPath(file), normalizedExpectedMainOutput, PathComparison))
+            .Select(file => Path.GetFileName(file))
+            .Where(fileName => !string.IsNullOrWhiteSpace(fileName))
+            .ToArray();
+        string[] unexpectedDirectories = Directory.GetDirectories(output, "*", SearchOption.TopDirectoryOnly)
+            .Select(directory => Path.GetFileName(directory))
+            .Where(directoryName => !string.IsNullOrWhiteSpace(directoryName))
+            .ToArray();
+        string[] unexpectedEntries = unexpectedFiles
+            .Concat(unexpectedDirectories)
+            .OrderBy(entry => entry, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return new OutputShapeValidation(foundMainOutput, unexpectedEntries);
+    }
+
+    private static void PrintOutputSummary(string output, string expectedMainOutput, string[] unexpectedEntries) {
         if (!File.Exists(expectedMainOutput)) {
-            Console.WriteLine("[InfiniFrame.Pack] Publish succeeded, but expected single-file output was not found.");
+            Logger.Warning("Publish succeeded, but expected single-file output was not found.");
+        }
+        else if (unexpectedEntries.Length != 0) {
+            Logger.Warning("Publish output contains unexpected entries.");
         }
 
         string[] files = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly);
-        Console.WriteLine("[InfiniFrame.Pack] Completed");
-        Console.WriteLine($"  Files in output: {files.Length}");
+        Logger.Information("Completed");
+        Logger.Information("  Files in output: {FileCount}", files.Length);
         foreach (string file in files.Select(Path.GetFileName).Where(x => !string.IsNullOrWhiteSpace(x)).OrderBy(x => x)!) {
-            Console.WriteLine($"  - {file}");
+            Logger.Information("  - {File}", file);
         }
 
-        return foundMainOutput;
+        if (unexpectedEntries.Length == 0) return;
+
+        Logger.Warning("  Unexpected entries:");
+        foreach (string unexpectedEntry in unexpectedEntries) {
+            Logger.Warning("  - {UnexpectedEntry}", unexpectedEntry);
+        }
     }
 
     private static async Task<ResolvedNativeArtifacts> ResolveNativeArtifactsAsync(
@@ -115,13 +152,26 @@ internal static class PublishService {
         string preflightDirectory = Path.Join(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
         Directory.CreateDirectory(preflightDirectory);
 
-        var preflightValidated = false;
+        bool preflightValidated = false;
         try {
-            int preflightExitCode = await ProcessRunner.RunAsync(DotNet,
-                BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true));
+            List<string> preflightArgs = BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true);
+            ProcessRunner.ProcessRunResult preflightResult = await ProcessRunner.RunWithOutputAsync(DotNet, preflightArgs);
+            int preflightExitCode = preflightResult.ExitCode;
 
             if (preflightExitCode != 0) {
-                throw new InvalidOperationException($"Preflight publish failed with exit code {preflightExitCode}.");
+                string? fallbackArtifactsDirectory = TryResolveNativeArtifactsFromRepository(projectPath, rid, options.Configuration);
+                if (!string.IsNullOrWhiteSpace(fallbackArtifactsDirectory)) {
+                    Logger.Warning(
+                        "[InfiniFrame.Pack] Preflight publish failed (exit code {PreflightExitCode}). Falling back to native artifacts at: {NativeArtifactsDirectory}",
+                        preflightExitCode,
+                        fallbackArtifactsDirectory
+                    );
+                    return new ResolvedNativeArtifacts(fallbackArtifactsDirectory, false);
+                }
+
+                throw new InvalidOperationException(
+                    $"Preflight publish failed with exit code {preflightExitCode}. Command: {DotNet} {string.Join(' ', preflightArgs)}" +
+                    $"{FormatPreflightOutputForException(preflightResult)}");
             }
 
             try {
@@ -143,12 +193,64 @@ internal static class PublishService {
         }
     }
 
+    private static string? TryResolveNativeArtifactsFromRepository(string projectPath, string rid, string configuration) {
+        string? osDirectory = ResolveNativeOsDirectory(rid);
+        string? architecture = ResolveRidArchitecture(rid);
+        if (osDirectory is null || architecture is null) return null;
+
+        string projectDirectory = Path.GetDirectoryName(projectPath) ?? string.Empty;
+        DirectoryInfo? current = new(projectDirectory);
+        while (current is not null) {
+            string candidateDirectory = Path.Join(current.FullName, "artifacts", "native", osDirectory, architecture, configuration);
+            if (Directory.Exists(candidateDirectory)) {
+                try {
+                    NativeRuntimeBuilder.ValidateArtifacts(candidateDirectory, rid);
+                    return candidateDirectory;
+                }
+                catch (InvalidOperationException) {
+                    // keep walking up to try the next repository root candidate
+                }
+            }
+
+            current = current.Parent;
+        }
+
+        return null;
+    }
+
+    private static string FormatPreflightOutputForException(ProcessRunner.ProcessRunResult preflightResult) {
+        string standardOutput = TruncateForException(preflightResult.StandardOutput);
+        string standardError = TruncateForException(preflightResult.StandardError);
+        return $"{Environment.NewLine}--- preflight stdout ---{Environment.NewLine}{standardOutput}" +
+               $"{Environment.NewLine}--- preflight stderr ---{Environment.NewLine}{standardError}";
+    }
+
+    private static string TruncateForException(string value, int maxLength = 4000) {
+        if (string.IsNullOrWhiteSpace(value)) return "<empty>";
+        string trimmed = value.Trim();
+        if (trimmed.Length <= maxLength) return trimmed;
+        return $"{trimmed[..maxLength]}{Environment.NewLine}<truncated>";
+    }
+
+    private static string? ResolveNativeOsDirectory(string rid) {
+        if (rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return "windows";
+        if (rid.StartsWith("linux-", StringComparison.OrdinalIgnoreCase)) return "linux";
+        if (rid.StartsWith("osx-", StringComparison.OrdinalIgnoreCase)) return "osx";
+        return null;
+    }
+
+    private static string? ResolveRidArchitecture(string rid) {
+        if (rid.EndsWith("-x64", StringComparison.OrdinalIgnoreCase)) return "x64";
+        if (rid.EndsWith("-arm64", StringComparison.OrdinalIgnoreCase)) return "arm64";
+        return null;
+    }
+
     private static void SafeDeleteDirectory(string path, string projectDirectory, bool forceCleanOutput) {
         string fullPath = Path.GetFullPath(path);
         OutputPathSafety.EnsureOutputCanBeDeleted(fullPath, projectDirectory, forceCleanOutput);
 
         // Log deletion for transparency
-        Console.WriteLine($"[InfiniFrame.Pack] Cleaning previous output folder: {fullPath}");
+        Logger.Information("Cleaning previous output folder: {OutputDirectory}", fullPath);
 
         try {
             Directory.Delete(fullPath, true);
@@ -168,6 +270,7 @@ internal static class PublishService {
         string? customTargetsPath = null,
         bool isPreflight = false
     ) {
+        bool selfContained = !isPreflight && options.SelfContained;
         List<string> args = [
             "publish",
             projectPath,
@@ -176,7 +279,7 @@ internal static class PublishService {
             "-f", framework,
             "--output", output,
             "-p:InfiniFramePackInvoked=true",
-            $"-p:SelfContained={options.SelfContained.ToString().ToLowerInvariant()}",
+            $"-p:SelfContained={selfContained.ToString().ToLowerInvariant()}",
             "-p:IncludeNativeLibrariesForSelfExtract=true",
             options.Verbose ? "-v:normal" : "-v:minimal"
         ];
@@ -202,4 +305,6 @@ internal static class PublishService {
 
         return args;
     }
+
+    internal readonly record struct OutputShapeValidation(bool FoundMainOutput, string[] UnexpectedEntries);
 }

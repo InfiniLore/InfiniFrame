@@ -13,6 +13,22 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Serilog" />
+        <PackageReference Include="Serilog.Sinks.Console" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="install-or-update-pack-tool.sh">
+            <Pack>false</Pack>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <None Include="install-or-update-pack-tool.ps1">
+            <Pack>false</Pack>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
         <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack"/>
     </ItemGroup>
 </Project>

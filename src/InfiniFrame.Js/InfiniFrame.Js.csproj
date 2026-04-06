@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\InfiniFrame.Shared\InfiniFrame.Shared.csproj"/>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
 </Project>

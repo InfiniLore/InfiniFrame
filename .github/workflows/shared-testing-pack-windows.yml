@@ -1,4 +1,4 @@
-name: "Shared: GUI Tests Windows"
+name: "Shared: Pack Tool E2E Windows"
 on:
     workflow_call:
         inputs:
@@ -17,8 +17,8 @@ on:
                 required: true
 
 jobs:
-    windows-gui:
-        name: Windows GUI (${{ matrix.arch }})
+    pack-tool-e2e:
+        name: Windows Pack Tool E2E (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -29,10 +29,10 @@ jobs:
                 include:
                     -   os: windows-latest
                         arch: x64
-                        libName: windows
+                        rid: win-x64
                     -   os: windows-11-arm
                         arch: arm64
-                        libName: windows
+                        rid: win-arm64
         permissions:
             contents: read
             statuses: write
@@ -45,7 +45,7 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
-            -   name: Set Windows Check Pending
+            -   name: Set Pack Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 # noinspection UndefinedAction
@@ -54,9 +54,9 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - GUI/Windows/${{ matrix.arch }}
+                    context: CI Testing - Pack Tool/Windows/${{ matrix.arch }}
                     state: pending
-                    status-description: Windows tests in progress
+                    status-description: Pack tool end-to-end validation in progress
                     target-url: ${{ inputs.workflow_url }}
                     allow-status-422: 'true'
 
@@ -72,9 +72,9 @@ jobs:
                 uses: actions/cache@v5
                 with:
                     path: ~\.nuget\packages
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
                     restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
+                        ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-nuget-
 
             -   name: Setup CMake
                 uses: lukka/get-cmake@latest
@@ -84,16 +84,18 @@ jobs:
             -   name: Cache CMake build
                 uses: actions/cache@v5
                 with:
-                    path: |
-                        src\InfiniFrame.Native\build
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+                    path: src\InfiniFrame.Native\build
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
                     restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
+                        ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-cmake-
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
+                run: |
+                    dotnet restore src/InfiniFrame.Native/InfiniFrame.Native.proj /p:NoWarn=NU1503
+                    dotnet restore src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj /p:NoWarn=NU1503
+                    dotnet restore examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj /p:NoWarn=NU1503
 
-            -   name: Build Release
+            -   name: Build Native Runtime (${{ matrix.rid }})
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                       --configuration Release `
@@ -101,63 +103,45 @@ jobs:
                       -p:SolutionDir="${{ github.workspace }}/" `
                       -p:Platform=${{ matrix.arch }}
 
-                    dotnet build InfiniFrame.GitHubActions.Testing.slnf `
-                      --configuration Release `
-                      --no-restore
+            -   name: Setup Pack Tool
+                # noinspection UndefinedAction
+                uses: ./.github/actions/packtool-setup
 
-            -   name: Verify Native Binaries
-                run: |
-                    $nativeDll = "tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dll"
-                    $webView2 = "tests/InfiniFrameTests/bin/Release/net9.0/WebView2Loader.dll"
-
-                    if (-Not (Test-Path $nativeDll)) {
-                      Write-Host "ERROR: InfiniFrame.Native.dll NOT found in test output!"
-                      Exit 1
-                    }
-
-                    if (-Not (Test-Path $webView2)) {
-                      Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
-                      Exit 1
-                    }
-
-                    Write-Host "All native DLLs present"
-
-            -   name: Export Actions Runtime
-                uses: actions/github-script@v8
+            -   name: Run Pack Tool
+                # noinspection UndefinedAction
+                uses: ./.github/actions/packtool-publish
+                # noinspection UndefinedParamsPresent
                 with:
-                    script: |
-                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
-                        core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
+                    project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
+                    rid: ${{ matrix.rid }}
+                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
 
-            -   name: Run Tests
-                run: |
-                    echo "Running tests on Windows..."
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore
-
-            -   name: Upload Test Logs
-                if: failure()
-                uses: actions/upload-artifact@v7
+            -   name: Validate Packed Output
+                # noinspection UndefinedAction
+                uses: ./.github/actions/packtool-validate
+                # noinspection UndefinedParamsPresent
                 with:
-                    name: test-logs-windows-${{ matrix.arch }}
-                    path: |
-                        **/TestResults/*.log
-                        **/TestResults/*.trx
+                    output-dir: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
+                    main-output-name: InfiniFrameExample.SingleFileExe.exe
+                    forbidden-entries: |
+                        wwwroot
+                        InfiniFrame.Native.dll
+                        WebView2Loader.dll
+                        InfiniFrame.Native.so
+                        InfiniFrame.Native.dylib
 
-            -   name: Update Windows Check
+            -   name: Update Pack Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
+                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check-finalize
                 # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - GUI/Windows/${{ matrix.arch }}
+                    context: CI Testing - Pack Tool/Windows/${{ matrix.arch }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
-                    success-description: Windows tests passed
-                    failure-description: Windows tests failed
+                    success-description: Pack tool end-to-end validation passed
+                    failure-description: Pack tool end-to-end validation failed

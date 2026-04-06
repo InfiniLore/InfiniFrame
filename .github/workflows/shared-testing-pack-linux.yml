@@ -1,0 +1,175 @@
+name: "Shared: Pack Tool E2E Linux"
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                required: true
+            checkout_ref:
+                type: string
+                required: false
+                default: ''
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+jobs:
+    pack-tool-e2e:
+        name: Linux Pack Tool E2E (${{ matrix.arch }})
+        runs-on: ${{ matrix.os }}
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        arch: x64
+                        rid: linux-x64
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        rid: linux-arm64
+        permissions:
+            contents: read
+            statuses: write
+            checks: write
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Set Pack Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Pack Tool/Linux/${{ matrix.arch }}
+                    state: pending
+                    status-description: Pack tool Linux end-to-end validation in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+
+            -   name: Setup .NET
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache NuGet
+                uses: actions/cache@v5
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-nuget-
+
+            -   name: Setup CMake
+                uses: lukka/get-cmake@latest
+
+            -   name: Cache CMake build
+                uses: actions/cache@v5
+                with:
+                    path: src/InfiniFrame.Native/build
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
+                    restore-keys: |
+                        ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-cmake-
+
+            -   name: Install Native Build Deps
+                uses: awalsh128/cache-apt-pkgs-action@latest
+                with:
+                    packages: >
+                        pkg-config
+                        gnome-shell
+                        gnome-session
+                        gnome-settings-daemon
+                        mutter
+                        xvfb
+                        x11-utils
+                        x11-xserver-utils
+                        dbus-x11
+                        at-spi2-core
+                        gsettings-desktop-schemas
+                        libnotify4
+                        libnotify-dev
+                        libwebkit2gtk-4.1-dev
+                        libgtk-3-dev
+                        libglib2.0-dev
+                        libgdk-pixbuf2.0-dev
+                        libpango1.0-dev
+                        libatk1.0-dev
+                        libharfbuzz-dev
+                        libepoxy-dev
+                        libx11-dev
+                        fonts-liberation
+                        xfonts-base
+                    version: 1.0
+
+            -   name: Restore
+                run: |
+                    dotnet restore src/InfiniFrame.Native/InfiniFrame.Native.proj /p:NoWarn=NU1503
+                    dotnet restore src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj /p:NoWarn=NU1503
+                    dotnet restore examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj /p:NoWarn=NU1503
+
+            -   name: Build Native Runtime (${{ matrix.rid }})
+                run: |
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      -p:SolutionDir="${{ github.workspace }}/" \
+                      -p:Platform=${{ matrix.arch }}
+
+            -   name: Setup Pack Tool
+                # noinspection UndefinedAction
+                uses: ./.github/actions/packtool-setup
+
+            -   name: Run Pack Tool
+                # noinspection UndefinedAction
+                uses: ./.github/actions/packtool-publish
+                # noinspection UndefinedParamsPresent
+                with:
+                    project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
+                    rid: ${{ matrix.rid }}
+                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
+
+            -   name: Validate Packed Output
+                # noinspection UndefinedAction
+                uses: ./.github/actions/packtool-validate
+                # noinspection UndefinedParamsPresent
+                with:
+                    output-dir: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
+                    main-output-name: InfiniFrameExample.SingleFileExe
+                    forbidden-entries: |
+                        wwwroot
+                        InfiniFrame.Native.dll
+                        WebView2Loader.dll
+                        InfiniFrame.Native.so
+                        InfiniFrame.Native.dylib
+
+            -   name: Update Pack Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Pack Tool/Linux/${{ matrix.arch }}
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: Pack tool Linux end-to-end validation passed
+                    failure-description: Pack tool Linux end-to-end validation failed

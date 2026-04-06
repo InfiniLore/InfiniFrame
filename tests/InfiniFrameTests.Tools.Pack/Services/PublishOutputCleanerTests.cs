@@ -41,9 +41,10 @@ public class PublishOutputCleanerTests {
         }
 
         // Act
-        PublishOutputCleaner.Cleanup(output);
+        string[] warnings = PublishOutputCleaner.Cleanup(output);
 
         // Assert
+        await Assert.That(warnings.Length).IsEqualTo(0);
         await Assert.That(Directory.Exists(wwwroot)).IsFalse();
         foreach (string file in NativeRuntimeBuilder.NativeRuntimeFiles) {
             await Assert.That(File.Exists(Path.Join(output, file))).IsFalse();
@@ -56,9 +57,40 @@ public class PublishOutputCleanerTests {
         string output = TemporaryDirectory.Path;
 
         // Act
-        PublishOutputCleaner.Cleanup(output);
+        string[] warnings = PublishOutputCleaner.Cleanup(output);
 
         // Assert
+        await Assert.That(warnings.Length).IsEqualTo(0);
         await Assert.That(Directory.Exists(output)).IsTrue();
+    }
+
+    [Test]
+    public async Task Cleanup_ReturnsWarning_WhenNativeArtifactDeletionFails() {
+        // Arrange
+        string output = TemporaryDirectory.Path;
+        string nativeArtifactPath = Path.Join(output, NativeRuntimeBuilder.NativeRuntimeFiles[0]);
+        await File.WriteAllTextAsync(nativeArtifactPath, "locked");
+        File.SetAttributes(nativeArtifactPath, File.GetAttributes(nativeArtifactPath) | FileAttributes.ReadOnly);
+
+        // Act
+        try {
+            string[] warnings = PublishOutputCleaner.Cleanup(output);
+
+            // Assert
+            if (OperatingSystem.IsWindows()) {
+                await Assert.That(warnings.Length).IsEqualTo(1);
+                await Assert.That(warnings[0]).Contains("Cleanup skipped file");
+                await Assert.That(warnings[0]).Contains(nativeArtifactPath);
+                await Assert.That(File.Exists(nativeArtifactPath)).IsTrue();
+                return;
+            }
+
+            await Assert.That(warnings.Length).IsEqualTo(0);
+        }
+        finally {
+            if (File.Exists(nativeArtifactPath)) {
+                File.SetAttributes(nativeArtifactPath, FileAttributes.Normal);
+            }
+        }
     }
 }

@@ -114,6 +114,16 @@ Install the tool first before running packaging commands (including the `InfiniF
 pack target):
 
 ```powershell
+.\src\InfiniFrame.Tools.Pack\install-or-update-pack-tool.ps1
+```
+
+```bash
+bash ./src/InfiniFrame.Tools.Pack/install-or-update-pack-tool.sh
+```
+
+Manual alternative:
+
+```powershell
 dotnet pack src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj -c Release
 dotnet tool install --global --add-source .\src\InfiniFrame.Tools.Pack\bin\Release InfiniLore.InfiniFrame.Tools.Pack
 ```

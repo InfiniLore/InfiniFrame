@@ -27,8 +27,11 @@ internal static class MsBuildPropertyResolver {
 
         if (!process.Start()) return null;
 
-        string stdOut = process.StandardOutput.ReadToEnd().Trim();
+        Task<string> stdOutTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> stdErrTask = process.StandardError.ReadToEndAsync();
         process.WaitForExit();
+        string stdOut = stdOutTask.GetAwaiter().GetResult().Trim();
+        _ = stdErrTask.GetAwaiter().GetResult();
 
         if (process.ExitCode != 0 || string.IsNullOrWhiteSpace(stdOut)) return null;
 
