@@ -105,7 +105,7 @@ static void HandleCustomSchemeRequest(WebKitURISchemeRequest* request, const gpo
     int numBytes = 0;
     AutoString contentType = nullptr;
     void* dotNetResponse = webResourceRequestedCallback(const_cast<AutoString>(uri), &numBytes, &contentType);
-    GInputStream* stream = g_memory_input_stream_new_from_data(dotNetResponse, numBytes, free);
+    GInputStream* stream = g_memory_input_stream_new_from_data(dotNetResponse, numBytes, nullptr);
     webkit_uri_scheme_request_finish(request, reinterpret_cast<GInputStream*>(stream), -1, contentType);
     g_object_unref(stream);
     free(contentType);
