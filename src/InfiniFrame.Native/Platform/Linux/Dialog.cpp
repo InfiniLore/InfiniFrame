@@ -30,10 +30,14 @@ void AddFilters(GtkWidget* dialog, AutoString* filters, const int filterCount) {
         char* saveptr = nullptr;
         const char* name = strtok_r(filterCopy, "|", &saveptr);
         gtk_file_filter_set_name(filter, name);
-        const char* patterns = strtok_r(nullptr, "|", &saveptr);
-        while (patterns != nullptr) {
-            gtk_file_filter_add_pattern(filter, patterns);
-            patterns = strtok_r(nullptr, ";", &saveptr);
+        char* patterns = strtok_r(nullptr, "|", &saveptr);
+        if (patterns != nullptr) {
+            char* patternSavePtr = nullptr;
+            char* pattern = strtok_r(patterns, ";", &patternSavePtr);
+            while (pattern != nullptr) {
+                gtk_file_filter_add_pattern(filter, pattern);
+                pattern = strtok_r(nullptr, ";", &patternSavePtr);
+            }
         }
         gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
         g_free(filterCopy); // Free the duplicated string
