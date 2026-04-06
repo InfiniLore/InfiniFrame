@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using InfiniFrame.Tools.Pack.Services;
 
 namespace InfiniFrameTests.Tools.Pack.Services;
@@ -23,7 +22,7 @@ public class TempTargetsFileTests {
         await Assert.That(contents).Contains("InfiniFramePackRemoveTransitiveNativeFiles");
         await Assert.That(contents).Contains("wwwroot/**/*");
         await Assert.That(contents).Contains("$(PublishDir)/");
-        foreach (string nativeFileName in InfiniFrameNativeArtifactManifest.AllFileNames) {
+        foreach (string nativeFileName in InfiniFramePackNativeArtifactManifest.AllFileNames) {
             await Assert.That(contents).Contains(nativeFileName);
         }
     }

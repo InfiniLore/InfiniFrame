@@ -86,7 +86,7 @@ internal sealed class TempTargetsFile : IDisposable {
         """;
 
     private static string BuildNativeEmbeddedResourceItems() => string.Join(Environment.NewLine,
-        InfiniFrameNativeArtifactManifest.RidArtifacts.Select(artifact => $"""
+        InfiniFramePackNativeArtifactManifest.RidArtifacts.Select(artifact => $"""
             <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)/{artifact.FileName}"
                               Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('{artifact.RidPrefix}')) and Exists('$(InfiniFramePackNativeArtifactsDir)/{artifact.FileName}')"
                               LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).{artifact.FileName}" />
@@ -94,10 +94,10 @@ internal sealed class TempTargetsFile : IDisposable {
 
     private static string BuildResolvedFileRemovalCondition() => string.Join(
         $"{Environment.NewLine}                                             or ",
-        InfiniFrameNativeArtifactManifest.AllFileNames.Select(fileName =>
+        InfiniFramePackNativeArtifactManifest.AllFileNames.Select(fileName =>
             $"'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)'=='{fileName}'")
     );
 
     private static string BuildDeleteItems() => string.Join(Environment.NewLine,
-        InfiniFrameNativeArtifactManifest.AllFileNames.Select(fileName => $"        <Delete Files=\"$(PublishDir)/{fileName}\" />"));
+        InfiniFramePackNativeArtifactManifest.AllFileNames.Select(fileName => $"        <Delete Files=\"$(PublishDir)/{fileName}\" />"));
 }

@@ -12,9 +12,9 @@ internal static class NativeRuntimeBuilder {
     private const ushort ImageFileMachineArm64 = 0xAA64;
 
     /// <summary>
-    ///     The native runtime file names that are stripped from the final publish output after embedding.
+    ///     The native runtime file names that are stripped from the final publication output after embedding.
     /// </summary>
-    public static readonly string[] NativeRuntimeFiles = InfiniFrameNativeArtifactManifest.AllFileNames;
+    public static readonly string[] NativeRuntimeFiles = InfiniFramePackNativeArtifactManifest.AllFileNames;
 
     /// <summary>
     ///     Validates that all required native artifacts for a RID are present in the artifact directory.
@@ -40,7 +40,7 @@ internal static class NativeRuntimeBuilder {
         }
     }
 
-    private static string[] RequiredFilesForRid(string rid) => InfiniFrameNativeArtifactManifest.RequiredFileNamesForRid(rid);
+    private static string[] RequiredFilesForRid(string rid) => InfiniFramePackNativeArtifactManifest.RequiredFileNamesForRid(rid);
 
     private static void ValidateArtifactArchitecture(string artifactPath, string rid) {
         if (!rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return;

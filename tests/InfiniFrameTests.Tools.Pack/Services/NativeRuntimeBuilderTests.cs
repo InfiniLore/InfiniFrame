@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using InfiniFrame.Tools.Pack.Services;
 using InfiniFrameTests.Tools.Pack.TestUtilities;
 
@@ -50,12 +49,12 @@ public class NativeRuntimeBuilderTests {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
         WriteMinimalPeBinary(
-            Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.WindowsNativeFileName),
+            Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName),
             ImageFileMachineAmd64
         );
 
         // Act & Assert
-        string expectedMissingFile = Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.WindowsLoaderFileName);
+        string expectedMissingFile = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
                 NativeRuntimeBuilder.ValidateArtifacts(artifactsDirectory, "win-x64");
                 return Task.CompletedTask;
@@ -68,11 +67,11 @@ public class NativeRuntimeBuilderTests {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
         WriteMinimalPeBinary(
-            Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.WindowsNativeFileName),
+            Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName),
             ImageFileMachineAmd64
         );
         WriteMinimalPeBinary(
-            Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.WindowsLoaderFileName),
+            Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName),
             ImageFileMachineAmd64
         );
 
@@ -80,16 +79,16 @@ public class NativeRuntimeBuilderTests {
         NativeRuntimeBuilder.ValidateArtifacts(artifactsDirectory, "win-x64");
 
         // Assert
-        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.WindowsNativeFileName))).IsTrue();
-        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.WindowsLoaderFileName))).IsTrue();
+        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName))).IsTrue();
+        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName))).IsTrue();
     }
 
     [Test]
     public async Task ValidateArtifacts_Throws_WhenWindowsArtifactArchitectureMismatchesRid() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
-        string nativeDll = Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.WindowsNativeFileName);
-        string loaderDll = Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.WindowsLoaderFileName);
+        string nativeDll = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName);
+        string loaderDll = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
         WriteMinimalPeBinary(nativeDll, ImageFileMachineArm64);
         WriteMinimalPeBinary(loaderDll, ImageFileMachineArm64);
 
@@ -108,26 +107,26 @@ public class NativeRuntimeBuilderTests {
     public async Task ValidateArtifacts_DoesNotThrow_ForLinuxWhenRequiredArtifactExists() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
-        await File.WriteAllTextAsync(Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.LinuxNativeFileName), string.Empty);
+        await File.WriteAllTextAsync(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.LinuxNativeFileName), string.Empty);
 
         // Act
         NativeRuntimeBuilder.ValidateArtifacts(artifactsDirectory, "linux-x64");
 
         // Assert
-        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.LinuxNativeFileName))).IsTrue();
+        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.LinuxNativeFileName))).IsTrue();
     }
 
     [Test]
     public async Task ValidateArtifacts_DoesNotThrow_ForOsxWhenRequiredArtifactExists() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
-        await File.WriteAllTextAsync(Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.OsxNativeFileName), string.Empty);
+        await File.WriteAllTextAsync(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.OsxNativeFileName), string.Empty);
 
         // Act
         NativeRuntimeBuilder.ValidateArtifacts(artifactsDirectory, "osx-arm64");
 
         // Assert
-        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFrameNativeArtifactManifest.OsxNativeFileName))).IsTrue();
+        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.OsxNativeFileName))).IsTrue();
     }
 
     [Test]

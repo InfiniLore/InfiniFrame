@@ -29,12 +29,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!--I know this is a stupid workaround, but it keeps a whole bunch of very specific checks a whole lot cleaner-->
-        <Compile Include="..\InfiniFrame.Shared\Native\InfiniFrameNativeArtifactManifest.cs"
-                 Link="Shared\InfiniFrameNativeArtifactManifest.cs"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack"/>
     </ItemGroup>
 </Project>
