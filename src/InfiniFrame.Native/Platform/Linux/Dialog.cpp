@@ -126,7 +126,7 @@ AutoString* ShowDialog(
         for (int i = 0; i < count; i++) {
             results[i] = g_strdup(static_cast<char*>(g_slist_nth_data(pathList, i)));
         }
-        g_slist_free(pathList);
+        g_slist_free_full(pathList, g_free);
         *resultCount = count;
         gtk_widget_destroy(dialog);
         return results;
