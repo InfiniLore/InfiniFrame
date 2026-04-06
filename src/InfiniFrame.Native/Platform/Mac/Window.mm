@@ -487,11 +487,12 @@ void InfiniFrameWindow::GetMinimized(bool* isMinimized) const
 void InfiniFrameWindow::GetPosition(int* x, int* y) const
 {
     NSRect frame = [m_impl->_window frame];
-    std::vector<Monitor> monitors = m_impl->GetMonitors();
-    Monitor monitor = monitors[0];
+    NSScreen* screen = [m_impl->_window screen];
+    if (!screen) screen = [NSScreen mainScreen];
+    NSRect screenFrame = [screen frame];
     int height = static_cast<int>(roundf(frame.size.height));
     *x = static_cast<int>(roundf(frame.origin.x));
-    *y = static_cast<int>(monitor.monitor.height - (static_cast<int>(roundf(frame.origin.y)) + height));
+    *y = static_cast<int>(roundf(screenFrame.origin.y + screenFrame.size.height - (frame.origin.y + height)));
 }
 
 void InfiniFrameWindow::GetResizable(bool* resizable) const
@@ -696,14 +697,15 @@ void InfiniFrameWindow::SetMaximized(bool maximized)
 
 void InfiniFrameWindow::SetPosition(int x, int y)
 {
-    std::vector<Monitor> monitors = m_impl->GetMonitors();
-    Monitor monitor = monitors[0];
+    NSScreen* screen = [m_impl->_window screen];
+    if (!screen) screen = [NSScreen mainScreen];
+    NSRect screenFrame = [screen frame];
 
     NSRect frame = [m_impl->_window frame];
     int height = static_cast<int>(roundf(frame.size.height));
 
     auto left = static_cast<CGFloat>(x);
-    auto top = static_cast<CGFloat>(monitor.monitor.height - (y + height));
+    auto top = static_cast<CGFloat>(screenFrame.origin.y + screenFrame.size.height - (y + height));
 
     [m_impl->_window setFrameOrigin: CGPointMake(left, top)];
 }
