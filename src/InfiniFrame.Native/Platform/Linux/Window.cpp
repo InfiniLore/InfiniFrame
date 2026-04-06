@@ -173,7 +173,7 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
         "enable_media_stream", _mediaStreamEnabled,
         "enable_smooth_scrolling", _smoothScrollingEnabled,
         "javascript_can_access_clipboard", _javascriptClipboardAccessEnabled,
-        "media_playback_requires_user_gesture", _mediaAutoplayEnabled,
+        "media_playback_requires_user_gesture", !_mediaAutoplayEnabled,
         "user_agent", _userAgent.c_str(),
 
         NULL
