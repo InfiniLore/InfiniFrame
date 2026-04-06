@@ -410,7 +410,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_DPICHANGED: {
-            RECT* newWindowRect = static_cast<RECT*>(lParam);
+            RECT* newWindowRect = reinterpret_cast<RECT*>(lParam);
 
             SetWindowPos(
                 hwnd,
@@ -1051,7 +1051,7 @@ void InfiniFrameWindow::WaitForExit() {
 
 //Callbacks
 BOOL MonitorEnum(const HMONITOR monitor, HDC, LPRECT, const LPARAM arg) {
-    auto callback = static_cast<GetAllMonitorsCallback>(arg);
+    auto callback = reinterpret_cast<GetAllMonitorsCallback>(arg);
     UINT dpiX, dpiY;
     MONITORINFO info = {};
     info.cbSize = sizeof(MONITORINFO);
