@@ -14,6 +14,8 @@
 
 using namespace std;
 
+static const int MAX_WINDOW_DIMENSION = 10000;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Platform Impl
 // ---------------------------------------------------------------------------------------------------------------------
@@ -720,8 +722,8 @@ void InfiniFrameWindow::SetResizable(bool resizable)
 
 void InfiniFrameWindow::SetSize(int width, int height)
 {
-    width = width > 10000 ? 10000 : width;
-    height = height > 10000 ? 10000 : height;
+    width = width > MAX_WINDOW_DIMENSION ? MAX_WINDOW_DIMENSION : width;
+    height = height > MAX_WINDOW_DIMENSION ? MAX_WINDOW_DIMENSION : height;
 
     if (width > m_impl->_window.maxSize.width) width = m_impl->_window.maxSize.width;
     if (height > m_impl->_window.maxSize.height) height = m_impl->_window.maxSize.height;
@@ -738,16 +740,16 @@ void InfiniFrameWindow::SetSize(int width, int height)
 
 void InfiniFrameWindow::SetMinSize(int width, int height)
 {
-    width = width > 10000 ? 10000 : width;
-    height = height > 10000 ? 10000 : height;
+    width = width > MAX_WINDOW_DIMENSION ? MAX_WINDOW_DIMENSION : width;
+    height = height > MAX_WINDOW_DIMENSION ? MAX_WINDOW_DIMENSION : height;
 
     [m_impl->_window setMinSize: NSMakeSize(width, height)];
 }
 
 void InfiniFrameWindow::SetMaxSize(int width, int height)
 {
-    width = width > 10000 ? 10000 : width;
-    height = height > 10000 ? 10000 : height;
+    width = width > MAX_WINDOW_DIMENSION ? MAX_WINDOW_DIMENSION : width;
+    height = height > MAX_WINDOW_DIMENSION ? MAX_WINDOW_DIMENSION : height;
 
     [m_impl->_window setMaxSize: NSMakeSize(width, height)];
 }
