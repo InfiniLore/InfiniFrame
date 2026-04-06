@@ -313,7 +313,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         StartupParameters.NativeParent = Parent is InfiniFrameWindow parent
             ? parent.InstanceHandle
             : IntPtr.Zero;
-        StartupParameters.WindowIconFile = IconFileUtilities.ResolveIconFilePath(StartupParameters.WindowIconFile);
+        StartupParameters.WindowIconFile = IconFileUtilities.TryResolveIconFilePath(
+            StartupParameters.WindowIconFile,
+            out string? resolvedIconFilePath
+        )
+            ? resolvedIconFilePath
+            : null;
 
         if (!InfiniFrameNativeParametersValidator.Validate(StartupParameters, Logger)) {
             Logger.LogCritical("Startup Parameters Are Not Valid, please check the logs");

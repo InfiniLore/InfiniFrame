@@ -33,7 +33,8 @@ internal static class InfiniFrameNativeParametersValidator {
             result = false;
         }
 
-        if (!string.IsNullOrWhiteSpace(windowIconFile) && IconFileUtilities.ResolveIconFilePath(windowIconFile) is null) {
+        if (!string.IsNullOrWhiteSpace(windowIconFile) &&
+            !IconFileUtilities.TryResolveIconFilePath(windowIconFile, out _)) {
             logger.LogError("WindowIconFile: {WindowIconFile} cannot be found", windowIconFile);
             result = false;
         }

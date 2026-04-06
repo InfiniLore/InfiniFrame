@@ -10,7 +10,7 @@ namespace InfiniFrameTests.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class IconFileUtilitiesTests {
     [Test]
-    public async Task ResolveIconFilePath_UsesBaseDirectoryForRelativePath() {
+    public async Task TryResolveIconFilePath_UsesBaseDirectoryForRelativePath() {
         // Arrange
         string baseDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         string currentDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -23,13 +23,14 @@ public class IconFileUtilitiesTests {
         await File.WriteAllTextAsync(expectedAbsolutePath, "icon");
 
         string originalCurrentDirectory = Environment.CurrentDirectory;
+        bool found;
         string? resolved;
 
         // Act
         try {
             Environment.CurrentDirectory = currentDirectory;
 
-            resolved = IconFileUtilities.ResolveIconFilePath(relativePath, baseDirectory);
+            found = IconFileUtilities.TryResolveIconFilePath(relativePath, out resolved, baseDirectory);
         }
         finally {
             Environment.CurrentDirectory = originalCurrentDirectory;
@@ -38,25 +39,28 @@ public class IconFileUtilitiesTests {
         }
 
         // Assert
+        await Assert.That(found).IsTrue();
         await Assert.That(resolved).IsEqualTo(expectedAbsolutePath);
     }
 
     [Test]
-    public async Task ResolveIconFilePath_ReturnsNullForMissingPath() {
+    public async Task TryResolveIconFilePath_ReturnsNullForMissingPath() {
         // Arrange
         string baseDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(baseDirectory);
 
         // Act
+        bool found;
         string? resolved;
         try {
-            resolved = IconFileUtilities.ResolveIconFilePath("missing.ico", baseDirectory);
+            found = IconFileUtilities.TryResolveIconFilePath("missing.ico", out resolved, baseDirectory);
         }
         finally {
             Directory.Delete(baseDirectory, true);
         }
 
         // Assert
+        await Assert.That(found).IsFalse();
         await Assert.That(resolved).IsNull();
     }
 }
