@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Native;
 using InfiniFrameTests.Shared;
 
 namespace InfiniFrameTests.WindowFunctionalities;
@@ -11,6 +10,7 @@ namespace InfiniFrameTests.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class IconFilePathTests {
     private const string IconFilePath = "Assets/favicon.ico";
+    private static readonly string ResolvedIconFilePath = Path.GetFullPath(IconFilePath, AppContext.BaseDirectory);
     private const string InvalidIconFilePath = "invalid.ico";
 
     [Test]
@@ -18,16 +18,13 @@ public class IconFilePathTests {
     public async Task Builder() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration {
-            IconFilePath = IconFilePath
-        }.ToParameters();
 
         // Act
         builder.SetIconFile(IconFilePath);
 
         // Assert
-        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(IconFilePath);
-        await Assert.That(builder.Configuration.ToParameters()).IsEqualTo(expectedConfigParameters);
+        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(ResolvedIconFilePath);
+        await Assert.That(builder.Configuration.ToParameters().WindowIconFile).IsEqualTo(ResolvedIconFilePath);
     }
 
     [Test]
@@ -35,14 +32,13 @@ public class IconFilePathTests {
     public async Task Builder_ShouldNotSetInvalidIconFilePath() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration().ToParameters();
 
         // Act
         builder.SetIconFile(InvalidIconFilePath);
 
         // Assert
         await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(string.Empty);
-        await Assert.That(builder.Configuration.ToParameters()).IsEqualTo(expectedConfigParameters);
+        await Assert.That(builder.Configuration.ToParameters().WindowIconFile).IsNull();
     }
 
     [Test]
@@ -61,7 +57,7 @@ public class IconFilePathTests {
 
         // Assert
         string foundPath = window.IconFilePath;
-        await Assert.That(foundPath).IsEqualTo(IconFilePath);
+        await Assert.That(foundPath).IsEqualTo(ResolvedIconFilePath);
     }
 
     [Test]
@@ -99,6 +95,6 @@ public class IconFilePathTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        await Assert.That(window.IconFilePath).IsEqualTo(IconFilePath);
+        await Assert.That(window.IconFilePath).IsEqualTo(ResolvedIconFilePath);
     }
 }

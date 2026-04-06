@@ -1,10 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+
 using InfiniFrame.Utilities;
 using System.Drawing;
 
 namespace InfiniFrame;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -123,9 +125,10 @@ public static class InfiniWindowBuilderExtensions {
         ///     The file path to the icon.
         /// </value>
         public T SetIconFile(string? iconFilePath) {
-            if (!IconFileUtilities.IsValidIconFile(iconFilePath)) return builder;
+            string? resolvedIconFilePath = IconFileUtilities.ResolveIconFilePath(iconFilePath);
+            if (resolvedIconFilePath is null) return builder;
 
-            builder.Configuration.IconFilePath = iconFilePath;
+            builder.Configuration.IconFilePath = resolvedIconFilePath;
             return builder;
         }
 
@@ -203,6 +206,7 @@ public static class InfiniWindowBuilderExtensions {
 
             return builder;
         }
+
         public T SetMinSize(Size minSize)
             => SetMinSize(builder, minSize.Width, minSize.Height);
 
@@ -446,12 +450,17 @@ public static class InfiniWindowBuilderExtensions {
         /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
         /// <exception cref="ApplicationException">Thrown if more than 16 custom schemes were set</exception>
         public T RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler) {
-            if (string.IsNullOrWhiteSpace(scheme)) throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
-            if (handler is null) throw new ArgumentException("A handler (method) with a signature matching NetCustomSchemeDelegate must be supplied.");
+            if (string.IsNullOrWhiteSpace(scheme))
+                throw new ArgumentException("A scheme must be provided. (for example 'app' or 'custom'");
+            if (handler is null)
+                throw new ArgumentException(
+                    "A handler (method) with a signature matching NetCustomSchemeDelegate must be supplied.");
 
             scheme = scheme.ToLower();
 
-            if (builder.CustomSchemeHandlers.Count > 15 && !builder.CustomSchemeHandlers.ContainsKey(scheme)) throw new ApplicationException("No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
+            if (builder.CustomSchemeHandlers.Count > 15 && !builder.CustomSchemeHandlers.ContainsKey(scheme))
+                throw new ApplicationException(
+                    "No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
 
             builder.CustomSchemeHandlers.TryAdd(scheme, null);
             builder.CustomSchemeHandlers[scheme] = handler;
@@ -570,5 +579,4 @@ public static class InfiniWindowBuilderExtensions {
             return builder;
         }
     }
-
 }

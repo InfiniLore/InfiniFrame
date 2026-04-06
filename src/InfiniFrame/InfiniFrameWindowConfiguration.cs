@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
+using InfiniFrame.Utilities;
 using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
@@ -54,8 +55,10 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameNativeParameters ToParameters() {
-        IntPtr[] customSchemeNameArray = new IntPtr[16];
-        for (int i = 0; i < CustomSchemeNames.Count; i++) {
+        string? resolvedIconFilePath = IconFileUtilities.ResolveIconFilePath(IconFilePath);
+
+        var customSchemeNameArray = new IntPtr[16];
+        for (var i = 0; i < CustomSchemeNames.Count; i++) {
             customSchemeNameArray[i] = Marshal.StringToHGlobalAnsi(CustomSchemeNames[i]);
         }
 
@@ -98,7 +101,7 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
             UserAgent = UserAgent,
             WebSecurityEnabled = WebSecurityEnabled,
             Width = Width,
-            WindowIconFile = IconFilePath,
+            WindowIconFile = resolvedIconFilePath,
             Zoom = Zoom,
             ZoomEnabled = ZoomEnabled
         };
