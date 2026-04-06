@@ -21,6 +21,7 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             contents: write
+            packages: write
 
         steps:
             -   name: Checkout
@@ -193,7 +194,7 @@ jobs:
             -   name: Push GitHub Packages
                 if: inputs.publish_to_nuget
                 env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    GITHUB_TOKEN: ${{ github.token }}
                 run: |
                     dotnet nuget push "./release/*.nupkg" \
                         --api-key "$GITHUB_TOKEN" \
