@@ -15,7 +15,7 @@
         <IncludeBuildOutput>true</IncludeBuildOutput>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-        <Version>0.4.0</Version>
+        <Version>0.4.1</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
