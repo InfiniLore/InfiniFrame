@@ -13,29 +13,22 @@ public class IconFileUtilitiesTests {
     public async Task TryResolveIconFilePath_UsesBaseDirectoryForRelativePath() {
         // Arrange
         string baseDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        string currentDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
 
         Directory.CreateDirectory(baseDirectory);
-        Directory.CreateDirectory(currentDirectory);
 
         const string relativePath = "favicon.ico";
         string expectedAbsolutePath = Path.GetFullPath(relativePath, baseDirectory);
         await File.WriteAllTextAsync(expectedAbsolutePath, "icon");
 
-        string originalCurrentDirectory = Environment.CurrentDirectory;
         bool found;
         string? resolved;
 
         // Act
         try {
-            Environment.CurrentDirectory = currentDirectory;
-
             found = IconFileUtilities.TryResolveIconFilePath(relativePath, out resolved, baseDirectory);
         }
         finally {
-            Environment.CurrentDirectory = originalCurrentDirectory;
             Directory.Delete(baseDirectory, true);
-            Directory.Delete(currentDirectory, true);
         }
 
         // Assert
