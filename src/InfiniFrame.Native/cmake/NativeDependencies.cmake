@@ -85,6 +85,14 @@ function(infiniframe_add_vendor_static_library vendor_name vendor_dir source_nam
     set(_target_name "${vendor_name}_vendor")
     add_library(${_target_name} STATIC "${vendor_dir}/${source_name}")
     target_include_directories(${_target_name} PUBLIC "${vendor_dir}")
+
+    # Third-party vendored code should not inherit first-party warning-as-error policy.
+    if (MSVC)
+        target_compile_options(${_target_name} PRIVATE /WX-)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+        target_compile_options(${_target_name} PRIVATE -Wno-error)
+    endif ()
+
     add_library(${vendor_name}::${vendor_name} ALIAS ${_target_name})
     message(STATUS "  created target '${_target_name}' and alias '${vendor_name}::${vendor_name}'")
 endfunction()
