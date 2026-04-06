@@ -791,8 +791,8 @@ void InfiniFrameWindow::SetFocused()
 void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
 {
     UNMutableNotificationContent *objNotificationContent = [[UNMutableNotificationContent alloc] init];
-    objNotificationContent.title = [[NSString stringWithUTF8String: title] autorelease];
-    objNotificationContent.body = [[NSString stringWithUTF8String: body] autorelease];
+    objNotificationContent.title = [NSString stringWithUTF8String: title];
+    objNotificationContent.body = [NSString stringWithUTF8String: body];
     objNotificationContent.sound = [UNNotificationSound defaultSound];
     UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval: 0.3 repeats: NO];
     UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier: @"three"
