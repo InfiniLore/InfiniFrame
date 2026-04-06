@@ -1254,8 +1254,9 @@ void InfiniFrameWindow::AttachWebView()
 						m_impl->_webviewWindow->add_WebResourceRequested(Callback<ICoreWebView2WebResourceRequestedEventHandler>(
 							[&](ICoreWebView2*, ICoreWebView2WebResourceRequestedEventArgs* args)
 							{
-								ICoreWebView2WebResourceRequest* req;
-								args->get_Request(&req);
+								wil::com_ptr<ICoreWebView2WebResourceRequest> req;
+								if (FAILED(args->get_Request(&req)) || !req)
+									return S_OK;
 
 								wil::unique_cotaskmem_string uri;
 								req->get_Uri(&uri);
@@ -1281,10 +1282,13 @@ void InfiniFrameWindow::AttachWebView()
 										{
 											std::wstring contentTypeWS = contentType;
 
-											IStream* dataStream = SHCreateMemStream(reinterpret_cast<const BYTE*>(dotNetResponse.get()), numBytes);
+											wil::com_ptr<IStream> dataStream;
+											dataStream.attach(SHCreateMemStream(reinterpret_cast<const BYTE*>(dotNetResponse.get()), numBytes));
+											if (!dataStream)
+												return S_OK;
 											wil::com_ptr<ICoreWebView2WebResourceResponse> response;
 											m_impl->_webviewEnvironment->CreateWebResourceResponse(
-												dataStream, 200, L"OK", (L"Content-Type: " + contentTypeWS).c_str(),
+												dataStream.get(), 200, L"OK", (L"Content-Type: " + contentTypeWS).c_str(),
 												&response);
 											args->put_Response(response.get());
 										}
