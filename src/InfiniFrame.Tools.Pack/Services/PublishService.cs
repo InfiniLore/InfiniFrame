@@ -63,7 +63,7 @@ internal static class PublishService {
 
             string[] cleanupWarnings = PublishOutputCleaner.Cleanup(output);
             foreach (string warning in cleanupWarnings) {
-                Logger.Warning("[InfiniFrame.Pack] {CleanupWarning}", warning);
+                Logger.Warning("{CleanupWarning}", warning);
             }
             string expectedMainOutput = ResolveExpectedMainOutputPath(output, assemblyName, rid);
             OutputShapeValidation validation = ValidateOutputShape(output, expectedMainOutput);
@@ -90,7 +90,7 @@ internal static class PublishService {
     }
 
     private static void PrintPublishSummary(string projectPath, string framework, string rid, bool selfContained, string output, string nativeArtifacts) {
-        Logger.Information("[InfiniFrame.Pack] Publishing single-file app");
+        Logger.Information("Publishing single-file app");
         Logger.Information("  Project: {ProjectPath}", projectPath);
         Logger.Information("  Framework: {Framework}", framework);
         Logger.Information("  RID: {Rid}", rid);
@@ -101,8 +101,9 @@ internal static class PublishService {
 
     internal static OutputShapeValidation ValidateOutputShape(string output, string expectedMainOutput) {
         string normalizedExpectedMainOutput = Path.GetFullPath(expectedMainOutput);
-        bool foundMainOutput = File.Exists(normalizedExpectedMainOutput);
-        string[] unexpectedFiles = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly)
+        string[] outputFiles = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly);
+        bool foundMainOutput = outputFiles.Any(file => string.Equals(Path.GetFullPath(file), normalizedExpectedMainOutput, PathComparison));
+        string[] unexpectedFiles = outputFiles
             .Where(file => !string.Equals(Path.GetFullPath(file), normalizedExpectedMainOutput, PathComparison))
             .Select(file => Path.GetFileName(file))
             .Where(fileName => !string.IsNullOrWhiteSpace(fileName))
@@ -121,14 +122,14 @@ internal static class PublishService {
 
     private static void PrintOutputSummary(string output, string expectedMainOutput, string[] unexpectedEntries) {
         if (!File.Exists(expectedMainOutput)) {
-            Logger.Warning("[InfiniFrame.Pack] Publish succeeded, but expected single-file output was not found.");
+            Logger.Warning("Publish succeeded, but expected single-file output was not found.");
         }
         else if (unexpectedEntries.Length != 0) {
-            Logger.Warning("[InfiniFrame.Pack] Publish output contains unexpected entries.");
+            Logger.Warning("Publish output contains unexpected entries.");
         }
 
         string[] files = Directory.GetFiles(output, "*", SearchOption.TopDirectoryOnly);
-        Logger.Information("[InfiniFrame.Pack] Completed");
+        Logger.Information("Completed");
         Logger.Information("  Files in output: {FileCount}", files.Length);
         foreach (string file in files.Select(Path.GetFileName).Where(x => !string.IsNullOrWhiteSpace(x)).OrderBy(x => x)!) {
             Logger.Information("  - {File}", file);
@@ -184,7 +185,7 @@ internal static class PublishService {
         OutputPathSafety.EnsureOutputCanBeDeleted(fullPath, projectDirectory, forceCleanOutput);
 
         // Log deletion for transparency
-        Logger.Information("[InfiniFrame.Pack] Cleaning previous output folder: {OutputDirectory}", fullPath);
+        Logger.Information("Cleaning previous output folder: {OutputDirectory}", fullPath);
 
         try {
             Directory.Delete(fullPath, true);

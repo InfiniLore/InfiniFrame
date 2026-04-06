@@ -39,11 +39,11 @@ internal static class Program {
 
         }
         catch (NativeDependencyNotFoundException ex) {
-            Log.Error(ex, "[InfiniFrame.Pack] ERROR: {Message}", ex.Message);
+            Log.Error(ex, "ERROR: {Message}", ex.Message);
             return ExitCodes.NativeDependencyMissing;
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
-            Log.Error(ex, "[InfiniFrame.Pack] ERROR: {Message}", ex.Message);
+            Log.Error(ex, "ERROR: {Message}", ex.Message);
             return ExitCodes.GenericFailure;
         }
         finally {

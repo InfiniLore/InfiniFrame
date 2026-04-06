@@ -11,6 +11,7 @@ namespace InfiniFrameTests.Tools.Pack.Services;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class PublishServiceTests {
+    private static readonly SemaphoreSlim PublishTestLock = new(1, 1);
     private TemporaryDirectory TemporaryDirectory { get; set; } = null!;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -80,9 +81,16 @@ public class PublishServiceTests {
         };
 
         // Act
-        var exception = await Assert.ThrowsAsync<NativeDependencyNotFoundException>(async () => {
-            await PublishService.PublishAsync(options);
-        });
+        await PublishTestLock.WaitAsync();
+        NativeDependencyNotFoundException? exception;
+        try {
+            exception = await Assert.ThrowsAsync<NativeDependencyNotFoundException>(async () => {
+                await PublishService.PublishAsync(options);
+            });
+        }
+        finally {
+            PublishTestLock.Release();
+        }
 
         // Assert
         await Assert.That(exception).IsNotNull();
@@ -131,7 +139,14 @@ public class PublishServiceTests {
         };
 
         // Act
-        int exitCode = await PublishService.PublishAsync(options);
+        await PublishTestLock.WaitAsync();
+        int exitCode;
+        try {
+            exitCode = await PublishService.PublishAsync(options);
+        }
+        finally {
+            PublishTestLock.Release();
+        }
 
         // Assert
         await Assert.That(exitCode).IsEqualTo(ExitCodes.Success);
@@ -186,7 +201,14 @@ public class PublishServiceTests {
         };
 
         // Act
-        int publishExitCode = await PublishService.PublishAsync(options);
+        await PublishTestLock.WaitAsync();
+        int publishExitCode;
+        try {
+            publishExitCode = await PublishService.PublishAsync(options);
+        }
+        finally {
+            PublishTestLock.Release();
+        }
         ProcessResult runResult = await RunProcessAndCaptureAsync(publishedExecutable, appDirectory);
 
         // Assert
