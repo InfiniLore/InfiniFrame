@@ -1000,7 +1000,8 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
                 );
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);
-            exit(0);
+            sigaction(SIGCHLD, &old_action, nullptr);
+            return;
         }
         sigaction(SIGCHLD, &old_action, nullptr);
     }
