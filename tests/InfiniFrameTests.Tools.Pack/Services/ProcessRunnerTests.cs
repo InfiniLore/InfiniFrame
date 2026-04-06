@@ -45,4 +45,18 @@ public class ProcessRunnerTests {
             await ProcessRunner.RunAsync(fileName, arguments);
         });
     }
+
+    [Test]
+    public async Task RunWithOutputAsync_CapturesStandardError_ForFailingCommand() {
+        // Arrange
+        const string fileName = "dotnet";
+        string[] arguments = ["command-that-does-not-exist"];
+
+        // Act
+        ProcessRunner.ProcessRunResult result = await ProcessRunner.RunWithOutputAsync(fileName, arguments);
+
+        // Assert
+        await Assert.That(result.ExitCode).IsNotEqualTo(0);
+        await Assert.That(string.IsNullOrWhiteSpace(result.StandardOutput) && string.IsNullOrWhiteSpace(result.StandardError)).IsFalse();
+    }
 }

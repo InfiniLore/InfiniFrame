@@ -155,11 +155,23 @@ internal static class PublishService {
         bool preflightValidated = false;
         try {
             List<string> preflightArgs = BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true);
-            int preflightExitCode = await ProcessRunner.RunAsync(DotNet, preflightArgs);
+            ProcessRunner.ProcessRunResult preflightResult = await ProcessRunner.RunWithOutputAsync(DotNet, preflightArgs);
+            int preflightExitCode = preflightResult.ExitCode;
 
             if (preflightExitCode != 0) {
+                string? fallbackArtifactsDirectory = TryResolveNativeArtifactsFromRepository(projectPath, rid, options.Configuration);
+                if (!string.IsNullOrWhiteSpace(fallbackArtifactsDirectory)) {
+                    Logger.Warning(
+                        "[InfiniFrame.Pack] Preflight publish failed (exit code {PreflightExitCode}). Falling back to native artifacts at: {NativeArtifactsDirectory}",
+                        preflightExitCode,
+                        fallbackArtifactsDirectory
+                    );
+                    return new ResolvedNativeArtifacts(fallbackArtifactsDirectory, false);
+                }
+
                 throw new InvalidOperationException(
-                    $"Preflight publish failed with exit code {preflightExitCode}. Command: {DotNet} {string.Join(' ', preflightArgs)}");
+                    $"Preflight publish failed with exit code {preflightExitCode}. Command: {DotNet} {string.Join(' ', preflightArgs)}" +
+                    $"{FormatPreflightOutputForException(preflightResult)}");
             }
 
             try {
@@ -179,6 +191,58 @@ internal static class PublishService {
         finally {
             if (!preflightValidated && Directory.Exists(preflightDirectory)) Directory.Delete(preflightDirectory, true);
         }
+    }
+
+    private static string? TryResolveNativeArtifactsFromRepository(string projectPath, string rid, string configuration) {
+        string? osDirectory = ResolveNativeOsDirectory(rid);
+        string? architecture = ResolveRidArchitecture(rid);
+        if (osDirectory is null || architecture is null) return null;
+
+        string projectDirectory = Path.GetDirectoryName(projectPath) ?? string.Empty;
+        DirectoryInfo? current = new(projectDirectory);
+        while (current is not null) {
+            string candidateDirectory = Path.Join(current.FullName, "artifacts", "native", osDirectory, architecture, configuration);
+            if (Directory.Exists(candidateDirectory)) {
+                try {
+                    NativeRuntimeBuilder.ValidateArtifacts(candidateDirectory, rid);
+                    return candidateDirectory;
+                }
+                catch (InvalidOperationException) {
+                    // keep walking up to try the next repository root candidate
+                }
+            }
+
+            current = current.Parent;
+        }
+
+        return null;
+    }
+
+    private static string FormatPreflightOutputForException(ProcessRunner.ProcessRunResult preflightResult) {
+        string standardOutput = TruncateForException(preflightResult.StandardOutput);
+        string standardError = TruncateForException(preflightResult.StandardError);
+        return $"{Environment.NewLine}--- preflight stdout ---{Environment.NewLine}{standardOutput}" +
+               $"{Environment.NewLine}--- preflight stderr ---{Environment.NewLine}{standardError}";
+    }
+
+    private static string TruncateForException(string value, int maxLength = 4000) {
+        if (string.IsNullOrWhiteSpace(value)) return "<empty>";
+        string trimmed = value.Trim();
+        if (trimmed.Length <= maxLength) return trimmed;
+        return $"{trimmed[..maxLength]}{Environment.NewLine}<truncated>";
+    }
+
+    private static string? ResolveNativeOsDirectory(string rid) {
+        if (rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return "windows";
+        if (rid.StartsWith("linux-", StringComparison.OrdinalIgnoreCase)) return "linux";
+        if (rid.StartsWith("osx-", StringComparison.OrdinalIgnoreCase)) return "osx";
+        return null;
+    }
+
+    private static string? ResolveRidArchitecture(string rid) {
+        if (rid.EndsWith("-x64", StringComparison.OrdinalIgnoreCase)) return "x64";
+        if (rid.EndsWith("-arm64", StringComparison.OrdinalIgnoreCase)) return "arm64";
+        return null;
     }
 
     private static void SafeDeleteDirectory(string path, string projectDirectory, bool forceCleanOutput) {
