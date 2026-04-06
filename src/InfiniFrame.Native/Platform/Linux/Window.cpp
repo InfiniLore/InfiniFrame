@@ -244,7 +244,7 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings
                 gtk_widget_destroy(dialog);
                 g_free(propertyValue);
                 g_free(propertyName);
-                exit(0);
+                throw std::runtime_error(std::string("Invalid value type for key: ") + propertyName);
             }
         }
 
