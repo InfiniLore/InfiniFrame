@@ -58,7 +58,6 @@ void WinToastLib::setDebugOutputEnabled(bool enabled) {
 }
 
 namespace DllImporter {
-
     // Function load a function from library
     template <typename Function>
     HRESULT loadFunctionFromLibrary(HINSTANCE library, LPCSTR name, Function& func) {
@@ -69,15 +68,26 @@ namespace DllImporter {
         return (func != nullptr) ? S_OK : E_FAIL;
     }
 
-    typedef HRESULT(FAR STDAPICALLTYPE* f_SetCurrentProcessExplicitAppUserModelID)(__in PCWSTR AppID);
-    typedef HRESULT(FAR STDAPICALLTYPE* f_PropVariantToString)(_In_ REFPROPVARIANT propvar, _Out_writes_(cch) PWSTR psz, _In_ UINT cch);
-    typedef HRESULT(FAR STDAPICALLTYPE* f_RoGetActivationFactory)(_In_ HSTRING activatableClassId, _In_ REFIID iid,
-                                                                  _COM_Outptr_ void** factory);
-    typedef HRESULT(FAR STDAPICALLTYPE* f_WindowsCreateStringReference)(_In_reads_opt_(length + 1) PCWSTR sourceString, UINT32 length,
-                                                                        _Out_ HSTRING_HEADER* hstringHeader,
-                                                                        _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING* string);
-    typedef PCWSTR(FAR STDAPICALLTYPE* f_WindowsGetStringRawBuffer)(_In_ HSTRING string, _Out_opt_ UINT32* length);
-    typedef HRESULT(FAR STDAPICALLTYPE* f_WindowsDeleteString)(_In_opt_ HSTRING string);
+    using HRESULT = 
+    (FAR STDAPICALLTYPE*f_SetCurrentProcessExplicitAppUserModelID)(__in PCWSTR AppID);
+    using HRESULT = 
+    (FAR STDAPICALLTYPE*f_PropVariantToString)(_In_ REFPROPVARIANT propvar, _Out_writes_ (cch) PWSTR psz,
+                                               _In_ UINT cch);
+    using HRESULT = 
+    (FAR STDAPICALLTYPE*f_RoGetActivationFactory)(_In_ HSTRING activatableClassId, _In_ REFIID iid,
+                                                  _COM_Outptr_ void** factory);
+    using HRESULT = 
+    (FAR STDAPICALLTYPE*f_WindowsCreateStringReference)(_In_reads_opt_(length + 1);
+    ,
+    UINT32 length,
+                                                                        _Out_ HSTRING_HEADER*hstringHeader,
+                                                                        _Outptr_result_maybenull_ _Result_nullonfailure_ HSTRING*
+           string
+    );
+    using PCWSTR = 
+    (FAR STDAPICALLTYPE*f_WindowsGetStringRawBuffer)(_In_ HSTRING string, _Out_opt_ UINT32* length);
+    using HRESULT = 
+    (FAR STDAPICALLTYPE*f_WindowsDeleteString)(_In_opt_ HSTRING string);
 
     static f_SetCurrentProcessExplicitAppUserModelID SetCurrentProcessExplicitAppUserModelID;
     static f_PropVariantToString PropVariantToString;
@@ -92,23 +102,27 @@ namespace DllImporter {
     }
 
     template <typename T>
-    inline HRESULT Wrap_GetActivationFactory(_In_ HSTRING activatableClassId, _Inout_ Details::ComPtrRef<T> factory) noexcept {
+    inline HRESULT Wrap_GetActivationFactory(_In_ HSTRING activatableClassId,
+                                             _Inout_ Details::ComPtrRef<T> factory) noexcept {
         return _1_GetActivationFactory(activatableClassId, factory.ReleaseAndGetAddressOf());
     }
 
     inline HRESULT initialize() {
         HINSTANCE LibShell32 = LoadLibraryW(L"SHELL32.DLL");
         HRESULT hr =
-            loadFunctionFromLibrary(LibShell32, "SetCurrentProcessExplicitAppUserModelID", SetCurrentProcessExplicitAppUserModelID);
+            loadFunctionFromLibrary(LibShell32, "SetCurrentProcessExplicitAppUserModelID",
+                                    SetCurrentProcessExplicitAppUserModelID);
         if (SUCCEEDED(hr)) {
             HINSTANCE LibPropSys = LoadLibraryW(L"PROPSYS.DLL");
-            hr                   = loadFunctionFromLibrary(LibPropSys, "PropVariantToString", PropVariantToString);
+            hr = loadFunctionFromLibrary(LibPropSys, "PropVariantToString", PropVariantToString);
             if (SUCCEEDED(hr)) {
                 HINSTANCE LibComBase = LoadLibraryW(L"COMBASE.DLL");
-                bool const succeded =
+                const bool succeded =
                     SUCCEEDED(loadFunctionFromLibrary(LibComBase, "RoGetActivationFactory", RoGetActivationFactory)) &&
-                    SUCCEEDED(loadFunctionFromLibrary(LibComBase, "WindowsCreateStringReference", WindowsCreateStringReference)) &&
-                    SUCCEEDED(loadFunctionFromLibrary(LibComBase, "WindowsGetStringRawBuffer", WindowsGetStringRawBuffer)) &&
+                    SUCCEEDED(loadFunctionFromLibrary(LibComBase, "WindowsCreateStringReference",
+                                                      WindowsCreateStringReference)) &&
+                    SUCCEEDED(loadFunctionFromLibrary(LibComBase, "WindowsGetStringRawBuffer",
+                                                      WindowsGetStringRawBuffer)) &&
                     SUCCEEDED(loadFunctionFromLibrary(LibComBase, "WindowsDeleteString", WindowsDeleteString));
                 return succeded ? S_OK : E_FAIL;
             }
@@ -119,7 +133,11 @@ namespace DllImporter {
 
 class WinToastStringWrapper {
 public:
-    WinToastStringWrapper(_In_reads_(length) PCWSTR stringRef, _In_ UINT32 length) noexcept {
+    WinToastStringWrapper (_In_reads_(length)
+    PCWSTR stringRef, _In_ UINT32 length
+    )
+    noexcept
+ {
         HRESULT hr = DllImporter::WindowsCreateStringReference(stringRef, length, &_header, &_hstring);
         if (!SUCCEEDED(hr)) {
             RaiseException(static_cast<DWORD>(STATUS_INVALID_PARAMETER), EXCEPTION_NONCONTINUABLE, 0, nullptr);
@@ -128,7 +146,8 @@ public:
 
     WinToastStringWrapper(_In_ std::wstring const& stringRef) noexcept {
         HRESULT hr =
-            DllImporter::WindowsCreateStringReference(stringRef.c_str(), static_cast<UINT32>(stringRef.length()), &_header, &_hstring);
+            DllImporter::WindowsCreateStringReference(stringRef.c_str(), static_cast<UINT32>(stringRef.length()),
+                                                      &_header, &_hstring);
         if (FAILED(hr)) {
             RaiseException(static_cast<DWORD>(STATUS_INVALID_PARAMETER), EXCEPTION_NONCONTINUABLE, 0, nullptr);
         }
@@ -138,7 +157,7 @@ public:
         DllImporter::WindowsDeleteString(_hstring);
     }
 
-    inline HSTRING Get() const noexcept {
+    HSTRING Get() const noexcept {
         return _hstring;
     }
 
@@ -152,7 +171,7 @@ public:
     static INT64 Now() {
         FILETIME now;
         GetSystemTimeAsFileTime(&now);
-        return ((((INT64) now.dwHighDateTime) << 32) | now.dwLowDateTime);
+        return ((static_cast<INT64>(now.dwHighDateTime) << 32) | now.dwLowDateTime);
     }
 
     InternalDateTime(DateTime dateTime) : _dateTime(dateTime) {}
@@ -208,15 +227,16 @@ protected:
 };
 
 namespace Util {
-
     typedef LONG NTSTATUS, *PNTSTATUS;
-    typedef NTSTATUS(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
+    using NTSTATUS = 
+    (WINAPI*RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
+
     inline RTL_OSVERSIONINFOW getRealOSVersion() {
         HMODULE hMod = ::GetModuleHandleW(L"ntdll.dll");
         if (hMod) {
-            RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)::GetProcAddress(hMod, "RtlGetVersion");
+            RtlGetVersionPtr fxPtr = static_cast<RtlGetVersionPtr>(::GetProcAddress(hMod, "RtlGetVersion"));
             if (fxPtr != nullptr) {
-                RTL_OSVERSIONINFOW rovi  = {0};
+                RTL_OSVERSIONINFOW rovi = {0};
                 rovi.dwOSVersionInfoSize = sizeof(rovi);
                 if (STATUS_SUCCESS == fxPtr(&rovi)) {
                     return rovi;
@@ -235,21 +255,22 @@ namespace Util {
 
     inline HRESULT defaultShellLinksDirectory(_In_ WCHAR* path, _In_ DWORD nSize = MAX_PATH) {
         DWORD written = GetEnvironmentVariableW(L"APPDATA", path, nSize);
-        HRESULT hr    = written > 0 ? S_OK : E_INVALIDARG;
+        HRESULT hr = written > 0 ? S_OK : E_INVALIDARG;
         if (SUCCEEDED(hr)) {
             errno_t result = wcscat_s(path, nSize, DEFAULT_SHELL_LINKS_PATH);
-            hr             = (result == 0) ? S_OK : E_INVALIDARG;
+            hr = (result == 0) ? S_OK : E_INVALIDARG;
             DEBUG_MSG("Default shell link path: " << path);
         }
         return hr;
     }
 
-    inline HRESULT defaultShellLinkPath(_In_ std::wstring const& appname, _In_ WCHAR* path, _In_ DWORD nSize = MAX_PATH) {
+    inline HRESULT defaultShellLinkPath(_In_ std::wstring const& appname, _In_ WCHAR* path,
+                                        _In_ DWORD nSize = MAX_PATH) {
         HRESULT hr = defaultShellLinksDirectory(path, nSize);
         if (SUCCEEDED(hr)) {
             const std::wstring appLink(appname + DEFAULT_LINK_FORMAT);
             errno_t result = wcscat_s(path, nSize, appLink.c_str());
-            hr             = (result == 0) ? S_OK : E_INVALIDARG;
+            hr = (result == 0) ? S_OK : E_INVALIDARG;
             DEBUG_MSG("Default shell link file path: " << path);
         }
         return hr;
@@ -269,7 +290,7 @@ namespace Util {
         HSTRING xml;
         ComPtr<IXmlNodeSerializer> ser;
         HRESULT hr = xmlDocument.As<IXmlNodeSerializer>(&ser);
-        hr         = ser->GetXml(&xml);
+        hr = ser->GetXml(&xml);
         if (SUCCEEDED(hr)) {
             return DllImporter::WindowsGetStringRawBuffer(xml, nullptr);
         }
@@ -280,7 +301,8 @@ namespace Util {
         return DllImporter::WindowsGetStringRawBuffer(hstring, nullptr);
     }
 
-    inline HRESULT setNodeStringValue(_In_ std::wstring const& string, _Out_opt_ IXmlNode* node, _Out_ IXmlDocument* xml) {
+    inline HRESULT setNodeStringValue(_In_ std::wstring const& string, _Out_opt_ IXmlNode* node,
+                                      _Out_ IXmlDocument* xml) {
         ComPtr<IXmlText> textNode;
         HRESULT hr = xml->CreateTextNode(WinToastStringWrapper(string).Get(), &textNode);
         if (SUCCEEDED(hr)) {
@@ -294,15 +316,16 @@ namespace Util {
         return hr;
     }
 
-    template<typename FunctorT>
-    inline HRESULT setEventHandlers(_In_ IToastNotification* notification, _In_ std::shared_ptr<IWinToastHandler> eventHandler,
+    template <typename FunctorT>
+    inline HRESULT setEventHandlers(_In_ IToastNotification* notification,
+                                    _In_ std::shared_ptr<IWinToastHandler> eventHandler,
                                     _In_ INT64 expirationTime, _Out_ EventRegistrationToken& activatedToken,
-                                    _Out_ EventRegistrationToken& dismissedToken, _Out_ EventRegistrationToken& failedToken,
+                                    _Out_ EventRegistrationToken& dismissedToken,
+                                    _Out_ EventRegistrationToken& failedToken,
                                     _In_ FunctorT&& markAsReadyForDeletionFunc) {
         HRESULT hr = notification->add_Activated(
             Callback<Implements<RuntimeClassFlags<ClassicCom>, ITypedEventHandler<ToastNotification*, IInspectable*>>>(
-                [eventHandler, markAsReadyForDeletionFunc](IToastNotification* notify, IInspectable* inspectable)
-                {
+                [eventHandler, markAsReadyForDeletionFunc](IToastNotification* notify, IInspectable* inspectable) {
                     ComPtr<IToastActivatedEventArgs> activatedEventArgs;
                     HRESULT hr = inspectable->QueryInterface(activatedEventArgs.GetAddressOf());
                     if (SUCCEEDED(hr)) {
@@ -311,30 +334,26 @@ namespace Util {
                         if (SUCCEEDED(hr)) {
                             PCWSTR arguments = Util::AsString(argumentsHandle);
 
-                            if(wcscmp(arguments, L"action=reply") == 0)
-                            {
+                            if (wcscmp(arguments, L"action=reply") == 0) {
                                 ComPtr<IToastActivatedEventArgs2> inputBoxActivatedEventArgs;
                                 HRESULT hr2 = inspectable->QueryInterface(inputBoxActivatedEventArgs.GetAddressOf());
 
-                                if(SUCCEEDED(hr2))
-                                {
+                                if (SUCCEEDED(hr2)) {
                                     ComPtr<Collections::IPropertySet> replyHandle;
                                     inputBoxActivatedEventArgs->get_UserInput(&replyHandle);
 
                                     ComPtr<__FIMap_2_HSTRING_IInspectable> replyMap;
                                     hr = replyHandle.As(&replyMap);
 
-                                    if(SUCCEEDED(hr))
-                                    {
+                                    if (SUCCEEDED(hr)) {
                                         IInspectable* propertySet;
-                                        hr = replyMap.Get()->Lookup(WinToastStringWrapper(L"textBox").Get(), &propertySet);
-                                        if (SUCCEEDED(hr))
-                                        {
+                                        hr = replyMap.Get()->Lookup(WinToastStringWrapper(L"textBox").Get(),
+                                                                    &propertySet);
+                                        if (SUCCEEDED(hr)) {
                                             ComPtr<IPropertyValue> propertyValue;
                                             hr = propertySet->QueryInterface(IID_PPV_ARGS(&propertyValue));
 
-                                            if (SUCCEEDED(hr))
-                                            {
+                                            if (SUCCEEDED(hr)) {
                                                 // Successfully queried IPropertyValue, now extract the value
                                                 HSTRING userInput;
                                                 hr = propertyValue->GetString(&userInput);
@@ -342,8 +361,7 @@ namespace Util {
                                                 // Convert the HSTRING to a wide string
                                                 PCWSTR strValue = AsString(userInput);
 
-                                                if (SUCCEEDED(hr))
-                                                {
+                                                if (SUCCEEDED(hr)) {
                                                     eventHandler->toastActivated(std::wstring(strValue));
                                                     return S_OK;
                                                 }
@@ -366,42 +384,47 @@ namespace Util {
                     markAsReadyForDeletionFunc();
                     return S_OK;
                 })
-                .Get(),
+            .Get(),
             &activatedToken);
 
         if (SUCCEEDED(hr)) {
             hr = notification->add_Dismissed(
-                Callback<Implements<RuntimeClassFlags<ClassicCom>, ITypedEventHandler<ToastNotification*, ToastDismissedEventArgs*>>>(
-                    [eventHandler, expirationTime, markAsReadyForDeletionFunc](IToastNotification* notify, IToastDismissedEventArgs* e) {
+                Callback<Implements<RuntimeClassFlags<ClassicCom>, ITypedEventHandler<
+                                        ToastNotification*, ToastDismissedEventArgs*>>>(
+                    [eventHandler, expirationTime, markAsReadyForDeletionFunc](
+                    IToastNotification* notify, IToastDismissedEventArgs* e) {
                         ToastDismissalReason reason;
                         if (SUCCEEDED(e->get_Reason(&reason))) {
                             if (reason == ToastDismissalReason_UserCanceled && expirationTime &&
                                 InternalDateTime::Now() >= expirationTime) {
                                 reason = ToastDismissalReason_TimedOut;
                             }
-                            eventHandler->toastDismissed(static_cast<IWinToastHandler::WinToastDismissalReason>(reason));
+                            eventHandler->
+                                toastDismissed(static_cast<IWinToastHandler::WinToastDismissalReason>(reason));
                         }
                         markAsReadyForDeletionFunc();
                         return S_OK;
                     })
-                    .Get(),
+                .Get(),
                 &dismissedToken);
             if (SUCCEEDED(hr)) {
                 hr = notification->add_Failed(
-                    Callback<Implements<RuntimeClassFlags<ClassicCom>, ITypedEventHandler<ToastNotification*, ToastFailedEventArgs*>>>(
-                        [eventHandler, markAsReadyForDeletionFunc](IToastNotification* notify, IToastFailedEventArgs* e) {
+                    Callback<Implements<RuntimeClassFlags<ClassicCom>, ITypedEventHandler<
+                                            ToastNotification*, ToastFailedEventArgs*>>>(
+                        [eventHandler, markAsReadyForDeletionFunc
+                        ](IToastNotification* notify, IToastFailedEventArgs* e) {
                             eventHandler->toastFailed();
                             markAsReadyForDeletionFunc();
                             return S_OK;
                         })
-                        .Get(),
+                    .Get(),
                     &failedToken);
             }
         }
         return hr;
     }
 
-    inline HRESULT addAttribute(_In_ IXmlDocument* xml, std::wstring const& name, IXmlNamedNodeMap* attributeMap) {
+    inline HRESULT addAttribute(_In_ IXmlDocument* xml, const std::wstring& name, IXmlNamedNodeMap* attributeMap) {
         ComPtr<ABI::Windows::Data::Xml::Dom::IXmlAttribute> srcAttribute;
         HRESULT hr = xml->CreateAttribute(WinToastStringWrapper(name).Get(), &srcAttribute);
         if (SUCCEEDED(hr)) {
@@ -415,7 +438,8 @@ namespace Util {
         return hr;
     }
 
-    inline HRESULT createElement(_In_ IXmlDocument* xml, _In_ std::wstring const& root_node, _In_ std::wstring const& element_name,
+    inline HRESULT createElement(_In_ IXmlDocument* xml, _In_ std::wstring const& root_node,
+                                 _In_ std::wstring const& element_name,
                                  _In_ std::vector<std::wstring> const& attribute_names) {
         ComPtr<IXmlNodeList> rootList;
         HRESULT hr = xml->GetElementsByTagName(WinToastStringWrapper(root_node).Get(), &rootList);
@@ -435,7 +459,7 @@ namespace Util {
                             ComPtr<IXmlNamedNodeMap> attributes;
                             hr = audioNode->get_Attributes(&attributes);
                             if (SUCCEEDED(hr)) {
-                                for (auto const& it : attribute_names) {
+                                for (const auto& it : attribute_names) {
                                     hr = addAttribute(xml, it, attributes.Get());
                                 }
                             }
@@ -449,7 +473,7 @@ namespace Util {
 } // namespace Util
 
 WinToast* WinToast::instance() {
-    thread_local static WinToast instance;
+    thread_local WinToast instance;
     return &instance;
 }
 
@@ -482,17 +506,18 @@ void WinToast::setShortcutPolicy(_In_ ShortcutPolicy shortcutPolicy) {
 
 bool WinToast::isCompatible() {
     DllImporter::initialize();
-    return !((DllImporter::SetCurrentProcessExplicitAppUserModelID == nullptr) || (DllImporter::PropVariantToString == nullptr) ||
-             (DllImporter::RoGetActivationFactory == nullptr) || (DllImporter::WindowsCreateStringReference == nullptr) ||
-             (DllImporter::WindowsDeleteString == nullptr));
+    return !((DllImporter::SetCurrentProcessExplicitAppUserModelID == nullptr) || (DllImporter::PropVariantToString ==
+            nullptr) ||
+        (DllImporter::RoGetActivationFactory == nullptr) || (DllImporter::WindowsCreateStringReference == nullptr) ||
+        (DllImporter::WindowsDeleteString == nullptr));
 }
 
-bool WinToastLib::WinToast::isSupportingModernFeatures() {
+bool WinToast::isSupportingModernFeatures() {
     constexpr auto MinimumSupportedVersion = 6;
     return Util::getRealOSVersion().dwMajorVersion > MinimumSupportedVersion;
 }
 
-bool WinToastLib::WinToast::isWin10AnniversaryOrHigher() {
+bool WinToast::isWin10AnniversaryOrHigher() {
     return Util::getRealOSVersion().dwBuildNumber >= 14393;
 }
 
@@ -513,19 +538,19 @@ std::wstring WinToast::configureAUMI(_In_ std::wstring const& companyName, _In_ 
     return aumi;
 }
 
-std::wstring const& WinToast::strerror(WinToastError error) {
+const std::wstring& WinToast::strerror(WinToastError error) {
     static const std::unordered_map<WinToastError, std::wstring> Labels = {
-        {WinToastError::NoError,               L"No error. The process was executed correctly"                                  },
-        {WinToastError::NotInitialized,        L"The library has not been initialized"                                          },
-        {WinToastError::SystemNotSupported,    L"The OS does not support WinToast"                                              },
-        {WinToastError::ShellLinkNotCreated,   L"The library was not able to create a Shell Link for the app"                   },
-        {WinToastError::InvalidAppUserModelID, L"The AUMI is not a valid one"                                                   },
-        {WinToastError::InvalidParameters,     L"Invalid parameters, please double-check the AUMI or App Name"                  },
-        {WinToastError::NotDisplayed,          L"The toast was created correctly but WinToast was not able to display the toast"},
-        {WinToastError::UnknownError,          L"Unknown error"                                                                 }
+        {NoError, L"No error. The process was executed correctly"},
+        {NotInitialized, L"The library has not been initialized"},
+        {SystemNotSupported, L"The OS does not support WinToast"},
+        {ShellLinkNotCreated, L"The library was not able to create a Shell Link for the app"},
+        {InvalidAppUserModelID, L"The AUMI is not a valid one"},
+        {InvalidParameters, L"Invalid parameters, please double-check the AUMI or App Name"},
+        {NotDisplayed, L"The toast was created correctly but WinToast was not able to display the toast"},
+        {UnknownError, L"Unknown error"}
     };
 
-    auto const iter = Labels.find(error);
+    const auto iter = Labels.find(error);
     assert(iter != Labels.end());
     return iter->second;
 }
@@ -547,9 +572,8 @@ enum WinToast::ShortcutResult WinToast::createShortcut() {
             if (FAILED(initHr) && initHr != S_FALSE) {
                 DEBUG_MSG(L"Error on COM library initialization!");
                 return SHORTCUT_COM_INIT_FAILURE;
-            } else {
-                _hasCoInitialized = true;
             }
+            _hasCoInitialized = true;
         }
     }
 
@@ -565,30 +589,30 @@ enum WinToast::ShortcutResult WinToast::createShortcut() {
 
 bool WinToast::initialize(_Out_opt_ WinToastError* error) {
     _isInitialized = false;
-    setError(error, WinToastError::NoError);
+    setError(error, NoError);
 
     if (!isCompatible()) {
-        setError(error, WinToastError::SystemNotSupported);
+        setError(error, SystemNotSupported);
         DEBUG_MSG(L"Error: system not supported.");
         return false;
     }
 
     if (_aumi.empty() || _appName.empty()) {
-        setError(error, WinToastError::InvalidParameters);
+        setError(error, InvalidParameters);
         DEBUG_MSG(L"Error while initializing, did you set up a valid AUMI and App name?");
         return false;
     }
 
     if (_shortcutPolicy != SHORTCUT_POLICY_IGNORE) {
         if (createShortcut() < 0) {
-            setError(error, WinToastError::ShellLinkNotCreated);
+            setError(error, ShellLinkNotCreated);
             DEBUG_MSG(L"Error while attaching the AUMI to the current proccess =(");
             return false;
         }
     }
 
     if (FAILED(DllImporter::SetCurrentProcessExplicitAppUserModelID(_aumi.c_str()))) {
-        setError(error, WinToastError::InvalidAppUserModelID);
+        setError(error, InvalidAppUserModelID);
         DEBUG_MSG(L"Error while attaching the AUMI to the current proccess =(");
         return false;
     }
@@ -601,15 +625,15 @@ bool WinToast::isInitialized() const {
     return _isInitialized;
 }
 
-std::wstring const& WinToast::appName() const {
+const std::wstring& WinToast::appName() const {
     return _appName;
 }
 
-std::wstring const& WinToast::appUserModelId() const {
+const std::wstring& WinToast::appUserModelId() const {
     return _aumi;
 }
 
-HRESULT WinToast::validateShellLinkHelper(_Out_ bool& wasChanged) {
+HRESULT WinToast::validateShellLinkHelper(_Out_ bool&wasChanged) {
     WCHAR path[MAX_PATH] = {L'\0'};
     Util::defaultShellLinkPath(_appName, path);
     // Check if the file exist
@@ -640,7 +664,7 @@ HRESULT WinToast::validateShellLinkHelper(_Out_ bool& wasChanged) {
                     hr = propertyStore->GetValue(PKEY_AppUserModel_ID, &appIdPropVar);
                     if (SUCCEEDED(hr)) {
                         WCHAR AUMI[MAX_PATH];
-                        hr         = DllImporter::PropVariantToString(appIdPropVar, AUMI, MAX_PATH);
+                        hr = DllImporter::PropVariantToString(appIdPropVar, AUMI, MAX_PATH);
                         wasChanged = false;
                         if (FAILED(hr) || _aumi != AUMI) {
                             if (_shortcutPolicy == SHORTCUT_POLICY_REQUIRE_CREATE) {
@@ -657,7 +681,8 @@ HRESULT WinToast::validateShellLinkHelper(_Out_ bool& wasChanged) {
                                         }
                                     }
                                 }
-                            } else {
+                            }
+                            else {
                                 // Not allowed to touch the shortcut to fix the AUMI
                                 hr = E_FAIL;
                             }
@@ -717,31 +742,34 @@ HRESULT WinToast::createShellLinkHelper() {
     return hr;
 }
 
-INT64 WinToast::showToast(_In_ WinToastTemplate const& toast, _In_ IWinToastHandler* eventHandler, _Out_ WinToastError* error) {
+INT64 WinToast::showToast(_In_ WinToastTemplate const& toast, _In_ IWinToastHandler* eventHandler,
+                          _Out_ WinToastError* error) {
     std::shared_ptr<IWinToastHandler> handler(eventHandler);
-    setError(error, WinToastError::NoError);
+    setError(error, NoError);
     INT64 id = -1;
     if (!isInitialized()) {
-        setError(error, WinToastError::NotInitialized);
+        setError(error, NotInitialized);
         DEBUG_MSG("Error when launching the toast. WinToast is not initialized.");
         return id;
     }
     if (!handler) {
-        setError(error, WinToastError::InvalidHandler);
+        setError(error, InvalidHandler);
         DEBUG_MSG("Error when launching the toast. Handler cannot be nullptr.");
         return id;
     }
 
     ComPtr<IToastNotificationManagerStatics> notificationManager;
     HRESULT hr = DllImporter::Wrap_GetActivationFactory(
-        WinToastStringWrapper(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(), &notificationManager);
+        WinToastStringWrapper(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(),
+        &notificationManager);
     if (SUCCEEDED(hr)) {
         ComPtr<IToastNotifier> notifier;
         hr = notificationManager->CreateToastNotifierWithId(WinToastStringWrapper(_aumi).Get(), &notifier);
         if (SUCCEEDED(hr)) {
             ComPtr<IToastNotificationFactory> notificationFactory;
             hr = DllImporter::Wrap_GetActivationFactory(
-                WinToastStringWrapper(RuntimeClass_Windows_UI_Notifications_ToastNotification).Get(), &notificationFactory);
+                WinToastStringWrapper(RuntimeClass_Windows_UI_Notifications_ToastNotification).Get(),
+                &notificationFactory);
             if (SUCCEEDED(hr)) {
                 ComPtr<IXmlDocument> xmlDocument;
                 hr = notificationManager->GetTemplateContent(ToastTemplateType(toast.type()), &xmlDocument);
@@ -749,8 +777,10 @@ INT64 WinToast::showToast(_In_ WinToastTemplate const& toast, _In_ IWinToastHand
                     hr = setBindToastGenericHelper(xmlDocument.Get());
                 }
                 if (SUCCEEDED(hr)) {
-                    for (UINT32 i = 0, fieldsCount = static_cast<UINT32>(toast.textFieldsCount()); i < fieldsCount && SUCCEEDED(hr); i++) {
-                        hr = setTextFieldHelper(xmlDocument.Get(), toast.textField(WinToastTemplate::TextField(i)), i);
+                    for (UINT32 i = 0, fieldsCount = static_cast<UINT32>(toast.textFieldsCount()); i < fieldsCount &&
+                         SUCCEEDED(hr); i++) {
+                        hr = setTextFieldHelper(xmlDocument.Get(),
+                                                toast.textField(static_cast<WinToastTemplate::TextField>(i)), i);
                     }
 
                     // Modern feature are supported Windows > Windows 10
@@ -762,42 +792,48 @@ INT64 WinToast::showToast(_In_ WinToastTemplate const& toast, _In_ IWinToastHand
                         }
 
                         std::array<WCHAR, 12> buf;
-                        for (std::size_t i = 0, actionsCount = toast.actionsCount(); i < actionsCount && SUCCEEDED(hr); i++) {
+                        for (std::size_t i = 0, actionsCount = toast.actionsCount(); i < actionsCount && SUCCEEDED(hr);
+                             i++) {
                             _snwprintf_s(buf.data(), buf.size(), _TRUNCATE, L"%zd", i);
                             hr = addActionHelper(xmlDocument.Get(), toast.actionLabel(i), buf.data());
                         }
 
                         if (SUCCEEDED(hr)) {
-                            hr = (toast.audioPath().empty() && toast.audioOption() == WinToastTemplate::AudioOption::Default)
+                            hr = (toast.audioPath().empty() && toast.audioOption() ==
+                                     WinToastTemplate::AudioOption::Default)
                                      ? hr
                                      : setAudioFieldHelper(xmlDocument.Get(), toast.audioPath(), toast.audioOption());
                         }
 
                         if (SUCCEEDED(hr) && toast.duration() != WinToastTemplate::Duration::System) {
                             hr = addDurationHelper(xmlDocument.Get(),
-                                                   (toast.duration() == WinToastTemplate::Duration::Short) ? L"short" : L"long");
+                                                   (toast.duration() == WinToastTemplate::Duration::Short)
+                                                       ? L"short"
+                                                       : L"long");
                         }
 
-                        if(SUCCEEDED(hr) && toast.isInput()) {
+                        if (SUCCEEDED(hr) && toast.isInput()) {
                             hr = addInputHelper(xmlDocument.Get());
                         }
 
                         if (SUCCEEDED(hr)) {
                             hr = addScenarioHelper(xmlDocument.Get(), toast.scenario());
                         }
-
-                    } else {
+                    }
+                    else {
                         DEBUG_MSG("Modern features (Actions/Sounds/Attributes) not supported in this os version");
                     }
 
                     if (SUCCEEDED(hr)) {
-                        bool isWin10AnniversaryOrAbove = WinToast::isWin10AnniversaryOrHigher();
-                        bool isCircleCropHint          = isWin10AnniversaryOrAbove ? toast.isCropHintCircle() : false;
-                        hr                             = toast.hasImage()
-                                                             ? setImageFieldHelper(xmlDocument.Get(), toast.imagePath(), toast.isToastGeneric(), isCircleCropHint)
-                                                             : hr;
+                        bool isWin10AnniversaryOrAbove = isWin10AnniversaryOrHigher();
+                        bool isCircleCropHint = isWin10AnniversaryOrAbove ? toast.isCropHintCircle() : false;
+                        hr = toast.hasImage()
+                                 ? setImageFieldHelper(xmlDocument.Get(), toast.imagePath(), toast.isToastGeneric(),
+                                                       isCircleCropHint)
+                                 : hr;
                         if (SUCCEEDED(hr) && isWin10AnniversaryOrAbove && toast.hasHeroImage()) {
-                            hr = setHeroImageHelper(xmlDocument.Get(), toast.heroImagePath(), toast.isInlineHeroImage());
+                            hr = setHeroImageHelper(xmlDocument.Get(), toast.heroImagePath(),
+                                                    toast.isInlineHeroImage());
                         }
                         if (SUCCEEDED(hr)) {
                             ComPtr<IToastNotification> notification;
@@ -807,29 +843,33 @@ INT64 WinToast::showToast(_In_ WinToastTemplate const& toast, _In_ IWinToastHand
                                 if (relativeExpiration > 0) {
                                     InternalDateTime expirationDateTime(relativeExpiration);
                                     expiration = expirationDateTime;
-                                    hr         = notification->put_ExpirationTime(&expirationDateTime);
+                                    hr = notification->put_ExpirationTime(&expirationDateTime);
                                 }
 
                                 EventRegistrationToken activatedToken, dismissedToken, failedToken;
 
                                 GUID guid;
                                 HRESULT hrGuid = CoCreateGuid(&guid);
-                                id             = guid.Data1;
+                                id = guid.Data1;
                                 if (SUCCEEDED(hr) && SUCCEEDED(hrGuid)) {
-                                    hr = Util::setEventHandlers(notification.Get(), handler, expiration, activatedToken, dismissedToken,
-                                                                failedToken, [this, id]() { markAsReadyForDeletion(id); });
+                                    hr = Util::setEventHandlers(notification.Get(), handler, expiration, activatedToken,
+                                                                dismissedToken,
+                                                                failedToken, [this, id]() {
+                                                                    markAsReadyForDeletion(id);
+                                                                });
                                     if (FAILED(hr)) {
-                                        setError(error, WinToastError::InvalidHandler);
+                                        setError(error, InvalidHandler);
                                     }
                                 }
 
                                 if (SUCCEEDED(hr)) {
                                     if (SUCCEEDED(hr)) {
-                                        _buffer.emplace(id, NotifyData(notification, activatedToken, dismissedToken, failedToken));
+                                        _buffer.emplace(
+                                            id, NotifyData(notification, activatedToken, dismissedToken, failedToken));
                                         DEBUG_MSG("xml: " << Util::AsString(xmlDocument));
                                         hr = notifier->Show(notification.Get());
                                         if (FAILED(hr)) {
-                                            setError(error, WinToastError::NotDisplayed);
+                                            setError(error, NotDisplayed);
                                         }
                                     }
                                 }
@@ -843,7 +883,9 @@ INT64 WinToast::showToast(_In_ WinToastTemplate const& toast, _In_ IWinToastHand
     return FAILED(hr) ? -1 : id;
 }
 
-ComPtr<IToastNotifier> WinToast::notifier(_In_ bool* succeded) const {
+ComPtr<IToastNotifier> WinToast::notifier(_In_ bool*succeded)
+const
+ {
     ComPtr<IToastNotificationManagerStatics> notificationManager;
     ComPtr<IToastNotifier> notifier;
     HRESULT hr = DllImporter::Wrap_GetActivationFactory(
@@ -861,13 +903,14 @@ void WinToast::markAsReadyForDeletion(_In_ INT64 id) {
         if (it->second.isReadyForDeletion()) {
             it->second.RemoveTokens();
             it = _buffer.erase(it);
-        } else {
+        }
+        else {
             ++it;
         }
     }
 
     // Mark the toast as ready for deletion (if it exists) so that it will be removed from the buffer in the next iteration
-    auto const iter = _buffer.find(id);
+    const auto iter = _buffer.find(id);
     if (iter != _buffer.end()) {
         _buffer[id].markAsReadyForDeletion();
     }
@@ -885,7 +928,7 @@ bool WinToast::hideToast(_In_ INT64 id) {
     }
 
     auto succeded = false;
-    auto notify   = notifier(&succeded);
+    auto notify = notifier(&succeded);
     if (!succeded) {
         return false;
     }
@@ -904,7 +947,7 @@ bool WinToast::hideToast(_In_ INT64 id) {
 
 void WinToast::clear() {
     auto succeded = false;
-    auto notify   = notifier(&succeded);
+    auto notify = notifier(&succeded);
     if (!succeded) {
         return;
     }
@@ -972,7 +1015,8 @@ HRESULT WinToast::addDurationHelper(_In_ IXmlDocument* xml, _In_ std::wstring co
                 ComPtr<IXmlElement> toastElement;
                 hr = toastNode.As(&toastElement);
                 if (SUCCEEDED(hr)) {
-                    hr = toastElement->SetAttribute(WinToastStringWrapper(L"duration").Get(), WinToastStringWrapper(duration).Get());
+                    hr = toastElement->SetAttribute(WinToastStringWrapper(L"duration").Get(),
+                                                    WinToastStringWrapper(duration).Get());
                 }
             }
         }
@@ -993,7 +1037,8 @@ HRESULT WinToast::addScenarioHelper(_In_ IXmlDocument* xml, _In_ std::wstring co
                 ComPtr<IXmlElement> toastElement;
                 hr = toastNode.As(&toastElement);
                 if (SUCCEEDED(hr)) {
-                    hr = toastElement->SetAttribute(WinToastStringWrapper(L"scenario").Get(), WinToastStringWrapper(scenario).Get());
+                    hr = toastElement->SetAttribute(WinToastStringWrapper(L"scenario").Get(),
+                                                    WinToastStringWrapper(scenario).Get());
                 }
             }
         }
@@ -1001,8 +1046,7 @@ HRESULT WinToast::addScenarioHelper(_In_ IXmlDocument* xml, _In_ std::wstring co
     return hr;
 }
 
-HRESULT WinToast::addInputHelper(_In_ IXmlDocument* xml)
-{
+HRESULT WinToast::addInputHelper(_In_ IXmlDocument* xml) {
     std::vector<std::wstring> attrbs;
     attrbs.push_back(L"id");
     attrbs.push_back(L"type");
@@ -1014,41 +1058,41 @@ HRESULT WinToast::addInputHelper(_In_ IXmlDocument* xml)
 
     Util::createElement(xml, L"toast", L"actions", {});
 
-    Util::createElement(xml, L"actions", L"input",attrbs);
-    Util::createElement(xml, L"actions", L"action",attrbs2);
+    Util::createElement(xml, L"actions", L"input", attrbs);
+    Util::createElement(xml, L"actions", L"action", attrbs2);
 
     ComPtr<IXmlNodeList> nodeList;
     HRESULT hr = xml->GetElementsByTagName(WinToastStringWrapper(L"input").Get(), &nodeList);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ComPtr<IXmlNode> inputNode;
         hr = nodeList->Item(0, &inputNode);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             ComPtr<IXmlElement> toastElement;
             hr = inputNode.As(&toastElement);
-            if(SUCCEEDED(hr)){
+            if (SUCCEEDED(hr)) {
                 toastElement->SetAttribute(WinToastStringWrapper(L"id").Get(), WinToastStringWrapper(L"textBox").Get());
                 toastElement->SetAttribute(WinToastStringWrapper(L"type").Get(), WinToastStringWrapper(L"text").Get());
-                hr = toastElement->SetAttribute(WinToastStringWrapper(L"placeHolderContent").Get(), WinToastStringWrapper(L"...").Get());
+                hr = toastElement->SetAttribute(WinToastStringWrapper(L"placeHolderContent").Get(),
+                                                WinToastStringWrapper(L"...").Get());
             }
         }
     }
 
     ComPtr<IXmlNodeList> nodeList2;
     hr = xml->GetElementsByTagName(WinToastStringWrapper(L"action").Get(), &nodeList2);
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         ComPtr<IXmlNode> actionNode;
         hr = nodeList2->Item(0, &actionNode);
-        if (SUCCEEDED(hr))
-        {
+        if (SUCCEEDED(hr)) {
             ComPtr<IXmlElement> actionElement;
             hr = actionNode.As(&actionElement);
-            if(SUCCEEDED(hr)){
-                actionElement->SetAttribute(WinToastStringWrapper(L"content").Get(), WinToastStringWrapper(L"Reply").Get());
-                actionElement->SetAttribute(WinToastStringWrapper(L"arguments").Get(), WinToastStringWrapper(L"action=reply").Get());
-                actionElement->SetAttribute(WinToastStringWrapper(L"hint-inputId").Get(), WinToastStringWrapper(L"textBox").Get());
+            if (SUCCEEDED(hr)) {
+                actionElement->SetAttribute(WinToastStringWrapper(L"content").Get(),
+                                            WinToastStringWrapper(L"Reply").Get());
+                actionElement->SetAttribute(WinToastStringWrapper(L"arguments").Get(),
+                                            WinToastStringWrapper(L"action=reply").Get());
+                actionElement->SetAttribute(WinToastStringWrapper(L"hint-inputId").Get(),
+                                            WinToastStringWrapper(L"textBox").Get());
             }
         }
     }
@@ -1081,7 +1125,8 @@ HRESULT WinToast::setBindToastGenericHelper(_In_ IXmlDocument* xml) {
                 ComPtr<IXmlElement> toastElement;
                 hr = toastNode.As(&toastElement);
                 if (SUCCEEDED(hr)) {
-                    hr = toastElement->SetAttribute(WinToastStringWrapper(L"template").Get(), WinToastStringWrapper(L"ToastGeneric").Get());
+                    hr = toastElement->SetAttribute(WinToastStringWrapper(L"template").Get(),
+                                                    WinToastStringWrapper(L"ToastGeneric").Get());
                 }
             }
         }
@@ -1094,7 +1139,7 @@ HRESULT WinToast::setImageFieldHelper(_In_ IXmlDocument* xml, _In_ std::wstring 
     assert(path.size() < MAX_PATH);
 
     wchar_t imagePath[MAX_PATH] = L"file:///";
-    HRESULT hr                  = StringCchCatW(imagePath, MAX_PATH, path.c_str());
+    HRESULT hr = StringCchCatW(imagePath, MAX_PATH, path.c_str());
     if (SUCCEEDED(hr)) {
         ComPtr<IXmlNodeList> nodeList;
         HRESULT hr = xml->GetElementsByTagName(WinToastStringWrapper(L"image").Get(), &nodeList);
@@ -1105,9 +1150,11 @@ HRESULT WinToast::setImageFieldHelper(_In_ IXmlDocument* xml, _In_ std::wstring 
             ComPtr<IXmlElement> imageElement;
             HRESULT hrImage = node.As(&imageElement);
             if (SUCCEEDED(hr) && SUCCEEDED(hrImage) && isToastGeneric) {
-                hr = imageElement->SetAttribute(WinToastStringWrapper(L"placement").Get(), WinToastStringWrapper(L"appLogoOverride").Get());
+                hr = imageElement->SetAttribute(WinToastStringWrapper(L"placement").Get(),
+                                                WinToastStringWrapper(L"appLogoOverride").Get());
                 if (SUCCEEDED(hr) && isCropHintCircle) {
-                    hr = imageElement->SetAttribute(WinToastStringWrapper(L"hint-crop").Get(), WinToastStringWrapper(L"circle").Get());
+                    hr = imageElement->SetAttribute(WinToastStringWrapper(L"hint-crop").Get(),
+                                                    WinToastStringWrapper(L"circle").Get());
                 }
             }
             if (SUCCEEDED(hr)) {
@@ -1161,19 +1208,19 @@ HRESULT WinToast::setAudioFieldHelper(_In_ IXmlDocument* xml, _In_ std::wstring 
 
                 if (SUCCEEDED(hr)) {
                     switch (option) {
-                        case WinToastTemplate::AudioOption::Loop:
-                            hr = attributes->GetNamedItem(WinToastStringWrapper(L"loop").Get(), &editedNode);
-                            if (SUCCEEDED(hr)) {
-                                hr = Util::setNodeStringValue(L"true", editedNode.Get(), xml);
-                            }
-                            break;
-                        case WinToastTemplate::AudioOption::Silent:
-                            hr = attributes->GetNamedItem(WinToastStringWrapper(L"silent").Get(), &editedNode);
-                            if (SUCCEEDED(hr)) {
-                                hr = Util::setNodeStringValue(L"true", editedNode.Get(), xml);
-                            }
-                        default:
-                            break;
+                    case WinToastTemplate::AudioOption::Loop:
+                        hr = attributes->GetNamedItem(WinToastStringWrapper(L"loop").Get(), &editedNode);
+                        if (SUCCEEDED(hr)) {
+                            hr = Util::setNodeStringValue(L"true", editedNode.Get(), xml);
+                        }
+                        break;
+                    case WinToastTemplate::AudioOption::Silent:
+                        hr = attributes->GetNamedItem(WinToastStringWrapper(L"silent").Get(), &editedNode);
+                        if (SUCCEEDED(hr)) {
+                            hr = Util::setNodeStringValue(L"true", editedNode.Get(), xml);
+                        }
+                    default:
+                        break;
                     }
                 }
             }
@@ -1182,7 +1229,8 @@ HRESULT WinToast::setAudioFieldHelper(_In_ IXmlDocument* xml, _In_ std::wstring 
     return hr;
 }
 
-HRESULT WinToast::addActionHelper(_In_ IXmlDocument* xml, _In_ std::wstring const& content, _In_ std::wstring const& arguments) {
+HRESULT WinToast::addActionHelper(_In_ IXmlDocument* xml, _In_ std::wstring const& content,
+                                  _In_ std::wstring const& arguments) {
     ComPtr<IXmlNodeList> nodeList;
     HRESULT hr = xml->GetElementsByTagName(WinToastStringWrapper(L"actions").Get(), &nodeList);
     if (SUCCEEDED(hr)) {
@@ -1192,7 +1240,8 @@ HRESULT WinToast::addActionHelper(_In_ IXmlDocument* xml, _In_ std::wstring cons
             ComPtr<IXmlNode> actionsNode;
             if (length > 0) {
                 hr = nodeList->Item(0, &actionsNode);
-            } else {
+            }
+            else {
                 hr = xml->GetElementsByTagName(WinToastStringWrapper(L"toast").Get(), &nodeList);
                 if (SUCCEEDED(hr)) {
                     hr = nodeList->get_Length(&length);
@@ -1229,10 +1278,12 @@ HRESULT WinToast::addActionHelper(_In_ IXmlDocument* xml, _In_ std::wstring cons
                 ComPtr<IXmlElement> actionElement;
                 hr = xml->CreateElement(WinToastStringWrapper(L"action").Get(), &actionElement);
                 if (SUCCEEDED(hr)) {
-                    hr = actionElement->SetAttribute(WinToastStringWrapper(L"content").Get(), WinToastStringWrapper(content).Get());
+                    hr = actionElement->SetAttribute(WinToastStringWrapper(L"content").Get(),
+                                                     WinToastStringWrapper(content).Get());
                 }
                 if (SUCCEEDED(hr)) {
-                    hr = actionElement->SetAttribute(WinToastStringWrapper(L"arguments").Get(), WinToastStringWrapper(arguments).Get());
+                    hr = actionElement->SetAttribute(WinToastStringWrapper(L"arguments").Get(),
+                                                     WinToastStringWrapper(arguments).Get());
                 }
                 if (SUCCEEDED(hr)) {
                     ComPtr<IXmlNode> actionNode;
@@ -1263,10 +1314,12 @@ HRESULT WinToast::setHeroImageHelper(_In_ IXmlDocument* xml, _In_ std::wstring c
                 ComPtr<IXmlElement> imageElement;
                 hr = xml->CreateElement(WinToastStringWrapper(L"image").Get(), &imageElement);
                 if (SUCCEEDED(hr) && isInlineImage == false) {
-                    hr = imageElement->SetAttribute(WinToastStringWrapper(L"placement").Get(), WinToastStringWrapper(L"hero").Get());
+                    hr = imageElement->SetAttribute(WinToastStringWrapper(L"placement").Get(),
+                                                    WinToastStringWrapper(L"hero").Get());
                 }
                 if (SUCCEEDED(hr)) {
-                    hr = imageElement->SetAttribute(WinToastStringWrapper(L"src").Get(), WinToastStringWrapper(path).Get());
+                    hr = imageElement->SetAttribute(WinToastStringWrapper(L"src").Get(),
+                                                    WinToastStringWrapper(path).Get());
                 }
                 if (SUCCEEDED(hr)) {
                     ComPtr<IXmlNode> actionNode;
@@ -1290,7 +1343,7 @@ void WinToast::setError(_Out_opt_ WinToastError* error, _In_ WinToastError value
 
 WinToastTemplate::WinToastTemplate(_In_ WinToastTemplateType type) : _type(type) {
     constexpr static std::size_t TextFieldsCount[] = {1, 2, 2, 3, 1, 2, 2, 3};
-    _textFields                                    = std::vector<std::wstring>(TextFieldsCount[type], L"");
+    _textFields = std::vector<std::wstring>(TextFieldsCount[type], L"");
 }
 
 WinToastTemplate::~WinToastTemplate() {
@@ -1298,7 +1351,7 @@ WinToastTemplate::~WinToastTemplate() {
 }
 
 void WinToastTemplate::setTextField(_In_ std::wstring const& txt, _In_ WinToastTemplate::TextField pos) {
-    auto const position = static_cast<std::size_t>(pos);
+    const auto position = static_cast<std::size_t>(pos);
     if (position >= _textFields.size()) {
         DEBUG_MSG("The selected template type supports only " << _textFields.size() << " text lines");
         return;
@@ -1308,11 +1361,11 @@ void WinToastTemplate::setTextField(_In_ std::wstring const& txt, _In_ WinToastT
 
 void WinToastTemplate::setImagePath(_In_ std::wstring const& imgPath, _In_ CropHint cropHint) {
     _imagePath = imgPath;
-    _cropHint  = cropHint;
+    _cropHint = cropHint;
 }
 
 void WinToastTemplate::setHeroImagePath(_In_ std::wstring const& imgPath, _In_ bool inlineImage) {
-    _heroImagePath   = imgPath;
+    _heroImagePath = imgPath;
     _inlineHeroImage = inlineImage;
 }
 
@@ -1322,34 +1375,34 @@ void WinToastTemplate::setAudioPath(_In_ std::wstring const& audioPath) {
 
 void WinToastTemplate::setAudioPath(_In_ AudioSystemFile file) {
     static const std::unordered_map<AudioSystemFile, std::wstring> Files = {
-        {AudioSystemFile::DefaultSound, L"ms-winsoundevent:Notification.Default"        },
-        {AudioSystemFile::IM,           L"ms-winsoundevent:Notification.IM"             },
-        {AudioSystemFile::Mail,         L"ms-winsoundevent:Notification.Mail"           },
-        {AudioSystemFile::Reminder,     L"ms-winsoundevent:Notification.Reminder"       },
-        {AudioSystemFile::SMS,          L"ms-winsoundevent:Notification.SMS"            },
-        {AudioSystemFile::Alarm,        L"ms-winsoundevent:Notification.Looping.Alarm"  },
-        {AudioSystemFile::Alarm2,       L"ms-winsoundevent:Notification.Looping.Alarm2" },
-        {AudioSystemFile::Alarm3,       L"ms-winsoundevent:Notification.Looping.Alarm3" },
-        {AudioSystemFile::Alarm4,       L"ms-winsoundevent:Notification.Looping.Alarm4" },
-        {AudioSystemFile::Alarm5,       L"ms-winsoundevent:Notification.Looping.Alarm5" },
-        {AudioSystemFile::Alarm6,       L"ms-winsoundevent:Notification.Looping.Alarm6" },
-        {AudioSystemFile::Alarm7,       L"ms-winsoundevent:Notification.Looping.Alarm7" },
-        {AudioSystemFile::Alarm8,       L"ms-winsoundevent:Notification.Looping.Alarm8" },
-        {AudioSystemFile::Alarm9,       L"ms-winsoundevent:Notification.Looping.Alarm9" },
-        {AudioSystemFile::Alarm10,      L"ms-winsoundevent:Notification.Looping.Alarm10"},
-        {AudioSystemFile::Call,         L"ms-winsoundevent:Notification.Looping.Call"   },
-        {AudioSystemFile::Call1,        L"ms-winsoundevent:Notification.Looping.Call1"  },
-        {AudioSystemFile::Call2,        L"ms-winsoundevent:Notification.Looping.Call2"  },
-        {AudioSystemFile::Call3,        L"ms-winsoundevent:Notification.Looping.Call3"  },
-        {AudioSystemFile::Call4,        L"ms-winsoundevent:Notification.Looping.Call4"  },
-        {AudioSystemFile::Call5,        L"ms-winsoundevent:Notification.Looping.Call5"  },
-        {AudioSystemFile::Call6,        L"ms-winsoundevent:Notification.Looping.Call6"  },
-        {AudioSystemFile::Call7,        L"ms-winsoundevent:Notification.Looping.Call7"  },
-        {AudioSystemFile::Call8,        L"ms-winsoundevent:Notification.Looping.Call8"  },
-        {AudioSystemFile::Call9,        L"ms-winsoundevent:Notification.Looping.Call9"  },
-        {AudioSystemFile::Call10,       L"ms-winsoundevent:Notification.Looping.Call10" },
+        {DefaultSound, L"ms-winsoundevent:Notification.Default"},
+        {IM, L"ms-winsoundevent:Notification.IM"},
+        {Mail, L"ms-winsoundevent:Notification.Mail"},
+        {Reminder, L"ms-winsoundevent:Notification.Reminder"},
+        {SMS, L"ms-winsoundevent:Notification.SMS"},
+        {Alarm, L"ms-winsoundevent:Notification.Looping.Alarm"},
+        {Alarm2, L"ms-winsoundevent:Notification.Looping.Alarm2"},
+        {Alarm3, L"ms-winsoundevent:Notification.Looping.Alarm3"},
+        {Alarm4, L"ms-winsoundevent:Notification.Looping.Alarm4"},
+        {Alarm5, L"ms-winsoundevent:Notification.Looping.Alarm5"},
+        {Alarm6, L"ms-winsoundevent:Notification.Looping.Alarm6"},
+        {Alarm7, L"ms-winsoundevent:Notification.Looping.Alarm7"},
+        {Alarm8, L"ms-winsoundevent:Notification.Looping.Alarm8"},
+        {Alarm9, L"ms-winsoundevent:Notification.Looping.Alarm9"},
+        {Alarm10, L"ms-winsoundevent:Notification.Looping.Alarm10"},
+        {Call, L"ms-winsoundevent:Notification.Looping.Call"},
+        {Call1, L"ms-winsoundevent:Notification.Looping.Call1"},
+        {Call2, L"ms-winsoundevent:Notification.Looping.Call2"},
+        {Call3, L"ms-winsoundevent:Notification.Looping.Call3"},
+        {Call4, L"ms-winsoundevent:Notification.Looping.Call4"},
+        {Call5, L"ms-winsoundevent:Notification.Looping.Call5"},
+        {Call6, L"ms-winsoundevent:Notification.Looping.Call6"},
+        {Call7, L"ms-winsoundevent:Notification.Looping.Call7"},
+        {Call8, L"ms-winsoundevent:Notification.Looping.Call8"},
+        {Call9, L"ms-winsoundevent:Notification.Looping.Call9"},
+        {Call10, L"ms-winsoundevent:Notification.Looping.Call10"},
     };
-    auto const iter = Files.find(file);
+    const auto iter = Files.find(file);
     assert(iter != Files.end());
     _audioPath = iter->second;
 }
@@ -1359,15 +1412,15 @@ void WinToastTemplate::setAudioOption(_In_ WinToastTemplate::AudioOption audioOp
 }
 
 void WinToastTemplate::setFirstLine(_In_ std::wstring const& text) {
-    setTextField(text, WinToastTemplate::FirstLine);
+    setTextField(text, FirstLine);
 }
 
 void WinToastTemplate::setSecondLine(_In_ std::wstring const& text) {
-    setTextField(text, WinToastTemplate::SecondLine);
+    setTextField(text, SecondLine);
 }
 
 void WinToastTemplate::setThirdLine(_In_ std::wstring const& text) {
-    setTextField(text, WinToastTemplate::ThirdLine);
+    setTextField(text, ThirdLine);
 }
 
 void WinToastTemplate::setDuration(_In_ Duration duration) {
@@ -1378,20 +1431,20 @@ void WinToastTemplate::setExpiration(_In_ INT64 millisecondsFromNow) {
     _expiration = millisecondsFromNow;
 }
 
-void WinToastLib::WinToastTemplate::setScenario(_In_ Scenario scenario) {
+void WinToastTemplate::setScenario(_In_ Scenario scenario) {
     switch (scenario) {
-        case Scenario::Default:
-            _scenario = L"Default";
-            break;
-        case Scenario::Alarm:
-            _scenario = L"Alarm";
-            break;
-        case Scenario::IncomingCall:
-            _scenario = L"IncomingCall";
-            break;
-        case Scenario::Reminder:
-            _scenario = L"Reminder";
-            break;
+    case Scenario::Default:
+        _scenario = L"Default";
+        break;
+    case Scenario::Alarm:
+        _scenario = L"Alarm";
+        break;
+    case Scenario::IncomingCall:
+        _scenario = L"IncomingCall";
+        break;
+    case Scenario::Reminder:
+        _scenario = L"Reminder";
+        break;
     }
 }
 
@@ -1403,8 +1456,7 @@ void WinToastTemplate::addAction(_In_ std::wstring const& label) {
     _actions.push_back(label);
 }
 
-void WinToastTemplate::addInput()
-{
+void WinToastTemplate::addInput() {
     _hasInput = true;
 }
 
@@ -1417,45 +1469,45 @@ std::size_t WinToastTemplate::actionsCount() const {
 }
 
 bool WinToastTemplate::hasImage() const {
-    return _type < WinToastTemplateType::Text01;
+    return _type < Text01;
 }
 
 bool WinToastTemplate::hasHeroImage() const {
     return hasImage() && !_heroImagePath.empty();
 }
 
-std::vector<std::wstring> const& WinToastTemplate::textFields() const {
+const std::vector<std::wstring>& WinToastTemplate::textFields() const {
     return _textFields;
 }
 
-std::wstring const& WinToastTemplate::textField(_In_ TextField pos) const {
-    auto const position = static_cast<std::size_t>(pos);
+const std::wstring& WinToastTemplate::textField(_In_ TextField pos) const {
+    const auto position = static_cast<std::size_t>(pos);
     assert(position < _textFields.size());
     return _textFields[position];
 }
 
-std::wstring const& WinToastTemplate::actionLabel(_In_ std::size_t position) const {
+const std::wstring& WinToastTemplate::actionLabel(_In_ std::size_t position) const {
     assert(position < _actions.size());
     return _actions[position];
 }
 
-std::wstring const& WinToastTemplate::imagePath() const {
+const std::wstring& WinToastTemplate::imagePath() const {
     return _imagePath;
 }
 
-std::wstring const& WinToastTemplate::heroImagePath() const {
+const std::wstring& WinToastTemplate::heroImagePath() const {
     return _heroImagePath;
 }
 
-std::wstring const& WinToastTemplate::audioPath() const {
+const std::wstring& WinToastTemplate::audioPath() const {
     return _audioPath;
 }
 
-std::wstring const& WinToastTemplate::attributionText() const {
+const std::wstring& WinToastTemplate::attributionText() const {
     return _attributionText;
 }
 
-std::wstring const& WinToastLib::WinToastTemplate::scenario() const {
+const std::wstring& WinToastTemplate::scenario() const {
     return _scenario;
 }
 
@@ -1476,7 +1528,7 @@ WinToastTemplate::Duration WinToastTemplate::duration() const {
 }
 
 bool WinToastTemplate::isToastGeneric() const {
-    return hasHeroImage() || _cropHint == WinToastTemplate::Circle;
+    return hasHeroImage() || _cropHint == Circle;
 }
 
 bool WinToastTemplate::isInlineHeroImage() const {
@@ -1484,9 +1536,9 @@ bool WinToastTemplate::isInlineHeroImage() const {
 }
 
 bool WinToastTemplate::isCropHintCircle() const {
-    return _cropHint == CropHint::Circle;
+    return _cropHint == Circle;
 }
 
-bool WinToastTemplate::isInput() const{
+bool WinToastTemplate::isInput() const {
     return _hasInput;
 }

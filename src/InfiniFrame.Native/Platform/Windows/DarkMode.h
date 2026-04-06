@@ -46,28 +46,25 @@ void RefreshNonClientArea(HWND hwnd) noexcept;
 // ---------------------------------------------------------------------------------------------------------------------
 
 /** @brief Controls whether the immersive colour cache is used or refreshed */
-enum IMMERSIVE_HC_CACHE_MODE
-{
+enum IMMERSIVE_HC_CACHE_MODE {
     IHCM_USE_CACHED_VALUE = 0, /// Use the previously cached value
-    IHCM_REFRESH = 1,          /// Force a refresh of the cached value
+    IHCM_REFRESH = 1, /// Force a refresh of the cached value
 };
 
 /** @brief Application colour-mode preference passed to SetPreferredAppMode */
-enum PreferredAppMode
-{
-    Default = 0,    /// Follow the system setting
-    AllowDark = 1,  /// Allow dark mode if the system is dark
-    ForceDark = 2,  /// Always use dark mode
+enum PreferredAppMode {
+    Default = 0, /// Follow the system setting
+    AllowDark = 1, /// Allow dark mode if the system is dark
+    ForceDark = 2, /// Always use dark mode
     ForceLight = 3, /// Always use light mode
-    Max = 4,        /// Sentinel value; not a valid mode
+    Max = 4, /// Sentinel value; not a valid mode
 };
 
 /** @brief Window composition attribute identifiers used with SetWindowCompositionAttribute */
-enum WINDOWCOMPOSITIONATTRIB
-{
+enum WINDOWCOMPOSITIONATTRIB {
     WCA_UNDEFINED = 0,
     WCA_NCRENDERING_ENABLED = 1, /// Non-client rendering enabled flag
-    WCA_NCRENDERING_POLICY = 2,  /// Non-client rendering policy
+    WCA_NCRENDERING_POLICY = 2, /// Non-client rendering policy
     WCA_TRANSITIONS_FORCEDISABLED = 3,
     WCA_ALLOW_NCPAINT = 4,
     WCA_CAPTION_BUTTON_BOUNDS = 5,
@@ -96,9 +93,8 @@ enum WINDOWCOMPOSITIONATTRIB
 };
 
 /** @brief Parameter struct for SetWindowCompositionAttribute */
-struct WINDOWCOMPOSITIONATTRIBDATA
-{
+struct WINDOWCOMPOSITIONATTRIBDATA {
     WINDOWCOMPOSITIONATTRIB Attrib; /// Attribute to get or set
-    PVOID pvData;                   /// Pointer to attribute-specific data
-    SIZE_T cbData;                  /// Size of the data pointed to by pvData
+    PVOID pvData; /// Pointer to attribute-specific data
+    SIZE_T cbData; /// Size of the data pointed to by pvData
 };

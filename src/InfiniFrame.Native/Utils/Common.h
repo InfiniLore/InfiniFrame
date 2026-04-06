@@ -33,8 +33,7 @@ inline constexpr int DefaultWindowHeight = 600;
 // Error Codes
 // ---------------------------------------------------------------------------------------------------------------------
 
-enum class ErrorCode
-{
+enum class ErrorCode {
     Success = 0,
     InvalidArgument,
     NotInitialized,
@@ -53,19 +52,14 @@ enum class ErrorCode
 // Error Category
 // ---------------------------------------------------------------------------------------------------------------------
 
-inline const std::error_category &errorCategory() noexcept
-{
-    struct InfiniFrameCategory : std::error_category
-    {
-        const char *name() const noexcept override
-        {
+inline const std::error_category& errorCategory() noexcept {
+    struct InfiniFrameCategory : std::error_category {
+        const char*name() const noexcept override {
             return "InfiniFrame";
         }
 
-        std::string message(int ev) const override
-        {
-            switch (static_cast<ErrorCode>(ev))
-            {
+        std::string message(int ev) const override {
+            switch (static_cast<ErrorCode>(ev)) {
             case ErrorCode::Success:
                 return "Success";
             case ErrorCode::InvalidArgument:
@@ -99,17 +93,13 @@ inline const std::error_category &errorCategory() noexcept
     return category;
 }
 
-inline std::error_code make_error_code(ErrorCode e) noexcept
-{
+inline std::error_code make_error_code(ErrorCode e) noexcept {
     return {static_cast<int>(e), errorCategory()};
 }
 
-namespace std
-{
+namespace std {
     template <>
-    struct is_error_code_enum<ErrorCode> : true_type
-    {
-    };
+    struct is_error_code_enum<ErrorCode> : true_type {};
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -125,28 +115,22 @@ using Result = std::expected<T, ErrorCode>;
 
 #ifdef _WIN32
 
-struct HBRUSHDeleter
-{
-    void operator()(void *h) const noexcept
-    {
+struct HBRUSHDeleter {
+    void operator()(void* h) const noexcept {
         if (h)
             DeleteObject(static_cast<HBRUSH>(h));
     }
 };
 
-struct HICONDeleter
-{
-    void operator()(void *h) const noexcept
-    {
+struct HICONDeleter {
+    void operator()(void* h) const noexcept {
         if (h)
             DestroyIcon(static_cast<HICON>(h));
     }
 };
 
-struct HDCDeleter
-{
-    void operator()(void *h) const noexcept
-    {
+struct HDCDeleter {
+    void operator()(void* h) const noexcept {
         if (h)
             DeleteDC(static_cast<HDC>(h));
     }
@@ -163,8 +147,7 @@ using UniqueHDC = std::unique_ptr<void, HDCDeleter>;
 // ---------------------------------------------------------------------------------------------------------------------
 
 template <typename T>
-[[nodiscard]] constexpr T clampDimension(T value, T minVal = MinWindowDimension, T maxVal = MaxWindowDimension)
-{
+[[nodiscard]] constexpr T clampDimension(T value, T minVal = MinWindowDimension, T maxVal = MaxWindowDimension) {
     return std::clamp(value, minVal, maxVal);
 }
 

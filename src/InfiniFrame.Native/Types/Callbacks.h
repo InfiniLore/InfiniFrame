@@ -31,14 +31,14 @@ using WebMessageReceivedCallback = void (*)(AutoString message);
  * @param outContentType Output: MIME type string (e.g. "text/html")
  * @return Heap-allocated response body; ownership is transferred to the caller
  */
-using WebResourceRequestedCallback = void *(*)(AutoString url, int *outNumBytes, AutoString *outContentType);
+using WebResourceRequestedCallback = void *(*)(AutoString url, int* outNumBytes, AutoString* outContentType);
 
 /**
  * @brief Called once per monitor during a GetAllMonitors enumeration.
  * @param monitor Pointer to a Monitor describing geometry and DPI scale for one display
  * @return Non-zero to continue enumeration, zero to stop
  */
-using GetAllMonitorsCallback = int (*)(const Monitor *monitor);
+using GetAllMonitorsCallback = int (*)(const Monitor* monitor);
 
 /**
  * @brief Called when the window is resized.

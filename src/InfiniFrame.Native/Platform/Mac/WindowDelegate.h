@@ -12,10 +12,11 @@
  * Listens for window close, resize, move, miniaturize, and focus events and
  * translates them into the corresponding InfiniFrame Invoke* calls
  */
-@interface WindowDelegate : NSObject <NSWindowDelegate>
+@ interface WindowDelegate : NSObject<NSWindowDelegate>
 {
     @public
-        InfiniFrameWindow * infiniFrame; ///< The InfiniFrameWindow instance this delegate belongs to
+    InfiniFrameWindow * infiniFrame; ///< The InfiniFrameWindow instance this delegate belongs to
+
 }
-@end
+@ end
 #endif

@@ -26,20 +26,20 @@
 function(_infiniframe_resolve_base_dir out_var required_relative_path)
     message(STATUS "Searching dependency base dir for '${required_relative_path}'")
     set(_resolved "")
-    
-    foreach(_candidate IN LISTS ARGN)
+
+    foreach (_candidate IN LISTS ARGN)
         message(STATUS "  candidate: ${_candidate}")
-        if(EXISTS "${_candidate}/${required_relative_path}")
+        if (EXISTS "${_candidate}/${required_relative_path}")
             set(_resolved "${_candidate}")
             break()
-        endif()
-    endforeach()
-    
-    if(_resolved)
+        endif ()
+    endforeach ()
+
+    if (_resolved)
         message(STATUS "  resolved: ${_resolved}")
-    else()
+    else ()
         message(STATUS "  resolved: <not found>")
-    endif()
+    endif ()
     set(${out_var} "${_resolved}" PARENT_SCOPE)
 endfunction()
 
@@ -54,14 +54,14 @@ function(infiniframe_read_package_version packages_config package_id out_var)
     file(READ "${packages_config}" _packages_content)
     string(REPLACE "." "\\." _package_id_regex "${package_id}")
     string(
-        REGEX MATCH
-        "<package[^>]*id=\"${_package_id_regex}\"[^>]*version=\"([^\"]+)\""
-        _match
-        "${_packages_content}"
+            REGEX MATCH
+            "<package[^>]*id=\"${_package_id_regex}\"[^>]*version=\"([^\"]+)\""
+            _match
+            "${_packages_content}"
     )
-    if(NOT CMAKE_MATCH_1)
+    if (NOT CMAKE_MATCH_1)
         message(FATAL_ERROR "${package_id} package version not found in ${packages_config}")
-    endif()
+    endif ()
     message(STATUS "  ${package_id} version: ${CMAKE_MATCH_1}")
     set(${out_var} "${CMAKE_MATCH_1}" PARENT_SCOPE)
 endfunction()
@@ -78,9 +78,9 @@ endfunction()
 # Fails with `FATAL_ERROR` when required files are missing.
 function(infiniframe_add_vendor_static_library vendor_name vendor_dir source_name header_name)
     message(STATUS "Configuring vendored library '${vendor_name}' from ${vendor_dir}")
-    if(NOT EXISTS "${vendor_dir}/${source_name}" OR NOT EXISTS "${vendor_dir}/${header_name}")
+    if (NOT EXISTS "${vendor_dir}/${source_name}" OR NOT EXISTS "${vendor_dir}/${header_name}")
         message(FATAL_ERROR "Vendored ${vendor_name} files are missing. Expected ${source_name} and ${header_name} in ${vendor_dir}.")
-    endif()
+    endif ()
 
     set(_target_name "${vendor_name}_vendor")
     add_library(${_target_name} STATIC "${vendor_dir}/${source_name}")
@@ -96,13 +96,13 @@ endfunction()
 function(infiniframe_restore_nuget_packages packages_config_path)
     message(STATUS "Restoring NuGet packages using ${packages_config_path}")
     execute_process(
-        COMMAND nuget restore "${packages_config_path}" -PackagesDirectory "${CMAKE_SOURCE_DIR}/packages"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        RESULT_VARIABLE _nuget_result
+            COMMAND nuget restore "${packages_config_path}" -PackagesDirectory "${CMAKE_SOURCE_DIR}/packages"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+            RESULT_VARIABLE _nuget_result
     )
-    if(NOT _nuget_result EQUAL 0)
+    if (NOT _nuget_result EQUAL 0)
         message(FATAL_ERROR "NuGet restore failed")
-    endif()
+    endif ()
     message(STATUS "NuGet restore succeeded")
 endfunction()
 
@@ -111,13 +111,13 @@ endfunction()
 # - out_var: parent-scope variable receiving one of `x64` or `arm64`
 # Defaults to `x64` when platform cannot be inferred.
 function(infiniframe_detect_windows_arch_dir out_var)
-    if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
+    if (CMAKE_GENERATOR_PLATFORM MATCHES "ARM64|arm64")
         set(_arch "arm64")
-    elseif(CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
+    elseif (CMAKE_GENERATOR_PLATFORM MATCHES "x64|Win64")
         set(_arch "x64")
-    else()
+    else ()
         set(_arch "x64")
-    endif()
+    endif ()
     message(STATUS "Resolved Windows architecture: ${_arch}")
     set(${out_var} "${_arch}" PARENT_SCOPE)
 endfunction()
@@ -131,13 +131,13 @@ endfunction()
 function(infiniframe_resolve_webview2_base_dir webview2_version out_var)
     message(STATUS "Resolving WebView2 SDK path for version ${webview2_version}")
     set(_candidates
-        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${webview2_version}/build/native"
-        "$ENV{USERPROFILE}/.nuget/packages/microsoft.web.webview2/${webview2_version}/build/native"
+            "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${webview2_version}/build/native"
+            "$ENV{USERPROFILE}/.nuget/packages/microsoft.web.webview2/${webview2_version}/build/native"
     )
     _infiniframe_resolve_base_dir(_base_dir "include/WebView2.h" ${_candidates})
-    if(NOT _base_dir)
+    if (NOT _base_dir)
         message(FATAL_ERROR "WebView2 headers not found")
-    endif()
+    endif ()
     set(${out_var} "${_base_dir}" PARENT_SCOPE)
 endfunction()
 
@@ -152,25 +152,25 @@ endfunction()
 function(infiniframe_resolve_wil_include_dir winimpl_version out_var)
     message(STATUS "Resolving WIL include path for version ${winimpl_version}")
     set(_candidates
-        "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${winimpl_version}"
-        "$ENV{USERPROFILE}/.nuget/packages/microsoft.windows.implementationlibrary/${winimpl_version}"
+            "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${winimpl_version}"
+            "$ENV{USERPROFILE}/.nuget/packages/microsoft.windows.implementationlibrary/${winimpl_version}"
     )
 
     _infiniframe_resolve_base_dir(_base_include "include/wil/com.h" ${_candidates})
-    if(_base_include)
+    if (_base_include)
         set(_include_dir "${_base_include}/include")
-    else()
+    else ()
         _infiniframe_resolve_base_dir(_native_include "build/native/include/wil/com.h" ${_candidates})
-        if(_native_include)
+        if (_native_include)
             set(_include_dir "${_native_include}/build/native/include")
-        else()
+        else ()
             set(_include_dir "")
-        endif()
-    endif()
+        endif ()
+    endif ()
 
-    if(NOT _include_dir)
+    if (NOT _include_dir)
         message(FATAL_ERROR "WIL headers not found")
-    endif()
+    endif ()
     message(STATUS "Resolved WIL include dir: ${_include_dir}")
     set(${out_var} "${_include_dir}" PARENT_SCOPE)
 endfunction()
@@ -187,14 +187,14 @@ function(infiniframe_add_imported_windows_sdk_targets webview2_base_dir win_arch
     message(STATUS "Creating imported target webview2::sdk")
     add_library(webview2::sdk INTERFACE IMPORTED)
     set_target_properties(webview2::sdk PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${webview2_base_dir}/include"
-        INTERFACE_LINK_LIBRARIES "${webview2_base_dir}/${win_arch_dir}/WebView2LoaderStatic.lib"
+            INTERFACE_INCLUDE_DIRECTORIES "${webview2_base_dir}/include"
+            INTERFACE_LINK_LIBRARIES "${webview2_base_dir}/${win_arch_dir}/WebView2LoaderStatic.lib"
     )
 
     message(STATUS "Creating imported target wil::headers")
     add_library(wil::headers INTERFACE IMPORTED)
     set_target_properties(wil::headers PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${wil_include_dir}"
+            INTERFACE_INCLUDE_DIRECTORIES "${wil_include_dir}"
     )
 endfunction()
 
@@ -211,17 +211,17 @@ function(infiniframe_setup_dependencies)
     infiniframe_add_vendor_static_library("simdjson" "${CMAKE_SOURCE_DIR}/Dependencies/simdjson" "simdjson.cpp" "simdjson.h")
     infiniframe_add_vendor_static_library("simdutf" "${CMAKE_SOURCE_DIR}/Dependencies/simdutf" "simdutf.cpp" "simdutf.h")
 
-    if(NOT WIN32)
+    if (NOT WIN32)
         message(STATUS "Windows-specific dependencies skipped on non-Windows host")
         return()
-    endif()
+    endif ()
 
     infiniframe_add_vendor_static_library("wintoastlib" "${CMAKE_SOURCE_DIR}/Dependencies/wintoastlib" "wintoastlib.cpp" "wintoastlib.h")
 
     set(_packages_config_path "${CMAKE_SOURCE_DIR}/packages.config")
-    if(NOT EXISTS "${_packages_config_path}")
+    if (NOT EXISTS "${_packages_config_path}")
         message(FATAL_ERROR "packages.config not found at ${_packages_config_path}")
-    endif()
+    endif ()
 
     infiniframe_restore_nuget_packages("${_packages_config_path}")
     infiniframe_detect_windows_arch_dir(_win_arch_dir)

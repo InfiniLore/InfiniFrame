@@ -3,11 +3,13 @@
 `src/InfiniFrame.Native/Dependencies` contains vendored native dependency artifacts used by `InfiniFrame.Native`.
 
 ## Libraries
+
 - `simdjson` from `simdjson/simdjson`
 - `simdutf` from `simdutf/simdutf`
 - `wintoastlib` from `mohabouje/WinToast`
 
 ## Update Process
+
 Run:
 
 ```bash

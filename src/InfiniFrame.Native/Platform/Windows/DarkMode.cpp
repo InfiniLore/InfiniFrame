@@ -34,30 +34,23 @@ static constexpr DWORD WIN10_MINIMUM_BUILD_DARK_MODE = 18362;
 
 static std::once_flag flag_init_dark_mode_support;
 
-namespace
-{
-    class ModuleHandle
-    {
+namespace {
+    class ModuleHandle {
     public:
-        ~ModuleHandle()
-        {
-            if (_handle != nullptr)
-            {
+        ~ModuleHandle() {
+            if (_handle != nullptr) {
                 FreeLibrary(_handle);
             }
         }
 
-        void reset(HMODULE handle)
-        {
-            if (_handle != nullptr)
-            {
+        void reset(HMODULE handle) {
+            if (_handle != nullptr) {
                 FreeLibrary(_handle);
             }
             _handle = handle;
         }
 
-        HMODULE get() const
-        {
+        HMODULE get() const {
             return _handle;
         }
 
@@ -68,22 +61,18 @@ namespace
     ModuleHandle g_uxtheme;
 }
 
-static void EnableDarkModeForApp() noexcept
-{
-    if (SetPreferredAppMode != nullptr)
-    {
+static void EnableDarkModeForApp() noexcept {
+    if (SetPreferredAppMode != nullptr) {
         SetPreferredAppMode(AllowDark);
     }
 }
 
-[[nodiscard]] static DWORD GetBuildNumber() noexcept
-{
+[[nodiscard]] static DWORD GetBuildNumber() noexcept {
     auto RtlGetNtVersionNumbers =
         reinterpret_cast<RtlGetNtVersionNumbers_f>(GetProcAddress(
             GetModuleHandleW(L"ntdll.dll"), "RtlGetNtVersionNumbers"));
 
-    if (RtlGetNtVersionNumbers == nullptr)
-    {
+    if (RtlGetNtVersionNumbers == nullptr) {
         return 0;
     }
 
@@ -95,34 +84,29 @@ static void EnableDarkModeForApp() noexcept
     return build;
 }
 
-[[nodiscard]] static bool IsHighContrast() noexcept
-{
+[[nodiscard]] static bool IsHighContrast() noexcept {
     HIGHCONTRASTW high_contrast;
     high_contrast.cbSize = sizeof(high_contrast);
     if (SystemParametersInfoW(SPI_GETHIGHCONTRAST,
                               sizeof(high_contrast),
                               &high_contrast,
-                              FALSE) == TRUE)
-    {
+                              FALSE) == TRUE) {
         return (high_contrast.dwFlags & HCF_HIGHCONTRASTON) > 0;
     }
     return false;
 }
 
-static void InitDarkModeSupportOnce() noexcept
-{
+static void InitDarkModeSupportOnce() noexcept {
     const auto build_number = GetBuildNumber();
 
-    if (build_number < WIN10_MINIMUM_BUILD_DARK_MODE)
-    {
+    if (build_number < WIN10_MINIMUM_BUILD_DARK_MODE) {
         return;
     }
 
     g_uxtheme.reset(
         LoadLibraryExW(L"uxtheme.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32));
 
-    if (g_uxtheme.get() == nullptr)
-    {
+    if (g_uxtheme.get() == nullptr) {
         return;
     }
 
@@ -154,53 +138,43 @@ static void InitDarkModeSupportOnce() noexcept
     if (RefreshImmersiveColorPolicyState != nullptr &&
         ShouldAppsUseDarkMode != nullptr &&
         AllowDarkModeForWindow != nullptr && SetPreferredAppMode != nullptr &&
-        IsDarkModeAllowedForWindow != nullptr)
-    {
+        IsDarkModeAllowedForWindow != nullptr) {
         EnableDarkModeForApp();
         RefreshImmersiveColorPolicyState();
     }
 }
 
-void InitDarkModeSupport() noexcept
-{
+void InitDarkModeSupport() noexcept {
     std::call_once(flag_init_dark_mode_support, InitDarkModeSupportOnce);
 }
 
-bool IsDarkModeEnabled() noexcept
-{
-    if (ShouldAppsUseDarkMode == nullptr)
-    {
+bool IsDarkModeEnabled() noexcept {
+    if (ShouldAppsUseDarkMode == nullptr) {
         return false;
     }
     return (ShouldAppsUseDarkMode() == TRUE) && !IsHighContrast();
 }
 
-void EnableDarkMode(const HWND hwnd, const bool enable) noexcept
-{
-    if (AllowDarkModeForWindow == nullptr)
-    {
+void EnableDarkMode(const HWND hwnd, const bool enable) noexcept {
+    if (AllowDarkModeForWindow == nullptr) {
         return;
     }
     AllowDarkModeForWindow(hwnd, enable ? TRUE : FALSE);
 }
 
-void RefreshNonClientArea(const HWND hwnd) noexcept
-{
+void RefreshNonClientArea(const HWND hwnd) noexcept {
     if (IsDarkModeAllowedForWindow == nullptr ||
-        ShouldAppsUseDarkMode == nullptr)
-    {
+        ShouldAppsUseDarkMode == nullptr) {
         return;
     }
 
     BOOL dark = FALSE;
     if (IsDarkModeAllowedForWindow(hwnd) == TRUE &&
-        ShouldAppsUseDarkMode() == TRUE && !IsHighContrast())
-    {
+        ShouldAppsUseDarkMode() == TRUE && !IsHighContrast()) {
         dark = TRUE;
     }
 
-    if (SetWindowCompositionAttribute != nullptr)
-    {
+    if (SetWindowCompositionAttribute != nullptr) {
         WINDOWCOMPOSITIONATTRIBDATA data = {
             WCA_USEDARKMODECOLORS, &dark, sizeof(dark)
         };
@@ -208,15 +182,13 @@ void RefreshNonClientArea(const HWND hwnd) noexcept
     }
 }
 
-bool IsColorSchemeChange(const LPARAM l_param) noexcept
-{
+bool IsColorSchemeChange(const LPARAM l_param) noexcept {
     bool return_value = false;
     if (l_param > 0 && CompareStringOrdinal(reinterpret_cast<LPCWCH>(l_param),
                                             -1,
                                             L"ImmersiveColorSet",
                                             -1,
-                                            TRUE) == CSTR_EQUAL)
-    {
+                                            TRUE) == CSTR_EQUAL) {
         RefreshImmersiveColorPolicyState();
         return_value = true;
     }

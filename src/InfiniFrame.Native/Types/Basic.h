@@ -24,11 +24,11 @@ using NativeString = std::string;
 // ---------------------------------------------------------------------------------------------------------------------
 
 #ifdef _WIN32
-using AutoString = wchar_t *;
-using AutoStringConst = const wchar_t *;
+using AutoString = wchar_t*;
+using AutoStringConst = const wchar_t*;
 #else
-using AutoString = char *;
-using AutoStringConst = const char *;
+using AutoString = char*;
+using AutoStringConst = const char*;
 #endif
 
 #endif // INFINIFRAME_TYPES_BASIC_H
