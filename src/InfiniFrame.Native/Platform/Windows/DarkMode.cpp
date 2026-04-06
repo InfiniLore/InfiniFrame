@@ -2,23 +2,23 @@
 
 #include <mutex>
 
-using RtlGetNtVersionNumbers_f = void(WINAPI *)(LPDWORD, LPDWORD, LPDWORD);
+using RtlGetNtVersionNumbers_f = void(WINAPI*)(LPDWORD, LPDWORD, LPDWORD);
 
 using SetWindowCompositionAttribute_f =
-    HRESULT(WINAPI *)(HWND, WINDOWCOMPOSITIONATTRIBDATA *);
+HRESULT(WINAPI*)(HWND, WINDOWCOMPOSITIONATTRIBDATA*);
 
-using ShouldAppsUseDarkMode_f = BOOLEAN(WINAPI *)();
+using ShouldAppsUseDarkMode_f = BOOLEAN(WINAPI*)();
 
-using AllowDarkModeForWindow_f = BOOLEAN(WINAPI *)(HWND, BOOLEAN);
+using AllowDarkModeForWindow_f = BOOLEAN(WINAPI*)(HWND, BOOLEAN);
 
-using RefreshImmersiveColorPolicyState_f = void(WINAPI *)();
+using RefreshImmersiveColorPolicyState_f = void(WINAPI*)();
 
-using IsDarkModeAllowedForWindow_f = BOOLEAN(WINAPI *)(HWND);
+using IsDarkModeAllowedForWindow_f = BOOLEAN(WINAPI*)(HWND);
 
 using GetIsImmersiveColorUsingHighContrast_f =
-    BOOLEAN(WINAPI *)(IMMERSIVE_HC_CACHE_MODE);
+BOOLEAN(WINAPI*)(IMMERSIVE_HC_CACHE_MODE);
 
-using SetPreferredAppMode_f = PreferredAppMode(WINAPI *)(PreferredAppMode);
+using SetPreferredAppMode_f = PreferredAppMode(WINAPI*)(PreferredAppMode);
 
 static SetWindowCompositionAttribute_f SetWindowCompositionAttribute = nullptr;
 static ShouldAppsUseDarkMode_f ShouldAppsUseDarkMode = nullptr;
@@ -27,7 +27,7 @@ static RefreshImmersiveColorPolicyState_f RefreshImmersiveColorPolicyState =
     nullptr;
 static IsDarkModeAllowedForWindow_f IsDarkModeAllowedForWindow = nullptr;
 static GetIsImmersiveColorUsingHighContrast_f
-    GetIsImmersiveColorUsingHighContrast = nullptr;
+GetIsImmersiveColorUsingHighContrast = nullptr;
 static SetPreferredAppMode_f SetPreferredAppMode = nullptr;
 
 static constexpr DWORD WIN10_MINIMUM_BUILD_DARK_MODE = 18362;
@@ -36,36 +36,36 @@ static std::once_flag flag_init_dark_mode_support;
 
 namespace
 {
-class ModuleHandle
-{
-public:
-    ~ModuleHandle()
+    class ModuleHandle
     {
-        if (_handle != nullptr)
+    public:
+        ~ModuleHandle()
         {
-            FreeLibrary(_handle);
+            if (_handle != nullptr)
+            {
+                FreeLibrary(_handle);
+            }
         }
-    }
 
-    void reset(HMODULE handle)
-    {
-        if (_handle != nullptr)
+        void reset(HMODULE handle)
         {
-            FreeLibrary(_handle);
+            if (_handle != nullptr)
+            {
+                FreeLibrary(_handle);
+            }
+            _handle = handle;
         }
-        _handle = handle;
-    }
 
-    HMODULE get() const
-    {
-        return _handle;
-    }
+        HMODULE get() const
+        {
+            return _handle;
+        }
 
-private:
-    HMODULE _handle = nullptr;
-};
+    private:
+        HMODULE _handle = nullptr;
+    };
 
-ModuleHandle g_uxtheme;
+    ModuleHandle g_uxtheme;
 }
 
 static void EnableDarkModeForApp() noexcept
@@ -202,7 +202,8 @@ void RefreshNonClientArea(const HWND hwnd) noexcept
     if (SetWindowCompositionAttribute != nullptr)
     {
         WINDOWCOMPOSITIONATTRIBDATA data = {
-            WCA_USEDARKMODECOLORS, &dark, sizeof(dark)};
+            WCA_USEDARKMODECOLORS, &dark, sizeof(dark)
+        };
         SetWindowCompositionAttribute(hwnd, &data);
     }
 }
