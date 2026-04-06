@@ -16,54 +16,54 @@
  * @brief RAII wrapper that loads a DLL on construction and frees it on destruction.
  * Used to ensure comdlg32 is available before activating the common-controls activation context
  */
-class Dll
-{
-public:
-	/** @brief Load the named DLL; handle is null if loading fails */
-	explicit Dll(std::string const &name);
-	/** @brief Unload the DLL if it was loaded successfully */
-	~Dll();
+class Dll {
+    public:
+        /** @brief Load the named DLL; handle is null if loading fails */
+        explicit Dll(const std::string& name);
+        /** @brief Unload the DLL if it was loaded successfully */
+        ~Dll();
 
-	/**
-	 * @brief Type-safe wrapper around a single exported function retrieved via GetProcAddress
-	 * @tparam T Function signature (e.g. BOOL(HWND, LPCWSTR))
-	 */
-	template <typename T>
-	class Proc
-	{
-	public:
-		/**
-		 * @brief Resolve a symbol from a loaded DLL
-		 * @param lib DLL to search
-		 * @param sym Exported symbol name
-		 */
-		Proc(Dll const &lib, std::string const &sym)
-			: _mProc(static_cast<T *>(reinterpret_cast<void *>(GetProcAddress(lib._handle, sym.c_str()))))
-		{
-		}
+        /**
+         * @brief Type-safe wrapper around a single exported function retrieved via GetProcAddress
+         * @tparam T Function signature (e.g. BOOL(HWND, LPCWSTR))
+         */
+        template <typename T>
+        class Proc {
+            public:
+                /**
+                 * @brief Resolve a symbol from a loaded DLL
+                 * @param lib DLL to search
+                 * @param sym Exported symbol name
+                 */
+                Proc(const Dll& lib, const std::string& sym) :
+                    _mProc(static_cast<T*>(reinterpret_cast<void*>(GetProcAddress(lib._handle, sym.c_str())))) {
+                }
 
-		/** @brief Returns true if the symbol was resolved successfully */
-		explicit operator bool() const { return _mProc != nullptr; }
-		/** @brief Returns the raw function pointer */
-		explicit operator T *() const { return _mProc; }
+                /** @brief Returns true if the symbol was resolved successfully */
+                explicit operator bool() const {
+                    return _mProc != nullptr;
+                }
 
-	private:
-		T *_mProc;
-	};
+                /** @brief Returns the raw function pointer */
+                explicit operator T*() const {
+                    return _mProc;
+                }
 
-private:
-	HMODULE _handle;
+            private:
+                T* _mProc;
+        };
+
+    private:
+        HMODULE _handle;
 };
 
-inline Dll::Dll(std::string const &name)
-	: _handle(LoadLibraryA(name.c_str()))
-{
+inline Dll::Dll(const std::string& name) :
+    _handle(LoadLibraryA(name.c_str())) {
 }
 
-inline Dll::~Dll()
-{
-	if (_handle)
-		FreeLibrary(_handle);
+inline Dll::~Dll() {
+    if (_handle)
+        FreeLibrary(_handle);
 }
 
 /**
@@ -73,66 +73,71 @@ inline Dll::~Dll()
  * legacy Windows 95 look. The activation context is created once (statically) from shell32.dll's
  * embedded manifest resource (ID 124)
  */
-class NewStyleContext
-{
-public:
-	/** @brief Activate the Common Controls v6 context */
-	NewStyleContext();
-	/** @brief Deactivate the context */
-	~NewStyleContext();
+class NewStyleContext {
+    public:
+        /** @brief Activate the Common Controls v6 context */
+        NewStyleContext();
+        /** @brief Deactivate the context */
+        ~NewStyleContext();
 
-private:
-	/** @brief Create the activation context from shell32.dll's manifest; called once */
-	static HANDLE Create();
-	ULONG_PTR _cookie = 0; /// Activation cookie returned by ActivateActCtx; used to deactivate
+    private:
+        /** @brief Create the activation context from shell32.dll's manifest; called once */
+        static HANDLE Create();
+
+        struct ActivationContextHolder {
+            HANDLE handle = INVALID_HANDLE_VALUE;
+
+            ~ActivationContextHolder() {
+                if (handle != INVALID_HANDLE_VALUE)
+                    ReleaseActCtx(handle);
+            }
+        };
+
+        ULONG_PTR _cookie = 0; /// Activation cookie returned by ActivateActCtx; used to deactivate
 };
 
-inline NewStyleContext::NewStyleContext()
-{
-	static HANDLE hctx = Create();
+inline NewStyleContext::NewStyleContext() {
+    static ActivationContextHolder actCtx{Create()};
 
-	if (hctx != INVALID_HANDLE_VALUE)
-		ActivateActCtx(hctx, &_cookie);
+    if (actCtx.handle != INVALID_HANDLE_VALUE)
+        ActivateActCtx(actCtx.handle, &_cookie);
 }
 
-inline NewStyleContext::~NewStyleContext()
-{
-	DeactivateActCtx(0, _cookie);
+inline NewStyleContext::~NewStyleContext() {
+    if (_cookie != 0)
+        DeactivateActCtx(0, _cookie);
 }
 
-inline HANDLE NewStyleContext::Create()
-{
-	Dll comdlg32("comdlg32.dll");
+inline HANDLE NewStyleContext::Create() {
+    Dll comdlg32("comdlg32.dll");
 
-	const UINT len = GetSystemDirectoryA(nullptr, 0);
-	std::string sysDir(len, '\0');
-	GetSystemDirectoryA(const_cast<LPSTR>(sysDir.data()), len);
+    const UINT len = GetSystemDirectoryA(nullptr, 0);
+    std::string sysDir(len, '\0');
+    GetSystemDirectoryA(const_cast<LPSTR>(sysDir.data()), len);
 
-	const ACTCTXA actCtx =
-		{
-			sizeof(actCtx),
-			ACTCTX_FLAG_RESOURCE_NAME_VALID | ACTCTX_FLAG_ASSEMBLY_DIRECTORY_VALID,
-			"shell32.dll",
-			0,
-			0,
-			sysDir.c_str(),
-			reinterpret_cast<LPCSTR>(124),
-			nullptr,
-			nullptr,
-		};
+    const ACTCTXA actCtx =
+    {
+        sizeof(actCtx),
+        ACTCTX_FLAG_RESOURCE_NAME_VALID | ACTCTX_FLAG_ASSEMBLY_DIRECTORY_VALID,
+        "shell32.dll",
+        0,
+        0,
+        sysDir.c_str(),
+        reinterpret_cast<LPCSTR>(124),
+        nullptr,
+        nullptr,
+    };
 
-	return CreateActCtxA(&actCtx);
+    return CreateActCtxA(&actCtx);
 }
 
-InfiniFrameDialog::InfiniFrameDialog(InfiniFrameWindow *window)
-{
-	_window = window;
-	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+InfiniFrameDialog::InfiniFrameDialog(InfiniFrameWindow* window) {
+    _window = window;
+    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 }
 
-InfiniFrameDialog::~InfiniFrameDialog()
-{
-	CoUninitialize();
+InfiniFrameDialog::~InfiniFrameDialog() {
+    CoUninitialize();
 }
 
 /**
@@ -144,32 +149,31 @@ InfiniFrameDialog::~InfiniFrameDialog()
  * @return Pointer to the created dialog; caller owns the COM reference. Returns null on failure.
  */
 template <typename T>
-T *Create(HRESULT *hResult, AutoStringConst title, const AutoStringConst defaultPath)
-{
-	static_assert(std::is_base_of<IFileDialog, T>::value, "T must inherit from IFileDialog");
-	T *pfd = nullptr;
-	const CLSID clsid = typeid(T) == typeid(IFileOpenDialog) ? CLSID_FileOpenDialog : typeid(T) == typeid(IFileSaveDialog) ? CLSID_FileSaveDialog
-																														   : CLSID_FileOpenDialog;
-	HRESULT hr = CoCreateInstance(clsid, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
-	if (SUCCEEDED(hr))
-	{
-		pfd->SetTitle(title);
+T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst defaultPath) {
+    static_assert(std::is_base_of<IFileDialog, T>::value, "T must inherit from IFileDialog");
+    T* pfd = nullptr;
+    const CLSID clsid = typeid(T) == typeid(IFileOpenDialog)
+        ? CLSID_FileOpenDialog
+        : typeid(T) == typeid(IFileSaveDialog)
+        ? CLSID_FileSaveDialog
+        : CLSID_FileOpenDialog;
+    HRESULT hr = CoCreateInstance(clsid, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
+    if (SUCCEEDED(hr)) {
+        pfd->SetTitle(title);
 
-		if (defaultPath)
-		{
-			IShellItem *psiDefault = nullptr;
-			hr = SHCreateItemFromParsingName(defaultPath, nullptr, IID_PPV_ARGS(&psiDefault));
-			if (SUCCEEDED(hr))
-			{
-				pfd->SetFolder(psiDefault);
-				psiDefault->Release();
-			}
-		}
+        if (defaultPath) {
+            IShellItem* psiDefault = nullptr;
+            hr = SHCreateItemFromParsingName(defaultPath, nullptr, IID_PPV_ARGS(&psiDefault));
+            if (SUCCEEDED(hr)) {
+                pfd->SetFolder(psiDefault);
+                psiDefault->Release();
+            }
+        }
 
-		*hResult = hr;
-		return pfd;
-	}
-	return nullptr;
+        *hResult = hr;
+        return pfd;
+    }
+    return nullptr;
 }
 
 /**
@@ -185,26 +189,30 @@ T *Create(HRESULT *hResult, AutoStringConst title, const AutoStringConst default
  * @param wndInstance Window used for UTF-8 → UTF-16 conversion
  * @param filterStorage Backing storage for converted wide strings; must outlive the dialog
  */
-void AddFilters(IFileDialog *pfd, wchar_t **filters, const int filterCount, InfiniFrameWindow *wndInstance, std::vector<std::wstring> &filterStorage)
-{
-	std::vector<COMDLG_FILTERSPEC> specs;
-	for (int i = 0; i < filterCount; i++)
-	{
-		filterStorage.push_back(wndInstance->ToUTF16String(filters[i]));
-		std::wstring &filterText = filterStorage.back();
-		wchar_t *context = nullptr;
-		wchar_t *filterName = wcstok_s(filterText.data(), L"|", &context);
-		wchar_t *filterPattern = wcstok_s(nullptr, L"|", &context);
-		if (filterName == nullptr)
-			continue;
-		if (filterPattern == nullptr)
-			filterPattern = filterName;
-		COMDLG_FILTERSPEC spec;
-		spec.pszName = filterName;
-		spec.pszSpec = filterPattern;
-		specs.push_back(spec);
-	}
-	pfd->SetFileTypes(static_cast<UINT>(specs.size()), specs.data());
+void AddFilters(
+    IFileDialog* pfd,
+    wchar_t** filters,
+    const int filterCount,
+    InfiniFrameWindow* wndInstance,
+    std::vector<std::wstring>& filterStorage
+    ) {
+    std::vector<COMDLG_FILTERSPEC> specs;
+    for (int i = 0; i < filterCount; i++) {
+        filterStorage.push_back(wndInstance->ToUTF16String(filters[i]));
+        std::wstring& filterText = filterStorage.back();
+        wchar_t* context = nullptr;
+        wchar_t* filterName = wcstok_s(filterText.data(), L"|", &context);
+        wchar_t* filterPattern = wcstok_s(nullptr, L"|", &context);
+        if (filterName == nullptr)
+            continue;
+        if (filterPattern == nullptr)
+            filterPattern = filterName;
+        COMDLG_FILTERSPEC spec;
+        spec.pszName = filterName;
+        spec.pszSpec = filterPattern;
+        specs.push_back(spec);
+    }
+    pfd->SetFileTypes(static_cast<UINT>(specs.size()), specs.data());
 }
 
 /**
@@ -218,230 +226,227 @@ void AddFilters(IFileDialog *pfd, wchar_t **filters, const int filterCount, Infi
  * @param resultCount Output: number of paths in the returned array
  * @return Heap-allocated array of UTF-16 paths, or null if nothing was selected
  */
-AutoString *GetResults(IFileOpenDialog *pfd, HRESULT *hr, int *resultCount)
-{
-	IShellItemArray *psiResults = nullptr;
-	*hr = pfd->GetResults(&psiResults);
-	if (SUCCEEDED(*hr))
-	{
-		DWORD count = 0;
-		psiResults->GetCount(&count);
-		if (count > 0)
-		{
-			*resultCount = static_cast<int>(count);
-			auto **result = new wchar_t *[count];
-			for (DWORD i = 0; i < count; ++i)
-			{
-				IShellItem *psiItem = nullptr;
-				*hr = psiResults->GetItemAt(i, &psiItem);
-				if (SUCCEEDED(*hr))
-				{
-					PWSTR pszName = nullptr;
-					*hr = psiItem->GetDisplayName(SIGDN_FILESYSPATH, &pszName);
-					if (SUCCEEDED(*hr))
-					{
-						const auto len = wcslen(pszName);
-						result[i] = new wchar_t[len + 1];
-						wcscpy_s(result[i], len + 1, pszName);
-						CoTaskMemFree(pszName);
-					}
-					psiItem->Release();
-				}
-			}
-			psiResults->Release();
-			pfd->Release();
-			return result;
-		}
-		psiResults->Release();
-	}
-	pfd->Release();
+AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount) {
+    IShellItemArray* psiResults = nullptr;
+    *hr = pfd->GetResults(&psiResults);
+    if (SUCCEEDED(*hr)) {
+        DWORD count = 0;
+        psiResults->GetCount(&count);
+        if (count > 0) {
+            *resultCount = static_cast<int>(count);
+            auto** result = new wchar_t*[count];
+            for (DWORD i = 0; i < count; ++i) {
+                IShellItem* psiItem = nullptr;
+                *hr = psiResults->GetItemAt(i, &psiItem);
+                if (SUCCEEDED(*hr)) {
+                    PWSTR pszName = nullptr;
+                    *hr = psiItem->GetDisplayName(SIGDN_FILESYSPATH, &pszName);
+                    if (SUCCEEDED(*hr)) {
+                        const auto len = wcslen(pszName);
+                        result[i] = new wchar_t[len + 1];
+                        wcscpy_s(result[i], len + 1, pszName);
+                        CoTaskMemFree(pszName);
+                    }
+                    psiItem->Release();
+                }
+            }
+            psiResults->Release();
+            pfd->Release();
+            return result;
+        }
+        psiResults->Release();
+    }
+    pfd->Release();
 
-	return nullptr;
+    return nullptr;
 }
 
-AutoString *InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString defaultPath, const bool multiSelect, AutoString *filters, const int filterCount, int *resultCount)
-{
-	HRESULT hr;
-	std::wstring wideTitle = _window->ToUTF16String(title);
-	std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
+AutoString* InfiniFrameDialog::ShowOpenFile(
+    AutoString title,
+    AutoString defaultPath,
+    const bool multiSelect,
+    AutoString* filters,
+    const int filterCount,
+    int* resultCount
+    ) {
+    HRESULT hr;
+    std::wstring wideTitle = _window->ToUTF16String(title);
+    std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
 
-	auto *pfd = Create<IFileOpenDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
+    auto* pfd = Create<IFileOpenDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
 
-	if (SUCCEEDED(hr))
-	{
-		std::vector<std::wstring> filterStorage;
-		AddFilters(pfd, filters, filterCount, _window, filterStorage);
+    if (SUCCEEDED(hr)) {
+        std::vector<std::wstring> filterStorage;
+        AddFilters(pfd, filters, filterCount, _window, filterStorage);
 
-		DWORD dwOptions;
-		pfd->GetOptions(&dwOptions);
-		dwOptions |= FOS_FILEMUSTEXIST | FOS_NOCHANGEDIR;
-		if (multiSelect)
-		{
-			dwOptions |= FOS_ALLOWMULTISELECT;
-		}
-		else
-		{
-			dwOptions &= ~FOS_ALLOWMULTISELECT;
-		}
-		pfd->SetOptions(dwOptions);
+        DWORD dwOptions;
+        pfd->GetOptions(&dwOptions);
+        dwOptions |= FOS_FILEMUSTEXIST | FOS_NOCHANGEDIR;
+        if (multiSelect) {
+            dwOptions |= FOS_ALLOWMULTISELECT;
+        }
+        else {
+            dwOptions &= ~FOS_ALLOWMULTISELECT;
+        }
+        pfd->SetOptions(dwOptions);
 
-		hr = pfd->Show(_window->getHwnd());
-		if (SUCCEEDED(hr))
-		{
-			return GetResults(pfd, &hr, resultCount);
-		}
-		pfd->Release();
-	}
-	return nullptr;
+        hr = pfd->Show(_window->getHwnd());
+        if (SUCCEEDED(hr)) {
+            return GetResults(pfd, &hr, resultCount);
+        }
+        pfd->Release();
+    }
+    return nullptr;
 }
 
-AutoString *InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defaultPath, const bool multiSelect, int *resultCount)
-{
-	HRESULT hr;
-	std::wstring wideTitle = _window->ToUTF16String(title);
-	std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
+AutoString* InfiniFrameDialog::ShowOpenFolder(
+    AutoString title,
+    AutoString defaultPath,
+    const bool multiSelect,
+    int* resultCount
+    ) {
+    HRESULT hr;
+    std::wstring wideTitle = _window->ToUTF16String(title);
+    std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
 
-	auto *pfd = Create<IFileOpenDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
+    auto* pfd = Create<IFileOpenDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
 
-	if (SUCCEEDED(hr))
-	{
-		DWORD dwOptions;
-		pfd->GetOptions(&dwOptions);
-		dwOptions |= FOS_PICKFOLDERS | FOS_NOCHANGEDIR;
-		if (multiSelect)
-		{
-			dwOptions |= FOS_ALLOWMULTISELECT;
-		}
-		else
-		{
-			dwOptions &= ~FOS_ALLOWMULTISELECT;
-		}
-		pfd->SetOptions(dwOptions);
+    if (SUCCEEDED(hr)) {
+        DWORD dwOptions;
+        pfd->GetOptions(&dwOptions);
+        dwOptions |= FOS_PICKFOLDERS | FOS_NOCHANGEDIR;
+        if (multiSelect) {
+            dwOptions |= FOS_ALLOWMULTISELECT;
+        }
+        else {
+            dwOptions &= ~FOS_ALLOWMULTISELECT;
+        }
+        pfd->SetOptions(dwOptions);
 
-		hr = pfd->Show(_window->getHwnd());
-		if (SUCCEEDED(hr))
-		{
-			return GetResults(pfd, &hr, resultCount);
-		}
-		pfd->Release();
-	}
-	return nullptr;
+        hr = pfd->Show(_window->getHwnd());
+        if (SUCCEEDED(hr)) {
+            return GetResults(pfd, &hr, resultCount);
+        }
+        pfd->Release();
+    }
+    return nullptr;
 }
 
-AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultPath, AutoString *filters, const int filterCount, AutoString defaultFileName)
-{
-	HRESULT hr;
-	std::wstring wideTitle = _window->ToUTF16String(title);
-	std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
-	std::wstring wideDefaultFileName = _window->ToUTF16String(defaultFileName);
-	auto *pfd = Create<IFileSaveDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
-	if (SUCCEEDED(hr))
-	{
-		if (!wideDefaultFileName.empty())
-		{
-			pfd->SetFileName(wideDefaultFileName.c_str());
-		}
+AutoString InfiniFrameDialog::ShowSaveFile(
+    AutoString title,
+    AutoString defaultPath,
+    AutoString* filters,
+    const int filterCount,
+    AutoString defaultFileName
+    ) {
+    HRESULT hr;
+    std::wstring wideTitle = _window->ToUTF16String(title);
+    std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
+    std::wstring wideDefaultFileName = _window->ToUTF16String(defaultFileName);
+    auto* pfd = Create<IFileSaveDialog>(&hr, wideTitle.c_str(), wideDefaultPath.c_str());
+    if (SUCCEEDED(hr)) {
+        if (!wideDefaultFileName.empty()) {
+            pfd->SetFileName(wideDefaultFileName.c_str());
+        }
 
-		std::vector<std::wstring> filterStorage;
-		AddFilters(pfd, filters, filterCount, _window, filterStorage);
+        std::vector<std::wstring> filterStorage;
+        AddFilters(pfd, filters, filterCount, _window, filterStorage);
 
-		DWORD dwOptions;
-		pfd->GetOptions(&dwOptions);
-		dwOptions |= FOS_NOCHANGEDIR;
-		pfd->SetOptions(dwOptions);
+        DWORD dwOptions;
+        pfd->GetOptions(&dwOptions);
+        dwOptions |= FOS_NOCHANGEDIR;
+        pfd->SetOptions(dwOptions);
 
-		hr = pfd->Show(_window->getHwnd());
-		if (SUCCEEDED(hr))
-		{
-			IShellItem *psiResult = nullptr;
-			hr = pfd->GetResult(&psiResult);
-			if (SUCCEEDED(hr))
-			{
-				wchar_t *result = nullptr;
-				PWSTR pszName = nullptr;
-				hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszName);
-				if (SUCCEEDED(hr))
-				{
-					const auto len = wcslen(pszName);
-					result = new wchar_t[len + 1];
-					wcscpy_s(result, len + 1, pszName);
-					CoTaskMemFree(pszName);
-				}
-				psiResult->Release();
-				pfd->Release();
-				return result;
-			}
-		}
-		pfd->Release();
-	}
-	return nullptr;
+        hr = pfd->Show(_window->getHwnd());
+        if (SUCCEEDED(hr)) {
+            IShellItem* psiResult = nullptr;
+            hr = pfd->GetResult(&psiResult);
+            if (SUCCEEDED(hr)) {
+                wchar_t* result = nullptr;
+                PWSTR pszName = nullptr;
+                hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszName);
+                if (SUCCEEDED(hr)) {
+                    const auto len = wcslen(pszName);
+                    result = new wchar_t[len + 1];
+                    wcscpy_s(result, len + 1, pszName);
+                    CoTaskMemFree(pszName);
+                }
+                psiResult->Release();
+                pfd->Release();
+                return result;
+            }
+        }
+        pfd->Release();
+    }
+    return nullptr;
 }
 
-DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, const DialogButtons buttons, const DialogIcon icon)
-{
-	std::wstring wideTitle = _window->ToUTF16String(title);
-	std::wstring wideText = _window->ToUTF16String(text);
-	NewStyleContext ctx;
+DialogResult InfiniFrameDialog::ShowMessage(
+    AutoString title,
+    AutoString text,
+    const DialogButtons buttons,
+    const DialogIcon icon
+    ) {
+    std::wstring wideTitle = _window->ToUTF16String(title);
+    std::wstring wideText = _window->ToUTF16String(text);
+    NewStyleContext ctx;
 
-	UINT flags = {};
+    UINT flags = {};
 
-	switch (icon)
-	{
-	case DialogIcon::Info:
-		flags |= MB_ICONINFORMATION;
-		break;
-	case DialogIcon::Warning:
-		flags |= MB_ICONWARNING;
-		break;
-	case DialogIcon::Error:
-		flags |= MB_ICONERROR;
-		break;
-	case DialogIcon::Question:
-		flags |= MB_ICONQUESTION;
-		break;
-	}
+    switch (icon) {
+        case DialogIcon::Info:
+            flags |= MB_ICONINFORMATION;
+            break;
+        case DialogIcon::Warning:
+            flags |= MB_ICONWARNING;
+            break;
+        case DialogIcon::Error:
+            flags |= MB_ICONERROR;
+            break;
+        case DialogIcon::Question:
+            flags |= MB_ICONQUESTION;
+            break;
+    }
 
-	switch (buttons)
-	{
-	case DialogButtons::Ok:
-		flags |= MB_OK;
-		break;
-	case DialogButtons::OkCancel:
-		flags |= MB_OKCANCEL;
-		break;
-	case DialogButtons::YesNo:
-		flags |= MB_YESNO;
-		break;
-	case DialogButtons::YesNoCancel:
-		flags |= MB_YESNOCANCEL;
-		break;
-	case DialogButtons::RetryCancel:
-		flags |= MB_RETRYCANCEL;
-		break;
-	case DialogButtons::AbortRetryIgnore:
-		flags |= MB_ABORTRETRYIGNORE;
-		break;
-	}
+    switch (buttons) {
+        case DialogButtons::Ok:
+            flags |= MB_OK;
+            break;
+        case DialogButtons::OkCancel:
+            flags |= MB_OKCANCEL;
+            break;
+        case DialogButtons::YesNo:
+            flags |= MB_YESNO;
+            break;
+        case DialogButtons::YesNoCancel:
+            flags |= MB_YESNOCANCEL;
+            break;
+        case DialogButtons::RetryCancel:
+            flags |= MB_RETRYCANCEL;
+            break;
+        case DialogButtons::AbortRetryIgnore:
+            flags |= MB_ABORTRETRYIGNORE;
+            break;
+    }
 
-	const auto result = MessageBoxW(_window->getHwnd(), wideText.c_str(), wideTitle.c_str(), flags);
+    const auto result = MessageBoxW(_window->getHwnd(), wideText.c_str(), wideTitle.c_str(), flags);
 
-	switch (result)
-	{
-	case IDCANCEL:
-		return DialogResult::Cancel;
-	case IDOK:
-		return DialogResult::Ok;
-	case IDYES:
-		return DialogResult::Yes;
-	case IDNO:
-		return DialogResult::No;
-	case IDABORT:
-		return DialogResult::Abort;
-	case IDRETRY:
-		return DialogResult::Retry;
-	case IDIGNORE:
-		return DialogResult::Ignore;
-	default:
-		return DialogResult::Cancel;
-	}
+    switch (result) {
+        case IDCANCEL:
+            return DialogResult::Cancel;
+        case IDOK:
+            return DialogResult::Ok;
+        case IDYES:
+            return DialogResult::Yes;
+        case IDNO:
+            return DialogResult::No;
+        case IDABORT:
+            return DialogResult::Abort;
+        case IDRETRY:
+            return DialogResult::Retry;
+        case IDIGNORE:
+            return DialogResult::Ignore;
+        default:
+            return DialogResult::Cancel;
+    }
 }

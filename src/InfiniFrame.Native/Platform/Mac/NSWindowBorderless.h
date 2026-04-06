@@ -15,8 +15,9 @@
  * Overrides acceptsFirstMouse: to return YES so that the first click activates
  * the window and is also delivered to the web content simultaneously
  */
-@interface NSWindowBorderless : NSWindow
-{
-}
-@end
+@ interface NSWindowBorderless :
+    NSWindow
+    {
+    }
+@ end
 #endif

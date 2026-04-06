@@ -8,7 +8,8 @@
 
 #ifdef _WIN32
 inline AutoString duplicateString(const AutoStringConst str) {
-    if (str == nullptr) return nullptr;
+    if (str == nullptr)
+        return nullptr;
     const size_t len = wcslen(str);
     auto* copy = new wchar_t[len + 1];
     wcscpy_s(copy, len + 1, str);
@@ -16,7 +17,8 @@ inline AutoString duplicateString(const AutoStringConst str) {
 }
 #else
 inline AutoString duplicateString(AutoStringConst str) {
-    if (str == nullptr) return nullptr;
+    if (str == nullptr)
+        return nullptr;
     const size_t len = strlen(str);
     auto copy = new char[len + 1];
     strcpy(copy, str);
@@ -24,10 +26,11 @@ inline AutoString duplicateString(AutoStringConst str) {
 }
 #endif
 
-extern "C"
-{
-    EXPORTED void InfiniWindowTests_NativeParametersReturnAsIs(const InfiniFrameInitParams* params, InfiniFrameInitParams** new_params)
-    {
+extern "C" {
+    EXPORTED void InfiniWindowTests_NativeParametersReturnAsIs(
+        const InfiniFrameInitParams* params,
+        InfiniFrameInitParams** new_params
+        ) {
         *new_params = new InfiniFrameInitParams();
 
         // Deep copy AutoString fields

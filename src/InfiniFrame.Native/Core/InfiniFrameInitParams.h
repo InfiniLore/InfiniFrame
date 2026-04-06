@@ -15,8 +15,7 @@ class InfiniFrameWindow; // Forward declaration
 /**
  * @brief Initialization parameters for InfiniFrame window
  */
-struct InfiniFrameInitParams
-{
+struct InfiniFrameInitParams {
     // Content
     AutoString StartString;
     AutoString StartUrl;
@@ -30,7 +29,7 @@ struct InfiniFrameInitParams
     AutoString NotificationRegistrationId;
 
     // Parent window
-    InfiniFrameWindow *ParentInstance;
+    InfiniFrameWindow* ParentInstance;
 
     // Event handlers
     ClosingCallback ClosingHandler;

@@ -7,62 +7,62 @@
 # - header_files: list of header files for IDE organization
 function(infiniframe_configure_windows_target target_name common_sources test_sources windows_sources header_files)
     add_library(${target_name} SHARED
-        ${common_sources}
-        ${test_sources}
-        ${windows_sources}
-        ${header_files}
+            ${common_sources}
+            ${test_sources}
+            ${windows_sources}
+            ${header_files}
     )
 
     set_target_properties(${target_name} PROPERTIES
-        OUTPUT_NAME "InfiniFrame.Native"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${INFINIFRAME_WINDOWS_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
-        LINK_FLAGS "/SUBSYSTEM:WINDOWS"
+            OUTPUT_NAME "InfiniFrame.Native"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${INFINIFRAME_WINDOWS_ARCH_DIR}/${CMAKE_BUILD_TYPE}"
+            LINK_FLAGS "/SUBSYSTEM:WINDOWS"
     )
 
     target_include_directories(${target_name} PRIVATE
-        "${CMAKE_SOURCE_DIR}"
+            "${CMAKE_SOURCE_DIR}"
     )
 
     target_link_libraries(${target_name} PRIVATE
-        simdutf::simdutf
-        wintoastlib::wintoastlib
-        webview2::sdk
-        wil::headers
-        kernel32 user32 gdi32 winspool comdlg32 advapi32
-        shell32 ole32 oleaut32 uuid odbc32 odbccp32 shlwapi shcore
+            simdutf::simdutf
+            wintoastlib::wintoastlib
+            webview2::sdk
+            wil::headers
+            kernel32 user32 gdi32 winspool comdlg32 advapi32
+            shell32 ole32 oleaut32 uuid odbc32 odbccp32 shlwapi shcore
     )
 
     target_compile_definitions(${target_name} PRIVATE
-        WIN32
-        _WINDOWS
-        UNICODE
-        _UNICODE
-        NOMINMAX
-        $<$<CONFIG:Debug>:_DEBUG>
-        $<$<CONFIG:Release>:NDEBUG>
+            WIN32
+            _WINDOWS
+            UNICODE
+            _UNICODE
+            NOMINMAX
+            $<$<CONFIG:Debug>:_DEBUG>
+            $<$<CONFIG:Release>:NDEBUG>
     )
 
-    if(MSVC)
+    if (MSVC)
         target_compile_options(${target_name} PRIVATE
-            /W4
-            /permissive-
-            /Zc:__cplusplus
-            /Zc:lambda
-            $<$<CONFIG:Debug>:/Od /MTd /Zi>
-            $<$<CONFIG:Release>:/O2 /MT>
+                /W4
+                /permissive-
+                /Zc:__cplusplus
+                /Zc:lambda
+                $<$<CONFIG:Debug>:/Od /MTd /Zi>
+                $<$<CONFIG:Release>:/O2 /MT>
         )
-    else()
+    else ()
         target_compile_options(${target_name} PRIVATE
-            -Wall -Wextra
-            $<$<CONFIG:Debug>:-O0 -g>
-            $<$<CONFIG:Release>:-O2>
+                -Wall -Wextra
+                $<$<CONFIG:Debug>:-O0 -g>
+                $<$<CONFIG:Release>:-O2>
         )
-    endif()
+    endif ()
 
     add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${INFINIFRAME_WEBVIEW2_BASE_DIR}/${INFINIFRAME_WINDOWS_ARCH_DIR}/WebView2Loader.dll"
-        "$<TARGET_FILE_DIR:${target_name}>/WebView2Loader.dll"
-        COMMENT "Copying WebView2Loader.dll"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${INFINIFRAME_WEBVIEW2_BASE_DIR}/${INFINIFRAME_WINDOWS_ARCH_DIR}/WebView2Loader.dll"
+            "$<TARGET_FILE_DIR:${target_name}>/WebView2Loader.dll"
+            COMMENT "Copying WebView2Loader.dll"
     )
 endfunction()

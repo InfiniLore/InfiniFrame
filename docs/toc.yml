@@ -2,6 +2,8 @@
   href: articles/guides/
 - name: Concepts
   href: articles/concepts/
+- name: C# Articles
+  href: articles/csharp/
 - name: C# API Reference
   href: api/cs/
 - name: C++ API Reference
