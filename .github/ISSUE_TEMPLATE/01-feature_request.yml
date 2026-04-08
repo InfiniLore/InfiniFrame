@@ -8,13 +8,13 @@ body:
     attributes:
       value: |
         ## 🚀 Feature Request
-        Thanks for suggesting an idea! Please provide as much detail as possible.
+        Thanks for suggesting an idea! Please provide as much detail as possible so we can evaluate it effectively.
 
   - type: dropdown
     id: impact
     attributes:
       label: Impact
-      description: How important is this feature?
+      description: How significant is this feature?
       options:
         - Critical
         - High
@@ -22,49 +22,64 @@ body:
         - Low
     validations:
       required: true
-      
+
   - type: textarea
     id: problem
     attributes:
       label: Problem / Motivation
-      description: What problem does this solve? What are you trying to achieve?
-      placeholder: I'm frustrated when...
+      description: Describe the limitation, missing capability, or pain point.
+      placeholder: What problem are you trying to solve?
     validations:
       required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behavior
+      description: What happens today? What are the limitations?
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen instead?
 
   - type: textarea
     id: solution
     attributes:
       label: Proposed solution
-      description: What would you like to happen?
-    validations:
-      required: false
+      description: Describe the solution you'd like to see.
 
   - type: textarea
     id: alternatives
     attributes:
       label: Alternatives considered
-      description: Any other solutions or workarounds you've considered?
+      description: Any other approaches or workarounds you've considered?
 
   - type: textarea
     id: use_case
     attributes:
       label: Use case
-      description: Describe a real-world scenario where this feature would be used
-    validations:
-      required: false
+      description: Describe a real-world scenario where this feature would be used.
+
+  - type: textarea
+    id: code_example
+    attributes:
+      label: Code example
+      description: Optional code snippet illustrating the feature or problem.
+      render: csharp
 
   - type: textarea
     id: implementation
     attributes:
-      label: Possible implementation
-      description: "Optional: suggest API design, structure, or approach"
+      label: Technical proposal
+      description: "Optional: suggest API design, architecture, or implementation approach."
 
   - type: textarea
     id: context
     attributes:
       label: Additional context
-      description: Screenshots, examples, references, etc.
+      description: Screenshots, references, or extra details.
 
   - type: checkboxes
     id: checklist
