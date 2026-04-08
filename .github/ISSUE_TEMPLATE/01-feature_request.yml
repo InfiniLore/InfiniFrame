@@ -1,95 +1,92 @@
 name: 🚀 Feature request
 description: Suggest an idea or improvement
 title: "Feature | "
-labels: [ "feature" ]
+labels: [ "enhancement" ]
 
 body:
-    -   type: markdown
-        attributes:
-            value: |
-                ## 🚀 Feature Request
-                Thanks for suggesting an idea! Please provide as much detail as possible.
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚀 Feature Request
+        Thanks for suggesting an idea! Please provide as much detail as possible so we can evaluate it effectively.
 
-    -   type: textarea
-        id: problem
-        attributes:
-            label: Problem / Motivation
-            description: What problem does this solve? What are you trying to achieve?
-            placeholder: I'm frustrated when...
-        validations:
-            required: true
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: How significant is this feature?
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
 
-    -   type: textarea
-        id: solution
-        attributes:
-            label: Proposed solution
-            description: What would you like to happen?
-        validations:
-            required: false
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: Describe the limitation, missing capability, or pain point.
+      placeholder: What problem are you trying to solve?
+    validations:
+      required: true
 
-    -   type: textarea
-        id: alternatives
-        attributes:
-            label: Alternatives considered
-            description: Any other solutions or workarounds you've considered?
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behavior
+      description: What happens today? What are the limitations?
 
-    -   type: textarea
-        id: use_case
-        attributes:
-            label: Use case
-            description: Describe a real-world scenario where this feature would be used
-        validations:
-            required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen instead?
 
-    -   type: dropdown
-        id: impact
-        attributes:
-            label: Impact
-            description: How important is this feature?
-            options:
-                - Critical
-                - High
-                - Medium
-                - Low
-        validations:
-            required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the solution you'd like to see.
 
-    -   type: dropdown
-        id: scope
-        attributes:
-            label: Scope
-            description: What area does this affect?
-            multiple: true
-            options:
-                - InfiniFrame
-                - InfiniFrame.Blazor
-                - InfiniFrame.BlazorWebView
-                - InfiniFrame.Js
-                - InfiniFrame.Native
-                - InfiniFrame.Shared
-                - InfiniFrame.WebServer
-                - InfiniFrameExample
-                - InfinIFrameTests
-                - Other
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches or workarounds you've considered?
 
-    -   type: textarea
-        id: implementation
-        attributes:
-            label: Possible implementation
-            description: "Optional: suggest API design, structure, or approach"
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: Describe a real-world scenario where this feature would be used.
 
-    -   type: textarea
-        id: context
-        attributes:
-            label: Additional context
-            description: Screenshots, examples, references, etc.
+  - type: textarea
+    id: code_example
+    attributes:
+      label: Code example
+      description: Optional code snippet illustrating the feature or problem.
+      render: csharp
 
-    -   type: checkboxes
-        id: checklist
-        attributes:
-            label: Checklist
-            options:
-                -   label: I searched existing issues
-                    required: true
-                -   label: This is not a support question
-                    required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Technical proposal
+      description: "Optional: suggest API design, architecture, or implementation approach."
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, references, or extra details.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues
+          required: true
+        - label: This is not a support question
+          required: true
