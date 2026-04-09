@@ -26,13 +26,8 @@
     "content": [
       {
         "files": [
-          "index.md",
-          "toc.yml",
-          "articles/**/*.md",
-          "articles/**/toc.yml",
           "api/cs/**/*.yml",
-          "api/cpp/**/*.md",
-          "api/cpp/**/toc.yml"
+          "api/cs/**/toc.yml"
         ],
         "exclude": [
           "**/bin/**",
@@ -42,27 +37,15 @@
         ]
       }
     ],
-    "resource": [
-      {
-        "files": [
-          "articles/**/images/**",
-          "images/**"
-        ]
-      }
-    ],
-    "dest": "_site",
+    "dest": "_site_api",
     "template": [
       "default",
       "modern"
     ],
     "globalMetadata": {
-      "_appTitle": "InfiniFrame Documentation",
+      "_appTitle": "InfiniFrame C# API Reference",
       "_enableSearch": true,
       "_disableContribution": true
-    },
-    "sitemap": {
-      "baseUrl": "https://docs.infiniframe.dev"
     }
   }
 }
-

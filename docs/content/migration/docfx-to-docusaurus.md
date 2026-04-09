@@ -13,9 +13,12 @@ title: DocFX to Docusaurus Migration
 
 ## API Docs Strategy
 
-Option B is used: generated API docs stay on the legacy DocFX endpoint and are linked from Docusaurus.
+Hybrid strategy is used:
 
-Reason: C# API output currently depends on DocFX metadata + templates, and this avoids a risky generator rewrite during initial migration.
+- C# generated API reference is produced with DocFX (API-only config) and published under `/api/cs/` in the same docs site.
+- C++ generated API reference stays on the legacy external endpoint for now.
+
+Reason: C# API output already has a stable DocFX pipeline, so we keep DocFX narrowly scoped to API generation while Docusaurus owns all narrative docs and navigation.
 
 ## Local Development
 
@@ -33,11 +36,10 @@ npm run docs:build
 
 ## CI / Deployment
 
-- Docs test workflow builds both DocFX and Docusaurus during the parallel-validation period.
-- Release docs workflow deploys Docusaurus output (`docs/build`) to GitHub Pages.
-- Legacy DocFX build still runs in CI as parity validation and to keep API generation monitored.
+- Docs test workflow generates/builds the C# API docs with DocFX API-only config, then builds Docusaurus.
+- Release docs workflow publishes Docusaurus output (`docs/build`) and merges generated C# API static files at `/api/cs/`.
 
 ## Follow-Up for Full DocFX Retirement
 
-- Move generated API docs away from DocFX to a dedicated non-DocFX generator, or fully separate API hosting.
-- Remove DocFX config and scripts after API generation no longer depends on it.
+- Move C# API generation away from DocFX to a dedicated non-DocFX generator.
+- Migrate C++ generated reference off the legacy endpoint.

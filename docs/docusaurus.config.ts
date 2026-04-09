@@ -57,8 +57,7 @@ const config: Config = {
           { from: ["/articles/cpp/native-cpp-api", "/articles/cpp/native-cpp-api.html"], to: "/cpp/native-cpp-api" },
           { from: ["/articles/cpp/code-style", "/articles/cpp/code-style.html"], to: "/cpp/code-style" },
           { from: ["/api/cpp/native-cpp-reference", "/api/cpp/native-cpp-reference.html"], to: "/api" },
-          { from: ["/api/cpp"], to: "/api" },
-          { from: ["/api/cs", "/api/cs/index.html"], to: "/api" }
+          { from: ["/api/cpp"], to: "/api" }
         ]
       }
     ]

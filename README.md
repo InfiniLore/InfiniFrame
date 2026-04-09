@@ -166,6 +166,7 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 Requirements:
 
 - `Node.js`/`npm` (required)
+- `.NET SDK` + `docfx` (optional, only if regenerating C# API docs)
 
 Run:
 
@@ -179,10 +180,10 @@ Build static site:
 npm run docs:build
 ```
 
-Legacy DocFX parity flow (temporary during migration):
+Generate and preview C# API docs only (DocFX API-only pipeline):
 
 ```powershell
-.\docs\scripts\serve-docs.ps1 -LegacyDocfx
+.\docs\scripts\serve-docs.ps1 -BuildCsApiOnly
 ```
 
 ## Platform Requirements

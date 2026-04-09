@@ -77,11 +77,6 @@ jobs:
                         dotnet tool install --global docfx --version $REQUIRED_VERSION
                     fi
 
-            -   name: Install Deps
-                uses: awalsh128/cache-apt-pkgs-action@v1
-                with:
-                    packages: doxygen
-
             -   name: Install Docusaurus Dependencies
                 shell: bash
                 run: npm ci --prefix docs
@@ -101,22 +96,20 @@ jobs:
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     allow-status-422: 'true'
             
-            -   name: Generate API Metadata
-                run: docfx metadata docs/docfx.json
+            -   name: Generate C# API Metadata
+                run: docfx metadata docs/docfx.api.json
 
-            -   name: Generate C++ Docs
-                shell: pwsh
-                run: ./docs/scripts/update-cpp-api.ps1 -Required
-            
-            -   name: Build Docs
+            -   name: Build C# API Site
                 shell: bash
                 run: |
                     set -euo pipefail
 
-                    docfx build docs/docfx.json 2>&1 | tee /tmp/docfx-build.log
+                    docfx build docs/docfx.api.json 2>&1 | tee /tmp/docfx-build.log
                     if grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
                       exit 1
                     fi
+
+                    test -f docs/_site_api/api/cs/index.html
 
             -   name: Build Docusaurus Docs
                 shell: bash

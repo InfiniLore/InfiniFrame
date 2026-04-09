@@ -1,7 +1,7 @@
 param(
-    [switch]$LegacyDocfx,
-    [string]$ConfigPath = "docs/docfx.json",
-    [string]$SitePath = "docs/_site"
+    [switch]$BuildCsApiOnly,
+    [string]$ConfigPath = "docs/docfx.api.json",
+    [string]$ApiSitePath = "docs/_site_api"
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,11 +12,11 @@ if (-not [System.IO.Path]::IsPathRooted($ConfigPath)) {
     $ConfigPath = Join-Path $repoRoot $ConfigPath
 }
 
-if (-not [System.IO.Path]::IsPathRooted($SitePath)) {
-    $SitePath = Join-Path $repoRoot $SitePath
+if (-not [System.IO.Path]::IsPathRooted($ApiSitePath)) {
+    $ApiSitePath = Join-Path $repoRoot $ApiSitePath
 }
 
-if (-not $LegacyDocfx) {
+if (-not $BuildCsApiOnly) {
     npm --prefix "$docsRoot" run dev
     exit $LASTEXITCODE
 }
@@ -26,6 +26,5 @@ if (-not (Get-Command docfx -ErrorAction SilentlyContinue)) {
 }
 
 docfx metadata $ConfigPath
-& "$PSScriptRoot/update-cpp-api.ps1" -AutoInstallDoxygen
 docfx build $ConfigPath
-docfx serve $SitePath
+docfx serve $ApiSitePath
