@@ -7,7 +7,11 @@ const config: Config = {
   url: "https://docs.infiniframe.dev",
   baseUrl: "/",
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
   trailingSlash: false,
   i18n: {
     defaultLocale: "en",
@@ -18,7 +22,7 @@ const config: Config = {
       "classic",
       {
         docs: {
-          path: "content",
+          path: "docs",
           routeBasePath: "/",
           sidebarPath: "./sidebars.ts",
           editUrl: "https://github.com/InfiniLore/InfiniFrame/tree/core/docs/",
