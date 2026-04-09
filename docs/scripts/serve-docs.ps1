@@ -1,10 +1,12 @@
 param(
+    [switch]$LegacyDocfx,
     [string]$ConfigPath = "docs/docfx.json",
     [string]$SitePath = "docs/_site"
 )
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+$docsRoot = Join-Path $repoRoot "docs"
 
 if (-not [System.IO.Path]::IsPathRooted($ConfigPath)) {
     $ConfigPath = Join-Path $repoRoot $ConfigPath
@@ -12,6 +14,11 @@ if (-not [System.IO.Path]::IsPathRooted($ConfigPath)) {
 
 if (-not [System.IO.Path]::IsPathRooted($SitePath)) {
     $SitePath = Join-Path $repoRoot $SitePath
+}
+
+if (-not $LegacyDocfx) {
+    npm --prefix "$docsRoot" run dev
+    exit $LASTEXITCODE
 }
 
 if (-not (Get-Command docfx -ErrorAction SilentlyContinue)) {

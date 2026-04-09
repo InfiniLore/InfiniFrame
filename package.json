@@ -2,6 +2,8 @@
   "name": "infinilore.infiniframe",
   "version": "0.1.0",
   "scripts": {
+    "docs:dev": "npm --prefix docs run dev",
+    "docs:build": "npm --prefix docs run build",
     "production:build": "npx webpack --env production=true",
     "watch:typescript": "npx webpack --watch --env production=false"
   },

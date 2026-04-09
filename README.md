@@ -135,44 +135,54 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 ## Documentation
 
 - [Docs Home](https://docs.infiniframe.dev/)
-- [Getting Started](https://docs.infiniframe.dev/articles/guides/getting-started.html) — Installation, first app,
+- [Getting Started](https://docs.infiniframe.dev/guides/getting-started) — Installation, first app,
   platform requirements
 
 ### Guides
 
-- [Core Window](https://docs.infiniframe.dev/articles/guides/core-window.html) — Builder pattern, configuration, events,
+- [Core Window](https://docs.infiniframe.dev/guides/core-window) — Builder pattern, configuration, events,
   messaging
-- [Blazor WebView](https://docs.infiniframe.dev/articles/guides/blazor-webview.html) — Hosting a full Blazor app in a
+- [Blazor WebView](https://docs.infiniframe.dev/guides/blazor-webview) — Hosting a full Blazor app in a
   native window
-- [Web Server](https://docs.infiniframe.dev/articles/guides/web-server.html) — ASP.NET Core + native window integration
-- [Custom Window Chrome](https://docs.infiniframe.dev/articles/guides/custom-window-chrome.html) — Chromeless windows
+- [Web Server](https://docs.infiniframe.dev/guides/web-server) — ASP.NET Core + native window integration
+- [Custom Window Chrome](https://docs.infiniframe.dev/guides/custom-window-chrome) — Chromeless windows
   with Blazor components
-- [JavaScript Interop](https://docs.infiniframe.dev/articles/guides/javascript-interop.html) — Communicating between JS
+- [JavaScript Interop](https://docs.infiniframe.dev/guides/javascript-interop) — Communicating between JS
   and C#
 
 ### API Reference
 
-- [Native C++ API Guide](https://docs.infiniframe.dev/articles/cpp/native-cpp-api.html)
+- [Native C++ API Guide](https://docs.infiniframe.dev/cpp/native-cpp-api)
 - [Native C++ API Reference (Generated)](https://docs.infiniframe.dev/api/cpp/native-cpp-reference.html)
 - [Generated C# API Reference](https://docs.infiniframe.dev/api/cs/)
 
 ### Migration
 
-- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/articles/concepts/breaking-changes-from-photino.html) —
+- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/concepts/breaking-changes-from-photino) —
   API, namespace, event system, and behavioral differences from the original Photino projects
 
 ### Build Docs Locally
 
 Requirements:
 
-- `docfx` (required)
-- `Doxygen` (required for generated C++ API reference)
-- `Node.js`/`npm` (required for `npx moxygen` during C++ API reference generation)
+- `Node.js`/`npm` (required)
 
 Run:
 
 ```powershell
-.\docs\scripts\serve-docs.ps1
+npm run docs:dev
+```
+
+Build static site:
+
+```powershell
+npm run docs:build
+```
+
+Legacy DocFX parity flow (temporary during migration):
+
+```powershell
+.\docs\scripts\serve-docs.ps1 -LegacyDocfx
 ```
 
 ## Platform Requirements
