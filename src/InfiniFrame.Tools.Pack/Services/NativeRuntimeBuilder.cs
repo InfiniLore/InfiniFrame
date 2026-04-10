@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Buffers.Binary;
+using System.Linq;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -31,8 +32,9 @@ internal static class NativeRuntimeBuilder {
             .Select(file => Path.IsPathRooted(file) ? file : Path.Join(nativeArtifactsDir, file))
             .ToArray();
         
-        foreach (string path in requiredPaths) {
-            if (!File.Exists(path)) throw new InvalidOperationException($"Required native artifact was not found: {path}");
+        string? missingPath = requiredPaths.FirstOrDefault(path => !File.Exists(path));
+        if (missingPath is not null) {
+            throw new InvalidOperationException($"Required native artifact was not found: {missingPath}");
         }
 
         foreach (string path in requiredPaths) {
