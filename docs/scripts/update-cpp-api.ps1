@@ -7,13 +7,17 @@ $ErrorActionPreference = "Stop"
 
 $docsRoot = Split-Path -Parent $PSScriptRoot
 $repoRoot = Split-Path -Parent $docsRoot
-$outputFile = Join-Path $docsRoot "api/cpp/native-cpp-reference.md"
+$outputFile = Join-Path $docsRoot "docs/api/cpp/native-cpp-reference.md"
 $doxygenRoot = Join-Path $docsRoot ".doxygen"
 $xmlDir = Join-Path $doxygenRoot "xml"
 $doxyfilePath = Join-Path $doxygenRoot "Doxyfile.generated"
 
 function New-PlaceholderFile {
     $content = @"
+---
+title: Native C++ API Reference
+---
+
 # Native C++ API Reference
 
 This page is generated from C++ headers via Doxygen XML and moxygen.

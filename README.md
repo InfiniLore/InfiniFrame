@@ -174,6 +174,11 @@ Run:
 npm run docs:dev
 ```
 
+This now prepares generated API pages for local preview first:
+
+- C++ API markdown via Doxygen + moxygen (`docs/docs/api/cpp/native-cpp-reference.md`)
+- C# API pages via DocFX copied to Docusaurus static route (`/api/cs/`)
+
 Build static site:
 
 ```powershell

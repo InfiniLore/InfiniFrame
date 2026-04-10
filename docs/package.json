@@ -22,6 +22,9 @@
     "@docusaurus/types": "^3.10.0",
     "typescript": "^6.0.2"
   },
+  "overrides": {
+    "webpack": "5.101.3"
+  },
   "engines": {
     "node": ">=20.0"
   }
