@@ -24,7 +24,8 @@
     "typescript": "^6.0.2"
   },
   "overrides": {
-    "webpack": "^5.106.1"
+    "webpack": "^5.106.1",
+    "serialize-javascript": "^7.0.5"
   },
   "engines": {
     "node": ">=20.0"
