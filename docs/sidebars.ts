@@ -18,13 +18,6 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Concepts",
-      items: [
-        "concepts/breaking-changes-from-photino",
-      ],
-    },
-    {
-      type: "category",
       label: "C# Articles",
       items: [
         "csharp/code-style",
@@ -39,7 +32,14 @@ const sidebars: SidebarsConfig = {
       ],
     },
     "api",
-    "migration/docfx-to-docusaurus",
+    {
+      type: "category",
+      label: "Migration",
+      items: [
+        "migration/breaking-changes-from-photino",
+        "migration/docfx-to-docusaurus",
+      ],
+    },
   ],
 };
 
