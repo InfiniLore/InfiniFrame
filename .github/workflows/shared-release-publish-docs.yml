@@ -28,20 +28,6 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
 
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-
-            -   name: Install DocFX
-                shell: bash
-                run: |
-                    dotnet tool install --global docfx --version 2.78.5
-                    echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
-
             -   name: Setup Node
                 uses: actions/setup-node@v6
                 with:
@@ -55,32 +41,9 @@ jobs:
                 shell: bash
                 run: npm ci --prefix docs
 
-            -   name: Generate C# API Metadata
-                run: docfx metadata docs/docfx.api.json
-
-            -   name: Build C# API Site
-                shell: bash
-                run: |
-                    set -euo pipefail
-
-                    docfx build docs/docfx.api.json 2>&1 | tee /tmp/docfx-build.log
-                    if grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
-                      exit 1
-                    fi
-
-                    test -f docs/_site_api/api/cs/index.html
-
             -   name: Build Docusaurus Site
                 shell: bash
                 run: npm run docs:build
-
-            -   name: Merge C# API Site Into Docusaurus Output
-                shell: bash
-                run: |
-                    set -euo pipefail
-                    mkdir -p docs/build/api
-                    rm -rf docs/build/api/cs
-                    cp -R docs/_site_api/api/cs docs/build/api/cs
 
             -   name: Setup Pages
                 uses: actions/configure-pages@v6

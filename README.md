@@ -153,8 +153,7 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 ### API Reference
 
 - [Native C++ API Guide](https://docs.infiniframe.dev/cpp/native-cpp-api)
-- [Native C++ API Reference (Generated)](https://docs.infiniframe.dev/api/cpp/native-cpp-reference.html)
-- [Generated C# API Reference](https://docs.infiniframe.dev/api/cs/)
+- [API Reference Hub](https://docs.infiniframe.dev/api)
 
 ### Migration
 
@@ -166,7 +165,6 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 Requirements:
 
 - `Node.js`/`npm` (required)
-- `.NET SDK` + `docfx` (optional, only if regenerating C# API docs)
 
 Run:
 
@@ -174,21 +172,10 @@ Run:
 npm run docs:dev
 ```
 
-This now prepares generated API pages for local preview first:
-
-- C++ API markdown via Doxygen + moxygen (`docs/docs/api/cpp/native-cpp-reference.md`)
-- C# API pages via DocFX copied to Docusaurus static route (`/api/cs/`)
-
 Build static site:
 
 ```powershell
 npm run docs:build
-```
-
-Generate and preview C# API docs only (DocFX API-only pipeline):
-
-```powershell
-.\docs\scripts\serve-docs.ps1 -BuildCsApiOnly
 ```
 
 ## Platform Requirements

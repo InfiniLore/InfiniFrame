@@ -37,7 +37,6 @@ const sidebars: SidebarsConfig = {
       label: "Migration",
       items: [
         "migration/breaking-changes-from-photino",
-        "migration/docfx-to-docusaurus",
       ],
     },
   ],

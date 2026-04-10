@@ -31,14 +31,6 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
             
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-
             -   name: Setup Node
                 uses: actions/setup-node@v6
                 with:
@@ -47,35 +39,6 @@ jobs:
                     cache-dependency-path: |
                         package-lock.json
                         docs/package-lock.json
-            
-            -   name: Cache .NET Tools & NuGet
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        ~/.nuget/packages
-                        ~/.dotnet/tools
-                    key: dotnet-tools-${{ runner.os }}-docfx-2.78.5
-                    restore-keys: |
-                        dotnet-tools-${{ runner.os }}-docfx-
-
-            -   name: Add Tools Path
-                run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-            
-            -   name: Install DocFX if needed
-                run: |
-                    set -euo pipefail
-                    REQUIRED_VERSION=2.78.5
-                    
-                    INSTALLED_VERSION=$(dotnet tool list --global | awk '$1=="docfx"{print $2}')
-                    if [ "$INSTALLED_VERSION" = "$REQUIRED_VERSION" ]; then
-                        echo "DocFX $REQUIRED_VERSION already installed, skipping install."
-                    elif [ -n "$INSTALLED_VERSION" ]; then
-                        echo "DocFX version mismatch ($INSTALLED_VERSION), reinstalling..."
-                        dotnet tool update --global docfx --version $REQUIRED_VERSION
-                    else
-                        echo "DocFX not found, installing..."
-                        dotnet tool install --global docfx --version $REQUIRED_VERSION
-                    fi
 
             -   name: Install Docusaurus Dependencies
                 shell: bash
@@ -96,21 +59,6 @@ jobs:
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     allow-status-422: 'true'
             
-            -   name: Generate C# API Metadata
-                run: docfx metadata docs/docfx.api.json
-
-            -   name: Build C# API Site
-                shell: bash
-                run: |
-                    set -euo pipefail
-
-                    docfx build docs/docfx.api.json 2>&1 | tee /tmp/docfx-build.log
-                    if grep -Eq '^[[:space:]]*[1-9][0-9]* warning\(s\)' /tmp/docfx-build.log; then
-                      exit 1
-                    fi
-
-                    test -f docs/_site_api/api/cs/index.html
-
             -   name: Build Docusaurus Docs
                 shell: bash
                 run: npm run docs:build
@@ -129,4 +77,4 @@ jobs:
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     job-status: ${{ job.status }}
                     success-description: Docs validation finished successfully
-                    failure-description: Docs validation failed due to warnings or errors
+                    failure-description: Docs validation failed
