@@ -15,7 +15,8 @@
     "clsx": "^2.1.1",
     "prism-react-renderer": "^2.4.1",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "serialize-javascript": "^7.0.5"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.10.0",
@@ -23,7 +24,7 @@
     "typescript": "^6.0.2"
   },
   "overrides": {
-    "webpack": "5.101.3"
+    "webpack": "^5.106.1"
   },
   "engines": {
     "node": ">=20.0"
