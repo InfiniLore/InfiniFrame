@@ -80,7 +80,22 @@ const config: Config = {
         src: "icon.png",
       },
       items: [
-        { type: "docSidebar", sidebarId: "docsSidebar", position: "left", label: "Documentation" },
+        { 
+            type: "docSidebar",
+            sidebarId: "docsSidebar",
+            position: "left",
+            label: "Docs"
+        },
+        {
+          href: "https://github.com/InfiniLore/InfiniFrame/issues",
+          position: "left",
+          label: "Issues"
+        },
+        {
+          href: "https://github.com/InfiniLore/InfiniFrame/discussions",
+          position: "left",
+          label: "Discussions"
+        },
         {
           href: "https://www.nuget.org/packages/InfiniLore.InfiniFrame",
           position: "right",
