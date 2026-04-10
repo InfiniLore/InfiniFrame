@@ -1,6 +1,6 @@
 # Native C++ API
 
-InfiniFrame native API documentation is hosted inside DocFX as conceptual reference and is sourced from the native headers and Doxygen-style comments under `src/InfiniFrame.Native`.
+InfiniFrame native API documentation is maintained directly in Docusaurus and sourced from the native headers and comments under `src/InfiniFrame.Native`.
 
 ## Core headers
 
@@ -27,6 +27,4 @@ InfiniFrame native API documentation is hosted inside DocFX as conceptual refere
 
 - `Exports.cpp`: exported C ABI used by the managed layer.
 
-For detailed behavior, see source comments in the files above. This page is maintained in DocFX to keep C++ documentation and C# documentation in one navigation model.
-
-For generated member-level C++ reference, see [Native C++ API Reference (Generated)](../../api/cpp/native-cpp-reference.md).
+For detailed behavior, see source comments in the files above.

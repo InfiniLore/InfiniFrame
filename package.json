@@ -2,6 +2,8 @@
   "name": "infinilore.infiniframe",
   "version": "0.1.0",
   "scripts": {
+    "docs:dev": "npm --prefix docs run dev",
+    "docs:build": "npm --prefix docs run build",
     "production:build": "npx webpack --env production=true",
     "watch:typescript": "npx webpack --watch --env production=false"
   },
@@ -12,7 +14,7 @@
   "devDependencies": {
     "ts-loader": "^9.5.7",
     "typescript": "^6.0.2",
-    "webpack": "^5.105.4",
+    "webpack": "^5.106.0",
     "webpack-cli": "^7.0.2"
   }
 }

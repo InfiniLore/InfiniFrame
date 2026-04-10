@@ -354,11 +354,3 @@ healthchecksdb
 /examples/InfiniFrameExample.WebApp.Vue/wwwroot/
 /tests/InfiniFrameTests.Playwright/wwwroot/
 
-# DocFX generated outputs
-/docs/_site/
-/docs/api/*.yml
-/docs/api/toc.yml
-/docs/api/.manifest
-/docs/api/cs/
-/docs/api/cpp/native-cpp-reference.md
-/docs/.doxygen/
