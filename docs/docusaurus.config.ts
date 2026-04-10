@@ -68,31 +68,36 @@ const config: Config = {
     ]
   ],
   themeConfig: {
+    colorMode: {
+      defaultMode: 'dark', 
+      disableSwitch: false, 
+      respectPrefersColorScheme: true,
+    },
     navbar: {
-      title: "InfiniFrame Docs",
+      title: "InfiniFrame",
+      logo: {
+        alt: "InfiniFrame",
+        src: "icon.png",
+      },
       items: [
         { type: "docSidebar", sidebarId: "docsSidebar", position: "left", label: "Documentation" },
-        { href: "https://github.com/InfiniLore/InfiniFrame", label: "GitHub", position: "right" }
+        {
+          href: "https://www.nuget.org/packages/InfiniLore.InfiniFrame",
+          position: "right",
+          className: "header-nuget-link",
+          "aria-label": "NuGet package"
+        },
+        {
+          href: "https://github.com/InfiniLore/InfiniFrame",
+          position: "right",
+          className: "header-github-link",
+          "aria-label": "GitHub repository"
+        }
       ],
     },
     footer: {
       style: "dark",
-      links: [
-        {
-          title: "Docs",
-          items: [
-            { label: "Getting Started", to: "/guides/getting-started" },
-            { label: "API Strategy", to: "/api" }
-          ],
-        },
-        {
-          title: "Project",
-          items: [
-            { label: "GitHub", href: "https://github.com/InfiniLore/InfiniFrame" },
-          ],
-        }
-      ],
-      copyright: `Copyright ${new Date().getFullYear()} InfiniLore`,
+      copyright: `Copyright © ${new Date().getFullYear()} InfiniLore. Built with Docusaurus.`,
     },
     prism: {
       additionalLanguages: ["csharp", "bash", "powershell"],
