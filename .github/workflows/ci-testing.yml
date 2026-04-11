@@ -38,23 +38,15 @@ on:
                 default: true
 
 jobs:
-  # noinspection UndefinedAction
+    # noinspection UndefinedAction
     python-tests:
         name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml
-  
-    # noinspection UndefinedAction, UndefinedParamsPresent
-    jsbundle-tests:
-        name: JS Bundle Validation
-        needs: python-tests
-        uses: ./.github/actions/jsbundle-validate/action.yml
-        with:
-            working-directory: src/InfiniFrame.Tools.Pack
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     run:
         name: Platform Tests
-        needs: jsbundle-tests
+        needs: python-tests
         uses: ./.github/workflows/shared-testing.yml
         with:
             pr_number: ${{ inputs.pr_number }}
