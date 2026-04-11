@@ -27,7 +27,7 @@ export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendT
 export type MessageCallback = (data?: string) => void;
 
 export interface IHostMessaging {
-    sendMessageToHost(id: SendToHostMessageId | string, data?: string): void;
+    sendMessageToHost(id: SendToHostMessageId | string, data?: unknown): void;
 
     assignMessageReceivedHandler(messageId: string, callback: MessageCallback): void;
 

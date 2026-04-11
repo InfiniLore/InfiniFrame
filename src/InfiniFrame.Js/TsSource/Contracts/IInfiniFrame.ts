@@ -9,7 +9,7 @@ import {IHostMessaging, SendToHostMessageId} from "./IHostMessaging";
 export interface IInfiniFrame {
     HostMessaging: IHostMessaging;
 
-    sendMessageToHost(id: SendToHostMessageId, data?: string): void;
+    sendMessageToHost(id: SendToHostMessageId, data?: unknown): void;
 
     setPointerCapture(element: Element, pointerId: number): void;
 

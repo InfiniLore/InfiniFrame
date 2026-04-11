@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
+using InfiniFrame.Interop;
 
 namespace InfiniFrame.Js.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -23,7 +24,7 @@ public static class RegisterWindowCreatedUtility {
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
         if (TryRegisterReadyHandler(builder)) {
             RegisterMessageHandler(builder, HandlerNames.WindowReady, (window, payload) => {
-                _ = window.SendWebMessageAsync(messageId);
+                _ = window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(messageId));
             });
         }
 
@@ -33,7 +34,7 @@ public static class RegisterWindowCreatedUtility {
             //      We should fix this in the future.
             _ = Task.Run(async () => {
                 await Task.Delay(1000);
-                await window.SendWebMessageAsync(messageId);
+                await window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(messageId));
             });
         });
     }

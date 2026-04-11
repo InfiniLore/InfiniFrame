@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {
@@ -7,6 +7,7 @@ import {
     ReceiveFromHostMessageIds,
     SendToHostMessageId, SendToHostMessageIds
 } from "./Contracts/IHostMessaging";
+import {createEnvelopeMessage, parseIncomingMessage} from "./Interop/InteropEnvelopeProtocol";
 import {blankTargetHandler} from "./BlankTargetHandler";
 import {getTitleObserver, getTitleObserverTarget} from "./Observers";
 
@@ -41,8 +42,8 @@ class HostMessaging implements IHostMessaging {
         })
     }
 
-    public sendMessageToHost(id: SendToHostMessageId | string, data?: string) {
-        const message = data ? `${id};${data}` : id;
+    public sendMessageToHost(id: SendToHostMessageId | string, data?: unknown) {
+        const message = createEnvelopeMessage(id, data);
 
         // TODO - determine messaging methods for InfiniFrame.NET for all platforms
         if (window.chrome?.webview) {
@@ -105,24 +106,18 @@ class HostMessaging implements IHostMessaging {
             return;
         }
 
-        let messageId: string;
-        let data: string | undefined;
-
-        // Parse message - check if it contains data separated by semicolon
-        if (messageStr.includes(';')) {
-            const parts = messageStr.split(';', 2);
-            messageId = parts[0];
-            data = parts[1];
-        } else {
-            messageId = messageStr;
+        const parsedMessage = parseIncomingMessage(messageStr);
+        if ("error" in parsedMessage) {
+            console.warn("Rejected invalid web message:", parsedMessage.error);
+            return;
         }
 
         // Execute registered handler
-        const handler = this.messageHandlers.get(messageId);
+        const handler = this.messageHandlers.get(parsedMessage.messageId);
         if (handler) {
-            handler(data);
+            handler(parsedMessage.payload);
         } else {
-            console.warn('No handler registered for message ID:', messageId);
+            console.warn('No handler registered for message ID:', parsedMessage.messageId);
         }
     }
 

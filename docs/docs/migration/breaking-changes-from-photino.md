@@ -163,7 +163,7 @@ One handler. The full message string is passed as-is.
 
 ### InfiniFrame — typed message routing
 
-InfiniFrame uses a `messageId;payload` protocol. Messages sent from JavaScript as `"myEvent;some data"` are dispatched to the handler registered for `"myEvent"`:
+InfiniFrame uses a versioned JSON envelope protocol. Messages sent from JavaScript as `{"id":"myEvent","data":"some data","version":1}` are dispatched to the handler registered for `"myEvent"`:
 
 ```csharp
 window.MessageHandlers.RegisterMessageHandler("myEvent", (window, payload) => {
@@ -171,13 +171,15 @@ window.MessageHandlers.RegisterMessageHandler("myEvent", (window, payload) => {
 });
 ```
 
-A fallback `RegisterWebMessageReceivedHandler` is still available for raw unrouted messages, but the typed routing is the primary pattern
+A fallback `RegisterWebMessageReceivedHandler` is still available for raw unrouted messages, but the typed routing is the primary pattern.
 
-The JavaScript side must use the `messageId;payload` format:
+The JavaScript side should use the envelope format:
 
 ```js
-window.external.sendMessage("myEvent;some data");
+window.external.sendMessage(JSON.stringify({ id: "myEvent", data: "some data", version: 1 }));
 ```
+
+Legacy `messageId;payload` is no longer supported.
 
 ## Logging
 

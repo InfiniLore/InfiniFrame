@@ -1,0 +1,99 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+export const InteropEnvelopeVersion = 1;
+export const InteropMessageMaxSizeBytes = 1024 * 1024;
+
+export interface InteropEnvelopeV1 {
+    id: string;
+    data?: unknown;
+    version: number;
+}
+
+export interface ParsedInteropMessage {
+    messageId: string;
+    payload?: string;
+}
+
+export interface ParseError {
+    error: string;
+}
+
+export function createEnvelopeMessage(id: string, data?: unknown): string {
+    if (!id || id.trim().length === 0) {
+        throw new Error("Envelope 'id' is required.");
+    }
+
+    const envelope: InteropEnvelopeV1 = {
+        id,
+        data,
+        version: InteropEnvelopeVersion
+    };
+
+    return JSON.stringify(envelope);
+}
+
+export function parseIncomingMessage(message: string): ParsedInteropMessage | ParseError {
+    if (!message || message.trim().length === 0) {
+        return {error: "Message is empty."};
+    }
+
+    if (getUtf8ByteCount(message) > InteropMessageMaxSizeBytes) {
+        return {error: `Message exceeds max size of ${InteropMessageMaxSizeBytes} bytes.`};
+    }
+
+    if (!looksLikeJsonObject(message)) {
+        return {error: "Message is not a valid JSON envelope."};
+    }
+
+    try {
+        const parsed = JSON.parse(message) as unknown;
+        if (!isObject(parsed)) {
+            return {error: "Envelope root must be a JSON object."};
+        }
+
+        if (typeof parsed.id !== "string" || parsed.id.trim().length === 0) {
+            return {error: "Envelope 'id' is required and must be a string."};
+        }
+
+        if (typeof parsed.version !== "number" || !Number.isInteger(parsed.version)) {
+            return {error: "Envelope 'version' is required and must be an integer."};
+        }
+
+        if (parsed.version !== InteropEnvelopeVersion) {
+            return {error: `Unsupported envelope version '${parsed.version}'.`};
+        }
+
+        const payload = convertDataToPayload(parsed.data);
+        return {
+            messageId: parsed.id,
+            payload
+        };
+    } catch {
+        return {error: "Envelope JSON is malformed."};
+    }
+}
+
+function convertDataToPayload(data: unknown): string | undefined {
+    if (data === null || data === undefined) {
+        return undefined;
+    }
+
+    if (typeof data === "string") {
+        return data;
+    }
+
+    return JSON.stringify(data);
+}
+
+function looksLikeJsonObject(message: string): boolean {
+    return message.replace(/^\s+/, "").startsWith("{");
+}
+
+function getUtf8ByteCount(message: string): number {
+    return new TextEncoder().encode(message).length;
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+}
