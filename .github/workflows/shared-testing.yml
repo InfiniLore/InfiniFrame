@@ -81,6 +81,14 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
         secrets: inherit
+  
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    js-validation:
+        name: Validate JS
+        uses: ./.github/workflows/shared-testing-js.yml
+        with:
+          checkout_ref: ${{ inputs.checkout_ref }}
+          target_sha: ${{ needs.prepare.outputs.sha }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     pack-tool-e2e-windows:

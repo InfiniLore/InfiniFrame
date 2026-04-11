@@ -1,4 +1,4 @@
-name: "Shared: Docs Tests"
+name: "Shared: Js Tests"
 
 on:
     workflow_call:
@@ -19,7 +19,7 @@ permissions:
     checks: write
 
 jobs:
-    docs-validation:
+    js-validation:
         name: CI Testing - Docs
         runs-on: ubuntu-latest
         env:
@@ -40,30 +40,11 @@ jobs:
                         package-lock.json
                         docs/package-lock.json
 
-            -   name: Install Docusaurus Dependencies
-                shell: bash
-                run: npm ci --prefix docs
-                    
-            -   name: Set Docs Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
-                uses: ./.github/actions/sync-check
-                # noinspection UndefinedAction, UndefinedParamsPresent
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Docs
-                    state: pending
-                    status-description: Docs validation in progress
-                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    allow-status-422: 'true'
+            -   name: Validate JS Bundle Packed 
+                # noinspection UndefinedAction
+                uses: ./.github/actions/jsbundle-validate/action.yml
             
-            -   name: Build Docusaurus Docs
-                shell: bash
-                run: npm run docs:build
-            
-            -   name: Complete Docs Check
+            -   name: Complete Js Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -73,8 +54,8 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Docs
+                    context: CI Testing - Js
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     job-status: ${{ job.status }}
-                    success-description: Docs validation finished successfully
-                    failure-description: Docs validation failed
+                    success-description: Js validation finished successfully
+                    failure-description: Js validation failed
