@@ -96,6 +96,7 @@
     <Project Path="src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
     <Project Path="src/InfiniFrame/InfiniFrame.csproj" />
     <File Path="Directory.Packages.props" />
+    <File Path="src/AnalyzerBaseline.props" />
     <File Path="src/Directory.Build.props" />
   </Folder>
   <Folder Name="/src/tools/">

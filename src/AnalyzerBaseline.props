@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Project>
+    <PropertyGroup>
+        <!--
+            List analyzer warning IDs that are temporarily allowed as warnings.
+            Keep this list explicit and remove IDs as code is fixed.
+            Example: CA1822;CA2007
+        -->
+        <AnalyzerBaselineWarningsNotAsErrors>
+            
+        </AnalyzerBaselineWarningsNotAsErrors>
+    </PropertyGroup>
+</Project>
