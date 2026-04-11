@@ -112,7 +112,10 @@ public static class RegisterWindowCreatedUtility {
                     await window.SendWebMessageAsync(envelope);
                     break;
                 }
-                catch (Exception ex) when (attempt < MaxSendAttempts) {
+                catch (OperationCanceledException) {
+                    throw;
+                }
+                catch (InvalidOperationException ex) when (attempt < MaxSendAttempts) {
                     window.Logger.LogWarning(
                         ex,
                         "Failed to send registration message '{MessageId}' on attempt {Attempt}/{MaxAttempts}; retrying in {DelayMs} ms.",
@@ -124,7 +127,7 @@ public static class RegisterWindowCreatedUtility {
                     await Task.Delay(retryDelay);
                     retryDelay += retryDelay;
                 }
-                catch (Exception ex) {
+                catch (InvalidOperationException ex) {
                     window.Logger.LogError(
                         ex,
                         "Failed to send registration message '{MessageId}' after {MaxAttempts} attempts.",
