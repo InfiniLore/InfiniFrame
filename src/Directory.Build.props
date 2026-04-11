@@ -11,7 +11,8 @@
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <Deterministic>true</Deterministic>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == '' and '$(CI)' == 'true'">true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">false</GeneratePackageOnBuild>
         <IncludeBuildOutput>true</IncludeBuildOutput>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
