@@ -74,8 +74,8 @@ public class InteropEnvelopeProtocolTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(Parse_LegacyMessage_IsRejected)}")]
-    public async Task Parse_LegacyMessage_IsRejected() {
+    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(Parse_LegacyMessage_IsAcceptedDuringMigration)}")]
+    public async Task Parse_LegacyMessage_IsAcceptedDuringMigration() {
         // Arrange
         const string message = "set-title;New Title";
 
@@ -83,8 +83,26 @@ public class InteropEnvelopeProtocolTests {
         InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(message);
 
         // Assert
-        await Assert.That(result.Success).IsFalse();
-        await Assert.That(result.Error).Contains("not a valid JSON envelope");
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.IsLegacyProtocol).IsTrue();
+        await Assert.That(result.MessageId).IsEqualTo("set-title");
+        await Assert.That(result.Payload).IsEqualTo("New Title");
+    }
+
+    [Test]
+    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(Parse_LegacyMessage_WithoutPayload_IsAcceptedDuringMigration)}")]
+    public async Task Parse_LegacyMessage_WithoutPayload_IsAcceptedDuringMigration() {
+        // Arrange
+        const string message = "window-close";
+
+        // Act
+        InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(message);
+
+        // Assert
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.IsLegacyProtocol).IsTrue();
+        await Assert.That(result.MessageId).IsEqualTo("window-close");
+        await Assert.That(result.Payload).IsNull();
     }
 
     [Test]

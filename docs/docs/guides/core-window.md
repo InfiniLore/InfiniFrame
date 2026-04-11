@@ -288,7 +288,7 @@ window.external.receiveMessage(function(message) {
 In JavaScript, send with:
 
 ```js
-window.external.sendMessage("hello from JS");
+window.infiniframe.host.postMessage({ id: "hello", data: "from JS", version: 1 });
 ```
 
 In C#, handle with:

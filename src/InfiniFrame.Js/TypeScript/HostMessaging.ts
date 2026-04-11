@@ -8,7 +8,7 @@ import {
     SendToHostMessageId,
     SendToHostMessageIds
 } from "./Contracts/IHostMessaging";
-import {createEnvelopeMessage, parseIncomingMessage} from "./Interop/InteropEnvelopeProtocol";
+import {createEnvelope, parseIncomingMessage} from "./Interop/InteropEnvelopeProtocol";
 import {blankTargetHandler} from "./BlankTargetHandler";
 import {getTitleObserver, getTitleObserverTarget} from "./Observers";
 
@@ -21,6 +21,7 @@ class HostMessaging implements IHostMessaging {
     private fullscreenRegistered = false;
     private titleRegistered = false;
     private windowCloseRegistered = false;
+    private legacyInboundWarningLogged = false;
 
     constructor() {
         this.assignWebMessageReceiver();
@@ -44,15 +45,12 @@ class HostMessaging implements IHostMessaging {
     }
 
     public sendMessageToHost(id: SendToHostMessageId | string, data?: unknown) {
-        const message = createEnvelopeMessage(id, data);
+        const envelope = createEnvelope(id, data);
 
-        // TODO - determine messaging methods for InfiniFrame.NET for all platforms
-        if (window.chrome?.webview) {
-            window.chrome.webview.postMessage(message);
-        } else if (window.external?.sendMessage) {
-            window.external.sendMessage(message);
+        if (window.infiniframe?.host?.postMessage) {
+            window.infiniframe.host.postMessage(envelope);
         } else {
-            console.warn("Message to host failed:", message);
+            console.warn("Message to host failed. Host bridge API is not initialized.");
         }
     }
 
@@ -86,6 +84,11 @@ class HostMessaging implements IHostMessaging {
         const parsedMessage = parseIncomingMessage(message);
         if ("error" in parsedMessage) {
             return false;
+        }
+
+        if (parsedMessage.isLegacyProtocol && !this.legacyInboundWarningLogged) {
+            this.legacyInboundWarningLogged = true;
+            console.warn("Received legacy inbound host message format. Migrate host-to-web messages to the JSON envelope contract.");
         }
 
         // Execute registered handler

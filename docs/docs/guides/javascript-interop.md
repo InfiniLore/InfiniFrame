@@ -9,19 +9,27 @@ InfiniFrame provides two layers of JS interop:
 - [Built-in JavaScript Message Handlers](#built-in-javascript-message-handlers)
 - [Exchanging Structured Data](#exchanging-structured-data)
 
-1. **Web messaging** — a simple string-based channel between C# and the page's JavaScript
+1. **Web messaging** — a versioned message channel between C# and the page's JavaScript
 2. **InfiniFrame.Js** — Blazor-specific utilities for pointer capture and built-in window management message handlers
 
 ## Web Messaging
 
-The messaging channel works the same way regardless of whether you are using plain HTML, a Blazor app, or an ASP.NET Core server
+The messaging channel works the same way regardless of whether you are using plain HTML, a Blazor app, or an ASP.NET Core server.
+Use this JavaScript API as the primary send path:
+
+```js
+window.infiniframe.host.postMessage({ id: "my:event", data: { value: 1 }, version: 1 });
+```
+
+Legacy `window.external.sendMessage(...)` remains supported during migration and emits deprecation warnings.
+
 Messages are validated against a versioned envelope contract:
 
 ```json
-{ "id": "<string>", "data": <any>, "version": 1 }
+{ "id": "<string>", "data": <any>, "version": 1, "channel": "<optional-string>" }
 ```
 
-`id` and `version` are required. `version` must be `1`. Non-envelope messages are rejected.
+`id` and `version` are required. `version` must be `1`.
 
 ### Sending from C# to JavaScript
 
@@ -41,7 +49,7 @@ window.external.receiveMessage(function(message) {
 ### Sending from JavaScript to C#
 
 ```js
-window.external.sendMessage(JSON.stringify({ type: "action", payload: 42 }));
+window.infiniframe.host.postMessage({ id: "action", data: 42, version: 1 });
 ```
 
 In C#:
@@ -73,9 +81,8 @@ window.MessageHandlers.RegisterMessageHandler("set-title", (window, title) => {
 ```
 
 ```js
-// Messages use a JSON envelope: { id, data, version }
-window.external.sendMessage(JSON.stringify({ id: "ping", data: null, version: 1 }));
-window.external.sendMessage(JSON.stringify({ id: "set-title", data: "New Title", version: 1 }));
+window.infiniframe.host.postMessage({ id: "ping", data: null, version: 1 });
+window.infiniframe.host.postMessage({ id: "set-title", data: "New Title", version: 1 });
 ```
 
 ## InfiniFrame.Js
@@ -162,19 +169,19 @@ These are used internally by `InfiniFrameWindowDragArea`, `InfiniFrameWindowButt
 All messages follow a versioned JSON envelope:
 
 ```js
-window.external.sendMessage(JSON.stringify({ id: "__infiniframe:window:minimize", data: null, version: 1 }));
-window.external.sendMessage(JSON.stringify({ id: "__infiniframe:window:maximize", data: null, version: 1 }));
-window.external.sendMessage(JSON.stringify({ id: "__infiniframe:window:close", data: null, version: 1 }));
+window.infiniframe.host.postMessage({ id: "__infiniframe:window:minimize", data: null, version: 1 });
+window.infiniframe.host.postMessage({ id: "__infiniframe:window:maximize", data: null, version: 1 });
+window.infiniframe.host.postMessage({ id: "__infiniframe:window:close", data: null, version: 1 });
 ```
 
 ```js
 // Title data is the new title string
-window.external.sendMessage(JSON.stringify({ id: "__infiniframe:title:change", data: "New Window Title", version: 1 }));
+window.infiniframe.host.postMessage({ id: "__infiniframe:title:change", data: "New Window Title", version: 1 });
 ```
 
 ```js
-window.external.sendMessage(JSON.stringify({ id: "__infiniframe:fullscreen:enter", data: null, version: 1 }));
-window.external.sendMessage(JSON.stringify({ id: "__infiniframe:fullscreen:exit", data: null, version: 1 }));
+window.infiniframe.host.postMessage({ id: "__infiniframe:fullscreen:enter", data: null, version: 1 });
+window.infiniframe.host.postMessage({ id: "__infiniframe:fullscreen:exit", data: null, version: 1 });
 ```
 
 When using `InfiniFrame.js`, you can go through its API instead:
@@ -210,11 +217,11 @@ window.external.receiveMessage(function(raw) {
 **JS → C#:**
 
 ```js
-window.external.sendMessage(JSON.stringify({
+window.infiniframe.host.postMessage({
     id: "log",
     data: { message: "hello" },
     version: 1
-}));
+});
 ```
 
 ```csharp

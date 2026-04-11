@@ -47,7 +47,7 @@ internal static class InteropEnvelopeProtocol {
             return InteropEnvelopeParseResult.CreateFailure($"Message exceeds max size of {MaxMessageSizeBytes} bytes.");
 
         if (!LooksLikeJsonObject(message))
-            return InteropEnvelopeParseResult.CreateFailure("Message is not a valid JSON envelope.");
+            return ParseLegacyMessage(message);
 
         try {
             using JsonDocument jsonDocument = JsonDocument.Parse(message, JsonDocumentOptions);
@@ -80,6 +80,18 @@ internal static class InteropEnvelopeProtocol {
         catch (JsonException) {
             return InteropEnvelopeParseResult.CreateFailure("Envelope JSON is malformed.");
         }
+    }
+
+    private static InteropEnvelopeParseResult ParseLegacyMessage(string message) {
+        int separatorIndex = message.IndexOf(';');
+        bool hasSeparator = separatorIndex >= 0;
+
+        string messageId = (hasSeparator ? message[..separatorIndex] : message).Trim();
+        if (string.IsNullOrWhiteSpace(messageId))
+            return InteropEnvelopeParseResult.CreateFailure("Legacy message has an empty message ID.");
+
+        string? payload = hasSeparator ? message[(separatorIndex + 1)..] : null;
+        return InteropEnvelopeParseResult.CreateSuccess(messageId, payload, isLegacyProtocol: true);
     }
 
     private static bool LooksLikeJsonObject(string message) {

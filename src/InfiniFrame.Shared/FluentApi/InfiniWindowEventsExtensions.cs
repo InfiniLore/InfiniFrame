@@ -113,7 +113,9 @@ public static class InfiniWindowEventsExtensions {
     ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
     /// </returns>
     /// <remarks>
-    ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
+    ///     Messages should be sent from JavaScript via
+    ///     <code>window.infiniframe.host.postMessage({ id: "...", data: ..., version: 1 })</code>.
+    ///     Legacy <code>window.external.sendMessage(...)</code> is still accepted during migration.
     /// </remarks>
     /// <param name="handler">Handler invoked with the window and message.</param>
     /// <param name="builder">The builder to register the handler for.</param>
@@ -130,7 +132,9 @@ public static class InfiniWindowEventsExtensions {
     ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
     /// </returns>
     /// <remarks>
-    ///     Messages can be sent from JavaScript via <code>builder.Events.external.sendMessage(message)</code>
+    ///     Messages should be sent from JavaScript via
+    ///     <code>window.infiniframe.host.postMessage({ id: "...", data: ..., version: 1 })</code>.
+    ///     Legacy <code>window.external.sendMessage(...)</code> is still accepted during migration.
     /// </remarks>
     /// <param name="handler">Handler that receives the resolved service and web message data.</param>
     /// <param name="builder">The builder to register the handler for.</param>

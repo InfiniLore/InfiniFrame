@@ -5,11 +5,13 @@ export interface InteropEnvelopeV1 {
     id: string;
     data?: unknown;
     version: number;
+    channel?: string;
 }
 
 export interface ParsedInteropMessage {
     messageId: string;
     payload?: string;
+    isLegacyProtocol?: boolean;
 }
 
 export interface ParseError {

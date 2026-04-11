@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {IInfiniFrame} from "./IInfiniFrame";
+import {InteropEnvelopeV1} from "./IInteropEnvelope";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,6 +14,11 @@ declare global {
             webview?: {
                 postMessage(message: string): void;
                 addEventListener(type: 'message', listener: (event: { data: string }) => void): void;
+            };
+        };
+        infiniframe?: {
+            host?: {
+                postMessage(envelope: InteropEnvelopeV1 | string): void;
             };
         };
         infiniFrame: IInfiniFrame

@@ -6,16 +6,21 @@ import {InteropEnvelopeV1, ParseError, ParsedInteropMessage} from "../Contracts/
 export const InteropEnvelopeVersion = 1;
 export const InteropMessageMaxSizeBytes = 1024 * 1024;
 
-export function createEnvelopeMessage(id: string, data?: unknown): string {
+export function createEnvelope(id: string, data?: unknown, channel?: string): InteropEnvelopeV1 {
     if (!id || id.trim().length === 0) {
         throw new Error("Envelope 'id' is required.");
     }
 
-    const envelope: InteropEnvelopeV1 = {
+    return {
         id,
         data,
-        version: InteropEnvelopeVersion
+        version: InteropEnvelopeVersion,
+        channel
     };
+}
+
+export function createEnvelopeMessage(id: string, data?: unknown, channel?: string): string {
+    const envelope = createEnvelope(id, data, channel);
 
     return JSON.stringify(envelope);
 }
@@ -30,7 +35,7 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | Pa
     }
 
     if (!looksLikeJsonObject(message)) {
-        return {error: "Message is not a valid JSON envelope."};
+        return parseLegacyMessage(message);
     }
 
     try {
@@ -59,6 +64,22 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | Pa
     } catch {
         return {error: "Envelope JSON is malformed."};
     }
+}
+
+function parseLegacyMessage(message: string): ParsedInteropMessage | ParseError {
+    const separatorIndex = message.indexOf(";");
+    const hasSeparator = separatorIndex >= 0;
+    const messageId = (hasSeparator ? message.slice(0, separatorIndex) : message).trim();
+
+    if (messageId.length === 0) {
+        return {error: "Legacy message has an empty message ID."};
+    }
+
+    return {
+        messageId,
+        payload: hasSeparator ? message.slice(separatorIndex + 1) : undefined,
+        isLegacyProtocol: true
+    };
 }
 
 function convertDataToPayload(data: unknown): string | undefined {
