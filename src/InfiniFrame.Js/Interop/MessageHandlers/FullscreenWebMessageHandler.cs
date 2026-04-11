@@ -1,27 +1,25 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using static InfiniFrame.Js.MessageHandlers.RegisterWindowCreatedUtility;
-
-namespace InfiniFrame.Js.MessageHandlers;
+namespace InfiniFrame.Js.Interop.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class FullscreenWebMessageHandler {
     public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        RegisterMessageHandler(builder,
+        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
             HandlerNames.FullscreenEnter,
             static window => window.SetFullScreen(true));
 
-        RegisterMessageHandler(builder,
+        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
             HandlerNames.FullscreenExit,
             static window => window.SetFullScreen(false));
 
-        RegisterMessageHandler(builder,
+        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
             HandlerNames.FullscreenToggle,
             static window => window.SetFullScreen(!window.FullScreen));
 
-        RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterFullScreenChange);
+        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterFullScreenChange);
         return builder;
     }
 }

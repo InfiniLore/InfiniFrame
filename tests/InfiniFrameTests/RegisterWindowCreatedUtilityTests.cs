@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js.Interop;
-using InfiniFrame.Js.MessageHandlers;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrameTests;

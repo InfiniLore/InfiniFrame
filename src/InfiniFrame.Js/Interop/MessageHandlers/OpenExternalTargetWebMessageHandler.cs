@@ -1,11 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.ComponentModel;
 
-namespace InfiniFrame.Js.MessageHandlers;
+using System.ComponentModel;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+
+namespace InfiniFrame.Js.Interop.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
