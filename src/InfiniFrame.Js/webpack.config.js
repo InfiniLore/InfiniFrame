@@ -1,7 +1,6 @@
-﻿//webpack.config.js
-const path = require('path');
+﻿const path = require('path');
 
-module.exports = (env, args) => {
+module.exports = (env, _) => {
     const isProduction = env?.production === true
         || env?.production === "true"
         || process.env.NODE_ENV === "production";
@@ -10,10 +9,10 @@ module.exports = (env, args) => {
         mode: isProduction ? 'production' : 'development',
         devtool: isProduction ? false : 'inline-source-map',
         entry: {
-            main: "./src/InfiniFrame.Js/TsSource/Index.ts",
+            main: "./TypeScript/Index.ts",
         },
         output: {
-            path: path.resolve(__dirname, './src/InfiniFrame.Js/wwwroot'),
+            path: path.resolve(__dirname, './wwwroot'),
             filename: "InfiniFrame.js", // <--- Will be compiled to this single file
         },
         resolve: {
@@ -24,6 +23,9 @@ module.exports = (env, args) => {
                 {
                     test: /\.tsx?$/,
                     loader: "ts-loader",
+                    options: {
+                        configFile: path.resolve(__dirname, "tsconfig.json"),
+                    },
                     exclude: /node_modules/
                 }
             ]

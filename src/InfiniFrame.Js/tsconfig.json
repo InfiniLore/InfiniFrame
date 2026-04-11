@@ -29,7 +29,7 @@
     /* Modules */
     "module": "commonjs",
     /* Specify what module code is generated. */
-    "rootDir": "./src/InfiniFrame.Js/TsSource/",
+    "rootDir": "./TypeScript/",
     /* Specify the root folder within your source files. */
     // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
@@ -122,7 +122,7 @@
     /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "./src/InfiniFrame.Js/TsSource/**/*.ts"
+    "./TypeScript/**/*.ts"
     // Include all .ts files in this directory
   ],
   "exclude": [

@@ -170,13 +170,13 @@ Requirements:
 Run:
 
 ```powershell
-npm run docs:dev
+npm --prefix docs run dev
 ```
 
 Build static site:
 
 ```powershell
-npm run docs:build
+npm --prefix docs run build
 ```
 
 ## Platform Requirements
