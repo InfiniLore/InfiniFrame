@@ -19,12 +19,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="package.json" Pack="false" />
-        <None Update="package-lock.json" Pack="false" />
-        <None Update="webpack.config.js" Pack="false" />
-        <None Update="tsconfig.json" Pack="false" />
-        <None Update="TypeScript\**\*" Pack="false" />
-        <Content Update="TypeScript\**\*" Pack="false" />
+        <Content Update="package.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true" />
+        <Content Update="package-lock.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true" />
+        <Content Update="webpack.config.js" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true" />
+        <Content Update="tsconfig.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true" />
+        <Content Update="TypeScript\**\*" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true" />
     </ItemGroup>
 
     <ItemGroup>

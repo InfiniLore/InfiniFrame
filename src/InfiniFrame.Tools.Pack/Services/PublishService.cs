@@ -180,6 +180,16 @@ internal static class PublishService {
                 return new ResolvedNativeArtifacts(preflightDirectory, true);
             }
             catch (InvalidOperationException preflightValidationError) {
+                string? fallbackArtifactsDirectory = TryResolveNativeArtifactsFromRepository(projectPath, rid, options.Configuration);
+                if (!string.IsNullOrWhiteSpace(fallbackArtifactsDirectory)) {
+                    Logger.Warning(
+                        "[InfiniFrame.Pack] Preflight publish did not contain valid native artifacts. Falling back to native artifacts at: {NativeArtifactsDirectory}. Validation details: {ValidationError}",
+                        fallbackArtifactsDirectory,
+                        preflightValidationError.Message
+                    );
+                    return new ResolvedNativeArtifacts(fallbackArtifactsDirectory, false);
+                }
+
                 throw new NativeDependencyNotFoundException(
                     "Could not resolve required InfiniFrame native artifacts from project publish output. " +
                     "Ensure InfiniFrame is included as a dependency for this project/RID and that native runtime files are produced, " +
