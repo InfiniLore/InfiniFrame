@@ -20,7 +20,7 @@ permissions:
 
 jobs:
     js-validation:
-        name: CI Testing - Docs
+        name: CI Testing - JS Bundling
         runs-on: ubuntu-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
