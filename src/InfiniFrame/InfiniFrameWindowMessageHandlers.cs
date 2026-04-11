@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Concurrent;
 using InfiniFrame.Interop;
+using InfiniFrame.Js.Interop;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;

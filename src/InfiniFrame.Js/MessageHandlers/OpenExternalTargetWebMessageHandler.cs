@@ -4,7 +4,6 @@
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.ComponentModel;
-using static InfiniFrame.Js.Utilities.RegisterWindowCreatedUtility;
 
 namespace InfiniFrame.Js.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -12,8 +11,8 @@ namespace InfiniFrame.Js.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class OpenExternalTargetWebMessageHandler {
     public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        RegisterMessageHandler(builder, HandlerNames.OpenExternal, HandleWebMessage);
-        RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterOpenExternal);
+        RegisterWindowCreatedUtility.RegisterMessageHandler(builder, HandlerNames.OpenExternal, HandleWebMessage);
+        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterOpenExternal);
         return builder;
     }
 

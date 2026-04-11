@@ -1,13 +1,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using InfiniFrame.Interop;
 
-namespace InfiniFrame.Interop;
+namespace InfiniFrame.Js.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -21,16 +19,23 @@ internal static class InteropEnvelopeProtocol {
         MaxDepth = 64
     };
 
-    internal static string CreateEnvelopeMessage(string id, object? data = null) {
+    internal static string CreateEnvelopeMessage(string id, string? data = null) {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
-        var envelope = new InteropEnvelopeV1 {
-            Id = id,
-            Data = data,
-            Version = CurrentVersion
-        };
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(stream);
 
-        return JsonSerializer.Serialize(envelope);
+        writer.WriteStartObject();
+        writer.WriteString("id", id);
+        if (data is null)
+            writer.WriteNull("data");
+        else
+            writer.WriteString("data", data);
+        writer.WriteNumber("version", CurrentVersion);
+        writer.WriteEndObject();
+        writer.Flush();
+
+        return Encoding.UTF8.GetString(stream.ToArray());
     }
 
     internal static InteropEnvelopeParseResult ParseIncomingMessage(string message) {
@@ -88,17 +93,5 @@ internal static class InteropEnvelopeProtocol {
             JsonValueKind.String => dataElement.GetString(),
             _ => dataElement.GetRawText()
         };
-    }
-
-    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-    private sealed class InteropEnvelopeV1 {
-        [JsonPropertyName("id")]
-        public required string Id { get; init; }
-
-        [JsonPropertyName("data")]
-        public object? Data { get; init; }
-
-        [JsonPropertyName("version")]
-        public int Version { get; init; }
     }
 }

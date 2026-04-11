@@ -1,29 +1,25 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using static InfiniFrame.Js.Utilities.RegisterWindowCreatedUtility;
-
 namespace InfiniFrame.Js.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class WindowManagementWebMessageHandler {
     public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        RegisterMessageHandler(builder,
+        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
             HandlerNames.WindowMinimize,
             static window => window.SetMinimized(true));
 
-        RegisterMessageHandler(builder,
+        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
             HandlerNames.WindowMaximize,
             static window => window.SetMaximized(true));
 
-        RegisterMessageHandler(builder,
+        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
             HandlerNames.WindowClose,
             static window => window.Close());
 
-        RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterWindowClose);
-
-        // RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterWindowOpen);
+        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterWindowClose);
         return builder;
     }
 }

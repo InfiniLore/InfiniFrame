@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Interop;
 using System.Text.Json;
+using InfiniFrame.Js.Interop;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,12 +29,7 @@ public class InteropEnvelopeProtocolTests {
     [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(RoundTrip_NestedPayload)}")]
     public async Task RoundTrip_NestedPayload() {
         // Arrange
-        var payload = new {
-            name = "München",
-            values = new[] { 1, 2, 3 },
-            nested = new { ok = true }
-        };
-        string message = InteropEnvelopeProtocol.CreateEnvelopeMessage("complex", payload);
+        const string message = """{"id":"complex","data":{"name":"München","values":[1,2,3],"nested":{"ok":true}},"version":1}""";
 
         // Act
         InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(message);

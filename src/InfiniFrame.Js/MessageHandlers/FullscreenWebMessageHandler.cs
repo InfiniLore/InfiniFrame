@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using static InfiniFrame.Js.Utilities.RegisterWindowCreatedUtility;
+using static InfiniFrame.Js.MessageHandlers.RegisterWindowCreatedUtility;
 
 namespace InfiniFrame.Js.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------

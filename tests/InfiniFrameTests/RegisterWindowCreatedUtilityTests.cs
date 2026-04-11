@@ -2,8 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Interop;
-using InfiniFrame.Js.Utilities;
+using InfiniFrame.Js.Interop;
+using InfiniFrame.Js.MessageHandlers;
 using Microsoft.Extensions.Logging;
 
 namespace InfiniFrameTests;
