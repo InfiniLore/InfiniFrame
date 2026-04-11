@@ -1,0 +1,124 @@
+name: "Shared: Trim/AOT Validation"
+
+on:
+    workflow_call:
+        inputs:
+            checkout_ref:
+                description: 'Git ref to checkout (optional)'
+                type: string
+                required: false
+                default: ''
+            target_sha:
+                description: 'Commit SHA used for status/check updates'
+                type: string
+                required: true
+
+permissions:
+    contents: read
+    statuses: write
+    checks: write
+
+jobs:
+    trim-aot-validation:
+        name: CI Testing - Trim/AOT
+        runs-on: windows-latest
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
+
+            -   name: Setup .NET
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache NuGet
+                uses: actions/cache@v5
+                with:
+                    path: ~\.nuget\packages
+                    key: trim-aot-windows-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        trim-aot-windows-nuget-
+
+            -   name: Set Trim/AOT Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ env.TARGET_SHA }}
+                    context: CI Testing - Trim/AOT
+                    state: pending
+                    status-description: Trim and AOT validation in progress
+                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+                    allow-status-422: 'true'
+
+            -   name: Trim Analyzer Builds
+                run: |
+                    dotnet build src/InfiniFrame.Shared/InfiniFrame.Shared.csproj `
+                      --configuration Release `
+                      --framework net10.0 `
+                      -p:EnableTrimAnalyzer=true `
+                      -p:EnableAotAnalyzer=true `
+                      -p:GeneratePackageOnBuild=false
+
+                    dotnet build src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj `
+                      --configuration Release `
+                      --framework net10.0 `
+                      -p:EnableTrimAnalyzer=true `
+                      -p:EnableAotAnalyzer=true `
+                      -p:GeneratePackageOnBuild=false `
+                      -p:SkipTypeScriptBuild=true
+
+                    dotnet build src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj `
+                      --configuration Release `
+                      --framework net10.0 `
+                      -p:EnableTrimAnalyzer=true `
+                      -p:EnableAotAnalyzer=true `
+                      -p:GeneratePackageOnBuild=false `
+                      -p:SkipTypeScriptBuild=true
+
+            -   name: NativeAOT Smoke Publish
+                run: |
+                    dotnet publish src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj `
+                      --configuration Release `
+                      --framework net10.0 `
+                      --runtime win-x64 `
+                      -p:SelfContained=true `
+                      -p:PublishTrimmed=true `
+                      -p:PublishAot=true `
+                      -p:GeneratePackageOnBuild=false
+
+            -   name: Validate NativeAOT Output
+                run: |
+                    $output = "src/InfiniFrame.Tools.Pack/bin/Release/net10.0/win-x64/publish/infiniframe-pack.exe"
+                    if (-Not (Test-Path $output)) {
+                      Write-Host "Expected NativeAOT output not found: $output"
+                      Exit 1
+                    }
+                    Write-Host "NativeAOT smoke output validated: $output"
+
+            -   name: Complete Trim/AOT Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ env.TARGET_SHA }}
+                    context: CI Testing - Trim/AOT
+                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+                    job-status: ${{ job.status }}
+                    success-description: Trim and AOT validation finished successfully
+                    failure-description: Trim and AOT validation failed

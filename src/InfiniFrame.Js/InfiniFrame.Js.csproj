@@ -21,12 +21,12 @@
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
-    <Target Name="BuildTypeScript" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Release'">
+    <Target Name="BuildTypeScript" BeforeTargets="BeforeBuild" Condition="'$(SkipTypeScriptBuild)' != 'true'">
         <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)" />
         <Exec Command="npx webpack --env production=true" WorkingDirectory="$(MSBuildProjectDirectory)" />
     </Target>
 
-    <Target Name="BuildTypeScriptForPack" BeforeTargets="Pack">
+    <Target Name="BuildTypeScriptForPack" BeforeTargets="Pack" Condition="'$(SkipTypeScriptBuild)' != 'true'">
         <Exec Command="npx webpack --env production=true" WorkingDirectory="$(MSBuildProjectDirectory)" />
     </Target>
 

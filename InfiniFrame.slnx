@@ -66,6 +66,7 @@
     <File Path=".github/workflows/shared-testing-pack-windows.yml" />
     <File Path=".github/workflows/shared-testing-playwright-windows.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
+    <File Path=".github/workflows/shared-testing-trim-aot.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
   <Folder Name="/.dev-tools/web/">

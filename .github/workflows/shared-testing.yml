@@ -39,6 +39,10 @@ on:
                 description: 'Run pack tool end-to-end validation'
                 type: boolean
                 required: true
+            run_trim_aot:
+                description: 'Run trim and NativeAOT compatibility validation'
+                type: boolean
+                required: true
 
 jobs:
 
@@ -90,6 +94,16 @@ jobs:
         with:
           checkout_ref: ${{ inputs.checkout_ref }}
           target_sha: ${{ needs.prepare.outputs.sha }}
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    trim-aot-validation:
+        name: Validate Trim/AOT
+        if: ${{ inputs.run_trim_aot == true }}
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-trim-aot.yml
+        with:
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     pack-tool-e2e-windows:

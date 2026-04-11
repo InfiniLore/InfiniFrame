@@ -186,7 +186,19 @@ internal static class InfiniFrameNativeParametersMarshaller {
 
     private static IntPtr ToFunctionPtr(Delegate? callback) => callback is null
         ? IntPtr.Zero
-        : Marshal.GetFunctionPointerForDelegate(callback);
+        : callback switch {
+            CppClosingDelegate closing => Marshal.GetFunctionPointerForDelegate(closing),
+            CppFocusInDelegate focusIn => Marshal.GetFunctionPointerForDelegate(focusIn),
+            CppFocusOutDelegate focusOut => Marshal.GetFunctionPointerForDelegate(focusOut),
+            CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
+            CppMaximizedDelegate maximized => Marshal.GetFunctionPointerForDelegate(maximized),
+            CppRestoredDelegate restored => Marshal.GetFunctionPointerForDelegate(restored),
+            CppMinimizedDelegate minimized => Marshal.GetFunctionPointerForDelegate(minimized),
+            CppMovedDelegate moved => Marshal.GetFunctionPointerForDelegate(moved),
+            CppWebMessageReceivedDelegate webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
+            CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
+            _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
+        };
 
     private static IntPtr GetCustomSchemeName(IntPtr[]? values, int index) 
         => values is not null && values.Length > index ? values[index] : IntPtr.Zero;

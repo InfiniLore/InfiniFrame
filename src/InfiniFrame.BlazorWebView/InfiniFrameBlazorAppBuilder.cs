@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -22,12 +23,16 @@ public class InfiniFrameBlazorAppBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameBlazorAppBuilder() {}
 
+    [RequiresUnreferencedCode("Configuration binding and Blazor root component activation rely on reflection.")]
+    [RequiresDynamicCode("Configuration binding may require runtime code generation under NativeAOT.")]
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null
     ) 
         => CreateDefault(null, args, windowBuilder);
 
+    [RequiresUnreferencedCode("Configuration binding and Blazor root component activation rely on reflection.")]
+    [RequiresDynamicCode("Configuration binding may require runtime code generation under NativeAOT.")]
     public static InfiniFrameBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) {
         // We don't use the args for anything right now, but we want to accept them
         // here so that it shows up this way in the project templates.
@@ -84,6 +89,8 @@ public class InfiniFrameBlazorAppBuilder {
         return this;
     }
 
+    [RequiresUnreferencedCode("Configuration binding and Blazor root component activation rely on reflection.")]
+    [RequiresDynamicCode("Configuration binding may require runtime code generation under NativeAOT.")]
     public InfiniFrameBlazorApp Build() {
         ServiceProvider sp = Services.BuildServiceProvider();
         var manager = sp.GetRequiredService<IInfiniFrameWebViewManager>();

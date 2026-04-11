@@ -7,6 +7,7 @@
 using InfiniFrame.Blazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -24,6 +25,7 @@ public sealed class InfiniFrameJsComponentConfiguration(IInfiniFrameWebViewManag
     /// <param name="typeComponent">The component type.</param>
     /// <param name="selector">A CSS selector describing where the component should be added in the host page.</param>
     /// <param name="parameters">An optional dictionary of parameters to pass to the component.</param>
+    [RequiresUnreferencedCode("Blazor root component activation relies on reflection.")]
     public void Add(Type typeComponent, string selector, IDictionary<string, object?>? parameters = null) {
         ParameterView parameterView = parameters is null
             ? ParameterView.Empty
