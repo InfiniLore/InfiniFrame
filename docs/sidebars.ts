@@ -9,6 +9,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "guides/getting-started",
         "guides/pack-tool",
+        "guides/trim-aot-compatibility",
         "guides/core-window",
         "guides/blazor-webview",
         "guides/web-server",

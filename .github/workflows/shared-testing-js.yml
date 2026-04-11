@@ -1,4 +1,4 @@
-name: "Shared: Docs Tests"
+name: "Shared: Js Tests"
 
 on:
     workflow_call:
@@ -19,8 +19,8 @@ permissions:
     checks: write
 
 jobs:
-    docs-validation:
-        name: CI Testing - Docs
+    js-validation:
+        name: CI Testing - JS Bundling
         runs-on: ubuntu-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -38,32 +38,26 @@ jobs:
                     cache: npm
                     cache-dependency-path: |
                         package-lock.json
-                        docs/package-lock.json
 
-            -   name: Install Docusaurus Dependencies
+            -   name: Install dependencies
                 shell: bash
-                run: npm ci --prefix docs
-                    
-            -   name: Set Docs Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
-                uses: ./.github/actions/sync-check
-                # noinspection UndefinedAction, UndefinedParamsPresent
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Docs
-                    state: pending
-                    status-description: Docs validation in progress
-                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
-                    allow-status-422: 'true'
-            
-            -   name: Build Docusaurus Docs
+                run: npm ci
+
+            -   name: Build bundle
                 shell: bash
-                run: npm run docs:build
+                run: npm run production:build
+
+            -   name: Verify no drift
+                shell: bash
+                run: |
+                    if ! git diff --exit-code -- src/InfiniFrame.Js/wwwroot/InfiniFrame.js; then
+                        echo "❌ InfiniFrame.js is out of date."
+                        echo "Run: npm run production:build"
+                        echo "Then commit the updated src/InfiniFrame.Js/wwwroot/InfiniFrame.js"
+                        exit 1
+                    fi
             
-            -   name: Complete Docs Check
+            -   name: Complete Js Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -73,8 +67,8 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
-                    context: CI Testing - Docs
+                    context: CI Testing - Js Bundling
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     job-status: ${{ job.status }}
-                    success-description: Docs validation finished successfully
-                    failure-description: Docs validation failed
+                    success-description: Js validation finished successfully
+                    failure-description: Js validation failed

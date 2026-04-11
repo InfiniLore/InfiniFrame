@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Configuration;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,12 +36,11 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         var config = provider.GetService<IConfiguration>();
         IConfigurationSection? section = config?.GetSection("InfiniFrame");
 
-        IInfiniFrameWindowConfiguration configuration = Configuration;
         if (section is not null && section.Exists()) {
-            configuration = section.Get<InfiniFrameWindowConfiguration>() ?? Configuration;
+            InfiniFrameWindowConfigurationSectionApplier.Apply(section, Configuration);
         }
 
-        return configuration.ToParameters();
+        return Configuration.ToParameters();
     }
 
     private ILogger<InfiniFrameWindow> GetDefaultLogger() {

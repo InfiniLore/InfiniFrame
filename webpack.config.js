@@ -2,7 +2,9 @@
 const path = require('path');
 
 module.exports = (env, args) => {
-    const isProduction = env?.production === true;
+    const isProduction = env?.production === true
+        || env?.production === "true"
+        || process.env.NODE_ENV === "production";
 
     return {
         mode: isProduction ? 'production' : 'development',

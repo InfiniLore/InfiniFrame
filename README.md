@@ -142,6 +142,7 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 
 - [Core Window](https://docs.infiniframe.dev/guides/core-window) — Builder pattern, configuration, events,
   messaging
+- [Trim/AOT Compatibility](https://docs.infiniframe.dev/guides/trim-aot-compatibility) — Trimming and NativeAOT guarantees and consumer guidance
 - [Blazor WebView](https://docs.infiniframe.dev/guides/blazor-webview) — Hosting a full Blazor app in a
   native window
 - [Web Server](https://docs.infiniframe.dev/guides/web-server) — ASP.NET Core + native window integration

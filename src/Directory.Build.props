@@ -2,7 +2,13 @@
 <Project>
     <PropertyGroup>
         <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
-        <LangVersion>latest</LangVersion>
+        <LangVersion Condition="'$(TargetFramework)'=='net8.0'">12.0</LangVersion>
+        <LangVersion Condition="'$(TargetFramework)'=='net9.0'">13.0</LangVersion>
+        <LangVersion Condition="'$(TargetFramework)'=='net10.0'">14.0</LangVersion>
+        
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisLevel>latest</AnalysisLevel>
+
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>true</IsPackable>
@@ -11,7 +17,8 @@
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <Deterministic>true</Deterministic>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == '' and '$(CI)' == 'true'">true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">false</GeneratePackageOnBuild>
         <IncludeBuildOutput>true</IncludeBuildOutput>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
@@ -20,6 +27,12 @@
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
+    </PropertyGroup>
+
+    <Import Project="AnalyzerBaseline.props" Condition="Exists('AnalyzerBaseline.props')" />
+
+    <PropertyGroup Condition="'$(AnalyzerBaselineWarningsNotAsErrors)' != ''">
+        <WarningsNotAsErrors>$(WarningsNotAsErrors);$(AnalyzerBaselineWarningsNotAsErrors)</WarningsNotAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

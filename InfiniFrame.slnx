@@ -60,11 +60,13 @@
     <File Path=".github/workflows/shared-testing-gui-linux.yml" />
     <File Path=".github/workflows/shared-testing-gui-macos.yml" />
     <File Path=".github/workflows/shared-testing-gui-windows.yml" />
+    <File Path=".github/workflows/shared-testing-js.yml" />
     <File Path=".github/workflows/shared-testing-pack-linux.yml" />
     <File Path=".github/workflows/shared-testing-pack-macos.yml" />
     <File Path=".github/workflows/shared-testing-pack-windows.yml" />
     <File Path=".github/workflows/shared-testing-playwright-windows.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
+    <File Path=".github/workflows/shared-testing-trim-aot.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
   <Folder Name="/.dev-tools/web/">
@@ -78,6 +80,7 @@
   <Folder Name="/example/">
     <Project Path="examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/InfiniFrameExample.BlazorWebView.MultiWindowSample.csproj" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
+    <Project Path="examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj" />
     <Project Path="examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.Blazor/InfiniFrameExample.WebApp.Blazor.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.React/InfiniFrameExample.WebApp.React.csproj" />
@@ -93,6 +96,7 @@
     <Project Path="src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
     <Project Path="src/InfiniFrame/InfiniFrame.csproj" />
     <File Path="Directory.Packages.props" />
+    <File Path="src/AnalyzerBaseline.props" />
     <File Path="src/Directory.Build.props" />
   </Folder>
   <Folder Name="/src/tools/">
