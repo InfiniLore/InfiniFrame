@@ -15,9 +15,6 @@
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/dependabot.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/jsbundle-validate/">
-    <File Path=".github/actions/jsbundle-validate/action.yml" />
-  </Folder>
   <Folder Name="/.dev-tools/github/actions/packtool-publish/">
     <File Path=".github/actions/packtool-publish/action.yml" />
   </Folder>

@@ -40,9 +40,26 @@ jobs:
                         package-lock.json
                         docs/package-lock.json
 
-            -   name: Validate JS Bundle Packed 
-                # noinspection UndefinedAction
-                uses: ./.github/actions/jsbundle-validate/action.yml
+            -   name: Install dependencies
+                shell: bash
+                working-directory: ${{ inputs.working-directory }}
+                run: npm ci
+
+            -   name: Build bundle
+                shell: bash
+                working-directory: ${{ inputs.working-directory }}
+                run: npx webpack --env production=true
+
+            -   name: Verify no drift
+                shell: bash
+                working-directory: ${{ inputs.working-directory }}
+                run: |
+                    if ! git diff --exit-code wwwroot/InfiniFrame.js; then
+                        echo "❌ InfiniFrame.js is out of date."
+                        echo "Run: npm run production:build"
+                        echo "Then commit the updated wwwroot/InfiniFrame.js"
+                        exit 1
+                    fi
             
             -   name: Complete Js Check
                 if: always()
