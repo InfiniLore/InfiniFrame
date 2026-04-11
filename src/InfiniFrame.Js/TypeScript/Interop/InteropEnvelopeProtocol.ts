@@ -1,23 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+import {InteropEnvelopeV1, ParseError, ParsedInteropMessage} from "../Contracts/IInteropEnvelope";
+
 export const InteropEnvelopeVersion = 1;
 export const InteropMessageMaxSizeBytes = 1024 * 1024;
-
-export interface InteropEnvelopeV1 {
-    id: string;
-    data?: unknown;
-    version: number;
-}
-
-export interface ParsedInteropMessage {
-    messageId: string;
-    payload?: string;
-}
-
-export interface ParseError {
-    error: string;
-}
 
 export function createEnvelopeMessage(id: string, data?: unknown): string {
     if (!id || id.trim().length === 0) {
