@@ -112,7 +112,8 @@ jobs:
 
                     dotnet build InfiniFrame.GitHubActions.Testing.Playwright.slnf `
                       --configuration Release `
-                      --no-restore
+                      --no-restore `
+                      /p:SolutionDir=$GITHUB_WORKSPACE/
 
             -   name: Cache Playwright Browsers
                 id: cache-playwright
