@@ -9,7 +9,13 @@ namespace InfiniFrame.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class StaticAssetSchemeHandler {
     public static NetCustomSchemeDelegate Create(IFileProvider fileProvider, string defaultDocument) {
+        #if  NET10_0_OR_GREATER
         return (sender, scheme, url, out contentType) => {
+        #else
+            // yes, C# 14 and such have out parameters in their lambas, but we need to support .NET 8.0 which does not natively have this yet
+            return NetCustomSchemeDelegateWrapper;
+            Stream? NetCustomSchemeDelegateWrapper(object sender, string scheme, string url, out string? contentType) {
+        #endif
             contentType = null;
             if (sender is not IInfiniFrameWindow { Logger: var logger }) return null;
 
@@ -20,14 +26,21 @@ internal static class StaticAssetSchemeHandler {
 
             IFileInfo file = fileProvider.GetFileInfo(assetPath);
             if (!file.Exists || file.IsDirectory) {
-                logger.LogDebug("Custom scheme miss for {Scheme}: {AssetPath} (from {Url})", scheme, assetPath, url);
+                logger.LogDebug("Custom scheme miss for {Scheme}: {AssetPath} (from {Url})", scheme, assetPath,
+                    url);
                 return null;
             }
 
             contentType = GetContentType(assetPath);
-            logger.LogDebug("Custom scheme hit for {Scheme}: {AssetPath} ({ContentType})", scheme, assetPath, contentType);
+            logger.LogDebug("Custom scheme hit for {Scheme}: {AssetPath} ({ContentType})", scheme, assetPath,
+                contentType);
             return file.CreateReadStream();
+            
+        #if  NET10_0_OR_GREATER
         };
+        #else
+        }
+        #endif
     }
 
     public static bool TryResolveUri(
