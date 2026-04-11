@@ -5,7 +5,8 @@ import {
     IHostMessaging,
     MessageCallback,
     ReceiveFromHostMessageIds,
-    SendToHostMessageId, SendToHostMessageIds
+    SendToHostMessageId,
+    SendToHostMessageIds
 } from "./Contracts/IHostMessaging";
 import {createEnvelopeMessage, parseIncomingMessage} from "./Interop/InteropEnvelopeProtocol";
 import {blankTargetHandler} from "./BlankTargetHandler";
@@ -62,54 +63,29 @@ class HostMessaging implements IHostMessaging {
         // Handle WebView2 messages (Windows)
         if (window.chrome?.webview) {
             window.chrome.webview.addEventListener('message', (event) => {
-                if (!this.isBlazorMessage(event.data)) {
-                    this.handleWebMessage(event.data);
-                }
+                this.handleInteropMessage(event.data);
             });
         }
 
         // Handle general InfiniFrame messages (cross-platform)
         if (typeof window !== 'undefined' && window.external) {
             window.external.receiveMessage = (message: any) => {
-                // Check if it's a Blazor message and pass it to the original handler
-                if (this.isBlazorMessage(message)) {
-                    if (originalReceiveMessage) {
-                        originalReceiveMessage(message);
-                    }
+                if (this.handleInteropMessage(message)) {
                     return;
                 }
 
-                // Handle our custom messages
-                this.handleWebMessage(message);
+                originalReceiveMessage?.(message);
             };
         }
     }
 
-    private isBlazorMessage(message: any): boolean {
-        if (typeof message !== 'string') return true; // Assume non-string messages are Blazor
-
-        // Check for common Blazor message patterns
-        return message.startsWith('__bwv:')
-            || message.startsWith('e=>{')
-            || message.includes('BeginInvokeJS')
-            || message.includes('AttachToDocument')
-            || message.includes('RenderBatch')
-            || message.includes('Blazor.');
-    }
-
-    private handleWebMessage(message: any) {
-        // Ensure message is a string
-        const messageStr = typeof message === 'string' ? message : String(message || '');
-
-        if (!messageStr) {
-            console.warn('Received empty or invalid message');
-            return;
-        }
-
-        const parsedMessage = parseIncomingMessage(messageStr);
+    private handleInteropMessage(message: any): boolean {
+        if (typeof message !== 'string') return false;
+        if (!message) return false;
+        // Route only messages that match the explicit interop envelope contract.
+        const parsedMessage = parseIncomingMessage(message);
         if ("error" in parsedMessage) {
-            console.warn("Rejected invalid web message:", parsedMessage.error);
-            return;
+            return false;
         }
 
         // Execute registered handler
@@ -119,6 +95,8 @@ class HostMessaging implements IHostMessaging {
         } else {
             console.warn('No handler registered for message ID:', parsedMessage.messageId);
         }
+
+        return true;
     }
 
     public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {
