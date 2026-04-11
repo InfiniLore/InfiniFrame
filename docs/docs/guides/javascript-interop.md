@@ -21,8 +21,6 @@ Use this JavaScript API as the primary send path:
 window.infiniframe.host.postMessage({ id: "my:event", data: { value: 1 }, version: 1 });
 ```
 
-Legacy `window.external.sendMessage(...)` remains supported during migration and emits deprecation warnings.
-
 Messages are validated against a versioned envelope contract:
 
 ```json
@@ -41,7 +39,7 @@ await window.SendWebMessageAsync("async hello");
 In the browser:
 
 ```js
-window.external.receiveMessage(function(message) {
+window.infiniframe.host.receiveMessage(function(message) {
     console.log("Received from C#:", message);
 });
 ```
@@ -206,7 +204,7 @@ window.SendWebMessage(JsonSerializer.Serialize(new {
 ```
 
 ```js
-window.external.receiveMessage(function(raw) {
+window.infiniframe.host.receiveMessage(function(raw) {
     const envelope = JSON.parse(raw);
     if (envelope.id === "update") {
         updateUI(envelope.data.count);

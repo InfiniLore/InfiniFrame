@@ -975,13 +975,8 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
             "	var message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);"
             "	window.webkit.messageHandlers.InfiniFrameInterop.postMessage(message);"
             "};"
-            "window.external = {"
-            "	sendMessage: function(message) {"
-            "		window.infiniframe.host.postMessage(message);"
-            "	},"
-            "	receiveMessage: function(callback) {"
-            "		window.__receiveMessageCallbacks.push(callback);"
-            "	}"
+            "window.infiniframe.host.receiveMessage = window.infiniframe.host.receiveMessage || function(callback) {"
+            "	window.__receiveMessageCallbacks.push(callback);"
             "};",
             WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES, WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, nullptr, nullptr
             );

@@ -176,7 +176,7 @@ A fallback `RegisterWebMessageReceivedHandler` is still available for raw unrout
 The JavaScript side should use the envelope format:
 
 ```js
-window.external.sendMessage(JSON.stringify({ id: "myEvent", data: "some data", version: 1 }));
+window.infiniframe.host.postMessage({ id: "myEvent", data: "some data", version: 1 });
 ```
 
 Legacy `messageId;payload` is no longer supported.

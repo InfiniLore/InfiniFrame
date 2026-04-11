@@ -7,8 +7,6 @@ import {InteropEnvelopeVersion} from "./InteropEnvelopeProtocol";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-let didLogLegacyTransportWarning = false;
-
 export function installHostBridge(): void {
     const root: NonNullable<Window["infiniframe"]> = window.infiniframe ?? {};
     const host = (root.host ?? {}) as NonNullable<NonNullable<Window["infiniframe"]>["host"]>;
@@ -98,20 +96,5 @@ function sendViaPlatformTransport(message: string): void {
         return;
     }
 
-    if (window.external?.sendMessage) {
-        logLegacyTransportWarning();
-        window.external.sendMessage(message);
-        return;
-    }
-
     console.warn("Message to host failed. No supported host transport was found.");
-}
-
-function logLegacyTransportWarning(): void {
-    if (didLogLegacyTransportWarning) {
-        return;
-    }
-
-    didLogLegacyTransportWarning = true;
-    console.warn("Using legacy transport adapter 'window.external.sendMessage'. Migrate host runtime to the InfiniFrame bridge.");
 }

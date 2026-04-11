@@ -55,25 +55,10 @@ class HostMessaging implements IHostMessaging {
     }
 
     private assignWebMessageReceiver() {
-        // Store the original receiveMessage if it exists (for Blazor compatibility)
-        const originalReceiveMessage = window.external?.receiveMessage;
-
-        // Handle WebView2 messages (Windows)
-        if (window.chrome?.webview) {
-            window.chrome.webview.addEventListener('message', (event) => {
-                this.handleInteropMessage(event.data);
+        if (window.infiniframe?.host?.receiveMessage) {
+            window.infiniframe.host.receiveMessage((message: string) => {
+                this.handleInteropMessage(message);
             });
-        }
-
-        // Handle general InfiniFrame messages (cross-platform)
-        if (typeof window !== 'undefined' && window.external) {
-            window.external.receiveMessage = (message: any) => {
-                if (this.handleInteropMessage(message)) {
-                    return;
-                }
-
-                originalReceiveMessage?.(message);
-            };
         }
     }
 

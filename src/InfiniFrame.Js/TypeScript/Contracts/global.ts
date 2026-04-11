@@ -19,15 +19,9 @@ declare global {
         infiniframe?: {
             host?: {
                 postMessage(envelope: InteropEnvelopeV1 | string): void;
+                receiveMessage(callback: (message: string) => void): void;
             };
         };
         infiniFrame: IInfiniFrame
-    }
-
-    // noinspection JSUnusedGlobalSymbols
-    interface External {
-        sendMessage?(message: string): void;
-
-        receiveMessage?: (message: string) => void;
     }
 }

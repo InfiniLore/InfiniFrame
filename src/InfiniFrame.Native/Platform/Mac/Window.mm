@@ -988,13 +988,8 @@ void InfiniFrameWindow::AttachWebView()
         "	var message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);"
         "	window.webkit.messageHandlers.infiniFrameInterop.postMessage(message);"
         "};"
-        "window.external = {"
-        "	sendMessage: function(message) {"
-        "		window.infiniframe.host.postMessage(message);"
-        "	},"
-        "	receiveMessage: function(callback) {"
-        "		window.__receiveMessageCallbacks.push(callback);"
-        "	}"
+        "window.infiniframe.host.receiveMessage = window.infiniframe.host.receiveMessage || function(callback) {"
+        "	window.__receiveMessageCallbacks.push(callback);"
         "};";
 
     WKUserScript *initScript = [
