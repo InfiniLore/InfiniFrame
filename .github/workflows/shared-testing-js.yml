@@ -41,22 +41,19 @@ jobs:
 
             -   name: Install dependencies
                 shell: bash
-                working-directory: ${{ inputs.working-directory }}
                 run: npm ci
 
             -   name: Build bundle
                 shell: bash
-                working-directory: ${{ inputs.working-directory }}
-                run: npx webpack --env production=true
+                run: npm run production:build
 
             -   name: Verify no drift
                 shell: bash
-                working-directory: ${{ inputs.working-directory }}
                 run: |
-                    if ! git diff --exit-code wwwroot/InfiniFrame.js; then
+                    if ! git diff --exit-code -- src/InfiniFrame.Js/wwwroot/InfiniFrame.js; then
                         echo "❌ InfiniFrame.js is out of date."
                         echo "Run: npm run production:build"
-                        echo "Then commit the updated wwwroot/InfiniFrame.js"
+                        echo "Then commit the updated src/InfiniFrame.Js/wwwroot/InfiniFrame.js"
                         exit 1
                     fi
             
