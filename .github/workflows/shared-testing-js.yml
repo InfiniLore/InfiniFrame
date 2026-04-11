@@ -1,0 +1,80 @@
+name: "Shared: Docs Tests"
+
+on:
+    workflow_call:
+        inputs:
+            checkout_ref:
+                description: 'Git ref to checkout (optional)'
+                type: string
+                required: false
+                default: ''
+            target_sha:
+                description: 'Commit SHA used for status/check updates'
+                type: string
+                required: true
+
+permissions:
+    contents: read
+    statuses: write
+    checks: write
+
+jobs:
+    docs-validation:
+        name: CI Testing - Docs
+        runs-on: ubuntu-latest
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
+            
+            -   name: Setup Node
+                uses: actions/setup-node@v6
+                with:
+                    node-version: 20
+                    cache: npm
+                    cache-dependency-path: |
+                        package-lock.json
+                        docs/package-lock.json
+
+            -   name: Install Docusaurus Dependencies
+                shell: bash
+                run: npm ci --prefix docs
+                    
+            -   name: Set Docs Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ env.TARGET_SHA }}
+                    context: CI Testing - Docs
+                    state: pending
+                    status-description: Docs validation in progress
+                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+                    allow-status-422: 'true'
+            
+            -   name: Build Docusaurus Docs
+                shell: bash
+                run: npm run docs:build
+            
+            -   name: Complete Docs Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ env.TARGET_SHA }}
+                    context: CI Testing - Docs
+                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+                    job-status: ${{ job.status }}
+                    success-description: Docs validation finished successfully
+                    failure-description: Docs validation failed

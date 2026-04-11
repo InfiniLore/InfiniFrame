@@ -41,6 +41,7 @@ on:
                 required: true
 
 jobs:
+
     prepare:
         name: Resolve Target SHA
         runs-on: ubuntu-latest

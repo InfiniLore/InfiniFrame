@@ -60,6 +60,7 @@
     <File Path=".github/workflows/shared-testing-gui-linux.yml" />
     <File Path=".github/workflows/shared-testing-gui-macos.yml" />
     <File Path=".github/workflows/shared-testing-gui-windows.yml" />
+    <File Path=".github/workflows/shared-testing-js.yml" />
     <File Path=".github/workflows/shared-testing-pack-linux.yml" />
     <File Path=".github/workflows/shared-testing-pack-macos.yml" />
     <File Path=".github/workflows/shared-testing-pack-windows.yml" />

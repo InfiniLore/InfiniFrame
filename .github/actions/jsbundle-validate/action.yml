@@ -1,0 +1,32 @@
+﻿name: Verify JS Bundle
+description: Ensures webpack output is up-to-date with TypeScript sources. Requires node.js to be installed.
+
+inputs:
+  working-directory:
+    description: Directory where package.json is located
+    required: false
+    default: "."
+
+runs:
+  using: "composite"
+  steps:        
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npm ci
+
+    - name: Build bundle
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npx webpack --env production=true
+
+    - name: Verify no drift
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if ! git diff --exit-code wwwroot/InfiniFrame.js; then
+          echo "❌ InfiniFrame.js is out of date."
+          echo "Run: npm run production:build"
+          echo "Then commit the updated wwwroot/InfiniFrame.js"
+          exit 1
+        fi
