@@ -4,7 +4,6 @@
 using InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -24,7 +23,6 @@ public class InfiniFrameBlazorApp(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [RequiresUnreferencedCode("Blazor root component activation relies on reflection.")]
     public void Run() {
         ObjectDisposedException.ThrowIf(_disposed, this);
 

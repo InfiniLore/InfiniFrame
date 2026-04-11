@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Configuration;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -30,20 +30,17 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [RequiresUnreferencedCode("Configuration binding uses reflection and may require preserved members for trimming.")]
-    [RequiresDynamicCode("Configuration binding may require runtime code generation under NativeAOT.")]
     private InfiniFrameNativeParameters GetParameters(IServiceProvider? provider = null) {
         if (provider is null) return Configuration.ToParameters();
 
         var config = provider.GetService<IConfiguration>();
         IConfigurationSection? section = config?.GetSection("InfiniFrame");
 
-        IInfiniFrameWindowConfiguration configuration = Configuration;
         if (section is not null && section.Exists()) {
-            configuration = section.Get<InfiniFrameWindowConfiguration>() ?? Configuration;
+            InfiniFrameWindowConfigurationSectionApplier.Apply(section, Configuration);
         }
 
-        return configuration.ToParameters();
+        return Configuration.ToParameters();
     }
 
     private ILogger<InfiniFrameWindow> GetDefaultLogger() {
@@ -57,8 +54,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         }).CreateLogger<InfiniFrameWindow>();
     }
 
-    [RequiresUnreferencedCode("Configuration binding uses reflection and may require preserved members for trimming.")]
-    [RequiresDynamicCode("Configuration binding may require runtime code generation under NativeAOT.")]
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         if (CustomSchemeHandlers.Count > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
 

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.AspNetCore.Components;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -20,7 +19,6 @@ public class RootComponentList : IEnumerable<(Type, string)> {
         _components.Add((typeof(TComponent), selector));
     }
 
-    [RequiresUnreferencedCode("Blazor root component activation relies on reflection.")]
     public void Add(Type componentType, string selector) {
         if (!componentType.IsAssignableTo(typeof(IComponent))) {
             throw new ArgumentException("The component type must implement IComponent interface.");

@@ -1,8 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics.CodeAnalysis;
-
 namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -14,8 +12,6 @@ public class InfiniFrameWebApplicationBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [RequiresUnreferencedCode("Configuration binding in InfiniFrameWindowBuilder relies on reflection.")]
-    [RequiresDynamicCode("Configuration binding may require runtime code generation under NativeAOT.")]
     internal InfiniFrameWebApplicationBuilder Initialize() {
         WebApp.Services
             .AddSingleton<IInfiniFrameWindowBuilder>(Window)
