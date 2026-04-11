@@ -1,4 +1,4 @@
-name: "CI: Platform Tests"
+name: "CI: Full Test Suite"
 
 permissions:
     contents: read
