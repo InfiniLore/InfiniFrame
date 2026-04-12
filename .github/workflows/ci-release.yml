@@ -49,7 +49,7 @@ jobs:
             pr_number: ''
             checkout_ref: ${{ github.sha }}
             run_windows: true
-            run_windows_playwright: false
+            run_windows_playwright: true
             run_linux: true
             run_macos: true
             run_docs: true
