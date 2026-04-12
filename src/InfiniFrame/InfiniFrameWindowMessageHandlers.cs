@@ -14,6 +14,16 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
     public bool IsEmpty => Handlers.IsEmpty;
 
     private ConcurrentDictionary<string, Action<IInfiniFrameWindow, string?>> Handlers { get; } = new();
+
+    public InfiniFrameWindowMessageHandlers() {}
+
+    internal InfiniFrameWindowMessageHandlers(InfiniFrameWindowMessageHandlers source) {
+        ArgumentNullException.ThrowIfNull(source);
+
+        foreach ((string key, Action<IInfiniFrameWindow, string?> value) in source.Handlers) {
+            Handlers.TryAdd(key, value);
+        }
+    }
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
