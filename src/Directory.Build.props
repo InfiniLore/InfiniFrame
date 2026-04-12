@@ -22,7 +22,7 @@
         <IncludeBuildOutput>true</IncludeBuildOutput>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-        <Version>0.5.0</Version>
+        <Version>0.6.0</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
