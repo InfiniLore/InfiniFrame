@@ -19,7 +19,7 @@ on:
             run_windows_playwright:
                 description: 'Run Windows Playwright tests'
                 type: boolean
-                default: false
+                default: true
             run_linux:
                 description: 'Run Linux GUI tests'
                 type: boolean
