@@ -25,27 +25,6 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     private IInfiniFrameWindow Sender { get; set; } = null!;
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    public InfiniFrameWindowEvents() {}
-
-    internal InfiniFrameWindowEvents(InfiniFrameWindowEvents source) {
-        ArgumentNullException.ThrowIfNull(source);
-
-        CopyHandlers(source.WindowLocationChanged.Snapshot, WindowLocationChanged.Add);
-        CopyHandlers(source.WindowSizeChanged.Snapshot, WindowSizeChanged.Add);
-        CopyHandlers(source.WindowFocusIn.Snapshot, WindowFocusIn.Add);
-        CopyHandlers(source.WindowMaximized.Snapshot, WindowMaximized.Add);
-        CopyHandlers(source.WindowRestored.Snapshot, WindowRestored.Add);
-        CopyHandlers(source.WindowFocusOut.Snapshot, WindowFocusOut.Add);
-        CopyHandlers(source.WindowMinimized.Snapshot, WindowMinimized.Add);
-        CopyHandlers(source.WebMessageReceived.Snapshot, WebMessageReceived.Add);
-        CopyHandlers(source.WindowClosingRequested.Snapshot, WindowClosingRequested.Add);
-        CopyHandlers(source.WindowClosing.Snapshot, WindowClosing.Add);
-        CopyHandlers(source.WindowCreating.Snapshot, WindowCreating.Add);
-        CopyHandlers(source.WindowCreated.Snapshot, WindowCreated.Add);
-    }
-    // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public void CompleteSetup(IInfiniFrameWindow sender) {
@@ -143,7 +122,28 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     public void OnWindowCreated() {
         WindowCreated.Invoke(Sender);
     }
+    
+    internal static InfiniFrameWindowEvents CopyFrom(InfiniFrameWindowEvents source) {
+        ArgumentNullException.ThrowIfNull(source);
+        
+        var copy = new InfiniFrameWindowEvents();
 
+        CopyHandlers(source.WindowLocationChanged.Snapshot, copy.WindowLocationChanged.Add);
+        CopyHandlers(source.WindowSizeChanged.Snapshot, copy.WindowSizeChanged.Add);
+        CopyHandlers(source.WindowFocusIn.Snapshot, copy.WindowFocusIn.Add);
+        CopyHandlers(source.WindowMaximized.Snapshot, copy.WindowMaximized.Add);
+        CopyHandlers(source.WindowRestored.Snapshot, copy.WindowRestored.Add);
+        CopyHandlers(source.WindowFocusOut.Snapshot, copy.WindowFocusOut.Add);
+        CopyHandlers(source.WindowMinimized.Snapshot, copy.WindowMinimized.Add);
+        CopyHandlers(source.WebMessageReceived.Snapshot, copy.WebMessageReceived.Add);
+        CopyHandlers(source.WindowClosingRequested.Snapshot, copy.WindowClosingRequested.Add);
+        CopyHandlers(source.WindowClosing.Snapshot, copy.WindowClosing.Add);
+        CopyHandlers(source.WindowCreating.Snapshot, copy.WindowCreating.Add);
+        CopyHandlers(source.WindowCreated.Snapshot, copy.WindowCreated.Add);
+        
+        return copy;
+    }
+    
     private static void CopyHandlers<THandler>(IEnumerable<THandler> handlers, Action<THandler> addHandler) {
         foreach (THandler handler in handlers) {
             addHandler(handler);

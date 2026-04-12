@@ -85,8 +85,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     internal InfiniFrameWindowBuildSnapshot CreateSnapshot(IServiceProvider? provider = null) {
         if (_customSchemeHandlers.Count > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
 
-        var eventsSnapshot = new InfiniFrameWindowEvents(_events);
-        var messageHandlersSnapshot = new InfiniFrameWindowMessageHandlers(_messageHandlers);
+        InfiniFrameWindowEvents eventsSnapshot = InfiniFrameWindowEvents.CopyFrom(_events);
+        InfiniFrameWindowMessageHandlers messageHandlersSnapshot = InfiniFrameWindowMessageHandlers.CopyFrom(_messageHandlers);
         var customSchemesSnapshot = new Dictionary<string, NetCustomSchemeDelegate?>(_customSchemeHandlers);
 
         eventsSnapshot.WebMessageReceived.Add(messageHandlersSnapshot.Handle);
