@@ -18,22 +18,37 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Update="wwwroot\**">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
         <Folder Include="Sources\infiniframe-playwright-vue\src\assets\"/>
     </ItemGroup>
 
-    <Target Name="BuildFrontend"
-            BeforeTargets="Build"
-            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true' and '$(TargetFramework)'=='$(FrontendBuildOnceTargetFramework)'">
+    <Target Name="BuildFrontendCrossTargeting"
+            BeforeTargets="DispatchToInnerBuilds"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'=='true'">
         <Message Text="Installing npm packages" Importance="high"/>
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
         <Message Text="Building frontend with npm..." Importance="high"/>
         <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
+    </Target>
+
+    <Target Name="BuildFrontendSingleTarget"
+            BeforeTargets="Build"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true' and '$(TargetFrameworks)'==''">
+        <Message Text="Installing npm packages" Importance="high"/>
+        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
+        <Message Text="Building frontend with npm..." Importance="high"/>
+        <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
+    </Target>
+
+    <Target Name="CopyFrontendToOutput"
+            AfterTargets="Build"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
+        <ItemGroup>
+            <FrontendFiles Include="$(ProjectDir)wwwroot\**\*" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(FrontendFiles)"
+              DestinationFiles="@(FrontendFiles->'$(TargetDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
     </Target>
 
 </Project>
