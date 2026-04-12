@@ -8,6 +8,7 @@
         <InternalsVisibleTo Include="InfiniFrame"/>
         <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
         <InternalsVisibleTo Include="InfiniFrameTests"/>
+        <InternalsVisibleTo Include="InfiniFrameTests.Shared"/>
     </ItemGroup>
 
     <ItemGroup>

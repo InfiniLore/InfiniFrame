@@ -32,7 +32,7 @@
 
     <Target Name="BuildFrontendSingleTarget"
             BeforeTargets="Build"
-            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true' and '$(TargetFrameworks)'==''">
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true' and '$(TargetFramework)'!=''">
         <Message Text="Installing npm packages" Importance="high"/>
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
         <Message Text="Building frontend with npm..." Importance="high"/>
