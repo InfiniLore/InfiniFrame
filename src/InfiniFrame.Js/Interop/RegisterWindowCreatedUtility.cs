@@ -29,7 +29,7 @@ public static class RegisterWindowCreatedUtility {
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
         WindowReadyRegistrationState registrationState = RegistrationStates.GetOrCreateValue(builder);
 
-        lock (registrationState) {
+        lock (registrationState.Lock) {
             registrationState.RegistrationMessageIds.Add(messageId);
         }
 

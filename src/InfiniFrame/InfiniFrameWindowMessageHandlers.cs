@@ -13,7 +13,6 @@ namespace InfiniFrame;
 public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandlers {
     public bool IsEmpty => Handlers.IsEmpty;
 
-    private static ConcurrentDictionary<string, byte> LegacyProtocolWarningByMessageId { get; } = new();
     private ConcurrentDictionary<string, Action<IInfiniFrameWindow, string?>> Handlers { get; } = new();
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -34,8 +33,6 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
 
         string messageId = parseResult.MessageId!;
         string? payload = parseResult.Payload;
-        if (parseResult.IsLegacyProtocol && LegacyProtocolWarningByMessageId.TryAdd(messageId, 0))
-            window.Logger.LogWarning("Received legacy web message format for '{MessageId}'. Migrate to the JSON envelope contract.", messageId);
 
         if (!Handlers.TryGetValue(messageId, out Action<IInfiniFrameWindow, string?>? handler)) return;
 

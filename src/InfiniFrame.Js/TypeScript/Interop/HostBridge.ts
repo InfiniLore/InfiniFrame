@@ -53,16 +53,24 @@ function dispatchEnvelopeToHost(
         return;
     }
 
+    const serializedEnvelope = JSON.stringify(normalized);
+
     if (existingPostMessage) {
         try {
-            existingPostMessage(normalized);
+            // Prefer the string contract for host adapters that only accept raw messages.
+            existingPostMessage(serializedEnvelope);
             return;
         } catch (error) {
-            console.warn("Existing InfiniFrame host bridge failed. Falling back to platform adapters.", error);
+            try {
+                // Backward compatibility for adapters that still expect an envelope object.
+                existingPostMessage(normalized);
+                return;
+            } catch {
+                console.warn("Existing InfiniFrame host bridge failed. Falling back to platform adapters.", error);
+            }
         }
     }
 
-    const serializedEnvelope = JSON.stringify(normalized);
     sendViaPlatformTransport(serializedEnvelope);
 }
 
