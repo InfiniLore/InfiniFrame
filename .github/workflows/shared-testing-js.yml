@@ -43,6 +43,10 @@ jobs:
                 shell: bash
                 run: npm ci --prefix src/InfiniFrame.Js
 
+            -   name: Run unit tests
+                shell: bash
+                run: npm --prefix src/InfiniFrame.Js run test
+
             -   name: Build bundle
                 shell: bash
                 run: npm --prefix src/InfiniFrame.Js run production:build

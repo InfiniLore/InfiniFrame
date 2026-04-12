@@ -126,6 +126,7 @@
     // Include all .ts files in this directory
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "./TypeScript/**/*.test.ts"
   ]
 }

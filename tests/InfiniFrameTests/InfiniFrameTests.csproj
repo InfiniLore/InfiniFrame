@@ -19,6 +19,10 @@
             <Link>Assets\favicon.ico</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Content Include="..\..\src\InfiniFrame.Js\TypeScript\Interop\interop-envelope-golden-vectors.json">
+            <Link>TypeScript\Interop\interop-envelope-golden-vectors.json</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>
