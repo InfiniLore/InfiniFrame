@@ -1241,7 +1241,7 @@ void InfiniFrameWindow::AttachWebView() {
                                 webMessageToken;
                             m_impl->_webviewWindow->
                                     AddScriptToExecuteOnDocumentCreated(
-                                        L"window.external = { sendMessage: function(message) { window.chrome.webview.postMessage(message); }, receiveMessage: function(callback) { window.chrome.webview.addEventListener(\'message\', function(e) { callback(e.data); }); } };",
+                                        L"window.infiniframe = window.infiniframe || {};window.infiniframe.host = window.infiniframe.host || {};window.infiniframe.host.postMessage = window.infiniframe.host.postMessage || function(envelope) { var message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope); window.chrome.webview.postMessage(message); };window.infiniframe.host.receiveMessage = window.infiniframe.host.receiveMessage || function(callback) { window.chrome.webview.addEventListener('message', function(e) { callback(e.data); }); };",
                                         nullptr
                                         );
                             m_impl->_webviewWindow->

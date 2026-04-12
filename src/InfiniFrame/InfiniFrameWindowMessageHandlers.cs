@@ -2,6 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Concurrent;
+using InfiniFrame.Interop;
+using InfiniFrame.Js.Interop;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -22,15 +25,17 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
         if (window.MessageHandlers.IsEmpty) return;
         if (string.IsNullOrWhiteSpace(message)) return;
 
-        (string messageId, string? payload) = ParseMessage(message);
+        InteropEnvelopeParseResult parseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message);
+        if (!parseResult.Success) {
+            window.Logger.LogWarning("Rejected invalid web message: {Reason}", parseResult.Error ?? "Unknown error");
+            return;
+        }
+
+        string messageId = parseResult.MessageId!;
+        string? payload = parseResult.Payload;
 
         if (!Handlers.TryGetValue(messageId, out Action<IInfiniFrameWindow, string?>? handler)) return;
 
         handler(window, payload);
-    }
-
-    private static (string messageId, string? payload) ParseMessage(string message) {
-        string[] split = message.Split(';', 2, StringSplitOptions.RemoveEmptyEntries);
-        return (split[0], split.ElementAtOrDefault(1));
     }
 }

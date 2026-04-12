@@ -26,7 +26,11 @@
         <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
         <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
         <CMakeOSDir Condition="'$(IsMac)'=='true'">osx</CMakeOSDir>
-        <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+
+        <RepoRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))</RepoRootDir>
+        <ResolvedSolutionDir Condition="'$(SolutionDir)'!=''">$(SolutionDir)</ResolvedSolutionDir>
+        <ResolvedSolutionDir Condition="'$(ResolvedSolutionDir)'==''">$(RepoRootDir)</ResolvedSolutionDir>
+        <NativeOutputDir>$(ResolvedSolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
 
         <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>

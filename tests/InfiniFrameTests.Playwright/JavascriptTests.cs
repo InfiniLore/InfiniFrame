@@ -5,6 +5,7 @@ using InfiniFrame;
 using InfiniFrameTests.Playwright.TestUtility;
 using Microsoft.Playwright;
 using InfiniFrameTests.Shared;
+using System.Text.Json;
 
 namespace InfiniFrameTests.Playwright;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,13 +19,23 @@ public class JavascriptTests : InfiniFrameWebviewTest {
         IPage page = await GetRootPageAsync();
 
         // Act
-        bool isInitialized = await page.EvaluateAsync<bool>(
+        var initState = await page.EvaluateAsync<JsonElement>(
             // lang=javascript 
-            "() => window.infiniFrame !== undefined && window.infiniFrame !== null"
+            """
+            () => ({
+                hasHostBridge: window.infiniframe?.host !== undefined && window.infiniframe?.host !== null,
+                hasInfiniFrameApi: window.infiniFrame !== undefined && window.infiniFrame !== null,
+                hasHostMessaging: window.infiniFrame?.HostMessaging !== undefined && window.infiniFrame?.HostMessaging !== null,
+                hasSendMessageToHost: typeof window.infiniFrame?.sendMessageToHost === 'function'
+            })
+            """
         );
 
         // Assert
-        await Assert.That(isInitialized).IsTrue();
+        await Assert.That(initState.GetProperty("hasHostBridge").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasInfiniFrameApi").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasHostMessaging").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasSendMessageToHost").GetBoolean()).IsTrue();
     }
 
     [Test, NotInParallel(ParallelControl.Playwright)]
@@ -37,7 +48,7 @@ public class JavascriptTests : InfiniFrameWebviewTest {
         // Act
         await page.EvaluateAsync(
             // lang=javascript 
-            $"() => window.infiniFrame.sendMessageToHost('__infiniframe:title:change', '{newTitle}')"
+            $"() => window.infiniframe?.host?.postMessage({{ id: '__infiniframe:title:change', data: '{newTitle}', version: 1 }})"
         );
         string updatedTitle = await WaitForStateChangeAsync(originalTitle, stateProvider: () => GlobalPlaywrightContext.Window.Title);
 

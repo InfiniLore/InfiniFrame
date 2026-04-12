@@ -37,22 +37,26 @@ jobs:
                     node-version: 24
                     cache: npm
                     cache-dependency-path: |
-                        package-lock.json
+                        src/InfiniFrame.Js/package-lock.json
 
             -   name: Install dependencies
                 shell: bash
-                run: npm ci
+                run: npm ci --prefix src/InfiniFrame.Js
+
+            -   name: Run unit tests
+                shell: bash
+                run: npm --prefix src/InfiniFrame.Js run test
 
             -   name: Build bundle
                 shell: bash
-                run: npm run production:build
+                run: npm --prefix src/InfiniFrame.Js run production:build
 
             -   name: Verify no drift
                 shell: bash
                 run: |
                     if ! git diff --exit-code -- src/InfiniFrame.Js/wwwroot/InfiniFrame.js; then
                         echo "❌ InfiniFrame.js is out of date."
-                        echo "Run: npm run production:build"
+                        echo "Run: npm --prefix src/InfiniFrame.Js run production:build"
                         echo "Then commit the updated src/InfiniFrame.Js/wwwroot/InfiniFrame.js"
                         exit 1
                     fi

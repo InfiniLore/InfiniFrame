@@ -3,11 +3,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Js.MessageHandlers;
 using InfiniFrameTests.Shared;
 using Microsoft.Playwright;
 using System.Net;
 using System.Net.Sockets;
+using InfiniFrame.Js.Interop.MessageHandlers;
 
 namespace InfiniFrameTests.Playwright.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------

@@ -37,7 +37,6 @@ jobs:
                     node-version: 24
                     cache: npm
                     cache-dependency-path: |
-                        package-lock.json
                         docs/package-lock.json
 
             -   name: Install Docusaurus Dependencies
@@ -61,7 +60,7 @@ jobs:
             
             -   name: Build Docusaurus Docs
                 shell: bash
-                run: npm run docs:build
+                run: npm --prefix docs run build
             
             -   name: Complete Docs Check
                 if: always()

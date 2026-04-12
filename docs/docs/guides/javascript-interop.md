@@ -9,12 +9,27 @@ InfiniFrame provides two layers of JS interop:
 - [Built-in JavaScript Message Handlers](#built-in-javascript-message-handlers)
 - [Exchanging Structured Data](#exchanging-structured-data)
 
-1. **Web messaging** — a simple string-based channel between C# and the page's JavaScript
+1. **Web messaging** — a versioned message channel between C# and the page's JavaScript
 2. **InfiniFrame.Js** — Blazor-specific utilities for pointer capture and built-in window management message handlers
 
 ## Web Messaging
 
-The messaging channel works the same way regardless of whether you are using plain HTML, a Blazor app, or an ASP.NET Core server
+The messaging channel works the same way regardless of whether you are using plain HTML, a Blazor app, or an ASP.NET Core server.
+Use this JavaScript API as the primary send path:
+
+```js
+window.infiniframe.host.postMessage({ id: "my:event", data: { value: 1 }, version: 1 });
+```
+
+Messages are validated against a versioned envelope contract:
+
+```json
+{ "id": "<string>", "data": <any>, "version": 1, "channel": "<optional-string>" }
+```
+
+`id` and `version` are required. `version` must be `1`.
+
+Legacy `id;payload` messaging is out of support. The JSON envelope contract is the only supported protocol.
 
 ### Sending from C# to JavaScript
 
@@ -26,7 +41,7 @@ await window.SendWebMessageAsync("async hello");
 In the browser:
 
 ```js
-window.external.receiveMessage(function(message) {
+window.infiniframe.host.receiveMessage(function(message) {
     console.log("Received from C#:", message);
 });
 ```
@@ -34,7 +49,7 @@ window.external.receiveMessage(function(message) {
 ### Sending from JavaScript to C#
 
 ```js
-window.external.sendMessage(JSON.stringify({ type: "action", payload: 42 }));
+window.infiniframe.host.postMessage({ id: "action", data: 42, version: 1 });
 ```
 
 In C#:
@@ -61,14 +76,13 @@ window.MessageHandlers.RegisterMessageHandler("ping", (window, _) => {
 });
 
 window.MessageHandlers.RegisterMessageHandler("set-title", (window, title) => {
-    // handle title change — title is the payload after ';'
+    // handle title change — title is the parsed envelope data
 });
 ```
 
 ```js
-// Messages use the "handlerId;payload" format
-window.external.sendMessage("ping");
-window.external.sendMessage("set-title;New Title");
+window.infiniframe.host.postMessage({ id: "ping", data: null, version: 1 });
+window.infiniframe.host.postMessage({ id: "set-title", data: "New Title", version: 1 });
 ```
 
 ## InfiniFrame.Js
@@ -152,22 +166,22 @@ These are used internally by `InfiniFrameWindowDragArea`, `InfiniFrameWindowButt
 
 ### Sending a window management message from custom JavaScript
 
-All messages follow the `"handlerId;payload"` format — payload is optional:
+All messages follow a versioned JSON envelope:
 
 ```js
-window.external.sendMessage("__infiniframe:window:minimize");
-window.external.sendMessage("__infiniframe:window:maximize");
-window.external.sendMessage("__infiniframe:window:close");
+window.infiniframe.host.postMessage({ id: "__infiniframe:window:minimize", data: null, version: 1 });
+window.infiniframe.host.postMessage({ id: "__infiniframe:window:maximize", data: null, version: 1 });
+window.infiniframe.host.postMessage({ id: "__infiniframe:window:close", data: null, version: 1 });
 ```
 
 ```js
-// Title payload is the new title string
-window.external.sendMessage("__infiniframe:title:change;New Window Title");
+// Title data is the new title string
+window.infiniframe.host.postMessage({ id: "__infiniframe:title:change", data: "New Window Title", version: 1 });
 ```
 
 ```js
-window.external.sendMessage("__infiniframe:fullscreen:enter");
-window.external.sendMessage("__infiniframe:fullscreen:exit");
+window.infiniframe.host.postMessage({ id: "__infiniframe:fullscreen:enter", data: null, version: 1 });
+window.infiniframe.host.postMessage({ id: "__infiniframe:fullscreen:exit", data: null, version: 1 });
 ```
 
 When using `InfiniFrame.js`, you can go through its API instead:
@@ -179,20 +193,23 @@ window.infiniFrame.HostMessaging.sendMessageToHost("__infiniframe:title:change",
 
 ## Exchanging Structured Data
 
-The message channel is string-only, so use JSON for structured communication:
+The message channel uses a JSON envelope, so structured data can be placed directly in `data`:
 
 **C# → JS:**
 
 ```csharp
-var payload = JsonSerializer.Serialize(new { type = "update", count = 42 });
-window.SendWebMessage(payload);
+window.SendWebMessage(JsonSerializer.Serialize(new {
+    id = "update",
+    data = new { count = 42 },
+    version = 1
+}));
 ```
 
 ```js
-window.external.receiveMessage(function(raw) {
-    const msg = JSON.parse(raw);
-    if (msg.type === "update") {
-        updateUI(msg.count);
+window.infiniframe.host.receiveMessage(function(raw) {
+    const envelope = JSON.parse(raw);
+    if (envelope.id === "update") {
+        updateUI(envelope.data.count);
     }
 });
 ```
@@ -200,14 +217,18 @@ window.external.receiveMessage(function(raw) {
 **JS → C#:**
 
 ```js
-window.external.sendMessage(JSON.stringify({ type: "log", message: "hello" }));
+window.infiniframe.host.postMessage({
+    id: "log",
+    data: { message: "hello" },
+    version: 1
+});
 ```
 
 ```csharp
-builder.Events.WebMessageReceived.Add(raw => {
-    using var doc = JsonDocument.Parse(raw);
-    var type = doc.RootElement.GetProperty("type").GetString();
-    // route by type
+window.MessageHandlers.RegisterMessageHandler("log", (_, payload) => {
+    using var doc = JsonDocument.Parse(payload!);
+    string? message = doc.RootElement.GetProperty("message").GetString();
+    Console.WriteLine(message);
 });
 ```
 

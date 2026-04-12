@@ -278,7 +278,7 @@ await window.SendWebMessageAsync("async hello");
 In JavaScript, listen with:
 
 ```js
-window.external.receiveMessage(function(message) {
+window.infiniframe.host.receiveMessage(function(message) {
     console.log("Received:", message);
 });
 ```
@@ -288,7 +288,7 @@ window.external.receiveMessage(function(message) {
 In JavaScript, send with:
 
 ```js
-window.external.sendMessage("hello from JS");
+window.infiniframe.host.postMessage({ id: "hello", data: "from JS", version: 1 });
 ```
 
 In C#, handle with:

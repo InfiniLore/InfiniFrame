@@ -34,6 +34,360 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public Rectangle CachedPreFullScreenBounds { get; set; }
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
+    #region PROPERTIES
+    /// <summary>
+    ///     Represents a property that gets the handle of the native window on a Windows platform.
+    /// </summary>
+    /// <remarks>
+    ///     Only available on the Windows platform.
+    ///     If this property is accessed from a non-Windows platform, a PlatformNotSupportedException will be thrown.
+    ///     If this property is accessed before the window is initialized, an ApplicationException will be thrown.
+    /// </remarks>
+    /// <value>
+    ///     The handle of the native window. The value is of type <see cref="IntPtr" />.
+    /// </value>
+    /// <exception cref="System.ApplicationException">Thrown when the window is not initialized yet.</exception>
+    /// <exception cref="System.PlatformNotSupportedException">Thrown when accessed from a non-Windows platform.</exception>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public IntPtr WindowHandle => OperatingSystem.IsWindows()
+        ? InvokeUtilities.InvokeAndReturn(this, InfiniFrameNative.GetWindowHandlerWin32)
+        : IntPtr.Zero;
+
+    /// <summary>
+    ///     Gets a list of information for each monitor from the native window.
+    ///     This property represents a list of Monitor objects associated with each display monitor.
+    /// </summary>
+    /// <remarks>
+    ///     If called when the native instance of the window is not initialized, it will throw an ApplicationException.
+    /// </remarks>
+    /// <exception cref="ApplicationException">Thrown when the native instance of the window is not initialized.</exception>
+    /// <returns>
+    ///     A read-only list of Monitor objects representing information about each display monitor.
+    /// </returns>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public ImmutableArray<InfiniMonitor> Monitors => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors);
+
+    /// <summary>
+    ///     Retrieves the primary monitor information from the native window instance.
+    /// </summary>
+    /// <exception cref="ApplicationException"> Thrown when the window hasn't been initialized yet. </exception>
+    /// <returns>
+    ///     Returns a Monitor object representing the main monitor. The main monitor is the first monitor in the list of
+    ///     available monitors.
+    /// </returns>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public InfiniMonitor MainMonitor => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors)[0];
+
+    /// <summary>
+    ///     Gets the dots per inch (DPI) for the primary display from the native window.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     An ApplicationException is thrown if the window hasn't been initialized yet.
+    /// </exception>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public uint ScreenDpi => InvokeUtilities.InvokeAndReturn(this, InfiniFrameNative.GetScreenDpi);
+
+    /// <summary>
+    ///     Gets a unique GUID to identify the native window.
+    /// </summary>
+    /// <remarks>
+    ///     This property is not currently used by the InfiniFrame framework.
+    /// </remarks>
+    public Guid Id { get; } = Guid.NewGuid();
+
+    public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
+
+    /// <summary>
+    ///     Gets the value indicating whether the native window is chromeless.
+    /// </summary>
+    /// <remarks>
+    ///     The user has to supply titlebar, border, dragging and resizing manually.
+    /// </remarks>
+    public bool Chromeless => StartupParameters.Chromeless;
+
+    /// <summary>
+    ///     When true, the native window and browser control can be displayed with a transparent background.
+    ///     HTML document's body background must have alpha-based value.
+    ///     WebView2 on Windows can only be fully transparent or fully opaque.
+    ///     By default, this is set to false.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     On Windows, thrown if trying to set a value after a native window is initialized.
+    /// </exception>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Transparent => OperatingSystem.IsWindows()
+        ? StartupParameters.Transparent // on windows it can only be set at startup
+        : InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetTransparentEnabled);
+
+    /// <summary>
+    ///     When true, the user can access the browser control's context menu.
+    ///     By default, this is set to true.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool ContextMenuEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetContextMenuEnabled);
+
+    /// <summary>
+    ///     When true, the user can access the browser control's developer tools.
+    ///     By default, this is set to true.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool DevToolsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetDevToolsEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool MediaAutoplayEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMediaAutoplayEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public string? UserAgent => InvokeUtilities.InvokeAndReturn<string?>(this, InfiniFrameNative.GetUserAgent);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool FileSystemAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFileSystemAccessEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool WebSecurityEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetWebSecurityEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool JavascriptClipboardAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetJavascriptClipboardAccessEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool MediaStreamEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMediaStreamEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool SmoothScrollingEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetSmoothScrollingEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool IgnoreCertificateErrorsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetIgnoreCertificateErrorsEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool NotificationsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetNotificationsEnabled);
+
+    /// <summary>
+    ///     This property returns or sets the fullscreen status of the window.
+    ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.
+    ///     By default, this is set to false.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool FullScreen => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFullScreen);
+
+    /// <summary>
+    ///     Gets whether the native browser control grants all requests for access to local resources
+    ///     such as the user's camera and microphone. By default, this is set to true.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool GrantBrowserPermissions => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetGrantBrowserPermissions);
+
+    /// <summary>
+    ///     Gets the Height property of the native window in pixels.
+    ///     The default value is 0.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Height => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetHeight);
+
+    /// <summary>
+    ///     Gets the icon file for the native window title bar.
+    ///     The file must be located on the local machine and cannot be a URL. The default is none.
+    /// </summary>
+    public string IconFilePath => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetIconFileName);
+
+    /// <summary>
+    ///     Gets the native window Left (X) and Top coordinates (Y) in pixels.
+    ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Point Location => InvokeUtilities.InvokeAndReturn<Point>(this, InfiniFrameNative.GetPosition);
+
+    /// <summary>
+    ///     Gets the native window Left (X) coordinate in pixels.
+    ///     This represents the horizontal position of the window relative to the screen.
+    ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Left => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetLeft);
+
+    /// <summary>
+    ///     Gets whether the native window is maximized.
+    ///     Default is false.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Maximized => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMaximized);
+
+    /// <summary>
+    ///     Gets whether the native window is currently within focus
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Focused => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFocused);
+
+    /// <summary>
+    ///     Gets the maximum size of the native window in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Size MaxSize => InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetMaxSize);
+
+    /// <summary>
+    ///     Gets the native window maximum height in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MaxHeight => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMaxHeight);
+
+    /// <summary>
+    ///     Gets the native window maximum width in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MaxWidth => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMaxWidth);
+
+    /// <summary>
+    ///     Gets whether the native window is minimized (hidden).
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Minimized => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMinimized);
+
+    /// <summary>
+    ///     Gets the minimum size of the native window in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Size MinSize => InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetMinSize);
+
+    /// <summary>
+    ///     Gets the native window minimum height in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MinHeight => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMinHeight);
+
+    /// <summary>
+    ///     Gets the native window minimum width in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MinWidth => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMinWidth);
+
+    /// <summary>
+    ///     Gets whether the user can resize the native window.
+    ///     Default is true.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Resizable => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetResizable);
+
+    /// <summary>
+    ///     Gets the native window Size. This represents the width and the height of the window in pixels.
+    ///     The default Size is 0,0.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Size Size => InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetSize);
+
+    /// <summary>
+    ///     Gets platform-specific initialization parameters for the native browser control on startup.
+    ///     Default is none.
+    ///     WINDOWS: WebView2 specific string. Space separated.
+    ///     https://peter.sh/experiments/chromium-command-line-switches/
+    ///     https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49
+    ///     viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
+    ///     https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
+    ///     LINUX: Webkit2Gtk specific string. Enter parameter names and values as JSON string.
+    ///     E.g. { "set_enable_encrypted_media": true }
+    ///     https://webkitgtk.org/reference/webkit2gtk/2.5.1/WebKitSettings.html
+    ///     https://lazka.github.io/pgi-docs/WebKit2-4.0/classes/Settings.html
+    ///     Mac: Webkit specific string. Enter parameter names and values as JSON string.
+    ///     E.g. { "minimumFontSize": 8 }
+    ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
+    ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
+    /// </summary>
+    public string? BrowserControlInitParameters => StartupParameters.BrowserControlInitParameters;
+
+    /// <summary>
+    ///     Gets an HTML string that the browser control will render when initialized.
+    ///     Default is none.
+    /// </summary>
+    /// <remarks>
+    ///     Either StartString or StartUrl must be specified.
+    /// </remarks>
+    /// <seealso cref="StartUrl" />
+    /// <exception cref="ApplicationException">
+    ///     Thrown if trying to set a value after a native window is initialized.
+    /// </exception>
+    public string? StartString => StartupParameters.StartString;
+
+    /// <summary>
+    ///     Gets a URL that the browser control will navigate to when initialized.
+    ///     Default is none.
+    /// </summary>
+    /// <remarks>
+    ///     Either StartString or StartUrl must be specified.
+    /// </remarks>
+    /// <seealso cref="StartString" />
+    /// <exception cref="ApplicationException">
+    ///     Thrown if trying to set a value after a native window is initialized.
+    /// </exception>
+    public string? StartUrl => StartupParameters.StartUrl;
+
+    /// <summary>
+    ///     Gets the local path to store temp files for browser control.
+    ///     Default is the user's AppDataLocal folder.
+    /// </summary>
+    /// <remarks>
+    ///     Only available on Windows.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown if a platform is not Windows.
+    /// </exception>
+    public string? TemporaryFilesPath => StartupParameters.TemporaryFilesPath;
+
+    /// <summary>
+    ///     Gets the registration id for doing toast notifications.
+    ///     The default is to use the window title.
+    /// </summary>
+    /// <remarks>
+    ///     Only available on Windows.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown if a platform is not Windows.
+    /// </exception>
+    public string? NotificationRegistrationId => StartupParameters.NotificationRegistrationId;
+
+    /// <summary>
+    ///     Gets the native window title.
+    ///     The default is "InfiniFrame".
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetTitle);
+
+    /// <summary>
+    ///     Gets the native window Top (Y) coordinate in pixels.
+    ///     Default is 0.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Top => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetTop);
+
+    /// <summary>
+    ///     Gets whether the native window is always at the top of the z-order.
+    ///     Default is false.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool TopMost => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetTopmost);
+
+    /// <summary>
+    ///     Gets the native window width in pixels.
+    ///     Default is 0.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Width => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetWidth);
+
+    /// <summary>
+    ///     Gets the native browser control <see cref="InfiniFrameWindow.Zoom" />.
+    ///     Default is 100.
+    /// </summary>
+    /// <example>100 = 100%, 50 = 50%</example>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Zoom => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetZoom);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool ZoomEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetZoomEnabled);
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
+    #endregion
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    
     /// <summary>
     ///     Dispatches an Action to the UI thread if called from another thread.
     /// </summary>
@@ -95,7 +449,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Send a message to the native window's native browser control's JavaScript context.
     /// </summary>
     /// <remarks>
-    ///     In JavaScript, messages can be received via <code>window.external.receiveMessage(message)</code>
+    ///     In JavaScript, messages can be received via <code>window.infiniframe.host.receiveMessage(callback)</code>.
     /// </remarks>
     /// <exception cref="ApplicationException">
     ///     Thrown when the window is not initialized.
@@ -456,354 +810,4 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
         return buffer;
     }
-
-    #region PROPERTIES
-    /// <summary>
-    ///     Represents a property that gets the handle of the native window on a Windows platform.
-    /// </summary>
-    /// <remarks>
-    ///     Only available on the Windows platform.
-    ///     If this property is accessed from a non-Windows platform, a PlatformNotSupportedException will be thrown.
-    ///     If this property is accessed before the window is initialized, an ApplicationException will be thrown.
-    /// </remarks>
-    /// <value>
-    ///     The handle of the native window. The value is of type <see cref="IntPtr" />.
-    /// </value>
-    /// <exception cref="System.ApplicationException">Thrown when the window is not initialized yet.</exception>
-    /// <exception cref="System.PlatformNotSupportedException">Thrown when accessed from a non-Windows platform.</exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public IntPtr WindowHandle => OperatingSystem.IsWindows()
-        ? InvokeUtilities.InvokeAndReturn(this, InfiniFrameNative.GetWindowHandlerWin32)
-        : IntPtr.Zero;
-
-    /// <summary>
-    ///     Gets a list of information for each monitor from the native window.
-    ///     This property represents a list of Monitor objects associated with each display monitor.
-    /// </summary>
-    /// <remarks>
-    ///     If called when the native instance of the window is not initialized, it will throw an ApplicationException.
-    /// </remarks>
-    /// <exception cref="ApplicationException">Thrown when the native instance of the window is not initialized.</exception>
-    /// <returns>
-    ///     A read-only list of Monitor objects representing information about each display monitor.
-    /// </returns>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public ImmutableArray<InfiniMonitor> Monitors => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors);
-
-    /// <summary>
-    ///     Retrieves the primary monitor information from the native window instance.
-    /// </summary>
-    /// <exception cref="ApplicationException"> Thrown when the window hasn't been initialized yet. </exception>
-    /// <returns>
-    ///     Returns a Monitor object representing the main monitor. The main monitor is the first monitor in the list of
-    ///     available monitors.
-    /// </returns>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public InfiniMonitor MainMonitor => InvokeUtilities.InvokeAndReturn(this, MonitorsUtility.GetMonitors)[0];
-
-    /// <summary>
-    ///     Gets the dots per inch (DPI) for the primary display from the native window.
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     An ApplicationException is thrown if the window hasn't been initialized yet.
-    /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public uint ScreenDpi => InvokeUtilities.InvokeAndReturn(this, InfiniFrameNative.GetScreenDpi);
-
-    /// <summary>
-    ///     Gets a unique GUID to identify the native window.
-    /// </summary>
-    /// <remarks>
-    ///     This property is not currently used by the InfiniFrame framework.
-    /// </remarks>
-    public Guid Id { get; } = Guid.NewGuid();
-
-    public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
-
-    /// <summary>
-    ///     Gets the value indicating whether the native window is chromeless.
-    /// </summary>
-    /// <remarks>
-    ///     The user has to supply titlebar, border, dragging and resizing manually.
-    /// </remarks>
-    public bool Chromeless => StartupParameters.Chromeless;
-
-    /// <summary>
-    ///     When true, the native window and browser control can be displayed with a transparent background.
-    ///     HTML document's body background must have alpha-based value.
-    ///     WebView2 on Windows can only be fully transparent or fully opaque.
-    ///     By default, this is set to false.
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     On Windows, thrown if trying to set a value after a native window is initialized.
-    /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Transparent => OperatingSystem.IsWindows()
-        ? StartupParameters.Transparent // on windows it can only be set at startup
-        : InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetTransparentEnabled);
-
-    /// <summary>
-    ///     When true, the user can access the browser control's context menu.
-    ///     By default, this is set to true.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool ContextMenuEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetContextMenuEnabled);
-
-    /// <summary>
-    ///     When true, the user can access the browser control's developer tools.
-    ///     By default, this is set to true.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool DevToolsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetDevToolsEnabled);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool MediaAutoplayEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMediaAutoplayEnabled);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? UserAgent => InvokeUtilities.InvokeAndReturn<string?>(this, InfiniFrameNative.GetUserAgent);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool FileSystemAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFileSystemAccessEnabled);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool WebSecurityEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetWebSecurityEnabled);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool JavascriptClipboardAccessEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetJavascriptClipboardAccessEnabled);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool MediaStreamEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMediaStreamEnabled);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool SmoothScrollingEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetSmoothScrollingEnabled);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool IgnoreCertificateErrorsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetIgnoreCertificateErrorsEnabled);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool NotificationsEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetNotificationsEnabled);
-
-    /// <summary>
-    ///     This property returns or sets the fullscreen status of the window.
-    ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.
-    ///     By default, this is set to false.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool FullScreen => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFullScreen);
-
-    /// <summary>
-    ///     Gets whether the native browser control grants all requests for access to local resources
-    ///     such as the user's camera and microphone. By default, this is set to true.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool GrantBrowserPermissions => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetGrantBrowserPermissions);
-
-    /// <summary>
-    ///     Gets the Height property of the native window in pixels.
-    ///     The default value is 0.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Height => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetHeight);
-
-    /// <summary>
-    ///     Gets the icon file for the native window title bar.
-    ///     The file must be located on the local machine and cannot be a URL. The default is none.
-    /// </summary>
-    public string IconFilePath => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetIconFileName);
-
-    /// <summary>
-    ///     Gets the native window Left (X) and Top coordinates (Y) in pixels.
-    ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Point Location => InvokeUtilities.InvokeAndReturn<Point>(this, InfiniFrameNative.GetPosition);
-
-    /// <summary>
-    ///     Gets the native window Left (X) coordinate in pixels.
-    ///     This represents the horizontal position of the window relative to the screen.
-    ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Left => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetLeft);
-
-    /// <summary>
-    ///     Gets whether the native window is maximized.
-    ///     Default is false.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Maximized => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMaximized);
-
-    /// <summary>
-    ///     Gets whether the native window is currently within focus
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Focused => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetFocused);
-
-    /// <summary>
-    ///     Gets the maximum size of the native window in pixels.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size MaxSize => InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetMaxSize);
-
-    /// <summary>
-    ///     Gets the native window maximum height in pixels.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MaxHeight => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMaxHeight);
-
-    /// <summary>
-    ///     Gets the native window maximum width in pixels.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MaxWidth => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMaxWidth);
-
-    /// <summary>
-    ///     Gets whether the native window is minimized (hidden).
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Minimized => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetMinimized);
-
-    /// <summary>
-    ///     Gets the minimum size of the native window in pixels.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size MinSize => InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetMinSize);
-
-    /// <summary>
-    ///     Gets the native window minimum height in pixels.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MinHeight => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMinHeight);
-
-    /// <summary>
-    ///     Gets the native window minimum width in pixels.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MinWidth => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetMinWidth);
-
-    /// <summary>
-    ///     Gets whether the user can resize the native window.
-    ///     Default is true.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Resizable => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetResizable);
-
-    /// <summary>
-    ///     Gets the native window Size. This represents the width and the height of the window in pixels.
-    ///     The default Size is 0,0.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size Size => InvokeUtilities.InvokeAndReturn<Size>(this, InfiniFrameNative.GetSize);
-
-    /// <summary>
-    ///     Gets platform-specific initialization parameters for the native browser control on startup.
-    ///     Default is none.
-    ///     WINDOWS: WebView2 specific string. Space separated.
-    ///     https://peter.sh/experiments/chromium-command-line-switches/
-    ///     https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49
-    ///     viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
-    ///     https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
-    ///     LINUX: Webkit2Gtk specific string. Enter parameter names and values as JSON string.
-    ///     E.g. { "set_enable_encrypted_media": true }
-    ///     https://webkitgtk.org/reference/webkit2gtk/2.5.1/WebKitSettings.html
-    ///     https://lazka.github.io/pgi-docs/WebKit2-4.0/classes/Settings.html
-    ///     Mac: Webkit specific string. Enter parameter names and values as JSON string.
-    ///     E.g. { "minimumFontSize": 8 }
-    ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
-    ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
-    /// </summary>
-    public string? BrowserControlInitParameters => StartupParameters.BrowserControlInitParameters;
-
-    /// <summary>
-    ///     Gets an HTML string that the browser control will render when initialized.
-    ///     Default is none.
-    /// </summary>
-    /// <remarks>
-    ///     Either StartString or StartUrl must be specified.
-    /// </remarks>
-    /// <seealso cref="StartUrl" />
-    /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set a value after a native window is initialized.
-    /// </exception>
-    public string? StartString => StartupParameters.StartString;
-
-    /// <summary>
-    ///     Gets a URL that the browser control will navigate to when initialized.
-    ///     Default is none.
-    /// </summary>
-    /// <remarks>
-    ///     Either StartString or StartUrl must be specified.
-    /// </remarks>
-    /// <seealso cref="StartString" />
-    /// <exception cref="ApplicationException">
-    ///     Thrown if trying to set a value after a native window is initialized.
-    /// </exception>
-    public string? StartUrl => StartupParameters.StartUrl;
-
-    /// <summary>
-    ///     Gets the local path to store temp files for browser control.
-    ///     Default is the user's AppDataLocal folder.
-    /// </summary>
-    /// <remarks>
-    ///     Only available on Windows.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if a platform is not Windows.
-    /// </exception>
-    public string? TemporaryFilesPath => StartupParameters.TemporaryFilesPath;
-
-    /// <summary>
-    ///     Gets the registration id for doing toast notifications.
-    ///     The default is to use the window title.
-    /// </summary>
-    /// <remarks>
-    ///     Only available on Windows.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown if a platform is not Windows.
-    /// </exception>
-    public string? NotificationRegistrationId => StartupParameters.NotificationRegistrationId;
-
-    /// <summary>
-    ///     Gets the native window title.
-    ///     The default is "InfiniFrame".
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetTitle);
-
-    /// <summary>
-    ///     Gets the native window Top (Y) coordinate in pixels.
-    ///     Default is 0.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Top => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetTop);
-
-    /// <summary>
-    ///     Gets whether the native window is always at the top of the z-order.
-    ///     Default is false.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool TopMost => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetTopmost);
-
-    /// <summary>
-    ///     Gets the native window width in pixels.
-    ///     Default is 0.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Width => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetWidth);
-
-    /// <summary>
-    ///     Gets the native browser control <see cref="InfiniFrameWindow.Zoom" />.
-    ///     Default is 100.
-    /// </summary>
-    /// <example>100 = 100%, 50 = 50%</example>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Zoom => InvokeUtilities.InvokeAndReturn<int>(this, InfiniFrameNative.GetZoom);
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool ZoomEnabled => InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetZoomEnabled);
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
-    #endregion
 }

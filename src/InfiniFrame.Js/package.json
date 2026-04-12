@@ -1,0 +1,24 @@
+{
+  "name": "infinilore.infiniframe.js-build",
+  "version": "0.1.0",
+  "scripts": {
+    "production:build": "npx webpack --env production=true",
+    "watch:typescript": "npx webpack --watch --env production=false",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GNUv3",
+  "description": "",
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "ts-loader": "^9.5.7",
+    "typescript": "^6.0.2",
+    "vitest": "^3.2.4",
+    "webpack": "^5.106.1",
+    "webpack-cli": "^7.0.2"
+  }
+}

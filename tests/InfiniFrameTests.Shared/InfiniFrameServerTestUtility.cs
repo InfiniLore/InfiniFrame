@@ -51,16 +51,17 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
                 app.WebApp.MapStaticAssets();
                 #endif
 
+                app.WebApp.StartAsync(cancellationToken).GetAwaiter().GetResult();
+                IInfiniFrameWindow window = app.Window;
+
                 using var util = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
-                    Window = app.Window,
+                    Window = window,
                     WebApplication = app.WebApp
                 };
 
-                app.WebApp.StartAsync(cancellationToken).GetAwaiter().GetResult();
-
                 ready.SetResult(util);
 
-                app.Window.WaitForClose();
+                window.WaitForClose();
 
                 app.WebApp.StopAsync(cancellationToken).GetAwaiter().GetResult();
             }

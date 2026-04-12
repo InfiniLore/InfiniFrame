@@ -982,13 +982,14 @@ void InfiniFrameWindow::AttachWebView()
         "window.__dispatchMessageCallback = function(message) {"
         "	window.__receiveMessageCallbacks.forEach(function(callback) { callback(message); });"
         "};"
-        "window.external = {"
-        "	sendMessage: function(message) {"
-        "		window.webkit.messageHandlers.infiniFrameInterop.postMessage(message);"
-        "	},"
-        "	receiveMessage: function(callback) {"
-        "		window.__receiveMessageCallbacks.push(callback);"
-        "	}"
+        "window.infiniframe = window.infiniframe || {};"
+        "window.infiniframe.host = window.infiniframe.host || {};"
+        "window.infiniframe.host.postMessage = window.infiniframe.host.postMessage || function(envelope) {"
+        "	var message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);"
+        "	window.webkit.messageHandlers.infiniFrameInterop.postMessage(message);"
+        "};"
+        "window.infiniframe.host.receiveMessage = window.infiniframe.host.receiveMessage || function(callback) {"
+        "	window.__receiveMessageCallbacks.push(callback);"
         "};";
 
     WKUserScript *initScript = [
