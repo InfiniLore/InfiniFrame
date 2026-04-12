@@ -84,18 +84,22 @@ public class InfiniFrameBlazorAppBuilder {
         return this;
     }
 
-    public InfiniFrameBlazorApp Build() {
-        ServiceProvider sp = Services.BuildServiceProvider();
-        var manager = sp.GetRequiredService<IInfiniFrameWebViewManager>();
+    public InfiniFrameBlazorApp Build()
+        => Build(Services.BuildServiceProvider());
+
+    public InfiniFrameBlazorApp Build(IServiceProvider serviceProvider) {
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+
+        var manager = serviceProvider.GetRequiredService<IInfiniFrameWebViewManager>();
 
         WindowBuilder
             .RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest)
             .SetStartUrl(InfiniFrameWebViewManager.AppBaseUri);
 
         AppDomain.CurrentDomain.UnhandledException += (_, error) => {
-            sp.GetService<IInfiniFrameWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+            serviceProvider.GetService<IInfiniFrameWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         };
 
-        return sp.GetRequiredService<InfiniFrameBlazorApp>();
+        return serviceProvider.GetRequiredService<InfiniFrameBlazorApp>();
     }
 }
