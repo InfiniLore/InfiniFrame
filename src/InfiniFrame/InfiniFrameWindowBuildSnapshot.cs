@@ -11,6 +11,6 @@ internal readonly record struct InfiniFrameWindowBuildSnapshot(
     InfiniFrameNativeParameters StartupParameters,
     InfiniFrameWindowEvents Events,
     InfiniFrameWindowMessageHandlers MessageHandlers,
-    Dictionary<string, NetCustomSchemeDelegate?> CustomSchemes,
+    InfiniFrameWindowCustomSchemeHandlers CustomSchemes,
     StaticAssetSettings? StaticAssets
 );

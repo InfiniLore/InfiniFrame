@@ -20,7 +20,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     private int _shutdownStarted;
     public InfiniFrameNativeParameters StartupParameters;
-    public required Dictionary<string, NetCustomSchemeDelegate?> CustomSchemes { get; init; }
+    public required IInfiniFrameWindowCustomSchemeHandlers CustomSchemes { get; init; }
     internal StaticAssetSettings? StaticAssets { get; init; }
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }

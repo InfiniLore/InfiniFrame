@@ -13,23 +13,18 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     private readonly InfiniFrameWindowNativeParameterBuilder _configuration = new();
-    private InfiniFrameWindowEvents _events = new();
+    public IInfiniFrameWindowNativeParameterBuilder Configuration => _configuration;
+
+    private readonly InfiniFrameWindowEvents _events = new();
+    public IInfiniFrameWindowEvents Events => _events;
+
     private readonly InfiniFrameWindowMessageHandlers _messageHandlers = new();
-    private readonly Dictionary<string, NetCustomSchemeDelegate?> _customSchemeHandlers = [];
+    public IInfiniFrameWindowMessageHandlers MessageHandlers => _messageHandlers;
 
     public StaticAssetSettings? StaticAssets { get; set; }
 
-    public IInfiniFrameWindowNativeParameterBuilder Configuration => _configuration;
-
-    public IInfiniFrameWindowEvents Events {
-        get => _events;
-        internal set => _events = value as InfiniFrameWindowEvents
-            ?? throw new ArgumentException($"{nameof(Events)} must be of type {nameof(InfiniFrameWindowEvents)}.", nameof(value));
-    }
-
-    public IInfiniFrameWindowMessageHandlers MessageHandlers => _messageHandlers;
-
-    public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers => _customSchemeHandlers;
+    private readonly InfiniFrameWindowCustomSchemeHandlers _customSchemeHandlers = new();
+    public IInfiniFrameWindowCustomSchemeHandlers CustomSchemeHandlers => _customSchemeHandlers;
 
     private InfiniFrameWindowBuilder() {}
 
@@ -83,11 +78,11 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     }
 
     internal InfiniFrameWindowBuildSnapshot CreateSnapshot(IServiceProvider? provider = null) {
-        if (_customSchemeHandlers.Count > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
+        if (CustomSchemeHandlers.Length > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
 
         InfiniFrameWindowEvents eventsSnapshot = InfiniFrameWindowEvents.CopyFrom(_events);
         InfiniFrameWindowMessageHandlers messageHandlersSnapshot = InfiniFrameWindowMessageHandlers.CopyFrom(_messageHandlers);
-        var customSchemesSnapshot = new Dictionary<string, NetCustomSchemeDelegate?>(_customSchemeHandlers);
+        InfiniFrameWindowCustomSchemeHandlers customSchemesSnapshot = InfiniFrameWindowCustomSchemeHandlers.CopyFrom(_customSchemeHandlers);
 
         eventsSnapshot.WebMessageReceived.Add(messageHandlersSnapshot.Handle);
 

@@ -5,12 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents {
-    StaticAssetSettings? StaticAssets { get; set; }
+public interface IInfiniFrameWindowCustomSchemeHandlers {
+    bool IsEmpty { get; }
+    int Length { get; }
 
-    IInfiniFrameWindowNativeParameterBuilder Configuration { get; }
-    IInfiniFrameWindowMessageHandlers MessageHandlers { get; }
-    IInfiniFrameWindowCustomSchemeHandlers CustomSchemeHandlers { get; }
-
-    IInfiniFrameWindow Build(IServiceProvider? provider = null);
+    void RegisterCustomSchemeHandler(string messageId, NetCustomSchemeDelegate handler);
 }
