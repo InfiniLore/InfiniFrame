@@ -79,17 +79,21 @@ jobs:
                     restore-keys: |
                         ${{ runner.os }}-cmake-v2-
 
+            -   name: Prepare WebView2 Cache Directory
+                shell: pwsh
+                run: New-Item -ItemType Directory -Path ".cache\webview2" -Force | Out-Null
+
             -   name: Cache WebView2
                 id: cache-webview2
                 uses: actions/cache@v5
                 with:
-                    path: ${{ env.TEMP }}\MicrosoftEdgeWebview2Setup.exe
+                    path: .cache\webview2
                     key: webview2-installer-${{ runner.os }}
 
             -   name: Install WebView2 Runtime
                 shell: pwsh
                 run: |
-                    $installer = "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
+                    $installer = "$PWD\.cache\webview2\MicrosoftEdgeWebview2Setup.exe"
                     if (-Not (Test-Path $installer)) {
                       Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
                     }
