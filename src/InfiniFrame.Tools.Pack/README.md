@@ -52,3 +52,10 @@ Environment overrides:
 
 - `INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK=<path>`
 - `INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK=true|false`
+
+Fallback behavior:
+
+- Preflight publish validation is required by default.
+- No repository parent-directory fallback discovery is performed.
+- Fallback artifacts are only used when an explicit path is provided and stale fallback is explicitly allowed.
+- Without `--allow-stale-native-fallback` (or `INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK=true`), fallback configuration still results in a hard failure.

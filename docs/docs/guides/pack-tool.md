@@ -18,6 +18,7 @@ This guide covers how to install the tool, run it, and avoid common packaging is
 - [Common Patterns](#common-patterns)
 - [App Bootstrap Requirement](#app-bootstrap-requirement)
 - [Edge Cases and Pitfalls](#edge-cases-and-pitfalls)
+- [Native Artifact Fallback Policy](#native-artifact-fallback-policy)
 
 ## Overview
 
@@ -113,6 +114,13 @@ Options:
 - `--no-restore`: Skip restore during publish.
 - `--verbose`: Use normal verbosity for preflight and final publish.
 - `--force-clean-output`: Allow recursive deletion of non-default output folders before publish.
+- `--native-artifacts-fallback <path>`: Explicit fallback native artifact directory (optional).
+- `--allow-stale-native-fallback`: Required to permit fallback artifacts when preflight fails.
+
+Environment overrides:
+
+- `INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK=<path>`
+- `INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK=true|false`
 
 ## Usage Examples
 
@@ -196,6 +204,25 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid osx-arm64 
 
 If your project uses `TargetFrameworks`, pass `--framework` to avoid accidental changes when framework order is edited.
 
+## Native Artifact Fallback Policy
+
+`infiniframe-pack` is fail-fast by default and repo-agnostic by default.
+
+- It first runs a preflight publish and validates native artifacts from that output.
+- It does not auto-discover `artifacts/native/...` folders by walking parent directories.
+- If preflight fails or preflight artifact validation fails, packaging fails unless an explicit fallback path is configured.
+
+When you need fallback artifacts:
+
+1. Provide an explicit path with `--native-artifacts-fallback <path>` (or `INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK`).
+2. Explicitly allow stale fallback use with `--allow-stale-native-fallback` (or `INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK=true`).
+
+Risk model:
+
+- Fallback artifacts are treated as potentially stale relative to the current source/build inputs.
+- Because of that, fallback usage requires explicit operator opt-in.
+- Without explicit stale opt-in, the tool exits with an error even when fallback path exists and validates structurally.
+
 ## App Bootstrap Requirement
 
 After packaging with `InfiniLore.InfiniFrame.Tools.Pack`, initialize the single-file bootstrap before creating a window:
@@ -235,6 +262,6 @@ Why this is required:
   Use `--force-clean-output` to allow cleaning custom output folders.
 - If your project defines `TargetFrameworks` and you omit `--framework`, the first framework entry is used.
 - The tool performs a preflight `dotnet publish` before final single-file publish.
-  If native artifacts are missing in preflight output, packaging stops early.
+  If native artifacts are missing in preflight output, packaging stops early unless explicit fallback is configured and stale fallback is explicitly allowed.
 - `--self-contained` must be `true` or `false` (case-insensitive boolean parsing).
 - If final output does not contain the expected main single-file executable, the tool exits with a non-zero code.

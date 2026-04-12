@@ -29,6 +29,8 @@ Messages are validated against a versioned envelope contract:
 
 `id` and `version` are required. `version` must be `1`.
 
+Legacy `id;payload` messaging is out of support. The JSON envelope contract is the only supported protocol.
+
 ### Sending from C# to JavaScript
 
 ```csharp
