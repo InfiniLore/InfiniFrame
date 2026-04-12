@@ -11,7 +11,12 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InteropEnvelopeProtocolTests {
     private static readonly JsonDocument GoldenVectors = JsonDocument.Parse(
-        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "TypeScript", "Interop", "interop-envelope-golden-vectors.json"))
+        File.ReadAllText(
+            Path.GetFullPath(
+                Path.Join("TypeScript", "Interop", "interop-envelope-golden-vectors.json"),
+                AppContext.BaseDirectory
+            )
+        )
     );
 
     [Test]
