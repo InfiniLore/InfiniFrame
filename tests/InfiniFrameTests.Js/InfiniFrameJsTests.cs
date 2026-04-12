@@ -63,7 +63,7 @@ public class InfiniFrameJsTests {
         var jsRuntime = new RecordingJsRuntime();
         var logger = Substitute.For<ILogger<InfiniFrameJs>>();
         var sut = new InfiniFrameJs(jsRuntime, logger);
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
         jsRuntime.ExceptionFactory = _ => new OperationCanceledException(cts.Token);
