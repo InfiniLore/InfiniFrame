@@ -7,6 +7,8 @@ namespace InfiniFrame.Tools.Pack.Services;
 // -----------------------------------------------------------------------------------------------------------------
 internal static class CommandLine {
     private static readonly Serilog.ILogger Logger = Serilog.Log.ForContext(typeof(CommandLine));
+    private const string NativeArtifactsFallbackPathEnvVar = "INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK";
+    private const string AllowStaleNativeFallbackEnvVar = "INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK";
 
     /// <summary>
     ///     Parses command-line arguments into a normalized <see cref="PublishOptions" /> model or a usage response.
@@ -53,6 +55,14 @@ internal static class CommandLine {
         Logger.Information("  --no-restore                  Skip restore");
         Logger.Information("  --verbose                     Verbose publish output");
         Logger.Information("  --force-clean-output          Allow deleting non-default output directories");
+        Logger.Information("  --native-artifacts-fallback <path>");
+        Logger.Information("                                Explicit fallback directory for native artifacts");
+        Logger.Information("  --allow-stale-native-fallback");
+        Logger.Information("                                Allow using fallback artifacts when preflight fails validation");
+        Logger.Information(string.Empty);
+        Logger.Information("Environment overrides:");
+        Logger.Information("  {FallbackEnvVar}=<path>", NativeArtifactsFallbackPathEnvVar);
+        Logger.Information("  {AllowStaleEnvVar}=true|false", AllowStaleNativeFallbackEnvVar);
     }
 
     private static bool IsHelp(string value) => value is "-h" or "--help" or "help";
@@ -62,7 +72,9 @@ internal static class CommandLine {
             ProjectPath = string.Empty,
             Rid = "auto",
             Configuration = "Release",
-            SelfContained = true
+            SelfContained = true,
+            NativeArtifactsFallbackPath = Environment.GetEnvironmentVariable(NativeArtifactsFallbackPathEnvVar),
+            AllowStaleNativeArtifactsFallback = ParseBooleanEnvironmentVariable(AllowStaleNativeFallbackEnvVar)
         };
 
         int index = 0;
@@ -105,6 +117,13 @@ internal static class CommandLine {
                     options.ForceCleanOutput = true;
                     index++;
                     break;
+                case "--native-artifacts-fallback":
+                    options.NativeArtifactsFallbackPath = ReadValue(args, ref index, token);
+                    break;
+                case "--allow-stale-native-fallback":
+                    options.AllowStaleNativeArtifactsFallback = true;
+                    index++;
+                    break;
                 default:
                     throw new InvalidOperationException($"Unknown option '{token}'.");
             }
@@ -122,5 +141,14 @@ internal static class CommandLine {
         string value = args[index];
         index++;
         return value;
+    }
+
+    private static bool ParseBooleanEnvironmentVariable(string variableName) {
+        string? value = Environment.GetEnvironmentVariable(variableName);
+        if (string.IsNullOrWhiteSpace(value)) return false;
+
+        return bool.TryParse(value, out bool parsedValue)
+            ? parsedValue
+            : throw new FormatException($"Environment variable '{variableName}' must be 'true' or 'false'.");
     }
 }

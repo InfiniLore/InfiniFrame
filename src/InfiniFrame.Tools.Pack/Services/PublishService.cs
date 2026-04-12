@@ -10,6 +10,7 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class PublishService {
     private const string DotNet = "dotnet";
+    private const string AllowStaleNativeFallbackEnvVar = "INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK";
     private static readonly StringComparison PathComparison =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
     private static readonly ILogger Logger = Log.ForContext(typeof(PublishService));
@@ -25,7 +26,7 @@ internal static class PublishService {
     /// <returns>The process exit code of the publish operation.</returns>
     /// <exception cref="FileNotFoundException">Thrown when the target project file does not exist.</exception>
     /// <exception cref="InvalidOperationException">
-    ///     Thrown when repository layout cannot be resolved, native build fails, or required artifacts are missing.
+    ///     Thrown when native build fails, fallback policy is violated, or required artifacts are missing.
     /// </exception>
     public static async Task<int> PublishAsync(PublishOptions options) {
         string projectPath = Path.GetFullPath(options.ProjectPath);
@@ -159,15 +160,11 @@ internal static class PublishService {
             int preflightExitCode = preflightResult.ExitCode;
 
             if (preflightExitCode != 0) {
-                string? fallbackArtifactsDirectory = TryResolveNativeArtifactsFromRepository(projectPath, rid, options.Configuration);
-                if (!string.IsNullOrWhiteSpace(fallbackArtifactsDirectory)) {
-                    Logger.Warning(
-                        "[InfiniFrame.Pack] Preflight publish failed (exit code {PreflightExitCode}). Falling back to native artifacts at: {NativeArtifactsDirectory}",
-                        preflightExitCode,
-                        fallbackArtifactsDirectory
-                    );
-                    return new ResolvedNativeArtifacts(fallbackArtifactsDirectory, false);
-                }
+                string preflightFailureReason =
+                    $"Preflight publish failed with exit code {preflightExitCode}.";
+                ResolvedNativeArtifacts? fallbackArtifacts =
+                    TryResolveConfiguredFallbackNativeArtifacts(options, rid, preflightFailureReason);
+                if (fallbackArtifacts is not null) return fallbackArtifacts;
 
                 throw new InvalidOperationException(
                     $"Preflight publish failed with exit code {preflightExitCode}. Command: {DotNet} {string.Join(' ', preflightArgs)}" +
@@ -180,15 +177,10 @@ internal static class PublishService {
                 return new ResolvedNativeArtifacts(preflightDirectory, true);
             }
             catch (InvalidOperationException preflightValidationError) {
-                string? fallbackArtifactsDirectory = TryResolveNativeArtifactsFromRepository(projectPath, rid, options.Configuration);
-                if (!string.IsNullOrWhiteSpace(fallbackArtifactsDirectory)) {
-                    Logger.Warning(
-                        "[InfiniFrame.Pack] Preflight publish did not contain valid native artifacts. Falling back to native artifacts at: {NativeArtifactsDirectory}. Validation details: {ValidationError}",
-                        fallbackArtifactsDirectory,
-                        preflightValidationError.Message
-                    );
-                    return new ResolvedNativeArtifacts(fallbackArtifactsDirectory, false);
-                }
+                const string validationFailureReason = "Preflight publish did not contain valid native artifacts.";
+                ResolvedNativeArtifacts? fallbackArtifacts =
+                    TryResolveConfiguredFallbackNativeArtifacts(options, rid, validationFailureReason, preflightValidationError);
+                if (fallbackArtifacts is not null) return fallbackArtifacts;
 
                 throw new NativeDependencyNotFoundException(
                     "Could not resolve required InfiniFrame native artifacts from project publish output. " +
@@ -203,29 +195,45 @@ internal static class PublishService {
         }
     }
 
-    private static string? TryResolveNativeArtifactsFromRepository(string projectPath, string rid, string configuration) {
-        string? osDirectory = ResolveNativeOsDirectory(rid);
-        string? architecture = ResolveRidArchitecture(rid);
-        if (osDirectory is null || architecture is null) return null;
+    private static ResolvedNativeArtifacts? TryResolveConfiguredFallbackNativeArtifacts(
+        PublishOptions options,
+        string rid,
+        string failureReason,
+        Exception? validationError = null
+    ) {
+        if (string.IsNullOrWhiteSpace(options.NativeArtifactsFallbackPath)) return null;
 
-        string projectDirectory = Path.GetDirectoryName(projectPath) ?? string.Empty;
-        DirectoryInfo? current = new(projectDirectory);
-        while (current is not null) {
-            string candidateDirectory = Path.Join(current.FullName, "artifacts", "native", osDirectory, architecture, configuration);
-            if (Directory.Exists(candidateDirectory)) {
-                try {
-                    NativeRuntimeBuilder.ValidateArtifacts(candidateDirectory, rid);
-                    return candidateDirectory;
-                }
-                catch (InvalidOperationException) {
-                    // keep walking up to try the next repository root candidate
-                }
-            }
+        string fallbackArtifactsDirectory = Path.GetFullPath(options.NativeArtifactsFallbackPath);
+        NativeRuntimeBuilder.ValidateArtifacts(fallbackArtifactsDirectory, rid);
 
-            current = current.Parent;
+        if (!options.AllowStaleNativeArtifactsFallback) {
+            throw new InvalidOperationException(
+                $"{failureReason} Native artifacts fallback was configured at '{fallbackArtifactsDirectory}', " +
+                "but fallback artifacts are treated as potentially stale by default. " +
+                "Re-run with '--allow-stale-native-fallback' (or set " +
+                $"{AllowStaleNativeFallbackEnvVar}=true) to opt in."
+            );
         }
 
-        return null;
+        if (validationError is null) {
+            Logger.Warning(
+                "[InfiniFrame.Pack] {FailureReason} Using explicitly configured native fallback artifacts at: {NativeArtifactsDirectory}. " +
+                "This bypasses preflight freshness checks and was explicitly allowed.",
+                failureReason,
+                fallbackArtifactsDirectory
+            );
+        }
+        else {
+            Logger.Warning(
+                validationError,
+                "[InfiniFrame.Pack] {FailureReason} Using explicitly configured native fallback artifacts at: {NativeArtifactsDirectory}. " +
+                "This bypasses preflight freshness checks and was explicitly allowed.",
+                failureReason,
+                fallbackArtifactsDirectory
+            );
+        }
+
+        return new ResolvedNativeArtifacts(fallbackArtifactsDirectory, false);
     }
 
     private static string FormatPreflightOutputForException(ProcessRunner.ProcessRunResult preflightResult) {
@@ -240,19 +248,6 @@ internal static class PublishService {
         string trimmed = value.Trim();
         if (trimmed.Length <= maxLength) return trimmed;
         return $"{trimmed[..maxLength]}{Environment.NewLine}<truncated>";
-    }
-
-    private static string? ResolveNativeOsDirectory(string rid) {
-        if (rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return "windows";
-        if (rid.StartsWith("linux-", StringComparison.OrdinalIgnoreCase)) return "linux";
-        if (rid.StartsWith("osx-", StringComparison.OrdinalIgnoreCase)) return "osx";
-        return null;
-    }
-
-    private static string? ResolveRidArchitecture(string rid) {
-        if (rid.EndsWith("-x64", StringComparison.OrdinalIgnoreCase)) return "x64";
-        if (rid.EndsWith("-arm64", StringComparison.OrdinalIgnoreCase)) return "arm64";
-        return null;
     }
 
     private static void SafeDeleteDirectory(string path, string projectDirectory, bool forceCleanOutput) {

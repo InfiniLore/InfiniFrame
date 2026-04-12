@@ -53,4 +53,14 @@ internal sealed class PublishOptions {
     ///     Gets or sets whether the tool may recursively delete a non-default output directory before publish.
     /// </summary>
     public bool ForceCleanOutput { get; set; }
+
+    /// <summary>
+    ///     Gets or sets an explicit native artifacts directory to use as fallback when preflight publish cannot provide valid artifacts.
+    /// </summary>
+    public string? NativeArtifactsFallbackPath { get; set; }
+
+    /// <summary>
+    ///     Gets or sets whether potentially stale fallback native artifacts may be used.
+    /// </summary>
+    public bool AllowStaleNativeArtifactsFallback { get; set; }
 }
