@@ -14,7 +14,8 @@
             "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
             "tests\\InfiniFrameTests.BlazorWebView\\InfiniFrameTests.BlazorWebView.csproj",
             "tests\\InfiniFrameTests.Tools.Pack\\InfiniFrameTests.Tools.Pack.csproj",
-            "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj"
+            "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj",
+            "tests\\InfiniFrameTests.Js\\InfiniFrameTests.Js.csproj"
         ]
     }
 }

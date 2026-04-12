@@ -45,6 +45,7 @@
         <InternalsVisibleTo Include="InfiniFrameTests.Playwright"/>
         <InternalsVisibleTo Include="InfiniFrameTests.Shared"/>
         <InternalsVisibleTo Include="InfiniFrameTests.WebServer"/>
+        <InternalsVisibleTo Include="InfiniFrameTests.Js"/>
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
     </ItemGroup>
 

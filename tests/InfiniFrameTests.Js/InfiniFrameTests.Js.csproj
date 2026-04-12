@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
     <PropertyGroup>
-        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
         <EnableNativeDllCopy>true</EnableNativeDllCopy>
     </PropertyGroup>
 
@@ -9,14 +9,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\InfiniFrame.Js\InfiniFrame.Js.csproj" />
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
-        <ProjectReference Include="..\..\src\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\..\assets\favicon.ico">
-            <Link>Assets\favicon.ico</Link>
+        <Content Include="..\..\src\InfiniFrame.Js\TypeScript\Interop\interop-envelope-golden-vectors.json">
+            <Link>TypeScript\Interop\interop-envelope-golden-vectors.json</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

@@ -5,7 +5,7 @@ using InfiniFrame;
 using InfiniFrame.Js.Interop;
 using InfiniFrameTests.Shared.TestDoubles;
 
-namespace InfiniFrameTests;
+namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
