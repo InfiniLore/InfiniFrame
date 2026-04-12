@@ -69,6 +69,9 @@ public static class RegisterWindowCreatedUtility {
             lock (state.Lock) {
                 windowState = state.Windows.GetOrCreateValue(window);
                 windowState.ReadyReceived = true;
+                if (windowState.RegistrationSent || windowState.RegistrationSendInProgress) return;
+
+                windowState.RegistrationSendInProgress = true;
                 registrationMessages = state.RegistrationMessageIds.ToArray();
             }
 
@@ -76,10 +79,7 @@ public static class RegisterWindowCreatedUtility {
             windowState.HandshakeTimeoutCancellationSource?.Dispose();
             windowState.HandshakeTimeoutCancellationSource = null;
 
-            if (windowState.RegistrationSent) return;
-            windowState.RegistrationSent = true;
-
-            _ = SendRegistrationsWithRetryAsync(window, registrationMessages);
+            _ = SendRegistrationsWithRetryAsync(window, state, windowState, registrationMessages);
         });
     }
 
@@ -102,14 +102,36 @@ public static class RegisterWindowCreatedUtility {
         }
     }
 
-    private static async Task SendRegistrationsWithRetryAsync(IInfiniFrameWindow window, IReadOnlyList<string> registrationMessages) {
+    private static async Task SendRegistrationsWithRetryAsync(
+        IInfiniFrameWindow window,
+        WindowReadyRegistrationState state,
+        WindowRegistrationState windowState,
+        IReadOnlyList<string> registrationMessages
+    ) {
+        var allMessagesSent = false;
+        try {
+            allMessagesSent = await TrySendRegistrationsWithRetryAsync(window, registrationMessages);
+        }
+        finally {
+            lock (state.Lock) {
+                windowState.RegistrationSendInProgress = false;
+                if (allMessagesSent)
+                    windowState.RegistrationSent = true;
+            }
+        }
+    }
+
+    private static async Task<bool> TrySendRegistrationsWithRetryAsync(IInfiniFrameWindow window, IReadOnlyList<string> registrationMessages) {
+        var allMessagesSent = true;
         foreach (string registrationMessage in registrationMessages) {
             TimeSpan retryDelay = InitialRetryDelay;
+            var messageSent = false;
 
             for (var attempt = 1; attempt <= MaxSendAttempts; attempt++) {
                 try {
                     string envelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(registrationMessage);
                     await window.SendWebMessageAsync(envelope);
+                    messageSent = true;
                     break;
                 }
                 catch (OperationCanceledException) {
@@ -136,6 +158,11 @@ public static class RegisterWindowCreatedUtility {
                     );
                 }
             }
+
+            if (!messageSent)
+                allMessagesSent = false;
         }
+
+        return allMessagesSent;
     }
 }
