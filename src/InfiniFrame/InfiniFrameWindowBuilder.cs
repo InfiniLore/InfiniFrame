@@ -12,7 +12,6 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
-    public bool UseDefaultLogger { get; set; } = true;
     public StaticAssetSettings? StaticAssets { get; set; }
     
     public IInfiniFrameWindowNativeParameterBuilder Configuration { get; } = new InfiniFrameWindowNativeParameterBuilder();
@@ -43,16 +42,10 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         return Configuration.ToNativeParameters();
     }
 
-    private ILogger<InfiniFrameWindow> GetDefaultLogger() {
-        if (!UseDefaultLogger)
-            return LoggerFactory.Create(config => {
-                config.ClearProviders(); // Remove default console logger
-            }).CreateLogger<InfiniFrameWindow>();
-
-        return LoggerFactory.Create(config => {
+    private static ILogger<InfiniFrameWindow> GetDefaultLogger() 
+        => LoggerFactory.Create(config => {
             config.AddConsole().SetMinimumLevel(LogLevel.Debug);
         }).CreateLogger<InfiniFrameWindow>();
-    }
 
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         if (CustomSchemeHandlers.Count > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
