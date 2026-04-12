@@ -53,7 +53,7 @@ public static class RegisterWindowCreatedUtility {
                 windowState.HandshakeTimeoutCancellationSource = new CancellationTokenSource();
             }
 
-            _ = MonitorReadyHandshakeTimeoutAsync(window, windowState);
+            _ = MonitorReadyHandshakeTimeoutAsync(window, state, windowState);
         });
     }
 
@@ -68,10 +68,7 @@ public static class RegisterWindowCreatedUtility {
             string[] registrationMessages;
             lock (state.Lock) {
                 windowState = state.Windows.GetOrCreateValue(window);
-                windowState.ReadyReceived = true;
-                if (windowState.RegistrationSent || windowState.RegistrationSendInProgress) return;
-
-                windowState.RegistrationSendInProgress = true;
+                if (!windowState.StateMachine.TryBeginRegistrationSendOnReady()) return;
                 registrationMessages = state.RegistrationMessageIds.ToArray();
             }
 
@@ -83,13 +80,19 @@ public static class RegisterWindowCreatedUtility {
         });
     }
 
-    private static async Task MonitorReadyHandshakeTimeoutAsync(IInfiniFrameWindow window, WindowRegistrationState windowState) {
+    private static async Task MonitorReadyHandshakeTimeoutAsync(
+        IInfiniFrameWindow window,
+        WindowReadyRegistrationState state,
+        WindowRegistrationState windowState
+    ) {
         CancellationTokenSource? timeoutSource = windowState.HandshakeTimeoutCancellationSource;
         if (timeoutSource is null) return;
 
         try {
             await Task.Delay(ReadyHandshakeTimeout, timeoutSource.Token);
-            if (windowState.ReadyReceived) return;
+            lock (state.Lock) {
+                if (!windowState.StateMachine.ShouldLogReadyHandshakeTimeout()) return;
+            }
 
             window.Logger.LogWarning(
                 "Did not receive '{ReadyMessageId}' handshake within {TimeoutMs} ms; registration messages remain pending.",
@@ -114,9 +117,7 @@ public static class RegisterWindowCreatedUtility {
         }
         finally {
             lock (state.Lock) {
-                windowState.RegistrationSendInProgress = false;
-                if (allMessagesSent)
-                    windowState.RegistrationSent = true;
+                windowState.StateMachine.CompleteRegistrationSend(allMessagesSent);
             }
         }
     }

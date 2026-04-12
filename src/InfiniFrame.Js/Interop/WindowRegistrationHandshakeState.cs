@@ -1,11 +1,13 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame.Js.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class WindowRegistrationState {
-    internal WindowRegistrationStateMachine StateMachine { get; } = new();
-    public CancellationTokenSource? HandshakeTimeoutCancellationSource { get; set; }
+internal enum WindowRegistrationHandshakeState {
+    ReadyPending,
+    ReadyReceived,
+    Sent,
+    Failed
 }
