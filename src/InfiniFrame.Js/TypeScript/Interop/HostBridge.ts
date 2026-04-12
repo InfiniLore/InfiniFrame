@@ -80,6 +80,7 @@ function normalizeEnvelope(envelope: InteropEnvelopeV1): InteropEnvelopeV1 | nul
         return null;
     }
 
+    // noinspection SuspiciousTypeOfGuard
     if (typeof envelope.id !== "string" || envelope.id.trim().length === 0) {
         console.warn("Host bridge envelope requires a non-empty 'id'.");
         return null;
@@ -95,6 +96,7 @@ function normalizeEnvelope(envelope: InteropEnvelopeV1): InteropEnvelopeV1 | nul
         version
     };
 
+    // noinspection SuspiciousTypeOfGuard
     if (envelope.channel !== undefined && typeof envelope.channel === "string" && envelope.channel.trim().length > 0) {
         normalized.channel = envelope.channel;
     }
