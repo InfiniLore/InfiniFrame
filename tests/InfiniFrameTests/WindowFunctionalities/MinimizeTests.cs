@@ -25,7 +25,7 @@ public class MinimizeTests {
         // Assert
         await Assert.That(builder.Configuration.Minimized).IsEqualTo(state);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Minimized).IsEqualTo(state);
     }
 

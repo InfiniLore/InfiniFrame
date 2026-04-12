@@ -29,7 +29,7 @@ public class TitleTests {
         if (title is null) await Assert.That(builder.Configuration.Title).IsEqualTo(string.Empty);
         else await Assert.That(builder.Configuration.Title).IsEqualTo(title);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         if (title is null) await Assert.That(configParameters.Title).IsEqualTo(string.Empty);
         else await Assert.That(configParameters.Title).IsEqualTo(title);
     }

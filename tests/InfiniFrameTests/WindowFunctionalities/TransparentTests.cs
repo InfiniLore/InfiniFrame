@@ -25,7 +25,7 @@ public class TransparentTests {
         // Assert
         await Assert.That(builder.Configuration.Transparent).IsEqualTo(state);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Transparent).IsEqualTo(state);
     }
 

@@ -23,7 +23,7 @@ public class ZoomTests {
         // Assert
         await Assert.That(builder.Configuration.Zoom).IsEqualTo(zoom);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Zoom).IsEqualTo(zoom);
     }
 

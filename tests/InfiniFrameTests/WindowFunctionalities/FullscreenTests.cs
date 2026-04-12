@@ -25,7 +25,7 @@ public class FullScreenTests {
         // Assert
         await Assert.That(builder.Configuration.FullScreen).IsEqualTo(state);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.FullScreen).IsEqualTo(state);
     }
 

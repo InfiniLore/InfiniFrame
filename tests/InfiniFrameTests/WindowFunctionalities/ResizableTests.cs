@@ -25,7 +25,7 @@ public class ResizableTests {
         // Assert
         await Assert.That(builder.Configuration.Resizable).IsEqualTo(state);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Resizable).IsEqualTo(state);
     }
 

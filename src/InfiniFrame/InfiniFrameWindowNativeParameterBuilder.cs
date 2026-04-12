@@ -9,7 +9,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
+public class InfiniFrameWindowNativeParameterBuilder : IInfiniFrameWindowNativeParameterBuilder {
     public string? BrowserControlInitParameters { get; set; }
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }
@@ -54,7 +54,7 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public InfiniFrameNativeParameters ToParameters() {
+    public InfiniFrameNativeParameters ToNativeParameters() {
         string? resolvedIconFilePath = IconFileUtilities.TryResolveIconFilePath(IconFilePath, out string? resolvedPath)
             ? resolvedPath
             : null;

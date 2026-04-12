@@ -15,7 +15,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public bool UseDefaultLogger { get; set; } = true;
     public StaticAssetSettings? StaticAssets { get; set; }
     
-    public IInfiniFrameWindowConfiguration Configuration { get; } = new InfiniFrameWindowConfiguration();
+    public IInfiniFrameWindowNativeParameterBuilder Configuration { get; } = new InfiniFrameWindowNativeParameterBuilder();
     public IInfiniFrameWindowEvents Events { get; internal set; } = new InfiniFrameWindowEvents();
     public IInfiniFrameWindowMessageHandlers MessageHandlers { get; } = new InfiniFrameWindowMessageHandlers();
     public Dictionary<string, NetCustomSchemeDelegate?> CustomSchemeHandlers { get; } = [];
@@ -31,16 +31,16 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameNativeParameters GetParameters(IServiceProvider? provider = null) {
-        if (provider is null) return Configuration.ToParameters();
+        if (provider is null) return Configuration.ToNativeParameters();
 
         var config = provider.GetService<IConfiguration>();
         IConfigurationSection? section = config?.GetSection("InfiniFrame");
 
         if (section is not null && section.Exists()) {
-            InfiniFrameWindowConfigurationSectionApplier.Apply(section, Configuration);
+            InfiniFrameWindowNativeParameterSectionApplier.Apply(section, Configuration);
         }
 
-        return Configuration.ToParameters();
+        return Configuration.ToNativeParameters();
     }
 
     private ILogger<InfiniFrameWindow> GetDefaultLogger() {

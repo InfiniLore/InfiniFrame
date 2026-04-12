@@ -24,7 +24,7 @@ public class MaxHeightTests {
         // Assert
         await Assert.That(builder.Configuration.MaxHeight).IsEqualTo(MaxHeight);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.MaxHeight).IsEqualTo(MaxHeight);
     }
 

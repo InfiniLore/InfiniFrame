@@ -28,7 +28,7 @@ public class RegisterCustomSchemeHandlerTests {
         // Assert
         await Assert.That(builder.Configuration.CustomSchemeNames).Contains("app");
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
 
         IntPtr target = Marshal.StringToHGlobalAnsi("app");
         try {
