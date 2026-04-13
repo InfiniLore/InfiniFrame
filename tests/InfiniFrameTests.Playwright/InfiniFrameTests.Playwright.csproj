@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <EnableNativeDllCopy>true</EnableNativeDllCopy>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepositoryRoot>
 
         <!-- Build frontend exactly once during multi-target builds -->
         <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'=='' and '$(TargetFrameworks)'!=''">$([System.String]::Copy('$(TargetFrameworks)').Split(';')[0])</FrontendBuildOnceTargetFramework>
@@ -42,7 +43,7 @@
     <Target Name="CopyInfiniFrameBridgeScript"
             BeforeTargets="CopyFrontendToOutput"
             Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
-        <Copy SourceFiles="$(SolutionDir)src\InfiniFrame.Js\wwwroot\InfiniFrame.js"
+        <Copy SourceFiles="$(RepositoryRoot)src\InfiniFrame.Js\wwwroot\InfiniFrame.js"
               DestinationFiles="$(ProjectDir)wwwroot\InfiniFrame.js"
               SkipUnchangedFiles="true" />
     </Target>
