@@ -14,6 +14,10 @@ inputs:
     description: Root output path before configuration/framework segments
     required: false
     default: tests/InfiniFrameTests/bin
+  frameworks:
+    description: Optional semicolon-separated target frameworks to validate (for single-target CI jobs)
+    required: false
+    default: ""
   include-webview2-windows:
     description: Validate WebView2Loader.dll on Windows
     required: false
@@ -28,11 +32,16 @@ runs:
         $projectPath = "${{ inputs['project-path'] }}"
         $configuration = "${{ inputs['configuration'] }}"
         $outputRoot = "${{ inputs['output-root'] }}"
+        $frameworksInput = "${{ inputs['frameworks'] }}"
         $includeWebView2 = "${{ inputs['include-webview2-windows'] }}" -eq "true"
 
-        $targetFrameworks = (dotnet msbuild $projectPath -nologo -getProperty:TargetFrameworks).Trim()
-        if ([string]::IsNullOrWhiteSpace($targetFrameworks)) {
-          $targetFrameworks = (dotnet msbuild $projectPath -nologo -getProperty:TargetFramework).Trim()
+        if (-not [string]::IsNullOrWhiteSpace($frameworksInput)) {
+          $targetFrameworks = $frameworksInput
+        } else {
+          $targetFrameworks = (dotnet msbuild $projectPath -nologo -getProperty:TargetFrameworks).Trim()
+          if ([string]::IsNullOrWhiteSpace($targetFrameworks)) {
+            $targetFrameworks = (dotnet msbuild $projectPath -nologo -getProperty:TargetFramework).Trim()
+          }
         }
 
         if ([string]::IsNullOrWhiteSpace($targetFrameworks)) {
