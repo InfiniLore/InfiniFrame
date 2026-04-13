@@ -338,7 +338,16 @@ public static class GlobalPlaywrightContext {
             try {
                 HostClient.PostAsync("/__host/shutdown", content: null).GetAwaiter().GetResult();
             }
-            catch {
+            catch (HttpRequestException) {
+                // ignored
+            }
+            catch (TaskCanceledException) {
+                // ignored
+            }
+            catch (ObjectDisposedException) {
+                // ignored
+            }
+            catch (InvalidOperationException) {
                 // ignored
             }
 
