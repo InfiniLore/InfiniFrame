@@ -353,7 +353,13 @@ public static class GlobalPlaywrightContext {
             if (!HostProcess.HasExited && !HostProcess.WaitForExit(5000))
                 HostProcess.Kill(entireProcessTree: true);
         }
-        catch {
+        catch (InvalidOperationException) {
+            // ignored
+        }
+        catch (System.ComponentModel.Win32Exception) {
+            // ignored
+        }
+        catch (NotSupportedException) {
             // ignored
         }
         finally {
