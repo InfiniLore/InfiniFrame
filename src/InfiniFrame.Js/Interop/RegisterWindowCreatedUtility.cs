@@ -99,6 +99,18 @@ public static class RegisterWindowCreatedUtility {
                 HandlerNames.WindowReady,
                 ReadyHandshakeTimeout.TotalMilliseconds
             );
+
+            string[] registrationMessages;
+            lock (state.Lock) {
+                registrationMessages = state.RegistrationMessageIds.ToArray();
+            }
+
+            window.Logger.LogInformation(
+                "Falling back to registration send without '{ReadyMessageId}' handshake for {RegistrationCount} message(s).",
+                HandlerNames.WindowReady,
+                registrationMessages.Length
+            );
+            _ = SendRegistrationsWithRetryAsync(window, state, windowState, registrationMessages);
         }
         catch (OperationCanceledException) {
             // Handshake received in time.

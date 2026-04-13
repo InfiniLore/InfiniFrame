@@ -64,18 +64,24 @@ public class JavascriptTests : InfiniFrameWebviewTest {
         // Arrange
         IPage page = await GetRootPageAsync();
         int initialCloseRequestCount = GlobalPlaywrightContext.GetWindowCloseRequestCount();
+        GlobalPlaywrightContext.SuppressWindowCloseRequests(true);
 
-        // Act
-        await page.EvaluateAsync(
-            // lang=javascript 
-            "() => window.close()"
-        );
-        int closeRequestCount = await WaitForStateChangeAsync(
-            initialCloseRequestCount,
-            stateProvider: static () => GlobalPlaywrightContext.GetWindowCloseRequestCount()
-        );
+        try {
+            // Act
+            await page.EvaluateAsync(
+                // lang=javascript 
+                "() => window.close()"
+            );
+            int closeRequestCount = await WaitForStateChangeAsync(
+                initialCloseRequestCount,
+                stateProvider: static () => GlobalPlaywrightContext.GetWindowCloseRequestCount()
+            );
 
-        // Assert
-        await Assert.That(closeRequestCount).IsEqualTo(initialCloseRequestCount + 1);
+            // Assert
+            await Assert.That(closeRequestCount).IsEqualTo(initialCloseRequestCount + 1);
+        }
+        finally {
+            GlobalPlaywrightContext.SuppressWindowCloseRequests(false);
+        }
     }
 }

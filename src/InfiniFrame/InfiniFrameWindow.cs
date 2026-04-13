@@ -436,7 +436,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Thrown when the window is not initialized.
     /// </exception>
     public void Close() {
-        if (Interlocked.Exchange(ref _shutdownStarted, 1) != 0) return;
+        if (Volatile.Read(ref _shutdownStarted) != 0) return;
 
         Logger.LogDebug(".Close()");
         Events.OnWindowClosingRequested();

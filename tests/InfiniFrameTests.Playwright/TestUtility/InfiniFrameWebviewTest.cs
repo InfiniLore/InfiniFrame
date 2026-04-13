@@ -4,15 +4,12 @@
 using InfiniFrame;
 using Microsoft.Playwright;
 using TUnit.Engine.Exceptions;
-using TUnit.Playwright;
 
 namespace InfiniFrameTests.Playwright.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public abstract class InfiniFrameWebviewTest : PageTest {
-    public override string BrowserName => "webkit";
-
+public abstract class InfiniFrameWebviewTest {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

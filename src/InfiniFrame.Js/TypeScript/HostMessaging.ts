@@ -16,32 +16,42 @@ import {getTitleObserver, getTitleObserverTarget} from "./Observers";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 class HostMessaging implements IHostMessaging {
+    private static readonly ReadyHandshakeRetryIntervalMs = 1000;
+    private static readonly MaxReadyHandshakeAttempts = 20;
     private messageHandlers: Map<string, MessageCallback> = new Map();
     private openExternalRegistered = false;
     private fullscreenRegistered = false;
     private titleRegistered = false;
     private windowCloseRegistered = false;
     private legacyInboundWarningLogged = false;
+    private readyHandshakeAttempts = 0;
+    private readyHandshakeAcknowledged = false;
+    private readyHandshakeRetryTimer: number | null = null;
 
     constructor() {
         this.assignWebMessageReceiver();
-        this.sendMessageToHost(SendToHostMessageIds.ready);
 
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerOpenExternal, _ => {
+            this.markReadyHandshakeAcknowledged();
             this.registerOpenExternal();
         })
 
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerFullscreenChange, _ => {
+            this.markReadyHandshakeAcknowledged();
             this.registerFullscreenChange();
         })
 
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerTitleChange, _ => {
+            this.markReadyHandshakeAcknowledged();
             this.registerTitleChange();
         })
 
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerWindowClose, _ => {
+            this.markReadyHandshakeAcknowledged();
             this.registerWindowClose();
         })
+
+        this.sendReadyHandshakeWithRetry();
     }
 
     public sendMessageToHost(id: SendToHostMessageId | string, data?: unknown) {
@@ -143,6 +153,36 @@ class HostMessaging implements IHostMessaging {
         window.close = () => {
             this.sendMessageToHost(SendToHostMessageIds.windowClose);
         };
+    }
+
+    private sendReadyHandshakeWithRetry() {
+        this.sendReadyHandshake();
+
+        this.readyHandshakeRetryTimer = window.setInterval(() => {
+            if (this.readyHandshakeAcknowledged || this.readyHandshakeAttempts >= HostMessaging.MaxReadyHandshakeAttempts) {
+                this.stopReadyHandshakeRetry();
+                return;
+            }
+
+            this.sendReadyHandshake();
+        }, HostMessaging.ReadyHandshakeRetryIntervalMs);
+    }
+
+    private sendReadyHandshake() {
+        this.readyHandshakeAttempts++;
+        this.sendMessageToHost(SendToHostMessageIds.ready);
+    }
+
+    private markReadyHandshakeAcknowledged() {
+        if (this.readyHandshakeAcknowledged) return;
+        this.readyHandshakeAcknowledged = true;
+        this.stopReadyHandshakeRetry();
+    }
+
+    private stopReadyHandshakeRetry() {
+        if (this.readyHandshakeRetryTimer === null) return;
+        window.clearInterval(this.readyHandshakeRetryTimer);
+        this.readyHandshakeRetryTimer = null;
     }
 }
 

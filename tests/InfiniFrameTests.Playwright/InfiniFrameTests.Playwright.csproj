@@ -39,6 +39,14 @@
         <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
     </Target>
 
+    <Target Name="CopyInfiniFrameBridgeScript"
+            BeforeTargets="CopyFrontendToOutput"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
+        <Copy SourceFiles="$(SolutionDir)src\InfiniFrame.Js\wwwroot\InfiniFrame.js"
+              DestinationFiles="$(ProjectDir)wwwroot\InfiniFrame.js"
+              SkipUnchangedFiles="true" />
+    </Target>
+
     <Target Name="CopyFrontendToOutput"
             AfterTargets="Build"
             Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
