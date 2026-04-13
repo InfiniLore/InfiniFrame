@@ -56,6 +56,7 @@ public class RegisterCustomSchemeHandlerTests {
         // Assert
         if (window is not InfiniFrameWindow windowCasted) {
             Assert.Fail("Expected window to be an InfiniFrameWindow instance.");
+            return;
         }
         IInfiniFrameWindowCustomSchemeHandlers customSchemes = windowCasted.CustomSchemes;
         await Assert.That(customSchemes).IsNotNull();
@@ -81,6 +82,7 @@ public class RegisterCustomSchemeHandlerTests {
         // Assert
         if (window is not InfiniFrameWindow windowCasted) {
             Assert.Fail("Expected window to be an InfiniFrameWindow instance.");
+            return;
         }
         IInfiniFrameWindowCustomSchemeHandlers customSchemes = windowCasted.CustomSchemes;
         await Assert.That(customSchemes).IsNotNull();
