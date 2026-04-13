@@ -5,6 +5,7 @@ using InfiniFrame;
 using InfiniFrameTests.Playwright.TestUtility;
 using Microsoft.Playwright;
 using InfiniFrameTests.Shared;
+using TUnit.Core.Executors;
 
 namespace InfiniFrameTests.Playwright;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,6 +15,7 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
+    [TestExecutor<UiThreadExecutor>]
     public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen() {
         // Arrange
         bool originalFullscreenState = GlobalPlaywrightContext.Window.FullScreen;
@@ -41,6 +43,7 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
+    [TestExecutor<UiThreadExecutor>]
     public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle() {
         // Arrange
         IPage page = await GetRootPageAsync();

@@ -28,6 +28,10 @@ on:
                 description: 'Run macOS GUI tests'
                 type: boolean
                 default: true
+            run_macos_playwright:
+                description: 'Run macOS Playwright tests'
+                type: boolean
+                default: true
             run_docs:
                 description: 'Run docs validation'
                 type: boolean
@@ -58,6 +62,7 @@ jobs:
             run_windows_playwright: ${{ inputs.run_windows_playwright }}
             run_linux: ${{ inputs.run_linux }}
             run_macos: ${{ inputs.run_macos }}
+            run_macos_playwright: ${{ inputs.run_macos_playwright }}
             run_docs: ${{ inputs.run_docs }}
             run_pack: ${{ inputs.run_pack }}
             run_trim_aot: ${{ inputs.run_trim_aot }}

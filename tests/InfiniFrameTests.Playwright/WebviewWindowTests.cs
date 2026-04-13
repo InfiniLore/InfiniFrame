@@ -4,6 +4,7 @@
 using InfiniFrameTests.Playwright.TestUtility;
 using Microsoft.Playwright;
 using InfiniFrameTests.Shared;
+using TUnit.Core.Executors;
 
 namespace InfiniFrameTests.Playwright;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -12,6 +13,7 @@ namespace InfiniFrameTests.Playwright;
 public class WebviewWindowTests : InfiniFrameWebviewTest {
 
     [Test, NotInParallel(ParallelControl.Playwright)]
+    [TestExecutor<UiThreadExecutor>]
     public async Task Title_ShouldBeExpectedValue() {
         // Arrange
         IPage page = await GetRootPageAsync();

@@ -67,15 +67,11 @@
     <File Path=".github/workflows/shared-testing-pack-linux.yml" />
     <File Path=".github/workflows/shared-testing-pack-macos.yml" />
     <File Path=".github/workflows/shared-testing-pack-windows.yml" />
+    <File Path=".github/workflows/shared-testing-playwright-macos.yml" />
     <File Path=".github/workflows/shared-testing-playwright-windows.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
     <File Path=".github/workflows/shared-testing-trim-aot.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
-  </Folder>
-  <Folder Name="/.dev-tools/web/">
-    <File Path="package.json" />
-    <File Path="tsconfig.json" />
-    <File Path="webpack.config.js" />
   </Folder>
   <Folder Name="/docs/">
     <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />

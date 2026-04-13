@@ -1,0 +1,223 @@
+#file: noinspection UndefinedParamsPresent
+name: "Shared: Playwright Tests macOS"
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        type: string
+        required: true
+      checkout_ref:
+        type: string
+        required: false
+        default: ''
+      target_sha:
+        type: string
+        required: true
+      workflow_url:
+        type: string
+        required: true
+
+jobs:
+  macos-playwright:
+    name: macOS Playwright
+    runs-on: macos-latest
+    timeout-minutes: 75
+
+    env:
+      TARGET_SHA: ${{ inputs.target_sha }}
+      WORKFLOW_URL: ${{ inputs.workflow_url }}
+
+    permissions:
+      contents: read
+      statuses: write
+      checks: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+          fetch-depth: 1
+
+      - name: Set Playwright Check Pending
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/sync-check
+        with:
+          repo: ${{ github.repository }}
+          sha: ${{ inputs.target_sha }}
+          context: CI Testing - macOS Playwright
+          state: pending
+          status-description: macOS Playwright tests in progress (net8.0, net9.0, net10.0)
+          target-url: ${{ inputs.workflow_url }}
+          allow-status-422: 'true'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.x
+            9.x
+            10.x
+
+      - name: Cache NuGet
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "4.0.0"
+
+      - name: Cache CMake build
+        uses: actions/cache@v5
+        with:
+          path: src/InfiniFrame.Native/build
+          key: ${{ runner.os }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-v2-
+
+      - name: Restore
+        run: dotnet restore InfiniFrame.GitHubActions.Testing.Playwright.slnf /p:NoWarn=NU1503
+
+      - name: Build Release
+        run: |
+          dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+            --configuration Release \
+            --no-restore \
+            /p:SolutionDir=$GITHUB_WORKSPACE/
+
+          dotnet build InfiniFrame.GitHubActions.Testing.Playwright.slnf \
+            --configuration Release \
+            --no-restore \
+            /p:SolutionDir=$GITHUB_WORKSPACE/
+
+      - name: Cache Playwright Browsers
+        id: cache-playwright
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright Browsers
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        working-directory: tests/InfiniFrameTests.Playwright
+        run: |
+          scripts=(
+            "bin/Release/net10.0/playwright.sh"
+            "bin/Release/net9.0/playwright.sh"
+            "bin/Release/net8.0/playwright.sh"
+          )
+
+          for script in "${scripts[@]}"; do
+            if [ -f "$script" ]; then
+              bash "$script" install
+              exit 0
+            fi
+          done
+
+          echo "Playwright install script not found"
+          exit 1
+
+      - name: Verify Native Binaries
+        run: |
+          frameworks=("net8.0" "net9.0" "net10.0")
+
+          for framework in "${frameworks[@]}"; do
+            binPath="tests/InfiniFrameTests.Playwright/bin/Release/$framework"
+
+            for dylib in "libInfiniFrame.Native.dylib"; do
+              fullPath="$binPath/$dylib"
+              if [ ! -f "$fullPath" ]; then
+                echo "$dylib missing in $binPath"
+                exit 1
+              fi
+            done
+          done
+
+      - name: Export Actions Runtime
+        uses: actions/github-script@v9
+        with:
+          script: |
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
+
+      - name: Run Playwright (net8.0)
+        id: playwright_net8
+        working-directory: tests/InfiniFrameTests.Playwright/
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 20
+        run: dotnet test --configuration Release --no-build --no-restore --framework net8.0
+
+      - name: Upload Playwright Logs (net8.0)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-test-results-net8.0
+          path: tests/InfiniFrameTests.Playwright/bin/Release/net8.0/TestResults
+
+      - name: Run Playwright (net9.0)
+        id: playwright_net9
+        working-directory: tests/InfiniFrameTests.Playwright/
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 20
+        run: dotnet test --configuration Release --no-build --no-restore --framework net9.0
+
+      - name: Upload Playwright Logs (net9.0)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-test-results-net9.0
+          path: tests/InfiniFrameTests.Playwright/bin/Release/net9.0/TestResults
+
+      - name: Run Playwright (net10.0)
+        id: playwright_net10
+        working-directory: tests/InfiniFrameTests.Playwright/
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 20
+        run: dotnet test --configuration Release --no-build --no-restore --framework net10.0
+
+      - name: Upload Playwright Logs (net10.0)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-test-results-net10.0
+          path: tests/InfiniFrameTests.Playwright/bin/Release/net10.0/TestResults
+
+      - name: Fail If Any Framework Failed
+        if: always()
+        run: |
+          failed=()
+
+          if [ "${{ steps.playwright_net8.outcome }}" != "success" ]; then failed+=("net8.0"); fi
+          if [ "${{ steps.playwright_net9.outcome }}" != "success" ]; then failed+=("net9.0"); fi
+          if [ "${{ steps.playwright_net10.outcome }}" != "success" ]; then failed+=("net10.0"); fi
+
+          if [ ${#failed[@]} -ne 0 ]; then
+            echo "macOS Playwright failed for: ${failed[*]}"
+            exit 1
+          fi
+
+      - name: Update Playwright Check
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/sync-check-finalize
+        with:
+          repo: ${{ github.repository }}
+          sha: ${{ inputs.target_sha }}
+          context: CI Testing - macOS Playwright
+          target-url: ${{ inputs.workflow_url }}
+          job-status: ${{ job.status }}
+          success-description: macOS Playwright tests passed (net8.0, net9.0, net10.0)
+          failure-description: macOS Playwright tests failed (one or more frameworks)

@@ -31,6 +31,10 @@ on:
                 description: 'Run macOS GUI tests'
                 type: boolean
                 required: true
+            run_macos_playwright:
+                description: 'Run macOS Playwright tests'
+                type: boolean
+                required: true
             run_docs:
                 description: 'Run docs validation'
                 type: boolean
@@ -189,6 +193,19 @@ jobs:
         if: ${{ inputs.run_macos == true }}
         needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-gui-macos.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+        secrets: inherit
+       
+    # noinspection UndefinedAction, UndefinedParamsPresent 
+    macos-playwright:
+        name: macOS Playwright Tests
+        if: ${{ inputs.run_macos_playwright == true }}
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-playwright-macos.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
