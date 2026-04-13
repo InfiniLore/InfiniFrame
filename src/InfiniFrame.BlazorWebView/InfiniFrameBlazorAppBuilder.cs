@@ -94,9 +94,27 @@ public class InfiniFrameBlazorAppBuilder {
         return this;
     }
 
+    /// <summary>
+    /// Builds a new <see cref="InfiniFrameBlazorApp"/> using a service provider created from <see cref="Services"/>.
+    /// </summary>
+    /// <returns>A newly created <see cref="InfiniFrameBlazorApp"/>.</returns>
     public InfiniFrameBlazorApp Build()
         => Build(Services.BuildServiceProvider());
 
+    /// <summary>
+    /// Builds a new <see cref="InfiniFrameBlazorApp"/> using an externally supplied <see cref="IServiceProvider"/>.
+    /// </summary>
+    /// <param name="serviceProvider">
+    /// The pre-built service provider to use for resolving all application services.
+    /// Ownership is transferred to the returned app instance; when that app is disposed, this provider is disposed if it implements
+    /// <see cref="IAsyncDisposable"/> or <see cref="IDisposable"/>. Do not dispose the same provider separately.
+    /// </param>
+    /// <returns>A newly created <see cref="InfiniFrameBlazorApp"/>.</returns>
+    /// <remarks>
+    /// Calling this method more than once on the same builder instance is not supported. Each call mutates builder state
+    /// (for example, by registering additional scheme handlers), which can lead to duplicate registrations.
+    /// Create a new builder for each app instance.
+    /// </remarks>
     public InfiniFrameBlazorApp Build(IServiceProvider serviceProvider) {
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
