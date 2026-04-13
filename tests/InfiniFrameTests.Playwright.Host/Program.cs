@@ -1,91 +1,137 @@
-using InfiniFrame;
-using InfiniFrame.Js.Interop.MessageHandlers;
-using InfiniFrame.WebServer;
+using System.Text.Json;
 using Microsoft.Extensions.FileProviders;
 
 HostArguments options = HostArguments.Parse(args);
 string serverUrl = $"http://127.0.0.1:{options.ServerPort}";
-string cdpUrl = $"http://127.0.0.1:{options.CdpPort}";
 
 int closeRequestCount = 0;
 int suppressCloseRequests = 0;
+bool fullScreen = false;
+string windowTitle = options.DefaultTitle;
 
-using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
-
-InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
-builder.WebApp.WebHost.UseUrls(serverUrl);
-
-builder.Window
-    .SetStartUrl(serverUrl)
-    .SetTitle(options.DefaultTitle)
-    .SetBrowserControlInitParameters($"--remote-debugging-port={options.CdpPort}")
-    .RegisterWindowManagementWebMessageHandler()
-    .RegisterFullScreenWebMessageHandler()
-    .RegisterOpenExternalTargetWebMessageHandler()
-    .RegisterTitleChangedWebMessageHandler()
-    .RegisterWindowClosingHandler((_, _) => {
-        Interlocked.Increment(ref closeRequestCount);
-        return Volatile.Read(ref suppressCloseRequests) == 1;
-    });
-
-InfiniFrameWebApplication app = builder.Build();
+var webBuilder = WebApplication.CreateBuilder();
+webBuilder.WebHost.UseUrls(serverUrl);
+WebApplication app = webBuilder.Build();
 
 var webRootProvider = new PhysicalFileProvider(options.WebRootPath);
-app.WebApp.UseDefaultFiles(new DefaultFilesOptions {
+app.UseDefaultFiles(new DefaultFilesOptions {
     FileProvider = webRootProvider
 });
-app.WebApp.UseStaticFiles(new StaticFileOptions {
+app.UseStaticFiles(new StaticFileOptions {
     FileProvider = webRootProvider
 });
 
-app.WebApp.MapGet("/__host/window/title", () => {
-    string title = string.Empty;
-    app.Window.Invoke(() => title = app.Window.Title);
-    return Results.Text(title);
-});
+app.MapGet("/__host/window/title", () => Results.Text(windowTitle));
 
-app.WebApp.MapPut("/__host/window/title", (SetTitleRequest request) => {
-    app.Window.Invoke(() => app.Window.SetTitle(request.Title));
+app.MapPut("/__host/window/title", (SetTitleRequest request) => {
+    windowTitle = request.Title ?? string.Empty;
     return Results.Ok();
 });
 
-app.WebApp.MapGet("/__host/window/fullscreen", () => {
-    bool fullScreen = false;
-    app.Window.Invoke(() => fullScreen = app.Window.FullScreen);
-    return Results.Json(fullScreen);
-});
+app.MapGet("/__host/window/fullscreen", () => Results.Json(fullScreen));
 
-app.WebApp.MapPost("/__host/window/close/reset", () => {
+app.MapPost("/__host/window/close/reset", () => {
     Volatile.Write(ref closeRequestCount, 0);
     return Results.Ok();
 });
 
-app.WebApp.MapGet("/__host/window/close/count", () => Results.Json(Volatile.Read(ref closeRequestCount)));
+app.MapGet("/__host/window/close/count", () => Results.Json(Volatile.Read(ref closeRequestCount)));
 
-app.WebApp.MapPost("/__host/window/close/suppress/{suppress:bool}", (bool suppress) => {
+app.MapPost("/__host/window/close/suppress/{suppress:bool}", (bool suppress) => {
     Volatile.Write(ref suppressCloseRequests, suppress ? 1 : 0);
     return Results.Ok();
 });
 
-app.WebApp.MapPost("/__host/shutdown", async () => {
-    app.Window.Invoke(() => app.Window.Close());
-    await app.WebApp.StopAsync();
+app.MapPost("/__host/interop", async (HttpContext context) => {
+    using var reader = new StreamReader(context.Request.Body);
+    string body = await reader.ReadToEndAsync();
+    var outbound = HandleInteropMessage(
+        body,
+        ref windowTitle,
+        ref fullScreen,
+        ref closeRequestCount,
+        ref suppressCloseRequests
+    );
+    return Results.Json(outbound);
+});
+
+app.MapPost("/__host/shutdown", async () => {
+    _ = Task.Run(async () => await app.StopAsync());
     return Results.Ok();
 });
 
-app.WebApp.StartAsync(startupCancellation.Token).GetAwaiter().GetResult();
-_ = app.Window;
+app.Start();
+Console.WriteLine($"READY|{serverUrl}|");
+app.WaitForShutdown();
+return;
 
-Console.WriteLine($"READY|{serverUrl}|{cdpUrl}");
+static List<string> HandleInteropMessage(
+    string message,
+    ref string windowTitle,
+    ref bool fullScreen,
+    ref int closeRequestCount,
+    ref int suppressCloseRequests
+) {
+    var outbound = new List<string>();
 
-app.Window.WaitForClose();
-app.WebApp.StopAsync().GetAwaiter().GetResult();
+    if (string.IsNullOrWhiteSpace(message))
+        return outbound;
 
-public sealed record SetTitleRequest(string Title);
+    try {
+        using JsonDocument document = JsonDocument.Parse(message);
+        JsonElement root = document.RootElement;
+        if (!root.TryGetProperty("id", out JsonElement idElement))
+            return outbound;
+
+        string? messageId = idElement.GetString();
+        if (string.IsNullOrWhiteSpace(messageId))
+            return outbound;
+
+        switch (messageId) {
+            case "__infiniframe:ready":
+                outbound.Add(CreateEnvelope("__infiniframe:register:open:external"));
+                outbound.Add(CreateEnvelope("__infiniframe:register:fullscreen:change"));
+                outbound.Add(CreateEnvelope("__infiniframe:register:title:change"));
+                outbound.Add(CreateEnvelope("__infiniframe:register:window:close"));
+                break;
+
+            case "__infiniframe:title:change":
+                if (root.TryGetProperty("data", out JsonElement titleElement) && titleElement.ValueKind == JsonValueKind.String)
+                    windowTitle = titleElement.GetString() ?? string.Empty;
+                break;
+
+            case "__infiniframe:fullscreen:enter":
+                fullScreen = true;
+                break;
+
+            case "__infiniframe:fullscreen:exit":
+                fullScreen = false;
+                break;
+
+            case "__infiniframe:window:close":
+                Interlocked.Increment(ref closeRequestCount);
+                _ = Volatile.Read(ref suppressCloseRequests) == 1;
+                break;
+        }
+    }
+    catch (JsonException) {
+        // ignored
+    }
+
+    return outbound;
+}
+
+static string CreateEnvelope(string id) {
+    return JsonSerializer.Serialize(new {
+        id,
+        version = 1
+    });
+}
+
+public sealed record SetTitleRequest(string? Title);
 
 public sealed class HostArguments {
     public required int ServerPort { get; init; }
-    public required int CdpPort { get; init; }
     public required string WebRootPath { get; init; }
     public required string DefaultTitle { get; init; }
 
@@ -105,7 +151,6 @@ public sealed class HostArguments {
 
         return new HostArguments {
             ServerPort = int.Parse(GetRequired(values, "server-port")),
-            CdpPort = int.Parse(GetRequired(values, "cdp-port")),
             WebRootPath = GetRequired(values, "webroot"),
             DefaultTitle = GetRequired(values, "default-title")
         };

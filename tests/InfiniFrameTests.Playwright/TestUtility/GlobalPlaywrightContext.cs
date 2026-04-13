@@ -119,6 +119,12 @@ public static class GlobalPlaywrightContext {
                 Console.WriteLine("[PlaywrightConnect] Playwright instance created.");
             }
 
+            if (OperatingSystem.IsMacOS()) {
+                Browser = await CreateMacOsBrowserAsync(relativeUrl);
+                Console.WriteLine("[PlaywrightConnect] macOS browser launched.");
+                return Browser;
+            }
+
             var url = new Uri(PlaywrightConnectionUri, relativeUrl);
             Console.WriteLine($"[PlaywrightConnect] Connecting over CDP: {url}");
             Browser = await ConnectOverCdpWithRetryAsync(url);
@@ -236,6 +242,21 @@ public static class GlobalPlaywrightContext {
         return Window.FullScreen;
     }
 
+    private static async Task<IBrowser> CreateMacOsBrowserAsync(string relativeUrl) {
+        IBrowser browser = await Playwright!.Chromium.LaunchAsync(new BrowserTypeLaunchOptions {
+            Headless = true
+        });
+
+        IBrowserContext context = await browser.NewContextAsync();
+        await context.AddInitScriptAsync(MacOsHostBridgeInitScript);
+
+        IPage page = await context.NewPageAsync();
+        Uri target = new(new Uri(ServerUrl), relativeUrl);
+        await page.GotoAsync(target.ToString());
+
+        return browser;
+    }
+
     private static void StartMacOsHostProcess() {
         string repositoryRoot = ResolveRepositoryRoot();
         string hostProjectPath = Path.Join(repositoryRoot, "tests", "InfiniFrameTests.Playwright.Host", "InfiniFrameTests.Playwright.Host.csproj");
@@ -255,7 +276,7 @@ public static class GlobalPlaywrightContext {
         var startInfo = new ProcessStartInfo {
             FileName = "dotnet",
             Arguments =
-                $"\"{hostDllPath}\" --server-port {ServerPort} --cdp-port {PlaywrightDevtoolsPort} --webroot \"{webRootPath}\" --default-title \"{DefaultDocumentTitle}\"",
+                $"\"{hostDllPath}\" --server-port {ServerPort} --webroot \"{webRootPath}\" --default-title \"{DefaultDocumentTitle}\"",
             WorkingDirectory = repositoryRoot,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -391,4 +412,60 @@ public static class GlobalPlaywrightContext {
 
     // ReSharper disable once NotAccessedPositionalProperty.Local
     private sealed record SetTitleRequest(string Title);
+
+    private const string MacOsHostBridgeInitScript = """
+        (() => {
+          const listeners = [];
+          const dispatchToPage = (message) => {
+            for (const listener of listeners) {
+              try {
+                listener({ data: message });
+              } catch {
+              }
+            }
+          };
+
+          let fullscreenElement = null;
+          Object.defineProperty(document, 'fullscreenElement', {
+            configurable: true,
+            get: () => fullscreenElement
+          });
+
+          document.body.requestFullscreen = async () => {
+            fullscreenElement = document.body;
+            document.dispatchEvent(new Event('fullscreenchange'));
+          };
+
+          document.exitFullscreen = async () => {
+            fullscreenElement = null;
+            document.dispatchEvent(new Event('fullscreenchange'));
+          };
+
+          window.chrome = window.chrome || {};
+          window.chrome.webview = {
+            postMessage: (message) => {
+              const payload = typeof message === 'string' ? message : JSON.stringify(message);
+              fetch('/__host/interop', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: payload
+              })
+                .then((response) => response.json())
+                .then((messages) => {
+                  if (!Array.isArray(messages)) return;
+                  for (const next of messages) {
+                    dispatchToPage(next);
+                  }
+                })
+                .catch(() => {
+                });
+            },
+            addEventListener: (eventName, handler) => {
+              if (eventName === 'message' && typeof handler === 'function') {
+                listeners.push(handler);
+              }
+            }
+          };
+        })();
+        """;
 }
