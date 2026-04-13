@@ -46,6 +46,9 @@ public sealed class UiThreadExecutor : ITestExecutor {
                                            and not ThreadAbortException) {
                     tcs.SetException(ex);
                 }
+                finally {
+                    contextQueue.Dispose();
+                }
             }) {
                 IsBackground = true
             };
