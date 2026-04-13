@@ -65,7 +65,10 @@ public static class GlobalPlaywrightContext {
                 .RegisterFullScreenWebMessageHandler()
                 .RegisterOpenExternalTargetWebMessageHandler()
                 .RegisterTitleChangedWebMessageHandler()
-                .RegisterWindowClosingHandler(static (_, _) => Volatile.Read(ref _suppressCloseRequests) == 1),
+                .RegisterWindowClosingHandler(static (_, _) => {
+                    Interlocked.Increment(ref _windowCloseRequestCount);
+                    return Volatile.Read(ref _suppressCloseRequests) == 1;
+                }),
             cancellationToken: startupCancellation.Token
         );
         Console.WriteLine("[PlaywrightSetup] Assembly setup completed.");
