@@ -39,6 +39,28 @@ public class RegisterCustomSchemeHandlerTests {
             Marshal.FreeHGlobal(target);// free the temp pointer
         }
     }
+
+    [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder_ReRegisteringSameScheme_DoesNotDuplicateConfigurationEntry)}")]
+    public async Task Builder_ReRegisteringSameScheme_DoesNotDuplicateConfigurationEntry() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        for (var i = 0; i < 100; i++) {
+            builder.RegisterCustomSchemeHandler("app", EmptyHandler);
+        }
+
+        // Assert
+        int schemeEntryCount = builder.Configuration.CustomSchemeNames.Count(static scheme => scheme == "app");
+        await Assert.That(schemeEntryCount).IsEqualTo(1);
+
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
+        int nativeAppCount = configParameters.CustomSchemeNames
+            .Where(static ptr => ptr != IntPtr.Zero)
+            .Count(ptr => Marshal.PtrToStringAnsi(ptr) == "app");
+        await Assert.That(nativeAppCount).IsEqualTo(1);
+    }
     
     [Test]
     [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Window)}")]

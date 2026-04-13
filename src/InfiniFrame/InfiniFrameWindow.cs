@@ -659,6 +659,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         //fill in the fixed size array of custom scheme names
         var i = 0;
         foreach ((string key, NetCustomSchemeDelegate _) in CustomSchemes.GetRegisteredHandlers()) {
+            if (i >= StartupParameters.CustomSchemeNames.Length) {
+                throw new InvalidOperationException("Maximum number of custom schemes is 16.");
+            }
+
             StartupParameters.CustomSchemeNames[i] = Marshal.StringToHGlobalAnsi(key);
             i++;
         }

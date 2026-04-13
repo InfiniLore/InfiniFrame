@@ -60,4 +60,20 @@ public class InfiniFrameWindowBuilderTests {
         await Assert.That(builder.CustomSchemeHandlers.ContainsCustomSchemeHandler("only-first")).IsFalse();
     }
 
+    [Test]
+    public async Task CreateSnapshot_ReRegisteringSameScheme_DoesNotDuplicateSnapshotEntries() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+        for (var i = 0; i < 25; i++) {
+            builder.RegisterCustomSchemeHandler("app", EmptyHandler);
+        }
+
+        // Act
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        int registeredSchemeCount = snapshot.CustomSchemes.GetRegisteredHandlers().Count();
+
+        // Assert
+        await Assert.That(snapshot.CustomSchemes.Length).IsEqualTo(1);
+        await Assert.That(registeredSchemeCount).IsEqualTo(1);
+    }
 }
