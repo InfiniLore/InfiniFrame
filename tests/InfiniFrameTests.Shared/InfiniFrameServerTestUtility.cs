@@ -26,10 +26,21 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
         _thread = thread;
     }
 
+    [MustDisposeResource]
     public static InfiniFrameServerTestUtility Create(
         Action<WebApplicationBuilder>? appBuilder = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null,
         CancellationToken cancellationToken = default
+    )
+        => OperatingSystem.IsMacOS()
+            ? CreateOnCurrentThread(appBuilder, windowBuilder, cancellationToken)
+            : CreateOnBackgroundThread(appBuilder, windowBuilder, cancellationToken);
+
+    [MustDisposeResource]
+    private static InfiniFrameServerTestUtility CreateOnBackgroundThread(
+        Action<WebApplicationBuilder>? appBuilder,
+        Action<IInfiniFrameWindowBuilder>? windowBuilder,
+        CancellationToken cancellationToken
     ) {
         var ready = new TaskCompletionSource<InfiniFrameServerTestUtility>(
             TaskCreationOptions.RunContinuationsAsynchronously);
@@ -78,6 +89,50 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
         thread.Start();
 
         return ready.Task.WaitAsync(cancellationToken).GetAwaiter().GetResult();
+    }
+
+    [MustDisposeResource]
+    private static InfiniFrameServerTestUtility CreateOnCurrentThread(
+        Action<WebApplicationBuilder>? appBuilder,
+        Action<IInfiniFrameWindowBuilder>? windowBuilder,
+        CancellationToken cancellationToken
+    ) {
+        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        builder.WebApp.WebHost.UseStaticWebAssets();
+
+        appBuilder?.Invoke(builder.WebApp);
+        windowBuilder?.Invoke(builder.Window);
+
+        InfiniFrameWebApplication app = builder.Build();
+
+        app.WebApp.UseDefaultFiles();
+        app.WebApp.UseStaticFiles();
+
+        #if !NET8_0
+        app.WebApp.MapStaticAssets();
+        #endif
+
+        app.WebApp.StartAsync(cancellationToken).GetAwaiter().GetResult();
+        IInfiniFrameWindow window = app.Window;
+
+        var waitThread = new Thread(() => {
+            try {
+                window.WaitForClose();
+                app.WebApp.StopAsync(cancellationToken).GetAwaiter().GetResult();
+            }
+            catch (Exception ex) when (IsNonFatalException(ex)) {
+                // ignored
+            }
+        }) {
+            IsBackground = true
+        };
+
+        waitThread.Start();
+
+        return new InfiniFrameServerTestUtility(waitThread) {
+            Window = window,
+            WebApplication = app.WebApp
+        };
     }
 
     // -----------------------------------------------------------------------------------------------------------------

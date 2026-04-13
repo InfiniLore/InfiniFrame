@@ -130,7 +130,7 @@ jobs:
                     for framework in "${frameworks[@]}"; do
                         binPath="tests/InfiniFrameTests.Playwright/bin/Release/$framework"
 
-                        for dylib in "libInfiniFrame.Native.dylib"; do
+                        for dylib in "InfiniFrame.Native.dylib"; do
                             fullPath="$binPath/$dylib"
                             if [ ! -f "$fullPath" ]; then
                                 echo "$dylib missing in $binPath"
