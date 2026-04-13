@@ -123,7 +123,7 @@ jobs:
                     Write-Host "All native DLLs present"
 
             -   name: Export Actions Runtime
-                uses: actions/github-script@v8
+                uses: actions/github-script@v9
                 with:
                     script: |
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
