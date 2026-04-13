@@ -24,7 +24,7 @@ public class TopTests {
         // Assert
         await Assert.That(builder.Configuration.Top).IsEqualTo(Top);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Top).IsEqualTo(Top);
     }
 
@@ -33,11 +33,11 @@ public class TopTests {
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration {
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowNativeParameterBuilder {
             Top = Top,
             UseOsDefaultLocation = false,
             Centered = false
-        }.ToParameters();
+        }.ToNativeParameters();
 
         // Act
         builder.Center();
@@ -49,7 +49,7 @@ public class TopTests {
         await Assert.That(builder.Configuration.UseOsDefaultLocation).IsFalse();
         await Assert.That(builder.Configuration.Centered).IsFalse();
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 

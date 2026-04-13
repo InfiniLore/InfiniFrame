@@ -25,7 +25,7 @@ public class ContextMenuTests {
         // Assert
         await Assert.That(builder.Configuration.ContextMenuEnabled).IsEqualTo(state);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.ContextMenuEnabled).IsEqualTo(state);
     }
 

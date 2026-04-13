@@ -9,7 +9,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
+public class InfiniFrameWindowNativeParameterBuilder : IInfiniFrameWindowNativeParameterBuilder {
     public string? BrowserControlInitParameters { get; set; }
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }
@@ -54,10 +54,12 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public InfiniFrameNativeParameters ToParameters() {
+    public InfiniFrameNativeParameters ToNativeParameters() {
         string? resolvedIconFilePath = IconFileUtilities.TryResolveIconFilePath(IconFilePath, out string? resolvedPath)
             ? resolvedPath
             : null;
+
+        if (CustomSchemeNames.Count > 16) throw new InvalidOperationException("Maximum number of custom schemes is 16.");
 
         var customSchemeNameArray = new IntPtr[16];
         for (var i = 0; i < CustomSchemeNames.Count; i++) {

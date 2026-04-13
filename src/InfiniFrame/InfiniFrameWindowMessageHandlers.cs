@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Concurrent;
+using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Interop;
 using InfiniFrame.Js.Interop;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
     public bool IsEmpty => Handlers.IsEmpty;
 
     private ConcurrentDictionary<string, Action<IInfiniFrameWindow, string?>> Handlers { get; } = new();
+    
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -22,7 +24,7 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
     }
 
     public void Handle(IInfiniFrameWindow window, string message) {
-        if (window.MessageHandlers.IsEmpty) return;
+        if (IsEmpty) return;
         if (string.IsNullOrWhiteSpace(message)) return;
 
         InteropEnvelopeParseResult parseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message);
@@ -36,6 +38,27 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
 
         if (!Handlers.TryGetValue(messageId, out Action<IInfiniFrameWindow, string?>? handler)) return;
 
-        handler(window, payload);
+        try {
+            handler(window, payload);
+        }
+        catch (Exception ex) when (IsNonFatalException(ex)) {
+            window.Logger.LogError(ex, "Unhandled exception while processing web message '{MessageId}'", messageId);
+        }
     }
+    
+    internal InfiniFrameWindowMessageHandlersSnapshot ToSnapshot()
+        => new(Handlers.ToArray());
+
+    internal static InfiniFrameWindowMessageHandlers FromSnapshot(InfiniFrameWindowMessageHandlersSnapshot snapshot) {
+        var copy = new InfiniFrameWindowMessageHandlers();
+
+        foreach ((string key, Action<IInfiniFrameWindow, string?> value) in snapshot.Handlers) {
+            copy.RegisterMessageHandler(key, value);
+        }
+
+        return copy;
+    }
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
 }

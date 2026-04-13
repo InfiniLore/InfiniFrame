@@ -24,7 +24,7 @@ public class MinWidthTests {
         // Assert
         await Assert.That(builder.Configuration.MinWidth).IsEqualTo(MinWidth);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.MinWidth).IsEqualTo(MinWidth);
     }
 

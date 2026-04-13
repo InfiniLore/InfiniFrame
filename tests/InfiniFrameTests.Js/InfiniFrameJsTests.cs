@@ -66,6 +66,7 @@ public class InfiniFrameJsTests {
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
+        // ReSharper disable once AccessToDisposedClosure
         jsRuntime.ExceptionFactory = _ => new OperationCanceledException(cts.Token);
 
         // Act / Assert

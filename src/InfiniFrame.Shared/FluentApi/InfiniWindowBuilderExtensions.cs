@@ -458,14 +458,11 @@ public static class InfiniWindowBuilderExtensions {
 
         scheme = scheme.ToLower();
 
-        if (builder.CustomSchemeHandlers.Count > 15 && !builder.CustomSchemeHandlers.ContainsKey(scheme))
+        if (builder.CustomSchemeHandlers.Length > 15 && !builder.CustomSchemeHandlers.ContainsCustomSchemeHandler(scheme))
             throw new ApplicationException(
                 "No more than 16 custom schemes can be set prior to initialization. Additional handlers can be added after initialization.");
 
-        builder.CustomSchemeHandlers.TryAdd(scheme, null);
-        builder.CustomSchemeHandlers[scheme] = handler;
-
-        builder.Configuration.CustomSchemeNames.Add(scheme);
+        builder.CustomSchemeHandlers.RegisterCustomSchemeHandler(scheme, handler);
 
         return builder;
     }

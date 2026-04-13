@@ -1,16 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame;
+namespace InfiniFrame.BuilderSnapshots;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents {
-    StaticAssetSettings? StaticAssets { get; set; }
-
-    IInfiniFrameWindowNativeParameterBuilder Configuration { get; }
-    IInfiniFrameWindowMessageHandlers MessageHandlers { get; }
-    IInfiniFrameWindowCustomSchemeHandlers CustomSchemeHandlers { get; }
-
-    IInfiniFrameWindow Build(IServiceProvider? provider = null);
-}
+internal readonly record struct InfiniFrameWindowMessageHandlersSnapshot(
+    KeyValuePair<string, Action<IInfiniFrameWindow, string?>>[] Handlers
+);

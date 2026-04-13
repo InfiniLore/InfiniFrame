@@ -2,9 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Native;
 using InfiniFrameTests.Shared;
 using System.Runtime.InteropServices;
+using InfiniFrame.BuilderSnapshots;
 
 namespace InfiniFrameTests.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -24,20 +24,31 @@ public class RegisterCustomSchemeHandlerTests {
 
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
 
         // Assert
-        await Assert.That(builder.Configuration.CustomSchemeNames).Contains("app");
+        await Assert.That(builder.CustomSchemeHandlers.ContainsCustomSchemeHandler("app")).IsTrue();
+        bool found = snapshot.StartupParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
+        await Assert.That(found).IsTrue();
+    }
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+    [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder_ReRegisteringSameScheme_DoesNotDuplicateConfigurationEntry)}")]
+    public async Task Builder_ReRegisteringSameScheme_DoesNotDuplicateConfigurationEntry() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
 
-        IntPtr target = Marshal.StringToHGlobalAnsi("app");
-        try {
-            bool found = configParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
-            await Assert.That(found).IsTrue();
+        // Act
+        for (var i = 0; i < 100; i++) {
+            builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
-        finally {
-            Marshal.FreeHGlobal(target);// free the temp pointer
-        }
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+
+        // Assert
+        int nativeAppCount = snapshot.StartupParameters.CustomSchemeNames
+            .Where(static ptr => ptr != IntPtr.Zero)
+            .Count(ptr => Marshal.PtrToStringAnsi(ptr) == "app");
+        await Assert.That(nativeAppCount).IsEqualTo(1);
     }
     
     [Test]
@@ -54,11 +65,14 @@ public class RegisterCustomSchemeHandlerTests {
         window.RegisterCustomSchemeHandler("app", EmptyHandler);
 
         // Assert
-        var windowCasted = window as InfiniFrameWindow;
-        Dictionary<string, NetCustomSchemeDelegate?>? customSchemes = windowCasted?.CustomSchemes;
-        await Assert.That(customSchemes!)
-            .ContainsKey("app")
-            .IsNotNull();
+        if (window is not InfiniFrameWindow windowCasted) {
+            Assert.Fail("Expected window to be an InfiniFrameWindow instance.");
+            return;
+        }
+        IInfiniFrameWindowCustomSchemeHandlers customSchemes = windowCasted.CustomSchemes;
+        await Assert.That(customSchemes).IsNotNull();
+        bool customScheme = customSchemes.ContainsCustomSchemeHandler("app");
+        await Assert.That(customScheme).IsTrue();
     }
 
     [Test]
@@ -77,10 +91,13 @@ public class RegisterCustomSchemeHandlerTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        var windowCasted = window as InfiniFrameWindow;
-        Dictionary<string, NetCustomSchemeDelegate?>? customSchemes = windowCasted?.CustomSchemes;
-        await Assert.That(customSchemes!)
-            .ContainsKey("app")
-            .IsNotNull();
+        if (window is not InfiniFrameWindow windowCasted) {
+            Assert.Fail("Expected window to be an InfiniFrameWindow instance.");
+            return;
+        }
+        IInfiniFrameWindowCustomSchemeHandlers customSchemes = windowCasted.CustomSchemes;
+        await Assert.That(customSchemes).IsNotNull();
+        bool customScheme = customSchemes.ContainsCustomSchemeHandler("app");
+        await Assert.That(customScheme).IsTrue();
     }
 }

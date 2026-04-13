@@ -7,12 +7,22 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilder {
+    #if NET9_0_OR_GREATER
+    private static readonly Lock UnhandledExceptionHandlerLock = new();
+    #else
+    private static readonly object UnhandledExceptionHandlerLock = new();
+    #endif
+    
+    private static IServiceProvider? _currentUnhandledExceptionServiceProvider;
+    private static bool _isUnhandledExceptionHandlerRegistered;
+
     public RootComponentList RootComponents { get; } = new();
     public IServiceCollection Services { get; } = new ServiceCollection();
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
@@ -84,18 +94,62 @@ public class InfiniFrameBlazorAppBuilder {
         return this;
     }
 
-    public InfiniFrameBlazorApp Build() {
-        ServiceProvider sp = Services.BuildServiceProvider();
-        var manager = sp.GetRequiredService<IInfiniFrameWebViewManager>();
+    /// <summary>
+    /// Builds a new <see cref="InfiniFrameBlazorApp"/> using a service provider created from <see cref="Services"/>.
+    /// </summary>
+    /// <returns>A newly created <see cref="InfiniFrameBlazorApp"/>.</returns>
+    public InfiniFrameBlazorApp Build()
+        => Build(Services.BuildServiceProvider());
+
+    /// <summary>
+    /// Builds a new <see cref="InfiniFrameBlazorApp"/> using an externally supplied <see cref="IServiceProvider"/>.
+    /// </summary>
+    /// <param name="serviceProvider">
+    /// The pre-built service provider to use for resolving all application services.
+    /// Ownership is transferred to the returned app instance; when that app is disposed, this provider is disposed if it implements
+    /// <see cref="IAsyncDisposable"/> or <see cref="IDisposable"/>. Do not dispose the same provider separately.
+    /// </param>
+    /// <returns>A newly created <see cref="InfiniFrameBlazorApp"/>.</returns>
+    /// <remarks>
+    /// Calling this method more than once on the same builder instance is not supported. Each call mutates builder state
+    /// (for example, by registering additional scheme handlers), which can lead to duplicate registrations.
+    /// Create a new builder for each app instance.
+    /// </remarks>
+    public InfiniFrameBlazorApp Build(IServiceProvider serviceProvider) {
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+
+        var manager = serviceProvider.GetRequiredService<IInfiniFrameWebViewManager>();
 
         WindowBuilder
             .RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest)
             .SetStartUrl(InfiniFrameWebViewManager.AppBaseUri);
 
-        AppDomain.CurrentDomain.UnhandledException += (_, error) => {
-            sp.GetService<IInfiniFrameWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
-        };
+        bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
+            .Value.EnableGlobalUnhandledExceptionHandler ?? true;
 
-        return sp.GetRequiredService<InfiniFrameBlazorApp>();
+        if (enableGlobalUnhandledExceptionHandler) RegisterUnhandledExceptionHandler(serviceProvider);
+
+        return new InfiniFrameBlazorApp(
+            serviceProvider,
+            serviceProvider.GetRequiredService<RootComponentList>(),
+            serviceProvider.GetService<IInfiniFrameJsComponentConfiguration>()
+        );
+    }
+
+    private static void RegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
+        lock (UnhandledExceptionHandlerLock) {
+            _currentUnhandledExceptionServiceProvider = serviceProvider;
+
+            if (_isUnhandledExceptionHandlerRegistered) return;
+
+            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainUnhandledException;
+            _isUnhandledExceptionHandlerRegistered = true;
+        }
+    }
+
+    private static void OnCurrentDomainUnhandledException(object? _, UnhandledExceptionEventArgs error) {
+        _currentUnhandledExceptionServiceProvider?
+            .GetService<IInfiniFrameWindow>()?
+            .ShowMessage("Fatal exception", error.ExceptionObject.ToString());
     }
 }

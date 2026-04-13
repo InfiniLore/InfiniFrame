@@ -25,7 +25,7 @@ public class HeightTests {
         // Assert
         await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Height).IsEqualTo(Height);
     }
 
@@ -34,11 +34,11 @@ public class HeightTests {
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowConfiguration {
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowNativeParameterBuilder {
             Height = Height,
             UseOsDefaultSize = false,
             Centered = false
-        }.ToParameters();
+        }.ToNativeParameters();
 
         // Act
         builder.SetUseOsDefaultSize(true);
@@ -49,7 +49,7 @@ public class HeightTests {
         await Assert.That(builder.Configuration.UseOsDefaultSize).IsFalse();
         await Assert.That(builder.Configuration.Centered).IsFalse();
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 

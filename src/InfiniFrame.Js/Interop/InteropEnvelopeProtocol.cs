@@ -42,6 +42,8 @@ internal static class InteropEnvelopeProtocol {
         if (string.IsNullOrWhiteSpace(message))
             return InteropEnvelopeParseResult.CreateFailure("Message is empty.");
 
+        message = TryUnwrapJsonEncodedString(message);
+
         int byteCount = Encoding.UTF8.GetByteCount(message);
         if (byteCount > MaxMessageSizeBytes)
             return InteropEnvelopeParseResult.CreateFailure($"Message exceeds max size of {MaxMessageSizeBytes} bytes.");
@@ -79,6 +81,23 @@ internal static class InteropEnvelopeProtocol {
         }
         catch (JsonException) {
             return InteropEnvelopeParseResult.CreateFailure("Envelope JSON is malformed.");
+        }
+    }
+
+    private static string TryUnwrapJsonEncodedString(string message) {
+        ReadOnlySpan<char> trimmed = message.AsSpan().Trim();
+        if (trimmed.Length < 2 || trimmed[0] != '"' || trimmed[^1] != '"')
+            return message;
+
+        try {
+            using JsonDocument jsonDocument = JsonDocument.Parse(trimmed.ToString(), JsonDocumentOptions);
+            if (jsonDocument.RootElement.ValueKind != JsonValueKind.String) return message;
+
+            string? unwrapped = jsonDocument.RootElement.GetString();
+            return string.IsNullOrWhiteSpace(unwrapped) ? message : unwrapped;
+        }
+        catch (JsonException) {
+            return message;
         }
     }
 

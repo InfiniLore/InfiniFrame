@@ -24,7 +24,7 @@ public class MinHeightTests {
         // Assert
         await Assert.That(builder.Configuration.MinHeight).IsEqualTo(MinHeight);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.MinHeight).IsEqualTo(MinHeight);
     }
 

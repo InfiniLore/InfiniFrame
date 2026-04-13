@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <EnableNativeDllCopy>true</EnableNativeDllCopy>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepositoryRoot>
 
         <!-- Build frontend exactly once during multi-target builds -->
         <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'=='' and '$(TargetFrameworks)'!=''">$([System.String]::Copy('$(TargetFrameworks)').Split(';')[0])</FrontendBuildOnceTargetFramework>
@@ -37,6 +38,14 @@
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
         <Message Text="Building frontend with npm..." Importance="high"/>
         <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
+    </Target>
+
+    <Target Name="CopyInfiniFrameBridgeScript"
+            BeforeTargets="CopyFrontendToOutput"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
+        <Copy SourceFiles="$(RepositoryRoot)src\InfiniFrame.Js\wwwroot\InfiniFrame.js"
+              DestinationFiles="$(ProjectDir)wwwroot\InfiniFrame.js"
+              SkipUnchangedFiles="true" />
     </Target>
 
     <Target Name="CopyFrontendToOutput"

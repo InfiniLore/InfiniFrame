@@ -100,15 +100,7 @@ jobs:
                 run: dotnet build InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-restore
 
             -   name: Verify Native Binaries
-                run: |
-                    nativeSo="tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dylib"
-
-                    if [ ! -f "$nativeSo" ]; then
-                      echo "ERROR: InfiniFrame.Native.dylib NOT found in test output!"
-                      exit 1
-                    fi
-
-                    echo "All native DLLs present"
+                uses: ./.github/actions/validate-native-test-binaries
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v8

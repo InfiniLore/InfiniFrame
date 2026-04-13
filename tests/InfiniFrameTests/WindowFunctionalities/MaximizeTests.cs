@@ -25,7 +25,7 @@ public class MaximizeTests {
         // Assert
         await Assert.That(builder.Configuration.Maximized).IsEqualTo(state);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Maximized).IsEqualTo(state);
     }
 

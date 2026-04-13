@@ -24,7 +24,7 @@ public class MaxWidthTests {
         // Assert
         await Assert.That(builder.Configuration.MaxWidth).IsEqualTo(MaxWidth);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.MaxWidth).IsEqualTo(MaxWidth);
     }
 

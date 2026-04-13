@@ -13,6 +13,33 @@ namespace InfiniFrameTests.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilderTests {
     [Test]
+    public async Task Build_WithExternalProvider_ShouldUseProvidedServiceProvider() {
+        // Arrange
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+
+        // Act
+        InfiniFrameBlazorApp app = builder.Build(serviceProvider);
+
+        // Assert
+        await Assert.That(app.ServiceProvider).IsSameReferenceAs(serviceProvider);
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    public async Task Build_WithoutProvider_ShouldCreateServiceProvider() {
+        // Arrange
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        InfiniFrameBlazorApp app = builder.Build();
+
+        // Assert
+        await Assert.That(app.ServiceProvider).IsNotNull();
+        await app.DisposeAsync();
+    }
+
+    [Test]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork(CancellationToken ct) {

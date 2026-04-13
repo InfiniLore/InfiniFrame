@@ -25,7 +25,7 @@ public class TopMostTests {
         // Assert
         await Assert.That(builder.Configuration.TopMost).IsEqualTo(state);
 
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToParameters();
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Topmost).IsEqualTo(state);
     }
 

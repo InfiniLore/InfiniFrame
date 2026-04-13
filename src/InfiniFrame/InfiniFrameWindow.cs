@@ -20,7 +20,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     private int _shutdownStarted;
     public InfiniFrameNativeParameters StartupParameters;
-    public required Dictionary<string, NetCustomSchemeDelegate?> CustomSchemes { get; init; }
+    public required IInfiniFrameWindowCustomSchemeHandlers CustomSchemes { get; init; }
     internal StaticAssetSettings? StaticAssets { get; init; }
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
@@ -436,7 +436,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Thrown when the window is not initialized.
     /// </exception>
     public void Close() {
-        if (Interlocked.Exchange(ref _shutdownStarted, 1) != 0) return;
+        if (Volatile.Read(ref _shutdownStarted) != 0) return;
 
         Logger.LogDebug(".Close()");
         Events.OnWindowClosingRequested();
@@ -639,8 +639,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         InfiniFrameNative.AddCustomSchemeName(InstanceHandle, scheme);
 
-        CustomSchemes.TryAdd(scheme, null);
-        CustomSchemes[scheme] += handler;
+        CustomSchemes.RegisterCustomSchemeHandler(scheme, handler);
         return this;
     }
 
@@ -657,16 +656,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     }
 
     public void Initialize() {
-        //fill in the fixed size array of custom scheme names
-        int i = 0;
-        foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in CustomSchemes.Take(16)) {
-            StartupParameters.CustomSchemeNames[i] = Marshal.StringToHGlobalAnsi(name.Key);
-            i++;
-        }
-
         StartupParameters.NativeParent = Parent is InfiniFrameWindow parent
             ? parent.InstanceHandle
             : IntPtr.Zero;
+        
         StartupParameters.WindowIconFile = IconFileUtilities.TryResolveIconFilePath(
             StartupParameters.WindowIconFile,
             out string? resolvedIconFilePath
@@ -784,7 +777,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         string scheme = url[..colonPos].ToLower();
 
-        if (!CustomSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
+        if (!CustomSchemes.TryGetHandler(scheme, out NetCustomSchemeDelegate? handler)) {
             Logger.LogWarning("No custom scheme handler registered for {Scheme}", scheme);
         }
 

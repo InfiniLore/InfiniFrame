@@ -1,15 +1,16 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics.CodeAnalysis;
+using InfiniFrame.Native;
 
-namespace InfiniFrame.BlazorWebView;
+namespace InfiniFrame.BuilderSnapshots;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
-public class InfiniFrameBlazorAppConfiguration {
-    public Uri AppBaseUri { get; set; } = new(InfiniFrameWebViewManager.AppBaseUri);
-    public string HostPage { get; set; } = "index.html";
-    public bool EnableGlobalUnhandledExceptionHandler { get; set; } = true;
-}
+internal readonly record struct InfiniFrameWindowBuildSnapshot(
+    InfiniFrameNativeParameters StartupParameters,
+    InfiniFrameWindowEventsSnapshot Events,
+    InfiniFrameWindowMessageHandlersSnapshot MessageHandlers,
+    InfiniFrameWindowCustomSchemeHandlersSnapshot CustomSchemes,
+    StaticAssetSettings? StaticAssets
+);

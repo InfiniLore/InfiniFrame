@@ -9,11 +9,11 @@ namespace InfiniFrameTests.Configuration;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowConfigurationSectionApplierTests {
+public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
     public async Task Apply_OverridesConfiguredScalarValues() {
         // Arrange
-        InfiniFrameWindowConfiguration configuration = new InfiniFrameWindowConfiguration {
+        InfiniFrameWindowNativeParameterBuilder configuration = new InfiniFrameWindowNativeParameterBuilder {
             Title = "Old Title",
             Width = 200,
             Centered = false,
@@ -28,7 +28,7 @@ public class InfiniFrameWindowConfigurationSectionApplierTests {
         });
 
         // Act
-        InfiniFrameWindowConfigurationSectionApplier.Apply(section, configuration);
+        InfiniFrameWindowNativeParameterSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.Title).IsEqualTo("New Title");
@@ -40,7 +40,7 @@ public class InfiniFrameWindowConfigurationSectionApplierTests {
     [Test]
     public async Task Apply_IgnoresInvalidOrMissingScalarValues() {
         // Arrange
-        var configuration = new InfiniFrameWindowConfiguration {
+        var configuration = new InfiniFrameWindowNativeParameterBuilder {
             Title = "Expected",
             Width = 640,
             Centered = true
@@ -52,7 +52,7 @@ public class InfiniFrameWindowConfigurationSectionApplierTests {
         });
 
         // Act
-        InfiniFrameWindowConfigurationSectionApplier.Apply(section, configuration);
+        InfiniFrameWindowNativeParameterSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.Title).IsEqualTo("Expected");
@@ -63,7 +63,7 @@ public class InfiniFrameWindowConfigurationSectionApplierTests {
     [Test]
     public async Task Apply_ReplacesCustomSchemeNamesWithNonEmptyValues() {
         // Arrange
-        var configuration = new InfiniFrameWindowConfiguration {
+        var configuration = new InfiniFrameWindowNativeParameterBuilder {
             CustomSchemeNames = ["old1", "old2"]
         };
 
@@ -75,7 +75,7 @@ public class InfiniFrameWindowConfigurationSectionApplierTests {
         });
 
         // Act
-        InfiniFrameWindowConfigurationSectionApplier.Apply(section, configuration);
+        InfiniFrameWindowNativeParameterSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.CustomSchemeNames.Count).IsEqualTo(2);
