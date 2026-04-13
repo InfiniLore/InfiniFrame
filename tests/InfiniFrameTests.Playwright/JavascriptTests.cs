@@ -59,19 +59,23 @@ public class JavascriptTests : InfiniFrameWebviewTest {
         GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
     }
 
-    [Test] 
-    [Skip("`window.close()` although supported by the library cannot be tested without killing the entire test process.")] [NotInParallel(ParallelControl.Playwright)]
+    [Test, NotInParallel(ParallelControl.Playwright)]
     public async Task WindowClose() {
         // Arrange
         IPage page = await GetRootPageAsync();
+        int initialCloseRequestCount = GlobalPlaywrightContext.GetWindowCloseRequestCount();
 
         // Act
         await page.EvaluateAsync(
             // lang=javascript 
             "() => window.close()"
         );
+        int closeRequestCount = await WaitForStateChangeAsync(
+            initialCloseRequestCount,
+            stateProvider: static () => GlobalPlaywrightContext.GetWindowCloseRequestCount()
+        );
 
         // Assert
-        // can't really be asserted in the current context of the InfiniFrameWindow as it is already closed.
+        await Assert.That(closeRequestCount).IsEqualTo(initialCloseRequestCount + 1);
     }
 }

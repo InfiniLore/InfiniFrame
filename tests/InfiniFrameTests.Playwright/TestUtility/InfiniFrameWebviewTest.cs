@@ -18,6 +18,7 @@ public abstract class InfiniFrameWebviewTest : PageTest {
     // -----------------------------------------------------------------------------------------------------------------
     [Before(Test)]
     public async Task ResetStateBeforeEachTest() {
+        GlobalPlaywrightContext.ResetWindowCloseRequestCount();
         GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
         IPage page = await GetRootPageAsync();
         await page.EvaluateAsync(

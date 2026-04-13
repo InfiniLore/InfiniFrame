@@ -18,6 +18,7 @@ public static class GlobalPlaywrightContext {
     private static IPlaywright? Playwright { get; set; }
     private static IBrowser? Browser { get; set; }
     private static readonly SemaphoreSlim BrowserLock = new(1, 1);
+    private static int _windowCloseRequestCount;
 
     public static IInfiniFrameWindow Window => Utility!.Window;
     public static WebApplication WebApplication => Utility!.WebApplication;
@@ -51,9 +52,14 @@ public static class GlobalPlaywrightContext {
                 .SetStartUrl(ServerUrl)
                 .SetTitle(DefaultDocumentTitle)
                 .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
+                .RegisterWindowManagementWebMessageHandler()
                 .RegisterFullScreenWebMessageHandler()
                 .RegisterOpenExternalTargetWebMessageHandler()
                 .RegisterTitleChangedWebMessageHandler()
+                .RegisterWindowClosingHandler(static (_, _) => {
+                    Interlocked.Increment(ref _windowCloseRequestCount);
+                    return true;
+                })
         );
         
         Thread.Sleep(TimeSpan.FromSeconds(5));
@@ -93,4 +99,10 @@ public static class GlobalPlaywrightContext {
             BrowserLock.Release();
         }
     }
+
+    public static void ResetWindowCloseRequestCount()
+        => Volatile.Write(ref _windowCloseRequestCount, 0);
+
+    public static int GetWindowCloseRequestCount()
+        => Volatile.Read(ref _windowCloseRequestCount);
 }
