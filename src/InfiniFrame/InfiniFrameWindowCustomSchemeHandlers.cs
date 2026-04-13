@@ -50,9 +50,14 @@ public class InfiniFrameWindowCustomSchemeHandlers : IInfiniFrameWindowCustomSch
         ArgumentNullException.ThrowIfNull(source);
         
         var copy = new InfiniFrameWindowCustomSchemeHandlers();
-        
-        foreach ((string key, NetCustomSchemeDelegate value) in source.GetRegisteredHandlers()) {
-            copy.RegisterCustomSchemeHandler(key, value);
+
+        List<string> orderedSnapshot;
+        lock (source.Lock) orderedSnapshot = source.OrderedRegisteredMessageIds.ToList();
+
+        foreach (string key in orderedSnapshot.Distinct(StringComparer.Ordinal)) {
+            if (!source.Handlers.TryGetValue(key, out NetCustomSchemeDelegate? handler)) continue;
+            copy.Handlers.TryAdd(key, handler);
+            copy.OrderedRegisteredMessageIds.Add(key);
         }
         
         return copy;

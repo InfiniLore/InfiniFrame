@@ -76,4 +76,33 @@ public class InfiniFrameWindowBuilderTests {
         await Assert.That(snapshot.CustomSchemes.Length).IsEqualTo(1);
         await Assert.That(registeredSchemeCount).IsEqualTo(1);
     }
+
+    [Test]
+    public async Task CreateSnapshot_ReRegisteringSameScheme_DoesNotMultiplyDelegates() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+        var callCount = 0;
+
+        Stream? CountingHandler(object sender, string scheme, string url, out string? contentType) {
+            _ = sender;
+            _ = scheme;
+            _ = url;
+            Interlocked.Increment(ref callCount);
+            contentType = null;
+            return null;
+        }
+
+        builder.RegisterCustomSchemeHandler("app", CountingHandler);
+        builder.RegisterCustomSchemeHandler("app", CountingHandler);
+
+        // Act
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        bool found = snapshot.CustomSchemes.TryGetHandler("app", out NetCustomSchemeDelegate? copiedHandler);
+        copiedHandler?.Invoke(this, "app", "app://resource", out string? _);
+
+        // Assert
+        await Assert.That(found).IsTrue();
+        await Assert.That(copiedHandler).IsNotNull();
+        await Assert.That(callCount).IsEqualTo(2);
+    }
 }
