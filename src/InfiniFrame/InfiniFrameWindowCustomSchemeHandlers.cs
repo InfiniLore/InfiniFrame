@@ -58,10 +58,12 @@ public class InfiniFrameWindowCustomSchemeHandlers : IInfiniFrameWindowCustomSch
         var copy = new InfiniFrameWindowCustomSchemeHandlers();
 
         var handlers = snapshot.Handlers.ToDictionary(static item => item.Key, static item => item.Value, StringComparer.Ordinal);
-        foreach (string key in snapshot.OrderedSchemeNames.Distinct(StringComparer.Ordinal)) {
-            if (!handlers.TryGetValue(key, out NetCustomSchemeDelegate? handler)) continue;
-            copy.Handlers.TryAdd(key, handler);
-            copy.OrderedRegisteredMessageIds.Add(key);
+        foreach (var entry in snapshot.OrderedSchemeNames
+                     .Distinct(StringComparer.Ordinal)
+                     .Select(key => new { Key = key, Found = handlers.TryGetValue(key, out NetCustomSchemeDelegate? handler), Handler = handler })
+                     .Where(item => item.Found)) {
+            copy.Handlers.TryAdd(entry.Key, entry.Handler!);
+            copy.OrderedRegisteredMessageIds.Add(entry.Key);
         }
         
         return copy;
