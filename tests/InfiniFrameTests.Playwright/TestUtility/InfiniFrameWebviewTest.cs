@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
+
 using Microsoft.Playwright;
 using TUnit.Engine.Exceptions;
 
@@ -15,8 +15,8 @@ public abstract class InfiniFrameWebviewTest {
     // -----------------------------------------------------------------------------------------------------------------
     [Before(Test)]
     public async Task ResetStateBeforeEachTest() {
-        GlobalPlaywrightContext.ResetWindowCloseRequestCount();
-        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
+        await GlobalPlaywrightContext.ResetWindowCloseRequestCountAsync();
+        await GlobalPlaywrightContext.SetWindowTitleAsync(GlobalPlaywrightContext.DefaultDocumentTitle);
         IPage page = await GetRootPageAsync();
         await page.EvaluateAsync(
             // lang=javascript

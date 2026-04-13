@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrameTests.Shared;
 using Microsoft.Playwright;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using InfiniFrame.Js.Interop.MessageHandlers;
@@ -14,6 +15,8 @@ namespace InfiniFrameTests.Playwright.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class GlobalPlaywrightContext {
     private static InfiniFrameServerTestUtility? Utility { get; set; }
+    private static Process? HostProcess { get; set; }
+    private static HttpClient? HostClient { get; set; }
     private static IPlaywright? Playwright { get; set; }
     private static IBrowser? Browser { get; set; }
     private static readonly SemaphoreSlim BrowserLock = new(1, 1);
@@ -52,25 +55,31 @@ public static class GlobalPlaywrightContext {
         Console.WriteLine(
             $"[PlaywrightSetup] Starting assembly setup. server={ServerUrl}, cdp={PlaywrightConnectionString}");
 
-        using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+        if (OperatingSystem.IsMacOS()) {
+            StartMacOsHostProcess();
+        }
+        else {
+            using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
 
-        Utility = InfiniFrameServerTestUtility.Create(
-            appBuilder: static serverBuilder => serverBuilder
-                .WebHost.UseUrls(ServerUrl),
-            windowBuilder: static windowBuilder => windowBuilder
-                .SetStartUrl(ServerUrl)
-                .SetTitle(DefaultDocumentTitle)
-                .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
-                .RegisterWindowManagementWebMessageHandler()
-                .RegisterFullScreenWebMessageHandler()
-                .RegisterOpenExternalTargetWebMessageHandler()
-                .RegisterTitleChangedWebMessageHandler()
-                .RegisterWindowClosingHandler(static (_, _) => {
-                    Interlocked.Increment(ref _windowCloseRequestCount);
-                    return Volatile.Read(ref _suppressCloseRequests) == 1;
-                }),
-            cancellationToken: startupCancellation.Token
-        );
+            Utility = InfiniFrameServerTestUtility.Create(
+                appBuilder: static serverBuilder => serverBuilder
+                    .WebHost.UseUrls(ServerUrl),
+                windowBuilder: static windowBuilder => windowBuilder
+                    .SetStartUrl(ServerUrl)
+                    .SetTitle(DefaultDocumentTitle)
+                    .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
+                    .RegisterWindowManagementWebMessageHandler()
+                    .RegisterFullScreenWebMessageHandler()
+                    .RegisterOpenExternalTargetWebMessageHandler()
+                    .RegisterTitleChangedWebMessageHandler()
+                    .RegisterWindowClosingHandler(static (_, _) => {
+                        Interlocked.Increment(ref _windowCloseRequestCount);
+                        return Volatile.Read(ref _suppressCloseRequests) == 1;
+                    }),
+                cancellationToken: startupCancellation.Token
+            );
+        }
+
         Console.WriteLine("[PlaywrightSetup] Assembly setup completed.");
     }
 
@@ -89,6 +98,8 @@ public static class GlobalPlaywrightContext {
         Browser = null;
         Playwright?.Dispose();
         Playwright = null;
+
+        TryStopHostProcess();
 
         Utility?.Dispose();
     }
@@ -161,12 +172,170 @@ public static class GlobalPlaywrightContext {
     }
 
     public static void ResetWindowCloseRequestCount()
-        => Volatile.Write(ref _windowCloseRequestCount, 0);
+        => ResetWindowCloseRequestCountAsync().GetAwaiter().GetResult();
 
     public static int GetWindowCloseRequestCount()
-        => Volatile.Read(ref _windowCloseRequestCount);
+        => GetWindowCloseRequestCountAsync().GetAwaiter().GetResult();
 
     public static void SuppressWindowCloseRequests(bool suppress) {
+        SuppressWindowCloseRequestsAsync(suppress).GetAwaiter().GetResult();
+    }
+
+    public static async Task ResetWindowCloseRequestCountAsync() {
+        if (OperatingSystem.IsMacOS()) {
+            await HostClient!.PostAsync("/__host/window/close/reset", content: null);
+            return;
+        }
+
+        Volatile.Write(ref _windowCloseRequestCount, 0);
+    }
+
+    public static async Task<int> GetWindowCloseRequestCountAsync() {
+        // ReSharper disable once InvertIf
+        if (OperatingSystem.IsMacOS()) {
+            int? count = await HostClient!.GetFromJsonAsync<int>("/__host/window/close/count");
+            return (int)count;
+        }
+
+        return Volatile.Read(ref _windowCloseRequestCount);
+    }
+
+    public static async Task SuppressWindowCloseRequestsAsync(bool suppress) {
+        if (OperatingSystem.IsMacOS()) {
+            await HostClient!.PostAsync($"/__host/window/close/suppress/{suppress.ToString().ToLowerInvariant()}", content: null);
+            return;
+        }
+
         Volatile.Write(ref _suppressCloseRequests, suppress ? 1 : 0);
     }
+
+    public static async Task<string> GetWindowTitleAsync() {
+        if (OperatingSystem.IsMacOS()) {
+            return await HostClient!.GetStringAsync("/__host/window/title");
+        }
+
+        return Window.Title;
+    }
+
+    public static async Task SetWindowTitleAsync(string title) {
+        if (OperatingSystem.IsMacOS()) {
+            await HostClient!.PutAsJsonAsync("/__host/window/title", new SetTitleRequest(title));
+            return;
+        }
+
+        Window.SetTitle(title);
+    }
+
+    public static async Task<bool> GetWindowFullscreenAsync() {
+        // ReSharper disable once InvertIf
+        if (OperatingSystem.IsMacOS()) {
+            bool? fullScreen = await HostClient!.GetFromJsonAsync<bool>("/__host/window/fullscreen");
+            return (bool)fullScreen;
+        }
+
+        return Window.FullScreen;
+    }
+
+    private static void StartMacOsHostProcess() {
+        string repositoryRoot = ResolveRepositoryRoot();
+        string hostProjectPath = Path.Combine(repositoryRoot, "tests", "InfiniFrameTests.Playwright.Host", "InfiniFrameTests.Playwright.Host.csproj");
+        string webRootPath = Path.Combine(repositoryRoot, "tests", "InfiniFrameTests.Playwright", "wwwroot");
+
+        var startInfo = new ProcessStartInfo {
+            FileName = "dotnet",
+            Arguments =
+                $"run --no-build --configuration Release --framework net8.0 --project \"{hostProjectPath}\" -- --server-port {ServerPort} --cdp-port {PlaywrightDevtoolsPort} --webroot \"{webRootPath}\" --default-title \"{DefaultDocumentTitle}\"",
+            WorkingDirectory = repositoryRoot,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        HostProcess = Process.Start(startInfo) ?? throw new InvalidOperationException("Failed to start macOS Playwright host process.");
+
+        var readySignal = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var stderr = new List<string>();
+
+        HostProcess.OutputDataReceived += (_, eventArgs) => {
+            string? line = eventArgs.Data;
+            if (line is null) return;
+
+            Console.WriteLine($"[PlaywrightHost] {line}");
+            if (line.StartsWith("READY|", StringComparison.Ordinal))
+                readySignal.TrySetResult();
+        };
+
+        HostProcess.ErrorDataReceived += (_, eventArgs) => {
+            string? line = eventArgs.Data;
+            if (line is null) return;
+            lock (stderr) {
+                stderr.Add(line);
+            }
+            Console.WriteLine($"[PlaywrightHost:stderr] {line}");
+        };
+
+        HostProcess.BeginOutputReadLine();
+        HostProcess.BeginErrorReadLine();
+
+        bool ready = readySignal.Task.Wait(TimeSpan.FromSeconds(90));
+        if (!ready || HostProcess.HasExited) {
+            string errorText;
+            lock (stderr) {
+                errorText = string.Join(Environment.NewLine, stderr);
+            }
+
+            throw new InvalidOperationException(
+                $"macOS Playwright host failed to start. exited={HostProcess.HasExited}. stderr:{Environment.NewLine}{errorText}"
+            );
+        }
+
+        HostClient = new HttpClient {
+            BaseAddress = new Uri(ServerUrl)
+        };
+    }
+
+    private static void TryStopHostProcess() {
+        if (HostClient is not null) {
+            try {
+                HostClient.PostAsync("/__host/shutdown", content: null).GetAwaiter().GetResult();
+            }
+            catch {
+                // ignored
+            }
+
+            HostClient.Dispose();
+            HostClient = null;
+        }
+
+        if (HostProcess is null)
+            return;
+
+        try {
+            if (!HostProcess.HasExited && !HostProcess.WaitForExit(5000))
+                HostProcess.Kill(entireProcessTree: true);
+        }
+        catch {
+            // ignored
+        }
+        finally {
+            HostProcess.Dispose();
+            HostProcess = null;
+        }
+    }
+
+    private static string ResolveRepositoryRoot() {
+        string? current = Directory.GetCurrentDirectory();
+        while (!string.IsNullOrWhiteSpace(current)) {
+            if (File.Exists(Path.Combine(current, "InfiniFrame.slnx")))
+                return current;
+
+            current = Directory.GetParent(current)?.FullName;
+        }
+
+        throw new DirectoryNotFoundException("Unable to locate repository root (InfiniFrame.slnx).");
+    }
+
+    // ReSharper disable once NotAccessedPositionalProperty.Local
+    private sealed record SetTitleRequest(string Title);
 }

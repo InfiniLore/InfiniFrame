@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
+
 using InfiniFrameTests.Playwright.TestUtility;
 using Microsoft.Playwright;
 using InfiniFrameTests.Shared;
@@ -18,7 +18,7 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
     [TestExecutor<UiThreadExecutor>]
     public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen() {
         // Arrange
-        bool originalFullscreenState = GlobalPlaywrightContext.Window.FullScreen;
+        bool originalFullscreenState = await GlobalPlaywrightContext.GetWindowFullscreenAsync();
         IPage page = await GetRootPageAsync();
         const string buttonId = "#fullscreen-toggle-button";
 
@@ -26,13 +26,13 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
         await page.ClickAsync(buttonId);
         bool newFullscreenState = await WaitForStateChangeAsync(
             originalFullscreenState,
-            stateProvider: static () => GlobalPlaywrightContext.Window.FullScreen
+            stateProvider: static () => GlobalPlaywrightContext.GetWindowFullscreenAsync()
         );
 
         await page.ClickAsync(buttonId);
         bool finalFullscreenState = await WaitForStateChangeAsync(
             newFullscreenState,
-            stateProvider: static () => GlobalPlaywrightContext.Window.FullScreen
+            stateProvider: static () => GlobalPlaywrightContext.GetWindowFullscreenAsync()
         );
 
         // Assert
@@ -48,7 +48,7 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
         // Arrange
         IPage page = await GetRootPageAsync();
         const string buttonId = "#title-toggle-button";
-        string originalTitleState = GlobalPlaywrightContext.Window.Title;
+        string originalTitleState = await GlobalPlaywrightContext.GetWindowTitleAsync();
 
         try {
             // Act
@@ -56,14 +56,14 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
             await Task.Delay(5_000);
             string newTitleState = await WaitForStateChangeAsync(
                 originalTitleState,
-                stateProvider: static () => GlobalPlaywrightContext.Window.Title
+                stateProvider: static () => GlobalPlaywrightContext.GetWindowTitleAsync()
             );
 
             await page.ClickAsync(buttonId);
             await Task.Delay(5_000);
             string finalTitleState = await WaitForStateChangeAsync(
                 newTitleState,
-                stateProvider: static () => GlobalPlaywrightContext.Window.Title
+                stateProvider: static () => GlobalPlaywrightContext.GetWindowTitleAsync()
             );
 
             // Assert
@@ -72,7 +72,7 @@ public class JavascriptInteropTests : InfiniFrameWebviewTest {
             await Assert.That(finalTitleState).IsEqualTo(GlobalPlaywrightContext.DefaultDocumentTitle);
         }
         finally {
-            GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
+            await GlobalPlaywrightContext.SetWindowTitleAsync(GlobalPlaywrightContext.DefaultDocumentTitle);
             await page.EvaluateAsync(
                 // lang=javascript
                 $"() => {{ document.title = '{GlobalPlaywrightContext.DefaultDocumentTitle}'; }}"

@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
+
 using InfiniFrameTests.Playwright.TestUtility;
 using Microsoft.Playwright;
 using InfiniFrameTests.Shared;
@@ -45,7 +45,7 @@ public class JavascriptTests : InfiniFrameWebviewTest {
     public async Task DynamicallyUpdateTitleFromJs() {
         // Arrange
         IPage page = await GetRootPageAsync();
-        string originalTitle = GlobalPlaywrightContext.Window.Title;
+        string originalTitle = await GlobalPlaywrightContext.GetWindowTitleAsync();
         const string newTitle = "newly updated title";
 
         // Act
@@ -53,13 +53,16 @@ public class JavascriptTests : InfiniFrameWebviewTest {
             // lang=javascript 
             $"() => window.infiniframe?.host?.postMessage({{ id: '__infiniframe:title:change', data: '{newTitle}', version: 1 }})"
         );
-        string updatedTitle = await WaitForStateChangeAsync(originalTitle, stateProvider: () => GlobalPlaywrightContext.Window.Title);
+        string updatedTitle = await WaitForStateChangeAsync(
+            originalTitle,
+            stateProvider: static () => GlobalPlaywrightContext.GetWindowTitleAsync()
+        );
 
         // Assert
         await Assert.That(updatedTitle).IsEqualTo(newTitle);
 
         // Reset
-        GlobalPlaywrightContext.Window.SetTitle(GlobalPlaywrightContext.DefaultDocumentTitle);
+        await GlobalPlaywrightContext.SetWindowTitleAsync(GlobalPlaywrightContext.DefaultDocumentTitle);
     }
 
     [Test, NotInParallel(ParallelControl.Playwright)]
@@ -67,8 +70,8 @@ public class JavascriptTests : InfiniFrameWebviewTest {
     public async Task WindowClose() {
         // Arrange
         IPage page = await GetRootPageAsync();
-        int initialCloseRequestCount = GlobalPlaywrightContext.GetWindowCloseRequestCount();
-        GlobalPlaywrightContext.SuppressWindowCloseRequests(true);
+        int initialCloseRequestCount = await GlobalPlaywrightContext.GetWindowCloseRequestCountAsync();
+        await GlobalPlaywrightContext.SuppressWindowCloseRequestsAsync(true);
 
         try {
             // Act
@@ -78,14 +81,14 @@ public class JavascriptTests : InfiniFrameWebviewTest {
             );
             int closeRequestCount = await WaitForStateChangeAsync(
                 initialCloseRequestCount,
-                stateProvider: static () => GlobalPlaywrightContext.GetWindowCloseRequestCount()
+                stateProvider: static () => GlobalPlaywrightContext.GetWindowCloseRequestCountAsync()
             );
 
             // Assert
             await Assert.That(closeRequestCount).IsEqualTo(initialCloseRequestCount + 1);
         }
         finally {
-            GlobalPlaywrightContext.SuppressWindowCloseRequests(false);
+            await GlobalPlaywrightContext.SuppressWindowCloseRequestsAsync(false);
         }
     }
 }

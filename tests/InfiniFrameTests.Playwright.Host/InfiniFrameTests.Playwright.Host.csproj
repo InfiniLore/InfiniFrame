@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <EnableNativeDllCopy>true</EnableNativeDllCopy>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\InfiniFrame.WebServer\InfiniFrame.WebServer.csproj" />
+        <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
+    </ItemGroup>
+</Project>

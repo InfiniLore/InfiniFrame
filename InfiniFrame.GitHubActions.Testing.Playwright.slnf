@@ -11,6 +11,7 @@
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
 
             "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
+            "tests\\InfiniFrameTests.Playwright.Host\\InfiniFrameTests.Playwright.Host.csproj",
             "tests\\InfiniFrameTests.Playwright\\InfiniFrameTests.Playwright.csproj"
         ]
     }

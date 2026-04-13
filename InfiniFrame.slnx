@@ -106,6 +106,7 @@
     <File Path="tests/Directory.Build.targets" />
     <Project Path="tests/InfiniFrameTests.BlazorWebView/InfiniFrameTests.BlazorWebView.csproj" />
     <Project Path="tests/InfiniFrameTests.Js/InfiniFrameTests.Js.csproj" />
+    <Project Path="tests/InfiniFrameTests.Playwright.Host/InfiniFrameTests.Playwright.Host.csproj" />
     <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
     <Project Path="tests/InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     <Project Path="tests/InfiniFrameTests.Tools.Pack/InfiniFrameTests.Tools.Pack.csproj" />
