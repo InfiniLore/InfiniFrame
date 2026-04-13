@@ -100,6 +100,10 @@ public class InfiniFrameBlazorAppBuilder {
             serviceProvider.GetService<IInfiniFrameWindow>()?.ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         };
 
-        return serviceProvider.GetRequiredService<InfiniFrameBlazorApp>();
+        return new InfiniFrameBlazorApp(
+            serviceProvider,
+            serviceProvider.GetRequiredService<RootComponentList>(),
+            serviceProvider.GetService<IInfiniFrameJsComponentConfiguration>()
+        );
     }
 }
