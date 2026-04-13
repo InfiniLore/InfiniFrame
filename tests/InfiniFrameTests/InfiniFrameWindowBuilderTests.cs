@@ -105,4 +105,42 @@ public class InfiniFrameWindowBuilderTests {
         await Assert.That(copiedHandler).IsNotNull();
         await Assert.That(callCount).IsEqualTo(2);
     }
+
+    [Test]
+    public async Task CreateSnapshot_ReRegisteringSameScheme_RemainsStableAcrossRepeatedSnapshots() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+        var callCount = 0;
+
+        Stream? CountingHandler(object sender, string scheme, string url, out string? contentType) {
+            _ = sender;
+            _ = scheme;
+            _ = url;
+            Interlocked.Increment(ref callCount);
+            contentType = null;
+            return null;
+        }
+
+        for (var i = 0; i < 100; i++) {
+            builder.RegisterCustomSchemeHandler("app", CountingHandler);
+        }
+
+        // Act
+        InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
+        InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
+        bool foundFirst = first.CustomSchemes.TryGetHandler("app", out NetCustomSchemeDelegate? firstHandler);
+        bool foundSecond = second.CustomSchemes.TryGetHandler("app", out NetCustomSchemeDelegate? secondHandler);
+        int firstRegisteredCount = first.CustomSchemes.GetRegisteredHandlers().Count();
+        int secondRegisteredCount = second.CustomSchemes.GetRegisteredHandlers().Count();
+
+        firstHandler?.Invoke(this, "app", "app://resource1", out string? _);
+        secondHandler?.Invoke(this, "app", "app://resource2", out string? _);
+
+        // Assert
+        await Assert.That(foundFirst).IsTrue();
+        await Assert.That(foundSecond).IsTrue();
+        await Assert.That(firstRegisteredCount).IsEqualTo(1);
+        await Assert.That(secondRegisteredCount).IsEqualTo(1);
+        await Assert.That(callCount).IsEqualTo(200);
+    }
 }
