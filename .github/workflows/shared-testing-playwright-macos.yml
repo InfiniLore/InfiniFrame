@@ -21,7 +21,7 @@ on:
 jobs:
     macos-playwright:
         name: macOS Playwright
-        runs-on: macos-latest
+        runs-on: macos-15-intel
         timeout-minutes: 75
 
         env:
@@ -109,22 +109,19 @@ jobs:
             -   name: Install Playwright Browsers
                 if: steps.cache-playwright.outputs.cache-hit != 'true'
                 working-directory: tests/InfiniFrameTests.Playwright
+                shell: pwsh
                 run: |
-                    scripts=(
-                        "bin/Release/net10.0/playwright.sh"
-                        "bin/Release/net9.0/playwright.sh"
-                        "bin/Release/net8.0/playwright.sh"
+                    $scripts = @(
+                      "bin/Release/net10.0/playwright.ps1",
+                      "bin/Release/net9.0/playwright.ps1",
+                      "bin/Release/net8.0/playwright.ps1"
                     )
+                    $script = $scripts | Where-Object { Test-Path $_ } | Select-Object -First 1
+                    if (-Not $script) {
+                      throw "Playwright install script not found in bin/Release/(net8.0|net9.0|net10.0)"
+                    }
 
-                    for script in "${scripts[@]}"; do
-                        if [ -f "$script" ]; then
-                            bash "$script" install
-                            exit 0
-                        fi
-                    done
-
-                    echo "Playwright install script not found"
-                    exit 1
+                    pwsh $script install
 
             -   name: Verify Native Binaries
                 run: |
@@ -155,7 +152,10 @@ jobs:
                 if: always()
                 continue-on-error: true
                 timeout-minutes: 20
-                run: dotnet test --configuration Release --no-build --no-restore --framework net8.0
+                run: |
+                    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+                    export NSUnbufferedIO=YES
+                    dotnet test --configuration Release --no-build --no-restore --framework net8.0
 
             -   name: Upload Playwright Logs (net8.0)
                 if: always()
@@ -170,7 +170,10 @@ jobs:
                 if: always()
                 continue-on-error: true
                 timeout-minutes: 20
-                run: dotnet test --configuration Release --no-build --no-restore --framework net9.0
+                run: |
+                    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+                    export NSUnbufferedIO=YES
+                    dotnet test --configuration Release --no-build --no-restore --framework net9.0
 
             -   name: Upload Playwright Logs (net9.0)
                 if: always()
@@ -185,7 +188,10 @@ jobs:
                 if: always()
                 continue-on-error: true
                 timeout-minutes: 20
-                run: dotnet test --configuration Release --no-build --no-restore --framework net10.0
+                run: |
+                    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+                    export NSUnbufferedIO=YES
+                    dotnet test --configuration Release --no-build --no-restore --framework net10.0
 
             -   name: Upload Playwright Logs (net10.0)
                 if: always()
