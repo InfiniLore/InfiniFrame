@@ -179,6 +179,12 @@ Build static site:
 npm --prefix docs run build
 ```
 
+## Agents and Skills
+When using AI assistants, you can use pre-built skill sets and specialised agents designed specifically for `InfiniFrame`:
+
+- [Agents Folder](https://github.com/InfiniLore/InfiniFrame/tree/core/agents) — Expert-Agents in the `InfiniFrame` environment design/architecture
+- [Skills Folder](https://github.com/InfiniLore/InfiniFrame/tree/core/skills) — Specialised skill sets containing all the necessary instructions for working with `InfiniFrame`
+
 ## Platform Requirements
 
 | Platform | Browser Engine      | Requirement                           |
