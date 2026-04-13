@@ -15,11 +15,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     private readonly InfiniFrameWindowNativeParameterBuilder _configuration = new();
     public IInfiniFrameWindowNativeParameterBuilder Configuration => _configuration;
 
-    private readonly InfiniFrameWindowEvents _events = new();
-    public IInfiniFrameWindowEvents Events {
-        get => _events;
-        private init => _events = value as InfiniFrameWindowEvents ?? throw new ArgumentException("Events must be of type InfiniFrameWindowEvents.");
-    }
+    private InfiniFrameWindowEvents _events = new();
+    public IInfiniFrameWindowEvents Events => _events;
 
     private readonly InfiniFrameWindowMessageHandlers _messageHandlers = new();
     public IInfiniFrameWindowMessageHandlers MessageHandlers => _messageHandlers;
@@ -34,8 +31,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    public static InfiniFrameWindowBuilder Create(IInfiniFrameWindowEvents? events = null) => new() {
-        Events = events ?? new InfiniFrameWindowEvents()
+    public static InfiniFrameWindowBuilder Create(InfiniFrameWindowEvents? events = null) => new() {
+        _events = events ?? new InfiniFrameWindowEvents()
     };
 
     // -----------------------------------------------------------------------------------------------------------------
