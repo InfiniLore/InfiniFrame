@@ -238,13 +238,24 @@ public static class GlobalPlaywrightContext {
 
     private static void StartMacOsHostProcess() {
         string repositoryRoot = ResolveRepositoryRoot();
-        string hostProjectPath = Path.Combine(repositoryRoot, "tests", "InfiniFrameTests.Playwright.Host", "InfiniFrameTests.Playwright.Host.csproj");
-        string webRootPath = Path.Combine(repositoryRoot, "tests", "InfiniFrameTests.Playwright", "wwwroot");
+        string hostProjectPath = Path.Join(repositoryRoot, "tests", "InfiniFrameTests.Playwright.Host", "InfiniFrameTests.Playwright.Host.csproj");
+        string hostDllPath = Path.Join(
+            repositoryRoot,
+            "tests",
+            "InfiniFrameTests.Playwright.Host",
+            "bin",
+            "Release",
+            "net10.0",
+            "InfiniFrameTests.Playwright.Host.dll"
+        );
+        string webRootPath = Path.Join(repositoryRoot, "tests", "InfiniFrameTests.Playwright", "wwwroot");
+
+        EnsureMacOsHostBuilt(repositoryRoot, hostProjectPath, hostDllPath);
 
         var startInfo = new ProcessStartInfo {
             FileName = "dotnet",
             Arguments =
-                $"run --no-build --configuration Release --framework net8.0 --project \"{hostProjectPath}\" -- --server-port {ServerPort} --cdp-port {PlaywrightDevtoolsPort} --webroot \"{webRootPath}\" --default-title \"{DefaultDocumentTitle}\"",
+                $"\"{hostDllPath}\" --server-port {ServerPort} --cdp-port {PlaywrightDevtoolsPort} --webroot \"{webRootPath}\" --default-title \"{DefaultDocumentTitle}\"",
             WorkingDirectory = repositoryRoot,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -295,6 +306,33 @@ public static class GlobalPlaywrightContext {
         };
     }
 
+    private static void EnsureMacOsHostBuilt(string repositoryRoot, string hostProjectPath, string hostDllPath) {
+        if (File.Exists(hostDllPath))
+            return;
+
+        var buildInfo = new ProcessStartInfo {
+            FileName = "dotnet",
+            Arguments = $"build \"{hostProjectPath}\" --configuration Release --framework net10.0 --no-restore",
+            WorkingDirectory = repositoryRoot,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using Process buildProcess = Process.Start(buildInfo)
+            ?? throw new InvalidOperationException("Failed to start macOS host build process.");
+        string output = buildProcess.StandardOutput.ReadToEnd();
+        string error = buildProcess.StandardError.ReadToEnd();
+        buildProcess.WaitForExit();
+
+        if (buildProcess.ExitCode != 0 || !File.Exists(hostDllPath)) {
+            throw new InvalidOperationException(
+                $"Failed to build macOS Playwright host. exit={buildProcess.ExitCode}{Environment.NewLine}{output}{Environment.NewLine}{error}"
+            );
+        }
+    }
+
     private static void TryStopHostProcess() {
         if (HostClient is not null) {
             try {
@@ -327,7 +365,7 @@ public static class GlobalPlaywrightContext {
     private static string ResolveRepositoryRoot() {
         string? current = Directory.GetCurrentDirectory();
         while (!string.IsNullOrWhiteSpace(current)) {
-            if (File.Exists(Path.Combine(current, "InfiniFrame.slnx")))
+            if (File.Exists(Path.Join(current, "InfiniFrame.slnx")))
                 return current;
 
             current = Directory.GetParent(current)?.FullName;
