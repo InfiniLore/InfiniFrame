@@ -133,8 +133,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         var availableHandlers = new HashSet<string>(customSchemesSnapshot.Handlers.Select(static item => item.Key), StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
         
-        foreach (string key in customSchemesSnapshot.OrderedSchemeNames) {
-            if (!seen.Add(key) || !availableHandlers.Contains(key)) continue;
+        foreach (string key in customSchemesSnapshot.OrderedSchemeNames.Where(key => seen.Add(key) && availableHandlers.Contains(key))) {
             if (index >= customSchemeNameArray.Length) {
                 throw new InvalidOperationException("Maximum number of custom schemes is 16.");
             }
