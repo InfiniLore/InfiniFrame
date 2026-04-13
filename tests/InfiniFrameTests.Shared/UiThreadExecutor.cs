@@ -10,34 +10,46 @@ namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class UiThreadExecutor : ITestExecutor {
     public ValueTask ExecuteTest(TestContext context, Func<ValueTask> action) {
-        var contextQueue = new BlockingCollection<Func<Task>>();
-        var tcs = new TaskCompletionSource();
+        if (OperatingSystem.IsWindows()) {
+            // STA requirement
+            var sta = new STAThreadExecutor();
+            return sta.ExecuteTest(context, action);
+        }
 
-        var thread = new Thread(() => {
-            SynchronizationContext.SetSynchronizationContext(new SingleThreadSyncContext(contextQueue));
+        // ReSharper disable once InvertIf
+        if (OperatingSystem.IsMacOS()) {
+            var contextQueue = new BlockingCollection<Func<Task>>();
+            var tcs = new TaskCompletionSource();
 
-            try {
-                Task task = action().AsTask();
-                task.ContinueWith(t => {
-                    if (t.IsFaulted)
-                        tcs.SetException(t.Exception!);
-                    else
-                        tcs.SetResult();
-                });
+            var thread = new Thread(() => {
+                SynchronizationContext.SetSynchronizationContext(new SingleThreadSyncContext(contextQueue));
 
-                foreach (var work in contextQueue.GetConsumingEnumerable()) {
-                    work().GetAwaiter().GetResult();
+                try {
+                    Task task = action().AsTask();
+                    task.ContinueWith(t => {
+                        if (t.IsFaulted)
+                            tcs.SetException(t.Exception!);
+                        else
+                            tcs.SetResult();
+                    });
+
+                    foreach (var work in contextQueue.GetConsumingEnumerable()) {
+                        work().GetAwaiter().GetResult();
+                    }
                 }
-            }
-            catch (Exception ex) {
-                tcs.SetException(ex);
-            }
-        }) {
-            IsBackground = true
-        };
+                catch (Exception ex) {
+                    tcs.SetException(ex);
+                }
+            }) {
+                IsBackground = true
+            };
 
-        thread.Start();
+            thread.Start();
 
-        return new ValueTask(tcs.Task);
+            return new ValueTask(tcs.Task);
+        }
+        
+        // Linux / fallback
+        return action();
     }
 }
