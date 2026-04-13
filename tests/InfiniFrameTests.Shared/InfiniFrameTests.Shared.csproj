@@ -1,13 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-            $(TargetFrameworks);
-            net8.0-maccatalyst;
-            net9.0-maccatalyst;
-            net10.0-maccatalyst
-        </TargetFrameworks>
-    </PropertyGroup>
-    
+﻿<Project Sdk="Microsoft.NET.Sdk">    
     <ItemGroup>
         <PackageReference Include="TUnit.Core"/>
         <PackageReference Include="NSubstitute" />

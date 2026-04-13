@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Collections.Concurrent;
 using TUnit.Core.Interfaces;
 
 namespace InfiniFrameTests.Shared;
@@ -8,42 +9,35 @@ namespace InfiniFrameTests.Shared;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class UiThreadExecutor : ITestExecutor {
-    public async ValueTask ExecuteTest(TestContext context, Func<ValueTask> action) {
-        if (OperatingSystem.IsWindows()) {
-            // STA requirement
-            var sta = new STAThreadExecutor();
-            await sta.ExecuteTest(context, action);
-            return;
-        }
+    public ValueTask ExecuteTest(TestContext context, Func<ValueTask> action) {
+        var contextQueue = new BlockingCollection<Func<Task>>();
+        var tcs = new TaskCompletionSource();
 
-        if (OperatingSystem.IsMacOS()) {
-#if MACOS
-            var tcs = new TaskCompletionSource();
+        var thread = new Thread(() => {
+            SynchronizationContext.SetSynchronizationContext(new SingleThreadSyncContext(contextQueue));
 
-            CoreFoundation.CFRunLoop.PerformBlock(
-                CoreFoundation.CFRunLoop.Main,
-                CoreFoundation.CFRunLoopMode.Default,
-                async () => {
-                    try {
-                        await action();
+            try {
+                Task task = action().AsTask();
+                task.ContinueWith(t => {
+                    if (t.IsFaulted)
+                        tcs.SetException(t.Exception!);
+                    else
                         tcs.SetResult();
-                    }
-                    catch (Exception ex) {
-                        tcs.SetException(ex);
-                    }
                 });
 
-            CoreFoundation.CFRunLoop.WakeUp(CoreFoundation.CFRunLoop.Main);
+                foreach (var work in contextQueue.GetConsumingEnumerable()) {
+                    work().GetAwaiter().GetResult();
+                }
+            }
+            catch (Exception ex) {
+                tcs.SetException(ex);
+            }
+        }) {
+            IsBackground = true
+        };
 
-            await tcs.Task;
-            return;
-#else
-            await action();
-            return;
-#endif
-        }
+        thread.Start();
 
-        // Linux / fallback
-        await action();
+        return new ValueTask(tcs.Task);
     }
 }

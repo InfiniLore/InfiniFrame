@@ -61,19 +61,6 @@ jobs:
                         9.x
                         10.x
 
-            -   name: Cache .NET Workloads
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        ~/.dotnet/workloads
-                        ~/.dotnet/sdk-manifests
-                    key: ${{ runner.os }}-dotnet-workloads-${{ hashFiles('**/*.csproj', '**/global.json') }}
-                    restore-keys: |
-                          ${{ runner.os }}-dotnet-workloads-
-
-            -   name: Install macOS Workloads
-                run: dotnet workload restore
-
             -   name: Cache NuGet
                 uses: actions/cache@v5
                 with:
