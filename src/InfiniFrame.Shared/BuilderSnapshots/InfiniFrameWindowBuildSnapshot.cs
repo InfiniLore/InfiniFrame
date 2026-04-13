@@ -3,14 +3,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
 
-namespace InfiniFrame;
+namespace InfiniFrame.BuilderSnapshots;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal readonly record struct InfiniFrameWindowBuildSnapshot(
     InfiniFrameNativeParameters StartupParameters,
-    InfiniFrameWindowEvents Events,
-    InfiniFrameWindowMessageHandlers MessageHandlers,
-    InfiniFrameWindowCustomSchemeHandlers CustomSchemes,
+    InfiniFrameWindowEventsSnapshot Events,
+    InfiniFrameWindowMessageHandlersSnapshot MessageHandlers,
+    InfiniFrameWindowCustomSchemeHandlersSnapshot CustomSchemes,
     StaticAssetSettings? StaticAssets
 );

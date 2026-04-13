@@ -1,11 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Configuration;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -58,14 +60,17 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         InfiniFrameWindowBuildSnapshot snapshot = CreateSnapshot(provider);
+        InfiniFrameWindowEvents events = InfiniFrameWindowEvents.FromSnapshot(snapshot.Events);
+        InfiniFrameWindowMessageHandlers messageHandlers = InfiniFrameWindowMessageHandlers.FromSnapshot(snapshot.MessageHandlers);
+        InfiniFrameWindowCustomSchemeHandlers customSchemes = InfiniFrameWindowCustomSchemeHandlers.FromSnapshot(snapshot.CustomSchemes);
 
         var window = new InfiniFrameWindow {
             ServiceProvider = provider,
             Logger = provider?.GetService<ILogger<InfiniFrameWindow>>() ?? GetDefaultLogger(),
-            CustomSchemes = snapshot.CustomSchemes,
+            CustomSchemes = customSchemes,
             Parent = null,
-            Events = snapshot.Events,
-            MessageHandlers = snapshot.MessageHandlers,
+            Events = events,
+            MessageHandlers = messageHandlers,
             StaticAssets = snapshot.StaticAssets
         };
 
@@ -73,7 +78,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
         window.StartupParameters = startupParameters;
         
-        snapshot.Events.CompleteSetup(window);
+        events.CompleteSetup(window);
         window.Initialize();
         return window;
 
@@ -82,23 +87,26 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     internal InfiniFrameWindowBuildSnapshot CreateSnapshot(IServiceProvider? provider = null) {
         if (CustomSchemeHandlers.Length > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
 
-        InfiniFrameWindowEvents eventsSnapshot = InfiniFrameWindowEvents.CopyFrom(_events);
-        InfiniFrameWindowMessageHandlers messageHandlersSnapshot = InfiniFrameWindowMessageHandlers.CopyFrom(_messageHandlers);
-        InfiniFrameWindowCustomSchemeHandlers customSchemesSnapshot = InfiniFrameWindowCustomSchemeHandlers.CopyFrom(_customSchemeHandlers);
+        InfiniFrameWindowMessageHandlersSnapshot messageHandlersSnapshot = _messageHandlers.ToSnapshot();
+        InfiniFrameWindowMessageHandlers messageHandlers = InfiniFrameWindowMessageHandlers.FromSnapshot(messageHandlersSnapshot);
 
-        eventsSnapshot.WebMessageReceived.Add(messageHandlersSnapshot.Handle);
+        InfiniFrameWindowEventsSnapshot eventsSnapshot = AddWebMessageHandler(_events.ToSnapshot(), messageHandlers.Handle);
+        InfiniFrameWindowCustomSchemeHandlersSnapshot customSchemesSnapshot = _customSchemeHandlers.ToSnapshot();
+
+        InfiniFrameWindowEvents events = InfiniFrameWindowEvents.FromSnapshot(eventsSnapshot);
 
         // These are callbacks from C++ to C# and must reference the per-window snapshot.
         InfiniFrameNativeParameters startupParameters = GetParameters(provider);
-        startupParameters.ClosingHandler = eventsSnapshot.OnWindowClosing;
-        startupParameters.ResizedHandler = eventsSnapshot.OnSizeChanged;
-        startupParameters.MaximizedHandler = eventsSnapshot.OnMaximized;
-        startupParameters.RestoredHandler = eventsSnapshot.OnRestored;
-        startupParameters.MinimizedHandler = eventsSnapshot.OnMinimized;
-        startupParameters.MovedHandler = eventsSnapshot.OnLocationChanged;
-        startupParameters.FocusInHandler = eventsSnapshot.OnFocusIn;
-        startupParameters.FocusOutHandler = eventsSnapshot.OnFocusOut;
-        startupParameters.WebMessageReceivedHandler = eventsSnapshot.OnWebMessageReceived;
+        ApplyCustomSchemeNames(ref startupParameters, customSchemesSnapshot);
+        startupParameters.ClosingHandler = events.OnWindowClosing;
+        startupParameters.ResizedHandler = events.OnSizeChanged;
+        startupParameters.MaximizedHandler = events.OnMaximized;
+        startupParameters.RestoredHandler = events.OnRestored;
+        startupParameters.MinimizedHandler = events.OnMinimized;
+        startupParameters.MovedHandler = events.OnLocationChanged;
+        startupParameters.FocusInHandler = events.OnFocusIn;
+        startupParameters.FocusOutHandler = events.OnFocusOut;
+        startupParameters.WebMessageReceivedHandler = events.OnWebMessageReceived;
 
         return new InfiniFrameWindowBuildSnapshot(
             startupParameters,
@@ -106,5 +114,35 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             messageHandlersSnapshot,
             customSchemesSnapshot,
             StaticAssets);
+    }
+
+    private static InfiniFrameWindowEventsSnapshot AddWebMessageHandler(
+        InfiniFrameWindowEventsSnapshot snapshot,
+        Action<IInfiniFrameWindow, string> handler
+    ) {
+        Action<IInfiniFrameWindow, string>[] handlersWithBridge = [..snapshot.WebMessageReceived, handler];
+
+        return snapshot with {
+            WebMessageReceived = handlersWithBridge
+        };
+    }
+
+    private static void ApplyCustomSchemeNames(ref InfiniFrameNativeParameters startupParameters, InfiniFrameWindowCustomSchemeHandlersSnapshot customSchemesSnapshot) {
+        var customSchemeNameArray = new IntPtr[16];
+        var index = 0;
+        var availableHandlers = new HashSet<string>(customSchemesSnapshot.Handlers.Select(static item => item.Key), StringComparer.Ordinal);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        
+        foreach (string key in customSchemesSnapshot.OrderedSchemeNames) {
+            if (!seen.Add(key) || !availableHandlers.Contains(key)) continue;
+            if (index >= customSchemeNameArray.Length) {
+                throw new InvalidOperationException("Maximum number of custom schemes is 16.");
+            }
+
+            customSchemeNameArray[index] = Marshal.StringToHGlobalAnsi(key);
+            index++;
+        }
+
+        startupParameters.CustomSchemeNames = customSchemeNameArray;
     }
 }

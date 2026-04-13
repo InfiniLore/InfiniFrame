@@ -656,20 +656,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     }
 
     public void Initialize() {
-        //fill in the fixed size array of custom scheme names
-        var i = 0;
-        foreach ((string key, NetCustomSchemeDelegate _) in CustomSchemes.GetRegisteredHandlers()) {
-            if (i >= StartupParameters.CustomSchemeNames.Length) {
-                throw new InvalidOperationException("Maximum number of custom schemes is 16.");
-            }
-
-            StartupParameters.CustomSchemeNames[i] = Marshal.StringToHGlobalAnsi(key);
-            i++;
-        }
-
         StartupParameters.NativeParent = Parent is InfiniFrameWindow parent
             ? parent.InstanceHandle
             : IntPtr.Zero;
+        
         StartupParameters.WindowIconFile = IconFileUtilities.TryResolveIconFilePath(
             StartupParameters.WindowIconFile,
             out string? resolvedIconFilePath

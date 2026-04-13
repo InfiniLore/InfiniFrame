@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
+using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Utilities;
 
 namespace InfiniFrame;
@@ -123,23 +124,36 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
         WindowCreated.Invoke(Sender);
     }
     
-    internal static InfiniFrameWindowEvents CopyFrom(InfiniFrameWindowEvents source) {
-        ArgumentNullException.ThrowIfNull(source);
-        
+    internal InfiniFrameWindowEventsSnapshot ToSnapshot()
+        => new(
+            WindowLocationChanged.Snapshot.ToArray(),
+            WindowSizeChanged.Snapshot.ToArray(),
+            WindowFocusIn.Snapshot.ToArray(),
+            WindowMaximized.Snapshot.ToArray(),
+            WindowRestored.Snapshot.ToArray(),
+            WindowFocusOut.Snapshot.ToArray(),
+            WindowMinimized.Snapshot.ToArray(),
+            WebMessageReceived.Snapshot.ToArray(),
+            WindowClosingRequested.Snapshot.ToArray(),
+            WindowClosing.Snapshot.ToArray(),
+            WindowCreating.Snapshot.ToArray(),
+            WindowCreated.Snapshot.ToArray());
+
+    internal static InfiniFrameWindowEvents FromSnapshot(InfiniFrameWindowEventsSnapshot snapshot) {
         var copy = new InfiniFrameWindowEvents();
 
-        CopyHandlers(source.WindowLocationChanged.Snapshot, copy.WindowLocationChanged.Add);
-        CopyHandlers(source.WindowSizeChanged.Snapshot, copy.WindowSizeChanged.Add);
-        CopyHandlers(source.WindowFocusIn.Snapshot, copy.WindowFocusIn.Add);
-        CopyHandlers(source.WindowMaximized.Snapshot, copy.WindowMaximized.Add);
-        CopyHandlers(source.WindowRestored.Snapshot, copy.WindowRestored.Add);
-        CopyHandlers(source.WindowFocusOut.Snapshot, copy.WindowFocusOut.Add);
-        CopyHandlers(source.WindowMinimized.Snapshot, copy.WindowMinimized.Add);
-        CopyHandlers(source.WebMessageReceived.Snapshot, copy.WebMessageReceived.Add);
-        CopyHandlers(source.WindowClosingRequested.Snapshot, copy.WindowClosingRequested.Add);
-        CopyHandlers(source.WindowClosing.Snapshot, copy.WindowClosing.Add);
-        CopyHandlers(source.WindowCreating.Snapshot, copy.WindowCreating.Add);
-        CopyHandlers(source.WindowCreated.Snapshot, copy.WindowCreated.Add);
+        CopyHandlers(snapshot.WindowLocationChanged, copy.WindowLocationChanged.Add);
+        CopyHandlers(snapshot.WindowSizeChanged, copy.WindowSizeChanged.Add);
+        CopyHandlers(snapshot.WindowFocusIn, copy.WindowFocusIn.Add);
+        CopyHandlers(snapshot.WindowMaximized, copy.WindowMaximized.Add);
+        CopyHandlers(snapshot.WindowRestored, copy.WindowRestored.Add);
+        CopyHandlers(snapshot.WindowFocusOut, copy.WindowFocusOut.Add);
+        CopyHandlers(snapshot.WindowMinimized, copy.WindowMinimized.Add);
+        CopyHandlers(snapshot.WebMessageReceived, copy.WebMessageReceived.Add);
+        CopyHandlers(snapshot.WindowClosingRequested, copy.WindowClosingRequested.Add);
+        CopyHandlers(snapshot.WindowClosing, copy.WindowClosing.Add);
+        CopyHandlers(snapshot.WindowCreating, copy.WindowCreating.Add);
+        CopyHandlers(snapshot.WindowCreated, copy.WindowCreated.Add);
         
         return copy;
     }

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Concurrent;
+using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Interop;
 using InfiniFrame.Js.Interop;
 using Microsoft.Extensions.Logging;
@@ -40,15 +41,16 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
         handler(window, payload);
     }
     
-    internal static InfiniFrameWindowMessageHandlers CopyFrom(InfiniFrameWindowMessageHandlers source) {
-        ArgumentNullException.ThrowIfNull(source);
-        
+    internal InfiniFrameWindowMessageHandlersSnapshot ToSnapshot()
+        => new(Handlers.ToArray());
+
+    internal static InfiniFrameWindowMessageHandlers FromSnapshot(InfiniFrameWindowMessageHandlersSnapshot snapshot) {
         var copy = new InfiniFrameWindowMessageHandlers();
-        
-        foreach ((string key, Action<IInfiniFrameWindow, string?> value) in source.Handlers) {
+
+        foreach ((string key, Action<IInfiniFrameWindow, string?> value) in snapshot.Handlers) {
             copy.RegisterMessageHandler(key, value);
         }
-        
+
         return copy;
     }
 }

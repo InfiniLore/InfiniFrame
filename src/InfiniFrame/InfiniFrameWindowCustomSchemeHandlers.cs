@@ -2,12 +2,13 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Concurrent;
+using InfiniFrame.BuilderSnapshots;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowCustomSchemeHandlers : IInfiniFrameWindowCustomSchemeHandlers{
+public class InfiniFrameWindowCustomSchemeHandlers : IInfiniFrameWindowCustomSchemeHandlers {
     public bool IsEmpty => Handlers.IsEmpty;
     public int Length => Handlers.Count;
     private ConcurrentDictionary<string, NetCustomSchemeDelegate> Handlers { get; } = new();
@@ -46,16 +47,20 @@ public class InfiniFrameWindowCustomSchemeHandlers : IInfiniFrameWindowCustomSch
         return Handlers.TryGetValue(scheme, out netCustomSchemeDelegate);
     }
 
-    internal static InfiniFrameWindowCustomSchemeHandlers CopyFrom(InfiniFrameWindowCustomSchemeHandlers source) {
-        ArgumentNullException.ThrowIfNull(source);
-        
+    internal InfiniFrameWindowCustomSchemeHandlersSnapshot ToSnapshot() {
+        List<string> orderedSnapshot;
+        lock (Lock) orderedSnapshot = OrderedRegisteredMessageIds.ToList();
+        return new InfiniFrameWindowCustomSchemeHandlersSnapshot(
+            orderedSnapshot.ToArray(),
+            Handlers.ToArray());
+    }
+
+    internal static InfiniFrameWindowCustomSchemeHandlers FromSnapshot(InfiniFrameWindowCustomSchemeHandlersSnapshot snapshot) {
         var copy = new InfiniFrameWindowCustomSchemeHandlers();
 
-        List<string> orderedSnapshot;
-        lock (source.Lock) orderedSnapshot = source.OrderedRegisteredMessageIds.ToList();
-
-        foreach (string key in orderedSnapshot.Distinct(StringComparer.Ordinal)) {
-            if (!source.Handlers.TryGetValue(key, out NetCustomSchemeDelegate? handler)) continue;
+        var handlers = snapshot.Handlers.ToDictionary(static item => item.Key, static item => item.Value, StringComparer.Ordinal);
+        foreach (string key in snapshot.OrderedSchemeNames.Distinct(StringComparer.Ordinal)) {
+            if (!handlers.TryGetValue(key, out NetCustomSchemeDelegate? handler)) continue;
             copy.Handlers.TryAdd(key, handler);
             copy.OrderedRegisteredMessageIds.Add(key);
         }

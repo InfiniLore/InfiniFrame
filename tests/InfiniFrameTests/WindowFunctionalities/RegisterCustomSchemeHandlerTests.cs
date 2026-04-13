@@ -2,9 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Native;
 using InfiniFrameTests.Shared;
 using System.Runtime.InteropServices;
+using InfiniFrame.BuilderSnapshots;
 
 namespace InfiniFrameTests.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -24,20 +24,12 @@ public class RegisterCustomSchemeHandlerTests {
 
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
 
         // Assert
-        await Assert.That(builder.Configuration.CustomSchemeNames).Contains("app");
-
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
-
-        IntPtr target = Marshal.StringToHGlobalAnsi("app");
-        try {
-            bool found = configParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
-            await Assert.That(found).IsTrue();
-        }
-        finally {
-            Marshal.FreeHGlobal(target);// free the temp pointer
-        }
+        await Assert.That(builder.CustomSchemeHandlers.ContainsCustomSchemeHandler("app")).IsTrue();
+        bool found = snapshot.StartupParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
+        await Assert.That(found).IsTrue();
     }
 
     [Test]
@@ -50,13 +42,10 @@ public class RegisterCustomSchemeHandlerTests {
         for (var i = 0; i < 100; i++) {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
 
         // Assert
-        int schemeEntryCount = builder.Configuration.CustomSchemeNames.Count(static scheme => scheme == "app");
-        await Assert.That(schemeEntryCount).IsEqualTo(1);
-
-        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
-        int nativeAppCount = configParameters.CustomSchemeNames
+        int nativeAppCount = snapshot.StartupParameters.CustomSchemeNames
             .Where(static ptr => ptr != IntPtr.Zero)
             .Count(ptr => Marshal.PtrToStringAnsi(ptr) == "app");
         await Assert.That(nativeAppCount).IsEqualTo(1);
