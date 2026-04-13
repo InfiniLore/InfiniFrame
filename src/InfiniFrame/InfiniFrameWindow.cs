@@ -639,8 +639,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         InfiniFrameNative.AddCustomSchemeName(InstanceHandle, scheme);
 
-        CustomSchemes.TryAdd(scheme, null);
-        CustomSchemes[scheme] += handler;
+        CustomSchemes.RegisterCustomSchemeHandler(scheme, handler);
         return this;
     }
 
@@ -658,9 +657,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     public void Initialize() {
         //fill in the fixed size array of custom scheme names
-        int i = 0;
-        foreach (KeyValuePair<string, NetCustomSchemeDelegate?> name in CustomSchemes.Take(16)) {
-            StartupParameters.CustomSchemeNames[i] = Marshal.StringToHGlobalAnsi(name.Key);
+        var i = 0;
+        foreach ((string key, NetCustomSchemeDelegate _) in CustomSchemes.GetRegisteredHandlers()) {
+            StartupParameters.CustomSchemeNames[i] = Marshal.StringToHGlobalAnsi(key);
             i++;
         }
 
@@ -784,7 +783,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         string scheme = url[..colonPos].ToLower();
 
-        if (!CustomSchemes.TryGetValue(scheme, out NetCustomSchemeDelegate? handler)) {
+        if (!CustomSchemes.TryGetHandler(scheme, out NetCustomSchemeDelegate? handler)) {
             Logger.LogWarning("No custom scheme handler registered for {Scheme}", scheme);
         }
 

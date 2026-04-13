@@ -35,8 +35,8 @@ public class InfiniFrameWindowBuilderTests {
 
         await Assert.That(first.Events.WindowCreated.Snapshot.Length).IsEqualTo(1);
         await Assert.That(second.Events.WindowCreated.Snapshot.Length).IsEqualTo(1);
-        await Assert.That(first.CustomSchemes.ContainsKey("app")).IsTrue();
-        await Assert.That(second.CustomSchemes.ContainsKey("app")).IsTrue();
+        await Assert.That(first.CustomSchemes.ContainsCustomSchemeHandler("app")).IsTrue();
+        await Assert.That(second.CustomSchemes.ContainsCustomSchemeHandler("app")).IsTrue();
     }
 
     [Test]
@@ -49,15 +49,15 @@ public class InfiniFrameWindowBuilderTests {
 
         first.MessageHandlers.RegisterMessageHandler("ping", (_, _) => { });
         first.Events.WindowCreated.Add(_ => { });
-        first.CustomSchemes["only-first"] = EmptyHandler;
+        first.CustomSchemes.RegisterCustomSchemeHandler("only-first", EmptyHandler);
 
         // Assert
         await Assert.That(first.MessageHandlers.IsEmpty).IsFalse();
         await Assert.That(second.MessageHandlers.IsEmpty).IsTrue();
         await Assert.That(first.Events.WindowCreated.Snapshot.Length).IsEqualTo(second.Events.WindowCreated.Snapshot.Length + 1);
-        await Assert.That(first.CustomSchemes.ContainsKey("only-first")).IsTrue();
-        await Assert.That(second.CustomSchemes.ContainsKey("only-first")).IsFalse();
-        await Assert.That(builder.CustomSchemeHandlers.ContainsKey("only-first")).IsFalse();
+        await Assert.That(first.CustomSchemes.ContainsCustomSchemeHandler("only-first")).IsTrue();
+        await Assert.That(second.CustomSchemes.ContainsCustomSchemeHandler("only-first")).IsFalse();
+        await Assert.That(builder.CustomSchemeHandlers.ContainsCustomSchemeHandler("only-first")).IsFalse();
     }
 
 }

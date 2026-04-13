@@ -32,19 +32,18 @@ public class WebMessageReceivedHandlerTests {
     [DisplayName($"{nameof(WebMessageReceivedHandlerTests)}.{nameof(Handler_ResolvesServiceFromProvider)}")]
     public async Task Handler_ResolvesServiceFromProvider() {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create();
-        var service = new TestService();
         var events = new InfiniFrameWindowEvents();
+        var builder = InfiniFrameWindowBuilder.Create(events: events);
+        var service = new TestService();
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider =  new TestServiceProvider(service),
-            CustomSchemes = [],
+            CustomSchemes = new InfiniFrameWindowCustomSchemeHandlers(),
             Parent = null,
             Events = events,
             MessageHandlers = new InfiniFrameWindowMessageHandlers()
         };
         events.CompleteSetup(window);
-        builder.Events = events;
 
         var tcs = new TaskCompletionSource<(string ServiceId, string Message)>();
 

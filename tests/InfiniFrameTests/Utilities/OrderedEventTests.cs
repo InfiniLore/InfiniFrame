@@ -16,7 +16,7 @@ public class OrderedEventTests {
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
-            CustomSchemes = [],
+            CustomSchemes = new InfiniFrameWindowCustomSchemeHandlers(),
             Parent = null,
             Events = events,
             MessageHandlers = new InfiniFrameWindowMessageHandlers()
