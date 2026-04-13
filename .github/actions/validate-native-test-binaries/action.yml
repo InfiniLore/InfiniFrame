@@ -1,0 +1,75 @@
+name: Validate Native Test Binaries
+description: Resolve test project target framework(s) and verify expected native binaries exist for the current runner OS.
+
+inputs:
+  project-path:
+    description: Path to the test project file used to resolve TargetFramework(s)
+    required: false
+    default: tests/InfiniFrameTests/InfiniFrameTests.csproj
+  configuration:
+    description: Build configuration used in output paths
+    required: false
+    default: Release
+  output-root:
+    description: Root output path before configuration/framework segments
+    required: false
+    default: tests/InfiniFrameTests/bin
+  include-webview2-windows:
+    description: Validate WebView2Loader.dll on Windows
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Validate native binaries
+      shell: pwsh
+      run: |
+        $projectPath = "${{ inputs['project-path'] }}"
+        $configuration = "${{ inputs['configuration'] }}"
+        $outputRoot = "${{ inputs['output-root'] }}"
+        $includeWebView2 = "${{ inputs['include-webview2-windows'] }}" -eq "true"
+
+        $targetFrameworks = (dotnet msbuild $projectPath -nologo -getProperty:TargetFrameworks).Trim()
+        if ([string]::IsNullOrWhiteSpace($targetFrameworks)) {
+          $targetFrameworks = (dotnet msbuild $projectPath -nologo -getProperty:TargetFramework).Trim()
+        }
+
+        if ([string]::IsNullOrWhiteSpace($targetFrameworks)) {
+          throw "Unable to resolve TargetFramework(s) for '$projectPath'."
+        }
+
+        $frameworks = $targetFrameworks -split ";" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+        if ($frameworks.Count -eq 0) {
+          throw "No valid framework values were resolved from '$projectPath'."
+        }
+
+        $requiredFiles = switch ($env:RUNNER_OS) {
+          "Windows" {
+            $files = @("InfiniFrame.Native.dll")
+            if ($includeWebView2) { $files += "WebView2Loader.dll" }
+            $files
+          }
+          "Linux" { @("InfiniFrame.Native.so") }
+          "macOS" { @("InfiniFrame.Native.dylib") }
+          default { throw "Unsupported RUNNER_OS '$env:RUNNER_OS'." }
+        }
+
+        $missing = @()
+        foreach ($framework in $frameworks) {
+          $frameworkDir = Join-Path $outputRoot "$configuration/$framework"
+          foreach ($file in $requiredFiles) {
+            $path = Join-Path $frameworkDir $file
+            if (-not (Test-Path $path)) {
+              $missing += $path
+            }
+          }
+        }
+
+        if ($missing.Count -gt 0) {
+          Write-Host "Missing native binaries:"
+          $missing | ForEach-Object { Write-Host " - $_" }
+          throw "Native binary validation failed."
+        }
+
+        Write-Host "Native binaries validated for frameworks: $($frameworks -join ', ')"

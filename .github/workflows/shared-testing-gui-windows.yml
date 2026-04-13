@@ -106,21 +106,7 @@ jobs:
                       --no-restore
 
             -   name: Verify Native Binaries
-                run: |
-                    $nativeDll = "tests/InfiniFrameTests/bin/Release/net9.0/InfiniFrame.Native.dll"
-                    $webView2 = "tests/InfiniFrameTests/bin/Release/net9.0/WebView2Loader.dll"
-
-                    if (-Not (Test-Path $nativeDll)) {
-                      Write-Host "ERROR: InfiniFrame.Native.dll NOT found in test output!"
-                      Exit 1
-                    }
-
-                    if (-Not (Test-Path $webView2)) {
-                      Write-Host "ERROR: WebView2Loader.dll NOT found in test output!"
-                      Exit 1
-                    }
-
-                    Write-Host "All native DLLs present"
+                uses: ./.github/actions/validate-native-test-binaries
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v8
