@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Concurrent;
+using System.Linq;
 using InfiniFrame.BuilderSnapshots;
 
 namespace InfiniFrame;
@@ -36,11 +37,9 @@ public class InfiniFrameWindowCustomSchemeHandlers : IInfiniFrameWindowCustomSch
         List<string> snapshot;
         lock (Lock) snapshot = OrderedRegisteredMessageIds.ToList();
 
-        foreach (string id in snapshot) {
-            if (Handlers.TryGetValue(id, out NetCustomSchemeDelegate? handler)) {
-                yield return (id, handler);
-            }
-        }
+        return snapshot
+            .Where(id => Handlers.TryGetValue(id, out _))
+            .Select(id => (id, Handlers[id]));
     }
 
     public bool TryGetHandler(string scheme, out NetCustomSchemeDelegate? netCustomSchemeDelegate) {
