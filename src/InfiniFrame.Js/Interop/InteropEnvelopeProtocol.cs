@@ -90,10 +90,11 @@ internal static class InteropEnvelopeProtocol {
             return message;
 
         try {
-            string? unwrapped = JsonSerializer.Deserialize<string>(trimmed);
-            if (string.IsNullOrWhiteSpace(unwrapped))
-                return message;
-            return unwrapped;
+            using JsonDocument jsonDocument = JsonDocument.Parse(trimmed.ToString(), JsonDocumentOptions);
+            if (jsonDocument.RootElement.ValueKind != JsonValueKind.String) return message;
+
+            string? unwrapped = jsonDocument.RootElement.GetString();
+            return string.IsNullOrWhiteSpace(unwrapped) ? message : unwrapped;
         }
         catch (JsonException) {
             return message;
