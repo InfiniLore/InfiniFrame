@@ -37,7 +37,13 @@ public sealed class UiThreadExecutor : ITestExecutor {
                         work().GetAwaiter().GetResult();
                     }
                 }
-                catch (Exception ex) {
+                catch (Exception ex) when (ex is not OutOfMemoryException
+                                           and not StackOverflowException
+                                           and not AccessViolationException
+                                           and not AppDomainUnloadedException
+                                           and not BadImageFormatException
+                                           and not CannotUnloadAppDomainException
+                                           and not ThreadAbortException) {
                     tcs.SetException(ex);
                 }
             }) {
