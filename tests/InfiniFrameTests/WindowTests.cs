@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrameTests.Shared;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -85,12 +86,13 @@ public class WindowTests {
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
+    [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
     public async Task Close_IsDefined(CancellationToken ct) {
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder.Events.WindowClosingRequested.Add(_ => {
-                windowClosingTcs.SetResult(true);
+                windowClosingTcs.TrySetResult(true);
             }),
             ct
         );
