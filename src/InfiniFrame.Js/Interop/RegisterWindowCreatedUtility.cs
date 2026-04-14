@@ -127,6 +127,9 @@ public static class RegisterWindowCreatedUtility {
         try {
             allMessagesSent = await TrySendRegistrationsWithRetryAsync(window, registrationMessages);
         }
+        catch (Exception ex) when (IsNonFatalException(ex)) {
+            window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
+        }
         finally {
             lock (state.Lock) {
                 windowState.StateMachine.CompleteRegistrationSend(allMessagesSent);
@@ -178,4 +181,7 @@ public static class RegisterWindowCreatedUtility {
 
         return allMessagesSent;
     }
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
 }

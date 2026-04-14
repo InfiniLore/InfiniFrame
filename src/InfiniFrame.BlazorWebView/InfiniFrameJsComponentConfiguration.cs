@@ -7,6 +7,7 @@
 using InfiniFrame.Blazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,7 +16,11 @@ namespace InfiniFrame.BlazorWebView;
 /// <summary>
 ///     Configures root components for a <see cref="InfiniFrameJsComponentConfiguration" />.
 /// </summary>
-public sealed class InfiniFrameJsComponentConfiguration(IInfiniFrameWebViewManager manager, JSComponentConfigurationStore jsComponents) : IInfiniFrameJsComponentConfiguration {
+public sealed class InfiniFrameJsComponentConfiguration(
+    IInfiniFrameWebViewManager manager,
+    JSComponentConfigurationStore jsComponents,
+    ILogger<InfiniFrameJsComponentConfiguration> logger
+) : IInfiniFrameJsComponentConfiguration {
     public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
 
     /// <summary>
@@ -29,7 +34,13 @@ public sealed class InfiniFrameJsComponentConfiguration(IInfiniFrameWebViewManag
             ? ParameterView.Empty
             : ParameterView.FromDictionary(parameters);
 
-        // Dispatch because this is going to be async, and we want to catch any errors
-        _ = manager.Dispatcher.InvokeAsync(() => manager.AddRootComponentAsync(typeComponent, selector, parameterView));
+        // Dispatch onto the renderer context and explicitly observe faults to avoid dropped exceptions.
+        Task addComponentTask = manager.Dispatcher.InvokeAsync(() => manager.AddRootComponentAsync(typeComponent, selector, parameterView));
+        addComponentTask.ContinueWith(
+            task => logger.LogError(task.Exception, "Failed to add root component '{ComponentType}' for selector '{Selector}'.", typeComponent, selector),
+            CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default
+        );
     }
 }
