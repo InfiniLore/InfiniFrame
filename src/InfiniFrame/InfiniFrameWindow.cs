@@ -18,6 +18,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
+    private int _shutdownRequested;
     private int _shutdownStarted;
     public InfiniFrameNativeParameters StartupParameters;
     public required IInfiniFrameWindowCustomSchemeHandlers CustomSchemes { get; init; }
@@ -423,6 +424,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
         finally {
+            Interlocked.Exchange(ref _shutdownRequested, 1);
             Interlocked.Exchange(ref _shutdownStarted, 1);
         }
     }
@@ -446,6 +448,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         Events.OnWindowClosingRequested();
         if (InstanceHandle == IntPtr.Zero) return;
 
+        Interlocked.Exchange(ref _shutdownRequested, 1);
         Invoke(() => InfiniFrameNative.Close(InstanceHandle));
     }
 
@@ -460,7 +463,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </exception>
     /// <param name="message">Message as string</param>
     public void SendWebMessage(string message) {
-        if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+        if (Volatile.Read(ref _shutdownRequested) != 0
+            || Volatile.Read(ref _shutdownStarted) != 0
+            || InstanceHandle == IntPtr.Zero) {
             Logger.LogDebug("Skipping SendWebMessage during shutdown");
             return;
         }
@@ -473,6 +478,19 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
         SendWebMessage(message);
         return Task.CompletedTask;
+    }
+
+    internal byte OnWindowClosing() {
+        Interlocked.Exchange(ref _shutdownRequested, 1);
+        byte noClose = Events.OnWindowClosing();
+        if (noClose != 0) {
+            // Close was canceled by user code; resume normal window operation.
+            Interlocked.Exchange(ref _shutdownRequested, 0);
+            return noClose;
+        }
+
+        Interlocked.Exchange(ref _shutdownStarted, 1);
+        return 0;
     }
 
     /// <summary>
