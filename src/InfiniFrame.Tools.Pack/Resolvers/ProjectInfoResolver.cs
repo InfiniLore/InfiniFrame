@@ -21,7 +21,7 @@ internal static class ProjectInfoResolver {
         if (!string.IsNullOrWhiteSpace(targetFramework)) return targetFramework;
 
         string? targetFrameworks = MsBuildPropertyResolver.TryGetProperty(projectPath, "TargetFrameworks");
-        
+
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (string.IsNullOrWhiteSpace(targetFrameworks)) {
             throw new InvalidOperationException("Could not resolve target framework from project evaluation. Use --framework.");

@@ -8,13 +8,12 @@ namespace InfiniFrame.Tools.Pack.Services;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class PublishValidator {
-    private static readonly StringComparison PathComparison =
-        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-    
-    
     private const ushort ImageFileMachineAmd64 = 0x8664;
     private const ushort ImageFileMachineArm64 = 0xAA64;
     
+    private static readonly StringComparison PathComparison =
+        OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -36,7 +35,7 @@ internal static class PublishValidator {
         ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput);
         ValidateNativeArtifacts(nativeArtifactsDir, rid);
     }
-    
+
     internal static bool ValidateOutputPath(
         string projectDirectory,
         string outputPath,
@@ -83,7 +82,7 @@ internal static class PublishValidator {
         string[] requiredPaths = InfiniFramePackNativeArtifactManifest.RequiredFileNamesForRid(rid)
             .Select(file => Path.IsPathRooted(file) ? file : Path.Join(nativeArtifactsDir, file))
             .ToArray();
-        
+
         string? missingPath = requiredPaths.FirstOrDefault(path => !File.Exists(path));
         if (missingPath is not null) {
             throw new InvalidOperationException($"Required native artifact was not found: {missingPath}");
@@ -106,6 +105,7 @@ internal static class PublishValidator {
     private static ushort ExpectedPeMachineForRid(string rid) {
         if (rid.EndsWith("-x64", StringComparison.OrdinalIgnoreCase)) return ImageFileMachineAmd64;
         if (rid.EndsWith("-arm64", StringComparison.OrdinalIgnoreCase)) return ImageFileMachineArm64;
+
         throw new InvalidOperationException($"Unsupported Windows RID for native artifact architecture validation: {rid}");
     }
 
@@ -142,7 +142,7 @@ internal static class PublishValidator {
         ImageFileMachineArm64 => $"arm64 (0x{machine:X4})",
         _ => $"0x{machine:X4}"
     };
-    
+
     internal static bool ValidateRidConsistency(string rid) {
         if (string.IsNullOrWhiteSpace(rid)) throw new InvalidOperationException("Runtime identifier (RID) cannot be empty.");
 
@@ -155,6 +155,7 @@ internal static class PublishValidator {
         bool isOsxRid = rid.StartsWith("osx-", StringComparison.OrdinalIgnoreCase);
 
         if (!isWindowsRid && !isLinuxRid && !isOsxRid) throw new InvalidOperationException($"Unsupported or unknown RID: '{rid}'.");
+
         return true;
     }
 }

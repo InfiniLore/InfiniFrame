@@ -75,11 +75,13 @@ internal static class PublishService {
             foreach (string warning in cleanupWarnings) {
                 Logger.Warning("{CleanupWarning}", warning);
             }
+
             string expectedMainOutput = ResolveExpectedMainOutputPath(output, assemblyName, rid);
             OutputShapeValidation validation = ValidateOutputShape(output, expectedMainOutput);
             PrintOutputSummary(output, expectedMainOutput, validation.UnexpectedEntries);
 
             if (!validation.FoundMainOutput) return ExitCodes.MissingMainOutput;
+
             return validation.UnexpectedEntries.Length == 0 ? ExitCodes.Success : ExitCodes.UnexpectedOutputShape;
         }
         finally {
@@ -124,7 +126,7 @@ internal static class PublishService {
             .ToArray();
         string[] unexpectedEntries = unexpectedFiles
             .Concat(unexpectedDirectories)
-            .OrderBy(entry => entry, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(keySelector: entry => entry, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
         return new OutputShapeValidation(foundMainOutput, unexpectedEntries);
@@ -249,16 +251,18 @@ internal static class PublishService {
         string standardOutput = TruncateForException(preflightResult.StandardOutput);
         string standardError = TruncateForException(preflightResult.StandardError);
         return $"{Environment.NewLine}--- preflight stdout ---{Environment.NewLine}{standardOutput}" +
-               $"{Environment.NewLine}--- preflight stderr ---{Environment.NewLine}{standardError}";
+            $"{Environment.NewLine}--- preflight stderr ---{Environment.NewLine}{standardError}";
     }
 
     private static string TruncateForException(string value, int maxLength = 4000) {
         if (string.IsNullOrWhiteSpace(value)) return "<empty>";
+
         string trimmed = value.Trim();
-        if (trimmed.Length <= maxLength) return trimmed;
-        return $"{trimmed[..maxLength]}{Environment.NewLine}<truncated>";
+        return trimmed.Length <= maxLength 
+            ? trimmed
+            : $"{trimmed[..maxLength]}{Environment.NewLine}<truncated>";
     }
-    
+
     // NOTE:
     // This method assumes that PublishPreflightValidator has already validated the path.
     // Do NOT call this method without running preflight validation first.

@@ -7,7 +7,7 @@
             Example: CA1822;CA2007
         -->
         <AnalyzerBaselineWarningsNotAsErrors>
-            
+
         </AnalyzerBaselineWarningsNotAsErrors>
     </PropertyGroup>
 </Project>

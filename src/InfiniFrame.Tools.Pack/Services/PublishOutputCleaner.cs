@@ -18,8 +18,6 @@ internal static class PublishOutputCleaner {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-     
-
     /// <summary>
     ///     Removes unpacked runtime artifacts that should not remain beside the single-file executable.
     /// </summary>

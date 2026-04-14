@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Serilog;
 using System.Diagnostics;
 using System.Text;
-using Serilog;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -56,17 +56,21 @@ internal static class ProcessRunner {
 
         process.OutputDataReceived += (_, e) => {
             if (string.IsNullOrWhiteSpace(e.Data)) return;
+
             lock (standardOutputLock) {
                 standardOutput.AppendLine(e.Data);
             }
+
             Logger.Information("{ProcessOutput}", e.Data);
         };
 
         process.ErrorDataReceived += (_, e) => {
             if (string.IsNullOrWhiteSpace(e.Data)) return;
+
             lock (standardErrorLock) {
                 standardError.AppendLine(e.Data);
             }
+
             Logger.Error("{ProcessError}", e.Data);
         };
 

@@ -13,8 +13,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Serilog" />
-        <PackageReference Include="Serilog.Sinks.Console" />
+        <PackageReference Include="Serilog"/>
+        <PackageReference Include="Serilog.Sinks.Console"/>
     </ItemGroup>
 
     <ItemGroup>

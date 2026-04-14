@@ -2,15 +2,17 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Services;
+using Serilog;
 
 namespace InfiniFrame.Tools.Pack;
 // -----------------------------------------------------------------------------------------------------------------
 // Methods
 // -----------------------------------------------------------------------------------------------------------------
 internal static class CommandLine {
-    private static readonly Serilog.ILogger Logger = Serilog.Log.ForContext(typeof(CommandLine));
     private const string NativeArtifactsFallbackPathEnvVar = "INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK";
     private const string AllowStaleNativeFallbackEnvVar = "INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK";
+    
+    private static readonly ILogger Logger = Log.ForContext(typeof(CommandLine));
 
     /// <summary>
     ///     Parses command-line arguments into a normalized <see cref="PublishOptions" /> model or a usage response.

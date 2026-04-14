@@ -6,7 +6,8 @@ technologies — load any URL, render HTML strings, or embed a full Blazor appli
 Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
 
 > **Note:** This project is a modern rework
-> of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
+>
+of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
 > and [Photino.Native](https://github.com/tryphotino/photino.Native) and is not affiliated with or endorsed by the
 > original Photino authors
 
@@ -142,7 +143,8 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 
 - [Core Window](https://docs.infiniframe.dev/guides/core-window) — Builder pattern, configuration, events,
   messaging
-- [Trim/AOT Compatibility](https://docs.infiniframe.dev/guides/trim-aot-compatibility) — Trimming and NativeAOT guarantees and consumer guidance
+- [Trim/AOT Compatibility](https://docs.infiniframe.dev/guides/trim-aot-compatibility) — Trimming and NativeAOT
+  guarantees and consumer guidance
 - [Blazor WebView](https://docs.infiniframe.dev/guides/blazor-webview) — Hosting a full Blazor app in a
   native window
 - [Web Server](https://docs.infiniframe.dev/guides/web-server) — ASP.NET Core + native window integration
