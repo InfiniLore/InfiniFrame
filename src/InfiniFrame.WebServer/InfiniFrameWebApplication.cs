@@ -10,7 +10,6 @@ public class InfiniFrameWebApplication {
     public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
     public IInfiniFrameWindow Window => LazyWindow.Value;
 
-    private Thread? _webAppThread;
     private int _shutdownStarted;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -27,10 +26,14 @@ public class InfiniFrameWebApplication {
     }
 
     public async Task RunAsync(CancellationToken ct = default) {
-        _webAppThread = new Thread(WebApp.Run) { IsBackground = true };
-        _webAppThread.Start();
-
-        await Window.WaitForCloseAsync(ct);
+        Task runTask = WebApp.RunAsync(ct);
+        try {
+            await Window.WaitForCloseAsync(ct);
+        }
+        finally {
+            await StopWebAppAsync(CancellationToken.None);
+            await ObserveHostRunCompletionAsync(runTask);
+        }
     }
 
     /// <summary>
@@ -89,10 +92,14 @@ public class InfiniFrameWebApplication {
         catch (Exception e) when (IsNonFatalException(e)) {
             Window.Logger.LogError(e, "Error stopping web app");
         }
-        finally {
-            if (_webAppThread is not null && !_webAppThread.Join(TimeSpan.FromSeconds(5))) {
-                _webAppThread.Interrupt();
-            }
+    }
+
+    private static async Task ObserveHostRunCompletionAsync(Task runTask) {
+        try {
+            await runTask;
+        }
+        catch (OperationCanceledException) {
+            // Host shutdown cancellation is expected.
         }
     }
 
