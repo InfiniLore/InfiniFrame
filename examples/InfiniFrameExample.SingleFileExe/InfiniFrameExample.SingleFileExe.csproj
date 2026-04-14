@@ -8,6 +8,8 @@
         <InfiniFramePackAfterBuild>true</InfiniFramePackAfterBuild>
         <InfiniFramePackRid>auto</InfiniFramePackRid>
         <InfiniFramePackSelfContained>true</InfiniFramePackSelfContained>
+        <InfiniFramePackRepoProject>$(MSBuildThisFileDirectory)..\..\src\InfiniFrame.Tools.Pack\InfiniFrame.Tools.Pack.csproj</InfiniFramePackRepoProject>
+        <InfiniFramePackCommand Condition="'$(InfiniFramePackCommand)'=='' and '$(CI)'!='true' and Exists('$(InfiniFramePackRepoProject)')">dotnet run --project &quot;$(InfiniFramePackRepoProject)&quot; --</InfiniFramePackCommand>
         <InfiniFramePackCommand Condition="'$(InfiniFramePackCommand)'=='' and Exists('$(UserProfile)\.dotnet\tools\infiniframe-pack.exe')">&quot;$(UserProfile)\.dotnet\tools\infiniframe-pack.exe&quot;</InfiniFramePackCommand>
         <InfiniFramePackCommand Condition="'$(InfiniFramePackCommand)'==''">infiniframe-pack</InfiniFramePackCommand>
     </PropertyGroup>
