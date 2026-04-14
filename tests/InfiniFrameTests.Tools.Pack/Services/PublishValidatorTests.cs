@@ -211,6 +211,7 @@ public class PublishValidatorTests {
     public async Task ValidateOutputPath_ThrowsForNonDefaultPath_WhenNotForced() {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
+        Directory.CreateDirectory(outputPath);
 
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
             PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
@@ -224,8 +225,18 @@ public class PublishValidatorTests {
     public async Task ValidateOutputPath_AllowsNonDefaultPath_WhenForced() {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
+        Directory.CreateDirectory(outputPath);
 
         bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: true);
+        await Assert.That(output).IsTrue();
+    }
+
+    [Test]
+    public async Task ValidateOutputPath_AllowsNonDefaultPath_WhenDirectoryDoesNotExist() {
+        string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
+        string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
+
+        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
         await Assert.That(output).IsTrue();
     }
 

@@ -52,6 +52,9 @@ internal static class PublishValidator {
         string projectBinDirectory = Path.GetFullPath(Path.Join(projectDirectory, "bin"));
         if (IsUnderDirectory(fullPath, projectBinDirectory)) return true;
 
+        // Only gate non-default output paths when we would actually delete an existing directory.
+        if (!Directory.Exists(fullPath)) return true;
+
         if (!forceCleanOutput) {
             throw new InvalidOperationException(
                 $"Refusing to delete non-default output directory '{fullPath}'. " +
