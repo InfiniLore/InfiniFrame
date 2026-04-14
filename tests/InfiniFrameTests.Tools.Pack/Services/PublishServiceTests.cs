@@ -80,7 +80,8 @@ public class PublishServiceTests {
             Configuration = "Release",
             Framework = "net10.0",
             SelfContained = true,
-            Output = outputPath
+            Output = outputPath,
+            ForceCleanOutput = true
         };
 
         // Act
@@ -139,7 +140,8 @@ public class PublishServiceTests {
             Configuration = "Release",
             Framework = "net10.0",
             SelfContained = true,
-            Output = outputPath
+            Output = outputPath,
+            ForceCleanOutput = true
         };
 
         // Act
@@ -202,7 +204,8 @@ public class PublishServiceTests {
             Configuration = "Release",
             Framework = "net10.0",
             SelfContained = true,
-            Output = outputPath
+            Output = outputPath,
+            ForceCleanOutput = true
         };
 
         // Act

@@ -203,7 +203,7 @@ public class PublishValidatorTests {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(projectDirectory, "bin", "Release", "net10.0", "win-x64", "publish");
 
-        bool output = PublishValidator.ValidateOutputPath(outputPath, projectDirectory, forceCleanOutput: false);
+        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
         await Assert.That(output).IsTrue();
     }
 
@@ -213,7 +213,7 @@ public class PublishValidatorTests {
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
 
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateOutputPath(outputPath, projectDirectory, forceCleanOutput: false);
+            PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
             return Task.CompletedTask;
         }) ?? throw new InvalidOperationException("Expected exception was not thrown.");
 
@@ -225,7 +225,7 @@ public class PublishValidatorTests {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
 
-        bool output = PublishValidator.ValidateOutputPath(outputPath, projectDirectory, forceCleanOutput: true);
+        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: true);
         await Assert.That(output).IsTrue();
     }
 
@@ -235,13 +235,13 @@ public class PublishValidatorTests {
         string outputPath = Path.Join(projectDirectory, "BIN", "Release", "net10.0", "win-x64", "publish");
 
         if (OperatingSystem.IsWindows()) {
-            bool output = PublishValidator.ValidateOutputPath(outputPath, projectDirectory, forceCleanOutput: false);
+            bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
             await Assert.That(output).IsTrue();
             return;
         }
 
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateOutputPath(outputPath, projectDirectory, forceCleanOutput: false);
+            PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
             return Task.CompletedTask;
         }) ?? throw new InvalidOperationException("Expected exception was not thrown.");
 
