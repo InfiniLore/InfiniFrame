@@ -17,40 +17,48 @@ $latestPackage = Get-ChildItem -Path $packageOutputDir -Filter "$packageId.*.nup
     Sort-Object LastWriteTimeUtc -Descending |
     Select-Object -First 1
 
-if ($null -eq $latestPackage) {
+if ($null -eq $latestPackage)
+{
     Write-Error "[InfiniFrame.Tools.Pack] ERROR: No package was produced in $packageOutputDir."
 }
 
 $packageVersion = $latestPackage.BaseName.Substring($packageId.Length + 1)
 
 Write-Host "[InfiniFrame.Tools.Pack] Installing/updating global dotnet tool..."
-try {
+try
+{
     dotnet tool update --global $packageId --version $packageVersion --add-source $packageOutputDir --ignore-failed-sources
     Write-Host "[InfiniFrame.Tools.Pack] Updated $packageId ($packageVersion)."
 }
-catch {
+catch
+{
     dotnet tool install --global $packageId --version $packageVersion --add-source $packageOutputDir --ignore-failed-sources
     Write-Host "[InfiniFrame.Tools.Pack] Installed $packageId ($packageVersion)."
 }
 
 $globalToolsDir = Join-Path $env:USERPROFILE ".dotnet\tools"
 $currentPathEntries = $env:PATH -split ';'
-if ($currentPathEntries -notcontains $globalToolsDir) {
+if ($currentPathEntries -notcontains $globalToolsDir)
+{
     $env:PATH = "$env:PATH;$globalToolsDir"
     Write-Host "[InfiniFrame.Tools.Pack] Added $globalToolsDir to current session PATH."
 }
 
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
 $userPathEntries = @()
-if (-not [string]::IsNullOrWhiteSpace($userPath)) {
+if (-not [string]::IsNullOrWhiteSpace($userPath))
+{
     $userPathEntries = $userPath -split ';'
 }
 
-if ($userPathEntries -notcontains $globalToolsDir) {
-    $newUserPath = if ([string]::IsNullOrWhiteSpace($userPath)) {
+if ($userPathEntries -notcontains $globalToolsDir)
+{
+    $newUserPath = if ( [string]::IsNullOrWhiteSpace($userPath))
+    {
         $globalToolsDir
     }
-    else {
+    else
+    {
         "$userPath;$globalToolsDir"
     }
 

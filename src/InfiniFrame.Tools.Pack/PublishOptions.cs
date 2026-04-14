@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Tools.Pack.Services;
+namespace InfiniFrame.Tools.Pack;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -55,7 +55,8 @@ internal sealed class PublishOptions {
     public bool ForceCleanOutput { get; set; }
 
     /// <summary>
-    ///     Gets or sets an explicit native artifacts directory to use as fallback when preflight publish cannot provide valid artifacts.
+    ///     Gets or sets an explicit native artifacts directory to use as fallback when preflight publish cannot provide valid
+    ///     artifacts.
     /// </summary>
     public string? NativeArtifactsFallbackPath { get; set; }
 

@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Serilog;
 using System.Diagnostics;
 using System.Text;
-using Serilog;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -37,8 +37,11 @@ internal static class ProcessRunner {
         var startInfo = new ProcessStartInfo(fileName) {
             UseShellExecute = false,
             RedirectStandardOutput = true,
-            RedirectStandardError = true
+            RedirectStandardError = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8
         };
+        
         if (!string.IsNullOrWhiteSpace(workingDirectory)) startInfo.WorkingDirectory = workingDirectory;
 
         foreach (string arg in arguments) {
@@ -56,17 +59,21 @@ internal static class ProcessRunner {
 
         process.OutputDataReceived += (_, e) => {
             if (string.IsNullOrWhiteSpace(e.Data)) return;
+
             lock (standardOutputLock) {
                 standardOutput.AppendLine(e.Data);
             }
+
             Logger.Information("{ProcessOutput}", e.Data);
         };
 
         process.ErrorDataReceived += (_, e) => {
             if (string.IsNullOrWhiteSpace(e.Data)) return;
+
             lock (standardErrorLock) {
                 standardError.AppendLine(e.Data);
             }
+
             Logger.Error("{ProcessError}", e.Data);
         };
 

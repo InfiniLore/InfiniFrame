@@ -1,14 +1,18 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Tools.Pack.Services;
+using InfiniFrame.Tools.Pack.Services;
+using Serilog;
+
+namespace InfiniFrame.Tools.Pack;
 // -----------------------------------------------------------------------------------------------------------------
 // Methods
 // -----------------------------------------------------------------------------------------------------------------
 internal static class CommandLine {
-    private static readonly Serilog.ILogger Logger = Serilog.Log.ForContext(typeof(CommandLine));
     private const string NativeArtifactsFallbackPathEnvVar = "INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK";
     private const string AllowStaleNativeFallbackEnvVar = "INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK";
+    
+    private static readonly ILogger Logger = Log.ForContext(typeof(CommandLine));
 
     /// <summary>
     ///     Parses command-line arguments into a normalized <see cref="PublishOptions" /> model or a usage response.
@@ -45,7 +49,7 @@ internal static class CommandLine {
         Logger.Information("InfiniFrame.Pack");
         Logger.Information("Usage:");
         Logger.Information("  infiniframe-pack publish <project.csproj> [options]");
-        Logger.Information(string.Empty);
+        Logger.Information("");
         Logger.Information("Options:");
         Logger.Information("  --rid <RID|auto>             Runtime identifier. Default: auto");
         Logger.Information("  --configuration <Config>      Build configuration. Default: Release");
@@ -59,7 +63,7 @@ internal static class CommandLine {
         Logger.Information("                                Explicit fallback directory for native artifacts");
         Logger.Information("  --allow-stale-native-fallback");
         Logger.Information("                                Allow using fallback artifacts when preflight fails validation");
-        Logger.Information(string.Empty);
+        Logger.Information("");
         Logger.Information("Environment overrides:");
         Logger.Information("  {FallbackEnvVar}=<path>", NativeArtifactsFallbackPathEnvVar);
         Logger.Information("  {AllowStaleEnvVar}=true|false", AllowStaleNativeFallbackEnvVar);

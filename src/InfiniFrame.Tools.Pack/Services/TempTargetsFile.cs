@@ -87,10 +87,10 @@ internal sealed class TempTargetsFile : IDisposable {
 
     private static string BuildNativeEmbeddedResourceItems() => string.Join(Environment.NewLine,
         InfiniFramePackNativeArtifactManifest.RidArtifacts.Select(artifact => $"""
-            <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)/{artifact.FileName}"
-                              Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('{artifact.RidPrefix}')) and Exists('$(InfiniFramePackNativeArtifactsDir)/{artifact.FileName}')"
-                              LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).{artifact.FileName}" />
-        """.TrimEnd()));
+                <EmbeddedResource Include="$(InfiniFramePackNativeArtifactsDir)/{artifact.FileName}"
+                                  Condition="$([System.String]::Copy('$(InfiniFramePackRuntimeIdentifier)').StartsWith('{artifact.RidPrefix}')) and Exists('$(InfiniFramePackNativeArtifactsDir)/{artifact.FileName}')"
+                                  LogicalName="$(AssemblyName).native.$(InfiniFramePackRuntimeIdentifier).{artifact.FileName}" />
+            """.TrimEnd()));
 
     private static string BuildResolvedFileRemovalCondition() => string.Join(
         $"{Environment.NewLine}                                             or ",
