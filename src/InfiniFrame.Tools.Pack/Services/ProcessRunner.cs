@@ -37,8 +37,11 @@ internal static class ProcessRunner {
         var startInfo = new ProcessStartInfo(fileName) {
             UseShellExecute = false,
             RedirectStandardOutput = true,
-            RedirectStandardError = true
+            RedirectStandardError = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8
         };
+        
         if (!string.IsNullOrWhiteSpace(workingDirectory)) startInfo.WorkingDirectory = workingDirectory;
 
         foreach (string arg in arguments) {
