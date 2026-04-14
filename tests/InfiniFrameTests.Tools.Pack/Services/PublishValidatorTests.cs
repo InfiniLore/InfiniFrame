@@ -244,6 +244,7 @@ public class PublishValidatorTests {
     public async Task ValidateOutputPath_RejectsCaseMismatchForBinDirectory_OnCaseSensitivePlatforms() {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(projectDirectory, "BIN", "Release", "net10.0", "win-x64", "publish");
+        Directory.CreateDirectory(outputPath);
 
         if (OperatingSystem.IsWindows()) {
             bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
