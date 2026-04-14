@@ -11,6 +11,16 @@ internal static class PublishOutputCleaner {
     private const int MaxDeleteAttempts = 3;
 
     /// <summary>
+    ///     The native runtime file names that are stripped from the final publication output after embedding.
+    /// </summary>
+    public static readonly string[] NativeRuntimeFiles = InfiniFramePackNativeArtifactManifest.AllFileNames;
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+     
+
+    /// <summary>
     ///     Removes unpacked runtime artifacts that should not remain beside the single-file executable.
     /// </summary>
     /// <param name="output">Publish output directory.</param>
@@ -24,7 +34,7 @@ internal static class PublishOutputCleaner {
             if (!string.IsNullOrWhiteSpace(warning)) warnings.Add(warning);
         }
 
-        IEnumerable<string?> enumerable = NativeRuntimeBuilder.NativeRuntimeFiles
+        IEnumerable<string?> enumerable = NativeRuntimeFiles
             .Select(file => Path.IsPathRooted(file) ? file : Path.Join(output, file))
             .Where(File.Exists)
             .Select(TryDeleteFileWithRetries)

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Exceptions;
+using InfiniFrame.Tools.Pack.Resolvers;
 using Serilog;
 
 namespace InfiniFrame.Tools.Pack.Services;
@@ -40,10 +41,18 @@ internal static class PublishService {
 
         ResolvedNativeArtifacts nativeArtifacts = await ResolveNativeArtifactsAsync(options, projectPath, framework, rid);
 
+        PublishValidator.PreflightValidate(
+            projectDirectory,
+            output,
+            rid,
+            nativeArtifacts.Directory,
+            options.ForceCleanOutput
+        );
+
         PrintPublishSummary(projectPath, framework, rid, options.SelfContained, output, nativeArtifacts.Directory);
 
-        // Safe recursive deletion
-        if (Directory.Exists(output)) SafeDeleteDirectory(output, projectDirectory, options.ForceCleanOutput);
+        // Safe recursive deletion (now guaranteed safe)
+        if (Directory.Exists(output)) SafeDeleteDirectory(output);
         Directory.CreateDirectory(output);
 
         try {
@@ -172,7 +181,7 @@ internal static class PublishService {
             }
 
             try {
-                NativeRuntimeBuilder.ValidateArtifacts(preflightDirectory, rid);
+                PublishValidator.ValidateNativeArtifacts(preflightDirectory, rid);
                 preflightValidated = true;
                 return new ResolvedNativeArtifacts(preflightDirectory, true);
             }
@@ -204,7 +213,7 @@ internal static class PublishService {
         if (string.IsNullOrWhiteSpace(options.NativeArtifactsFallbackPath)) return null;
 
         string fallbackArtifactsDirectory = Path.GetFullPath(options.NativeArtifactsFallbackPath);
-        NativeRuntimeBuilder.ValidateArtifacts(fallbackArtifactsDirectory, rid);
+        PublishValidator.ValidateNativeArtifacts(fallbackArtifactsDirectory, rid);
 
         if (!options.AllowStaleNativeArtifactsFallback) {
             throw new InvalidOperationException(
@@ -249,19 +258,26 @@ internal static class PublishService {
         if (trimmed.Length <= maxLength) return trimmed;
         return $"{trimmed[..maxLength]}{Environment.NewLine}<truncated>";
     }
-
-    private static void SafeDeleteDirectory(string path, string projectDirectory, bool forceCleanOutput) {
+    
+    // NOTE:
+    // This method assumes that PublishPreflightValidator has already validated the path.
+    // Do NOT call this method without running preflight validation first.
+    private static void SafeDeleteDirectory(string path) {
         string fullPath = Path.GetFullPath(path);
-        OutputPathSafety.EnsureOutputCanBeDeleted(fullPath, projectDirectory, forceCleanOutput);
 
-        // Log deletion for transparency
+        // Soft guardrail (not full validation)
+        if (string.IsNullOrWhiteSpace(fullPath)) throw new InvalidOperationException("Cannot delete an empty path.");
+
         Logger.Information("Cleaning previous output folder: {OutputDirectory}", fullPath);
 
         try {
             Directory.Delete(fullPath, true);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) {
-            throw new InvalidOperationException($"Failed to delete output folder '{fullPath}': {ex.Message}", ex);
+            throw new InvalidOperationException(
+                $"Failed to delete output folder '{fullPath}': {ex.Message}",
+                ex
+            );
         }
     }
 

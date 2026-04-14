@@ -1,7 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Tools.Pack;
 using InfiniFrame.Tools.Pack.Exceptions;
+using InfiniFrame.Tools.Pack.Resolvers;
 using InfiniFrame.Tools.Pack.Services;
 using InfiniFrameTests.Shared;
 using InfiniFrameTests.Tools.Pack.TestUtilities;
