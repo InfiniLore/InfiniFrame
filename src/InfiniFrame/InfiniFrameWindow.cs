@@ -427,7 +427,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         }
     }
 
-    public Task WaitForCloseAsync() => Task.Run(WaitForClose);
+    public Task WaitForCloseAsync(CancellationToken ct = default) {
+        WaitForClose();
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     ///     Closes the native window.
@@ -465,7 +468,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
     }
 
-    public Task SendWebMessageAsync(string message) {
+    public Task SendWebMessageAsync(string message, CancellationToken ct = default) {
         SendWebMessage(message);
         return Task.CompletedTask;
     }
@@ -516,9 +519,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
     /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <param name="ct">Cancellation token for the operation</param>
     /// <returns>Array of file paths as strings</returns>
-    public async Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
-        => await Task.Run(() => ShowOpenFile(title, defaultPath, multiSelect, filters));
+    public async Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
+        => await Task.Run(() => ShowOpenFile(title, defaultPath, multiSelect, filters), ct);
 
     /// <summary>
     ///     Show an open folder dialog native to the OS.
@@ -542,9 +546,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="title">Title of the dialog</param>
     /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
+    /// <param name="ct">Cancellation token for the operation</param>
     /// <returns>Array of folder paths as strings</returns>
-    public async Task<string?[]> ShowOpenFolderAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false) {
-        return await Task.Run(() => ShowOpenFolder(title, defaultPath, multiSelect));
+    public async Task<string?[]> ShowOpenFolderAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default) {
+        return await Task.Run(() => ShowOpenFolder(title, defaultPath, multiSelect), ct);
     }
 
     /// <summary>
@@ -594,8 +599,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="title">Title of the dialog</param>
     /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
     /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <param name="ct"></param>
     /// <returns></returns>
-    public async Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null) {
+    public async Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default) {
         return await Task.Run(() => ShowSaveFile(title, defaultPath, filters));
     }
 

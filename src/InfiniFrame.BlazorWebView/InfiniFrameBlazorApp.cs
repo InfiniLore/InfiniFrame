@@ -23,6 +23,25 @@ public class InfiniFrameBlazorApp(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    public async Task RunAsync(CancellationToken cancellationToken = default) {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        var window = ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+
+        if (RootComponentConfiguration is not null) {
+            foreach ((Type, string) component in RootComponents) {
+                RootComponentConfiguration.Add(component.Item1, component.Item2);
+            }
+        }
+
+        try {
+            await window.WaitForCloseAsync();
+        }
+        finally {
+            await DisposeAsync();
+        }
+    }
+    
     public void Run() {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
