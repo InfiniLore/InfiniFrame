@@ -1,5 +1,5 @@
-name: Setup GTK3 Dependencies
-description: Install and cache GTK3-related dependencies for Linux/macOS runners.
+name: Setup Native Dependencies
+description: Install and cache Native related dependencies for Linux/macOS runners.
 
 inputs:
   apt-cache-version:
@@ -18,6 +18,20 @@ inputs:
 runs:
   using: composite
   steps:
+
+    - name: Setup CMake
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: "4.0.0"
+
+    - name: Cache CMake build
+      uses: actions/cache@v5
+      with:
+        path: src/InfiniFrame.Native/build
+        key: ${{ runner.os }}-setup-native-dependencies-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
+        restore-keys: |
+          ${{ runner.os }}-setup-native-dependencies-cmake-
+                
     - name: Install GTK3 Deps (Linux)
       if: runner.os == 'Linux'
       uses: awalsh128/cache-apt-pkgs-action@latest
