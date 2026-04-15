@@ -45,7 +45,7 @@ jobs:
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     run:
-        name: Platform Tests
+        name: Full Test Suite
         needs: python-tests
         uses: ./.github/workflows/shared-testing.yml
         with:
