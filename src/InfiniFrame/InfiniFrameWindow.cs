@@ -760,8 +760,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     The native side makes its own copies, so the managed side can safely free the memory
     /// </remarks>
     private void FreeCustomSchemeNames() {
-        if (StartupParameters.CustomSchemeNames == null) return;
-        
         foreach (IntPtr ptr in StartupParameters.CustomSchemeNames) {
             if (ptr != IntPtr.Zero) {
                 Marshal.FreeHGlobal(ptr);
