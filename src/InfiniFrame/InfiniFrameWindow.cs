@@ -449,7 +449,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         if (InstanceHandle == IntPtr.Zero) return;
 
         Interlocked.Exchange(ref _shutdownRequested, 1);
-        Invoke(() => InfiniFrameNative.Close(InstanceHandle));
+        Invoke(() => {
+            if (InstanceHandle == IntPtr.Zero) {
+                Logger.LogDebug("Window already closed");
+                return;
+            }
+            InfiniFrameNative.Close(InstanceHandle);
+        });
     }
 
     /// <summary>
@@ -471,7 +477,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         }
 
         Logger.LogDebug(".SendWebMessage({Message})", message);
-        Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
+        Invoke(() => {
+            if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+                Logger.LogDebug("Window closed before SendWebMessage could execute");
+                return;
+            }
+            InfiniFrameNative.SendWebMessage(InstanceHandle, message);
+        });
     }
 
     public Task SendWebMessageAsync(string message, CancellationToken ct = default) {
@@ -503,8 +515,19 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="title">The title of the notification</param>
     /// <param name="body">The text of the notification</param>
     public void SendNotification(string title, string body) {
+        if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+            Logger.LogDebug("Skipping SendNotification during shutdown");
+            return;
+        }
+
         Logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
-        Invoke(() => InfiniFrameNative.ShowNotification(InstanceHandle, title, body));
+        Invoke(() => {
+            if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+                Logger.LogDebug("Window closed before SendNotification could execute");
+                return;
+            }
+            InfiniFrameNative.ShowNotification(InstanceHandle, title, body);
+        });
     }
 
     /// <summary>
