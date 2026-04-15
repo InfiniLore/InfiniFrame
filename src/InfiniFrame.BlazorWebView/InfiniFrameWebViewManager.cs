@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
@@ -32,7 +33,9 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     public static readonly string AppBaseUri = $"{BlazorAppScheme}://localhost/";
     private readonly Channel<string> _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
     private Lazy<IInfiniFrameWindow> LazyWindow { get; }
+    private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
     private readonly SynchronousTaskScheduler _syncScheduler = new();
+    private readonly Task _messagePumpTask;
 
     public InfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
@@ -57,9 +60,10 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         });
 
         LazyWindow = new Lazy<IInfiniFrameWindow>(provider.GetRequiredService<IInfiniFrameWindow>);
+        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(() => provider.GetService<ILogger<InfiniFrameWebViewManager>>());
 
-        //start reader
-        Task.Run(MessagePump);
+        // Start the reader and observe/await it during disposal.
+        _messagePumpTask = Task.Run(MessagePump);
     }
 
     public Stream? HandleWebRequest(object? sender, string? schema, string? url, out string? contentType) {
@@ -108,16 +112,33 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         catch (ChannelClosedException) {
             // ignored
         }
+        catch (OperationCanceledException) {
+            // ignored
+        }
+        catch (Exception ex) when (IsNonFatalException(ex)) {
+            LazyLogger.Value?.LogError(ex, "Unhandled exception in WebView message pump.");
+            throw;
+        }
     }
 
-    protected override ValueTask DisposeAsyncCore() {
+    protected override async ValueTask DisposeAsyncCore() {
         //complete channel
         try { _channel.Writer.Complete(); }
         catch (ChannelClosedException) {
             // ignored
         }
 
+        try {
+            await _messagePumpTask;
+        }
+        catch (ChannelClosedException) {
+            // ignored
+        }
+
         //continue disposing
-        return base.DisposeAsyncCore();
+        await base.DisposeAsyncCore();
     }
+
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
 }
