@@ -6,8 +6,7 @@ technologies — load any URL, render HTML strings, or embed a full Blazor appli
 Supports **Windows** (WebView2), **Linux** (WebKit2GTK), and **macOS** (WKWebView)
 
 > **Note:** This project is a modern rework
->
-of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
+> of [Photino.Net](https://github.com/tryphotino/photino.NET), [Photino.Net.Server](https://github.com/tryphotino/photino.NET.Server), [Photino.Blazor](https://github.com/tryphotino/Photino.Blazor)
 > and [Photino.Native](https://github.com/tryphotino/photino.Native) and is not affiliated with or endorsed by the
 > original Photino authors
 
@@ -109,7 +108,7 @@ they are independent integration paths
 
 Use the custom .NET tool `InfiniFrame-Pack` to package your app into a single executable with embedded native
 dependencies.
-See [`/docs`](docs/articles/guides/pack-tool.md) for full usage details and options.
+See [`/docs`](docs/articles/guides/pack-tool.md) for full usage details and options
 
 Install the tool first before running packaging commands (including the `InfiniFrameExample.SingleFileExe` post-build
 pack target):
