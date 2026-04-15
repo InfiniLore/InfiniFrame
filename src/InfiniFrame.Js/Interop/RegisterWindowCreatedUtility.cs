@@ -110,7 +110,13 @@ public static class RegisterWindowCreatedUtility {
                 HandlerNames.WindowReady,
                 registrationMessages.Length
             );
-            _ = SendRegistrationsWithRetryAsync(window, state, windowState, registrationMessages);
+            _ = SendRegistrationsWithRetryAsync(
+                window,
+                state,
+                windowState,
+                registrationMessages,
+                completeStateOnFinish: false
+            );
         }
         catch (OperationCanceledException) {
             // Handshake received in time.
@@ -121,7 +127,8 @@ public static class RegisterWindowCreatedUtility {
         IInfiniFrameWindow window,
         WindowReadyRegistrationState state,
         WindowRegistrationState windowState,
-        IReadOnlyList<string> registrationMessages
+        IReadOnlyList<string> registrationMessages,
+        bool completeStateOnFinish = true
     ) {
         var allMessagesSent = false;
         try {
@@ -131,8 +138,10 @@ public static class RegisterWindowCreatedUtility {
             window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
         }
         finally {
-            lock (state.Lock) {
-                windowState.StateMachine.CompleteRegistrationSend(allMessagesSent);
+            if (completeStateOnFinish) {
+                lock (state.Lock) {
+                    windowState.StateMachine.CompleteRegistrationSend(allMessagesSent);
+                }
             }
         }
     }
