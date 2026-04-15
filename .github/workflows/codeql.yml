@@ -1,4 +1,4 @@
-name: "CodeQL"
+name: "CodeQL Advanced"
 
 on:
   push:
@@ -49,6 +49,15 @@ jobs:
                 9.x
                 10.x
 
+      - name: Setup Native dependencies
+        if: matrix.language == 'c-cpp' || matrix.language == 'csharp'
+        uses: ./.github/actions/setup-dependencies-native
+        # noinspection UndefinedParamsPresent
+        with:
+          apt-cache-version: 1.0
+          brew-cache-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/codeql.yml') }}
+          brew-restore-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
@@ -61,7 +70,6 @@ jobs:
           dotnet restore InfiniFrame.slnx
           dotnet build InfiniFrame.slnx --no-restore --configuration Release
 
-      # 🔎 Run analysis
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:

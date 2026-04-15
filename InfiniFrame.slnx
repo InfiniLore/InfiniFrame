@@ -21,6 +21,9 @@
   <Folder Name="/.dev-tools/github/actions/packtool-setup/">
     <File Path=".github/actions/packtool-setup/action.yml" />
   </Folder>
+  <Folder Name="/.dev-tools/github/actions/setup-dependencies-native/">
+    <File Path=".github/actions/setup-dependencies-native/action.yml" />
+  </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check-finalize/">
     <File Path=".github/actions/sync-check-finalize/action.yml" />
   </Folder>
@@ -50,6 +53,7 @@
     <File Path=".github/workflows/ci-release.yml" />
     <File Path=".github/workflows/ci-testing-python.yml" />
     <File Path=".github/workflows/ci-todo.yml" />
+    <File Path=".github/workflows/codeql.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/">
     <File Path=".github/actions/validate-native-test-binaries/action.yml" />
