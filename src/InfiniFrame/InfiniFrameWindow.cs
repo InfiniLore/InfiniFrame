@@ -682,8 +682,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 Invoke(InfiniFrameNative.RegisterMac);
 
             Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in StartupParameters));
+            
+            FreeCustomSchemeNames();
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
+            FreeCustomSchemeNames();
+            
             int lastError = 0;
             if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
@@ -696,7 +700,24 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     }
 
     /// <summary>
-    ///     Show a native open dialog.
+    ///     Frees unmanaged memory allocated for custom scheme names
+    /// </summary>
+    /// <remarks>
+    ///     This method should be called after the native constructor has copied the scheme names.
+    ///     The native side makes its own copies, so the managed side can safely free the memory
+    /// </remarks>
+    private void FreeCustomSchemeNames() {
+        if (StartupParameters.CustomSchemeNames == null) return;
+        
+        foreach (IntPtr ptr in StartupParameters.CustomSchemeNames) {
+            if (ptr != IntPtr.Zero) {
+                Marshal.FreeHGlobal(ptr);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Show a native open dialog
     /// </summary>
     /// <param name="foldersOnly">Whether files are hidden</param>
     /// <param name="title">Title of the dialog</param>

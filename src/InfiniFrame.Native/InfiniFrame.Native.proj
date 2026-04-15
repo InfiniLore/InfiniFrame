@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <!-- Cross-platform Visual Studio placeholder for CMake -->
@@ -53,11 +53,11 @@
         <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel"/>
 
         <!-- Linux -->
-        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)"/>
+        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S ."/>
         <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel"/>
 
         <!-- macOS -->
-        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S ."/>
+        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)"/>
         <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel"/>
 
         <!-- Copy native binaries -->

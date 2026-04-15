@@ -537,7 +537,7 @@ void InfiniFrameWindow::GetGrantBrowserPermissions(bool* grant) const {
 }
 
 AutoString InfiniFrameWindow::GetUserAgent() const {
-    return const_cast<AutoString>(m_impl->_userAgent.c_str());
+    return AllocateStringCopy(m_impl->_userAgent);
 }
 
 void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const {
@@ -616,7 +616,8 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const {
 }
 
 AutoString InfiniFrameWindow::GetTitle() const {
-    return const_cast<AutoString>(gtk_window_get_title(GTK_WINDOW(m_impl->_window)));
+    const char* title = gtk_window_get_title(GTK_WINDOW(m_impl->_window));
+    return g_strdup(title ? title : "");
 }
 
 void InfiniFrameWindow::GetTopmost(bool* topmost) const {
@@ -636,7 +637,7 @@ void InfiniFrameWindow::GetFocused(bool* isFocused) const {
 }
 
 AutoString InfiniFrameWindow::GetIconFileName() const {
-    return const_cast<AutoString>(m_impl->_iconFileName.c_str());
+    return AllocateStringCopy(m_impl->_iconFileName);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

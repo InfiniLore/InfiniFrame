@@ -15,6 +15,7 @@
 #include <optional>
 #include <algorithm>
 #include <system_error>
+#include <cstring>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -151,5 +152,35 @@ template <typename T>
 [[nodiscard]] constexpr T clampDimension(T value, T minVal = MinWindowDimension, T maxVal = MaxWindowDimension) {
     return std::clamp(value, minVal, maxVal);
 }
+
+#ifdef _WIN32
+inline wchar_t* AllocateStringCopy(const std::wstring& str) {
+    const size_t len = str.length();
+    wchar_t* copy = new wchar_t[len + 1];
+    std::memcpy(copy, str.c_str(), (len + 1) * sizeof(wchar_t));
+    return copy;
+}
+
+#elif __linux__
+inline char* AllocateStringCopy(const std::string& str) {
+    return g_strdup(str.c_str());
+}
+
+#elif __APPLE__
+inline char* AllocateStringCopy(const std::string& str) {
+    const size_t len = str.length();
+    char* copy = static_cast<char*>(malloc(len + 1));
+    std::memcpy(copy, str.c_str(), len + 1);
+    return copy;
+}
+
+#else
+inline char* AllocateStringCopy(const std::string& str) {
+    const size_t len = str.length();
+    char* copy = static_cast<char*>(malloc(len + 1));
+    std::memcpy(copy, str.c_str(), len + 1);
+    return copy;
+}
+#endif
 
 #endif // INFINIFRAME_COMMON_H
