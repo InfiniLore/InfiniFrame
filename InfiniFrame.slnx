@@ -59,13 +59,13 @@
     <File Path=".github/workflows/shared-release-publish-docs.yml" />
     <File Path=".github/workflows/shared-release-publish.yml" />
     <File Path=".github/workflows/shared-testing-docs.yml" />
-    <File Path=".github/workflows/shared-testing-gui-linux.yml" />
-    <File Path=".github/workflows/shared-testing-gui-macos.yml" />
-    <File Path=".github/workflows/shared-testing-gui-windows.yml" />
+    <File Path=".github/workflows/shared-testing-linux.yml" />
+    <File Path=".github/workflows/shared-testing-macos.yml" />
+    <File Path=".github/workflows/shared-testing-windows.yml" />
     <File Path=".github/workflows/shared-testing-js.yml" />
-    <File Path=".github/workflows/shared-testing-playwright-windows.yml" />
+    <File Path=".github/workflows/shared-testing-windows-playwright.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
-    <File Path=".github/workflows/shared-testing-trim-aot.yml" />
+    <File Path=".github/workflows/shared-testing-windows-trim-aot.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
   <Folder Name="/.dev-tools/web/">

@@ -65,7 +65,6 @@ jobs:
                         ${{ matrix.os }}-${{ matrix.arch }}-nuget-
             
             -   name: Setup Native dependencies
-                if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
