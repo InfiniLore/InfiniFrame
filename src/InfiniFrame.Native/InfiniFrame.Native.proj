@@ -19,6 +19,10 @@
         <!-- Fallback -->
         <CMakeArch Condition="'$(CMakeArch)'==''">x64</CMakeArch>
 
+        <!-- macOS arch mapping -->
+        <CMakeOSXArch Condition="'$(CMakeArch)'=='x64'">x86_64</CMakeOSXArch>
+        <CMakeOSXArch Condition="'$(CMakeArch)'=='arm64'">arm64</CMakeOSXArch>
+
         <CMakeBuildDir>build/$(CMakeArch)/$(Configuration)</CMakeBuildDir>
         <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
         <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
@@ -57,7 +61,7 @@
         <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel"/>
 
         <!-- macOS -->
-        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeArch)"/>
+        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeOSXArch)"/>
         <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel"/>
 
         <!-- Copy native binaries -->
