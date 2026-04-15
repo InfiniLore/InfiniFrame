@@ -76,7 +76,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         InfiniFrameNativeParameters startupParameters = snapshot.StartupParameters;
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
-        startupParameters.ClosingHandler = events.OnWindowClosing;
+        startupParameters.ClosingHandler = window.OnWindowClosing;
         startupParameters.ResizedHandler = events.OnSizeChanged;
         startupParameters.MaximizedHandler = events.OnMaximized;
         startupParameters.RestoredHandler = events.OnRestored;

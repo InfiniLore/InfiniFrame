@@ -1,4 +1,4 @@
-name: "Shared: GUI Tests Linux"
+name: "Shared: Linux Tests"
 on:
     workflow_call:
         inputs:
@@ -17,8 +17,8 @@ on:
                 required: true
 
 jobs:
-    linux-gui:
-        name: Linux GUI (${{ matrix.arch }})
+    linux:
+        name: Linux (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -30,9 +30,11 @@ jobs:
                     -   os: ubuntu-latest
                         arch: x64
                         libName: linux
+                        rid: linux-x64
                     -   os: ubuntu-24.04-arm
                         arch: arm64
                         libName: linux
+                        rid: linux-arm64
         permissions:
             contents: read
             statuses: write
@@ -52,7 +54,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - GUI/Linux/${{ matrix.arch }}
+                    context: CI Testing - Linux/${{ matrix.arch }}
                     state: pending
                     status-description: Linux tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -79,7 +81,7 @@ jobs:
                 # noinspection UndefinedParamsPresent
                 with:
                     apt-cache-version: 1.0
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-gui-linux.yml') }}
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-linux.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Compile GSettings schemas
@@ -110,7 +112,7 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run GUI Tests
+            -   name: Run Tests
                 run: |
                     echo "Starting desktop environment..."
 
@@ -176,42 +178,22 @@ jobs:
                       --no-build \
                       --no-restore
 
-            -   name: Show Test Logs
-                if: failure()
-                run: |
-                    echo "=== Xvfb/Mutter logs ==="
-                    cat xvfb.log
-                    cat mutter.log
-
-                    echo "=== Test Run Failed - Displaying Logs ==="
-
-                    strip_ansi() {
-                      sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
-                    }
-
-                    find . -name "*.log" -path "*/TestResults/*" -type f | while read -r logfile; do
-                      echo "=== Content of $logfile ==="
-                      strip_ansi < "$logfile" || echo "Could not read $logfile"
-                      echo ""
-                    done
-
-                    find . -name "*.trx" -path "*/TestResults/*" -type f | while read -r trxfile; do
-                      echo "=== Content of $trxfile ==="
-                      strip_ansi < "$trxfile" || echo "Could not read $trxfile"
-                      echo ""
-                    done
-
-                    echo "=== All files in TestResults directories ==="
-                    find . -path "*/TestResults/*" -type f -ls || echo "No TestResults directories found"
-
-            -   name: Upload Test Logs
-                if: failure()
-                uses: actions/upload-artifact@v7
+            -   name: Pack Tool E2E
+                if: always()
+                # noinspection UndefinedAction
+                uses: ./.github/actions/packtool-e2e
+                # noinspection UndefinedParamsPresent
                 with:
-                    name: test-logs-linux-${{ matrix.arch }}
-                    path: |
-                        **/TestResults/*.log
-                        **/TestResults/*.trx
+                    project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
+                    rid: ${{ matrix.rid }}
+                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
+                    main-output-name: InfiniFrameExample.SingleFileExe
+                    forbidden-entries: |
+                        wwwroot
+                        InfiniFrame.Native.dll
+                        WebView2Loader.dll
+                        InfiniFrame.Native.so
+                        InfiniFrame.Native.dylib
 
             -   name: Update Linux Check
                 if: always()
@@ -223,7 +205,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - GUI/Linux/${{ matrix.arch }}
+                    context: CI Testing - Linux/${{ matrix.arch }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Linux tests passed

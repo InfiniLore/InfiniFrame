@@ -18,6 +18,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
+    private int _shutdownRequested;
     private int _shutdownStarted;
     public InfiniFrameNativeParameters StartupParameters;
     public required IInfiniFrameWindowCustomSchemeHandlers CustomSchemes { get; init; }
@@ -423,11 +424,16 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
         }
         finally {
+            Interlocked.Exchange(ref _shutdownRequested, 1);
             Interlocked.Exchange(ref _shutdownStarted, 1);
         }
     }
 
-    public Task WaitForCloseAsync() => Task.Run(WaitForClose);
+    public Task WaitForCloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
+        WaitForClose();
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     ///     Closes the native window.
@@ -442,6 +448,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         Events.OnWindowClosingRequested();
         if (InstanceHandle == IntPtr.Zero) return;
 
+        Interlocked.Exchange(ref _shutdownRequested, 1);
         Invoke(() => InfiniFrameNative.Close(InstanceHandle));
     }
 
@@ -456,7 +463,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </exception>
     /// <param name="message">Message as string</param>
     public void SendWebMessage(string message) {
-        if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+        if (Volatile.Read(ref _shutdownRequested) != 0
+            || Volatile.Read(ref _shutdownStarted) != 0
+            || InstanceHandle == IntPtr.Zero) {
             Logger.LogDebug("Skipping SendWebMessage during shutdown");
             return;
         }
@@ -465,9 +474,23 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
     }
 
-    public Task SendWebMessageAsync(string message) {
+    public Task SendWebMessageAsync(string message, CancellationToken ct = default) {
+        if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
         SendWebMessage(message);
         return Task.CompletedTask;
+    }
+
+    internal byte OnWindowClosing() {
+        Interlocked.Exchange(ref _shutdownRequested, 1);
+        byte noClose = Events.OnWindowClosing();
+        if (noClose != 0) {
+            // Close was canceled by user code; resume normal window operation.
+            Interlocked.Exchange(ref _shutdownRequested, 0);
+            return noClose;
+        }
+
+        Interlocked.Exchange(ref _shutdownStarted, 1);
+        return 0;
     }
 
     /// <summary>
@@ -516,9 +539,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
     /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <param name="ct">Cancellation token for the operation</param>
     /// <returns>Array of file paths as strings</returns>
-    public async Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
-        => await Task.Run(() => ShowOpenFile(title, defaultPath, multiSelect, filters));
+    public Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
+        => RunDialogAsync(() => ShowOpenFile(title, defaultPath, multiSelect, filters), ct);
 
     /// <summary>
     ///     Show an open folder dialog native to the OS.
@@ -542,10 +566,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="title">Title of the dialog</param>
     /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
     /// <param name="multiSelect">Whether multiple selections are allowed</param>
+    /// <param name="ct">Cancellation token for the operation</param>
     /// <returns>Array of folder paths as strings</returns>
-    public async Task<string?[]> ShowOpenFolderAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false) {
-        return await Task.Run(() => ShowOpenFolder(title, defaultPath, multiSelect));
-    }
+    public Task<string?[]> ShowOpenFolderAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default)
+        => RunDialogAsync(() => ShowOpenFolder(title, defaultPath, multiSelect), ct);
 
     /// <summary>
     ///     Show a save folder dialog native to the OS.
@@ -594,9 +618,15 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="title">Title of the dialog</param>
     /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
     /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <param name="ct">Cancellation token for the operation</param>
     /// <returns></returns>
-    public async Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null) {
-        return await Task.Run(() => ShowSaveFile(title, defaultPath, filters));
+    public Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
+        => RunDialogAsync(() => ShowSaveFile(title, defaultPath, filters), ct);
+
+    private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct) {
+        if (ct.IsCancellationRequested) return Task.FromCanceled<TResult>(ct);
+        // Dialog calls are intentionally offloaded for Blazor flows where synchronous dialog invocation is unsafe.
+        return Task.Run(workItem, ct);
     }
 
     /// <summary>

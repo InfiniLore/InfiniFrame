@@ -38,9 +38,6 @@ jobs:
           - language: c-cpp
             os: windows-latest
             build-mode: manual
-          - language: c-cpp
-            os: macos-latest
-            build-mode: manual
           - language: csharp
             os: ubuntu-latest
             build-mode: manual
@@ -87,7 +84,7 @@ jobs:
           config-file: ./.github/codeql-config.yml
       
       - name: Restore C# (.slnx)
-        if: matrix.language == 'c-cpp' || matrix.language == 'csharp'
+        if: matrix.language == 'csharp'
         run: |
             dotnet restore InfiniFrame.slnx /p:NoWarn=NU1503
 

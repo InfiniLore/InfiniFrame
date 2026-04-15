@@ -10,7 +10,7 @@ public class InfiniFrameWebApplication {
     public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
     public IInfiniFrameWindow Window => LazyWindow.Value;
 
-    private Thread? _webAppThread;
+    private int _shutdownStarted;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -22,10 +22,18 @@ public class InfiniFrameWebApplication {
         }.Initialize();
 
     public void Run() {
-        _webAppThread = new Thread(WebApp.Run) { IsBackground = true };
-        _webAppThread.Start();
+        RunAsync().GetAwaiter().GetResult();
+    }
 
-        Window.WaitForClose();
+    public async Task RunAsync(CancellationToken ct = default) {
+        Task runTask = WebApp.RunAsync(ct);
+        try {
+            await Window.WaitForCloseAsync(ct);
+        }
+        finally {
+            await StopWebAppAsync(CancellationToken.None);
+            await ObserveHostRunCompletionAsync(runTask);
+        }
     }
 
     /// <summary>
@@ -51,20 +59,7 @@ public class InfiniFrameWebApplication {
         return this;
 
         bool ClosingHandler() {
-            // Start web app shutdown in background - don't block UI thread
-            Task.Run(async () => {
-                try {
-                    await WebApp.StopAsync();
-
-                    if (_webAppThread is null) return;
-                    if (_webAppThread.Join(TimeSpan.FromSeconds(5))) return;
-
-                    _webAppThread.Interrupt();
-                }
-                catch (Exception e) when (IsNonFatalException(e)) {
-                    Window.Logger.LogError(e, "Error stopping web app");
-                }
-            });
+            StopWebApp();
             // return false else the window will be not be closed (see old InfiniFrame code why)
             return false;
         }
@@ -76,15 +71,35 @@ public class InfiniFrameWebApplication {
     /// are gracefully terminated.
     /// </summary>
     public void Stop() {
-        StopWebApp();
+        StopAsync().GetAwaiter().GetResult();
+    }
+
+    public async Task StopAsync(CancellationToken ct = default) {
+        await StopWebAppAsync(ct);
         Window.Close();
     }
 
     private void StopWebApp() {
-        _ = WebApp.StopAsync();
+        StopWebAppAsync().GetAwaiter().GetResult();
+    }
 
-        if (_webAppThread is not null && !_webAppThread.Join(TimeSpan.FromSeconds(5))) {
-            _webAppThread.Interrupt();
+    private async Task StopWebAppAsync(CancellationToken ct = default) {
+        if (Interlocked.Exchange(ref _shutdownStarted, 1) != 0) return;
+
+        try {
+            await WebApp.StopAsync(ct);
+        }
+        catch (Exception e) when (IsNonFatalException(e)) {
+            Window.Logger.LogError(e, "Error stopping web app");
+        }
+    }
+
+    private static async Task ObserveHostRunCompletionAsync(Task runTask) {
+        try {
+            await runTask;
+        }
+        catch (OperationCanceledException) {
+            // Host shutdown cancellation is expected.
         }
     }
 
