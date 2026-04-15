@@ -62,6 +62,14 @@ jobs:
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     allow-status-422: 'true'
 
+            -   name: Setup Native dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                # noinspection UndefinedParamsPresent
+                with:
+                    apt-cache-version: 1.0
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-trim-aot.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+
             -   name: Trim Analyzer Builds
                 run: |
                     dotnet build src/InfiniFrame.Shared/InfiniFrame.Shared.csproj `

@@ -1,0 +1,85 @@
+name: Setup Native Dependencies
+description: Install and cache Native related dependencies for Linux/macOS runners.
+
+inputs:
+  apt-cache-version:
+    description: Version token for apt package cache invalidation
+    required: false
+    default: "1.0"
+  brew-cache-key:
+    description: Full Homebrew cache key for macOS runners
+    required: false
+    default: ""
+  brew-restore-key:
+    description: Homebrew cache restore key prefix for macOS runners
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+
+    - name: Setup CMake
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: "4.0.0"
+
+    - name: Cache CMake build
+      uses: actions/cache@v5
+      with:
+        path: src/InfiniFrame.Native/build
+        key: ${{ runner.os }}-setup-native-dependencies-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
+        restore-keys: |
+          ${{ runner.os }}-setup-native-dependencies-cmake-
+                
+    - name: Install GTK3 Deps (Linux)
+      if: runner.os == 'Linux'
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: >
+            pkg-config
+            gnome-shell
+            gnome-session
+            gnome-settings-daemon
+            mutter
+            xvfb
+            x11-utils
+            x11-xserver-utils
+            dbus-x11
+            at-spi2-core
+            gsettings-desktop-schemas
+            libnotify4
+            libnotify-dev
+            libwebkit2gtk-4.1-dev
+            libgtk-3-dev
+            libglib2.0-dev
+            libgdk-pixbuf2.0-dev
+            libpango1.0-dev
+            libatk1.0-dev
+            libharfbuzz-dev
+            libepoxy-dev
+            libx11-dev
+            fonts-liberation
+            xfonts-base
+        version: ${{ inputs['apt-cache-version'] }}
+
+    - name: Cache Homebrew
+      if: runner.os == 'macOS'
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/Library/Caches/Homebrew
+          /usr/local/Cellar/gtk+3
+          /usr/local/Cellar/pkg-config
+          /opt/homebrew/Cellar/gtk+3
+          /opt/homebrew/Cellar/pkg-config
+        key: ${{ inputs['brew-cache-key'] }}
+        restore-keys: |
+          ${{ inputs['brew-restore-key'] }}
+
+    - name: Install GTK3 (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        brew list gtk+3 >/dev/null 2>&1 || brew install gtk+3
+        brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
