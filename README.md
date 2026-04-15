@@ -107,7 +107,7 @@ they are independent integration paths
 ## Single-File Executable Packing
 
 Use the custom .NET tool `InfiniFrame-Pack` to package your app into a single executable with embedded native
-dependencies
+dependencies.
 See [`/docs`](docs/articles/guides/pack-tool.md) for full usage details and options
 
 Install the tool first before running packaging commands (including the `InfiniFrameExample.SingleFileExe` post-build
