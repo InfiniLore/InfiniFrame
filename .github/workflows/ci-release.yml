@@ -6,7 +6,7 @@ on:
                 description: 'Version bump type'
                 required: true
                 type: choice
-                default: preview
+                default: minor
                 options:
                     - major
                     - minor
