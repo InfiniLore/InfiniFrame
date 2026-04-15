@@ -87,7 +87,7 @@ jobs:
           config-file: ./.github/codeql-config.yml
       
       - name: Restore C# (.slnx)
-        if: matrix.language == 'c-cpp' || matrix.language == 'csharp'
+        if: matrix.language == 'csharp'
         run: |
             dotnet restore InfiniFrame.slnx /p:NoWarn=NU1503
 
