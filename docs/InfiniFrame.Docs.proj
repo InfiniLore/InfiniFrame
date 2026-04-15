@@ -9,4 +9,24 @@
     <None Include="**/*"
           Exclude="bin/**;obj/**;_site/**;.doxygen/**;api/**/*.yml;api/toc.yml;api/.manifest" />
   </ItemGroup>
+
+  <Target Name="Build">
+    <Message Text="Skipping docs build in InfiniFrame.Docs.proj." Importance="High" />
+  </Target>
+
+  <Target Name="Clean">
+    <Message Text="Skipping docs clean in InfiniFrame.Docs.proj." Importance="High" />
+  </Target>
+
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build">
+    <Message Text="Skipping docs rebuild in InfiniFrame.Docs.proj." Importance="High" />
+  </Target>
+
+  <Target Name="Restore">
+    <Message Text="Skipping docs restore in InfiniFrame.Docs.proj." Importance="High" />
+  </Target>
+
+  <Target Name="Pack">
+    <Message Text="Skipping docs pack in InfiniFrame.Docs.proj." Importance="High" />
+  </Target>
 </Project>

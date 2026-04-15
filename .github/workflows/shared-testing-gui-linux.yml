@@ -74,18 +74,6 @@ jobs:
                     restore-keys: |
                         ${{ matrix.os }}-${{ matrix.arch }}-nuget-
 
-            -   name: Setup CMake
-                uses: lukka/get-cmake@latest
-
-            -   name: Cache CMake build
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        src/InfiniFrame.Native/build
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-${{ hashFiles('src/InfiniFrame.Native/**') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-cmake-v2-
-
             -   name: Setup Native dependencies
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent

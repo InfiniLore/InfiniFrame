@@ -1,5 +1,9 @@
 name: "CodeQL Advanced"
 
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ "core" ]
@@ -11,8 +15,9 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    name: Analyze (${{ matrix.language }} on ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
 
     permissions:
       security-events: write
@@ -25,14 +30,25 @@ jobs:
       matrix:
         include:
           - language: actions
+            os: ubuntu-latest
             build-mode: none
           - language: c-cpp
-            build-mode: autobuild
+            os: ubuntu-latest
+            build-mode: manual
+          - language: c-cpp
+            os: windows-latest
+            build-mode: manual
+          - language: c-cpp
+            os: macos-latest
+            build-mode: manual
           - language: csharp
+            os: ubuntu-latest
             build-mode: manual
           - language: javascript-typescript
+            os: ubuntu-latest
             build-mode: none
           - language: python
+            os: ubuntu-latest
             build-mode: none
 
     steps:
@@ -49,6 +65,10 @@ jobs:
                 9.x
                 10.x
 
+      - name: Setup CMake
+        if: matrix.language == 'c-cpp'
+        uses: lukka/get-cmake@latest
+
       - name: Setup Native dependencies
         if: matrix.language == 'c-cpp' || matrix.language == 'csharp'
         uses: ./.github/actions/setup-dependencies-native
@@ -63,12 +83,24 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+          queries: security-extended,security-and-quality
+          config-file: ./.github/codeql-config.yml
+      
+      - name: Restore C# (.slnx)
+        if: matrix.language == 'c-cpp' || matrix.language == 'csharp'
+        run: |
+            dotnet restore InfiniFrame.slnx /p:NoWarn=NU1503
+
+      - name: Build Native (CodeQL)
+        if: matrix.language == 'c-cpp'
+        shell: pwsh
+        run: |
+          dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj --configuration Release --no-restore -p:SolutionDir="${{ github.workspace }}/" -p:Platform=x64
 
       - name: Build C# (.slnx)
         if: matrix.language == 'csharp'
         run: |
-          dotnet restore InfiniFrame.slnx
-          dotnet build InfiniFrame.slnx --no-restore --configuration Release
+          dotnet build InfiniFrame.slnx --no-restore --configuration Release -p:InfiniFramePackAfterBuild=false
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
