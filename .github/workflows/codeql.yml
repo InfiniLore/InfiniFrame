@@ -1,0 +1,69 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "core" ]
+  pull_request:
+    branches: [ "core" ]
+  schedule:
+    - cron: '24 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: c-cpp
+            build-mode: autobuild
+
+          - language: csharp
+            build-mode: manual
+
+          - language: javascript-typescript
+            build-mode: none
+
+          - language: python
+            build-mode: none
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+            fetch-depth: 1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+            dotnet-version: |
+                8.x
+                9.x
+                10.x
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Build C# (.slnx)
+        if: matrix.language == 'csharp'
+        run: |
+          dotnet restore InfiniFrame.slnx
+          dotnet build InfiniFrame.slnx --no-restore --configuration Release
+
+      # 🔎 Run analysis
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
