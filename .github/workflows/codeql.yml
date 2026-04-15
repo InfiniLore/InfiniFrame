@@ -38,9 +38,6 @@ jobs:
           - language: c-cpp
             os: windows-latest
             build-mode: manual
-          - language: c-cpp
-            os: macos-latest
-            build-mode: manual
           - language: csharp
             os: ubuntu-latest
             build-mode: manual
