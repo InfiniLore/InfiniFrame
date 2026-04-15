@@ -13,6 +13,7 @@
     <File Path="InfiniFrame.GitHubActions.slnf" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
+    <File Path=".github/codeql-config.yml" />
     <File Path=".github/dependabot.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/packtool-publish/">

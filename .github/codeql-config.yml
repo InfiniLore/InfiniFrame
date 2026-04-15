@@ -1,0 +1,11 @@
+name: "InfiniFrame CodeQL Config"
+
+# Exclude third-party and generated content from CodeQL alerting.
+paths-ignore:
+  - src/InfiniFrame.Native/packages/**
+  - src/InfiniFrame.Native/Dependencies/**
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/bin/**"
+  - "**/obj/**"
