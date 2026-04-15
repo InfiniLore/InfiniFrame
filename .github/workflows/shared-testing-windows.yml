@@ -1,4 +1,4 @@
-name: "Shared: Pack Tool E2E Windows"
+name: "Shared: Windows Tests"
 on:
     workflow_call:
         inputs:
@@ -17,8 +17,8 @@ on:
                 required: true
 
 jobs:
-    pack-tool-e2e:
-        name: Windows Pack Tool E2E (${{ matrix.arch }})
+    windows:
+        name: Windows (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -29,9 +29,11 @@ jobs:
                 include:
                     -   os: windows-latest
                         arch: x64
+                        libName: windows
                         rid: win-x64
                     -   os: windows-11-arm
                         arch: arm64
+                        libName: windows
                         rid: win-arm64
         permissions:
             contents: read
@@ -45,7 +47,7 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
-            -   name: Set Pack Check Pending
+            -   name: Set Windows Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 # noinspection UndefinedAction
@@ -54,9 +56,9 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Pack Tool/Windows/${{ matrix.arch }}
+                    context: CI Testing - Windows/${{ matrix.arch }}
                     state: pending
-                    status-description: Pack tool end-to-end validation in progress
+                    status-description: Windows tests in progress
                     target-url: ${{ inputs.workflow_url }}
                     allow-status-422: 'true'
 
@@ -72,25 +74,22 @@ jobs:
                 uses: actions/cache@v5
                 with:
                     path: ~\.nuget\packages
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
                     restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-pack-e2e-nuget-
+                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
 
             -   name: Setup Native dependencies
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
                     apt-cache-version: 1.0
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-pack-windows.yml') }}
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Restore
-                run: |
-                    dotnet restore src/InfiniFrame.Native/InfiniFrame.Native.proj /p:NoWarn=NU1503
-                    dotnet restore src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj /p:NoWarn=NU1503
-                    dotnet restore examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
 
-            -   name: Build Native Runtime (${{ matrix.rid }})
+            -   name: Build Release
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                       --configuration Release `
@@ -98,25 +97,37 @@ jobs:
                       -p:SolutionDir="${{ github.workspace }}/" `
                       -p:Platform=${{ matrix.arch }}
 
-            -   name: Setup Pack Tool
-                # noinspection UndefinedAction
-                uses: ./.github/actions/packtool-setup
+                    dotnet build InfiniFrame.GitHubActions.Testing.slnf `
+                      --configuration Release `
+                      --no-restore
 
-            -   name: Run Pack Tool
+            -   name: Verify Native Binaries
+                uses: ./.github/actions/validate-native-test-binaries
+
+            -   name: Export Actions Runtime
+                uses: actions/github-script@v9
+                with:
+                    script: |
+                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+                        core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
+
+            -   name: Run Tests
+                run: |
+                    echo "Running tests on Windows..."
+                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore
+
+            -   name: Pack Tool E2E
+                if: always()
                 # noinspection UndefinedAction
-                uses: ./.github/actions/packtool-publish
+                uses: ./.github/actions/packtool-e2e
                 # noinspection UndefinedParamsPresent
                 with:
                     project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
                     rid: ${{ matrix.rid }}
                     output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
-
-            -   name: Validate Packed Output
-                # noinspection UndefinedAction
-                uses: ./.github/actions/packtool-validate
-                # noinspection UndefinedParamsPresent
-                with:
-                    output-dir: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
                     main-output-name: InfiniFrameExample.SingleFileExe.exe
                     forbidden-entries: |
                         wwwroot
@@ -125,18 +136,18 @@ jobs:
                         InfiniFrame.Native.so
                         InfiniFrame.Native.dylib
 
-            -   name: Update Pack Check
+            -   name: Update Windows Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
+                # noinspection UndefinedAction, UndefinedParamsPresent
                 uses: ./.github/actions/sync-check-finalize
                 # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Pack Tool/Windows/${{ matrix.arch }}
+                    context: CI Testing - Windows/${{ matrix.arch }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
-                    success-description: Pack tool end-to-end validation passed
-                    failure-description: Pack tool end-to-end validation failed
+                    success-description: Windows tests passed
+                    failure-description: Windows tests failed

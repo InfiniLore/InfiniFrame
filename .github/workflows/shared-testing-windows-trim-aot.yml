@@ -1,4 +1,4 @@
-name: "Shared: Trim/AOT Validation"
+name: "Shared: Windows Trim/AOT Validation"
 
 on:
     workflow_call:
@@ -19,7 +19,7 @@ permissions:
     checks: write
 
 jobs:
-    trim-aot-validation:
+    windows-trim-aot:
         name: CI Testing - Trim/AOT
         runs-on: windows-latest
         env:
@@ -67,7 +67,7 @@ jobs:
                 # noinspection UndefinedParamsPresent
                 with:
                     apt-cache-version: 1.0
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-trim-aot.yml') }}
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Trim Analyzer Builds
