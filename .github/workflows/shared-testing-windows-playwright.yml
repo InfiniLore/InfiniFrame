@@ -1,4 +1,4 @@
-name: "Shared: Playwright Tests Windows"
+name: "Shared: Windows Playwright Tests"
 on:
     workflow_call:
         inputs:
@@ -72,7 +72,7 @@ jobs:
                 # noinspection UndefinedParamsPresent
                 with:
                     apt-cache-version: 1.0
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-gui-linux.yml') }}
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-playwright.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Prepare WebView2 Cache Directory

@@ -32,10 +32,6 @@ on:
                 description: 'Run docs validation'
                 type: boolean
                 default: true
-            run_pack:
-                description: 'Run pack tool end-to-end validation'
-                type: boolean
-                default: true
             run_trim_aot:
                 description: 'Run trim and NativeAOT compatibility validation'
                 type: boolean
@@ -59,6 +55,5 @@ jobs:
             run_linux: ${{ inputs.run_linux }}
             run_macos: ${{ inputs.run_macos }}
             run_docs: ${{ inputs.run_docs }}
-            run_pack: ${{ inputs.run_pack }}
             run_trim_aot: ${{ inputs.run_trim_aot }}
         secrets: inherit

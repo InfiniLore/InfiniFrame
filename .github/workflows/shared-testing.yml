@@ -16,7 +16,7 @@ on:
                 required: false
                 default: ''
             run_windows:
-                description: 'Run Windows GUI tests'
+                description: 'Run Windows tests'
                 type: boolean
                 required: true
             run_windows_playwright:
@@ -24,19 +24,15 @@ on:
                 type: boolean
                 required: true
             run_linux:
-                description: 'Run Linux GUI tests'
+                description: 'Run Linux tests'
                 type: boolean
                 required: true
             run_macos:
-                description: 'Run macOS GUI tests'
+                description: 'Run macOS tests'
                 type: boolean
                 required: true
             run_docs:
                 description: 'Run docs validation'
-                type: boolean
-                required: true
-            run_pack:
-                description: 'Run pack tool end-to-end validation'
                 type: boolean
                 required: true
             run_trim_aot:
@@ -96,60 +92,21 @@ jobs:
           target_sha: ${{ needs.prepare.outputs.sha }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    trim-aot-validation:
+    windows-trim-aot:
         name: Validate Trim/AOT
         if: ${{ inputs.run_trim_aot == true }}
         needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-trim-aot.yml
+        uses: ./.github/workflows/shared-testing-windows-trim-aot.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    pack-tool-e2e-windows:
-        name: Pack Tool E2E Windows
-        if: ${{ inputs.run_pack == true }}
-        needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-pack-windows.yml
-        with:
-            pr_number: ${{ inputs.pr_number }}
-            checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
-        secrets: inherit
-
-    # noinspection UndefinedAction, UndefinedParamsPresent
-    pack-tool-e2e-linux:
-        name: Pack Tool E2E Linux
-        if: ${{ inputs.run_pack == true }}
-        needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-pack-linux.yml
-        with:
-            pr_number: ${{ inputs.pr_number }}
-            checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
-        secrets: inherit
-
-    # noinspection UndefinedAction, UndefinedParamsPresent
-    pack-tool-e2e-macos:
-        name: Pack Tool E2E macOS
-        if: ${{ inputs.run_pack == true }}
-        needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-pack-macos.yml
-        with:
-            pr_number: ${{ inputs.pr_number }}
-            checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
-        secrets: inherit
-
-    # noinspection UndefinedAction, UndefinedParamsPresent
-    linux-gui:
-        name: Linux GUI Tests
+    linux:
+        name: Linux Tests
         if: ${{ inputs.run_linux == true }}
         needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-gui-linux.yml
+        uses: ./.github/workflows/shared-testing-linux.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -158,11 +115,11 @@ jobs:
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    windows-gui:
-        name: Windows GUI Tests
+    windows:
+        name: Windows Tests
         if: ${{ inputs.run_windows == true }}
         needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-gui-windows.yml
+        uses: ./.github/workflows/shared-testing-windows.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -175,7 +132,7 @@ jobs:
         name: Windows Playwright Tests
         if: ${{ inputs.run_windows_playwright == true }}
         needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-playwright-windows.yml
+        uses: ./.github/workflows/shared-testing-windows-playwright.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -184,11 +141,11 @@ jobs:
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    macos-gui:
-        name: macOS GUI Tests
+    macos:
+        name: macOS Tests
         if: ${{ inputs.run_macos == true }}
         needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-gui-macos.yml
+        uses: ./.github/workflows/shared-testing-macos.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
