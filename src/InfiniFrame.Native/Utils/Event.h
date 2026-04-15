@@ -85,7 +85,7 @@ class Event {
     private:
         mutable std::shared_mutex m_mutex;
         std::map<Token, Handler> m_handlers;
-        Token m_nextToken = 0;
+        Token m_nextToken = 1;
 };
 
 // ---------------------------------------------------------------------------------------------------------------------

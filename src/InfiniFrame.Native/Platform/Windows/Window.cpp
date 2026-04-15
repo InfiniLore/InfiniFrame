@@ -453,14 +453,16 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         }
         case WM_ACTIVATE: {
             InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
-            if (LOWORD(wParam) == WA_INACTIVE) {
-                instance->InvokeFocusOut();
-            }
-            else {
-                instance->FocusWebView2();
-                instance->InvokeFocusIn();
+            if (instance) {
+                if (LOWORD(wParam) == WA_INACTIVE) {
+                    instance->InvokeFocusOut();
+                }
+                else {
+                    instance->FocusWebView2();
+                    instance->InvokeFocusIn();
 
-                return 0;
+                    return 0;
+                }
             }
             break;
         }
@@ -610,8 +612,11 @@ void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const {
         return;
     }
     wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
-        settings->get_AreDefaultContextMenusEnabled(reinterpret_cast<BOOL*>(enabled));
+    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
+        BOOL boolValue = FALSE;
+        settings->get_AreDefaultContextMenusEnabled(&boolValue);
+        *enabled = (boolValue != FALSE);
+    }
 }
 
 void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const {
@@ -620,8 +625,11 @@ void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const {
         return;
     }
     wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
-        settings->get_IsZoomControlEnabled(reinterpret_cast<BOOL*>(enabled));
+    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
+        BOOL boolValue = FALSE;
+        settings->get_IsZoomControlEnabled(&boolValue);
+        *enabled = (boolValue != FALSE);
+    }
 }
 
 void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
@@ -630,8 +638,11 @@ void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
         return;
     }
     wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings)
-        settings->get_AreDevToolsEnabled(reinterpret_cast<BOOL*>(enabled));
+    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
+        BOOL boolValue = FALSE;
+        settings->get_AreDevToolsEnabled(&boolValue);
+        *enabled = (boolValue != FALSE);
+    }
 }
 
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const {
@@ -644,7 +655,7 @@ void InfiniFrameWindow::GetGrantBrowserPermissions(bool* grant) const {
 }
 
 AutoString InfiniFrameWindow::GetUserAgent() const {
-    return const_cast<AutoString>(m_impl->_userAgent.c_str());
+    return AllocateStringCopy(m_impl->_userAgent);
 }
 
 void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const {
@@ -684,7 +695,7 @@ void InfiniFrameWindow::GetNotificationsEnabled(bool* enabled) const {
 }
 
 AutoString InfiniFrameWindow::GetIconFileName() const {
-    return const_cast<AutoString>(m_impl->_iconFileName.c_str());
+    return AllocateStringCopy(m_impl->_iconFileName);
 }
 
 void InfiniFrameWindow::GetMaximized(bool* isMaximized) const {
@@ -739,7 +750,7 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const {
 }
 
 AutoString InfiniFrameWindow::GetTitle() const {
-    return const_cast<AutoString>(m_impl->_windowTitle.c_str());
+    return AllocateStringCopy(m_impl->_windowTitle);
 }
 
 void InfiniFrameWindow::GetTopmost(bool* topmost) const {

@@ -449,7 +449,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         if (InstanceHandle == IntPtr.Zero) return;
 
         Interlocked.Exchange(ref _shutdownRequested, 1);
-        Invoke(() => InfiniFrameNative.Close(InstanceHandle));
+        Invoke(() => {
+            if (InstanceHandle == IntPtr.Zero) {
+                Logger.LogDebug("Window already closed");
+                return;
+            }
+            InfiniFrameNative.Close(InstanceHandle);
+        });
     }
 
     /// <summary>
@@ -471,7 +477,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         }
 
         Logger.LogDebug(".SendWebMessage({Message})", message);
-        Invoke(() => InfiniFrameNative.SendWebMessage(InstanceHandle, message));
+        Invoke(() => {
+            if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+                Logger.LogDebug("Window closed before SendWebMessage could execute");
+                return;
+            }
+            InfiniFrameNative.SendWebMessage(InstanceHandle, message);
+        });
     }
 
     public Task SendWebMessageAsync(string message, CancellationToken ct = default) {
@@ -503,8 +515,19 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="title">The title of the notification</param>
     /// <param name="body">The text of the notification</param>
     public void SendNotification(string title, string body) {
+        if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+            Logger.LogDebug("Skipping SendNotification during shutdown");
+            return;
+        }
+
         Logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
-        Invoke(() => InfiniFrameNative.ShowNotification(InstanceHandle, title, body));
+        Invoke(() => {
+            if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+                Logger.LogDebug("Window closed before SendNotification could execute");
+                return;
+            }
+            InfiniFrameNative.ShowNotification(InstanceHandle, title, body);
+        });
     }
 
     /// <summary>
@@ -712,8 +735,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 Invoke(InfiniFrameNative.RegisterMac);
 
             Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in StartupParameters));
+            
+            FreeCustomSchemeNames();
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
+            FreeCustomSchemeNames();
+            
             int lastError = 0;
             if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
@@ -726,7 +753,24 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     }
 
     /// <summary>
-    ///     Show a native open dialog.
+    ///     Frees unmanaged memory allocated for custom scheme names
+    /// </summary>
+    /// <remarks>
+    ///     This method should be called after the native constructor has copied the scheme names.
+    ///     The native side makes its own copies, so the managed side can safely free the memory
+    /// </remarks>
+    private void FreeCustomSchemeNames() {
+        if (StartupParameters.CustomSchemeNames == null) return;
+        
+        foreach (IntPtr ptr in StartupParameters.CustomSchemeNames) {
+            if (ptr != IntPtr.Zero) {
+                Marshal.FreeHGlobal(ptr);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Show a native open dialog
     /// </summary>
     /// <param name="foldersOnly">Whether files are hidden</param>
     /// <param name="title">Title of the dialog</param>

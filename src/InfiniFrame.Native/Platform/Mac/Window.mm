@@ -431,7 +431,7 @@ void InfiniFrameWindow::GetGrantBrowserPermissions(bool* enabled) const
 
 AutoString InfiniFrameWindow::GetUserAgent() const
 {
-    return const_cast<AutoString>(m_impl->_userAgent.c_str());
+    return AllocateStringCopy(m_impl->_userAgent);
 }
 
 void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const
@@ -549,7 +549,7 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const
 
 AutoString InfiniFrameWindow::GetTitle() const
 {
-    return const_cast<AutoString>(m_impl->_windowTitle.c_str());
+    return AllocateStringCopy(m_impl->_windowTitle);
 }
 
 void InfiniFrameWindow::GetTopmost(bool* topmost) const
@@ -566,7 +566,7 @@ void InfiniFrameWindow::GetZoom(int* zoom) const
 
 AutoString InfiniFrameWindow::GetIconFileName() const
 {
-    return const_cast<AutoString>(m_impl->_iconFileName.c_str());
+    return AllocateStringCopy(m_impl->_iconFileName);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

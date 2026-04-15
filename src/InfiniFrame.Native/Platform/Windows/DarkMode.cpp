@@ -198,10 +198,14 @@ bool IsColorSchemeChange(const LPARAM l_param) noexcept {
         -1,
         TRUE
         ) == CSTR_EQUAL) {
-        RefreshImmersiveColorPolicyState();
+        if (RefreshImmersiveColorPolicyState != nullptr) {
+            RefreshImmersiveColorPolicyState();
+        }
         return_value = true;
     }
 
-    GetIsImmersiveColorUsingHighContrast(IHCM_REFRESH);
+    if (GetIsImmersiveColorUsingHighContrast != nullptr) {
+        GetIsImmersiveColorUsingHighContrast(IHCM_REFRESH);
+    }
     return return_value;
 }
