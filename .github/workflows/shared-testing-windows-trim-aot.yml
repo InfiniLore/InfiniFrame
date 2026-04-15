@@ -19,17 +19,8 @@ permissions:
     checks: write
 
 jobs:
-<<<<<<< Updated upstream:.github/workflows/shared-testing-windows-trim-aot.yml
-    windows-trim-aot:
-=======
-<<<<<<< Updated upstream:.github/workflows/shared-testing-trim-aot.yml
-    trim-aot-validation:
->>>>>>> Stashed changes:.github/workflows/shared-testing-trim-aot.yml
-        name: CI Testing - Trim/AOT
-=======
     windows-trim-aot:
         name: CI Testing - Windows Trim/AOT
->>>>>>> Stashed changes:.github/workflows/shared-testing-windows-trim-aot.yml
         runs-on: windows-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}

@@ -17,18 +17,8 @@ on:
                 required: true
 
 jobs:
-<<<<<<< Updated upstream:.github/workflows/shared-testing-linux.yml
-    linux:
-        name: Linux (${{ matrix.arch }})
-=======
-<<<<<<< Updated upstream:.github/workflows/shared-testing-gui-linux.yml
-    linux-gui:
-        name: Linux GUI (${{ matrix.arch }})
-=======
     linux:
         name: CI Testing - Linux (${{ matrix.arch }})
->>>>>>> Stashed changes:.github/workflows/shared-testing-linux.yml
->>>>>>> Stashed changes:.github/workflows/shared-testing-gui-linux.yml
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}

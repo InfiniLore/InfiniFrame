@@ -17,18 +17,8 @@ on:
                 required: true
 
 jobs:
-<<<<<<< Updated upstream:.github/workflows/shared-testing-macos.yml
-    macos:
-        name: macOS (${{ matrix.arch }})
-=======
-<<<<<<< Updated upstream:.github/workflows/shared-testing-gui-macos.yml
-    macos-gui:
-        name: macOS GUI (${{ matrix.arch }})
-=======
     macos:
         name: CI Testing - macOS (${{ matrix.arch }})
->>>>>>> Stashed changes:.github/workflows/shared-testing-macos.yml
->>>>>>> Stashed changes:.github/workflows/shared-testing-gui-macos.yml
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
