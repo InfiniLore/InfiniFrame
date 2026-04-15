@@ -18,7 +18,7 @@ on:
 
 jobs:
     windows-playwright:
-        name: Windows Playwright
+        name: CI Testing - Windows Playwright
         runs-on: windows-latest
         timeout-minutes: 75
         env:
