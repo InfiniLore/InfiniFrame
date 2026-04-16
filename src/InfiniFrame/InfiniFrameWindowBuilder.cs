@@ -72,6 +72,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             MessageHandlers = messageHandlers,
             StaticAssets = snapshot.StaticAssets
         };
+        InfiniFrameUriSecurityPolicyRegistry.BindToWindow(window, snapshot.UriSecurityPolicy);
 
         InfiniFrameNativeParameters startupParameters = snapshot.StartupParameters;
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
@@ -123,7 +124,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             eventsSnapshot,
             messageHandlersSnapshot,
             customSchemesSnapshot,
-            StaticAssets);
+            StaticAssets,
+            InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this));
     }
 
     private static InfiniFrameWindowEventsSnapshot AddWebMessageHandler(

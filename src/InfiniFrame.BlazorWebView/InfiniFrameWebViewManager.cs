@@ -37,6 +37,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     private readonly SynchronousTaskScheduler _syncScheduler = new();
     private readonly Task _messagePumpTask;
     private readonly Uri _trustedOrigin;
+    private readonly InfiniFrameUriSecurityPolicy _uriSecurityPolicy;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructor
@@ -51,6 +52,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
         _trustedOrigin = config.Value.AppBaseUri;
+        _uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
 
         builder.RegisterWebMessageReceivedHandler((_, message) => {
             string? origin = InfiniFrameWebMessageContext.CurrentOrigin;
@@ -65,7 +67,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         });
 
         LazyWindow = new Lazy<IInfiniFrameWindow>(provider.GetRequiredService<IInfiniFrameWindow>);
-        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(() => provider.GetService<ILogger<InfiniFrameWebViewManager>>());
+        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(provider.GetService<ILogger<InfiniFrameWebViewManager>>);
 
         // Start the reader and observe/await it during disposal.
         _messagePumpTask = Task.Run(MessagePump);
@@ -85,7 +87,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return;
         }
 
-        if (!IsTrustedOrigin(messageOriginUrl, _trustedOrigin)) {
+        if (!_uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl, _trustedOrigin)) {
             LazyLogger.Value?.LogWarning(
                 "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigin: {TrustedOrigin}",
                 messageOriginUrl,
@@ -94,12 +96,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
 
         MessageReceived(messageOriginUrl, state.Message);
-    }
-
-    private static bool IsTrustedOrigin(Uri messageOrigin, Uri trustedOrigin) {
-        return string.Equals(messageOrigin.Scheme, trustedOrigin.Scheme, StringComparison.OrdinalIgnoreCase)
-               && string.Equals(messageOrigin.Host, trustedOrigin.Host, StringComparison.OrdinalIgnoreCase)
-               && messageOrigin.Port == trustedOrigin.Port;
     }
 
     public Stream? HandleWebRequest(object? sender, string? schema, string? url, out string? contentType) {
@@ -115,11 +111,20 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return null;
         }
 
-        if (!IsTrustedOrigin(requestUri, _trustedOrigin)) {
+        if (!_uriSecurityPolicy.IsTrustedOrigin(requestUri, _trustedOrigin)) {
             LazyLogger.Value?.LogWarning(
                 "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigin: {TrustedOrigin}",
                 requestUri,
                 _trustedOrigin);
+            contentType = null;
+            return null;
+        }
+
+        if (!_uriSecurityPolicy.IsNavigationSchemeAllowed(requestUri.Scheme)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web request due to disallowed URI scheme. Scheme: {Scheme}, Url: {Url}",
+                requestUri.Scheme,
+                requestUri);
             contentType = null;
             return null;
         }

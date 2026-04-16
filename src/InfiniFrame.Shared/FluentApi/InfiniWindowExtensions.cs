@@ -14,11 +14,6 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 [SuppressMessage("ReSharper", "ConvertToExtensionBlock")]
 public static class InfiniWindowExtensions {
-    private static readonly HashSet<string> AllowedNavigationSchemes = new(StringComparer.OrdinalIgnoreCase) {
-        Uri.UriSchemeHttps,
-        Uri.UriSchemeHttp
-    };
-
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -46,9 +41,10 @@ public static class InfiniWindowExtensions {
     /// <param name="window">InfiniFrame window instance</param>
     public static T Load<T>(this T window, string path) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".Load({Path})", path);
+        InfiniFrameUriSecurityPolicy uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
 
         if (Uri.TryCreate(path, UriKind.Absolute, out Uri? absoluteUri)) {
-            if (AllowedNavigationSchemes.Contains(absoluteUri.Scheme))
+            if (uriSecurityPolicy.IsNavigationSchemeAllowed(absoluteUri.Scheme))
                 return window.Load(absoluteUri);
 
             if (absoluteUri.IsFile)

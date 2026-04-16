@@ -159,4 +159,49 @@ public class InfiniFrameWindowBuilderTests {
             return null;
         }
     }
+
+    [Test]
+    public async Task CreateSnapshot_UsesConfiguredUriSecurityPolicy() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create()
+            .SetAllowedNavigationSchemes("https")
+            .SetAllowedExternalSchemes("mailto");
+
+        // Act
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+
+        // Assert
+        await Assert.That(snapshot.UriSecurityPolicy.IsNavigationSchemeAllowed("https")).IsTrue();
+        await Assert.That(snapshot.UriSecurityPolicy.IsNavigationSchemeAllowed("http")).IsFalse();
+        await Assert.That(snapshot.UriSecurityPolicy.IsExternalSchemeAllowed("mailto")).IsTrue();
+        await Assert.That(snapshot.UriSecurityPolicy.IsExternalSchemeAllowed("https")).IsFalse();
+    }
+
+    [Test]
+    public async Task CreateSnapshot_UsesDefaultUriSecurityPolicyIncludingAppScheme() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+
+        // Assert
+        await Assert.That(snapshot.UriSecurityPolicy.IsNavigationSchemeAllowed("app")).IsTrue();
+    }
+
+    [Test]
+    public async Task CreateSnapshot_TrustedOriginRequiresAllowedScheme() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create()
+            .SetAllowedNavigationSchemes("https");
+
+        // Act
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        bool trusted = snapshot.UriSecurityPolicy.IsTrustedOrigin(
+            new Uri("http://localhost/"),
+            new Uri("http://localhost/"));
+
+        // Assert
+        await Assert.That(trusted).IsFalse();
+    }
 }

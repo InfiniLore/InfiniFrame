@@ -12,5 +12,6 @@ internal readonly record struct InfiniFrameWindowBuildSnapshot(
     InfiniFrameWindowEventsSnapshot Events,
     InfiniFrameWindowMessageHandlersSnapshot MessageHandlers,
     InfiniFrameWindowCustomSchemeHandlersSnapshot CustomSchemes,
-    StaticAssetSettings? StaticAssets
+    StaticAssetSettings? StaticAssets,
+    InfiniFrameUriSecurityPolicy UriSecurityPolicy
 );

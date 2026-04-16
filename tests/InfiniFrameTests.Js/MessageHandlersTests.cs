@@ -113,6 +113,29 @@ public class MessageHandlersTests {
         await Assert.That(warningLogged).IsTrue();
     }
 
+    [Test]
+    [DisplayName($"{nameof(MessageHandlersTests)}.{nameof(OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing)}")]
+    public async Task OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing() {
+        // Arrange
+        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
+        ILogger<IInfiniFrameWindow> logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
+        window.Window.Logger.Returns(logger);
+        builder.SetAllowedExternalSchemes(Uri.UriSchemeMailto);
+        builder.RegisterOpenExternalTargetWebMessageHandler();
+
+        // Act
+        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.OpenExternal, "https://example.com"));
+
+        // Assert
+        bool warningLogged = logger.ReceivedCalls().Any(call =>
+            call.GetMethodInfo().Name == nameof(ILogger.Log) &&
+            call.GetArguments().Length > 0 &&
+            call.GetArguments()[0] is LogLevel.Warning
+        );
+
+        await Assert.That(warningLogged).IsTrue();
+    }
+
     private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
         var builder = InfiniFrameWindowBuilder.Create();
         var events = (InfiniFrameWindowEvents)builder.Events;

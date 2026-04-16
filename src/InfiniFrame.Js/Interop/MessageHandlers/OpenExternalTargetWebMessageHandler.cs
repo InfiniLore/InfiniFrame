@@ -11,12 +11,6 @@ namespace InfiniFrame.Js.Interop.MessageHandlers;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class OpenExternalTargetWebMessageHandler {
-    private static readonly HashSet<string> AllowedSchemes = new(StringComparer.OrdinalIgnoreCase) {
-        Uri.UriSchemeHttps,
-        Uri.UriSchemeHttp,
-        Uri.UriSchemeMailto
-    };
-
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -34,7 +28,8 @@ public static class OpenExternalTargetWebMessageHandler {
             return;
         }
 
-        if (!AllowedSchemes.Contains(uri.Scheme)) {
+        InfiniFrameUriSecurityPolicy uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
+        if (!uriSecurityPolicy.IsExternalSchemeAllowed(uri.Scheme)) {
             window.Logger.LogWarning("Rejected external URI due to disallowed scheme. Scheme: {Scheme}, Uri: {Uri}", uri.Scheme, uri);
             return;
         }
