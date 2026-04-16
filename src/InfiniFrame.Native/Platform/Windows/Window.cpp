@@ -792,6 +792,9 @@ void InfiniFrameWindow::Restore() {
 }
 
 void InfiniFrameWindow::SendWebMessage(AutoString message) {
+    if (!m_impl->_webviewWindow || !m_impl->_webviewController || !m_impl->_hWnd || !IsWindow(m_impl->_hWnd))
+        return;
+
     std::wstring wideMessage = ToUTF16String(message);
     m_impl->_webviewWindow->PostWebMessageAsString(wideMessage.c_str());
 }

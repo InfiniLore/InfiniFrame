@@ -106,17 +106,14 @@ public static class RegisterWindowCreatedUtility {
             }
 
             window.Logger.LogInformation(
-                "Falling back to registration send without '{ReadyMessageId}' handshake for {RegistrationCount} message(s).",
+                "Attempting fallback registration send before '{ReadyMessageId}' handshake. Pending message count: {RegistrationCount}.",
                 HandlerNames.WindowReady,
                 registrationMessages.Length
             );
-            _ = SendRegistrationsWithRetryAsync(
-                window,
-                state,
-                windowState,
-                registrationMessages,
-                completeStateOnFinish: false
-            );
+
+            // Fallback send is intentionally decoupled from ready-state completion so an eventual
+            // ready handshake can still trigger an additional registration send.
+            _ = SendRegistrationsWithRetryAsync(window, state, windowState, registrationMessages, completeStateOnFinish: false);
         }
         catch (OperationCanceledException) {
             // Handshake received in time.
