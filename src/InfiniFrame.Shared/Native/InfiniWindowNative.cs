@@ -11,31 +11,49 @@ namespace InfiniFrame.Native;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static partial class InfiniWindowNative {
-    [LibraryImport( DllName, EntryPoint = InfiniWindowTests_NativeParametersReturnAsIs, SetLastError = true),
-     UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial void NativeParametersReturnAsIs(
+    [LibraryImport(DllName, EntryPoint = InfiniWindowTests_NativeParametersReturnAsIs, SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial void NativeParametersReturnAsIsNative(
         [MarshalUsing(typeof(InfiniFrameNativeParametersMarshaller))] in InfiniFrameNativeParameters parameters,
         out IntPtr newParameters
     );
 
-    internal static InfiniFrameNativeParameters NativeParametersReturnAsIs(ref InfiniFrameNativeParameters parameters) {
-        NativeParametersReturnAsIs(in parameters, out IntPtr newParametersPtr);
+    [LibraryImport(DllName, EntryPoint = InfiniWindowTests_FreeInitParams, SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial void FreeInitParamsNative(IntPtr parameters);
 
+    /// <summary>
+    /// Returns a native pointer to a newly allocated InfiniFrameInitParams clone.
+    /// Ownership is transferred to managed caller, which must call <see cref="FreeInitParams"/> exactly once.
+    /// </summary>
+    internal static IntPtr NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters) {
+        NativeParametersReturnAsIsNative(in parameters, out IntPtr newParametersPtr);
+        
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
+        return newParametersPtr;
+    }
+
+    internal static void FreeInitParams(IntPtr newParametersPtr) {
+        if (newParametersPtr == IntPtr.Zero) return;
+        FreeInitParamsNative(newParametersPtr);
+    }
+
+    internal static InfiniFrameNativeParameters NativeParametersReturnAsIs(ref InfiniFrameNativeParameters parameters) {
+        IntPtr newParametersPtr = NativeParametersReturnAsIsPtr(ref parameters);
 
         try {
             // Marshal with explicit type to ensure proper handling
-            var result = Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
-
-            // Don't free the pointer - the C++ side allocated it with 'new' 
-            // and should manage its lifetime, or you need a corresponding delete call
-            return result;
+            return Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
         }
         catch (ArgumentException ex) {
             throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
         }
         catch (InvalidOperationException ex) {
             throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
+        }
+        finally {
+            FreeInitParams(newParametersPtr);
         }
     }
 }
