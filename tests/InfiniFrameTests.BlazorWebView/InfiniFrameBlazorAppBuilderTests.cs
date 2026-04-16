@@ -93,16 +93,52 @@ public class InfiniFrameBlazorAppBuilderTests {
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
         builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
         builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(recordingSource);
+        var activeBeforeDispose = new List<int>();
+        var activeAfterDispose = new List<int>();
 
-        // Act + Assert
+        // Act
         for (int i = 0; i < 3; i++) {
             InfiniFrameBlazorApp app = builder.Build();
-            await Assert.That(recordingSource.ActiveHandlers).IsEqualTo(1);
+            activeBeforeDispose.Add(recordingSource.ActiveHandlers);
             await app.DisposeAsync();
-            await Assert.That(recordingSource.ActiveHandlers).IsEqualTo(0);
+            activeAfterDispose.Add(recordingSource.ActiveHandlers);
         }
 
+        // Assert
+        await Assert.That(activeBeforeDispose.All(static count => count == 1)).IsTrue();
+        await Assert.That(activeAfterDispose.All(static count => count == 0)).IsTrue();
         await Assert.That(recordingSource.RegistrationCount).IsEqualTo(3);
+    }
+
+    [Test]
+    public async Task GlobalUnhandledExceptionHandler_CanBeDisabled() {
+        // Arrange
+        var recordingSource = new RecordingUnhandledExceptionSource();
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
+        builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(recordingSource);
+        builder.Services.Configure<InfiniFrameBlazorAppConfiguration>(options => options.EnableGlobalUnhandledExceptionHandler = false);
+
+        // Act
+        InfiniFrameBlazorApp app = builder.Build();
+
+        // Assert
+        await Assert.That(recordingSource.RegistrationCount).IsEqualTo(0);
+        await Assert.That(recordingSource.ActiveHandlers).IsEqualTo(0);
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    public async Task CreateDefault_RegistersUnhandledExceptionSourceByDefault() {
+        // Arrange
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+
+        // Act
+        var source = serviceProvider.GetService<IInfiniFrameUnhandledExceptionSource>();
+
+        // Assert
+        await Assert.That(source).IsNotNull();
     }
 
     [Test]

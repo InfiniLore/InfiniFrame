@@ -96,7 +96,7 @@ public class MessageHandlersTests {
     public async Task OpenExternal_WithInvalidUrl_LogsWarningWithoutThrowing() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
-        ILogger<IInfiniFrameWindow> logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
+        var logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
         window.Window.Logger.Returns(logger);
         builder.RegisterOpenExternalTargetWebMessageHandler();
 
@@ -118,9 +118,13 @@ public class MessageHandlersTests {
     public async Task OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
-        ILogger<IInfiniFrameWindow> logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
+        var logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
         window.Window.Logger.Returns(logger);
-        builder.SetAllowedExternalSchemes(Uri.UriSchemeMailto);
+        InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
+            window.Window,
+            new InfiniFrameUriSecurityPolicy(
+                allowedNavigationSchemes: [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
+                allowedExternalSchemes: [Uri.UriSchemeMailto]));
         builder.RegisterOpenExternalTargetWebMessageHandler();
 
         // Act

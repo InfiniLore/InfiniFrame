@@ -133,7 +133,7 @@ public class InfiniFrameBlazorAppBuilder {
     }
 
     private static IDisposable RegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
-        IInfiniFrameUnhandledExceptionSource exceptionSource = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
+        var exceptionSource = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
         return exceptionSource.Register((_, error) => {
             serviceProvider
             .GetService<IInfiniFrameWindow>()?

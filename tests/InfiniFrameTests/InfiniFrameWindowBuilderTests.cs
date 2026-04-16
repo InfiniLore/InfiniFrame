@@ -47,6 +47,21 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
+    public async Task ResolveLogger_WithProvider_UsesLoggerFactoryFallback() {
+        // Arrange
+        await using ServiceProvider provider = new ServiceCollection()
+            .AddSingleton(LoggerFactory.Create(static _ => { }))
+            .BuildServiceProvider();
+
+        // Act
+        ILogger<IInfiniFrameWindow> resolvedLogger = InfiniFrameWindowBuilder.ResolveLogger(provider);
+
+        // Assert
+        await Assert.That(resolvedLogger).IsNotNull();
+        await Assert.That(resolvedLogger).IsNotSameReferenceAs(NullLogger<IInfiniFrameWindow>.Instance);
+    }
+
+    [Test]
     public async Task CreateSnapshot_CanBeCalledMoreThanOnce_WithUniqueMutableReferences() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();

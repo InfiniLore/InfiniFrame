@@ -13,7 +13,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
     public async Task Apply_OverridesConfiguredScalarValues() {
         // Arrange
-        InfiniFrameWindowNativeParameterBuilder configuration = new InfiniFrameWindowNativeParameterBuilder {
+        var configuration = new InfiniFrameWindowNativeParameterBuilder {
             Title = "Old Title",
             Width = 200,
             Centered = false,
