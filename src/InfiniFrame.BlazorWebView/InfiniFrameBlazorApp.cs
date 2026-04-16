@@ -58,7 +58,7 @@ public class InfiniFrameBlazorApp(
             window.WaitForClose();
         }
         finally {
-            window.Invoke(() => DisposeAsync().AsTask().GetAwaiter().GetResult());
+            DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
     }
 

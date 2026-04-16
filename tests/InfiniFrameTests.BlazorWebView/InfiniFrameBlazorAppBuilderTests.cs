@@ -6,6 +6,7 @@ using InfiniFrame.BlazorWebView;
 using InfiniFrameTests.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using NSubstitute;
 
 namespace InfiniFrameTests.BlazorWebView;
 
@@ -13,6 +14,14 @@ namespace InfiniFrameTests.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilderTests {
+    private sealed class DisposeProbe : IDisposable {
+        public bool IsDisposed { get; private set; }
+
+        public void Dispose() {
+            IsDisposed = true;
+        }
+    }
+
     private sealed class RecordingUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
         private int _activeHandlers;
         private int _registrationCount;
@@ -139,6 +148,32 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         // Assert
         await Assert.That(source).IsNotNull();
+    }
+
+    [Test]
+    public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices() {
+        // Arrange
+        var window = Substitute.For<IInfiniFrameWindow>();
+        window.When(x => x.Invoke(Arg.Any<Action>()))
+            .Do(_ => throw new InvalidOperationException("Invoke should not be used during Run() shutdown."));
+
+        var services = new ServiceCollection()
+            .AddSingleton(window)
+            .AddSingleton<DisposeProbe>()
+            .BuildServiceProvider();
+        var disposeProbe = services.GetRequiredService<DisposeProbe>();
+
+        var app = new InfiniFrameBlazorApp(
+            provider: services,
+            rootComponents: new RootComponentList());
+
+        // Act
+        app.Run();
+
+        // Assert
+        window.Received(1).WaitForClose();
+        window.DidNotReceive().Invoke(Arg.Any<Action>());
+        await Assert.That(disposeProbe.IsDisposed).IsTrue();
     }
 
     [Test]

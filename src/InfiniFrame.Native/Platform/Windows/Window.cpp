@@ -1094,8 +1094,12 @@ void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const {
 }
 
 void InfiniFrameWindow::Invoke(ACTION callback) {
+    if (!callback) return;
+
+    if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd)) return;
+
     InvokeWaitInfo waitInfo = {};
-    PostMessage(m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo));
+    if (!PostMessage(m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo))) return;
 
     std::unique_lock<std::mutex> uLock(invokeLockMutex);
     waitInfo.completionNotifier.wait(

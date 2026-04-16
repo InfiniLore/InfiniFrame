@@ -201,10 +201,13 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
 
         try {
-            await _messagePumpTask;
+            await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
         }
         catch (ChannelClosedException) {
             // ignored
+        }
+        catch (TimeoutException) {
+            LazyLogger.Value?.LogWarning("Timed out while waiting for WebView message pump shutdown.");
         }
 
         //continue disposing
