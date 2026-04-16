@@ -93,4 +93,21 @@ extern "C" {
         (*new_params)->NotificationsEnabled = params->NotificationsEnabled;
         (*new_params)->Size = params->Size;
     }
+
+    EXPORTED void InfiniWindowTests_FreeInitParams(InfiniFrameInitParams* params) {
+        if (params == nullptr)
+            return;
+
+        // Free only string fields that this test export duplicated.
+        delete[] params->StartString;
+        delete[] params->StartUrl;
+        delete[] params->Title;
+        delete[] params->WindowIconFile;
+        delete[] params->TemporaryFilesPath;
+        delete[] params->UserAgent;
+        delete[] params->BrowserControlInitParameters;
+        delete[] params->NotificationRegistrationId;
+
+        delete params;
+    }
 }

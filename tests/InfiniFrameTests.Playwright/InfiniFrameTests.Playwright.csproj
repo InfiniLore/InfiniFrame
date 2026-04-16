@@ -23,7 +23,7 @@
     </ItemGroup>
 
     <Target Name="BuildFrontendCrossTargeting"
-            BeforeTargets="DispatchToInnerBuilds"
+            BeforeTargets="Build"
             Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'=='true'">
         <Message Text="Installing npm packages" Importance="high"/>
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>

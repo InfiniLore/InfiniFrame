@@ -720,50 +720,36 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             ? resolvedIconFilePath
             : null;
 
-        if (!InfiniFrameNativeParametersValidator.Validate(StartupParameters, Logger)) {
-            Logger.LogCritical("Startup Parameters Are Not Valid, please check the logs");
-            throw new ArgumentException("Startup Parameters Are Not Valid, please check the logs");
-        }
-
-        Events.OnWindowCreating();
-
-        //All C++ exceptions will bubble up to here.
         try {
-            if (OperatingSystem.IsWindows())
-                Invoke(() => InfiniFrameNative.RegisterWin32(NativeType));
-            else if (OperatingSystem.IsMacOS())
-                Invoke(InfiniFrameNative.RegisterMac);
-
-            Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in StartupParameters));
-            
-            FreeCustomSchemeNames();
-        }
-        catch (Exception ex) when (IsNonFatalException(ex)) {
-            FreeCustomSchemeNames();
-            
-            int lastError = 0;
-            if (OperatingSystem.IsWindows())
-                lastError = Marshal.GetLastWin32Error();
-
-            Logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
-            throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
-        }
-
-        Events.OnWindowCreated();
-    }
-
-    /// <summary>
-    ///     Frees unmanaged memory allocated for custom scheme names
-    /// </summary>
-    /// <remarks>
-    ///     This method should be called after the native constructor has copied the scheme names.
-    ///     The native side makes its own copies, so the managed side can safely free the memory
-    /// </remarks>
-    private void FreeCustomSchemeNames() {
-        foreach (IntPtr ptr in StartupParameters.CustomSchemeNames) {
-            if (ptr != IntPtr.Zero) {
-                Marshal.FreeHGlobal(ptr);
+            if (!InfiniFrameNativeParametersValidator.Validate(StartupParameters, Logger)) {
+                Logger.LogCritical("Startup Parameters Are Not Valid, please check the logs");
+                throw new ArgumentException("Startup Parameters Are Not Valid, please check the logs");
             }
+
+            Events.OnWindowCreating();
+
+            // All C++ exceptions will bubble up to here.
+            try {
+                if (OperatingSystem.IsWindows())
+                    Invoke(() => InfiniFrameNative.RegisterWin32(NativeType));
+                else if (OperatingSystem.IsMacOS())
+                    Invoke(InfiniFrameNative.RegisterMac);
+
+                Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in StartupParameters));
+            }
+            catch (Exception ex) when (IsNonFatalException(ex)) {
+                int lastError = 0;
+                if (OperatingSystem.IsWindows())
+                    lastError = Marshal.GetLastWin32Error();
+
+                Logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
+                throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
+            }
+
+            Events.OnWindowCreated();
+        }
+        finally {
+            CustomSchemeNameMemory.FreeAll(StartupParameters.CustomSchemeNames);
         }
     }
 

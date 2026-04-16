@@ -85,6 +85,7 @@ internal static class NativeDll {
     #region InfiniWindowTests
     // ReSharper disable InconsistentNaming
     internal const string InfiniWindowTests_NativeParametersReturnAsIs = nameof(InfiniWindowTests_NativeParametersReturnAsIs);
+    internal const string InfiniWindowTests_FreeInitParams = nameof(InfiniWindowTests_FreeInitParams);
     // ReSharper restore InconsistentNaming
     #endregion
 }

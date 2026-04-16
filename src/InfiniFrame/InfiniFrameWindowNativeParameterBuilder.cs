@@ -59,12 +59,10 @@ public class InfiniFrameWindowNativeParameterBuilder : IInfiniFrameWindowNativeP
             ? resolvedPath
             : null;
 
-        if (CustomSchemeNames.Count > 16) throw new InvalidOperationException("Maximum number of custom schemes is 16.");
+        if (CustomSchemeNames.Count > CustomSchemeNameMemory.MaxCustomSchemeNames)
+            throw new InvalidOperationException("Maximum number of custom schemes is 16.");
 
-        var customSchemeNameArray = new IntPtr[16];
-        for (var i = 0; i < CustomSchemeNames.Count; i++) {
-            customSchemeNameArray[i] = Marshal.StringToHGlobalAnsi(CustomSchemeNames[i]);
-        }
+        IntPtr[] customSchemeNameArray = CustomSchemeNameMemory.Allocate(CustomSchemeNames);
 
         return new InfiniFrameNativeParameters {
             BrowserControlInitParameters = BrowserControlInitParameters,

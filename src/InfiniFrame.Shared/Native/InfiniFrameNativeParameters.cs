@@ -297,9 +297,7 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         // && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
         // && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
 
-        if (!CustomSchemeNames.All(other.CustomSchemeNames.Contains)
-            || CustomSchemeNames.Length != other.CustomSchemeNames.Length) return false;
-
+        if (!CustomSchemeNames.AsSpan().SequenceEqual(other.CustomSchemeNames.AsSpan())) return false;
         if (StartString != other.StartString) return false;
         if (StartUrl != other.StartUrl) return false;
         if (Title != other.Title) return false;
@@ -340,9 +338,9 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         if (IgnoreCertificateErrorsEnabled != other.IgnoreCertificateErrorsEnabled) return false;
         if (NotificationsEnabled != other.NotificationsEnabled) return false;
         if (Size != other.Size) return false;
-        if (ZoomEnabled == other.ZoomEnabled) return true;
+        if (ZoomEnabled != other.ZoomEnabled) return false;
 
-        return false;
+        return true;
     }
 
     public override bool Equals(object? obj) => obj is InfiniFrameNativeParameters other && Equals(other);
@@ -367,7 +365,12 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         hashCode.Add(MinimizedHandler);
         hashCode.Add(MovedHandler);
         hashCode.Add(WebMessageReceivedHandler);
-        hashCode.Add(CustomSchemeNames);
+        
+        if (CustomSchemeNames is not null) {
+            foreach (IntPtr ptr in CustomSchemeNames)
+                hashCode.Add(ptr);
+        }
+
         hashCode.Add(CustomSchemeHandler);
         hashCode.Add(Left);
         hashCode.Add(Top);

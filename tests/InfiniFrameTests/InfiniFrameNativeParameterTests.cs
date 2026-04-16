@@ -18,6 +18,7 @@ public class InfiniFrameNativeParameterTests {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];
         IntPtr namePtr = IntPtr.Zero;
+        IntPtr newParametersPtr = IntPtr.Zero;
 
         try {
             namePtr = Marshal.StringToHGlobalAnsi("NAME");
@@ -87,7 +88,8 @@ public class InfiniFrameNativeParameterTests {
             };
 
             // Act
-            InfiniFrameNativeParameters newParameters = InfiniWindowNative.NativeParametersReturnAsIs(ref parameters);
+            newParametersPtr = InfiniWindowNative.NativeParametersReturnAsIsPtr(ref parameters);
+            var newParameters = Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
 
             // Assert
             for (int i = 0; i < parameters.CustomSchemeNames.Length; i++) {
@@ -144,9 +146,10 @@ public class InfiniFrameNativeParameterTests {
         }
         finally {
             // Clean up allocated memory
-            if (namePtr != IntPtr.Zero) {
-                Marshal.FreeHGlobal(namePtr);
-            }
+            if (namePtr != IntPtr.Zero) Marshal.FreeHGlobal(namePtr);
+
+            // Native allocates returned init params; managed side must free.
+            InfiniWindowNative.FreeInitParams(newParametersPtr);
         }
     }
 }
