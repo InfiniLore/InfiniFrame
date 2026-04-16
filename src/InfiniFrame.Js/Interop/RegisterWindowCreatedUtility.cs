@@ -127,7 +127,7 @@ public static class RegisterWindowCreatedUtility {
         IReadOnlyList<string> registrationMessages,
         bool completeStateOnFinish = true
     ) {
-        var allMessagesSent = false;
+        bool allMessagesSent = false;
         try {
             allMessagesSent = await TrySendRegistrationsWithRetryAsync(window, registrationMessages);
         }
@@ -144,12 +144,12 @@ public static class RegisterWindowCreatedUtility {
     }
 
     private static async Task<bool> TrySendRegistrationsWithRetryAsync(IInfiniFrameWindow window, IReadOnlyList<string> registrationMessages) {
-        var allMessagesSent = true;
+        bool allMessagesSent = true;
         foreach (string registrationMessage in registrationMessages) {
             TimeSpan retryDelay = InitialRetryDelay;
-            var messageSent = false;
+            bool messageSent = false;
 
-            for (var attempt = 1; attempt <= MaxSendAttempts; attempt++) {
+            for (int attempt = 1; attempt <= MaxSendAttempts; attempt++) {
                 try {
                     string envelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(registrationMessage);
                     await window.SendWebMessageAsync(envelope);

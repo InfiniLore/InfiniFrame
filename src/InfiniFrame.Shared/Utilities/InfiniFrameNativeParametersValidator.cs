@@ -17,7 +17,7 @@ internal static class InfiniFrameNativeParametersValidator {
         string? startString = parameters.StartString;
         string? windowIconFile = parameters.WindowIconFile;
 
-        var result = true;
+        bool result = true;
         if (string.IsNullOrWhiteSpace(startUrl) && string.IsNullOrWhiteSpace(startString)) {
             logger.LogError("No initial URL or HTML string was supplied in StartUrl or StartString for the browser control to navigate to.");
             result = false;

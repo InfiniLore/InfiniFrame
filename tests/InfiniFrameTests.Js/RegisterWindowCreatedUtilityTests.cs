@@ -18,7 +18,7 @@ public class RegisterWindowCreatedUtilityTests {
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
         var events = (InfiniFrameWindowEvents)builder.Events;
-        var window = new RecordingInfiniFrameWindowSubstitute()
+        RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
         events.WebMessageReceived.Add(builder.MessageHandlers.Handle);

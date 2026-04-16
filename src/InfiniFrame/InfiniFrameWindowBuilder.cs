@@ -7,12 +7,15 @@ using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
+    private static readonly ILogger<IInfiniFrameWindow> FallbackLogger = NullLogger<IInfiniFrameWindow>.Instance;
+
     private readonly InfiniFrameWindowNativeParameterBuilder _configuration = new();
     public IInfiniFrameWindowNativeParameterBuilder Configuration => _configuration;
 
@@ -52,10 +55,13 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         return _configuration.ToNativeParameters();
     }
 
-    private static ILogger<InfiniFrameWindow> GetDefaultLogger() 
-        => LoggerFactory.Create(config => {
-            config.AddConsole().SetMinimumLevel(LogLevel.Debug);
-        }).CreateLogger<InfiniFrameWindow>();
+    internal static ILogger<IInfiniFrameWindow> ResolveLogger(IServiceProvider? provider) {
+        if (provider is null) return FallbackLogger;
+
+        return provider.GetService<ILogger<IInfiniFrameWindow>>()
+            ?? provider.GetService<ILoggerFactory>()?.CreateLogger<IInfiniFrameWindow>()
+            ?? FallbackLogger;
+    }
 
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         InfiniFrameWindowBuildSnapshot snapshot = CreateSnapshot(provider);
@@ -65,7 +71,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         var window = new InfiniFrameWindow {
             ServiceProvider = provider,
-            Logger = provider?.GetService<ILogger<InfiniFrameWindow>>() ?? GetDefaultLogger(),
+            Logger = ResolveLogger(provider),
             CustomSchemes = customSchemes,
             Parent = null,
             Events = events,

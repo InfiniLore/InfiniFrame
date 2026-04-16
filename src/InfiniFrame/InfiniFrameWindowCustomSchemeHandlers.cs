@@ -56,7 +56,7 @@ public class InfiniFrameWindowCustomSchemeHandlers : IInfiniFrameWindowCustomSch
     internal static InfiniFrameWindowCustomSchemeHandlers FromSnapshot(InfiniFrameWindowCustomSchemeHandlersSnapshot snapshot) {
         var copy = new InfiniFrameWindowCustomSchemeHandlers();
 
-        var handlers = snapshot.Handlers.ToDictionary(static item => item.Key, static item => item.Value, StringComparer.Ordinal);
+        Dictionary<string, NetCustomSchemeDelegate> handlers = snapshot.Handlers.ToDictionary(static item => item.Key, static item => item.Value, StringComparer.Ordinal);
         foreach (var entry in snapshot.OrderedSchemeNames
                      .Distinct(StringComparer.Ordinal)
                      .Select(key => new { Key = key, Found = handlers.TryGetValue(key, out NetCustomSchemeDelegate? handler), Handler = handler })

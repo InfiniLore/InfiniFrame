@@ -3,6 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BuilderSnapshots;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,6 +18,32 @@ public class InfiniFrameWindowBuilderTests {
         _ = url;
         contentType = null;
         return null;
+    }
+
+    [Test]
+    public async Task ResolveLogger_WithoutProvider_UsesSharedFallbackLogger() {
+        // Act
+        ILogger<IInfiniFrameWindow> first = InfiniFrameWindowBuilder.ResolveLogger(null);
+        ILogger<IInfiniFrameWindow> second = InfiniFrameWindowBuilder.ResolveLogger(null);
+
+        // Assert
+        await Assert.That(first).IsSameReferenceAs(second);
+        await Assert.That(first).IsSameReferenceAs(NullLogger<IInfiniFrameWindow>.Instance);
+    }
+
+    [Test]
+    public async Task ResolveLogger_WithProvider_UsesRegisteredLogger() {
+        // Arrange
+        var expectedLogger = NullLogger<IInfiniFrameWindow>.Instance;
+        await using ServiceProvider provider = new ServiceCollection()
+            .AddSingleton<ILogger<IInfiniFrameWindow>>(expectedLogger)
+            .BuildServiceProvider();
+
+        // Act
+        ILogger<IInfiniFrameWindow> resolvedLogger = InfiniFrameWindowBuilder.ResolveLogger(provider);
+
+        // Assert
+        await Assert.That(resolvedLogger).IsSameReferenceAs(expectedLogger);
     }
 
     [Test]
@@ -72,7 +101,7 @@ public class InfiniFrameWindowBuilderTests {
     public async Task CreateSnapshot_ReRegisteringSameScheme_DoesNotDuplicateSnapshotEntries() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        for (var i = 0; i < 25; i++) {
+        for (int i = 0; i < 25; i++) {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
 
@@ -89,7 +118,7 @@ public class InfiniFrameWindowBuilderTests {
     public async Task CreateSnapshot_ReRegisteringSameScheme_DoesNotMultiplyDelegates() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        var callCount = 0;
+        int callCount = 0;
 
         builder.RegisterCustomSchemeHandler("app", CountingHandler);
         builder.RegisterCustomSchemeHandler("app", CountingHandler);
@@ -123,9 +152,9 @@ public class InfiniFrameWindowBuilderTests {
     public async Task CreateSnapshot_ReRegisteringSameScheme_RemainsStableAcrossRepeatedSnapshots() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        var callCount = 0;
+        int callCount = 0;
 
-        for (var i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
             builder.RegisterCustomSchemeHandler("app", CountingHandler);
         }
 
@@ -163,7 +192,7 @@ public class InfiniFrameWindowBuilderTests {
     [Test]
     public async Task CreateSnapshot_UsesConfiguredUriSecurityPolicy() {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create()
+        InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetAllowedNavigationSchemes("https")
             .SetAllowedExternalSchemes("mailto");
 
@@ -192,7 +221,7 @@ public class InfiniFrameWindowBuilderTests {
     [Test]
     public async Task CreateSnapshot_TrustedOriginRequiresAllowedScheme() {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create()
+        InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetAllowedNavigationSchemes("https");
 
         // Act
@@ -208,7 +237,7 @@ public class InfiniFrameWindowBuilderTests {
     [Test]
     public async Task CreateSnapshot_TrustedOriginCanBeConfiguredViaBuilderPolicy() {
         // Arrange
-        var builder = InfiniFrameWindowBuilder.Create()
+        InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetTrustedOrigins("https://localhost/");
 
         // Act

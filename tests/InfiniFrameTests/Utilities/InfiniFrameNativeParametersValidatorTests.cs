@@ -14,7 +14,7 @@ public class InfiniFrameNativeParametersValidatorTests {
     [Test]
     public async Task Validate_AcceptsRelativeIconPathFromAppBaseDirectory() {
         // Arrange
-        var fileName = $"icon-{Guid.NewGuid():N}.ico";
+        string fileName = $"icon-{Guid.NewGuid():N}.ico";
         string absolutePath = Path.Join(AppContext.BaseDirectory, fileName);
         await File.WriteAllTextAsync(absolutePath, "icon");
 
