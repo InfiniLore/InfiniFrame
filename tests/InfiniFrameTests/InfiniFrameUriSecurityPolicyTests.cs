@@ -45,6 +45,25 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
+    public async Task IsTrustedOrigin_WithNullCandidate_ThrowsArgumentNullException() {
+        // Arrange
+        var policy = new InfiniFrameUriSecurityPolicy(
+            allowedNavigationSchemes: [Uri.UriSchemeHttps],
+            allowedExternalSchemes: [Uri.UriSchemeHttps],
+            trustedOrigins: [new Uri("https://example.com/")]
+        );
+
+        // Act
+        ArgumentNullException? exception = await Assert.ThrowsAsync<ArgumentNullException>(() => Task.Run(() => {
+            policy.IsTrustedOrigin(null!);
+        }));
+
+        // Assert
+        await Assert.That(exception).IsNotNull();
+        await Assert.That(exception!.ParamName).IsEqualTo("candidateOrigin");
+    }
+
+    [Test]
     public async Task PolicyBuilder_SetAllowedSchemes_TrimsAndIgnoresWhitespace() {
         // Arrange
         var policyBuilder = new InfiniFrameUriSecurityPolicyBuilder();
@@ -131,5 +150,38 @@ public class InfiniFrameUriSecurityPolicyTests {
 
         // Assert
         await Assert.That(policy.IsTrustedOrigin(new Uri("https://trusted.example/abc"))).IsTrue();
+    }
+
+    [Test]
+    public async Task BuilderExtensions_SetTrustedOriginsWithInvalidString_ThrowsArgumentException() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        ArgumentException? exception = await Assert.ThrowsAsync<ArgumentException>(() => Task.Run(() => {
+            builder.SetTrustedOrigins("not-a-valid-origin");
+        }));
+
+        // Assert
+        await Assert.That(exception).IsNotNull();
+        await Assert.That(exception!.ParamName).IsEqualTo("origin");
+    }
+
+    [Test]
+    public async Task Registry_ConfigureForBuilder_CanAppendTrustedOriginsAcrossCalls() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, policyBuilder => policyBuilder
+            .SetAllowedNavigationSchemes([Uri.UriSchemeHttps])
+            .SetTrustedOrigins([new Uri("https://one.example/")]));
+        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, policyBuilder => policyBuilder
+            .AddTrustedOrigin(new Uri("https://two.example/")));
+        InfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
+
+        // Assert
+        await Assert.That(policy.IsTrustedOrigin(new Uri("https://one.example/path"))).IsTrue();
+        await Assert.That(policy.IsTrustedOrigin(new Uri("https://two.example/path"))).IsTrue();
     }
 }

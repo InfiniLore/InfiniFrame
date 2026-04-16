@@ -61,6 +61,26 @@ public class LoadTests {
         await Assert.That(CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Invoke))).IsEqualTo(0);
     }
 
+    [Test]
+    public async Task Load_WithAbsoluteFileUri_LoadsFromLocalFilePath() {
+        // Arrange
+        var window = new RecordingInfiniFrameWindowSubstitute();
+        string filePath = Path.Join(Path.GetTempPath(), $"infiniframe-load-{Guid.NewGuid():N}.html");
+        await File.WriteAllTextAsync(filePath, "<html><body>ok</body></html>");
+        string fileUri = new Uri(filePath, UriKind.Absolute).AbsoluteUri;
+
+        try {
+            // Act
+            window.Window.Load(fileUri);
+
+            // Assert
+            await Assert.That(CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Invoke))).IsEqualTo(1);
+        }
+        finally {
+            if (File.Exists(filePath)) File.Delete(filePath);
+        }
+    }
+
     private static int CountMethodCalls(IInfiniFrameWindow window, string methodName) {
         return window.ReceivedCalls().Count(call => string.Equals(call.GetMethodInfo().Name, methodName, StringComparison.Ordinal));
     }
