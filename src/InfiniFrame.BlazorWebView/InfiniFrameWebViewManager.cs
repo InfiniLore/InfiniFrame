@@ -103,26 +103,54 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     public Stream? HandleWebRequest(object? sender, string? schema, string? url, out string? contentType) {
-        if (url is null) {
+        if (string.IsNullOrWhiteSpace(url)) {
+            LazyLogger.Value?.LogWarning("Rejected web request because URL is null or empty. Schema: {Schema}", schema);
             contentType = null;
-            return null;// TODO: Handle this better.
+            return null;
+        }
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? requestUri)) {
+            LazyLogger.Value?.LogWarning("Rejected web request because URL parsing failed. Url: {Url}, Schema: {Schema}", url, schema);
+            contentType = null;
+            return null;
+        }
+
+        if (!IsTrustedOrigin(requestUri, _trustedOrigin)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigin: {TrustedOrigin}",
+                requestUri,
+                _trustedOrigin);
+            contentType = null;
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(schema)
+            && !string.Equals(schema, requestUri.Scheme, StringComparison.OrdinalIgnoreCase)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web request due to schema mismatch. ReportedSchema: {ReportedSchema}, UriScheme: {UriScheme}, Url: {Url}",
+                schema,
+                requestUri.Scheme,
+                url);
+            contentType = null;
+            return null;
         }
 
         // It would be better if we were told whether this is a navigation request, but
         // since we're not, guess.
-        string localPath = new Uri(url).LocalPath;
+        string localPath = requestUri.LocalPath;
         bool hasFileExtension = localPath.LastIndexOf('.') > localPath.LastIndexOf('/');
 
-        //Remove parameters before attempting to retrieve the file. For example: http://localhost/_content/Blazorise/button.js?v=1.0.7.0
-        if (url.Contains('?')) url = url[..url.IndexOf('?')];
+        // Remove query/fragment before attempting to retrieve the file.
+        Uri sanitizedUri = new UriBuilder(requestUri) { Query = string.Empty, Fragment = string.Empty }.Uri;
+        string sanitizedUrl = sanitizedUri.AbsoluteUri;
 
-        if (url.StartsWith(AppBaseUri, StringComparison.Ordinal)
-            && TryGetResponseContent(url, !hasFileExtension, out _, out _,
+        if (TryGetResponseContent(sanitizedUrl, !hasFileExtension, out _, out _,
                 out Stream content, out IDictionary<string, string> headers)) {
             headers.TryGetValue("Content-Type", out contentType);
             return content;
         }
 
+        LazyLogger.Value?.LogWarning("No web content found for trusted URL. Url: {Url}", sanitizedUrl);
         contentType = null;
         return null;
     }
