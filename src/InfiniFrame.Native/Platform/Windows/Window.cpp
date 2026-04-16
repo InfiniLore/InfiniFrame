@@ -1255,7 +1255,12 @@ void InfiniFrameWindow::AttachWebView() {
                                 webMessageToken;
                             m_impl->_webviewWindow->
                                     AddScriptToExecuteOnDocumentCreated(
-                                        L"window.infiniframe = window.infiniframe || {};window.infiniframe.host = window.infiniframe.host || {};window.infiniframe.host.postMessage = window.infiniframe.host.postMessage || function(envelope) { var message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope); window.chrome.webview.postMessage(message); };window.infiniframe.host.receiveMessage = window.infiniframe.host.receiveMessage || function(callback) { window.chrome.webview.addEventListener('message', function(e) { callback(e.data); }); };",
+                                        L"(function(){window.infiniframe=window.infiniframe||{};window.infiniframe.host=window.infiniframe.host||{};window.infiniframe.host.postMessage=window.infiniframe.host.postMessage||function(envelope){var message=(typeof envelope==='string')?envelope:JSON.stringify(envelope);window.chrome.webview.postMessage(message);};window.infiniframe.host.receiveMessage=window.infiniframe.host.receiveMessage||function(callback){window.chrome.webview.addEventListener('message',function(e){callback(e.data);});};window.external=window.external||{};window.external.sendMessage=window.external.sendMessage||function(message){window.chrome.webview.postMessage(message);};window.external.postMessage=window.external.postMessage||window.external.sendMessage;window.external.receiveMessage=window.external.receiveMessage||function(callback){window.chrome.webview.addEventListener('message',function(e){callback(e.data);});};})();",
+                                        nullptr
+                                        );
+                            m_impl->_webviewWindow->
+                                    AddScriptToExecuteOnDocumentCreated(
+                                        L"(function(){if(window.__infiniframeBlazorModulesPatched){return;}window.__infiniframeBlazorModulesPatched=true;var originalFetch=window.fetch;window.fetch=function(input,init){try{var requestUrl=typeof input==='string'?input:(input&&input.url?input.url:'');if(requestUrl){var absoluteUrl=new URL(requestUrl,window.location.href).href;var isBlazorModulesJson=absoluteUrl==='http://localhost/_framework/blazor.modules.json'||absoluteUrl==='http://localhost/_framework/blazor.modules.json/';if(isBlazorModulesJson){return Promise.resolve(new Response('[]',{status:200,statusText:'OK',headers:{'Content-Type':'application/json'}}));}}}catch(_){ }return originalFetch.call(this,input,init);};})();",
                                         nullptr
                                         );
                             m_impl->_webviewWindow->
@@ -1279,6 +1284,17 @@ void InfiniFrameWindow::AttachWebView() {
                                                     get_Source(
                                                         &source
                                                         );
+                                                if (
+                                                    (source.get() == nullptr
+                                                     || source.get()[0] == L'\0')
+                                                    && m_impl->_webviewWindow != nullptr
+                                                    ) {
+                                                    m_impl->
+                                                        _webviewWindow->
+                                                        get_Source(
+                                                            &source
+                                                            );
+                                                }
                                                 m_impl->
                                                     _webMessageReceivedCallback(
                                                         message.
@@ -1294,11 +1310,21 @@ void InfiniFrameWindow::AttachWebView() {
 
                             EventRegistrationToken
                                 webResourceRequestedToken;
-                            m_impl->_webviewWindow->
+                            auto webview23 = m_impl->_webviewWindow.try_query<ICoreWebView2_23>();
+                            if (webview23) {
+                                webview23->AddWebResourceRequestedFilterWithRequestSourceKinds(
+                                    L"*",
+                                    COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
+                                    COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
+                                );
+                            }
+                            else {
+                                m_impl->_webviewWindow->
                                     AddWebResourceRequestedFilter(
                                         L"*",
                                         COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
-                                        );
+                                    );
+                            }
                             m_impl->_webviewWindow->
                                     add_WebResourceRequested(
                                         Callback<
@@ -1327,6 +1353,47 @@ void InfiniFrameWindow::AttachWebView() {
                                                 std::wstring
                                                     uriString = uri
                                                         .get();
+                                                wil::com_ptr<ICoreWebView2HttpRequestHeaders>
+                                                    requestHeaders;
+                                                std::wstring requestOrigin;
+                                                if (SUCCEEDED(req->get_Headers(&requestHeaders)) && requestHeaders) {
+                                                    wil::unique_cotaskmem_string originHeaderValue;
+                                                    if (SUCCEEDED(requestHeaders->GetHeader(L"Origin", &originHeaderValue))
+                                                        && originHeaderValue.get() != nullptr
+                                                        && originHeaderValue.get()[0] != L'\0') {
+                                                        requestOrigin = originHeaderValue.get();
+                                                    }
+                                                }
+
+                                                if (uriString.find(L"/_framework/blazor.modules.json") != std::wstring::npos) {
+                                                    static constexpr BYTE emptyModuleArray[] = {'[', ']'};
+                                                    wil::com_ptr<IStream> dataStream;
+                                                    dataStream.attach(SHCreateMemStream(emptyModuleArray, sizeof(emptyModuleArray)));
+                                                    if (!dataStream) return S_OK;
+
+                                                    std::wstring responseHeaders = L"Content-Type: application/json";
+                                                    responseHeaders += L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
+                                                    responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
+                                                    if (!requestOrigin.empty()) {
+                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: " + requestOrigin;
+                                                        responseHeaders += L"\r\nAccess-Control-Allow-Credentials: true";
+                                                        responseHeaders += L"\r\nVary: Origin";
+                                                    }
+                                                    else {
+                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: *";
+                                                    }
+
+                                                    wil::com_ptr<ICoreWebView2WebResourceResponse> response;
+                                                    m_impl->_webviewEnvironment->CreateWebResourceResponse(
+                                                        dataStream.get(),
+                                                        200,
+                                                        L"OK",
+                                                        responseHeaders.c_str(),
+                                                        &response
+                                                    );
+                                                    args->put_Response(response.get());
+                                                    return S_OK;
+                                                }
                                                 size_t colonPos =
                                                     uriString.find(
                                                         L':', 0
@@ -1424,6 +1491,17 @@ void InfiniFrameWindow::AttachWebView() {
                                                             wil::com_ptr
                                                                 <ICoreWebView2WebResourceResponse>
                                                                 response;
+                                                            std::wstring responseHeaders = L"Content-Type: " + contentTypeWS;
+                                                            responseHeaders += L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
+                                                            responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
+                                                            if (!requestOrigin.empty()) {
+                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: " + requestOrigin;
+                                                                responseHeaders += L"\r\nAccess-Control-Allow-Credentials: true";
+                                                                responseHeaders += L"\r\nVary: Origin";
+                                                            }
+                                                            else {
+                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: *";
+                                                            }
                                                             m_impl
                                                                 ->
                                                                 _webviewEnvironment
@@ -1433,9 +1511,7 @@ void InfiniFrameWindow::AttachWebView() {
                                                                     .get(),
                                                                     200,
                                                                     L"OK",
-                                                                    (L"Content-Type: "
-                                                                        + contentTypeWS)
-                                                                    .c_str(),
+                                                                    responseHeaders.c_str(),
                                                                     &response
                                                                     );
                                                             args->

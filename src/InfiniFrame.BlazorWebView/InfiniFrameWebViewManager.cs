@@ -50,8 +50,12 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             .GetForBuilder(builder)
             .WithTrustedOrigin(config.Value.AppBaseUri);
 
+        LazyWindow = new Lazy<IInfiniFrameWindow>(provider.GetRequiredService<IInfiniFrameWindow>);
+        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(provider.GetService<ILogger<InfiniFrameWebViewManager>>);
+
         builder.RegisterWebMessageReceivedHandler((_, message) => {
             string? origin = InfiniFrameWebMessageContext.CurrentOrigin;
+            LazyLogger.Value?.LogDebug("Web message callback from native. Origin: {Origin}, Message: {Message}", origin, message);
 
             // On some platforms, we need to move off the browser UI thread
             Task.Factory.StartNew(
@@ -62,9 +66,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 scheduler: _syncScheduler);
         });
 
-        LazyWindow = new Lazy<IInfiniFrameWindow>(provider.GetRequiredService<IInfiniFrameWindow>);
-        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(provider.GetService<ILogger<InfiniFrameWebViewManager>>);
-
         // Start the reader and observe/await it during disposal.
         _messagePumpTask = Task.Run(MessagePump);
     }
@@ -73,13 +74,19 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     private void HandleWebMessage((string Message, string? Origin) state) {
-        if (string.IsNullOrWhiteSpace(state.Origin)) {
-            LazyLogger.Value?.LogWarning("Rejected web message because origin is missing or unknown.");
-            return;
+        Uri? messageOriginUrl;
+        if (!string.IsNullOrWhiteSpace(state.Origin)) {
+            if (!Uri.TryCreate(state.Origin, UriKind.Absolute, out messageOriginUrl)) {
+                LazyLogger.Value?.LogWarning("Rejected web message because origin parsing failed. Origin: {Origin}", state.Origin);
+                return;
+            }
         }
-
-        if (!Uri.TryCreate(state.Origin, UriKind.Absolute, out Uri? messageOriginUrl)) {
-            LazyLogger.Value?.LogWarning("Rejected web message because origin parsing failed. Origin: {Origin}", state.Origin);
+        else if (Uri.TryCreate(AppBaseUri, UriKind.Absolute, out Uri? fallbackOriginUrl)) {
+            messageOriginUrl = fallbackOriginUrl;
+            LazyLogger.Value?.LogDebug("Web message origin missing. Falling back to AppBaseUri origin: {FallbackOrigin}", fallbackOriginUrl);
+        }
+        else {
+            LazyLogger.Value?.LogWarning("Rejected web message because origin is missing or unknown.");
             return;
         }
 
