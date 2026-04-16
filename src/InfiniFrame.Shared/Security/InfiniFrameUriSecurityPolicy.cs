@@ -73,10 +73,7 @@ public sealed class InfiniFrameUriSecurityPolicy(
 
     private static HashSet<Uri> NormalizeTrustedOrigins(IEnumerable<Uri> trustedOrigins) {
         var normalized = new HashSet<Uri>(OriginComparer.Instance);
-        foreach (Uri trustedOrigin in trustedOrigins) {
-            if (!trustedOrigin.IsAbsoluteUri)
-                continue;
-
+        foreach (Uri trustedOrigin in trustedOrigins.Where(static trustedOrigin => trustedOrigin.IsAbsoluteUri)) {
             normalized.Add(trustedOrigin);
         }
 
