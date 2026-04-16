@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Blazor;
 using InfiniFrame.Js;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
@@ -14,15 +14,6 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilder {
-    #if NET9_0_OR_GREATER
-    private static readonly Lock UnhandledExceptionHandlerLock = new();
-    #else
-    private static readonly object UnhandledExceptionHandlerLock = new();
-    #endif
-    
-    private static IServiceProvider? _currentUnhandledExceptionServiceProvider;
-    private static bool _isUnhandledExceptionHandlerRegistered;
-
     public RootComponentList RootComponents { get; } = new();
     public IServiceCollection Services { get; } = new ServiceCollection();
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
@@ -63,6 +54,8 @@ public class InfiniFrameBlazorAppBuilder {
             .AddBlazorWebView()
             .AddSingleton(appBuilder.WindowBuilder)
             .AddSingleton(appBuilder.RootComponents);
+
+        appBuilder.Services.TryAddSingleton<IInfiniFrameUnhandledExceptionSource, AppDomainUnhandledExceptionSource>();
 
         windowBuilder?.Invoke(appBuilder.WindowBuilder);
 
@@ -127,29 +120,24 @@ public class InfiniFrameBlazorAppBuilder {
         bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
             .Value.EnableGlobalUnhandledExceptionHandler ?? true;
 
-        if (enableGlobalUnhandledExceptionHandler) RegisterUnhandledExceptionHandler(serviceProvider);
+        IDisposable? unhandledExceptionRegistration = enableGlobalUnhandledExceptionHandler
+            ? RegisterUnhandledExceptionHandler(serviceProvider)
+            : null;
 
         return new InfiniFrameBlazorApp(
             serviceProvider,
             serviceProvider.GetRequiredService<RootComponentList>(),
-            serviceProvider.GetService<IInfiniFrameJsComponentConfiguration>()
+            serviceProvider.GetService<IInfiniFrameJsComponentConfiguration>(),
+            unhandledExceptionRegistration
         );
     }
 
-    private static void RegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
-        lock (UnhandledExceptionHandlerLock) {
-            _currentUnhandledExceptionServiceProvider = serviceProvider;
-
-            if (_isUnhandledExceptionHandlerRegistered) return;
-
-            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainUnhandledException;
-            _isUnhandledExceptionHandlerRegistered = true;
-        }
-    }
-
-    private static void OnCurrentDomainUnhandledException(object? _, UnhandledExceptionEventArgs error) {
-        _currentUnhandledExceptionServiceProvider?
+    private static IDisposable RegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
+        IInfiniFrameUnhandledExceptionSource exceptionSource = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
+        return exceptionSource.Register((_, error) => {
+            serviceProvider
             .GetService<IInfiniFrameWindow>()?
             .ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+        });
     }
 }

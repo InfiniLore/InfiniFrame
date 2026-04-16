@@ -11,6 +11,9 @@ namespace InfiniFrame.BlazorWebView;
 public class RootComponentList : IEnumerable<(Type, string)> {
     private readonly List<(Type componentType, string domElementSelector)> _components = [];
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public IEnumerator<(Type, string)> GetEnumerator() => _components.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => _components.GetEnumerator();
