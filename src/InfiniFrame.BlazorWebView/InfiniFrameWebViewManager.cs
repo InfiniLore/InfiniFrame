@@ -36,7 +36,11 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
     private readonly SynchronousTaskScheduler _syncScheduler = new();
     private readonly Task _messagePumpTask;
+    private readonly Uri _trustedOrigin;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructor
+    // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
         IServiceProvider provider,
@@ -46,17 +50,18 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         IOptions<InfiniFrameBlazorAppConfiguration> config
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
+        _trustedOrigin = config.Value.AppBaseUri;
 
         builder.RegisterWebMessageReceivedHandler((_, message) => {
-            // On some platforms, we need to move off the browser UI thread
-            Task.Factory.StartNew(action: m => {
-                // TODO: Fix this. InfiniFrame should ideally tell us the URL that the message comes from so we
-                // know whether to trust it. Currently it's hardcoded to trust messages from any source, including
-                // if the webview is somehow navigated to an external URL.
-                var messageOriginUrl = new Uri(AppBaseUri);
+            string? origin = InfiniFrameWebMessageContext.CurrentOrigin;
 
-                MessageReceived(messageOriginUrl, (string)m!);
-            }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, _syncScheduler);
+            // On some platforms, we need to move off the browser UI thread
+            Task.Factory.StartNew(
+                action: state => HandleWebMessage(((string Message, string? Origin))state!),
+                state: (Message: message, Origin: origin),
+                cancellationToken: CancellationToken.None,
+                creationOptions: TaskCreationOptions.DenyChildAttach,
+                scheduler: _syncScheduler);
         });
 
         LazyWindow = new Lazy<IInfiniFrameWindow>(provider.GetRequiredService<IInfiniFrameWindow>);
@@ -64,6 +69,37 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
         // Start the reader and observe/await it during disposal.
         _messagePumpTask = Task.Run(MessagePump);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    private void HandleWebMessage((string Message, string? Origin) state) {
+        if (string.IsNullOrWhiteSpace(state.Origin)) {
+            LazyLogger.Value?.LogWarning("Rejected web message because origin is missing or unknown.");
+            return;
+        }
+
+        if (!Uri.TryCreate(state.Origin, UriKind.Absolute, out Uri? messageOriginUrl)) {
+            LazyLogger.Value?.LogWarning("Rejected web message because origin parsing failed. Origin: {Origin}", state.Origin);
+            return;
+        }
+
+        if (!IsTrustedOrigin(messageOriginUrl, _trustedOrigin)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigin: {TrustedOrigin}",
+                messageOriginUrl,
+                _trustedOrigin);
+            return;
+        }
+
+        MessageReceived(messageOriginUrl, state.Message);
+    }
+
+    private static bool IsTrustedOrigin(Uri messageOrigin, Uri trustedOrigin) {
+        return string.Equals(messageOrigin.Scheme, trustedOrigin.Scheme, StringComparison.OrdinalIgnoreCase)
+               && string.Equals(messageOrigin.Host, trustedOrigin.Host, StringComparison.OrdinalIgnoreCase)
+               && messageOrigin.Port == trustedOrigin.Port;
     }
 
     public Stream? HandleWebRequest(object? sender, string? schema, string? url, out string? contentType) {

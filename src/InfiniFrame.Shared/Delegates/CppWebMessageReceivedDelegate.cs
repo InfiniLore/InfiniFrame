@@ -8,4 +8,4 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
-public delegate void CppWebMessageReceivedDelegate(string message);
+public delegate void CppWebMessageReceivedDelegate(string message, string? origin);

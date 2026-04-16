@@ -14,6 +14,14 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 [SuppressMessage("ReSharper", "ConvertToExtensionBlock")]
 public static class InfiniWindowExtensions {
+    private static readonly HashSet<string> AllowedNavigationSchemes = new(StringComparer.OrdinalIgnoreCase) {
+        Uri.UriSchemeHttps,
+        Uri.UriSchemeHttp
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
     ///     Loads specified <see cref="Uri" /> into the browser control.
     /// </summary>
@@ -39,14 +47,15 @@ public static class InfiniWindowExtensions {
     public static T Load<T>(this T window, string path) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".Load({Path})", path);
 
-        // TODO patch this
-        // ––––––––––––––––––––––
-        // SECURITY RISK!
-        // This needs validation!
-        // ––––––––––––––––––––––
-        // Open a web URL string path
-        if (path.Contains("http://") || path.Contains("https://"))
-            return window.Load(new Uri(path));
+        if (Uri.TryCreate(path, UriKind.Absolute, out Uri? absoluteUri)) {
+            if (AllowedNavigationSchemes.Contains(absoluteUri.Scheme))
+                return window.Load(absoluteUri);
+
+            if (absoluteUri.IsFile)
+                path = absoluteUri.LocalPath;
+            else
+                window.Logger.LogWarning("Rejected absolute URI with non-allowlisted scheme in Load: {Scheme}, Input: {Input}", absoluteUri.Scheme, path);
+        }
 
         // Open a file resource string path
         string absolutePath = Path.GetFullPath(path);

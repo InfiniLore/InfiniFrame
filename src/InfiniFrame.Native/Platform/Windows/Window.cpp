@@ -1269,13 +1269,21 @@ void InfiniFrameWindow::AttachWebView() {
                                             ) -> HRESULT {
                                                 wil::unique_cotaskmem_string
                                                     message;
+                                                wil::unique_cotaskmem_string
+                                                    source;
                                                 args->
                                                     TryGetWebMessageAsString(
                                                         &message
                                                         );
+                                                args->
+                                                    get_Source(
+                                                        &source
+                                                        );
                                                 m_impl->
                                                     _webMessageReceivedCallback(
                                                         message.
+                                                        get(),
+                                                        source.
                                                         get()
                                                         );
                                                 return S_OK;

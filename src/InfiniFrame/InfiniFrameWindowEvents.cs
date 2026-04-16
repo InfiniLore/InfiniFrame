@@ -90,6 +90,15 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     ///     Invokes registered user-defined handler methods when the native window sends a message.
     /// </summary>
     public void OnWebMessageReceived(string message) {
+        OnWebMessageReceived(message, null);
+    }
+
+    /// <summary>
+    ///     Invokes registered user-defined handler methods when the native window sends a message.
+    ///     This overload carries the native-reported message origin in an ambient context.
+    /// </summary>
+    public void OnWebMessageReceived(string message, string? origin) {
+        using IDisposable _ = InfiniFrameWebMessageContext.Push(origin);
         WebMessageReceived.Invoke(Sender, message);
     }
 

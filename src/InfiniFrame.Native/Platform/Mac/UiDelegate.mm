@@ -6,7 +6,21 @@
         didReceiveScriptMessage:(WKScriptMessage *)message
 {
     char *messageUtf8 = const_cast<char *>([message.body UTF8String]);
-    webMessageReceivedCallback(messageUtf8);
+    NSString* source = message.frameInfo.request.URL.absoluteString;
+
+    if (source == nil) {
+        WKSecurityOrigin* securityOrigin = message.frameInfo.securityOrigin;
+        if (securityOrigin != nil && securityOrigin.protocol != nil && securityOrigin.host != nil) {
+            NSInteger port = securityOrigin.port;
+            if (port > 0)
+                source = [NSString stringWithFormat:@"%@://%@:%ld/", securityOrigin.protocol, securityOrigin.host, (long)port];
+            else
+                source = [NSString stringWithFormat:@"%@://%@/", securityOrigin.protocol, securityOrigin.host];
+        }
+    }
+
+    char* sourceUtf8 = source == nil ? nullptr : const_cast<char*>([source UTF8String]);
+    webMessageReceivedCallback(messageUtf8, sourceUtf8);
 }
 
 - (void)webView:(WKWebView *)webView
