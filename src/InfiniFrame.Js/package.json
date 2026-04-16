@@ -13,12 +13,12 @@
   "license": "GNUv3",
   "description": "",
   "devDependencies": {
-    "@vitest/coverage-v8": "^3.2.4",
-    "jsdom": "^26.1.0",
+    "@vitest/coverage-v8": "^4.1.4",
+    "jsdom": "^29.0.2",
     "ts-loader": "^9.5.7",
     "typescript": "^6.0.2",
-    "vitest": "^3.2.4",
-    "webpack": "^5.106.1",
+    "vitest": "^4.1.4",
+    "webpack": "^5.106.2",
     "webpack-cli": "^7.0.2"
   }
 }
