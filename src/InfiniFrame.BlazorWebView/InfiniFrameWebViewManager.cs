@@ -36,7 +36,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
     private readonly SynchronousTaskScheduler _syncScheduler = new();
     private readonly Task _messagePumpTask;
-    private readonly Uri _trustedOrigin;
     private readonly InfiniFrameUriSecurityPolicy _uriSecurityPolicy;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -51,8 +50,9 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         IOptions<InfiniFrameBlazorAppConfiguration> config
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
-        _trustedOrigin = config.Value.AppBaseUri;
-        _uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
+        _uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry
+            .GetForBuilder(builder)
+            .WithTrustedOrigin(config.Value.AppBaseUri);
 
         builder.RegisterWebMessageReceivedHandler((_, message) => {
             string? origin = InfiniFrameWebMessageContext.CurrentOrigin;
@@ -87,11 +87,11 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return;
         }
 
-        if (!_uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl, _trustedOrigin)) {
+        if (!_uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl)) {
             LazyLogger.Value?.LogWarning(
-                "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigin: {TrustedOrigin}",
+                "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigins: {TrustedOrigins}",
                 messageOriginUrl,
-                _trustedOrigin);
+                _uriSecurityPolicy.TrustedOrigins);
             return;
         }
 
@@ -111,20 +111,20 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             return null;
         }
 
-        if (!_uriSecurityPolicy.IsTrustedOrigin(requestUri, _trustedOrigin)) {
-            LazyLogger.Value?.LogWarning(
-                "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigin: {TrustedOrigin}",
-                requestUri,
-                _trustedOrigin);
-            contentType = null;
-            return null;
-        }
-
         if (!_uriSecurityPolicy.IsNavigationSchemeAllowed(requestUri.Scheme)) {
             LazyLogger.Value?.LogWarning(
                 "Rejected web request due to disallowed URI scheme. Scheme: {Scheme}, Url: {Url}",
                 requestUri.Scheme,
                 requestUri);
+            contentType = null;
+            return null;
+        }
+
+        if (!_uriSecurityPolicy.IsTrustedOrigin(requestUri)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigins: {TrustedOrigins}",
+                requestUri,
+                _uriSecurityPolicy.TrustedOrigins);
             contentType = null;
             return null;
         }
