@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Blazor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -12,11 +11,13 @@ namespace InfiniFrame.BlazorWebView;
 public class InfiniFrameBlazorApp(
     IServiceProvider provider,
     RootComponentList rootComponents,
-    IInfiniFrameJsComponentConfiguration? rootComponentConfiguration = null
+    IInfiniFrameJsComponentConfiguration? rootComponentConfiguration = null,
+    IDisposable? unhandledExceptionRegistration = null
 ) : IAsyncDisposable {
     public IServiceProvider ServiceProvider { get; }= provider;
     private RootComponentList RootComponents { get; }= rootComponents;
     private IInfiniFrameJsComponentConfiguration? RootComponentConfiguration { get; }= rootComponentConfiguration;
+    private IDisposable? UnhandledExceptionRegistration { get; } = unhandledExceptionRegistration;
 
     private bool _disposed;
 
@@ -57,7 +58,7 @@ public class InfiniFrameBlazorApp(
             window.WaitForClose();
         }
         finally {
-            window.Invoke(() => DisposeAsync().AsTask().GetAwaiter().GetResult());
+            DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
     }
 
@@ -67,6 +68,8 @@ public class InfiniFrameBlazorApp(
         _disposed = true;
 
         try {
+            UnhandledExceptionRegistration?.Dispose();
+
             switch (ServiceProvider) {
                 case ServiceProvider serviceProvider: {
                     await serviceProvider.DisposeAsync();

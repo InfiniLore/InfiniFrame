@@ -20,8 +20,9 @@ using ACTION = void (*)();
 /**
  * @brief Called when the WebView receives a message posted from JavaScript via window.chrome.webview.postMessage
  * @param message UTF-8 encoded message string
+ * @param origin UTF-8 encoded sender origin URL, or null if unavailable
  */
-using WebMessageReceivedCallback = void (*)(AutoString message);
+using WebMessageReceivedCallback = void (*)(AutoString message, AutoString origin);
 
 /**
  * @brief Called when the WebView requests a custom-scheme resource.

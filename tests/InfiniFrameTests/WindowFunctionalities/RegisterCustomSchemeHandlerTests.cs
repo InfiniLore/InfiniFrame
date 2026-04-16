@@ -39,7 +39,7 @@ public class RegisterCustomSchemeHandlerTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        for (var i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();

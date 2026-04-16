@@ -5,6 +5,8 @@ using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrameTests.Shared;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using NSubstitute;
 
 namespace InfiniFrameTests.BlazorWebView;
 
@@ -12,6 +14,88 @@ namespace InfiniFrameTests.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilderTests {
+    private sealed class DisposeProbe : IDisposable {
+        public bool IsDisposed { get; private set; }
+
+        public void Dispose() {
+            IsDisposed = true;
+        }
+    }
+
+    private sealed class RecordingUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
+        private int _activeHandlers;
+        private int _registrationCount;
+
+        public int ActiveHandlers => Volatile.Read(ref _activeHandlers);
+        public int RegistrationCount => Volatile.Read(ref _registrationCount);
+
+        public IDisposable Register(UnhandledExceptionEventHandler handler) {
+            _ = handler;
+            Interlocked.Increment(ref _registrationCount);
+            Interlocked.Increment(ref _activeHandlers);
+            return new Subscription(this);
+        }
+
+        private sealed class Subscription : IDisposable {
+            private RecordingUnhandledExceptionSource? _owner;
+
+            public Subscription(RecordingUnhandledExceptionSource owner) {
+                _owner = owner;
+            }
+
+            public void Dispose() {
+                RecordingUnhandledExceptionSource? owner = Interlocked.Exchange(ref _owner, null);
+                if (owner is null) return;
+                Interlocked.Decrement(ref owner._activeHandlers);
+            }
+        }
+    }
+
+    private sealed class TriggerableUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
+        private readonly object _gate = new();
+        private readonly List<UnhandledExceptionEventHandler> _handlers = [];
+
+        public IDisposable Register(UnhandledExceptionEventHandler handler) {
+            ArgumentNullException.ThrowIfNull(handler);
+
+            lock (_gate) {
+                _handlers.Add(handler);
+            }
+
+            return new Subscription(this, handler);
+        }
+
+        public void Raise(Exception exception) {
+            UnhandledExceptionEventHandler[] handlers;
+            lock (_gate) {
+                handlers = [.._handlers];
+            }
+
+            var args = new UnhandledExceptionEventArgs(exception, isTerminating: false);
+            foreach (UnhandledExceptionEventHandler handler in handlers) {
+                handler(this, args);
+            }
+        }
+
+        private void Unregister(UnhandledExceptionEventHandler handler) {
+            lock (_gate) {
+                _handlers.Remove(handler);
+            }
+        }
+
+        private sealed class Subscription(TriggerableUnhandledExceptionSource owner, UnhandledExceptionEventHandler handler) : IDisposable {
+            private TriggerableUnhandledExceptionSource? _owner = owner;
+            private UnhandledExceptionEventHandler? _handler = handler;
+
+            public void Dispose() {
+                TriggerableUnhandledExceptionSource? owner = Interlocked.Exchange(ref _owner, null);
+                UnhandledExceptionEventHandler? handler = Interlocked.Exchange(ref _handler, null);
+                if (owner is null || handler is null) return;
+                owner.Unregister(handler);
+            }
+        }
+    }
+
     [Test]
     public async Task Build_WithExternalProvider_ShouldUseProvidedServiceProvider() {
         // Arrange
@@ -37,6 +121,146 @@ public class InfiniFrameBlazorAppBuilderTests {
         // Assert
         await Assert.That(app.ServiceProvider).IsNotNull();
         await app.DisposeAsync();
+    }
+
+    [Test]
+    public async Task GlobalUnhandledExceptionHandler_IsRemovedOnDispose() {
+        // Arrange
+        var recordingSource = new RecordingUnhandledExceptionSource();
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
+        builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(recordingSource);
+
+        // Act
+        InfiniFrameBlazorApp app = builder.Build();
+
+        // Assert
+        await Assert.That(recordingSource.ActiveHandlers).IsEqualTo(1);
+        await app.DisposeAsync();
+        await Assert.That(recordingSource.ActiveHandlers).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task GlobalUnhandledExceptionHandler_RepeatedBuildDispose_DoesNotAccumulate() {
+        // Arrange
+        var recordingSource = new RecordingUnhandledExceptionSource();
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
+        builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(recordingSource);
+        var activeBeforeDispose = new List<int>();
+        var activeAfterDispose = new List<int>();
+
+        // Act
+        for (int i = 0; i < 3; i++) {
+            InfiniFrameBlazorApp app = builder.Build();
+            activeBeforeDispose.Add(recordingSource.ActiveHandlers);
+            await app.DisposeAsync();
+            activeAfterDispose.Add(recordingSource.ActiveHandlers);
+        }
+
+        // Assert
+        await Assert.That(activeBeforeDispose.All(static count => count == 1)).IsTrue();
+        await Assert.That(activeAfterDispose.All(static count => count == 0)).IsTrue();
+        await Assert.That(recordingSource.RegistrationCount).IsEqualTo(3);
+    }
+
+    [Test]
+    public async Task GlobalUnhandledExceptionHandler_CanBeDisabled() {
+        // Arrange
+        var recordingSource = new RecordingUnhandledExceptionSource();
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
+        builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(recordingSource);
+        builder.Services.Configure<InfiniFrameBlazorAppConfiguration>(options => options.EnableGlobalUnhandledExceptionHandler = false);
+
+        // Act
+        InfiniFrameBlazorApp app = builder.Build();
+
+        // Assert
+        await Assert.That(recordingSource.RegistrationCount).IsEqualTo(0);
+        await Assert.That(recordingSource.ActiveHandlers).IsEqualTo(0);
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    public async Task CreateDefault_RegistersUnhandledExceptionSourceByDefault() {
+        // Arrange
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+
+        // Act
+        var source = serviceProvider.GetService<IInfiniFrameUnhandledExceptionSource>();
+
+        // Assert
+        await Assert.That(source).IsNotNull();
+    }
+
+    [Test]
+    public async Task CreateDefault_ExceptionSourceRejectsNullHandler() {
+        // Arrange
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+        IInfiniFrameUnhandledExceptionSource source = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
+
+        // Act
+        ArgumentNullException? exception = await Assert.ThrowsAsync<ArgumentNullException>(() => Task.Run(() => {
+            source.Register(null!);
+        }));
+
+        // Assert
+        await Assert.That(exception).IsNotNull();
+        await Assert.That(exception!.ParamName).IsEqualTo("handler");
+    }
+
+    [Test]
+    public async Task GlobalUnhandledExceptionHandler_RoutesToWindowAndStopsAfterDispose() {
+        // Arrange
+        var exceptionSource = new TriggerableUnhandledExceptionSource();
+        var window = Substitute.For<IInfiniFrameWindow>();
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
+        builder.Services.RemoveAll<IInfiniFrameWindow>();
+        builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(exceptionSource);
+        builder.Services.AddSingleton(window);
+        InfiniFrameBlazorApp app = builder.Build();
+
+        // Act
+        exceptionSource.Raise(new InvalidOperationException("boom-before-dispose"));
+        await app.DisposeAsync();
+        exceptionSource.Raise(new InvalidOperationException("boom-after-dispose"));
+
+        // Assert
+        window.Received(1).ShowMessage(
+            "Fatal exception",
+            Arg.Is<string>(text => text.Contains("boom-before-dispose", StringComparison.Ordinal)),
+            Arg.Any<InfiniFrameDialogButtons>(),
+            Arg.Any<InfiniFrameDialogIcon>());
+    }
+
+    [Test]
+    public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices() {
+        // Arrange
+        var window = Substitute.For<IInfiniFrameWindow>();
+        window.When(x => x.Invoke(Arg.Any<Action>()))
+            .Do(_ => throw new InvalidOperationException("Invoke should not be used during Run() shutdown."));
+
+        var services = new ServiceCollection()
+            .AddSingleton(window)
+            .AddSingleton<DisposeProbe>()
+            .BuildServiceProvider();
+        var disposeProbe = services.GetRequiredService<DisposeProbe>();
+
+        var app = new InfiniFrameBlazorApp(
+            provider: services,
+            rootComponents: new RootComponentList());
+
+        // Act
+        app.Run();
+
+        // Assert
+        window.Received(1).WaitForClose();
+        window.DidNotReceive().Invoke(Arg.Any<Action>());
+        await Assert.That(disposeProbe.IsDisposed).IsTrue();
     }
 
     [Test]

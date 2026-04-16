@@ -28,6 +28,9 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
 
     public event UnhandledExceptionEventHandler? UnhandledException;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public Task InvokeAsync(Action action) {
         var completion = new CallbackTaskCompletionSource<Action, object>(action);
         ExecuteSynchronouslyIfPossible(d: static state => {

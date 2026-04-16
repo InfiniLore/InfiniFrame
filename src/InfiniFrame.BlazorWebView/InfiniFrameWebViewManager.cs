@@ -1,10 +1,6 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Blazor;
 using InfiniFrame.BlazorWebView.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -36,7 +32,11 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
     private readonly SynchronousTaskScheduler _syncScheduler = new();
     private readonly Task _messagePumpTask;
+    private readonly InfiniFrameUriSecurityPolicy _uriSecurityPolicy;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructor
+    // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameWebViewManager(
         IInfiniFrameWindowBuilder builder,
         IServiceProvider provider,
@@ -46,47 +46,119 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         IOptions<InfiniFrameBlazorAppConfiguration> config
     )
         : base(provider, dispatcher, config.Value.AppBaseUri, fileProvider, jsComponents, config.Value.HostPage) {
-
-        builder.RegisterWebMessageReceivedHandler((_, message) => {
-            // On some platforms, we need to move off the browser UI thread
-            Task.Factory.StartNew(action: m => {
-                // TODO: Fix this. InfiniFrame should ideally tell us the URL that the message comes from so we
-                // know whether to trust it. Currently it's hardcoded to trust messages from any source, including
-                // if the webview is somehow navigated to an external URL.
-                var messageOriginUrl = new Uri(AppBaseUri);
-
-                MessageReceived(messageOriginUrl, (string)m!);
-            }, message, CancellationToken.None, TaskCreationOptions.DenyChildAttach, _syncScheduler);
-        });
+        _uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry
+            .GetForBuilder(builder)
+            .WithTrustedOrigin(config.Value.AppBaseUri);
 
         LazyWindow = new Lazy<IInfiniFrameWindow>(provider.GetRequiredService<IInfiniFrameWindow>);
-        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(() => provider.GetService<ILogger<InfiniFrameWebViewManager>>());
+        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(provider.GetService<ILogger<InfiniFrameWebViewManager>>);
+
+        builder.RegisterWebMessageReceivedHandler((_, message) => {
+            string? origin = InfiniFrameWebMessageContext.CurrentOrigin;
+            LazyLogger.Value?.LogDebug("Web message callback from native. Origin: {Origin}, Message: {Message}", origin, message);
+
+            // On some platforms, we need to move off the browser UI thread
+            Task.Factory.StartNew(
+                action: state => HandleWebMessage(((string Message, string? Origin))state!),
+                state: (Message: message, Origin: origin),
+                cancellationToken: CancellationToken.None,
+                creationOptions: TaskCreationOptions.DenyChildAttach,
+                scheduler: _syncScheduler);
+        });
 
         // Start the reader and observe/await it during disposal.
         _messagePumpTask = Task.Run(MessagePump);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    private void HandleWebMessage((string Message, string? Origin) state) {
+        Uri? messageOriginUrl;
+        if (!string.IsNullOrWhiteSpace(state.Origin)) {
+            if (!Uri.TryCreate(state.Origin, UriKind.Absolute, out messageOriginUrl)) {
+                LazyLogger.Value?.LogWarning("Rejected web message because origin parsing failed. Origin: {Origin}", state.Origin);
+                return;
+            }
+        }
+        else if (Uri.TryCreate(AppBaseUri, UriKind.Absolute, out Uri? fallbackOriginUrl)) {
+            messageOriginUrl = fallbackOriginUrl;
+            LazyLogger.Value?.LogDebug("Web message origin missing. Falling back to AppBaseUri origin: {FallbackOrigin}", fallbackOriginUrl);
+        }
+        else {
+            LazyLogger.Value?.LogWarning("Rejected web message because origin is missing or unknown.");
+            return;
+        }
+
+        if (!_uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigins: {TrustedOrigins}",
+                messageOriginUrl,
+                _uriSecurityPolicy.TrustedOrigins);
+            return;
+        }
+
+        MessageReceived(messageOriginUrl, state.Message);
+    }
+
     public Stream? HandleWebRequest(object? sender, string? schema, string? url, out string? contentType) {
-        if (url is null) {
+        if (string.IsNullOrWhiteSpace(url)) {
+            LazyLogger.Value?.LogWarning("Rejected web request because URL is null or empty. Schema: {Schema}", schema);
             contentType = null;
-            return null;// TODO: Handle this better.
+            return null;
+        }
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? requestUri)) {
+            LazyLogger.Value?.LogWarning("Rejected web request because URL parsing failed. Url: {Url}, Schema: {Schema}", url, schema);
+            contentType = null;
+            return null;
+        }
+
+        if (!_uriSecurityPolicy.IsNavigationSchemeAllowed(requestUri.Scheme)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web request due to disallowed URI scheme. Scheme: {Scheme}, Url: {Url}",
+                requestUri.Scheme,
+                requestUri);
+            contentType = null;
+            return null;
+        }
+
+        if (!_uriSecurityPolicy.IsTrustedOrigin(requestUri)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigins: {TrustedOrigins}",
+                requestUri,
+                _uriSecurityPolicy.TrustedOrigins);
+            contentType = null;
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(schema)
+            && !string.Equals(schema, requestUri.Scheme, StringComparison.OrdinalIgnoreCase)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web request due to schema mismatch. ReportedSchema: {ReportedSchema}, UriScheme: {UriScheme}, Url: {Url}",
+                schema,
+                requestUri.Scheme,
+                url);
+            contentType = null;
+            return null;
         }
 
         // It would be better if we were told whether this is a navigation request, but
         // since we're not, guess.
-        string localPath = new Uri(url).LocalPath;
+        string localPath = requestUri.LocalPath;
         bool hasFileExtension = localPath.LastIndexOf('.') > localPath.LastIndexOf('/');
 
-        //Remove parameters before attempting to retrieve the file. For example: http://localhost/_content/Blazorise/button.js?v=1.0.7.0
-        if (url.Contains('?')) url = url[..url.IndexOf('?')];
+        // Remove query/fragment before attempting to retrieve the file.
+        Uri sanitizedUri = new UriBuilder(requestUri) { Query = string.Empty, Fragment = string.Empty }.Uri;
+        string sanitizedUrl = sanitizedUri.AbsoluteUri;
 
-        if (url.StartsWith(AppBaseUri, StringComparison.Ordinal)
-            && TryGetResponseContent(url, !hasFileExtension, out _, out _,
+        if (TryGetResponseContent(sanitizedUrl, !hasFileExtension, out _, out _,
                 out Stream content, out IDictionary<string, string> headers)) {
             headers.TryGetValue("Content-Type", out contentType);
             return content;
         }
 
+        LazyLogger.Value?.LogWarning("No web content found for trusted URL. Url: {Url}", sanitizedUrl);
         contentType = null;
         return null;
     }
@@ -129,10 +201,13 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
 
         try {
-            await _messagePumpTask;
+            await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
         }
         catch (ChannelClosedException) {
             // ignored
+        }
+        catch (TimeoutException) {
+            LazyLogger.Value?.LogWarning("Timed out while waiting for WebView message pump shutdown.");
         }
 
         //continue disposing

@@ -1,11 +1,10 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Runtime.InteropServices;
-
-namespace InfiniFrame;
+namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
-public delegate void CppWebMessageReceivedDelegate(string message, string? origin);
+public interface IInfiniFrameUnhandledExceptionSource {
+    IDisposable Register(UnhandledExceptionEventHandler handler);
+}
