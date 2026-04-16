@@ -163,6 +163,8 @@ internal static class InfiniFrameNativeParametersMarshaller {
         public Unmanaged ToUnmanaged() => _unmanaged;
 
         public void Free() {
+            // CustomSchemeNames are unmanaged HGlobal pointers allocated by managed builders.
+            // Their lifetime is owned by the managed window initialization flow, not by this marshaller.
             Marshal.FreeCoTaskMem(_unmanaged.StartString);
             Marshal.FreeCoTaskMem(_unmanaged.StartUrl);
             Marshal.FreeCoTaskMem(_unmanaged.Title);

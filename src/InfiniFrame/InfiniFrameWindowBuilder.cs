@@ -7,7 +7,6 @@ using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Runtime.InteropServices;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -95,7 +94,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     }
 
     internal InfiniFrameWindowBuildSnapshot CreateSnapshot(IServiceProvider? provider = null) {
-        if (CustomSchemeHandlers.Length > 16) throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
+        if (CustomSchemeHandlers.Length > CustomSchemeNameMemory.MaxCustomSchemeNames)
+            throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
 
         InfiniFrameWindowMessageHandlersSnapshot messageHandlersSnapshot = _messageHandlers.ToSnapshot();
         InfiniFrameWindowMessageHandlers messageHandlers = InfiniFrameWindowMessageHandlers.FromSnapshot(messageHandlersSnapshot);
@@ -138,20 +138,14 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     }
 
     private static void ApplyCustomSchemeNames(ref InfiniFrameNativeParameters startupParameters, InfiniFrameWindowCustomSchemeHandlersSnapshot customSchemesSnapshot) {
-        var customSchemeNameArray = new IntPtr[16];
-        var index = 0;
         var availableHandlers = new HashSet<string>(customSchemesSnapshot.Handlers.Select(static item => item.Key), StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
-        
-        foreach (string key in customSchemesSnapshot.OrderedSchemeNames.Where(key => seen.Add(key) && availableHandlers.Contains(key))) {
-            if (index >= customSchemeNameArray.Length) {
-                throw new InvalidOperationException("Maximum number of custom schemes is 16.");
-            }
 
-            customSchemeNameArray[index] = Marshal.StringToHGlobalAnsi(key);
-            index++;
-        }
+        IntPtr[] customSchemeNameArray = CustomSchemeNameMemory.Allocate(
+            customSchemesSnapshot.OrderedSchemeNames.Where(key => seen.Add(key) && availableHandlers.Contains(key))
+        );
 
+        CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
         startupParameters.CustomSchemeNames = customSchemeNameArray;
     }
 }
