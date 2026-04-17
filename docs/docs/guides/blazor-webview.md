@@ -10,6 +10,7 @@
 - [Available Builder API](#available-builder-api)
 - [Dependency Injection](#dependency-injection)
 - [Custom File Provider](#custom-file-provider)
+- [External JS Modules and Trusted Origins](#external-js-modules-and-trusted-origins)
 - [Error Handling](#error-handling)
 - [HttpClient](#httpclient)
 - [Lifecycle](#lifecycle)
@@ -17,8 +18,8 @@
 
 ## How It Works
 
-InfiniFrame registers a custom URL scheme (`app://`) and handles all requests from the WebView internally — Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder
-There is no localhost server; all communication happens through the native browser bridge
+InfiniFrame serves Blazor resources from an internal origin (`http://localhost/` on Windows, `app://localhost/` on Linux/macOS) and handles requests inside the native host — Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder
+There is no external ASP.NET server required; all communication happens through the native browser bridge
 
 ## Project Setup
 
@@ -147,6 +148,37 @@ var builder = InfiniFrameBlazorAppBuilder.CreateDefault(
     args: args
 );
 ```
+
+## External JS Modules and Trusted Origins
+
+If your app imports scripts from external origins (for example `import ... from "https://cdn.example/..."`), keep `WebSecurity` enabled and explicitly trust those origins.
+
+```csharp
+var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+    wb.AddTrustedOrigin("https://xyz");
+    // add redirects too if needed (e.g. cdn.jsdelivr.net, unpkg.com, etc.)
+});
+```
+
+For multiple hosts:
+
+```csharp
+var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+    wb.AddTrustedOrigin("https://xyz");
+    wb.AddTrustedOrigin("https://cdn.jsdelivr.net");
+    wb.AddTrustedOrigin("https://unpkg.com");
+});
+```
+
+To disable origin checks entirely (not recommended for production), opt in explicitly:
+
+```csharp
+var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+    wb.SetTrustAllOrigins(true);
+});
+```
+
+Do not use `.SetWebSecurityEnabled(false)` as a workaround for this scenario.
 
 ## Error Handling
 

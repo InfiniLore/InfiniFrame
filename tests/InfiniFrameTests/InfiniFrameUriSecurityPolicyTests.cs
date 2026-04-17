@@ -45,6 +45,25 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
+    public async Task IsTrustedOrigin_WithTrustAllOrigins_TrustsAnyOriginWithAllowedScheme() {
+        // Arrange
+        var policy = new InfiniFrameUriSecurityPolicy(
+            allowedNavigationSchemes: [Uri.UriSchemeHttps],
+            allowedExternalSchemes: [Uri.UriSchemeHttps],
+            trustedOrigins: [],
+            trustAllOrigins: true
+        );
+
+        // Act
+        bool trusted = policy.IsTrustedOrigin(new Uri("https://random.example/"));
+        bool trustedDisallowedScheme = policy.IsTrustedOrigin(new Uri("http://random.example/"));
+
+        // Assert
+        await Assert.That(trusted).IsTrue();
+        await Assert.That(trustedDisallowedScheme).IsFalse();
+    }
+
+    [Test]
     public async Task IsTrustedOrigin_WithNullCandidate_ThrowsArgumentNullException() {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
@@ -183,5 +202,21 @@ public class InfiniFrameUriSecurityPolicyTests {
         // Assert
         await Assert.That(policy.IsTrustedOrigin(new Uri("https://one.example/path"))).IsTrue();
         await Assert.That(policy.IsTrustedOrigin(new Uri("https://two.example/path"))).IsTrue();
+    }
+
+    [Test]
+    public async Task BuilderExtensions_SetTrustAllOrigins_UpdatesBuilderPolicy() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        builder
+            .SetAllowedNavigationSchemes(Uri.UriSchemeHttps)
+            .SetTrustAllOrigins();
+        InfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
+
+        // Assert
+        await Assert.That(policy.TrustAllOrigins).IsTrue();
+        await Assert.That(policy.IsTrustedOrigin(new Uri("https://anywhere.example/path"))).IsTrue();
     }
 }

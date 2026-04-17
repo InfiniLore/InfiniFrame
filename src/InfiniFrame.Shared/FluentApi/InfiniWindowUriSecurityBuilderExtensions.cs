@@ -43,6 +43,11 @@ public static class InfiniWindowUriSecurityBuilderExtensions {
         return builder.ConfigureUriSecurityPolicy(policy => policy.AddTrustedOrigin(origin));
     }
 
+    public static T SetTrustAllOrigins<T>(this T builder, bool trustAllOrigins = true)
+        where T : IInfiniFrameWindowBuilder {
+        return builder.ConfigureUriSecurityPolicy(policy => policy.SetTrustAllOrigins(trustAllOrigins));
+    }
+
     private static IEnumerable<Uri> ParseOrigins(IEnumerable<string> origins) {
         return origins.Select(ParseOrigin);
     }
