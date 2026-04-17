@@ -262,4 +262,20 @@ public class InfiniFrameWindowBuilderTests {
         // Assert
         await Assert.That(trusted).IsTrue();
     }
+
+    [Test]
+    public async Task CreateSnapshot_TrustAllOriginsCanBeConfiguredViaBuilderPolicy() {
+        // Arrange
+        InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
+            .SetAllowedNavigationSchemes("https")
+            .SetTrustAllOrigins();
+
+        // Act
+        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        bool trusted = snapshot.UriSecurityPolicy.IsTrustedOrigin(new Uri("https://unknown.example/some/path"));
+
+        // Assert
+        await Assert.That(snapshot.UriSecurityPolicy.TrustAllOrigins).IsTrue();
+        await Assert.That(trusted).IsTrue();
+    }
 }

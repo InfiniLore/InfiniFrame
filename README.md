@@ -61,6 +61,25 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Build().Run();
 ```
 
+### BlazorWebView external JS modules (`type="module"` / CDN imports)
+
+When loading external module origins, explicitly trust them via window builder policy:
+
+```csharp
+var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+    wb.AddTrustedOrigin("https://xyz");
+    // add redirects too if needed (e.g. cdn.jsdelivr.net, unpkg.com, etc.)
+});
+```
+
+If you must allow every origin (not recommended outside local/dev scenarios):
+
+```csharp
+var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+    wb.SetTrustAllOrigins(true);
+});
+```
+
 ### Host an ASP.NET Core web app
 
 Install: `dotnet add package InfiniLore.InfiniFrame.WebServer`

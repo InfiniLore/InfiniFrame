@@ -126,12 +126,35 @@ builder
     .SetZoom(150)                          // Zoom level (100 = default)
     .SetMediaAutoplayEnabled(true)
     .SetFileSystemAccessEnabled(true)
-    .SetWebSecurityEnabled(false)          // Disable CORS (use with caution)
+    .SetWebSecurityEnabled(false)          // Browser-level web security toggle only (not a trusted-origin policy switch)
     .SetJavascriptClipboardAccessEnabled(true)
     .SetMediaStreamEnabled(true)           // Camera/microphone access
     .SetSmoothScrollingEnabled()
     .SetIgnoreCertificateErrorsEnabled()
     .SetUserAgent("MyApp/1.0")
+```
+
+### URI Security Policy (Trusted Origins)
+
+InfiniFrame validates URI origins independently from browser `WebSecurity` toggles. For embedded apps (including BlazorWebView), trust external module/CDN origins explicitly:
+
+```csharp
+builder
+    .AddTrustedOrigin("https://xyz")
+    .AddTrustedOrigin("https://cdn.jsdelivr.net")
+    .AddTrustedOrigin("https://unpkg.com");
+```
+
+To replace the trusted list entirely:
+
+```csharp
+builder.SetTrustedOrigins("https://xyz", "https://cdn.jsdelivr.net");
+```
+
+To trust all origins (high risk, not recommended in production):
+
+```csharp
+builder.SetTrustAllOrigins(true);
 ```
 
 ### Notifications (Windows only)

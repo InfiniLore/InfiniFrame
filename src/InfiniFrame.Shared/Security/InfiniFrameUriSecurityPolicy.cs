@@ -10,7 +10,8 @@ namespace InfiniFrame;
 public sealed class InfiniFrameUriSecurityPolicy(
     IEnumerable<string> allowedNavigationSchemes,
     IEnumerable<string> allowedExternalSchemes,
-    IEnumerable<Uri>? trustedOrigins = null
+    IEnumerable<Uri>? trustedOrigins = null,
+    bool trustAllOrigins = false
 ) {
     public static InfiniFrameUriSecurityPolicy Default { get; } = new(
         allowedNavigationSchemes: [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
@@ -20,6 +21,7 @@ public sealed class InfiniFrameUriSecurityPolicy(
     public IReadOnlySet<string> AllowedNavigationSchemes { get; } = NormalizeSchemes(allowedNavigationSchemes);
     public IReadOnlySet<string> AllowedExternalSchemes { get; } = NormalizeSchemes(allowedExternalSchemes);
     public IReadOnlySet<Uri> TrustedOrigins { get; } = NormalizeTrustedOrigins(trustedOrigins ?? []);
+    public bool TrustAllOrigins { get; } = trustAllOrigins;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -33,8 +35,8 @@ public sealed class InfiniFrameUriSecurityPolicy(
     public bool IsTrustedOrigin(Uri candidateOrigin) {
         ArgumentNullException.ThrowIfNull(candidateOrigin);
 
-        return IsNavigationSchemeAllowed(candidateOrigin.Scheme) 
-            && TrustedOrigins.Any(trustedOrigin => IsSameOrigin(candidateOrigin, trustedOrigin));
+        return IsNavigationSchemeAllowed(candidateOrigin.Scheme)
+               && (TrustAllOrigins || TrustedOrigins.Any(trustedOrigin => IsSameOrigin(candidateOrigin, trustedOrigin)));
     }
 
     public bool IsTrustedOrigin(Uri candidateOrigin, Uri trustedOrigin) {
@@ -42,7 +44,7 @@ public sealed class InfiniFrameUriSecurityPolicy(
         ArgumentNullException.ThrowIfNull(trustedOrigin);
 
         return IsNavigationSchemeAllowed(candidateOrigin.Scheme)
-               && IsSameOrigin(candidateOrigin, trustedOrigin);
+               && (TrustAllOrigins || IsSameOrigin(candidateOrigin, trustedOrigin));
     }
 
     public InfiniFrameUriSecurityPolicy WithTrustedOrigin(Uri trustedOrigin) {
@@ -61,7 +63,8 @@ public sealed class InfiniFrameUriSecurityPolicy(
         return new InfiniFrameUriSecurityPolicy(
             allowedNavigationSchemes: AllowedNavigationSchemes,
             allowedExternalSchemes: AllowedExternalSchemes,
-            trustedOrigins: mergedTrustedOrigins);
+            trustedOrigins: mergedTrustedOrigins,
+            trustAllOrigins: TrustAllOrigins);
     }
 
     private static HashSet<string> NormalizeSchemes(IEnumerable<string> schemes) {
