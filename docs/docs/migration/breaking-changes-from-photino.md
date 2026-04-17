@@ -225,12 +225,12 @@ var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
 
 ### New API surface compared to Photino
 
-| Purpose | InfiniFrame API |
-|---|---|
-| Add one trusted origin | `builder.AddTrustedOrigin("https://xyz")` |
-| Replace trusted origin list | `builder.SetTrustedOrigins("https://a", "https://b")` |
-| Trust all origins (explicit opt-in) | `builder.SetTrustAllOrigins(true)` |
-| Browser engine security toggle | `builder.SetWebSecurityEnabled(bool)` |
+| Purpose                             | InfiniFrame API                                       |
+|-------------------------------------|-------------------------------------------------------|
+| Add one trusted origin              | `builder.AddTrustedOrigin("https://xyz")`             |
+| Replace trusted origin list         | `builder.SetTrustedOrigins("https://a", "https://b")` |
+| Trust all origins (explicit opt-in) | `builder.SetTrustAllOrigins(true)`                    |
+| Browser engine security toggle      | `builder.SetWebSecurityEnabled(bool)`                 |
 
 ## Logging
 
