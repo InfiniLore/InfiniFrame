@@ -9,6 +9,7 @@ InfiniFrame is a complete, independent rework of [Photino.NET](https://github.co
 - [Runtime Window API](#runtime-window-api)
 - [Event System](#event-system)
 - [Web Messaging and Message Routing](#web-messaging-and-message-routing)
+- [Web Security, CORS, and Trusted Origins](#web-security-cors-and-trusted-origins)
 - [Logging](#logging)
 - [Native C++ Interface](#native-c-interface)
 - [Known Photino Issues Addressed](#known-photino-issues-addressed)
@@ -180,6 +181,56 @@ window.infiniframe.host.postMessage({ id: "myEvent", data: "some data", version:
 ```
 
 Legacy `messageId;payload` is out of support and not supported by InfiniFrame messaging contracts.
+
+## Web Security, CORS, and Trusted Origins
+
+This is a major behavioral change from common Photino migration patterns.
+
+In Photino, projects often used `SetWebSecurityEnabled(false)` to work around CORS/module-loading issues.
+In InfiniFrame, browser web security and InfiniFrame URI trust checks are separate concerns:
+
+- `SetWebSecurityEnabled(...)` controls browser engine web security toggles
+- URI origin trust is enforced by `InfiniFrameUriSecurityPolicy` (builder APIs such as `AddTrustedOrigin`, `SetTrustedOrigins`, and `SetTrustAllOrigins`)
+
+For BlazorWebView, InfiniFrame serves app content from an internal origin (`http://localhost/` on Windows, `app://localhost/` on Linux/macOS) and validates requests/messages against trusted origins.
+
+### Migration pattern
+
+```csharp
+// Photino-style workaround pattern
+windowBuilder.SetWebSecurityEnabled(false);
+```
+
+Prefer this in InfiniFrame:
+
+```csharp
+// Keep web security enabled and trust only required external origins
+var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+    wb.AddTrustedOrigin("https://xyz");
+    // Add redirect/CDN origins used by the module loader
+    wb.AddTrustedOrigin("https://cdn.jsdelivr.net");
+    wb.AddTrustedOrigin("https://unpkg.com");
+});
+```
+
+If you need broad compatibility during migration, you can explicitly opt in to trust all origins:
+
+```csharp
+var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
+    wb.SetTrustAllOrigins(true);
+});
+```
+
+`SetTrustAllOrigins(true)` is intentionally high-risk and should be treated as a temporary/dev-time compatibility switch, not a production default.
+
+### New API surface compared to Photino
+
+| Purpose | InfiniFrame API |
+|---|---|
+| Add one trusted origin | `builder.AddTrustedOrigin("https://xyz")` |
+| Replace trusted origin list | `builder.SetTrustedOrigins("https://a", "https://b")` |
+| Trust all origins (explicit opt-in) | `builder.SetTrustAllOrigins(true)` |
+| Browser engine security toggle | `builder.SetWebSecurityEnabled(bool)` |
 
 ## Logging
 
