@@ -12,10 +12,6 @@ namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, StaticWebAssetNode root) : IFileProvider {
-    private static readonly JsonSerializerOptions JsonOptions = new() {
-        PropertyNameCaseInsensitive = true
-    };
-
     private const RegexOptions PatternRegexOptions = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase;
 
     private IFileProvider[] ContentRootProviders { get; } = contentRoots
@@ -193,7 +189,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
         manifest = null;
         try {
             string json = File.ReadAllText(manifestPath);
-            manifest = JsonSerializer.Deserialize<StaticWebAssetManifest>(json, JsonOptions);
+            manifest = JsonSerializer.Deserialize(json, StaticWebAssetsManifestJsonContext.Default.StaticWebAssetManifest);
             return manifest is not null;
         }
         catch {
