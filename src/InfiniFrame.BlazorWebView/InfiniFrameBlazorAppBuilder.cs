@@ -77,9 +77,22 @@ public class InfiniFrameBlazorAppBuilder {
     private static IFileProvider ConfigureFileProvider(IFileProvider? fileProvider) {
         if (fileProvider is not null) return fileProvider;
 
-        string defaultWwwrootPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
-        if (!Directory.Exists(defaultWwwrootPath)) return new NullFileProvider();
-        return new PhysicalFileProvider(defaultWwwrootPath);
+        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory);
+
+        string defaultWwwrootPath = Path.Join(baseDirectory, "wwwroot");
+        bool hasPhysicalWwwroot = Directory.Exists(defaultWwwrootPath);
+        PhysicalFileProvider? physicalWwwrootProvider = hasPhysicalWwwroot
+            ? new PhysicalFileProvider(defaultWwwrootPath)
+            : null;
+
+        if (staticWebAssetsProvider is not null && physicalWwwrootProvider is not null) {
+            return new CompositeFileProvider(staticWebAssetsProvider, physicalWwwrootProvider);
+        }
+
+        if (staticWebAssetsProvider is not null) return staticWebAssetsProvider;
+        if (physicalWwwrootProvider is not null) return physicalWwwrootProvider;
+        return new NullFileProvider();
     }
 
     public InfiniFrameBlazorAppBuilder WithInfiniFrameWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {

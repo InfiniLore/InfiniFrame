@@ -12,4 +12,8 @@
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame/InfiniFrame.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="InfiniFrameTests.BlazorWebView"/>
+    </ItemGroup>
+
 </Project>
