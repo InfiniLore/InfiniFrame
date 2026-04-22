@@ -14,6 +14,9 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     protected virtual string RootRelativeUrl => "/";
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Before(Test)]
     public async Task ResetStateBeforeEachTest() {
         RuntimeContext.ResetWindowCloseRequestCount();

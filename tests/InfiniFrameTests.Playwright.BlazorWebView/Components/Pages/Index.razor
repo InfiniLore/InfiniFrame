@@ -30,6 +30,9 @@
     private bool _isToggledToNewTitle;
     private string _oldTitle = string.Empty;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     protected override void OnAfterRender(bool firstRender) {
         if (!firstRender) return;
 
@@ -39,8 +42,9 @@
 
     [UsedImplicitly]
     private void ToggleFullscreen() {
-        Window.SetFullScreen(!Window.FullScreen);
-        _isFullscreen = Window.FullScreen;
+        bool targetFullscreen = !Window.FullScreen;
+        Window.SetFullScreen(targetFullscreen);
+        _isFullscreen = targetFullscreen;
         StateHasChanged();
     }
 
