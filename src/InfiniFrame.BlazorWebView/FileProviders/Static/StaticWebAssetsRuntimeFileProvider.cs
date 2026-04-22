@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -28,7 +29,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
         .ToArray();
 
     private StaticWebAssetNode Root { get; } = root;
-    private readonly Dictionary<string, Regex> _patternRegexCache = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, Regex> _patternRegexCache = new(StringComparer.Ordinal);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -49,8 +50,11 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
             if (ContainsTopLevelNode(manifest.Root, "_framework")) score += 50;
             if (ContainsTopLevelNode(manifest.Root, "js")) score += 10;
 
-            if (bestCandidate is null || score > bestCandidate.Score) {
-                bestCandidate = new ScoredManifestCandidate(manifest, score);
+            if (bestCandidate is null
+                || score > bestCandidate.Score
+                || score == bestCandidate.Score
+                && string.Compare(candidate.ManifestPath, bestCandidate.ManifestPath, StringComparison.OrdinalIgnoreCase) < 0) {
+                bestCandidate = new ScoredManifestCandidate(manifest, score, candidate.ManifestPath);
             }
         }
 
@@ -115,6 +119,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
                 ? remainingPath
                 : $"{state.PathPrefix}/{remainingPath}";
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (StaticWebAssetPattern pattern in state.Node.Patterns) {
                 if (!MatchesPattern(pattern.Pattern, remainingPath)) continue;
 
@@ -205,7 +210,13 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
     }
 
     private IDirectoryContents BuildDirectoryContents(StaticWebAssetNode node) {
-        if (node.Children is null || node.Children.Count == 0) return NotFoundDirectoryContents.Singleton;
+        if (node.Children is null || node.Children.Count == 0) {
+            if (node.Patterns is not null && node.Patterns.Count > 0) {
+                return new ManifestDirectoryContents(Array.Empty<IFileInfo>());
+            }
+
+            return NotFoundDirectoryContents.Singleton;
+        }
 
         var children = new List<IFileInfo>(node.Children.Count);
         foreach ((string name, StaticWebAssetNode childNode) in node.Children) {
@@ -254,19 +265,15 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
     }
 
     private Regex GetOrCreatePatternRegex(string pattern) {
-        if (_patternRegexCache.TryGetValue(pattern, out Regex? existing)) {
-            return existing;
-        }
+        return _patternRegexCache.GetOrAdd(pattern, static key => {
+            string normalizedPattern = NormalizeSubPath(key);
+            if (string.IsNullOrEmpty(normalizedPattern)) {
+                normalizedPattern = "**";
+            }
 
-        string normalizedPattern = NormalizeSubPath(pattern);
-        if (string.IsNullOrEmpty(normalizedPattern)) {
-            normalizedPattern = "**";
-        }
-
-        string regexPattern = GlobToRegex(normalizedPattern);
-        var created = new Regex(regexPattern, PatternRegexOptions);
-        _patternRegexCache[pattern] = created;
-        return created;
+            string regexPattern = GlobToRegex(normalizedPattern);
+            return new Regex(regexPattern, PatternRegexOptions);
+        });
     }
 
     private static string GlobToRegex(string pattern) {

@@ -193,6 +193,7 @@ In InfiniFrame, browser web security and InfiniFrame URI trust checks are separa
 - URI origin trust is enforced by `InfiniFrameUriSecurityPolicy` (builder APIs such as `AddTrustedOrigin`, `SetTrustedOrigins`, and `SetTrustAllOrigins`)
 
 For BlazorWebView, InfiniFrame serves app content from an internal origin (`app://localhost/`) and validates requests/messages against trusted origins.
+On Windows, this relies on WebView2 custom scheme support (`ICoreWebView2EnvironmentOptions4`). Linux/macOS use WebKit and are not affected by WebView2 runtime availability.
 
 ### Migration pattern
 

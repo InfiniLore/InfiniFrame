@@ -7,5 +7,6 @@ namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed record ScoredManifestCandidate(
     StaticWebAssetManifest Manifest,
-    int Score
+    int Score,
+    string ManifestPath
 );

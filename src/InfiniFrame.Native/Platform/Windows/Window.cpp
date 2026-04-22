@@ -1145,10 +1145,18 @@ void InfiniFrameWindow::AttachWebView() {
     if (startupString.length() > 0)
         options->put_AdditionalBrowserArguments(startupString.c_str());
 
+    bool requiresAppSchemeRegistration = std::any_of(
+        m_impl->_customSchemeNames.begin(),
+        m_impl->_customSchemeNames.end(),
+        [](const std::wstring& schemeName) { return _wcsicmp(schemeName.c_str(), L"app") == 0; }
+    );
+    bool appSchemeRegistrationSupported = false;
+
     // Register custom schemes with WebView2 so top-level navigations like app://... are allowed.
     if (!m_impl->_customSchemeNames.empty()) {
         wil::com_ptr<ICoreWebView2EnvironmentOptions4> options4;
         if (SUCCEEDED(options->QueryInterface(IID_PPV_ARGS(&options4))) && options4) {
+            appSchemeRegistrationSupported = true;
             std::vector<wil::com_ptr<ICoreWebView2CustomSchemeRegistration>> registrations;
             registrations.reserve(m_impl->_customSchemeNames.size());
 
@@ -1178,6 +1186,16 @@ void InfiniFrameWindow::AttachWebView() {
                     );
             }
         }
+    }
+
+    if (requiresAppSchemeRegistration && !appSchemeRegistrationSupported) {
+        MessageBox(
+            m_impl->_hWnd,
+            L"This app requires WebView2 custom scheme registration for app://localhost/. Please update WebView2 Runtime to a version that supports ICoreWebView2EnvironmentOptions4.",
+            L"WebView2 Runtime Too Old",
+            MB_OK | MB_ICONERROR
+        );
+        return;
     }
 
     HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(

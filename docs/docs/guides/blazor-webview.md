@@ -21,6 +21,11 @@
 InfiniFrame serves Blazor resources from an internal origin (`app://localhost/`) and handles requests inside the native host — Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder
 There is no external ASP.NET server required; all communication happens through the native browser bridge
 
+Platform notes:
+- Windows uses WebView2 and requires custom-scheme registration support (`ICoreWebView2EnvironmentOptions4`) to allow top-level `app://localhost/...` navigation.
+- Linux and macOS use WebKit-based engines and do not depend on WebView2.
+- On Windows, if the WebView2 runtime does not support custom-scheme registration, startup fails fast with a clear error asking for a WebView2 runtime update.
+
 ## Project Setup
 
 Your project must use the Razor SDK:
