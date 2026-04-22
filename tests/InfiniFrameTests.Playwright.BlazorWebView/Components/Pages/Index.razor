@@ -4,7 +4,7 @@
 @inject IInfiniFrameWindow Window
 
 @* ReSharper disable once AsyncVoidMethod *@
-<button id="fullscreen-toggle-button" @onclick="ToggleFullscreen">
+<button id="fullscreen-toggle-button" onclick="@(() => ToggleFullscreen())">
     @if (_isFullscreen) {
         <span>Exit Fullscreen</span>
     }
@@ -14,7 +14,7 @@
 </button>
 
 @* ReSharper disable once AsyncVoidMethod *@
-<button id="title-toggle-button" @onclick="ToggleTitle">
+<button id="title-toggle-button" onclick="@(() => ToggleTitle())">
     @if (_isToggledToNewTitle) {
         <span>Reset Title</span>
     }
@@ -25,41 +25,30 @@
 
 @code {
     private const string NewTitle = "New Title";
+    private const string DefaultTitle = "InfiniFrame Playwright BlazorWebView";
 
     private bool _isFullscreen;
     private bool _isToggledToNewTitle;
-    private string _oldTitle = string.Empty;
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    protected override void OnAfterRender(bool firstRender) {
-        if (!firstRender) return;
-
-        _isFullscreen = Window.FullScreen;
-        StateHasChanged();
-    }
 
     [UsedImplicitly]
     private void ToggleFullscreen() {
-        bool targetFullscreen = !Window.FullScreen;
-        Window.SetFullScreen(targetFullscreen);
+        bool targetFullscreen = !_isFullscreen;
         _isFullscreen = targetFullscreen;
+        _ = Task.Run(() => Window.SetFullScreen(targetFullscreen));
         StateHasChanged();
     }
 
     [UsedImplicitly]
     private void ToggleTitle() {
         if (!_isToggledToNewTitle) {
-            _oldTitle = Window.Title; // <-- store current title
-            Window.SetTitle(NewTitle);
             _isToggledToNewTitle = true;
+            _ = Task.Run(() => Window.SetTitle(NewTitle));
+            StateHasChanged();
             return;
         }
 
-        Window.SetTitle(_oldTitle);
-        _oldTitle = string.Empty;
         _isToggledToNewTitle = false;
+        _ = Task.Run(() => Window.SetTitle(DefaultTitle));
         StateHasChanged();
     }
 }

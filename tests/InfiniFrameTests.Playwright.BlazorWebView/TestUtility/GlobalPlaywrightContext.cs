@@ -56,21 +56,22 @@ public static class GlobalPlaywrightContext {
 
         Thread thread = new(() => {
             try {
-                var builder = InfiniFrameBlazorAppBuilder.CreateDefault(
-                    windowBuilder: wb => wb
-                        .SetTitle(DefaultDocumentTitle)
-                        .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
-                        .RegisterWindowManagementWebMessageHandler()
-                        .RegisterFullScreenWebMessageHandler()
-                        .RegisterOpenExternalTargetWebMessageHandler()
-                        .RegisterTitleChangedWebMessageHandler()
-                        .RegisterWindowClosingHandler(static (_, _) => {
-                            Interlocked.Increment(ref _windowCloseRequestCount);
-                            return Volatile.Read(ref _suppressCloseRequests) == 1;
-                        })
-                );
+                var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
                 
                 builder.RootComponents.Add<App>("app");
+
+                builder.WithInfiniFrameWindowBuilder(windowBuilder => windowBuilder
+                    .SetTitle(DefaultDocumentTitle)
+                    .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
+                    .RegisterWindowManagementWebMessageHandler()
+                    .RegisterFullScreenWebMessageHandler()
+                    .RegisterOpenExternalTargetWebMessageHandler()
+                    .RegisterTitleChangedWebMessageHandler()
+                    .RegisterWindowClosingHandler(static (_, _) => {
+                        Interlocked.Increment(ref _windowCloseRequestCount);
+                        return Volatile.Read(ref _suppressCloseRequests) == 1;
+                    })
+                );
 
                 InfiniFrameBlazorApp app = builder.Build();
                 var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
