@@ -10,34 +10,7 @@
 <button id="fullscreen-toggle-button" type="button">Toggle Fullscreen</button>
 <button id="title-toggle-button" type="button">Toggle Title</button>
 
-<script>
-    let isToggledToNewTitle = false;
-    let previousTitle = "";
-
-    document.getElementById("fullscreen-toggle-button")?.addEventListener("click", async () => {
-        if (!document.fullscreenElement) {
-            await document.body.requestFullscreen();
-            return;
-        }
-
-        if (document.exitFullscreen) {
-            await document.exitFullscreen();
-        }
-    });
-
-    document.getElementById("title-toggle-button")?.addEventListener("click", () => {
-        if (!isToggledToNewTitle) {
-            previousTitle = document.title;
-            document.title = "New Title";
-            isToggledToNewTitle = true;
-            return;
-        }
-
-        document.title = previousTitle;
-        previousTitle = "";
-        isToggledToNewTitle = false;
-    });
-</script>
+<script type="module" src="./scripts/playwright-controls.js"></script>
 
 <script src="_framework/blazor.webview.js"></script>
 <script src="_content/InfiniLore.InfiniFrame.Js/InfiniFrame.js"></script>
