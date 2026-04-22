@@ -12,6 +12,7 @@
             "src\\InfiniFrame.Native\\InfiniFrame.Native.proj",
             "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
             "tests\\InfiniFrameTests.Playwright.Vue\\InfiniFrameTests.Playwright.Vue.csproj",
+            "tests\\InfiniFrameTests.Playwright.BlazorWebView\\InfiniFrameTests.Playwright.BlazorWebView.csproj",
             "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
             "tests\\InfiniFrameTests.Tools.Pack\\InfiniFrameTests.Tools.Pack.csproj",
             "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj",

@@ -11,7 +11,8 @@
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
 
             "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
-            "tests\\InfiniFrameTests.Playwright.Vue\\InfiniFrameTests.Playwright.Vue.csproj"
+            "tests\\InfiniFrameTests.Playwright.Vue\\InfiniFrameTests.Playwright.Vue.csproj",
+            "tests\\InfiniFrameTests.Playwright.BlazorWebView\\InfiniFrameTests.Playwright.BlazorWebView.csproj"
         ]
     }
 }
