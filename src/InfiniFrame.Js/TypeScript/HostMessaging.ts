@@ -16,6 +16,7 @@ import {getTitleObserver, getTitleObserverTarget} from "./Observers";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 class HostMessaging implements IHostMessaging {
+    private static readonly BlazorWebViewMessagePrefix = "__bwv:";
     private static readonly ReadyHandshakeRetryIntervalMs = 1000;
     private static readonly MaxReadyHandshakeAttempts = 20;
     private messageHandlers: Map<string, MessageCallback> = new Map();
@@ -79,6 +80,12 @@ class HostMessaging implements IHostMessaging {
         const parsedMessage = parseIncomingMessage(message);
         if ("error" in parsedMessage) {
             return false;
+        }
+
+        // Blazor WebView internal transport messages are routed by blazor.webview.js.
+        // They are not InfiniFrame host-message contracts and should not emit warnings.
+        if (parsedMessage.messageId.startsWith(HostMessaging.BlazorWebViewMessagePrefix)) {
+            return true;
         }
 
         if (parsedMessage.isLegacyProtocol && !this.legacyInboundWarningLogged) {
