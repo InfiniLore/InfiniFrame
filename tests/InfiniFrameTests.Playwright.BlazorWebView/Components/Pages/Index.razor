@@ -1,9 +1,10 @@
 @page "/"
-@implements IAsyncDisposable
-@inject IJSRuntime JsRuntime
+@using InfiniFrame
+@using JetBrains.Annotations
+@inject IInfiniFrameWindow Window
 
 @* ReSharper disable once AsyncVoidMethod *@
-<button id="fullscreen-toggle-button" onclick="@(async void (_) => await ToggleFullscreenAsync())">
+<button id="fullscreen-toggle-button" @onclick="ToggleFullscreen">
     @if (_isFullscreen) {
         <span>Exit Fullscreen</span>
     }
@@ -13,7 +14,7 @@
 </button>
 
 @* ReSharper disable once AsyncVoidMethod *@
-<button id="title-toggle-button" onclick="@(async void (_) => await ToggleTitleAsync())">
+<button id="title-toggle-button" @onclick="ToggleTitle">
     @if (_isToggledToNewTitle) {
         <span>Reset Title</span>
     }
@@ -25,43 +26,36 @@
 @code {
     private const string NewTitle = "New Title";
 
-    private IJSObjectReference? _module;
     private bool _isFullscreen;
     private bool _isToggledToNewTitle;
     private string _oldTitle = string.Empty;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
+    protected override void OnAfterRender(bool firstRender) {
         if (!firstRender) return;
 
-        _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/playwright-controls.js");
-        _isFullscreen = await _module.InvokeAsync<bool>("isFullscreenActive");
+        _isFullscreen = Window.FullScreen;
         StateHasChanged();
     }
 
-    private async Task ToggleFullscreenAsync() {
-        if (_module is null) return;
-
-        await _module.InvokeVoidAsync("toggleFullscreen");
-        _isFullscreen = await _module.InvokeAsync<bool>("isFullscreenActive");
+    [UsedImplicitly]
+    private void ToggleFullscreen() {
+        Window.SetFullScreen(!Window.FullScreen);
+        _isFullscreen = Window.FullScreen;
+        StateHasChanged();
     }
 
-    private async Task ToggleTitleAsync() {
-        if (_module is null) return;
-
+    [UsedImplicitly]
+    private void ToggleTitle() {
         if (!_isToggledToNewTitle) {
-            _oldTitle = await _module.InvokeAsync<string>("getDocumentTitle");
-            await _module.InvokeVoidAsync("setDocumentTitle", NewTitle);
+            _oldTitle = Window.Title; // <-- store current title
+            Window.SetTitle(NewTitle);
             _isToggledToNewTitle = true;
             return;
         }
 
-        await _module.InvokeVoidAsync("setDocumentTitle", _oldTitle);
+        Window.SetTitle(_oldTitle);
         _oldTitle = string.Empty;
         _isToggledToNewTitle = false;
-    }
-
-    public async ValueTask DisposeAsync() {
-        if (_module is null) return;
-        await _module.DisposeAsync();
+        StateHasChanged();
     }
 }

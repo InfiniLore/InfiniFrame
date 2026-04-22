@@ -4,9 +4,12 @@
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.Js.Interop.MessageHandlers;
+using InfiniFrameTests.Playwright.BlazorWebView.Components;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Playwright;
+using System.Net;
+using System.Net.Sockets;
 
 namespace InfiniFrameTests.Playwright.BlazorWebView.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -39,9 +42,9 @@ public static class GlobalPlaywrightContext {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     private static int GetAvailablePort() {
-        using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+        using var listener = new TcpListener(IPAddress.Loopback, 0);
         listener.Start();
-        int port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
+        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
         listener.Stop();
         return port;
     }
@@ -66,6 +69,8 @@ public static class GlobalPlaywrightContext {
                             return Volatile.Read(ref _suppressCloseRequests) == 1;
                         })
                 );
+                
+                builder.RootComponents.Add<App>("app");
 
                 InfiniFrameBlazorApp app = builder.Build();
                 var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
