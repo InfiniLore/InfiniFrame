@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="MudBlazor"/>
         <PackageReference Include="TUnit"/>
         <PackageReference Include="TUnit.Playwright"/>
     </ItemGroup>

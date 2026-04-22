@@ -8,6 +8,7 @@ using InfiniFrameTests.Playwright.BlazorWebView.Components;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Playwright;
+using MudBlazor.Services;
 using System.Net;
 using System.Net.Sockets;
 
@@ -57,6 +58,8 @@ public static class GlobalPlaywrightContext {
         Thread thread = new(() => {
             try {
                 var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+                builder.Services.AddMudServices();
                 
                 builder.RootComponents.Add<App>("app");
 

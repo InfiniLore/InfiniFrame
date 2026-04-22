@@ -1,27 +1,49 @@
-@page "/"
+@*--------------------------------------------------------------------------------------------------------------------*@
+@* Imports
+@*--------------------------------------------------------------------------------------------------------------------*@
 @using InfiniFrame
 @using JetBrains.Annotations
+
+@*--------------------------------------------------------------------------------------------------------------------*@
+@* Decorators
+@*--------------------------------------------------------------------------------------------------------------------*@
+@page "/"
 @inject IInfiniFrameWindow Window
 
-@* ReSharper disable once AsyncVoidMethod *@
-<button id="fullscreen-toggle-button" onclick="@(() => ToggleFullscreen())">
-    @if (_isFullscreen) {
-        <span>Exit Fullscreen</span>
-    }
-    else {
-        <span>Enter Fullscreen</span>
-    }
-</button>
+@*--------------------------------------------------------------------------------------------------------------------*@
+@* Html
+@*--------------------------------------------------------------------------------------------------------------------*@
+<MudStack Row="true" Spacing="2" Class="pa-4">
+    <MudButton
+        id="fullscreen-toggle-button"
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        OnClick="@(_ => ToggleFullscreen())">
+        @if (_isFullscreen) {
+            <span>Exit Fullscreen</span>
+        }
+        else {
+            <span>Enter Fullscreen</span>
+        }
+    </MudButton>
 
-@* ReSharper disable once AsyncVoidMethod *@
-<button id="title-toggle-button" onclick="@(() => ToggleTitle())">
-    @if (_isToggledToNewTitle) {
-        <span>Reset Title</span>
-    }
-    else {
-        <span>Define New Title</span>
-    }
-</button>
+    <MudButton
+        id="title-toggle-button"
+        Variant="Variant.Outlined"
+        Color="Color.Secondary"
+        OnClick="@(_ => ToggleTitle())">
+        @if (_isToggledToNewTitle) {
+            <span>Reset Title</span>
+        }
+        else {
+            <span>Define New Title</span>
+        }
+    </MudButton>
+</MudStack>
+
+@*--------------------------------------------------------------------------------------------------------------------*@
+@* Code
+@*--------------------------------------------------------------------------------------------------------------------*@
 
 @code {
     private const string NewTitle = "New Title";
