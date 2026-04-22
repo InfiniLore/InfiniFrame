@@ -68,6 +68,7 @@ jobs:
                         ${{ runner.os }}-nuget-
 
             -   name: Setup Native dependencies
+                # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
@@ -115,13 +116,13 @@ jobs:
                 uses: actions/cache@v5
                 with:
                     path: ~\AppData\Local\ms-playwright
-                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj') }}
+                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.Vue/InfiniFrameTests.Playwright.Vue.csproj') }}
                     restore-keys: |
                         playwright-${{ runner.os }}-
 
             -   name: Install Playwright Browsers
                 if: steps.cache-playwright.outputs.cache-hit != 'true'
-                working-directory: tests/InfiniFrameTests.Playwright
+                working-directory: tests/InfiniFrameTests.Playwright.Vue
                 shell: pwsh
                 run: |
                     $scripts = @(
@@ -141,7 +142,7 @@ jobs:
                 run: |
                     $frameworks = @("net8.0", "net9.0", "net10.0")
                     foreach ($framework in $frameworks) {
-                      $binPath = "tests/InfiniFrameTests.Playwright/bin/Release/$framework"
+                      $binPath = "tests/InfiniFrameTests.Playwright.Vue/bin/Release/$framework"
                       foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
                         $fullPath = Join-Path $binPath $dll
                         if (-Not (Test-Path $fullPath)) {
@@ -159,7 +160,7 @@ jobs:
 
             -   name: Run Playwright (net8.0)
                 id: playwright_net8
-                working-directory: tests/InfiniFrameTests.Playwright/
+                working-directory: tests/InfiniFrameTests.Playwright.Vue/
                 if: always()
                 continue-on-error: true
                 timeout-minutes: 20
@@ -170,11 +171,11 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: playwright-test-results-net8.0
-                    path: tests/InfiniFrameTests.Playwright/bin/Release/net8.0/TestResults
+                    path: tests/InfiniFrameTests.Playwright.Vue/bin/Release/net8.0/TestResults
 
             -   name: Run Playwright (net9.0)
                 id: playwright_net9
-                working-directory: tests/InfiniFrameTests.Playwright/
+                working-directory: tests/InfiniFrameTests.Playwright.Vue/
                 if: always()
                 continue-on-error: true
                 timeout-minutes: 20
@@ -185,11 +186,11 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: playwright-test-results-net9.0
-                    path: tests/InfiniFrameTests.Playwright/bin/Release/net9.0/TestResults
+                    path: tests/InfiniFrameTests.Playwright.Vue/bin/Release/net9.0/TestResults
 
             -   name: Run Playwright (net10.0)
                 id: playwright_net10
-                working-directory: tests/InfiniFrameTests.Playwright/
+                working-directory: tests/InfiniFrameTests.Playwright.Vue/
                 if: always()
                 continue-on-error: true
                 timeout-minutes: 20
@@ -200,7 +201,7 @@ jobs:
                 uses: actions/upload-artifact@v7
                 with:
                     name: playwright-test-results-net10.0
-                    path: tests/InfiniFrameTests.Playwright/bin/Release/net10.0/TestResults
+                    path: tests/InfiniFrameTests.Playwright.Vue/bin/Release/net10.0/TestResults
 
             -   name: Fail If Any Framework Failed
                 if: always()

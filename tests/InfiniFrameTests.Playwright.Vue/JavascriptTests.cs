@@ -2,12 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrameTests.Playwright.TestUtility;
+using InfiniFrameTests.Playwright.Vue.TestUtility;
 using Microsoft.Playwright;
 using InfiniFrameTests.Shared;
 using System.Text.Json;
 
-namespace InfiniFrameTests.Playwright;
+namespace InfiniFrameTests.Playwright.Vue;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

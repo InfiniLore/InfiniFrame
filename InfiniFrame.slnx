@@ -68,11 +68,6 @@
     <File Path=".github/workflows/shared-testing-windows-trim-aot.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/web/">
-    <File Path="package.json" />
-    <File Path="tsconfig.json" />
-    <File Path="webpack.config.js" />
-  </Folder>
   <Folder Name="/docs/">
     <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />
   </Folder>
@@ -106,7 +101,8 @@
     <File Path="tests/Directory.Build.targets" />
     <Project Path="tests/InfiniFrameTests.BlazorWebView/InfiniFrameTests.BlazorWebView.csproj" />
     <Project Path="tests/InfiniFrameTests.Js/InfiniFrameTests.Js.csproj" />
-    <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
+    <Project Path="tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj" />
+    <Project Path="tests/InfiniFrameTests.Playwright.Vue/InfiniFrameTests.Playwright.Vue.csproj" />
     <Project Path="tests/InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     <Project Path="tests/InfiniFrameTests.Tools.Pack/InfiniFrameTests.Tools.Pack.csproj" />
     <Project Path="tests/InfiniFrameTests.WebServer/InfiniFrameTests.WebServer.csproj" />

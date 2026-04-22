@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrameTests.Playwright.TestUtility;
+using InfiniFrameTests.Playwright.Vue.TestUtility;
 using Microsoft.Playwright;
 using InfiniFrameTests.Shared;
 
-namespace InfiniFrameTests.Playwright;
+namespace InfiniFrameTests.Playwright.Vue;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

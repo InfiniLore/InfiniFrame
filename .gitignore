@@ -352,5 +352,5 @@ healthchecksdb
 # wwwroot folders from js web based projects
 /examples/InfiniFrameExample.WebApp.React/wwwroot/
 /examples/InfiniFrameExample.WebApp.Vue/wwwroot/
-/tests/InfiniFrameTests.Playwright/wwwroot/
+/tests/InfiniFrameTests.Playwright.Vue/wwwroot/
 

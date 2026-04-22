@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using InfiniFrame.Js.Interop.MessageHandlers;
 
-namespace InfiniFrameTests.Playwright.TestUtility;
+namespace InfiniFrameTests.Playwright.Vue.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
