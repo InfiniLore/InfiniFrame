@@ -1,15 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using JetBrains.Annotations;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace InfiniFrame.BlazorWebView;
+namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -207,7 +205,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
         if (root.Children is null || root.Children.Count == 0) return false;
 
         return root.Children.ContainsKey(name)
-               || root.Children.Keys.Any(key => string.Equals(key, name, StringComparison.OrdinalIgnoreCase));
+            || root.Children.Keys.Any(key => string.Equals(key, name, StringComparison.OrdinalIgnoreCase));
     }
 
     private IDirectoryContents BuildDirectoryContents(StaticWebAssetNode node) {
@@ -315,65 +313,4 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
             .TrimStart('/', '\\')
             .Replace('\\', '/');
     }
-}
-
-internal sealed class ManifestDirectoryFileInfo(string name) : IFileInfo {
-    public bool Exists => true;
-    public long Length => -1;
-    public string PhysicalPath => string.Empty;
-    public string Name => name;
-    public DateTimeOffset LastModified => DateTimeOffset.MinValue;
-    public bool IsDirectory => true;
-    public Stream CreateReadStream() => throw new InvalidOperationException("Cannot create stream for a directory.");
-}
-
-internal sealed class ManifestDirectoryContents(IReadOnlyList<IFileInfo> entries) : IDirectoryContents {
-    public bool Exists => true;
-
-    public IEnumerator<IFileInfo> GetEnumerator() => entries.GetEnumerator();
-
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-internal sealed record NodeTraversalState(StaticWebAssetNode Node, int ConsumedSegments, string PathPrefix);
-internal sealed record ManifestCandidate(string ManifestPath, int BaseScore);
-internal sealed record ScoredManifestCandidate(StaticWebAssetManifest Manifest, int Score);
-
-[UsedImplicitly]
-internal sealed class StaticWebAssetManifest {
-    [JsonPropertyName("ContentRoots")]
-    public string[]? ContentRoots { get; set; }
-
-    [JsonPropertyName("Root")]
-    public StaticWebAssetNode? Root { get; set; }
-}
-
-[UsedImplicitly]
-internal sealed class StaticWebAssetNode {
-    [JsonPropertyName("Children")]
-    public Dictionary<string, StaticWebAssetNode>? Children { get; set; }
-
-    [JsonPropertyName("Asset")]
-    public StaticWebAsset? Asset { get; set; }
-
-    [JsonPropertyName("Patterns")]
-    public List<StaticWebAssetPattern>? Patterns { get; set; }
-}
-
-[UsedImplicitly]
-internal sealed class StaticWebAsset {
-    [JsonPropertyName("ContentRootIndex")]
-    public int ContentRootIndex { get; set; }
-
-    [JsonPropertyName("SubPath")]
-    public string SubPath { get; set; } = string.Empty;
-}
-
-[UsedImplicitly]
-internal sealed class StaticWebAssetPattern {
-    [JsonPropertyName("ContentRootIndex")]
-    public int ContentRootIndex { get; set; }
-
-    [JsonPropertyName("Pattern")]
-    public string Pattern { get; set; } = string.Empty;
 }

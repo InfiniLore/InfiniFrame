@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.BlazorWebView.FileProviders.Static;
 using InfiniFrame.Js;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;

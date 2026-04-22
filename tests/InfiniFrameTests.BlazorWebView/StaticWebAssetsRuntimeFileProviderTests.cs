@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BlazorWebView;
+using InfiniFrame.BlazorWebView.FileProviders.Static;
 using Microsoft.Extensions.FileProviders;
 using System.Text.Json;
 
