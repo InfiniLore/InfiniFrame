@@ -13,6 +13,11 @@ namespace InfiniFrameTests.Shared.TestDoubles;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class RecordingInfiniFrameWindowSubstitute {
     private readonly List<string> _sentWebMessages = [];
+    #if NET9_0_OR_GREATER
+    private readonly Lock _sentWebMessagesLock = new();
+    #else
+    private readonly object _sentWebMessagesLock = new();
+    #endif
     public IInfiniFrameWindow Window { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -24,9 +29,17 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
         Window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
         Window.SendWebMessageAsync(Arg.Any<string>())
             .Returns(Task.CompletedTask)
-            .AndDoes(callInfo => _sentWebMessages.Add(callInfo.Arg<string>()));
+            .AndDoes(callInfo => {
+                lock (_sentWebMessagesLock) {
+                    _sentWebMessages.Add(callInfo.Arg<string>());
+                }
+            });
         Window.When(window => window.SendWebMessage(Arg.Any<string>()))
-            .Do(callInfo => _sentWebMessages.Add(callInfo.Arg<string>()));
+            .Do(callInfo => {
+                lock (_sentWebMessagesLock) {
+                    _sentWebMessages.Add(callInfo.Arg<string>());
+                }
+            });
 
         // Default wiring for simple tests that don't need explicit builder binding.
         Window.Events.Returns(new InfiniFrameWindowEvents());
@@ -42,7 +55,14 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
         return this;
     }
 
-    public int CountEnvelopeMessagesById(string messageId) => _sentWebMessages
-        .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
-        .Count(result => result.Success && string.Equals(result.MessageId, messageId, StringComparison.Ordinal));
+    public int CountEnvelopeMessagesById(string messageId) {
+        List<string> snapshot;
+        lock (_sentWebMessagesLock) {
+            snapshot = [.._sentWebMessages];
+        }
+
+        return snapshot
+            .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
+            .Count(result => result.Success && string.Equals(result.MessageId, messageId, StringComparison.Ordinal));
+    }
 }
