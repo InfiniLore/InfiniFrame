@@ -353,4 +353,9 @@ healthchecksdb
 /examples/InfiniFrameExample.WebApp.React/wwwroot/
 /examples/InfiniFrameExample.WebApp.Vue/wwwroot/
 /tests/InfiniFrameTests.Playwright.Vue/wwwroot/
+/tests/InfiniFrameTests.Playwright.BlazorWebView/wwwroot/
 
+/docs/node_modules/
+
+# Local test/runner virtualenv
+/.run/.venv/

@@ -1,21 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
+using InfiniFrameTests.Playwright.BlazorWebView.TestUtility;
 
-namespace InfiniFrame.Native;
+namespace InfiniFrameTests.Playwright.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Represents a 2D rectangle in a native (integer-based) coordinate system.
-/// </summary>
-[StructLayout(LayoutKind.Sequential)]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public struct NativeRect {
-    public int X { get; set; }
-    public int Y { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
+[InheritsTests]
+public sealed class JavascriptTests : SharedJavascriptTests {
+    protected override IPlaywrightRuntimeContext RuntimeContext => BlazorWebViewPlaywrightRuntimeContext.Instance;
 }

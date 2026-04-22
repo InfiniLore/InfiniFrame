@@ -1,13 +1,13 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrameTests.Playwright.Vue.TestUtility;
+using InfiniFrameTests.Playwright.BlazorWebView.TestUtility;
 
-namespace InfiniFrameTests.Playwright.Vue;
+namespace InfiniFrameTests.Playwright.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [InheritsTests]
 public sealed class WebviewWindowTests : SharedWebviewWindowTests {
-    protected override IPlaywrightRuntimeContext RuntimeContext => VuePlaywrightRuntimeContext.Instance;
+    protected override IPlaywrightRuntimeContext RuntimeContext => BlazorWebViewPlaywrightRuntimeContext.Instance;
 }

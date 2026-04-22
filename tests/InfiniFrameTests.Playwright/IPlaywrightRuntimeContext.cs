@@ -1,21 +1,23 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
+using InfiniFrame;
+using Microsoft.Playwright;
 
-namespace InfiniFrame.Native;
+namespace InfiniFrameTests.Playwright;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Represents a 2D rectangle in a native (integer-based) coordinate system.
-/// </summary>
-[StructLayout(LayoutKind.Sequential)]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public struct NativeRect {
-    public int X { get; set; }
-    public int Y { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
+public interface IPlaywrightRuntimeContext {
+    string DefaultDocumentTitle { get; }
+
+    IInfiniFrameWindow Window { get; }
+
+    Task<IBrowser> GetOrCreateBrowserAsync(string relativeUrl = "/");
+
+    void ResetWindowCloseRequestCount();
+
+    int GetWindowCloseRequestCount();
+
+    void SuppressWindowCloseRequests(bool suppress);
 }

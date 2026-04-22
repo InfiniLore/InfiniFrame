@@ -1,21 +1,21 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
+using InfiniFrameTests.Shared;
+using Microsoft.Playwright;
 
-namespace InfiniFrame.Native;
+namespace InfiniFrameTests.Playwright;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Represents a 2D rectangle in a native (integer-based) coordinate system.
-/// </summary>
-[StructLayout(LayoutKind.Sequential)]
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public struct NativeRect {
-    public int X { get; set; }
-    public int Y { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
+public abstract class SharedWebviewWindowTests : InfiniFramePlaywrightTestBase {
+    [Test]
+    [NotInParallel(ParallelControl.Playwright)]
+    public async Task Title_ShouldBeExpectedValue() {
+        IPage page = await GetRootPageAsync();
+
+        string title = await page.TitleAsync();
+
+        await Assert.That(title).IsEqualTo(RuntimeContext.DefaultDocumentTitle);
+    }
 }
