@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <EnableNativeDllCopy>true</EnableNativeDllCopy>
@@ -14,17 +14,4 @@
         <ProjectReference Include="..\InfiniFrameTests.Playwright\InfiniFrameTests.Playwright.csproj" />
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
-
-    <Target Name="CopyWebRootToOutput"
-            AfterTargets="Build"
-            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
-        <ItemGroup>
-            <BlazorTestWebRootFiles Include="$(ProjectDir)wwwroot\**\*" />
-        </ItemGroup>
-
-        <Copy SourceFiles="@(BlazorTestWebRootFiles)"
-              DestinationFiles="@(BlazorTestWebRootFiles->'$(TargetDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
-              SkipUnchangedFiles="true" />
-    </Target>
-
 </Project>

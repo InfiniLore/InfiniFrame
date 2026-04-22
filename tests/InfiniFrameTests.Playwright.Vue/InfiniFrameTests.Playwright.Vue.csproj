@@ -19,10 +19,6 @@
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="Sources\infiniframe-playwright-vue\src\assets\"/>
-    </ItemGroup>
-
     <Target Name="BuildFrontendCrossTargeting"
             BeforeTargets="Build"
             Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'=='true'">

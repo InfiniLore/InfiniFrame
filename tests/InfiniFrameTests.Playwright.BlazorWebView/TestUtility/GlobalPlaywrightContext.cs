@@ -5,6 +5,7 @@ using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrame.Js.Interop.MessageHandlers;
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Playwright;
 
 namespace InfiniFrameTests.Playwright.BlazorWebView.TestUtility;
@@ -131,13 +132,9 @@ public static class GlobalPlaywrightContext {
     public static async Task<IBrowser> GetOrCreateBrowserAsync(string relativeUrl = "/") {
         await BrowserLock.WaitAsync();
         try {
-            if (Browser is { IsConnected: true }) {
-                return Browser;
-            }
+            if (Browser is { IsConnected: true }) return Browser;
 
-            if (Playwright is null) {
-                Playwright = await Microsoft.Playwright.Playwright.CreateAsync().WaitAsync(TimeSpan.FromSeconds(20));
-            }
+            Playwright ??= await Microsoft.Playwright.Playwright.CreateAsync().WaitAsync(TimeSpan.FromSeconds(20));
 
             Uri url = new(PlaywrightConnectionUri, relativeUrl);
             Browser = await ConnectOverCdpWithRetryAsync(url);

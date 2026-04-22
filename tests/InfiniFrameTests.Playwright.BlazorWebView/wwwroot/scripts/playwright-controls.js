@@ -1,29 +1,20 @@
-let isToggledToNewTitle = false;
-let previousTitle = "";
-
-const fullscreenToggleButton = document.getElementById("fullscreen-toggle-button");
-const titleToggleButton = document.getElementById("title-toggle-button");
-
-fullscreenToggleButton?.addEventListener("click", async () => {
+export async function toggleFullscreen() {
     if (!document.fullscreenElement) {
         await document.body.requestFullscreen();
-        return;
     }
-
-    if (document.exitFullscreen) {
+    else if (document.exitFullscreen) {
         await document.exitFullscreen();
     }
-});
+}
 
-titleToggleButton?.addEventListener("click", () => {
-    if (!isToggledToNewTitle) {
-        previousTitle = document.title;
-        document.title = "New Title";
-        isToggledToNewTitle = true;
-        return;
-    }
+export function isFullscreenActive() {
+    return document.fullscreenElement !== null;
+}
 
-    document.title = previousTitle;
-    previousTitle = "";
-    isToggledToNewTitle = false;
-});
+export function getDocumentTitle() {
+    return document.title;
+}
+
+export function setDocumentTitle(title) {
+    document.title = title;
+}

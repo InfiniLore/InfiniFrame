@@ -1,0 +1,7 @@
+@using InfiniFrameTests.Playwright.BlazorWebView.Components.Pages
+
+<Router AppAssembly="@typeof(App).Assembly" NotFoundPage="@typeof(PageNotFound)">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" />
+    </Found>
+</Router>

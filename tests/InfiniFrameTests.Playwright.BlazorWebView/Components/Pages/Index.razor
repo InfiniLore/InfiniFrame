@@ -1,0 +1,67 @@
+@page "/"
+@implements IAsyncDisposable
+@inject IJSRuntime JsRuntime
+
+@* ReSharper disable once AsyncVoidMethod *@
+<button id="fullscreen-toggle-button" onclick="@(async void (_) => await ToggleFullscreenAsync())">
+    @if (_isFullscreen) {
+        <span>Exit Fullscreen</span>
+    }
+    else {
+        <span>Enter Fullscreen</span>
+    }
+</button>
+
+@* ReSharper disable once AsyncVoidMethod *@
+<button id="title-toggle-button" onclick="@(async void (_) => await ToggleTitleAsync())">
+    @if (_isToggledToNewTitle) {
+        <span>Reset Title</span>
+    }
+    else {
+        <span>Define New Title</span>
+    }
+</button>
+
+@code {
+    private const string NewTitle = "New Title";
+
+    private IJSObjectReference? _module;
+    private bool _isFullscreen;
+    private bool _isToggledToNewTitle;
+    private string _oldTitle = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (!firstRender) return;
+
+        _module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/playwright-controls.js");
+        _isFullscreen = await _module.InvokeAsync<bool>("isFullscreenActive");
+        StateHasChanged();
+    }
+
+    private async Task ToggleFullscreenAsync() {
+        if (_module is null) return;
+
+        await _module.InvokeVoidAsync("toggleFullscreen");
+        _isFullscreen = await _module.InvokeAsync<bool>("isFullscreenActive");
+    }
+
+    private async Task ToggleTitleAsync() {
+        if (_module is null) return;
+
+        if (!_isToggledToNewTitle) {
+            _oldTitle = await _module.InvokeAsync<string>("getDocumentTitle");
+            await _module.InvokeVoidAsync("setDocumentTitle", NewTitle);
+            _isToggledToNewTitle = true;
+            return;
+        }
+
+        await _module.InvokeVoidAsync("setDocumentTitle", _oldTitle);
+        _oldTitle = string.Empty;
+        _isToggledToNewTitle = false;
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (_module is null) return;
+        await _module.DisposeAsync();
+    }
+}
