@@ -37,7 +37,6 @@ public class InfiniFrameBlazorAppBuilder {
         appBuilder.Services.AddOptions<InfiniFrameBlazorAppConfiguration>();
 
         appBuilder.Services
-            .AddSingleton(ConfigureFileProvider(fileProvider))
             .AddScoped(static sp => {
                 var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
@@ -52,6 +51,7 @@ public class InfiniFrameBlazorAppBuilder {
             .AddSingleton<InfiniFrameSynchronizationContext>()
             .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
             .AddBlazorWebView()
+            .AddSingleton(ConfigureFileProvider(fileProvider))
             .AddSingleton(appBuilder.WindowBuilder)
             .AddSingleton(appBuilder.RootComponents);
 

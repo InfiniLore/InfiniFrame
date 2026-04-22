@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using JetBrains.Annotations;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
@@ -162,7 +163,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
         if (runtimeManifests.Length == 0) yield break;
 
         string? entryAssemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
-        string? friendlyName = Path.GetFileNameWithoutExtension(AppDomain.CurrentDomain.FriendlyName);
+        string friendlyName = Path.GetFileNameWithoutExtension(AppDomain.CurrentDomain.FriendlyName);
         string? processName = Environment.ProcessPath is { Length: > 0 }
             ? Path.GetFileNameWithoutExtension(Environment.ProcessPath)
             : null;
@@ -338,6 +339,7 @@ internal sealed record NodeTraversalState(StaticWebAssetNode Node, int ConsumedS
 internal sealed record ManifestCandidate(string ManifestPath, int BaseScore);
 internal sealed record ScoredManifestCandidate(StaticWebAssetManifest Manifest, int Score);
 
+[UsedImplicitly]
 internal sealed class StaticWebAssetManifest {
     [JsonPropertyName("ContentRoots")]
     public string[]? ContentRoots { get; set; }
@@ -346,6 +348,7 @@ internal sealed class StaticWebAssetManifest {
     public StaticWebAssetNode? Root { get; set; }
 }
 
+[UsedImplicitly]
 internal sealed class StaticWebAssetNode {
     [JsonPropertyName("Children")]
     public Dictionary<string, StaticWebAssetNode>? Children { get; set; }
@@ -357,6 +360,7 @@ internal sealed class StaticWebAssetNode {
     public List<StaticWebAssetPattern>? Patterns { get; set; }
 }
 
+[UsedImplicitly]
 internal sealed class StaticWebAsset {
     [JsonPropertyName("ContentRootIndex")]
     public int ContentRootIndex { get; set; }
@@ -365,6 +369,7 @@ internal sealed class StaticWebAsset {
     public string SubPath { get; set; } = string.Empty;
 }
 
+[UsedImplicitly]
 internal sealed class StaticWebAssetPattern {
     [JsonPropertyName("ContentRootIndex")]
     public int ContentRootIndex { get; set; }

@@ -18,7 +18,7 @@
 
 ## How It Works
 
-InfiniFrame serves Blazor resources from an internal origin (`http://localhost/` on Windows, `app://localhost/` on Linux/macOS) and handles requests inside the native host — Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder
+InfiniFrame serves Blazor resources from an internal origin (`app://localhost/`) and handles requests inside the native host — Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder
 There is no external ASP.NET server required; all communication happens through the native browser bridge
 
 ## Project Setup
