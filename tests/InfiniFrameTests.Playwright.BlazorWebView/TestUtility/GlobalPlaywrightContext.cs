@@ -52,7 +52,7 @@ public static class GlobalPlaywrightContext {
 
         Thread thread = new(() => {
             try {
-                InfiniFrameBlazorAppBuilder builder = InfiniFrameBlazorAppBuilder.CreateDefault(
+                var builder = InfiniFrameBlazorAppBuilder.CreateDefault(
                     windowBuilder: wb => wb
                         .SetTitle(DefaultDocumentTitle)
                         .SetBrowserControlInitParameters($"--remote-debugging-port={PlaywrightDevtoolsPort}")
@@ -67,7 +67,7 @@ public static class GlobalPlaywrightContext {
                 );
 
                 InfiniFrameBlazorApp app = builder.Build();
-                IInfiniFrameWindow window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+                var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
                 BlazorApp = app;
                 WindowValue = window;

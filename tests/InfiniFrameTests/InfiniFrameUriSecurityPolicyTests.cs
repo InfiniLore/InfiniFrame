@@ -73,7 +73,7 @@ public class InfiniFrameUriSecurityPolicyTests {
         );
 
         // Act
-        ArgumentNullException? exception = await Assert.ThrowsAsync<ArgumentNullException>(() => Task.Run(() => {
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => Task.Run(() => {
             policy.IsTrustedOrigin(null!);
         }));
 
@@ -177,7 +177,7 @@ public class InfiniFrameUriSecurityPolicyTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        ArgumentException? exception = await Assert.ThrowsAsync<ArgumentException>(() => Task.Run(() => {
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => Task.Run(() => {
             builder.SetTrustedOrigins("not-a-valid-origin");
         }));
 
