@@ -89,7 +89,7 @@ public class RegisterWindowCreatedUtilityTests {
 
         // Act: let the ready-timeout fallback send fire first.
         events.OnWindowCreated();
-        await Task.Delay(TimeSpan.FromSeconds(6));
+        await WaitForSendAttempts(window, registrationMessageId, expectedCount: 1, timeout: TimeSpan.FromSeconds(10));
 
         int sendAttemptsAfterFallback = window.CountEnvelopeMessagesById(registrationMessageId);
         await Assert.That(sendAttemptsAfterFallback).IsEqualTo(1);
@@ -99,7 +99,21 @@ public class RegisterWindowCreatedUtilityTests {
         await Task.Delay(150);
 
         // Assert: ready still triggers another registration send.
+        await WaitForSendAttempts(window, registrationMessageId, expectedCount: 2, timeout: TimeSpan.FromSeconds(2));
         int sendAttemptsAfterReady = window.CountEnvelopeMessagesById(registrationMessageId);
         await Assert.That(sendAttemptsAfterReady).IsEqualTo(2);
+    }
+
+    private static async Task WaitForSendAttempts(
+        RecordingInfiniFrameWindowSubstitute window,
+        string messageId,
+        int expectedCount,
+        TimeSpan timeout
+    ) {
+        DateTime deadline = DateTime.UtcNow + timeout;
+        while (DateTime.UtcNow < deadline) {
+            if (window.CountEnvelopeMessagesById(messageId) >= expectedCount) return;
+            await Task.Delay(50);
+        }
     }
 }
