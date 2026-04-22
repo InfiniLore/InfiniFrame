@@ -98,6 +98,15 @@ describe("HostMessaging", () => {
         expect(legacyWarnings.length).toBe(1);
     });
 
+    it("ignores BlazorWebView internal __bwv messages without warning", async () => {
+        const {getReceiveCallback} = await setupHostMessaging();
+        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+        getReceiveCallback()('__bwv:["AttachToDocument",0,"app"]');
+
+        expect(warnSpy).not.toHaveBeenCalled();
+    });
+
     it("registers open-external click handler only once", async () => {
         const {getReceiveCallback, blankTargetHandler} = await setupHostMessaging();
         const addEventListenerSpy = vi.spyOn(document, "addEventListener");

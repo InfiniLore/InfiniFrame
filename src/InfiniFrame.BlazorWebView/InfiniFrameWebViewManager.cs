@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
 namespace InfiniFrame.BlazorWebView;
@@ -18,15 +17,12 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewManager {
 
-    // On Windows, we can't use a custom scheme to host the initial HTML,
-    // because webview2 won't let you do top-level navigation to such a URL.
-    // On Linux/Mac, we must use a custom scheme, because their webviews
-    // don't have a way to intercept http:// scheme requests.
-    public static readonly string BlazorAppScheme = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-        ? "http"
-        : "app";
-
-    public static readonly string AppBaseUri = $"{BlazorAppScheme}://localhost/";
+    // BlazorWebView resources are always hosted on a dedicated app:// origin.
+    // This keeps module/script fetches on the same trusted internal origin
+    // across platforms and avoids localhost/CORS routing edge-cases.
+    public const string BlazorAppScheme = "app";
+    public const string AppBaseUri = $"{BlazorAppScheme}://localhost/";
+    
     private readonly Channel<string> _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
     private Lazy<IInfiniFrameWindow> LazyWindow { get; }
     private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
@@ -155,6 +151,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         if (TryGetResponseContent(sanitizedUrl, !hasFileExtension, out _, out _,
                 out Stream content, out IDictionary<string, string> headers)) {
             headers.TryGetValue("Content-Type", out contentType);
+            contentType ??= GetFallbackContentType(sanitizedUri.LocalPath);
             return content;
         }
 
@@ -216,4 +213,26 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     private static bool IsNonFatalException(Exception exception)
         => exception is not (OutOfMemoryException or AccessViolationException);
+
+    private static string GetFallbackContentType(string localPath) {
+        string extension = Path.GetExtension(localPath);
+        if (string.IsNullOrWhiteSpace(extension)) return "application/octet-stream";
+
+        return extension.ToLowerInvariant() switch {
+            ".html" or ".htm" => "text/html; charset=utf-8",
+            ".js" or ".mjs" => "text/javascript; charset=utf-8",
+            ".css" => "text/css; charset=utf-8",
+            ".json" => "application/json; charset=utf-8",
+            ".wasm" => "application/wasm",
+            ".svg" => "image/svg+xml",
+            ".png" => "image/png",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".gif" => "image/gif",
+            ".ico" => "image/x-icon",
+            ".woff" => "font/woff",
+            ".woff2" => "font/woff2",
+            ".ttf" => "font/ttf",
+            _ => "application/octet-stream"
+        };
+    }
 }

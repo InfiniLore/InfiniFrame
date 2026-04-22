@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.BlazorWebView.FileProviders.Static;
 using InfiniFrame.Js;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -37,7 +38,6 @@ public class InfiniFrameBlazorAppBuilder {
         appBuilder.Services.AddOptions<InfiniFrameBlazorAppConfiguration>();
 
         appBuilder.Services
-            .AddSingleton(ConfigureFileProvider(fileProvider))
             .AddScoped(static sp => {
                 var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
@@ -52,6 +52,7 @@ public class InfiniFrameBlazorAppBuilder {
             .AddSingleton<InfiniFrameSynchronizationContext>()
             .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
             .AddBlazorWebView()
+            .AddSingleton(ConfigureFileProvider(fileProvider))
             .AddSingleton(appBuilder.WindowBuilder)
             .AddSingleton(appBuilder.RootComponents);
 
@@ -77,9 +78,22 @@ public class InfiniFrameBlazorAppBuilder {
     private static IFileProvider ConfigureFileProvider(IFileProvider? fileProvider) {
         if (fileProvider is not null) return fileProvider;
 
-        string defaultWwwrootPath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
-        if (!Directory.Exists(defaultWwwrootPath)) return new NullFileProvider();
-        return new PhysicalFileProvider(defaultWwwrootPath);
+        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory);
+
+        string defaultWwwrootPath = Path.Join(baseDirectory, "wwwroot");
+        bool hasPhysicalWwwroot = Directory.Exists(defaultWwwrootPath);
+        PhysicalFileProvider? physicalWwwrootProvider = hasPhysicalWwwroot
+            ? new PhysicalFileProvider(defaultWwwrootPath)
+            : null;
+
+        if (staticWebAssetsProvider is not null && physicalWwwrootProvider is not null) {
+            return new CompositeFileProvider(staticWebAssetsProvider, physicalWwwrootProvider);
+        }
+
+        if (staticWebAssetsProvider is not null) return staticWebAssetsProvider;
+        if (physicalWwwrootProvider is not null) return physicalWwwrootProvider;
+        return new NullFileProvider();
     }
 
     public InfiniFrameBlazorAppBuilder WithInfiniFrameWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {
