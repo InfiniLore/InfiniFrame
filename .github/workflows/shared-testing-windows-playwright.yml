@@ -116,7 +116,7 @@ jobs:
                 uses: actions/cache@v5
                 with:
                     path: ~\AppData\Local\ms-playwright
-                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj', 'tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj') }}
+                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.WebApp.React/InfiniFrameTests.Playwright.WebApp.React.csproj', 'tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj', 'tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj') }}
                     restore-keys: |
                         playwright-${{ runner.os }}-
 
@@ -142,6 +142,7 @@ jobs:
                 run: |
                     $frameworks = @("net8.0", "net9.0", "net10.0")
                     $projects = @(
+                      "tests/InfiniFrameTests.Playwright.WebApp.React",
                       "tests/InfiniFrameTests.Playwright.WebApp.Vue",
                       "tests/InfiniFrameTests.Playwright.BlazorWebView"
                     )
@@ -177,6 +178,7 @@ jobs:
                 with:
                     name: playwright-test-results-net8.0
                     path: |
+                        tests/InfiniFrameTests.Playwright.WebApp.React/bin/Release/net8.0/TestResults
                         tests/InfiniFrameTests.Playwright.WebApp.Vue/bin/Release/net8.0/TestResults
                         tests/InfiniFrameTests.Playwright.BlazorWebView/bin/Release/net8.0/TestResults
 
@@ -193,6 +195,7 @@ jobs:
                 with:
                     name: playwright-test-results-net9.0
                     path: |
+                        tests/InfiniFrameTests.Playwright.WebApp.React/bin/Release/net9.0/TestResults
                         tests/InfiniFrameTests.Playwright.WebApp.Vue/bin/Release/net9.0/TestResults
                         tests/InfiniFrameTests.Playwright.BlazorWebView/bin/Release/net9.0/TestResults
 
@@ -209,6 +212,7 @@ jobs:
                 with:
                     name: playwright-test-results-net10.0
                     path: |
+                        tests/InfiniFrameTests.Playwright.WebApp.React/bin/Release/net10.0/TestResults
                         tests/InfiniFrameTests.Playwright.WebApp.Vue/bin/Release/net10.0/TestResults
                         tests/InfiniFrameTests.Playwright.BlazorWebView/bin/Release/net10.0/TestResults
 
