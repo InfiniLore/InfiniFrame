@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <base href="/"/>
+    <title>InfiniFrame Playwright BlazorWebView</title>
+</head>
+<body>
+<button id="fullscreen-toggle-button" type="button">Toggle Fullscreen</button>
+<button id="title-toggle-button" type="button">Toggle Title</button>
+
+<script>
+    let isToggledToNewTitle = false;
+    let previousTitle = "";
+
+    document.getElementById("fullscreen-toggle-button")?.addEventListener("click", async () => {
+        if (!document.fullscreenElement) {
+            await document.body.requestFullscreen();
+            return;
+        }
+
+        if (document.exitFullscreen) {
+            await document.exitFullscreen();
+        }
+    });
+
+    document.getElementById("title-toggle-button")?.addEventListener("click", () => {
+        if (!isToggledToNewTitle) {
+            previousTitle = document.title;
+            document.title = "New Title";
+            isToggledToNewTitle = true;
+            return;
+        }
+
+        document.title = previousTitle;
+        previousTitle = "";
+        isToggledToNewTitle = false;
+    });
+</script>
+
+<script src="_framework/blazor.webview.js"></script>
+<script src="_content/InfiniLore.InfiniFrame.Js/InfiniFrame.js"></script>
+</body>
+</html>
