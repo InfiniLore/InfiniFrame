@@ -4,7 +4,7 @@
 using InfiniFrame;
 using Microsoft.Playwright;
 
-namespace InfiniFrameTests.Playwright.Vue.TestUtility;
+namespace InfiniFrameTests.Playwright.WebApp.Vue.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

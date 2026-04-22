@@ -12,7 +12,7 @@
 
             "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
             "tests\\InfiniFrameTests.Playwright\\InfiniFrameTests.Playwright.csproj",
-            "tests\\InfiniFrameTests.Playwright.Vue\\InfiniFrameTests.Playwright.Vue.csproj",
+            "tests\\InfiniFrameTests.Playwright.WebApp.Vue\\InfiniFrameTests.Playwright.WebApp.Vue.csproj",
             "tests\\InfiniFrameTests.Playwright.BlazorWebView\\InfiniFrameTests.Playwright.BlazorWebView.csproj"
         ]
     }

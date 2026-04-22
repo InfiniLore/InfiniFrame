@@ -103,7 +103,7 @@
     <Project Path="tests/InfiniFrameTests.Js/InfiniFrameTests.Js.csproj" />
     <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
     <Project Path="tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj" />
-    <Project Path="tests/InfiniFrameTests.Playwright.Vue/InfiniFrameTests.Playwright.Vue.csproj" />
+    <Project Path="tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj" />
     <Project Path="tests/InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     <Project Path="tests/InfiniFrameTests.Tools.Pack/InfiniFrameTests.Tools.Pack.csproj" />
     <Project Path="tests/InfiniFrameTests.WebServer/InfiniFrameTests.WebServer.csproj" />

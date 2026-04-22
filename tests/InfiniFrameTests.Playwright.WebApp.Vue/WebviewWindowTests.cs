@@ -1,13 +1,13 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrameTests.Playwright.Vue.TestUtility;
+using InfiniFrameTests.Playwright.WebApp.Vue.TestUtility;
 
-namespace InfiniFrameTests.Playwright.Vue;
+namespace InfiniFrameTests.Playwright.WebApp.Vue;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [InheritsTests]
-public sealed class JavascriptTests : SharedJavascriptTests {
+public sealed class WebviewWindowTests : SharedWebviewWindowTests {
     protected override IPlaywrightRuntimeContext RuntimeContext => VuePlaywrightRuntimeContext.Instance;
 }

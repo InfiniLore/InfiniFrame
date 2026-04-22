@@ -116,13 +116,13 @@ jobs:
                 uses: actions/cache@v5
                 with:
                     path: ~\AppData\Local\ms-playwright
-                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.Vue/InfiniFrameTests.Playwright.Vue.csproj', 'tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj') }}
+                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj', 'tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj') }}
                     restore-keys: |
                         playwright-${{ runner.os }}-
 
             -   name: Install Playwright Browsers
                 if: steps.cache-playwright.outputs.cache-hit != 'true'
-                working-directory: tests/InfiniFrameTests.Playwright.Vue
+                working-directory: tests/InfiniFrameTests.Playwright.WebApp.Vue
                 shell: pwsh
                 run: |
                     $scripts = @(
@@ -142,7 +142,7 @@ jobs:
                 run: |
                     $frameworks = @("net8.0", "net9.0", "net10.0")
                     $projects = @(
-                      "tests/InfiniFrameTests.Playwright.Vue",
+                      "tests/InfiniFrameTests.Playwright.WebApp.Vue",
                       "tests/InfiniFrameTests.Playwright.BlazorWebView"
                     )
                     foreach ($framework in $frameworks) {
@@ -177,7 +177,7 @@ jobs:
                 with:
                     name: playwright-test-results-net8.0
                     path: |
-                        tests/InfiniFrameTests.Playwright.Vue/bin/Release/net8.0/TestResults
+                        tests/InfiniFrameTests.Playwright.WebApp.Vue/bin/Release/net8.0/TestResults
                         tests/InfiniFrameTests.Playwright.BlazorWebView/bin/Release/net8.0/TestResults
 
             -   name: Run Playwright (net9.0)
@@ -193,7 +193,7 @@ jobs:
                 with:
                     name: playwright-test-results-net9.0
                     path: |
-                        tests/InfiniFrameTests.Playwright.Vue/bin/Release/net9.0/TestResults
+                        tests/InfiniFrameTests.Playwright.WebApp.Vue/bin/Release/net9.0/TestResults
                         tests/InfiniFrameTests.Playwright.BlazorWebView/bin/Release/net9.0/TestResults
 
             -   name: Run Playwright (net10.0)
@@ -209,7 +209,7 @@ jobs:
                 with:
                     name: playwright-test-results-net10.0
                     path: |
-                        tests/InfiniFrameTests.Playwright.Vue/bin/Release/net10.0/TestResults
+                        tests/InfiniFrameTests.Playwright.WebApp.Vue/bin/Release/net10.0/TestResults
                         tests/InfiniFrameTests.Playwright.BlazorWebView/bin/Release/net10.0/TestResults
 
             -   name: Fail If Any Framework Failed

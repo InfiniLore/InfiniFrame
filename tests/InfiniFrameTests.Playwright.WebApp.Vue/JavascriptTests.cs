@@ -1,17 +1,13 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrameTests.Playwright.Vue.TestUtility;
+using InfiniFrameTests.Playwright.WebApp.Vue.TestUtility;
 
-namespace InfiniFrameTests.Playwright.Vue;
+namespace InfiniFrameTests.Playwright.WebApp.Vue;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [InheritsTests]
-public sealed class JavascriptInteropTests : SharedJavascriptInteropTests {
+public sealed class JavascriptTests : SharedJavascriptTests {
     protected override IPlaywrightRuntimeContext RuntimeContext => VuePlaywrightRuntimeContext.Instance;
-
-    protected override string FullscreenToggleButtonSelector => "#fullscreen-toggle-button";
-
-    protected override string TitleToggleButtonSelector => "#title-toggle-button";
 }
