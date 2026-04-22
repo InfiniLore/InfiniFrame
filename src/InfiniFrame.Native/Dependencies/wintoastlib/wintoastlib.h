@@ -1,7 +1,7 @@
 /**
  * MIT License
  *
- * Copyright (C) 2016-2023 WinToast v1.3.0 - Mohammed Boujemaoui <mohabouje@gmail.com>
+ * Copyright (C) 2016-2025 WinToast v1.3.2 - Mohammed Boujemaoui <mohabouje@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -44,13 +44,13 @@
 #include <map>
 #include <memory>
 
-using namespace Microsoft::WRL;
-using namespace ABI::Windows::Data::Xml::Dom;
-using namespace ABI::Windows::Foundation;
-using namespace ABI::Windows::UI::Notifications;
-using namespace Windows::Foundation;
-
 namespace WinToastLib {
+
+    using namespace Microsoft::WRL;
+    using namespace ABI::Windows::Data::Xml::Dom;
+    using namespace ABI::Windows::Foundation;
+    using namespace ABI::Windows::UI::Notifications;
+    using namespace Windows::Foundation;
 
     void setDebugOutputEnabled(bool enabled);
 
@@ -216,6 +216,12 @@ namespace WinToastLib {
 
         WinToast(void);
         virtual ~WinToast();
+
+        WinToast(const WinToast&) = delete;
+        WinToast& operator=(const WinToast&) = delete;
+        WinToast(WinToast&&) = delete;
+        WinToast& operator=(WinToast&&) = delete;
+
         static WinToast* instance();
         static bool isCompatible();
         static bool isSupportingModernFeatures();
@@ -240,7 +246,7 @@ namespace WinToastLib {
 
     protected:
         struct NotifyData {
-            NotifyData(){};
+            NotifyData() {};
             NotifyData(_In_ ComPtr<IToastNotification> notify, _In_ EventRegistrationToken activatedToken,
                        _In_ EventRegistrationToken dismissedToken, _In_ EventRegistrationToken failedToken) :
                 _notify(notify), _activatedToken(activatedToken), _dismissedToken(dismissedToken), _failedToken(failedToken) {}
