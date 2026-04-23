@@ -85,7 +85,13 @@ public static class GlobalPlaywrightContext {
 
                 app.Run();
             }
-            catch (Exception ex) {
+            catch (InvalidOperationException ex) {
+                ready.TrySetException(ex);
+            }
+            catch (TimeoutException ex) {
+                ready.TrySetException(ex);
+            }
+            catch (PlaywrightException ex) {
                 ready.TrySetException(ex);
             }
         }) {
