@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source /usr/local/bin/common.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/common.sh"
 
 SOLUTION_FILTER="${SOLUTION_FILTER:-InfiniFrame.GitHubActions.Testing.slnf}"
 init_common_defaults
@@ -18,4 +19,4 @@ dotnet test --solution "${SOLUTION_FILTER}" \
   --no-build \
   --no-restore \
   /p:UseAppHost=false \
-  /p:DisableImplicitNuGetFallbackFolder=true
+  "${COMMON_DOTNET_PROPS[@]}"

@@ -6,6 +6,17 @@ init_common_defaults() {
   NATIVE_PLATFORM="${NATIVE_PLATFORM:-x64}"
   USE_HOST_DISPLAY="${USE_HOST_DISPLAY:-0}"
   CMAKE_BUILD_DIR="${CMAKE_BUILD_DIR:-/tmp/infiniframe-cmake/${NATIVE_PLATFORM}/${CONFIGURATION}}"
+
+  COMMON_DOTNET_PROPS=(
+    '/p:DisableImplicitNuGetFallbackFolder=true'
+    '/p:RestoreFallbackFolders='
+    '/p:RestoreAdditionalProjectFallbackFolders='
+  )
+}
+
+sanitize_restore_artifacts() {
+  echo "Sanitizing stale restore artifacts from bind-mounted workspace..."
+  find /work/src /work/tests /work/examples -type d -name obj -prune -exec rm -rf {} +
 }
 
 setup_cleanup_trap() {
@@ -85,11 +96,12 @@ compile_gsettings_schemas() {
 
 restore_solution_filter() {
   local solution_filter="$1"
+  sanitize_restore_artifacts
   echo "Restoring solution filter ${solution_filter}..."
   dotnet restore "${solution_filter}" \
     --force \
     /p:NoWarn=NU1503 \
-    /p:DisableImplicitNuGetFallbackFolder=true
+    "${COMMON_DOTNET_PROPS[@]}"
 }
 
 build_native_project() {
@@ -100,8 +112,8 @@ build_native_project() {
     --no-restore \
     /p:SolutionDir="/work/" \
     /p:Platform="${NATIVE_PLATFORM}" \
-    /p:UseAppHost=false \
-    /p:CMakeBuildDir="${CMAKE_BUILD_DIR}"
+    /p:CMakeBuildDir="${CMAKE_BUILD_DIR}" \
+    "${COMMON_DOTNET_PROPS[@]}"
 }
 
 build_solution_filter() {
@@ -112,5 +124,5 @@ build_solution_filter() {
     --configuration "${CONFIGURATION}" \
     --no-restore \
     /p:UseAppHost=false \
-    /p:DisableImplicitNuGetFallbackFolder=true
+    "${COMMON_DOTNET_PROPS[@]}"
 }

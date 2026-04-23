@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source /usr/local/bin/common.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/common.sh"
 
 SOLUTION_FILTER="${SOLUTION_FILTER:-InfiniFrame.GitHubActions.Testing.Playwright.slnf}"
 FRAMEWORKS="${FRAMEWORKS:-net8.0 net9.0 net10.0}"
@@ -52,6 +53,6 @@ for framework in ${FRAMEWORKS}; do
     --no-build \
     --no-restore \
     /p:UseAppHost=false \
-    /p:DisableImplicitNuGetFallbackFolder=true \
+    "${COMMON_DOTNET_PROPS[@]}" \
     --framework "${framework}"
 done

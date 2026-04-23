@@ -15,9 +15,11 @@ services:
       - NATIVE_PLATFORM=x64
       - USE_HOST_DISPLAY=${USE_HOST_DISPLAY:-0}
       - DISPLAY=${DISPLAY:-}
+      - NUGET_PACKAGES=/root/.nuget/packages
+      - NUGET_FALLBACK_PACKAGES=
     entrypoint: ["/bin/bash", "-lc"]
     command:
-      - "bash /work/scripts/nuget-install.sh && exec /usr/local/bin/tests.sh"
+      - "bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/tests.sh"
     stdin_open: true
     tty: true
   linux-playwright-tests:
@@ -35,8 +37,10 @@ services:
       - FRAMEWORKS=net8.0 net9.0 net10.0
       - USE_HOST_DISPLAY=${USE_HOST_DISPLAY:-0}
       - DISPLAY=${DISPLAY:-}
+      - NUGET_PACKAGES=/root/.nuget/packages
+      - NUGET_FALLBACK_PACKAGES=
     entrypoint: ["/bin/bash", "-lc"]
     command:
-      - "bash /work/scripts/nuget-install.sh && exec /usr/local/bin/playwright.sh"
+      - "bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/playwright.sh"
     stdin_open: true
     tty: true
