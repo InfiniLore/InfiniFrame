@@ -48,6 +48,6 @@ RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 RUN node --version && npm --version
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages cmake==4.0.0
-RUN npx --yes playwright install chromium
+RUN npx --yes playwright install --with-deps chromium
 
 WORKDIR /work
