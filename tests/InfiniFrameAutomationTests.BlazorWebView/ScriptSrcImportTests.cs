@@ -4,6 +4,7 @@
 using InfiniFrameAutomationTests.BlazorWebView.TestUtility;
 using InfiniFrameTests.Shared;
 using System.Text.Json;
+using InfiniFrameAutomationTests.Tests;
 
 namespace InfiniFrameAutomationTests.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------

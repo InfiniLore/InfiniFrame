@@ -1,10 +1,15 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js.Interop.MessageHandlers;
 using InfiniFrameTests.Shared;
 using Microsoft.AspNetCore.Hosting;
 
 namespace InfiniFrameAutomationTests;
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 public abstract class ServerAutomationRuntimeContextBase : IAutomationRuntimeContext {
     private readonly AutomationSessionManager _automation = new(AutomationPortUtility.GetAvailablePort());
     private readonly int _serverPort = AutomationPortUtility.GetAvailablePort();
@@ -17,8 +22,9 @@ public abstract class ServerAutomationRuntimeContextBase : IAutomationRuntimeCon
 
     public IInfiniFrameWindow Window => _utility!.Window;
 
-    protected virtual void ConfigureWindowBuilder(IInfiniFrameWindowBuilder windowBuilder) {}
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     protected void Start() {
         AutomationSessionManager.EnableLinuxWebKitAutomationIfNeeded();
 
@@ -41,15 +47,13 @@ public abstract class ServerAutomationRuntimeContextBase : IAutomationRuntimeCon
                 if (OperatingSystem.IsWindows()) {
                     windowBuilder.SetBrowserControlInitParameters(_automation.GetWindowsRemoteDebuggingArgs());
                 }
-
-                ConfigureWindowBuilder(windowBuilder);
             },
             cancellationToken: startupCancellation.Token
         );
     }
 
     protected void Stop() {
-        _automation.DelayIfVisibleDebugEnabled();
+        AutomationSessionManager.DelayIfVisibleDebugEnabled();
         _automation.Dispose();
         _utility?.Dispose();
         _utility = null;

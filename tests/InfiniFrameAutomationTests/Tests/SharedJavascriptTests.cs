@@ -1,11 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+
+using System.Text.Json;
 using InfiniFrame;
 using InfiniFrameTests.Shared;
-using System.Text.Json;
+using JetBrains.Annotations;
 
-namespace InfiniFrameAutomationTests;
+namespace InfiniFrameAutomationTests.Tests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,6 +19,7 @@ public abstract class SharedJavascriptTests : InfiniFrameAutomationTestBase {
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
+    [UsedImplicitly]
     public async Task InfiniWindowIsInitialized() {
         IAutomationPage page = await GetRootPageAsync();
 
@@ -40,6 +43,7 @@ public abstract class SharedJavascriptTests : InfiniFrameAutomationTestBase {
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
+    [UsedImplicitly]
     public async Task DynamicallyUpdateTitleFromJs() {
         IAutomationPage page = await GetRootPageAsync();
         string originalTitle = RuntimeContext.Window.Title;
@@ -60,6 +64,7 @@ public abstract class SharedJavascriptTests : InfiniFrameAutomationTestBase {
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
+    [UsedImplicitly]
     public async Task WindowClose() {
         IAutomationPage page = await GetRootPageAsync();
         int initialCloseRequestCount = RuntimeContext.GetWindowCloseRequestCount();

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrameAutomationTests.BlazorWebView.TestUtility;
+using InfiniFrameAutomationTests.Tests;
 
 namespace InfiniFrameAutomationTests.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------

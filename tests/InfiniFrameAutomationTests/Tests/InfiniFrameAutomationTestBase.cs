@@ -4,14 +4,14 @@
 using InfiniFrame;
 using TUnit.Engine.Exceptions;
 
-namespace InfiniFrameAutomationTests;
+namespace InfiniFrameAutomationTests.Tests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class InfiniFrameAutomationTestBase {
     protected abstract IAutomationRuntimeContext RuntimeContext { get; }
 
-    protected virtual string RootRelativeUrl => "/";
+    private const string RootRelativeUrl = "/";
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -28,6 +28,7 @@ public abstract class InfiniFrameAutomationTestBase {
         );
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     protected Task<IAutomationPage> GetPageAsync(string relativeUrl)
         => RuntimeContext.GetOrCreatePageAsync(relativeUrl);
 
@@ -56,6 +57,7 @@ public abstract class InfiniFrameAutomationTestBase {
         throw new TestFailedException("State change timeout exceeded", null);
     }
 
+    // ReSharper disable once UnusedMember.Global
     protected static async Task<T> WaitForStateChangeAsync<T>(
         T initialValue,
         Func<Task<T>> stateProvider,
