@@ -16,7 +16,6 @@ public sealed class BlazorWebViewAutomationRuntimeContext : IAutomationRuntimeCo
     public static BlazorWebViewAutomationRuntimeContext Instance { get; } = new();
 
     private readonly AutomationSessionManager _automation = new(AutomationPortUtility.GetAvailablePort());
-    
     // ReSharper disable once NotAccessedField.Local
     private InfiniFrameBlazorApp? _blazorApp;
     private IInfiniFrameWindow? _window;
@@ -67,7 +66,7 @@ public sealed class BlazorWebViewAutomationRuntimeContext : IAutomationRuntimeCo
                 });
 
                 InfiniFrameBlazorApp app = builder.Build();
-                var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+                IInfiniFrameWindow window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
                 _blazorApp = app;
                 _window = window;
