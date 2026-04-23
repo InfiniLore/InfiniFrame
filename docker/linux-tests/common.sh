@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+init_common_defaults() {
+  CONFIGURATION="${CONFIGURATION:-Release}"
+  NATIVE_PLATFORM="${NATIVE_PLATFORM:-x64}"
+  USE_HOST_DISPLAY="${USE_HOST_DISPLAY:-0}"
+  CMAKE_BUILD_DIR="${CMAKE_BUILD_DIR:-/tmp/infiniframe-cmake/${NATIVE_PLATFORM}/${CONFIGURATION}}"
+}
+
+setup_cleanup_trap() {
+  cleanup() {
+    if [[ -n "${MUTTER_PID:-}" ]]; then
+      kill "${MUTTER_PID}" >/dev/null 2>&1 || true
+    fi
+    if [[ -n "${XVFB_PID:-}" ]]; then
+      kill "${XVFB_PID}" >/dev/null 2>&1 || true
+    fi
+  }
+  trap cleanup EXIT
+}
+
+start_virtual_display() {
+  local xvfb_log="${1:-/tmp/xvfb.log}"
+  local mutter_log="${2:-/tmp/mutter.log}"
+
+  echo "Starting D-Bus session..."
+  eval "$(dbus-launch --sh-syntax)"
+
+  echo "Launching Xvfb..."
+  Xvfb :99 \
+    -screen 0 1920x1080x24 \
+    -ac \
+    +extension GLX \
+    +extension RANDR \
+    +extension RENDER \
+    -nolisten tcp \
+    -noreset > "${xvfb_log}" 2>&1 &
+  XVFB_PID=$!
+
+  export DISPLAY=:99
+  export XDG_RUNTIME_DIR="/tmp/runtime-$(id -un)"
+  export XDG_SESSION_TYPE=x11
+  export XDG_SESSION_CLASS=user
+  export XDG_SESSION_DESKTOP=ubuntu
+  export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+  export DESKTOP_SESSION=ubuntu
+
+  mkdir -p "${XDG_RUNTIME_DIR}"
+  chmod 700 "${XDG_RUNTIME_DIR}"
+
+  echo "Waiting for X server..."
+  timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
+    echo "X server failed to start"
+    exit 1
+  }
+
+  echo "Starting Mutter..."
+  mutter --x11 --replace --sm-disable > "${mutter_log}" 2>&1 &
+  MUTTER_PID=$!
+
+  timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
+    echo "Mutter failed to start"
+    exit 1
+  }
+}
+
+setup_display_mode() {
+  local xvfb_log="${1:-/tmp/xvfb.log}"
+  local mutter_log="${2:-/tmp/mutter.log}"
+
+  if [[ "${USE_HOST_DISPLAY}" == "1" ]]; then
+    echo "Using host DISPLAY mode"
+    : "${DISPLAY:?DISPLAY must be set when USE_HOST_DISPLAY=1}"
+  else
+    echo "Using internal virtual display mode (Xvfb + Mutter)"
+    start_virtual_display "${xvfb_log}" "${mutter_log}"
+  fi
+}
+
+compile_gsettings_schemas() {
+  echo "Compiling GSettings schemas..."
+  glib-compile-schemas /usr/share/glib-2.0/schemas/
+}
+
+restore_solution_filter() {
+  local solution_filter="$1"
+  echo "Restoring solution filter ${solution_filter}..."
+  dotnet restore "${solution_filter}" \
+    --force \
+    /p:NoWarn=NU1503 \
+    /p:DisableImplicitNuGetFallbackFolder=true
+}
+
+build_native_project() {
+  echo "Building native project..."
+  mkdir -p "${CMAKE_BUILD_DIR}"
+  dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+    --configuration "${CONFIGURATION}" \
+    --no-restore \
+    /p:SolutionDir="/work/" \
+    /p:Platform="${NATIVE_PLATFORM}" \
+    /p:UseAppHost=false \
+    /p:CMakeBuildDir="${CMAKE_BUILD_DIR}"
+}
+
+build_solution_filter() {
+  local solution_filter="$1"
+  local label="${2:-projects}"
+  echo "Building ${label}..."
+  dotnet build "${solution_filter}" \
+    --configuration "${CONFIGURATION}" \
+    --no-restore \
+    /p:UseAppHost=false \
+    /p:DisableImplicitNuGetFallbackFolder=true
+}

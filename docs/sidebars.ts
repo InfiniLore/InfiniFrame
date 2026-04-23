@@ -15,6 +15,7 @@ const sidebars: SidebarsConfig = {
         "guides/web-server",
         "guides/javascript-interop",
         "guides/custom-window-chrome",
+        "guides/scripts",
       ],
     },
     {

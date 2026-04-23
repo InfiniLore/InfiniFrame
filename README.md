@@ -207,6 +207,14 @@ npm --prefix docs run build
 | Linux    | WebKit2GTK          | GTK 3+                                |
 | macOS    | WKWebView           | macOS 10.15 Catalina or later         |
 
+## Run Linux GUI Tests In Docker
+
+The full scripts reference lives in docs:
+
+- [Scripts Reference](https://docs.infiniframe.dev/guides/scripts)
+
+Local wrappers are under `scripts/` (Linux test runs, Playwright runs, and NuGet setup).
+
 ## Repo History
 
 This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of
