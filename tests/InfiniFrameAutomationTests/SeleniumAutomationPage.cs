@@ -30,7 +30,7 @@ public sealed class SeleniumAutomationPage(IWebDriver driver) : IAutomationPage 
         }
 
         string json = JsonSerializer.Serialize(value);
-        var typed = JsonSerializer.Deserialize<T>(json);
+        T? typed = JsonSerializer.Deserialize<T>(json);
         return Task.FromResult(typed!);
     }
 
