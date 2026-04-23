@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrameAutomationTests.Tests;
 using InfiniFrameAutomationTests.WebApp.Vue.TestUtility;
 
 namespace InfiniFrameAutomationTests.WebApp.Vue;

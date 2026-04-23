@@ -3,9 +3,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrameTests.Shared;
-using JetBrains.Annotations;
 
-namespace InfiniFrameAutomationTests.Tests;
+namespace InfiniFrameAutomationTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,14 +13,10 @@ public abstract class SharedJavascriptInteropTests : InfiniFrameAutomationTestBa
 
     protected abstract string TitleToggleButtonSelector { get; }
 
-    private const string ToggledTitle = "New Title";
+    protected virtual string ToggledTitle => "New Title";
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    [UsedImplicitly]
     public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen() {
         bool originalFullscreenState = RuntimeContext.Window.FullScreen;
         IAutomationPage page = await GetRootPageAsync();
@@ -45,7 +40,6 @@ public abstract class SharedJavascriptInteropTests : InfiniFrameAutomationTestBa
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    [UsedImplicitly]
     public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle() {
         IAutomationPage page = await GetRootPageAsync();
         string originalTitleState = RuntimeContext.Window.Title;

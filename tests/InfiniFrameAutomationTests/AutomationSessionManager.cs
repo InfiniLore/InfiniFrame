@@ -1,14 +1,7 @@
-// ---------------------------------------------------------------------------------------------------------------------
-// Imports
-// ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrameAutomationTests.Playwright;
-using InfiniFrameAutomationTests.Selenium;
 using Microsoft.Playwright;
 
 namespace InfiniFrameAutomationTests;
-// ---------------------------------------------------------------------------------------------------------------------
-// Code
-// ---------------------------------------------------------------------------------------------------------------------
+
 public sealed class AutomationSessionManager(int playwrightDevtoolsPort) : IDisposable {
     private static readonly TimeSpan PlaywrightConnectTimeout = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan PlaywrightConnectRetryWindow = TimeSpan.FromSeconds(60);
@@ -23,11 +16,9 @@ public sealed class AutomationSessionManager(int playwrightDevtoolsPort) : IDisp
     private int _windowCloseRequestCount;
     private int _suppressCloseRequests;
 
-    private int PlaywrightDevtoolsPort { get; } = playwrightDevtoolsPort;
+    // ReSharper disable once MemberCanBePrivate.Global
+    public int PlaywrightDevtoolsPort { get; } = playwrightDevtoolsPort;
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
     public static void EnableLinuxWebKitAutomationIfNeeded() {
         if (OperatingSystem.IsLinux()) {
             Environment.SetEnvironmentVariable("INFINIFRAME_WEBKIT_AUTOMATION", "1");
@@ -59,7 +50,7 @@ public sealed class AutomationSessionManager(int playwrightDevtoolsPort) : IDisp
         return await GetOrCreateWindowsPageAsync(relativeUrl);
     }
 
-    public static void DelayIfVisibleDebugEnabled() {
+    public void DelayIfVisibleDebugEnabled() {
         TimeSpan delay = GetVisibleDebugDelay();
         if (delay <= TimeSpan.Zero) {
             return;
@@ -73,7 +64,7 @@ public sealed class AutomationSessionManager(int playwrightDevtoolsPort) : IDisp
         await _browserLock.WaitAsync();
         try {
             if (_browser is not { IsConnected: true }) {
-                _playwright ??= await Microsoft.Playwright.Playwright.CreateAsync().WaitAsync(TimeSpan.FromSeconds(20));
+                _playwright ??= await Playwright.CreateAsync().WaitAsync(TimeSpan.FromSeconds(20));
                 Uri url = new(_playwrightConnectionUri, relativeUrl);
                 _browser = await ConnectOverCdpWithRetryAsync(url);
             }

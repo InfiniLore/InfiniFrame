@@ -1,14 +1,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Safari;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 
-namespace InfiniFrameAutomationTests.Selenium;
+namespace InfiniFrameAutomationTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -21,9 +21,6 @@ public sealed class SeleniumWebDriverSession : IDisposable {
 
     private int _disposed;
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
     public static async Task<SeleniumWebDriverSession> StartAsync(CancellationToken cancellationToken = default) {
         string? endpointOverride = Environment.GetEnvironmentVariable("INFINIFRAME_WEBKIT_WEBDRIVER_URL");
         if (!string.IsNullOrWhiteSpace(endpointOverride)) {
@@ -78,7 +75,7 @@ public sealed class SeleniumWebDriverSession : IDisposable {
         }
     }
 
-    private static RemoteWebDriver CreateDriver(Uri endpointUri) {
+    private static IWebDriver CreateDriver(Uri endpointUri) {
         string[] browserNames = ["MiniBrowser", "WebKitGTK", "webkitgtk"];
         Exception? lastError = null;
 
@@ -112,7 +109,11 @@ public sealed class SeleniumWebDriverSession : IDisposable {
         };
 
         Process? process = Process.Start(startInfo);
-        return process ?? throw new InvalidOperationException("Failed to start WebKitWebDriver process.");
+        if (process is null) {
+            throw new InvalidOperationException("Failed to start WebKitWebDriver process.");
+        }
+
+        return process;
     }
 
     private static async Task WaitUntilServerHealthyAsync(Uri endpointUri, Process process, TimeSpan timeout, CancellationToken cancellationToken) {

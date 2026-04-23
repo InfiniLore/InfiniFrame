@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Playwright;
 
-namespace InfiniFrameAutomationTests.Playwright;
+namespace InfiniFrameAutomationTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -20,3 +20,5 @@ public sealed class PlaywrightAutomationPage(IPage page) : IAutomationPage {
     public Task<T> EvaluateAsync<T>(string script)
         => page.EvaluateAsync<T>(script);
 }
+
+

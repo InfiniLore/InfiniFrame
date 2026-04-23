@@ -93,7 +93,7 @@ public sealed class BlazorWebViewAutomationRuntimeContext : IAutomationRuntimeCo
     }
 
     private void Stop() {
-        AutomationSessionManager.DelayIfVisibleDebugEnabled();
+        _automation.DelayIfVisibleDebugEnabled();
         _automation.Dispose();
 
         try {
