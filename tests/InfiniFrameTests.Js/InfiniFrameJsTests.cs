@@ -13,7 +13,6 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameJsTests {
     [Test]
-    [DisplayName($"{nameof(InfiniFrameJsTests)}.{nameof(SetPointerCaptureAsync_InvokesExpectedJsFunction)}")]
     public async Task SetPointerCaptureAsync_InvokesExpectedJsFunction() {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
@@ -35,7 +34,6 @@ public class InfiniFrameJsTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(InfiniFrameJsTests)}.{nameof(ReleasePointerCaptureAsync_InvokesExpectedJsFunction)}")]
     public async Task ReleasePointerCaptureAsync_InvokesExpectedJsFunction() {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
@@ -57,7 +55,6 @@ public class InfiniFrameJsTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(InfiniFrameJsTests)}.{nameof(SetPointerCaptureAsync_SwallowsOperationCanceled_WhenCancellationRequested)}")]
     public async Task SetPointerCaptureAsync_SwallowsOperationCanceled_WhenCancellationRequested() {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
