@@ -8,6 +8,7 @@ init_common_defaults() {
   CMAKE_BUILD_DIR="${CMAKE_BUILD_DIR:-/tmp/infiniframe-cmake/${NATIVE_PLATFORM}/${CONFIGURATION}}"
   NUGET_CONFIG_FILE="${NUGET_CONFIG_FILE:-/work/docker/linux-tests/NuGet.Config}"
   NUGET_PACKAGES_DIR="${NUGET_PACKAGES:-/root/.nuget/packages}"
+  DOTNET_MAX_CPU_COUNT="${DOTNET_MAX_CPU_COUNT:-1}"
 
   COMMON_DOTNET_PROPS=(
     '/p:DisableImplicitNuGetFallbackFolder=true'
@@ -126,10 +127,12 @@ build_native_project() {
 build_solution_filter() {
   local solution_filter="$1"
   local label="${2:-projects}"
-  echo "Building ${label}..."
+  echo "Building ${label} (max CPU count: ${DOTNET_MAX_CPU_COUNT})..."
   dotnet build "${solution_filter}" \
+    -m:"${DOTNET_MAX_CPU_COUNT}" \
     --configuration "${CONFIGURATION}" \
     --no-restore \
     /p:UseAppHost=false \
+    /p:BuildInParallel=false \
     "${COMMON_DOTNET_PROPS[@]}"
 }

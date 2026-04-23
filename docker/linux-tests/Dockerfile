@@ -29,14 +29,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libx11-dev \
     fonts-liberation \
     xfonts-base \
-    nodejs \
-    npm \
     python3-pip \
     mono-runtime \
     curl \
-    wget \
     ca-certificates \
+    gnupg \
     git \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages cmake==4.0.0

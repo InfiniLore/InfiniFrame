@@ -16,9 +16,7 @@
   <Folder Name="/.dev-tools/docker/">
     <File Path="scripts/docker-compose-linux.sh" />
     <File Path="scripts/docker-run-linux-playwright-display.sh" />
-    <File Path="scripts/docker-run-linux-playwright.sh" />
     <File Path="scripts/docker-run-linux-tests-display.sh" />
-    <File Path="scripts/docker-run-linux-tests.sh" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />
