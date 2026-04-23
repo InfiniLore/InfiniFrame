@@ -24,7 +24,7 @@ if [[ "${PLAYWRIGHT_VISIBLE_DEBUG}" == "1" ]]; then
 fi
 for framework in ${FRAMEWORKS}; do
   echo "=== Framework: ${framework} ==="
-  dotnet test "${SOLUTION_FILTER}" \
+  dotnet test --solution "${SOLUTION_FILTER}" \
     --configuration "${CONFIGURATION}" \
     --no-build \
     --no-restore \
