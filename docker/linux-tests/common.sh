@@ -6,6 +6,8 @@ init_common_defaults() {
   NATIVE_PLATFORM="${NATIVE_PLATFORM:-x64}"
   USE_HOST_DISPLAY="${USE_HOST_DISPLAY:-0}"
   CMAKE_BUILD_DIR="${CMAKE_BUILD_DIR:-/tmp/infiniframe-cmake/${NATIVE_PLATFORM}/${CONFIGURATION}}"
+  NUGET_CONFIG_FILE="${NUGET_CONFIG_FILE:-/work/docker/linux-tests/NuGet.Config}"
+  NUGET_PACKAGES_DIR="${NUGET_PACKAGES:-/root/.nuget/packages}"
 
   COMMON_DOTNET_PROPS=(
     '/p:DisableImplicitNuGetFallbackFolder=true'
@@ -15,8 +17,10 @@ init_common_defaults() {
 }
 
 sanitize_restore_artifacts() {
-  echo "Sanitizing stale restore artifacts from bind-mounted workspace..."
-  find /work/src /work/tests /work/examples -type d -name obj -prune -exec rm -rf {} +
+  echo "Sanitizing stale NuGet restore metadata (without removing obj/bin directories)..."
+  find /work/src /work/tests /work/examples -type f -path "*/obj/*" \
+    \( -name "*.nuget.g.props" -o -name "*.nuget.g.targets" -o -name "project.assets.json" -o -name "project.nuget.cache" \) \
+    -delete
 }
 
 setup_cleanup_trap() {
@@ -100,6 +104,8 @@ restore_solution_filter() {
   echo "Restoring solution filter ${solution_filter}..."
   dotnet restore "${solution_filter}" \
     --force \
+    --configfile "${NUGET_CONFIG_FILE}" \
+    --packages "${NUGET_PACKAGES_DIR}" \
     /p:NoWarn=NU1503 \
     "${COMMON_DOTNET_PROPS[@]}"
 }
