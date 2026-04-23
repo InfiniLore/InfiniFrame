@@ -17,10 +17,12 @@ tar -C "${SRC_DIR}" \
   --exclude=".github" \
   --exclude=".idea" \
   --exclude=".run" \
-  --exclude="docs" \
   --exclude="artifacts" \
   --exclude=".tmp" \
   --exclude=".pytest_cache" \
+  --exclude="docs/node_modules" \
+  --exclude="docs/.docusaurus" \
+  --exclude="docs/build" \
   --exclude="src/InfiniFrame.Native/packages" \
   --exclude="src/InfiniFrame.Native/build" \
   --exclude="src/InfiniFrame.Native/cmake-build-debug" \

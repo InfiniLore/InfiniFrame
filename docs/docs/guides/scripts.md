@@ -40,6 +40,12 @@ Runs the Linux Playwright test container (`linux-playwright-tests`) for `net8.0`
 bash ./scripts/docker-run-linux-playwright.sh
 ```
 
+Optional visible debug mode:
+
+```bash
+PLAYWRIGHT_VISIBLE_DEBUG=1 PLAYWRIGHT_VISIBLE_DEBUG_SECONDS=10 bash ./scripts/docker-run-linux-playwright.sh
+```
+
 ### `docker-run-linux-playwright-display.sh`
 
 Runs the Linux Playwright test container with host `DISPLAY` passthrough.

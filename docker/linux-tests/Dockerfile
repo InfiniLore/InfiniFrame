@@ -3,6 +3,7 @@ FROM node:22-bookworm-slim AS node
 FROM mcr.microsoft.com/dotnet/sdk:10.0
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -47,5 +48,6 @@ RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 RUN node --version && npm --version
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages cmake==4.0.0
+RUN npx --yes playwright install chromium
 
 WORKDIR /work

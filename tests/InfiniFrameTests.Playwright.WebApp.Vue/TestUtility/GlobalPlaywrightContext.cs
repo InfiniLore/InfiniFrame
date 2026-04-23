@@ -76,6 +76,12 @@ public static class GlobalPlaywrightContext {
 
     [After(Assembly)]
     public static void AfterAll(AssemblyHookContext _) {
+        TimeSpan debugDelay = GetVisibleDebugDelay();
+        if (debugDelay > TimeSpan.Zero) {
+            Console.WriteLine($"[PlaywrightDebug] Holding window open for {debugDelay.TotalSeconds:0}s before teardown.");
+            Thread.Sleep(debugDelay);
+        }
+
         try {
             Browser?.CloseAsync().GetAwaiter().GetResult();
         }
@@ -168,5 +174,17 @@ public static class GlobalPlaywrightContext {
 
     public static void SuppressWindowCloseRequests(bool suppress) {
         Volatile.Write(ref _suppressCloseRequests, suppress ? 1 : 0);
+    }
+
+    private static TimeSpan GetVisibleDebugDelay() {
+        string? debugEnabled = Environment.GetEnvironmentVariable("PLAYWRIGHT_VISIBLE_DEBUG");
+        if (!string.Equals(debugEnabled, "1", StringComparison.Ordinal))
+            return TimeSpan.Zero;
+
+        string? secondsValue = Environment.GetEnvironmentVariable("PLAYWRIGHT_VISIBLE_DEBUG_SECONDS");
+        if (int.TryParse(secondsValue, out int seconds) && seconds > 0)
+            return TimeSpan.FromSeconds(seconds);
+
+        return TimeSpan.FromSeconds(8);
     }
 }
