@@ -26,6 +26,9 @@ sanitize_restore_artifacts() {
 
 setup_cleanup_trap() {
   cleanup() {
+    if [[ -n "${DBUS_SESSION_BUS_PID:-}" ]]; then
+      kill "${DBUS_SESSION_BUS_PID}" >/dev/null 2>&1 || true
+    fi
     if [[ -n "${MUTTER_PID:-}" ]]; then
       kill "${MUTTER_PID}" >/dev/null 2>&1 || true
     fi
@@ -36,12 +39,18 @@ setup_cleanup_trap() {
   trap cleanup EXIT
 }
 
-start_virtual_display() {
-  local xvfb_log="${1:-/tmp/xvfb.log}"
-  local mutter_log="${2:-/tmp/mutter.log}"
+start_dbus_session() {
+  if [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
+    return
+  fi
 
   echo "Starting D-Bus session..."
   eval "$(dbus-launch --sh-syntax)"
+}
+
+start_virtual_display() {
+  local xvfb_log="${1:-/tmp/xvfb.log}"
+  local mutter_log="${2:-/tmp/mutter.log}"
 
   echo "Launching Xvfb..."
   Xvfb :99 \
@@ -84,6 +93,8 @@ start_virtual_display() {
 setup_display_mode() {
   local xvfb_log="${1:-/tmp/xvfb.log}"
   local mutter_log="${2:-/tmp/mutter.log}"
+  export NO_AT_BRIDGE="${NO_AT_BRIDGE:-1}"
+  start_dbus_session
 
   if [[ "${USE_HOST_DISPLAY}" == "1" ]]; then
     echo "Using host DISPLAY mode"
@@ -92,11 +103,6 @@ setup_display_mode() {
     echo "Using internal virtual display mode (Xvfb + Mutter)"
     start_virtual_display "${xvfb_log}" "${mutter_log}"
   fi
-}
-
-compile_gsettings_schemas() {
-  echo "Compiling GSettings schemas..."
-  glib-compile-schemas /usr/share/glib-2.0/schemas/
 }
 
 restore_solution_filter() {

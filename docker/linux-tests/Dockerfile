@@ -4,6 +4,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV NUGET_PACKAGES=/root/.nuget/packages
+ENV DOTNET_MAX_CPU_COUNT=1
+ENV NO_AT_BRIDGE=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -49,5 +52,6 @@ RUN node --version && npm --version
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages cmake==4.0.0
 RUN npx --yes playwright install --with-deps chromium
+RUN glib-compile-schemas /usr/share/glib-2.0/schemas/
 
 WORKDIR /work

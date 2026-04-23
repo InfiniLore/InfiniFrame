@@ -13,7 +13,6 @@ PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-/root/.cache/ms-playwright
 init_common_defaults
 setup_cleanup_trap
 setup_display_mode "/tmp/xvfb-playwright.log" "/tmp/mutter-playwright.log"
-compile_gsettings_schemas
 restore_solution_filter "${SOLUTION_FILTER}"
 build_native_project
 build_solution_filter "${SOLUTION_FILTER}" "Playwright solution filter"
