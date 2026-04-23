@@ -8,7 +8,8 @@ services:
       dockerfile: docker/linux-tests/Dockerfile
     working_dir: /work
     volumes:
-      - ../../:/work/
+      - ../../:/src:ro
+      - infiniframe_linux_work:/work
     environment:
       - SOLUTION_FILTER=InfiniFrame.GitHubActions.Testing.slnf
       - CONFIGURATION=Release
@@ -19,7 +20,7 @@ services:
       - NUGET_FALLBACK_PACKAGES=
     entrypoint: ["/bin/bash", "-lc"]
     command:
-      - "bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/tests.sh"
+      - "find /work -mindepth 1 -delete && cp -a /src/. /work/ && bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/tests.sh"
     stdin_open: true
     tty: true
   linux-playwright-tests:
@@ -29,7 +30,8 @@ services:
       dockerfile: docker/linux-tests/Dockerfile
     working_dir: /work
     volumes:
-      - ../../:/work
+      - ../../:/src:ro
+      - infiniframe_linux_work:/work
     environment:
       - SOLUTION_FILTER=InfiniFrame.GitHubActions.Testing.Playwright.slnf
       - CONFIGURATION=Release
@@ -41,6 +43,9 @@ services:
       - NUGET_FALLBACK_PACKAGES=
     entrypoint: ["/bin/bash", "-lc"]
     command:
-      - "bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/playwright.sh"
+      - "find /work -mindepth 1 -delete && cp -a /src/. /work/ && bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/playwright.sh"
     stdin_open: true
     tty: true
+
+volumes:
+  infiniframe_linux_work:
