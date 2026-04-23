@@ -15,10 +15,4 @@
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Playwright\" />
-      <Folder Include="Selenium\" />
-      <Folder Include="Tests\" />
-    </ItemGroup>
-
 </Project>

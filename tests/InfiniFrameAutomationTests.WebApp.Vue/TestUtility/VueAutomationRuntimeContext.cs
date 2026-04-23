@@ -1,38 +1,27 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-
 namespace InfiniFrameAutomationTests.WebApp.Vue.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class VueAutomationRuntimeContext : IAutomationRuntimeContext {
+public sealed class VueAutomationRuntimeContext : ServerAutomationRuntimeContextBase {
     public static VueAutomationRuntimeContext Instance { get; } = new();
-    
-    public string DefaultDocumentTitle => GlobalAutomationContext.DefaultDocumentTitle;
 
-    public IInfiniFrameWindow Window => GlobalAutomationContext.Window;
+    public override string DefaultDocumentTitle => "InfiniFrame Playwright Vue";
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     private VueAutomationRuntimeContext() {}
-    
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    public Task<IAutomationPage> GetOrCreatePageAsync(string relativeUrl = "/")
-        => GlobalAutomationContext.GetOrCreatePageAsync(relativeUrl);
 
-    public void ResetWindowCloseRequestCount()
-        => GlobalAutomationContext.ResetWindowCloseRequestCount();
+    [Before(Assembly)]
+    public static void BeforeAll(AssemblyHookContext _)
+        => Instance.Start();
 
-    public int GetWindowCloseRequestCount()
-        => GlobalAutomationContext.GetWindowCloseRequestCount();
-
-    public void SuppressWindowCloseRequests(bool suppress)
-        => GlobalAutomationContext.SuppressWindowCloseRequests(suppress);
+    [After(Assembly)]
+    public static void AfterAll(AssemblyHookContext _)
+        => Instance.Stop();
 }
 
 
