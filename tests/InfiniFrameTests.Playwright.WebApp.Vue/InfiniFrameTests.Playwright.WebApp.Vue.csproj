@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <Target Name="BuildFrontendCrossTargeting"
-            BeforeTargets="Build"
+            BeforeTargets="AssignTargetPaths;Build"
             Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'=='true'">
         <Message Text="Installing npm packages" Importance="high"/>
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
@@ -29,7 +29,7 @@
     </Target>
 
     <Target Name="BuildFrontendSingleTarget"
-            BeforeTargets="Build"
+            BeforeTargets="AssignTargetPaths;Build"
             Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true' and '$(TargetFramework)'!=''">
         <Message Text="Installing npm packages" Importance="high"/>
         <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"/>
@@ -38,7 +38,8 @@
     </Target>
 
     <Target Name="CopyInfiniFrameBridgeScript"
-            BeforeTargets="CopyFrontendToOutput"
+            DependsOnTargets="BuildFrontendSingleTarget"
+            BeforeTargets="AssignTargetPaths;CopyFrontendToOutput"
             Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
         <Copy SourceFiles="$(RepositoryRoot)src\InfiniFrame.Js\wwwroot\InfiniFrame.js"
               DestinationFiles="$(ProjectDir)wwwroot\InfiniFrame.js"
