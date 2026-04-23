@@ -18,8 +18,8 @@ init_common_defaults() {
 
 sanitize_restore_artifacts() {
   echo "Sanitizing stale NuGet restore metadata (without removing obj/bin directories)..."
-  find /work/src /work/tests /work/examples -type f -path "*/obj/*" \
-    \( -name "*.nuget.g.props" -o -name "*.nuget.g.targets" -o -name "project.assets.json" -o -name "project.nuget.cache" \) \
+  find /work/src /work/tests /work/examples -type f \
+    \( -name "*.nuget.g.props" -o -name "*.nuget.g.targets" -o -name "project.assets.json" -o -name "project.nuget.cache" -o -name "*.csproj.nuget.dgspec.json" \) \
     -delete
 }
 
@@ -104,6 +104,7 @@ restore_solution_filter() {
   echo "Restoring solution filter ${solution_filter}..."
   dotnet restore "${solution_filter}" \
     --force \
+    --force-evaluate \
     --configfile "${NUGET_CONFIG_FILE}" \
     --packages "${NUGET_PACKAGES_DIR}" \
     /p:NoWarn=NU1503 \
