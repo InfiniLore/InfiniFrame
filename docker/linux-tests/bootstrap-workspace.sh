@@ -18,7 +18,6 @@ tar -C "${SRC_DIR}" \
   --exclude=".idea" \
   --exclude=".run" \
   --exclude="docs" \
-  --exclude="docs/node_modules" \
   --exclude="artifacts" \
   --exclude=".tmp" \
   --exclude=".pytest_cache" \

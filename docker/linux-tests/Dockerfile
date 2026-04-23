@@ -42,12 +42,3 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python3 -m pip install --no-cache-dir --break-system-packages cmake==4.0.0
 
 WORKDIR /work
-
-COPY docker/linux-tests/tests.sh /usr/local/bin/tests.sh
-RUN chmod +x /usr/local/bin/tests.sh
-COPY docker/linux-tests/playwright.sh /usr/local/bin/playwright.sh
-RUN chmod +x /usr/local/bin/playwright.sh
-COPY docker/linux-tests/common.sh /usr/local/bin/common.sh
-RUN chmod +x /usr/local/bin/common.sh
-
-ENTRYPOINT ["/usr/local/bin/tests.sh"]
