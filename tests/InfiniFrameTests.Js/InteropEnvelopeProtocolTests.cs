@@ -20,6 +20,7 @@ public class InteropEnvelopeProtocolTests {
     );
 
     [Test]
+    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(CreateEnvelope_GoldenVectors)}")]
     public async Task CreateEnvelope_GoldenVectors() {
         JsonElement vectors = GoldenVectors.RootElement.GetProperty("createVectors");
         foreach (JsonElement vector in vectors.EnumerateArray()) {
@@ -35,6 +36,7 @@ public class InteropEnvelopeProtocolTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(ParseEnvelope_GoldenVectors)}")]
     public async Task ParseEnvelope_GoldenVectors() {
         JsonElement vectors = GoldenVectors.RootElement.GetProperty("parseVectors");
         foreach (JsonElement vector in vectors.EnumerateArray()) {
@@ -64,6 +66,7 @@ public class InteropEnvelopeProtocolTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(Parse_TooLargeMessage_IsRejected)}")]
     public async Task Parse_TooLargeMessage_IsRejected() {
         string message = new('a', InteropEnvelopeProtocol.MaxMessageSizeBytes + 1);
         InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(message);

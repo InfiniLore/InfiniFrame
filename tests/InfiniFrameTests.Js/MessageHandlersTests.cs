@@ -15,6 +15,7 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class MessageHandlersTests {
     [Test]
+    [DisplayName($"{nameof(MessageHandlersTests)}.{nameof(WindowManagement_CloseMessage_ClosesWindow)}")]
     public async Task WindowManagement_CloseMessage_ClosesWindow() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
@@ -29,6 +30,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MessageHandlersTests)}.{nameof(WindowManagement_RegistersWindowCloseSubscriptionAfterReadyHandshake)}")]
     public async Task WindowManagement_RegistersWindowCloseSubscriptionAfterReadyHandshake() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
@@ -45,6 +47,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MessageHandlersTests)}.{nameof(FullscreenToggle_InvokesWindowMutation)}")]
     public async Task FullscreenToggle_InvokesWindowMutation() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
@@ -59,6 +62,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MessageHandlersTests)}.{nameof(TitleChanged_WithPayload_InvokesWindowMutation)}")]
     public async Task TitleChanged_WithPayload_InvokesWindowMutation() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
@@ -73,6 +77,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MessageHandlersTests)}.{nameof(TitleChanged_WithoutPayload_DoesNotInvokeWindowMutation)}")]
     public async Task TitleChanged_WithoutPayload_DoesNotInvokeWindowMutation() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
@@ -87,6 +92,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MessageHandlersTests)}.{nameof(OpenExternal_WithInvalidUrl_LogsWarningWithoutThrowing)}")]
     public async Task OpenExternal_WithInvalidUrl_LogsWarningWithoutThrowing() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
@@ -108,6 +114,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(MessageHandlersTests)}.{nameof(OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing)}")]
     public async Task OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();

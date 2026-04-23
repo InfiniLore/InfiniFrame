@@ -21,6 +21,7 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(CreateBuilder_ShouldReturnValidBuilder)}")]
     public async Task CreateBuilder_ShouldReturnValidBuilder() {
         // Arrange & Act
         InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
@@ -32,6 +33,7 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(UseAutoServerClose_WhenWindowNotCreated_ShouldRegisterWithBuilder)}")]
     public async Task UseAutoServerClose_WhenWindowNotCreated_ShouldRegisterWithBuilder() {
         // Arrange
         var mockWindowBuilder = Substitute.For<IInfiniFrameWindowBuilder>();
@@ -58,6 +60,7 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(UseAutoServerClose_WhenWindowCreated_ShouldRegisterWithWindow)}")]
     public async Task UseAutoServerClose_WhenWindowCreated_ShouldRegisterWithWindow() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
@@ -84,6 +87,7 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(UseAutoServerClose_ClosingHandler_ShouldReturnFalse)}")]
     public async Task UseAutoServerClose_ClosingHandler_ShouldReturnFalse() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
@@ -111,6 +115,7 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(UseAutoServerClose_ClosingHandler_ShouldInitiateStopAsync)}")]
     public async Task UseAutoServerClose_ClosingHandler_ShouldInitiateStopAsync() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
@@ -149,6 +154,7 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(Stop_ShouldCloseWindowAndStopWebApp)}")]
     [Retry(5)]
     public async Task Stop_ShouldCloseWindowAndStopWebApp() {
         // Arrange
@@ -183,6 +189,7 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(InfiniFrameWebApplicationTests)}.{nameof(Window_Property_ShouldReturnLazyValue)}")]
     public async Task Window_Property_ShouldReturnLazyValue() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();

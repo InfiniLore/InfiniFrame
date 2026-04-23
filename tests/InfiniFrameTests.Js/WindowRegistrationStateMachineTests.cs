@@ -9,6 +9,7 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowRegistrationStateMachineTests {
     [Test]
+    [DisplayName($"{nameof(WindowRegistrationStateMachineTests)}.{nameof(InitialState_IsReadyPending_AndTimeoutEligible)}")]
     public async Task InitialState_IsReadyPending_AndTimeoutEligible() {
         var sut = new WindowRegistrationStateMachine();
 
@@ -16,6 +17,7 @@ public class WindowRegistrationStateMachineTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WindowRegistrationStateMachineTests)}.{nameof(TryBeginRegistrationSendOnReady_ReturnsFalse_WhenSendAlreadyInProgress)}")]
     public async Task TryBeginRegistrationSendOnReady_ReturnsFalse_WhenSendAlreadyInProgress() {
         var sut = new WindowRegistrationStateMachine();
 
@@ -28,6 +30,7 @@ public class WindowRegistrationStateMachineTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WindowRegistrationStateMachineTests)}.{nameof(CompleteRegistrationSend_Success_BlocksFurtherSends)}")]
     public async Task CompleteRegistrationSend_Success_BlocksFurtherSends() {
         var sut = new WindowRegistrationStateMachine();
         sut.TryBeginRegistrationSendOnReady();
@@ -40,6 +43,7 @@ public class WindowRegistrationStateMachineTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WindowRegistrationStateMachineTests)}.{nameof(CompleteRegistrationSend_Failure_AllowsRetry)}")]
     public async Task CompleteRegistrationSend_Failure_AllowsRetry() {
         var sut = new WindowRegistrationStateMachine();
         sut.TryBeginRegistrationSendOnReady();
@@ -52,6 +56,7 @@ public class WindowRegistrationStateMachineTests {
     }
 
     [Test]
+    [DisplayName($"{nameof(WindowRegistrationStateMachineTests)}.{nameof(CompleteRegistrationSend_Failure_WithoutReady_DoesNotEnableTimeoutLogging)}")]
     public async Task CompleteRegistrationSend_Failure_WithoutReady_DoesNotEnableTimeoutLogging() {
         var sut = new WindowRegistrationStateMachine();
 
