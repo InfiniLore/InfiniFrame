@@ -2,7 +2,7 @@
   <Folder Name="/.dev-tools/">
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
-    <File Path="InfiniFrame.GitHubActions.Testing.Automation.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Testing.Playwright.slnf" />
     <File Path="LICENSE" />
     <File Path="native-vendor-deps.json" />
     <File Path="README.md" />
@@ -69,7 +69,7 @@
     <File Path=".github/workflows/shared-testing-macos.yml" />
     <File Path=".github/workflows/shared-testing-windows.yml" />
     <File Path=".github/workflows/shared-testing-js.yml" />
-    <File Path=".github/workflows/shared-testing-windows-automation.yml" />
+    <File Path=".github/workflows/shared-testing-windows-playwright.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
     <File Path=".github/workflows/shared-testing-windows-trim-aot.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
@@ -107,16 +107,13 @@
     <File Path="tests/Directory.Build.targets" />
     <Project Path="tests/InfiniFrameTests.BlazorWebView/InfiniFrameTests.BlazorWebView.csproj" />
     <Project Path="tests/InfiniFrameTests.Js/InfiniFrameTests.Js.csproj" />
-    <Project Path="tests/InfiniFrameAutomationTests/InfiniFrameAutomationTests.csproj" />
-    <Project Path="tests/InfiniFrameAutomationTests.BlazorWebView/InfiniFrameAutomationTests.BlazorWebView.csproj" />
-    <Project Path="tests/InfiniFrameAutomationTests.WebApp.React/InfiniFrameAutomationTests.WebApp.React.csproj" />
-    <Project Path="tests/InfiniFrameAutomationTests.WebApp.Vue/InfiniFrameAutomationTests.WebApp.Vue.csproj" />
+    <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
+    <Project Path="tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj" />
+    <Project Path="tests/InfiniFrameTests.Playwright.WebApp.React/InfiniFrameTests.Playwright.WebApp.React.csproj" />
+    <Project Path="tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj" />
     <Project Path="tests/InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     <Project Path="tests/InfiniFrameTests.Tools.Pack/InfiniFrameTests.Tools.Pack.csproj" />
     <Project Path="tests/InfiniFrameTests.WebServer/InfiniFrameTests.WebServer.csproj" />
     <Project Path="tests/InfiniFrameTests/InfiniFrameTests.csproj" />
   </Folder>
 </Solution>
-
-
-

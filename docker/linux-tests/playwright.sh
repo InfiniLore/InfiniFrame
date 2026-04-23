@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
-SOLUTION_FILTER="${SOLUTION_FILTER:-InfiniFrame.GitHubActions.Testing.Automation.slnf}"
+SOLUTION_FILTER="${SOLUTION_FILTER:-InfiniFrame.GitHubActions.Testing.Playwright.slnf}"
 FRAMEWORKS="${FRAMEWORKS:-net8.0 net9.0 net10.0}"
 PLAYWRIGHT_VISIBLE_DEBUG="${PLAYWRIGHT_VISIBLE_DEBUG:-0}"
 PLAYWRIGHT_VISIBLE_DEBUG_SECONDS="${PLAYWRIGHT_VISIBLE_DEBUG_SECONDS:-8}"
@@ -29,7 +29,5 @@ for framework in ${FRAMEWORKS}; do
     --no-restore \
     /p:UseAppHost=false \
     "${COMMON_DOTNET_PROPS[@]}" \
-    --maximum-parallel-tests 1 \
     --framework "${framework}"
 done
-

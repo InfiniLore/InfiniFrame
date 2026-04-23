@@ -16,7 +16,6 @@ services:
       - NATIVE_PLATFORM=x64
       - USE_HOST_DISPLAY=${USE_HOST_DISPLAY:-0}
       - DISPLAY=${DISPLAY:-}
-      - INFINIFRAME_WEBKIT_AUTOMATION=1
       - NUGET_PACKAGES=/root/.nuget/packages
       - NUGET_FALLBACK_PACKAGES=
     entrypoint: ["/bin/bash", "-lc"]
@@ -34,7 +33,7 @@ services:
       - ../../:/src:ro
       - infiniframe_linux_work:/work
     environment:
-      - SOLUTION_FILTER=InfiniFrame.GitHubActions.Testing.Automation.slnf
+      - SOLUTION_FILTER=InfiniFrame.GitHubActions.Testing.Playwright.slnf
       - CONFIGURATION=Release
       - NATIVE_PLATFORM=x64
       - FRAMEWORKS=net8.0 net9.0 net10.0
@@ -50,4 +49,3 @@ services:
 
 volumes:
   infiniframe_linux_work:
-

@@ -9,16 +9,12 @@
             "src\\InfiniFrame.Shared\\InfiniFrame.Shared.csproj",
             "src\\InfiniFrame.Tools.Pack\\InfiniFrame.Tools.Pack.csproj",
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
-            "src\\InfiniFrame.Native\\InfiniFrame.Native.proj",
-            "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
+
+            "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
+            "tests\\InfiniFrameTests.Playwright\\InfiniFrameTests.Playwright.csproj",
             "tests\\InfiniFrameTests.Playwright.WebApp.React\\InfiniFrameTests.Playwright.WebApp.React.csproj",
             "tests\\InfiniFrameTests.Playwright.WebApp.Vue\\InfiniFrameTests.Playwright.WebApp.Vue.csproj",
-            "tests\\InfiniFrameTests.Playwright.BlazorWebView\\InfiniFrameTests.Playwright.BlazorWebView.csproj",
-            "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
-            "tests\\InfiniFrameTests.Tools.Pack\\InfiniFrameTests.Tools.Pack.csproj",
-            "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj",
-            "tests\\InfiniFrameTests.BlazorWebView\\InfiniFrameTests.BlazorWebView.csproj",
-            "tests\\InfiniFrameTests.Js\\InfiniFrameTests.Js.csproj"
+            "tests\\InfiniFrameTests.Playwright.BlazorWebView\\InfiniFrameTests.Playwright.BlazorWebView.csproj"
         ]
     }
 }

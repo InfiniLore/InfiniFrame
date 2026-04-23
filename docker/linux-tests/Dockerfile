@@ -25,7 +25,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libnotify4 \
     libnotify-dev \
     libwebkit2gtk-4.1-dev \
-    webkit2gtk-driver \
     libgtk-3-dev \
     libglib2.0-dev \
     libgdk-pixbuf2.0-dev \
