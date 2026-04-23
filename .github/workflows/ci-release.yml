@@ -49,7 +49,7 @@ jobs:
             pr_number: ''
             checkout_ref: ${{ github.sha }}
             run_windows: true
-            run_windows_playwright: true
+            run_windows_automation: true
             run_linux: true
             run_macos: true
             run_docs: true
@@ -99,4 +99,5 @@ jobs:
         with:
             checkout_ref: ${{ needs.bump-version.outputs.tag_name }}
         secrets: inherit
+
 

@@ -19,8 +19,8 @@ on:
                 description: 'Run Windows tests'
                 type: boolean
                 required: true
-            run_windows_playwright:
-                description: 'Run Windows Playwright tests'
+            run_windows_automation:
+                description: 'Run Windows Automation tests'
                 type: boolean
                 required: true
             run_linux:
@@ -128,11 +128,11 @@ jobs:
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    windows-playwright:
-        name: Windows Playwright Tests
-        if: ${{ inputs.run_windows_playwright == true }}
+    windows-automation:
+        name: Windows Automation Tests
+        if: ${{ inputs.run_windows_automation == true }}
         needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-windows-playwright.yml
+        uses: ./.github/workflows/shared-testing-windows-automation.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -152,3 +152,4 @@ jobs:
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
         secrets: inherit
+

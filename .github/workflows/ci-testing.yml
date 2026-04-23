@@ -16,8 +16,8 @@ on:
                 description: 'Run Windows GUI tests'
                 type: boolean
                 default: true
-            run_windows_playwright:
-                description: 'Run Windows Playwright tests'
+            run_windows_automation:
+                description: 'Run Windows Automation tests'
                 type: boolean
                 default: true
             run_linux:
@@ -51,9 +51,10 @@ jobs:
         with:
             pr_number: ${{ inputs.pr_number }}
             run_windows: ${{ inputs.run_windows }}
-            run_windows_playwright: ${{ inputs.run_windows_playwright }}
+            run_windows_automation: ${{ inputs.run_windows_automation }}
             run_linux: ${{ inputs.run_linux }}
             run_macos: ${{ inputs.run_macos }}
             run_docs: ${{ inputs.run_docs }}
             run_trim_aot: ${{ inputs.run_trim_aot }}
         secrets: inherit
+

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>InfiniFrame</RootNamespace>
         <PackageId>InfiniLore.InfiniFrame.Shared</PackageId>
@@ -42,7 +42,7 @@
         <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
         <InternalsVisibleTo Include="InfiniFrame.Blazor"/>
         <InternalsVisibleTo Include="InfiniFrameTests"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright"/>
+        <InternalsVisibleTo Include="InfiniFrameAutomationTests"/>
         <InternalsVisibleTo Include="InfiniFrameTests.Shared"/>
         <InternalsVisibleTo Include="InfiniFrameTests.WebServer"/>
         <InternalsVisibleTo Include="InfiniFrameTests.Js"/>
@@ -199,3 +199,5 @@
     </Target>
 
 </Project>
+
+

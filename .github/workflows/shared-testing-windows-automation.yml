@@ -1,0 +1,246 @@
+name: "Shared: Windows Automation Tests"
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                required: true
+            checkout_ref:
+                type: string
+                required: false
+                default: ''
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+jobs:
+    windows-automation:
+        name: CI Testing - Windows Automation
+        runs-on: windows-latest
+        timeout-minutes: 75
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        permissions:
+            contents: read
+            statuses: write
+            checks: write
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Set Automation Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Automation
+                    state: pending
+                    status-description: Windows Automation tests in progress (net8.0, net9.0, net10.0)
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+
+            -   name: Setup .NET
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache NuGet
+                uses: actions/cache@v5
+                with:
+                    path: ~\.nuget\packages
+                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-nuget-
+
+            -   name: Setup Native dependencies
+                # noinspection UndefinedAction
+                uses: ./.github/actions/setup-dependencies-native
+                # noinspection UndefinedParamsPresent
+                with:
+                    apt-cache-version: 1.0
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-automation.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+
+            -   name: Prepare WebView2 Cache Directory
+                shell: pwsh
+                run: New-Item -ItemType Directory -Path ".cache\webview2" -Force | Out-Null
+
+            -   name: Cache WebView2
+                id: cache-webview2
+                uses: actions/cache@v5
+                with:
+                    path: .cache\webview2
+                    key: webview2-installer-${{ runner.os }}
+
+            -   name: Install WebView2 Runtime
+                shell: pwsh
+                run: |
+                    $installer = "$PWD\.cache\webview2\MicrosoftEdgeWebview2Setup.exe"
+                    if (-Not (Test-Path $installer)) {
+                      Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
+                    }
+                    Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
+
+            -   name: Restore
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.Automation.slnf /p:NoWarn=NU1503
+
+            -   name: Build Release
+                run: |
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
+                      --configuration Release `
+                      --no-restore `
+                      /p:SolutionDir=$GITHUB_WORKSPACE/
+
+                    dotnet build InfiniFrame.GitHubActions.Testing.Automation.slnf `
+                      --configuration Release `
+                      --no-restore `
+                      /p:SolutionDir=$GITHUB_WORKSPACE/
+
+            -   name: Cache Automation Browsers
+                id: cache-automation
+                uses: actions/cache@v5
+                with:
+                    path: ~\AppData\Local\ms-playwright
+                    key: automation-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameAutomationTests.WebApp.React/InfiniFrameAutomationTests.WebApp.React.csproj', 'tests/InfiniFrameAutomationTests.WebApp.Vue/InfiniFrameAutomationTests.WebApp.Vue.csproj', 'tests/InfiniFrameAutomationTests.BlazorWebView/InfiniFrameAutomationTests.BlazorWebView.csproj') }}
+                    restore-keys: |
+                        automation-${{ runner.os }}-
+
+            -   name: Install Automation Browsers
+                if: steps.cache-automation.outputs.cache-hit != 'true'
+                working-directory: tests/InfiniFrameAutomationTests.WebApp.Vue
+                shell: pwsh
+                run: |
+                    $scripts = @(
+                      "bin/Release/net10.0/playwright.ps1",
+                      "bin/Release/net9.0/playwright.ps1",
+                      "bin/Release/net8.0/playwright.ps1"
+                    )
+                    $script = $scripts | Where-Object { Test-Path $_ } | Select-Object -First 1
+                    if (-Not $script) {
+                      throw "Automation browser install script not found in bin/Release/(net8.0|net9.0|net10.0)"
+                    }
+
+                    pwsh $script install
+
+            -   name: Verify Native Binaries
+                shell: pwsh
+                run: |
+                    $frameworks = @("net8.0", "net9.0", "net10.0")
+                    $projects = @(
+                      "tests/InfiniFrameAutomationTests.WebApp.React",
+                      "tests/InfiniFrameAutomationTests.WebApp.Vue",
+                      "tests/InfiniFrameAutomationTests.BlazorWebView"
+                    )
+                    foreach ($framework in $frameworks) {
+                      foreach ($project in $projects) {
+                        $binPath = "$project/bin/Release/$framework"
+                        foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
+                          $fullPath = Join-Path $binPath $dll
+                          if (-Not (Test-Path $fullPath)) {
+                            throw "$dll missing in $binPath"
+                          }
+                        }
+                      }
+                    }
+
+            -   name: Export Actions Runtime
+                uses: actions/github-script@v9
+                with:
+                    script: |
+                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+                        core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
+
+            -   name: Run Automation (net8.0)
+                id: automation_net8
+                if: always()
+                continue-on-error: true
+                timeout-minutes: 20
+                run: dotnet test InfiniFrame.GitHubActions.Testing.Automation.slnf --configuration Release --no-build --no-restore --framework net8.0
+
+            -   name: Upload Automation Logs (net8.0)
+                if: always()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: automation-test-results-net8.0
+                    path: |
+                        tests/InfiniFrameAutomationTests.WebApp.React/bin/Release/net8.0/TestResults
+                        tests/InfiniFrameAutomationTests.WebApp.Vue/bin/Release/net8.0/TestResults
+                        tests/InfiniFrameAutomationTests.BlazorWebView/bin/Release/net8.0/TestResults
+
+            -   name: Run Automation (net9.0)
+                id: automation_net9
+                if: always()
+                continue-on-error: true
+                timeout-minutes: 20
+                run: dotnet test InfiniFrame.GitHubActions.Testing.Automation.slnf --configuration Release --no-build --no-restore --framework net9.0
+
+            -   name: Upload Automation Logs (net9.0)
+                if: always()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: automation-test-results-net9.0
+                    path: |
+                        tests/InfiniFrameAutomationTests.WebApp.React/bin/Release/net9.0/TestResults
+                        tests/InfiniFrameAutomationTests.WebApp.Vue/bin/Release/net9.0/TestResults
+                        tests/InfiniFrameAutomationTests.BlazorWebView/bin/Release/net9.0/TestResults
+
+            -   name: Run Automation (net10.0)
+                id: automation_net10
+                if: always()
+                continue-on-error: true
+                timeout-minutes: 20
+                run: dotnet test InfiniFrame.GitHubActions.Testing.Automation.slnf --configuration Release --no-build --no-restore --framework net10.0
+
+            -   name: Upload Automation Logs (net10.0)
+                if: always()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: automation-test-results-net10.0
+                    path: |
+                        tests/InfiniFrameAutomationTests.WebApp.React/bin/Release/net10.0/TestResults
+                        tests/InfiniFrameAutomationTests.WebApp.Vue/bin/Release/net10.0/TestResults
+                        tests/InfiniFrameAutomationTests.BlazorWebView/bin/Release/net10.0/TestResults
+
+            -   name: Fail If Any Framework Failed
+                if: always()
+                shell: pwsh
+                run: |
+                    $failed = @()
+                    if ("${{ steps.automation_net8.outcome }}" -ne "success") { $failed += "net8.0" }
+                    if ("${{ steps.automation_net9.outcome }}" -ne "success") { $failed += "net9.0" }
+                    if ("${{ steps.automation_net10.outcome }}" -ne "success") { $failed += "net10.0" }
+                    if ($failed.Count -gt 0) {
+                      throw "Windows Automation failed for framework(s): $($failed -join ', ')"
+                    }
+
+            -   name: Update Automation Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Automation
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: Windows Automation tests passed (net8.0, net9.0, net10.0)
+                    failure-description: Windows Automation tests failed (one or more frameworks)
+

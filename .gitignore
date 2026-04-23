@@ -352,9 +352,9 @@ healthchecksdb
 # wwwroot folders from js web based projects
 /examples/InfiniFrameExample.WebApp.React/wwwroot/
 /examples/InfiniFrameExample.WebApp.Vue/wwwroot/
-/tests/InfiniFrameTests.Playwright.WebApp.React/wwwroot/
-/tests/InfiniFrameTests.Playwright.WebApp.Vue/wwwroot/
-#/tests/InfiniFrameTests.Playwright.BlazorWebView/wwwroot/ This needs to be included for Blazor to work
+/tests/InfiniFrameAutomationTests.WebApp.React/wwwroot/
+/tests/InfiniFrameAutomationTests.WebApp.Vue/wwwroot/
+#/tests/InfiniFrameAutomationTests.BlazorWebView/wwwroot/ This needs to be included for Blazor to work
 
 /docs/node_modules/
 

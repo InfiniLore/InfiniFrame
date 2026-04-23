@@ -62,6 +62,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     int _lastTop = 0;
     int _lastWidth = 0;
     int _lastHeight = 0;
+    bool _automationEnabled = false;
 
     void set_webkit_settings();
     void set_webkit_customsettings(WebKitSettings* settings);
@@ -339,6 +340,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
 
     if (initParams->BrowserControlInitParameters != nullptr)
         m_impl->_browserControlInitParameters = initParams->BrowserControlInitParameters;
+    
+    const char* automationEnv = g_getenv("INFINIFRAME_WEBKIT_AUTOMATION");
+    m_impl->_automationEnabled = automationEnv != nullptr && strcmp(automationEnv, "1") == 0;
 
     m_impl->_transparentEnabled = initParams->Transparent;
     m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
@@ -987,7 +991,36 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         struct sigaction old_action;
         sigaction(SIGCHLD, nullptr, &old_action);
         WebKitUserContentManager* contentManager = webkit_user_content_manager_new();
-        m_impl->_webview = webkit_web_view_new_with_user_content_manager(contentManager);
+        if (m_impl->_automationEnabled) {
+            m_impl->_webview = GTK_WIDGET(g_object_new(
+                WEBKIT_TYPE_WEB_VIEW,
+                "user-content-manager", contentManager,
+                "is-controlled-by-automation", TRUE,
+                nullptr
+            ));
+
+            WebKitWebContext* context = webkit_web_view_get_context(WEBKIT_WEB_VIEW(m_impl->_webview));
+            webkit_web_context_set_automation_allowed(context, TRUE);
+            g_signal_connect(
+                context,
+                "automation-started",
+                G_CALLBACK(+[](WebKitWebContext*, WebKitAutomationSession* session, gpointer userData) {
+                    auto* webview = WEBKIT_WEB_VIEW(userData);
+                    g_signal_connect(
+                        session,
+                        "create-web-view",
+                        G_CALLBACK(+[](WebKitAutomationSession*, gpointer createWebViewData) -> WebKitWebView* {
+                            return WEBKIT_WEB_VIEW(createWebViewData);
+                        }),
+                        webview
+                    );
+                }),
+                m_impl->_webview
+            );
+        }
+        else {
+            m_impl->_webview = webkit_web_view_new_with_user_content_manager(contentManager);
+        }
 
         m_impl->set_webkit_settings();
 

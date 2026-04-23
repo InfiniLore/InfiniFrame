@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame</PackageId>
@@ -6,7 +6,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="InfiniFrameTests"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright"/>
+        <InternalsVisibleTo Include="InfiniFrameAutomationTests"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -24,3 +24,5 @@
     </ItemGroup>
 
 </Project>
+
+
