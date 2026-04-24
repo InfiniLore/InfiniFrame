@@ -5,7 +5,7 @@ using InfiniFrame;
 using Microsoft.Playwright;
 using TUnit.Engine.Exceptions;
 
-namespace InfiniFrameTests.Playwright;
+namespace InfiniFrameTests.Playwright.Tests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

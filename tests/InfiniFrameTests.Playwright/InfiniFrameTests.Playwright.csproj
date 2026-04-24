@@ -1,11 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <EnableNativeDllCopy>true</EnableNativeDllCopy>
-    </PropertyGroup>
-
     <ItemGroup>
-        <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Core"/>
         <PackageReference Include="TUnit.Playwright"/>
     </ItemGroup>
 
@@ -13,5 +8,4 @@
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
-
 </Project>

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrameTests.Playwright.BlazorWebView.TestUtility;
+using InfiniFrameTests.Playwright.Tests;
 
 namespace InfiniFrameTests.Playwright.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------

@@ -6,7 +6,7 @@ using InfiniFrameTests.Shared;
 using Microsoft.Playwright;
 using System.Text.Json;
 
-namespace InfiniFrameTests.Playwright;
+namespace InfiniFrameTests.Playwright.Tests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

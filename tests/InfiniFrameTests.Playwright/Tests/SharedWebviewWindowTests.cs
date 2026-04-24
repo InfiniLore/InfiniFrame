@@ -4,7 +4,7 @@
 using InfiniFrameTests.Shared;
 using Microsoft.Playwright;
 
-namespace InfiniFrameTests.Playwright;
+namespace InfiniFrameTests.Playwright.Tests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
