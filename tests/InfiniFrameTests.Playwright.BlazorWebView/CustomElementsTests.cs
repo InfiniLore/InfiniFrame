@@ -75,4 +75,66 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         await Assert.That(renderedBeta).IsEqualTo("beta");
     }
+
+    [Test]
+    [NotInParallel(ParallelControl.Playwright)]
+    public async Task JsComponent_WithoutInitializer_AutoRegisters_AsCustomElement_ByDefault() {
+        IPage page = await GetRootPageAsync();
+
+        bool isCustomElementDefined = await page.EvaluateAsync<bool>(
+            // lang=javascript
+            "() => window.customElements.get('infiniframe-no-init-component') !== undefined"
+        );
+        if (!isCustomElementDefined) {
+            isCustomElementDefined = await WaitForStateChangeAsync(
+                false,
+                stateProvider: () => page.EvaluateAsync<bool>(
+                    // lang=javascript
+                    "() => window.customElements.get('infiniframe-no-init-component') !== undefined"
+                )
+            );
+        }
+
+        await Assert.That(isCustomElementDefined).IsTrue();
+
+        await page.EvaluateAsync(
+            // lang=javascript
+            """
+            () => {
+                const existingHost = document.getElementById("no-init-component-host");
+                if (existingHost) existingHost.remove();
+
+                const host = document.createElement("infiniframe-no-init-component");
+                host.id = "no-init-component-host";
+                host.setAttribute("label", "gamma");
+                document.body.appendChild(host);
+            }
+            """
+        );
+
+        string? renderedGamma = await WaitForStateChangeAsync(
+            (string?)null,
+            stateProvider: () => page.EvaluateAsync<string?>(
+                // lang=javascript
+                "() => document.querySelector('#no-init-component-host .custom-element-probe-value')?.textContent?.trim() ?? null"
+            )
+        );
+
+        await Assert.That(renderedGamma).IsEqualTo("gamma");
+
+        await page.EvaluateAsync(
+            // lang=javascript
+            "() => document.getElementById('no-init-component-host')?.setAttribute('label', 'delta')"
+        );
+
+        string? renderedDelta = await WaitForStateChangeAsync(
+            renderedGamma,
+            stateProvider: () => page.EvaluateAsync<string?>(
+                // lang=javascript
+                "() => document.querySelector('#no-init-component-host .custom-element-probe-value')?.textContent?.trim() ?? null"
+            )
+        );
+
+        await Assert.That(renderedDelta).IsEqualTo("delta");
+    }
 }

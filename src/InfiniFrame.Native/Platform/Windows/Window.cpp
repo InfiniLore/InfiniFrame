@@ -1417,6 +1417,64 @@ void InfiniFrameWindow::AttachWebView() {
 
         window.customElements.define(identifier, BlazorCustomElementHost);
     };
+
+    function shouldAutoRegisterMissingInitializerCustomElements(){
+        return true;
+    }
+
+    function autoRegisterMissingInitializerCustomElements(componentDefinitionsByIdentifier, identifiersByInitializer){
+        if(!shouldAutoRegisterMissingInitializerCustomElements()){return;}
+        if(typeof window.registerBlazorCustomElement!=='function'){return;}
+
+        var initializedIdentifiers={};
+        for(var initializerIdentifiers of Object.values(identifiersByInitializer||{})){
+            if(!Array.isArray(initializerIdentifiers)){continue;}
+            for(var identifier of initializerIdentifiers){
+                initializedIdentifiers[identifier]=true;
+            }
+        }
+
+        for(var entry of Object.entries(componentDefinitionsByIdentifier||{})){
+            var identifier=entry[0];
+            if(initializedIdentifiers[identifier]){continue;}
+            window.registerBlazorCustomElement(identifier, entry[1]);
+        }
+    }
+
+    function patchAttachWebRendererInteropIfAvailable(){
+        var blazor=window.Blazor;
+        if(!blazor||!blazor._internal||typeof blazor._internal.attachWebRendererInterop!=='function'){return false;}
+        if(blazor._internal.__infiniframeAttachWebRendererInteropPatched){return true;}
+
+        var originalAttach=blazor._internal.attachWebRendererInterop;
+        blazor._internal.attachWebRendererInterop=function(rendererId, interopMethods, componentDefinitionsByIdentifier, identifiersByInitializer){
+            var attachResult=originalAttach.apply(this, arguments);
+            autoRegisterMissingInitializerCustomElements(componentDefinitionsByIdentifier, identifiersByInitializer);
+            return attachResult;
+        };
+        blazor._internal.__infiniframeAttachWebRendererInteropPatched=true;
+        return true;
+    }
+
+    if(!patchAttachWebRendererInteropIfAvailable()){
+        var blazorDescriptor=Object.getOwnPropertyDescriptor(window,'Blazor');
+        if(!blazorDescriptor||blazorDescriptor.configurable){
+            var blazorValue=window.Blazor;
+            Object.defineProperty(window,'Blazor',{
+                configurable:true,
+                enumerable:true,
+                get:function(){return blazorValue;},
+                set:function(value){
+                    blazorValue=value;
+                    patchAttachWebRendererInteropIfAvailable();
+                }
+            });
+
+            if(blazorValue){
+                patchAttachWebRendererInteropIfAvailable();
+            }
+        }
+    }
 })();)JS",
                                         nullptr
                                         );

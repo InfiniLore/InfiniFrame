@@ -35,5 +35,8 @@ public sealed class PlaywrightContext : BlazorPlaywrightContextBase<App> {
         => services.AddMudServices();
 
     protected override void ConfigureRootComponents(RootComponentList rootComponents)
-        => rootComponents.RegisterForJavaScript<CustomElementProbe>("infiniframe-custom-element", "registerBlazorCustomElement");
+    {
+        rootComponents.RegisterForJavaScript<CustomElementProbe>("infiniframe-custom-element", "registerBlazorCustomElement");
+        rootComponents.RegisterForJavaScript<CustomElementProbe>("infiniframe-no-init-component");
+    }
 }
