@@ -4,6 +4,8 @@
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
 using InfiniFrameTests.Shared;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
@@ -14,6 +16,12 @@ namespace InfiniFrameTests.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilderTests {
+    private sealed class TestJsComponent : IComponent {
+        public void Attach(RenderHandle renderHandle) { }
+
+        public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
+    }
+
     private sealed class DisposeProbe : IDisposable {
         public bool IsDisposed { get; private set; }
 
@@ -121,6 +129,35 @@ public class InfiniFrameBlazorAppBuilderTests {
         // Assert
         await Assert.That(app.ServiceProvider).IsNotNull();
         await app.DisposeAsync();
+    }
+
+    [Test]
+    public async Task CreateDefault_RootComponents_ImplementsIJsComponentConfiguration() {
+        // Arrange
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        IJSComponentConfiguration configuration = builder.RootComponents;
+
+        // Assert
+        await Assert.That(configuration.JSComponents).IsSameReferenceAs(builder.RootComponents.JSComponents);
+    }
+
+    [Test]
+    public async Task CreateDefault_RootComponents_RegisterForJavaScript_WritesToSharedStore() {
+        // Arrange
+        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        builder.RootComponents.RegisterForJavaScript<TestJsComponent>("test-js-component");
+
+        // Assert
+        await using ServiceProvider provider = builder.Services.BuildServiceProvider();
+        var store = provider.GetRequiredService<JSComponentConfigurationStore>();
+        var config = provider.GetRequiredService<IInfiniFrameJsComponentConfiguration>();
+
+        await Assert.That(store).IsSameReferenceAs(builder.RootComponents.JSComponents);
+        await Assert.That(config.JSComponents).IsSameReferenceAs(builder.RootComponents.JSComponents);
     }
 
     [Test]
@@ -244,7 +281,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         window.When(x => x.Invoke(Arg.Any<Action>()))
             .Do(_ => throw new InvalidOperationException("Invoke should not be used during Run() shutdown."));
 
-        var services = new ServiceCollection()
+        ServiceProvider services = new ServiceCollection()
             .AddSingleton(window)
             .AddSingleton<DisposeProbe>()
             .BuildServiceProvider();

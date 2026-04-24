@@ -4,7 +4,6 @@
 using InfiniFrame.BlazorWebView.FileProviders.Static;
 using InfiniFrame.Js;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
@@ -46,7 +45,6 @@ public class InfiniFrameBlazorAppBuilder {
             .AddSingleton<IInfiniFrameWebViewManager, InfiniFrameWebViewManager>()
             .AddSingleton<IInfiniFrameJsComponentConfiguration, InfiniFrameJsComponentConfiguration>()
             .AddSingleton<Dispatcher, InfiniFrameDispatcher>()
-            .AddSingleton<JSComponentConfigurationStore>()
             .AddSingleton<InfiniFrameBlazorApp>()
             .AddSingleton<InfiniFrameHttpHandler>()
             .AddSingleton<InfiniFrameSynchronizationContext>()
@@ -54,7 +52,8 @@ public class InfiniFrameBlazorAppBuilder {
             .AddBlazorWebView()
             .AddSingleton(ConfigureFileProvider(fileProvider))
             .AddSingleton(appBuilder.WindowBuilder)
-            .AddSingleton(appBuilder.RootComponents);
+            .AddSingleton(appBuilder.RootComponents)
+            .AddSingleton(appBuilder.RootComponents.JSComponents);
 
         appBuilder.Services.TryAddSingleton<IInfiniFrameUnhandledExceptionSource, AppDomainUnhandledExceptionSource>();
 
