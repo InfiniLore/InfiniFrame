@@ -185,6 +185,7 @@ jobs:
 
             -   name: Fail if any framework failed
                 if: always()
+                id: aggregate
                 shell: pwsh
                 run: |
                     $results = @(
@@ -205,10 +206,18 @@ jobs:
                     }
                     
                     if ($failed.Count -gt 0) {
+                        $msg = "Windows Playwright tests failed: $($failed -join ', ')"
+                        
+                        # expose output for later steps
+                        "failure_message=$msg" >> $env:GITHUB_OUTPUT
+                        
                         Write-Host ""
-                        Write-Host "❌ Failed frameworks: $($failed -join ', ')"
+                        Write-Host "❌ $msg"
                         exit 1
                     }
+                    
+                    $msg = "Windows Playwright tests passed (net8.0, net9.0, net10.0)"
+                    "failure_message=$msg" >> $env:GITHUB_OUTPUT
                     
                     Write-Host ""
                     Write-Host "✅ All frameworks passed"
@@ -226,5 +235,5 @@ jobs:
                     context: CI Testing - Windows Playwright
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
-                    success-description: Windows Playwright tests passed (net8.0, net9.0, net10.0)
-                    failure-description: Windows Playwright tests failed (one or more frameworks)
+                    success-description: ${{ steps.aggregate.outputs.failure_message }}
+                    failure-description: ${{ steps.aggregate.outputs.failure_message }}
