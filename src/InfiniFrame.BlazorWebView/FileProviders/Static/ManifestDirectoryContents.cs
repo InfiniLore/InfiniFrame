@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.FileProviders;
+using System.Collections;
 
 namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -12,5 +13,5 @@ internal sealed class ManifestDirectoryContents(IReadOnlyList<IFileInfo> entries
 
     public IEnumerator<IFileInfo> GetEnumerator() => entries.GetEnumerator();
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

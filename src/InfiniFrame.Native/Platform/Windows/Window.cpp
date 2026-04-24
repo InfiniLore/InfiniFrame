@@ -1095,12 +1095,17 @@ void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const {
 }
 
 void InfiniFrameWindow::Invoke(ACTION callback) {
-    if (!callback) return;
+    if (!callback)
+        return;
 
-    if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd)) return;
+    if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd))
+        return;
 
     InvokeWaitInfo waitInfo = {};
-    if (!PostMessage(m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo))) return;
+    if (!PostMessage(
+        m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo)
+        ))
+        return;
 
     std::unique_lock<std::mutex> uLock(invokeLockMutex);
     const bool completed = waitInfo.completionNotifier.wait_for(
@@ -1109,7 +1114,7 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
         [&] {
             return waitInfo.isCompleted;
         }
-    );
+        );
 
     if (!completed) {
         OutputDebugStringW(L"InfiniFrameWindow::Invoke timed out waiting for UI thread callback.\n");
@@ -1155,8 +1160,10 @@ void InfiniFrameWindow::AttachWebView() {
     bool requiresAppSchemeRegistration = std::any_of(
         m_impl->_customSchemeNames.begin(),
         m_impl->_customSchemeNames.end(),
-        [](const std::wstring& schemeName) { return _wcsicmp(schemeName.c_str(), L"app") == 0; }
-    );
+        [](const std::wstring& schemeName) {
+            return _wcsicmp(schemeName.c_str(), L"app") == 0;
+        }
+        );
     bool appSchemeRegistrationSupported = false;
 
     // Register custom schemes with WebView2 so top-level navigations like app://... are allowed.
@@ -1201,7 +1208,7 @@ void InfiniFrameWindow::AttachWebView() {
             L"This app requires WebView2 custom scheme registration for app://localhost/. Please update WebView2 Runtime to a version that supports ICoreWebView2EnvironmentOptions4.",
             L"WebView2 Runtime Too Old",
             MB_OK | MB_ICONERROR
-        );
+            );
         return;
     }
 
@@ -1293,6 +1300,192 @@ void InfiniFrameWindow::AttachWebView() {
                                         nullptr
                                         );
                             m_impl->_webviewWindow->
+                                    AddScriptToExecuteOnDocumentCreated(
+                                        LR"JS((function(){
+    if(window.__infiniframeRegisterBlazorCustomElement){return;}
+    window.__infiniframeRegisterBlazorCustomElement=true;
+
+    function toKebabCase(name){
+        return String(name)
+            .replace(/([a-z0-9])([A-Z])/g,'$1-$2')
+            .replace(/_/g,'-')
+            .toLowerCase();
+    }
+
+    function toParameterValue(rawValue, typeName){
+        if(typeName==='bool'||typeName==='boolean'){
+            if(rawValue===null){return false;}
+            if(rawValue===''){return true;}
+            return String(rawValue).toLowerCase()!=='false';
+        }
+        if(typeName==='number'||typeName==='int'||typeName==='float'||typeName==='double'||typeName==='decimal'){
+            var numericValue=Number(rawValue);
+            return Number.isNaN(numericValue)?rawValue:numericValue;
+        }
+        return rawValue;
+    }
+
+    window.registerBlazorCustomElement=window.registerBlazorCustomElement||function(identifier, parameterDefinitions){
+        if(!window.Blazor||!window.Blazor.rootComponents||!window.Blazor.rootComponents.add){
+            console.warn('registerBlazorCustomElement skipped: Blazor.rootComponents is unavailable.');
+            return;
+        }
+        if(!window.customElements||typeof window.customElements.define!=='function'){
+            console.warn('registerBlazorCustomElement skipped: customElements API is unavailable.');
+            return;
+        }
+        if(window.customElements.get(identifier)){
+            return;
+        }
+
+        var definitions=Array.isArray(parameterDefinitions)?parameterDefinitions:[];
+        var parametersByAttribute={};
+        for(var index=0;index<definitions.length;index++){
+            var definition=definitions[index];
+            if(!definition||!definition.name){continue;}
+            var parameterType=String(definition.type||'').toLowerCase();
+            if(parameterType==='eventcallback'){continue;}
+            var attributeName=toKebabCase(definition.name);
+            parametersByAttribute[attributeName]={
+                name:definition.name,
+                type:parameterType
+            };
+        }
+
+        var observedAttributes=Object.keys(parametersByAttribute);
+
+        class BlazorCustomElementHost extends HTMLElement{
+            static get observedAttributes(){
+                return observedAttributes;
+            }
+
+            constructor(){
+                super();
+                this._component=null;
+                this._isDisconnected=false;
+            }
+
+            connectedCallback(){
+                this._isDisconnected=false;
+                var parameters=this._getCurrentParameters();
+                window.Blazor.rootComponents
+                    .add(this, identifier, parameters)
+                    .then((component)=>{
+                        this._component=component;
+                        if(this._isDisconnected&&this._component){
+                            var detachedComponent=this._component;
+                            this._component=null;
+                            return detachedComponent.dispose();
+                        }
+                        return null;
+                    })
+                    .catch((error)=>{
+                        console.error('Failed to attach custom element component.', error);
+                    });
+            }
+
+            disconnectedCallback(){
+                this._isDisconnected=true;
+                var component=this._component;
+                this._component=null;
+                if(component&&typeof component.dispose==='function'){
+                    Promise.resolve(component.dispose()).catch(function(){});
+                }
+            }
+
+            attributeChangedCallback(attributeName, oldValue, newValue){
+                if(oldValue===newValue){return;}
+                if(!this._component||typeof this._component.setParameters!=='function'){return;}
+                var parameterInfo=parametersByAttribute[String(attributeName).toLowerCase()];
+                if(!parameterInfo){return;}
+
+                var nextParameters={};
+                nextParameters[parameterInfo.name]=toParameterValue(newValue, parameterInfo.type);
+
+                var updateResult=this._component.setParameters(nextParameters);
+                if(updateResult&&typeof updateResult.catch==='function'){
+                    updateResult.catch(function(error){
+                        console.error('Failed to update custom element parameters.', error);
+                    });
+                }
+            }
+
+            _getCurrentParameters(){
+                var parameters={};
+                for(var index=0;index<observedAttributes.length;index++){
+                    var attributeName=observedAttributes[index];
+                    if(!this.hasAttribute(attributeName)){continue;}
+                    var parameterInfo=parametersByAttribute[attributeName];
+                    parameters[parameterInfo.name]=toParameterValue(this.getAttribute(attributeName), parameterInfo.type);
+                }
+                return parameters;
+            }
+        }
+
+        window.customElements.define(identifier, BlazorCustomElementHost);
+    };
+
+    function shouldAutoRegisterMissingInitializerCustomElements(){
+        return true;
+    }
+
+    function autoRegisterMissingInitializerCustomElements(componentDefinitionsByIdentifier, identifiersByInitializer){
+        if(!shouldAutoRegisterMissingInitializerCustomElements()){return;}
+        if(typeof window.registerBlazorCustomElement!=='function'){return;}
+
+        var initializedIdentifiers={};
+        for(var initializerIdentifiers of Object.values(identifiersByInitializer||{})){
+            if(!Array.isArray(initializerIdentifiers)){continue;}
+            for(var identifier of initializerIdentifiers){
+                initializedIdentifiers[identifier]=true;
+            }
+        }
+
+        for(var entry of Object.entries(componentDefinitionsByIdentifier||{})){
+            var identifier=entry[0];
+            if(initializedIdentifiers[identifier]){continue;}
+            window.registerBlazorCustomElement(identifier, entry[1]);
+        }
+    }
+
+    function patchAttachWebRendererInteropIfAvailable(){
+        var blazor=window.Blazor;
+        if(!blazor||!blazor._internal||typeof blazor._internal.attachWebRendererInterop!=='function'){return false;}
+        if(blazor._internal.__infiniframeAttachWebRendererInteropPatched){return true;}
+
+        var originalAttach=blazor._internal.attachWebRendererInterop;
+        blazor._internal.attachWebRendererInterop=function(rendererId, interopMethods, componentDefinitionsByIdentifier, identifiersByInitializer){
+            var attachResult=originalAttach.apply(this, arguments);
+            autoRegisterMissingInitializerCustomElements(componentDefinitionsByIdentifier, identifiersByInitializer);
+            return attachResult;
+        };
+        blazor._internal.__infiniframeAttachWebRendererInteropPatched=true;
+        return true;
+    }
+
+    if(!patchAttachWebRendererInteropIfAvailable()){
+        var blazorDescriptor=Object.getOwnPropertyDescriptor(window,'Blazor');
+        if(!blazorDescriptor||blazorDescriptor.configurable){
+            var blazorValue=window.Blazor;
+            Object.defineProperty(window,'Blazor',{
+                configurable:true,
+                enumerable:true,
+                get:function(){return blazorValue;},
+                set:function(value){
+                    blazorValue=value;
+                    patchAttachWebRendererInteropIfAvailable();
+                }
+            });
+
+            if(blazorValue){
+                patchAttachWebRendererInteropIfAvailable();
+            }
+        }
+    }
+})();)JS",
+                                        nullptr
+                                        );
+                            m_impl->_webviewWindow->
                                     add_WebMessageReceived(
                                         Callback<
                                             ICoreWebView2WebMessageReceivedEventHandler>(
@@ -1315,9 +1508,9 @@ void InfiniFrameWindow::AttachWebView() {
                                                         );
                                                 if (
                                                     (source.get() == nullptr
-                                                     || source.get()[0] == L'\0')
+                                                        || source.get()[0] == L'\0')
                                                     && m_impl->_webviewWindow != nullptr
-                                                    ) {
+                                                ) {
                                                     m_impl->
                                                         _webviewWindow->
                                                         get_Source(
@@ -1345,14 +1538,14 @@ void InfiniFrameWindow::AttachWebView() {
                                     L"*",
                                     COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
                                     COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
-                                );
+                                    );
                             }
                             else {
                                 m_impl->_webviewWindow->
-                                    AddWebResourceRequestedFilter(
-                                        L"*",
-                                        COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
-                                    );
+                                        AddWebResourceRequestedFilter(
+                                            L"*",
+                                            COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
+                                            );
                             }
                             m_impl->_webviewWindow->
                                     add_WebResourceRequested(
@@ -1387,25 +1580,34 @@ void InfiniFrameWindow::AttachWebView() {
                                                 std::wstring requestOrigin;
                                                 if (SUCCEEDED(req->get_Headers(&requestHeaders)) && requestHeaders) {
                                                     wil::unique_cotaskmem_string originHeaderValue;
-                                                    if (SUCCEEDED(requestHeaders->GetHeader(L"Origin", &originHeaderValue))
+                                                    if (SUCCEEDED(
+                                                            requestHeaders->GetHeader(L"Origin", &originHeaderValue)
+                                                            )
                                                         && originHeaderValue.get() != nullptr
                                                         && originHeaderValue.get()[0] != L'\0') {
                                                         requestOrigin = originHeaderValue.get();
                                                     }
                                                 }
 
-                                                if (uriString.find(L"/_framework/blazor.modules.json") != std::wstring::npos) {
+                                                if (uriString.find(L"/_framework/blazor.modules.json") !=
+                                                    std::wstring::npos) {
                                                     static constexpr BYTE emptyModuleArray[] = {'[', ']'};
                                                     wil::com_ptr<IStream> dataStream;
-                                                    dataStream.attach(SHCreateMemStream(emptyModuleArray, sizeof(emptyModuleArray)));
-                                                    if (!dataStream) return S_OK;
+                                                    dataStream.attach(
+                                                        SHCreateMemStream(emptyModuleArray, sizeof(emptyModuleArray))
+                                                        );
+                                                    if (!dataStream)
+                                                        return S_OK;
 
                                                     std::wstring responseHeaders = L"Content-Type: application/json";
-                                                    responseHeaders += L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
+                                                    responseHeaders +=
+                                                        L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
                                                     responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
                                                     if (!requestOrigin.empty()) {
-                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: " + requestOrigin;
-                                                        responseHeaders += L"\r\nAccess-Control-Allow-Credentials: true";
+                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: " +
+                                                            requestOrigin;
+                                                        responseHeaders +=
+                                                            L"\r\nAccess-Control-Allow-Credentials: true";
                                                         responseHeaders += L"\r\nVary: Origin";
                                                     }
                                                     else {
@@ -1419,7 +1621,7 @@ void InfiniFrameWindow::AttachWebView() {
                                                         L"OK",
                                                         responseHeaders.c_str(),
                                                         &response
-                                                    );
+                                                        );
                                                     args->put_Response(response.get());
                                                     return S_OK;
                                                 }
@@ -1520,16 +1722,21 @@ void InfiniFrameWindow::AttachWebView() {
                                                             wil::com_ptr
                                                                 <ICoreWebView2WebResourceResponse>
                                                                 response;
-                                                            std::wstring responseHeaders = L"Content-Type: " + contentTypeWS;
-                                                            responseHeaders += L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
+                                                            std::wstring responseHeaders = L"Content-Type: " +
+                                                                contentTypeWS;
+                                                            responseHeaders +=
+                                                                L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
                                                             responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
                                                             if (!requestOrigin.empty()) {
-                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: " + requestOrigin;
-                                                                responseHeaders += L"\r\nAccess-Control-Allow-Credentials: true";
+                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: "
+                                                                    + requestOrigin;
+                                                                responseHeaders +=
+                                                                    L"\r\nAccess-Control-Allow-Credentials: true";
                                                                 responseHeaders += L"\r\nVary: Origin";
                                                             }
                                                             else {
-                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: *";
+                                                                responseHeaders +=
+                                                                    L"\r\nAccess-Control-Allow-Origin: *";
                                                             }
                                                             m_impl
                                                                 ->

@@ -51,6 +51,8 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
     protected virtual void ConfigureServices(IServiceCollection services) {}
 
+    protected virtual void ConfigureRootComponents(RootComponentList rootComponents) {}
+
     protected virtual void ConfigureWindowBuilder(IInfiniFrameWindowBuilder windowBuilder, int playwrightDevtoolsPort) {
         windowBuilder
             .SetTitle(DefaultDocumentTitle)
@@ -82,6 +84,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
             var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
 
             ConfigureServices(builder.Services);
+            ConfigureRootComponents(builder.RootComponents);
             builder.RootComponents.Add<TRootComponent>("app");
             builder.WithInfiniFrameWindowBuilder(windowBuilder => ConfigureWindowBuilder(windowBuilder, _playwrightDevtoolsPort));
 

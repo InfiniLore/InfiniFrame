@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {InteropEnvelopeV1, ParseError, ParsedInteropMessage} from "../Contracts/IInteropEnvelope";
+import {InteropEnvelopeV1, ParsedInteropMessage, ParseError} from "../Contracts/IInteropEnvelope";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

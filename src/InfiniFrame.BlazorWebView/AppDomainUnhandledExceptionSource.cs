@@ -21,6 +21,7 @@ internal sealed class AppDomainUnhandledExceptionSource : IInfiniFrameUnhandledE
         public void Dispose() {
             UnhandledExceptionEventHandler? handler = Interlocked.Exchange(ref _handler, null);
             if (handler is null) return;
+
             AppDomain.CurrentDomain.UnhandledException -= handler;
         }
     }

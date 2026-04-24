@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,14 +18,14 @@ public static class InfiniFrameUriSecurityPolicyRegistry {
     // -----------------------------------------------------------------------------------------------------------------
     public static InfiniFrameUriSecurityPolicy GetForBuilder(IInfiniFrameWindowBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
-        return BuilderPolicies.GetValue(builder, static _ => new PolicyHolder()).Policy;
+        return BuilderPolicies.GetValue(builder, createValueCallback: static _ => new PolicyHolder()).Policy;
     }
 
     public static void ConfigureForBuilder(IInfiniFrameWindowBuilder builder, Action<InfiniFrameUriSecurityPolicyBuilder> configure) {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(configure);
 
-        PolicyHolder holder = BuilderPolicies.GetValue(builder, static _ => new PolicyHolder());
+        PolicyHolder holder = BuilderPolicies.GetValue(builder, createValueCallback: static _ => new PolicyHolder());
         var policyBuilder = new InfiniFrameUriSecurityPolicyBuilder(holder.Policy);
         configure(policyBuilder);
         holder.Policy = policyBuilder.Build();
@@ -47,9 +46,8 @@ public static class InfiniFrameUriSecurityPolicyRegistry {
     }
 
     private sealed class PolicyHolder(InfiniFrameUriSecurityPolicy policy) {
-        public InfiniFrameUriSecurityPolicy Policy { get; set; } = policy;
 
         public PolicyHolder() : this(InfiniFrameUriSecurityPolicy.Default) {}
-
+        public InfiniFrameUriSecurityPolicy Policy { get; set; } = policy;
     }
 }

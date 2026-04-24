@@ -17,20 +17,18 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     private static readonly ILogger<IInfiniFrameWindow> FallbackLogger = NullLogger<IInfiniFrameWindow>.Instance;
 
     private readonly InfiniFrameWindowNativeParameterBuilder _configuration = new();
-    public IInfiniFrameWindowNativeParameterBuilder Configuration => _configuration;
+    private readonly InfiniFrameWindowCustomSchemeHandlers _customSchemeHandlers = new();
+    private readonly InfiniFrameWindowMessageHandlers _messageHandlers = new();
 
     private InfiniFrameWindowEvents _events = new();
-    public IInfiniFrameWindowEvents Events => _events;
 
-    private readonly InfiniFrameWindowMessageHandlers _messageHandlers = new();
+    private InfiniFrameWindowBuilder() {}
+    public IInfiniFrameWindowNativeParameterBuilder Configuration => _configuration;
+    public IInfiniFrameWindowEvents Events => _events;
     public IInfiniFrameWindowMessageHandlers MessageHandlers => _messageHandlers;
 
     public StaticAssetSettings? StaticAssets { get; set; }
-
-    private readonly InfiniFrameWindowCustomSchemeHandlers _customSchemeHandlers = new();
     public IInfiniFrameWindowCustomSchemeHandlers CustomSchemeHandlers => _customSchemeHandlers;
-
-    private InfiniFrameWindowBuilder() {}
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -42,27 +40,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameNativeParameters GetParameters(IServiceProvider? provider = null) {
-        if (provider is null) return _configuration.ToNativeParameters();
-
-        var config = provider.GetService<IConfiguration>();
-        IConfigurationSection? section = config?.GetSection("InfiniFrame");
-
-        if (section is not null && section.Exists()) {
-            InfiniFrameWindowNativeParameterSectionApplier.Apply(section, _configuration);
-        }
-
-        return _configuration.ToNativeParameters();
-    }
-
-    internal static ILogger<IInfiniFrameWindow> ResolveLogger(IServiceProvider? provider) {
-        if (provider is null) return FallbackLogger;
-
-        return provider.GetService<ILogger<IInfiniFrameWindow>>()
-            ?? provider.GetService<ILoggerFactory>()?.CreateLogger<IInfiniFrameWindow>()
-            ?? FallbackLogger;
-    }
-
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         InfiniFrameWindowBuildSnapshot snapshot = CreateSnapshot(provider);
         InfiniFrameWindowEvents events = InfiniFrameWindowEvents.FromSnapshot(snapshot.Events);
@@ -93,11 +70,32 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         startupParameters.WebMessageReceivedHandler = events.OnWebMessageReceived;
         startupParameters.CustomSchemeHandler = window.OnCustomScheme;
         window.StartupParameters = startupParameters;
-        
+
         events.CompleteSetup(window);
         window.Initialize();
         return window;
 
+    }
+
+    private InfiniFrameNativeParameters GetParameters(IServiceProvider? provider = null) {
+        if (provider is null) return _configuration.ToNativeParameters();
+
+        var config = provider.GetService<IConfiguration>();
+        IConfigurationSection? section = config?.GetSection("InfiniFrame");
+
+        if (section is not null && section.Exists()) {
+            InfiniFrameWindowNativeParameterSectionApplier.Apply(section, _configuration);
+        }
+
+        return _configuration.ToNativeParameters();
+    }
+
+    internal static ILogger<IInfiniFrameWindow> ResolveLogger(IServiceProvider? provider) {
+        if (provider is null) return FallbackLogger;
+
+        return provider.GetService<ILogger<IInfiniFrameWindow>>()
+            ?? provider.GetService<ILoggerFactory>()?.CreateLogger<IInfiniFrameWindow>()
+            ?? FallbackLogger;
     }
 
     internal InfiniFrameWindowBuildSnapshot CreateSnapshot(IServiceProvider? provider = null) {

@@ -29,15 +29,15 @@
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
-    <Import Project="AnalyzerBaseline.props" Condition="Exists('AnalyzerBaseline.props')" />
+    <Import Project="AnalyzerBaseline.props" Condition="Exists('AnalyzerBaseline.props')"/>
 
     <PropertyGroup Condition="'$(AnalyzerBaselineWarningsNotAsErrors)' != ''">
         <WarningsNotAsErrors>$(WarningsNotAsErrors);$(AnalyzerBaselineWarningsNotAsErrors)</WarningsNotAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false" />
-        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false" />
+        <None Include="../../LICENSE" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../README.md" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="../../assets/icon.png" Pack="true" PackagePath="" Visible="false"/>
     </ItemGroup>
 </Project>

@@ -1,26 +1,26 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Collections.Concurrent;
 using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Interop;
 using InfiniFrame.Js.Interop;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandlers {
-    public bool IsEmpty => Handlers.IsEmpty;
 
     private ConcurrentDictionary<string, Action<IInfiniFrameWindow, string?>> Handlers { get; } = new();
-    
+    public bool IsEmpty => Handlers.IsEmpty;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public void RegisterMessageHandler(string messageId, Action<IInfiniFrameWindow, string?> handler) {
-        Handlers.AddOrUpdate(messageId, handler, (_, _) => handler);
+        Handlers.AddOrUpdate(messageId, handler, updateValueFactory: (_, _) => handler);
     }
 
     public void Handle(IInfiniFrameWindow window, string message) {
@@ -45,7 +45,7 @@ public class InfiniFrameWindowMessageHandlers : IInfiniFrameWindowMessageHandler
             window.Logger.LogError(ex, "Unhandled exception while processing web message '{MessageId}'", messageId);
         }
     }
-    
+
     internal InfiniFrameWindowMessageHandlersSnapshot ToSnapshot()
         => new(Handlers.ToArray());
 

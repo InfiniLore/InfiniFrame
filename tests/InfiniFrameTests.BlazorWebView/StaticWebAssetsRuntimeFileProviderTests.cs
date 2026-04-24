@@ -210,9 +210,9 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         }, "InfiniJSRCL.staticwebassets.runtime.json");
 
         // Act
-        var provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
-        var indexInfo = provider?.GetFileInfo("index.html");
-        var jsInfo = provider?.GetFileInfo("js/editor-bridge.js");
+        IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
+        IFileInfo? indexInfo = provider?.GetFileInfo("index.html");
+        IFileInfo? jsInfo = provider?.GetFileInfo("js/editor-bridge.js");
 
         // Assert
         await Assert.That(provider).IsNotNull();

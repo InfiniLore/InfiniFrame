@@ -100,11 +100,11 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Centers the current window on the monitor where it is currently displayed.
+    ///     Centers the current window on the monitor where it is currently displayed.
     /// </summary>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T CenterOnCurrentMonitor<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
@@ -124,14 +124,14 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Centers the specified <see cref="IInfiniFrameWindow" /> on a monitor.
+    ///     Centers the specified <see cref="IInfiniFrameWindow" /> on a monitor.
     /// </summary>
     /// <param name="monitorIndex">
-    /// The index of the monitor on which the window should be centered.
+    ///     The index of the monitor on which the window should be centered.
     /// </param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T CenterOnMonitor<T>(this T window, int monitorIndex) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
@@ -208,7 +208,8 @@ public static class InfiniWindowExtensions {
 
     /// <summary>
     ///     Moves the native window to the specified location on the screen in pixels
-    ///     using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y) properties.
+    ///     using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y)
+    ///     properties.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
@@ -219,7 +220,7 @@ public static class InfiniWindowExtensions {
         => window.MoveWithinCurrentMonitorArea(location.X, location.Y);
 
     /// <summary>
-    /// Moves the native window to the specified location on the screen using a double value.
+    ///     Moves the native window to the specified location on the screen using a double value.
     /// </summary>
     /// <param name="left">Left Position</param>
     /// <param name="top">Top Position</param>
@@ -232,7 +233,8 @@ public static class InfiniWindowExtensions {
 
     /// <summary>
     ///     Moves the native window relative to its current location on the screen in pixels
-    ///     using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y) properties.
+    ///     using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y)
+    ///     properties.
     /// </summary>
     /// <returns>
     ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
@@ -262,11 +264,12 @@ public static class InfiniWindowExtensions {
         => window.Offset(offset.X, offset.Y);
 
     /// <summary>
-    /// Moves the native window relative to its current location on the screen in pixels
-    /// using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y) properties.
+    ///     Moves the native window relative to its current location on the screen in pixels
+    ///     using <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> (Y)
+    ///     properties.
     /// </summary>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     /// <param name="left">Relative offset from the left in pixels.</param>
     /// <param name="top">Relative offset from the top in pixels.</param>
@@ -507,13 +510,13 @@ public static class InfiniWindowExtensions {
         => window.SetSize(size.Width, size.Height);
 
     /// <summary>
-    /// Sets the location of the window to the specified coordinates.
+    ///     Sets the location of the window to the specified coordinates.
     /// </summary>
     /// <param name="left">The horizontal position (in pixels) from the left edge of the screen.</param>
     /// <param name="top">The vertical position (in pixels) from the top edge of the screen.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetLocation<T>(this T window, int left, int top) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
@@ -528,7 +531,8 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    ///     Sets the native window <see cref="IHasInfiniFrameProperties.Left" /> (X) and <see cref="IHasInfiniFrameProperties.Top" /> coordinates (Y)
+    ///     Sets the native window <see cref="IHasInfiniFrameProperties.Left" /> (X) and
+    ///     <see cref="IHasInfiniFrameProperties.Top" /> coordinates (Y)
     ///     in pixels.
     ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
     /// </summary>
@@ -582,15 +586,16 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Toggles the maximized state of the current window.
+    ///     Toggles the maximized state of the current window.
     /// </summary>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance after performing the toggle action.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance after performing the toggle action.
     /// </returns>
     /// <remarks>
-    /// If the window is chromeless, the method adjusts the window size and position manually to emulate maximized behavior.
-    /// Otherwise, the native maximized state is toggled.
+    ///     If the window is chromeless, the method adjusts the window size and position manually to emulate maximized
+    ///     behavior.
+    ///     Otherwise, the native maximized state is toggled.
     /// </remarks>
     public static T ToggleMaximized<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".ToggleMaximized()");
@@ -627,13 +632,13 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Sets the maximum width and height for a native window in pixels.
+    ///     Sets the maximum width and height for a native window in pixels.
     /// </summary>
     /// <param name="maxWidth">The maximum width of the window in pixels.</param>
     /// <param name="maxHeight">The maximum height of the window in pixels.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetMaxSize<T>(this T window, int maxWidth, int maxHeight) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
@@ -642,34 +647,34 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Sets the maximum size constraints for the window.
+    ///     Sets the maximum size constraints for the window.
     /// </summary>
     /// <param name="size">The maximum width and height of the window in pixels.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetMaxSize<T>(this T window, Size size) where T : class, IInfiniFrameWindow
         => window.SetMaxSize(size.Width, size.Height);
 
     /// <summary>
-    /// Sets the maximum height of the native window in pixels.
+    ///     Sets the maximum height of the native window in pixels.
     /// </summary>
     /// <param name="maxHeight">The maximum height in pixels to apply to the window.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetMaxHeight<T>(this T window, int maxHeight) where T : class, IInfiniFrameWindow
         => window.SetMaxSize(window.MaxWidth, maxHeight);
 
     /// <summary>
-    /// Sets the maximum width for the native window.
+    ///     Sets the maximum width for the native window.
     /// </summary>
     /// <param name="maxWidth">The maximum width in pixels.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance with the updated maximum width.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance with the updated maximum width.
     /// </returns>
     public static T SetMaxWidth<T>(this T window, int maxWidth) where T : class, IInfiniFrameWindow
         => window.SetMaxSize(maxWidth, window.MaxHeight);
@@ -690,13 +695,13 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Sets the minimum width and height for a native window.
+    ///     Sets the minimum width and height for a native window.
     /// </summary>
     /// <param name="minWidth">The minimum width, in pixels, the window can be resized to.</param>
     /// <param name="minHeight">The minimum height, in pixels, the window can be resized to.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetMinSize<T>(this T window, int minWidth, int minHeight) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
@@ -705,34 +710,34 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Sets the minimum size for the window.
+    ///     Sets the minimum size for the window.
     /// </summary>
     /// <param name="size">The minimum width and height of the window in pixels.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetMinSize<T>(this T window, Size size) where T : class, IInfiniFrameWindow
         => window.SetMinSize(size.Width, size.Height);
 
     /// <summary>
-    /// Sets the minimum height of the window.
+    ///     Sets the minimum height of the window.
     /// </summary>
     /// <param name="minHeight">The minimum height, in pixels, to set for the window.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetMinHeight<T>(this T window, int minHeight) where T : class, IInfiniFrameWindow
         => window.SetMinSize(window.MinWidth, minHeight);
 
     /// <summary>
-    /// Sets the minimum width of the native window.
+    ///     Sets the minimum width of the native window.
     /// </summary>
     /// <param name="minWidth">The minimum width in pixels to set for the window.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance for method chaining.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance for method chaining.
     /// </returns>
     public static T SetMinWidth<T>(this T window, int minWidth) where T : class, IInfiniFrameWindow
         => window.SetMinSize(minWidth, window.MinHeight);
@@ -878,14 +883,14 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Resizes the current window relative to its existing dimensions and specified origin.
+    ///     Resizes the current window relative to its existing dimensions and specified origin.
     /// </summary>
     /// <param name="widthOffset">The amount by which to adjust the window's width.</param>
     /// <param name="heightOffset">The amount by which to adjust the window's height.</param>
     /// <param name="origin">The origin point from which resizing operations are measured.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T Resize<T>(this T window, int widthOffset, int heightOffset, ResizeOrigin origin) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
@@ -980,12 +985,12 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Enables or disables the zoom functionality for the specified <see cref="IInfiniFrameWindow" /> instance.
+    ///     Enables or disables the zoom functionality for the specified <see cref="IInfiniFrameWindow" /> instance.
     /// </summary>
     /// <param name="zoomEnabled">A boolean value indicating whether zoom functionality should be enabled or disabled.</param>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetZoomEnabled<T>(this T window, bool zoomEnabled) where T : class, IInfiniFrameWindow {
         window.Invoke(() => InfiniFrameNative.SetZoomEnabled(window.InstanceHandle, zoomEnabled));
@@ -993,14 +998,14 @@ public static class InfiniWindowExtensions {
     }
 
     /// <summary>
-    /// Sets the specified window as focused.
+    ///     Sets the specified window as focused.
     /// </summary>
     /// <param name="window">InfiniFrame window instance</param>
     /// <returns>
-    /// Returns the current <see cref="IInfiniFrameWindow" /> instance.
+    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     /// <remarks>
-    /// This method invokes the native function to set focus on the window instance.
+    ///     This method invokes the native function to set focus on the window instance.
     /// </remarks>
     public static T SetFocused<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Invoke(() => InfiniFrameNative.SetFocused(window.InstanceHandle));

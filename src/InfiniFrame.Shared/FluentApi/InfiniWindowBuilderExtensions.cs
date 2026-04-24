@@ -1,27 +1,26 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Diagnostics.CodeAnalysis;
 using InfiniFrame.Utilities;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [SuppressMessage("ReSharper", "ConvertToExtensionBlock")]
 public static class InfiniWindowBuilderExtensions {
     /// <summary>
-    /// Sets the media autoplay functionality on the browser control at initialization.
+    ///     Sets the media autoplay functionality on the browser control at initialization.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="enable">
-    /// Determines whether media autoplay should be enabled or disabled.
-    /// Pass true to enable media autoplay, or false to disable it.
+    ///     Determines whether media autoplay should be enabled or disabled.
+    ///     Pass true to enable media autoplay, or false to disable it.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetMediaAutoplayEnabled<T>(this T builder, bool enable) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MediaAutoplayEnabled = enable;
@@ -113,7 +112,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
     /// </summary>
-    public static T SetHeight<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder => SetSize(builder, builder.Configuration.Width, value);
+    public static T SetHeight<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder => builder.SetSize(builder.Configuration.Width, value);
 
     /// <summary>
     ///     Sets IgnoreCertificateErrorsEnabled on the browser control at initialization.
@@ -146,7 +145,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Location on the browser control at initialization.
     /// </summary>
-    public static T SetLocation<T>(this T builder, Point location) where T : IInfiniFrameWindowBuilder => SetLocation(builder, location.X, location.Y);
+    public static T SetLocation<T>(this T builder, Point location) where T : IInfiniFrameWindowBuilder => builder.SetLocation(location.X, location.Y);
 
     /// <summary>
     ///     Sets Minimized on the browser control at initialization.
@@ -203,7 +202,7 @@ public static class InfiniWindowBuilderExtensions {
         return builder;
     }
 
-    public static T SetMinSize<T>(this T builder, Size minSize) where T : IInfiniFrameWindowBuilder => SetMinSize(builder, minSize.Width, minSize.Height);
+    public static T SetMinSize<T>(this T builder, Size minSize) where T : IInfiniFrameWindowBuilder => builder.SetMinSize(minSize.Width, minSize.Height);
 
     /// <summary>
     ///     Sets FullScreen on the browser control at initialization.
@@ -224,7 +223,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Width on the browser control at initialization.
     /// </summary>
-    public static T SetWidth<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder => SetSize(builder, value, builder.Configuration.Height);
+    public static T SetWidth<T>(this T builder, int value) where T : IInfiniFrameWindowBuilder => builder.SetSize(value, builder.Configuration.Height);
 
     /// <summary>
     ///     Sets Size on the browser control at initialization.
@@ -241,7 +240,7 @@ public static class InfiniWindowBuilderExtensions {
     /// <summary>
     ///     Sets Size on the browser control at initialization.
     /// </summary>
-    public static T SetSize<T>(this T builder, Size size) where T : IInfiniFrameWindowBuilder => SetSize(builder, size.Width, size.Height);
+    public static T SetSize<T>(this T builder, Size size) where T : IInfiniFrameWindowBuilder => builder.SetSize(size.Width, size.Height);
 
     /// <summary>
     ///     Sets BrowserControlInitParameters on the browser control at initialization.
@@ -321,14 +320,15 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Sets the zoom level for the browser control associated with the builder.
+    ///     Sets the zoom level for the browser control associated with the builder.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="zoom">
-    /// The desired zoom level. Positive values increase the zoom, negative values decrease it, and 0 resets to the default zoom level.
+    ///     The desired zoom level. Positive values increase the zoom, negative values decrease it, and 0 resets to the default
+    ///     zoom level.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetZoom<T>(this T builder, int zoom) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Zoom = zoom;
@@ -336,15 +336,15 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Sets the initial URL to be loaded in the browser control upon initialization.
+    ///     Sets the initial URL to be loaded in the browser control upon initialization.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="url">
-    /// Specifies the URL to set as the starting page.
-    /// Pass a string value representing the desired URL, or null to leave it unset.
+    ///     Specifies the URL to set as the starting page.
+    ///     Pass a string value representing the desired URL, or null to leave it unset.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetStartUrl<T>(this T builder, string? url) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.StartUrl = url;
@@ -352,15 +352,15 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Sets the starting URL for the browser control in the window.
+    ///     Sets the starting URL for the browser control in the window.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="url">
-    /// The URL to be set as the starting location for the browser control.
-    /// Pass a string representing a valid URL or null to leave it unset.
+    ///     The URL to be set as the starting location for the browser control.
+    ///     Pass a string representing a valid URL or null to leave it unset.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to enable method chaining.
+    ///     Returns the modified builder instance to enable method chaining.
     /// </return>
     public static T SetStartUrl<T>(this T builder, Uri? url) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.StartUrl = url?.ToString();
@@ -368,15 +368,15 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Configures the starting string for the browser window initialization.
+    ///     Configures the starting string for the browser window initialization.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="startString">
-    /// The string to be used as the starting configuration. This can be null or a specific value
-    /// that modifies the behavior or appearance of the window during initialization.
+    ///     The string to be used as the starting configuration. This can be null or a specific value
+    ///     that modifies the behavior or appearance of the window during initialization.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetStartString<T>(this T builder, string? startString) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.StartString = startString;
@@ -384,14 +384,14 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Configures whether the browser window should be displayed without any borders or system UI chrome.
+    ///     Configures whether the browser window should be displayed without any borders or system UI chrome.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="chromeless">
-    /// Pass true to enable a chromeless (borderless) mode for the browser window, or false to disable it.
+    ///     Pass true to enable a chromeless (borderless) mode for the browser window, or false to disable it.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetChromeless<T>(this T builder, bool chromeless) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Chromeless = chromeless;
@@ -407,15 +407,15 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Configures the browser control to support transparency.
+    ///     Configures the browser control to support transparency.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="transparent">
-    /// Specifies whether the browser control should be transparent.
-    /// Pass true to enable transparency, or false to disable it.
+    ///     Specifies whether the browser control should be transparent.
+    ///     Pass true to enable transparency, or false to disable it.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetTransparent<T>(this T builder, bool transparent) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Transparent = transparent;
@@ -468,15 +468,15 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Sets the left position of the window in screen coordinates.
+    ///     Sets the left position of the window in screen coordinates.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="left">
-    /// The desired left position of the window. This value represents the distance in pixels
-    /// from the left edge of the screen to the left edge of the window.
+    ///     The desired left position of the window. This value represents the distance in pixels
+    ///     from the left edge of the screen to the left edge of the window.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetLeft<T>(this T builder, int left) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Left = left;
@@ -487,14 +487,14 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Sets the top position of the window on screen in pixels.
+    ///     Sets the top position of the window on screen in pixels.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="top">
-    /// The top position in pixels where the window should be placed.
+    ///     The top position in pixels where the window should be placed.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetTop<T>(this T builder, int top) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Top = top;
@@ -505,14 +505,15 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Enables or disables the context menu functionality for the browser control.
+    ///     Enables or disables the context menu functionality for the browser control.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="enabled">
-    /// Specifies whether the context menu should be enabled or disabled. Pass true to enable the context menu, or false to disable it.
+    ///     Specifies whether the context menu should be enabled or disabled. Pass true to enable the context menu, or false to
+    ///     disable it.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to support method chaining.
+    ///     Returns the modified builder instance to support method chaining.
     /// </return>
     public static T SetContextMenuEnabled<T>(this T builder, bool enabled) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.ContextMenuEnabled = enabled;
@@ -520,14 +521,14 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Enables or disables the DevTools functionality for the browser control.
+    ///     Enables or disables the DevTools functionality for the browser control.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="enabled">
-    /// Indicates whether the DevTools should be enabled. Pass true to enable DevTools, or false to disable them.
+    ///     Indicates whether the DevTools should be enabled. Pass true to enable DevTools, or false to disable them.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetDevToolsEnabled<T>(this T builder, bool enabled) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.DevToolsEnabled = enabled;
@@ -535,17 +536,17 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Sets the maximum size of the window by specifying the width and height.
+    ///     Sets the maximum size of the window by specifying the width and height.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="width">
-    /// The maximum width of the window, in pixels.
+    ///     The maximum width of the window, in pixels.
     /// </param>
     /// <param name="height">
-    /// The maximum height of the window, in pixels.
+    ///     The maximum height of the window, in pixels.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetMaxSize<T>(this T builder, int width, int height) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.MaxWidth = width;
@@ -555,27 +556,27 @@ public static class InfiniWindowBuilderExtensions {
     }
 
     /// <summary>
-    /// Sets the maximum dimensions for the window.
+    ///     Sets the maximum dimensions for the window.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="size">
-    /// The maximum allowable width and height of the window, in pixels. Pass a positive non-zero value.
+    ///     The maximum allowable width and height of the window, in pixels. Pass a positive non-zero value.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
-    public static T SetMaxSize<T>(this T builder, Size size) where T : IInfiniFrameWindowBuilder => SetMaxSize(builder, size.Width, size.Height);
+    public static T SetMaxSize<T>(this T builder, Size size) where T : IInfiniFrameWindowBuilder => builder.SetMaxSize(size.Width, size.Height);
 
     /// <summary>
-    /// Enables or disables the zoom functionality in the browser window.
+    ///     Enables or disables the zoom functionality in the browser window.
     /// </summary>
     /// <param name="builder">The builder of the window</param>
     /// <param name="zoomEnabled">
-    /// A boolean value indicating whether zoom functionality should be enabled.
-    /// Pass true to enable zooming functionality, or false to disable it.
+    ///     A boolean value indicating whether zoom functionality should be enabled.
+    ///     Pass true to enable zooming functionality, or false to disable it.
     /// </param>
     /// <return>
-    /// Returns the modified builder instance to allow for method chaining.
+    ///     Returns the modified builder instance to allow for method chaining.
     /// </return>
     public static T SetZoomEnabled<T>(this T builder, bool zoomEnabled) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.ZoomEnabled = zoomEnabled;

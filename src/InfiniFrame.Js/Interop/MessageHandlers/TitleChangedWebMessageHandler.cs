@@ -20,5 +20,4 @@ public static class TitleChangedWebMessageHandler {
         window.Logger.LogInformation("title:change {payload}", payload);
         window.SetTitle(payload);
     }
-
 }

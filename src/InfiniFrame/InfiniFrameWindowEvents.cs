@@ -1,15 +1,17 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Drawing;
 using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Utilities;
+using System.Drawing;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
+
+    private IInfiniFrameWindow Sender { get; set; } = null!;
     public InfiniFrameOrderedEvent<Point> WindowLocationChanged { get; } = new();
     public InfiniFrameOrderedEvent<Size> WindowSizeChanged { get; } = new();
     public InfiniFrameOrderedEvent WindowFocusIn { get; } = new();
@@ -22,8 +24,6 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     public InfiniFrameOrderedClosingEvent WindowClosing { get; } = new();
     public InfiniFrameOrderedEvent WindowCreating { get; } = new();
     public InfiniFrameOrderedEvent WindowCreated { get; } = new();
-
-    private IInfiniFrameWindow Sender { get; set; } = null!;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -93,15 +93,6 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
         OnWebMessageReceived(message, null);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window sends a message.
-    ///     This overload carries the native-reported message origin in an ambient context.
-    /// </summary>
-    public void OnWebMessageReceived(string message, string? origin) {
-        using IDisposable _ = InfiniFrameWebMessageContext.Push(origin);
-        WebMessageReceived.Invoke(Sender, message);
-    }
-
     public void OnWindowClosingRequested() {
         WindowClosingRequested.Invoke(Sender);
     }
@@ -132,7 +123,16 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     public void OnWindowCreated() {
         WindowCreated.Invoke(Sender);
     }
-    
+
+    /// <summary>
+    ///     Invokes registered user-defined handler methods when the native window sends a message.
+    ///     This overload carries the native-reported message origin in an ambient context.
+    /// </summary>
+    public void OnWebMessageReceived(string message, string? origin) {
+        using IDisposable _ = InfiniFrameWebMessageContext.Push(origin);
+        WebMessageReceived.Invoke(Sender, message);
+    }
+
     internal InfiniFrameWindowEventsSnapshot ToSnapshot()
         => new(
             WindowLocationChanged.Snapshot.ToArray(),
@@ -163,10 +163,10 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
         CopyHandlers(snapshot.WindowClosing, copy.WindowClosing.Add);
         CopyHandlers(snapshot.WindowCreating, copy.WindowCreating.Add);
         CopyHandlers(snapshot.WindowCreated, copy.WindowCreated.Add);
-        
+
         return copy;
     }
-    
+
     private static void CopyHandlers<THandler>(IEnumerable<THandler> handlers, Action<THandler> addHandler) {
         foreach (THandler handler in handlers) {
             addHandler(handler);

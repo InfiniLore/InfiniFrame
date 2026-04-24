@@ -1,18 +1,18 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 
 namespace InfiniFrame.Js.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class RegisterWindowCreatedUtility {
+    private const int MaxSendAttempts = 3;
     private static readonly TimeSpan ReadyHandshakeTimeout = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan InitialRetryDelay = TimeSpan.FromMilliseconds(100);
-    private const int MaxSendAttempts = 3;
-    
+
     private static readonly ConditionalWeakTable<IInfiniFrameWindowBuilder, WindowReadyRegistrationState> RegistrationStates = new();
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ public static class RegisterWindowCreatedUtility {
     }
 
     public static void RegisterMessageHandler(IInfiniFrameWindowBuilder builder, string messageId, Action<IInfiniFrameWindow> handler) {
-        builder.MessageHandlers.RegisterMessageHandler(messageId, (w, _) => handler(w));
+        builder.MessageHandlers.RegisterMessageHandler(messageId, handler: (w, _) => handler(w));
     }
 
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
@@ -40,6 +40,7 @@ public static class RegisterWindowCreatedUtility {
     private static void EnsureWindowCreatedHandler(IInfiniFrameWindowBuilder builder, WindowReadyRegistrationState state) {
         lock (state.Lock) {
             if (state.WindowCreatedHandlerRegistered) return;
+
             state.WindowCreatedHandlerRegistered = true;
         }
 
@@ -60,15 +61,17 @@ public static class RegisterWindowCreatedUtility {
     private static void EnsureReadyHandler(IInfiniFrameWindowBuilder builder, WindowReadyRegistrationState state) {
         lock (state.Lock) {
             if (state.ReadyHandlerRegistered) return;
+
             state.ReadyHandlerRegistered = true;
         }
 
-        RegisterMessageHandler(builder, HandlerNames.WindowReady, (window, payload) => {
+        RegisterMessageHandler(builder, HandlerNames.WindowReady, handler: (window, payload) => {
             WindowRegistrationState windowState;
             string[] registrationMessages;
             lock (state.Lock) {
                 windowState = state.Windows.GetOrCreateValue(window);
                 if (!windowState.StateMachine.TryBeginRegistrationSendOnReady()) return;
+
                 registrationMessages = state.RegistrationMessageIds.ToArray();
             }
 
@@ -113,7 +116,7 @@ public static class RegisterWindowCreatedUtility {
 
             // Fallback send is intentionally decoupled from ready-state completion so an eventual
             // ready handshake can still trigger an additional registration send.
-            _ = SendRegistrationsWithRetryAsync(window, state, windowState, registrationMessages, completeStateOnFinish: false);
+            _ = SendRegistrationsWithRetryAsync(window, state, windowState, registrationMessages, false);
         }
         catch (OperationCanceledException) {
             // Handshake received in time.

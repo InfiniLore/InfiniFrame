@@ -22,12 +22,10 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // across platforms and avoids localhost/CORS routing edge-cases.
     public const string BlazorAppScheme = "app";
     public const string AppBaseUri = $"{BlazorAppScheme}://localhost/";
-    
+
     private readonly Channel<string> _channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false, AllowSynchronousContinuations = false });
-    private Lazy<IInfiniFrameWindow> LazyWindow { get; }
-    private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
-    private readonly SynchronousTaskScheduler _syncScheduler = new();
     private readonly Task _messagePumpTask;
+    private readonly SynchronousTaskScheduler _syncScheduler = new();
     private readonly InfiniFrameUriSecurityPolicy _uriSecurityPolicy;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -56,46 +54,17 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             // On some platforms, we need to move off the browser UI thread
             Task.Factory.StartNew(
                 action: state => HandleWebMessage(((string Message, string? Origin))state!),
-                state: (Message: message, Origin: origin),
-                cancellationToken: CancellationToken.None,
-                creationOptions: TaskCreationOptions.DenyChildAttach,
-                scheduler: _syncScheduler);
+                (Message: message, Origin: origin),
+                CancellationToken.None,
+                TaskCreationOptions.DenyChildAttach,
+                _syncScheduler);
         });
 
         // Start the reader and observe/await it during disposal.
         _messagePumpTask = Task.Run(MessagePump);
     }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    private void HandleWebMessage((string Message, string? Origin) state) {
-        Uri? messageOriginUrl;
-        if (!string.IsNullOrWhiteSpace(state.Origin)) {
-            if (!Uri.TryCreate(state.Origin, UriKind.Absolute, out messageOriginUrl)) {
-                LazyLogger.Value?.LogWarning("Rejected web message because origin parsing failed. Origin: {Origin}", state.Origin);
-                return;
-            }
-        }
-        else if (Uri.TryCreate(AppBaseUri, UriKind.Absolute, out Uri? fallbackOriginUrl)) {
-            messageOriginUrl = fallbackOriginUrl;
-            LazyLogger.Value?.LogDebug("Web message origin missing. Falling back to AppBaseUri origin: {FallbackOrigin}", fallbackOriginUrl);
-        }
-        else {
-            LazyLogger.Value?.LogWarning("Rejected web message because origin is missing or unknown.");
-            return;
-        }
-
-        if (!_uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl)) {
-            LazyLogger.Value?.LogWarning(
-                "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigins: {TrustedOrigins}",
-                messageOriginUrl,
-                _uriSecurityPolicy.TrustedOrigins);
-            return;
-        }
-
-        MessageReceived(messageOriginUrl, state.Message);
-    }
+    private Lazy<IInfiniFrameWindow> LazyWindow { get; }
+    private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
 
     public Stream? HandleWebRequest(object? sender, string? schema, string? url, out string? contentType) {
         if (string.IsNullOrWhiteSpace(url)) {
@@ -149,7 +118,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         string sanitizedUrl = sanitizedUri.AbsoluteUri;
 
         if (TryGetResponseContent(sanitizedUrl, !hasFileExtension, out _, out _,
-                out Stream content, out IDictionary<string, string> headers)) {
+            out Stream content, out IDictionary<string, string> headers)) {
             headers.TryGetValue("Content-Type", out contentType);
             contentType ??= GetFallbackContentType(sanitizedUri.LocalPath);
             return content;
@@ -158,6 +127,37 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         LazyLogger.Value?.LogWarning("No web content found for trusted URL. Url: {Url}", sanitizedUrl);
         contentType = null;
         return null;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    private void HandleWebMessage((string Message, string? Origin) state) {
+        Uri? messageOriginUrl;
+        if (!string.IsNullOrWhiteSpace(state.Origin)) {
+            if (!Uri.TryCreate(state.Origin, UriKind.Absolute, out messageOriginUrl)) {
+                LazyLogger.Value?.LogWarning("Rejected web message because origin parsing failed. Origin: {Origin}", state.Origin);
+                return;
+            }
+        }
+        else if (Uri.TryCreate(AppBaseUri, UriKind.Absolute, out Uri? fallbackOriginUrl)) {
+            messageOriginUrl = fallbackOriginUrl;
+            LazyLogger.Value?.LogDebug("Web message origin missing. Falling back to AppBaseUri origin: {FallbackOrigin}", fallbackOriginUrl);
+        }
+        else {
+            LazyLogger.Value?.LogWarning("Rejected web message because origin is missing or unknown.");
+            return;
+        }
+
+        if (!_uriSecurityPolicy.IsTrustedOrigin(messageOriginUrl)) {
+            LazyLogger.Value?.LogWarning(
+                "Rejected web message due to origin mismatch. Origin: {MessageOrigin}, TrustedOrigins: {TrustedOrigins}",
+                messageOriginUrl,
+                _uriSecurityPolicy.TrustedOrigins);
+            return;
+        }
+
+        MessageReceived(messageOriginUrl, state.Message);
     }
 
     protected override void NavigateCore(Uri absoluteUri) {

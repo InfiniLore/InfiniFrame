@@ -10,8 +10,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[SuppressMessage("ReSharper", "ConvertToExtensionBlock")]
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "ConvertToExtensionBlock"), SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class InfiniWindowEventsExtensions {
     /// <summary>
     ///     Registers user-defined handler methods to receive callbacks from the native builder when its location changes.
@@ -156,10 +155,11 @@ public static class InfiniWindowEventsExtensions {
     }
 
     /// <summary>
-    /// Registers user-defined handler methods to receive callbacks from the native builder before the window is closed through the native api calls.
+    ///     Registers user-defined handler methods to receive callbacks from the native builder before the window is closed
+    ///     through the native api calls.
     /// </summary>
     /// <returns>
-    /// Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
+    ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
     /// </returns>
     /// <param name="handler">Handler invoked with the window.</param>
     /// <param name="builder">The builder to register the handler for.</param>
@@ -176,7 +176,9 @@ public static class InfiniWindowEventsExtensions {
     /// <returns>
     ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
     /// </returns>
-    /// <param name="handler"><see cref="NetClosingDelegate" /></param>
+    /// <param name="handler">
+    ///     <see cref="NetClosingDelegate" />
+    /// </param>
     /// <param name="builder">The builder to register the handler for.</param>
     public static T RegisterWindowClosingHandler<T>(this T builder, NetClosingDelegate handler) where T : IHasInfiniFrameEvents {
         builder.Events.WindowClosing.Add(handler);

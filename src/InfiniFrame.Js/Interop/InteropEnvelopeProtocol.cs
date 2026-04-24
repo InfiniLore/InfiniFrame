@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Interop;
 using System.Text;
 using System.Text.Json;
-using InfiniFrame.Interop;
 
 namespace InfiniFrame.Js.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ internal static class InteropEnvelopeProtocol {
             return InteropEnvelopeParseResult.CreateFailure("Legacy message has an empty message ID.");
 
         string? payload = hasSeparator ? message[(separatorIndex + 1)..] : null;
-        return InteropEnvelopeParseResult.CreateSuccess(messageId, payload, isLegacyProtocol: true);
+        return InteropEnvelopeParseResult.CreateSuccess(messageId, payload, true);
     }
 
     private static bool LooksLikeJsonObject(string message) {

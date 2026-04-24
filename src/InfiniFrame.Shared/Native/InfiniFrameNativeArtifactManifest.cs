@@ -9,7 +9,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-/// Shared manifest for native artifact filenames used by pack and bootstrap flows.
+///     Shared manifest for native artifact filenames used by pack and bootstrap flows.
 /// </summary>
 public static class InfiniFrameNativeArtifactManifest {
     // ReSharper disable once UnusedMember.Global

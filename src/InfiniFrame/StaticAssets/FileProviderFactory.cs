@@ -19,7 +19,7 @@ public static class FileProviderFactory {
 
         // Preferred embedded naming: <AssemblyName>.wwwroot.<path>
         var embeddedProvider = new EmbeddedFileProvider(assembly, $"{assemblyName}.wwwroot");
-        
+
         // Compatibility with resources embedded as "wwwroot.<path>".
         var legacyEmbeddedProvider = new EmbeddedFileProvider(assembly, "wwwroot");
 
