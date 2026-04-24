@@ -150,7 +150,16 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
 
             return new StaticWebAssetsRuntimeFileProvider(contentRoots, bestCandidate.Manifest.Root!);
         }
-        catch {
+        catch (ArgumentException) {
+            return null;
+        }
+        catch (IOException) {
+            return null;
+        }
+        catch (UnauthorizedAccessException) {
+            return null;
+        }
+        catch (NotSupportedException) {
             return null;
         }
     }
