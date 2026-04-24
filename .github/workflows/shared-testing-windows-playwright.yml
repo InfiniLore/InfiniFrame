@@ -165,62 +165,60 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run Playwright (net8.0)
-                id: playwright_net8
+            -   name: Run Playwright tests (all frameworks/projects)
+                id: playwright_all
                 continue-on-error: true
-                timeout-minutes: 20
-                run: dotnet test --solution InfiniFrame.GitHubActions.Testing.Playwright.slnf --configuration Release --no-build --no-restore --framework net8.0
-
-            -   name: Run Playwright (net9.0)
-                id: playwright_net9
-                continue-on-error: true
-                timeout-minutes: 20
-                run: dotnet test --solution InfiniFrame.GitHubActions.Testing.Playwright.slnf --configuration Release --no-build --no-restore --framework net9.0
-
-            -   name: Run Playwright (net10.0)
-                id: playwright_net10
-                continue-on-error: true
-                timeout-minutes: 20
-                run: dotnet test --solution InfiniFrame.GitHubActions.Testing.Playwright.slnf --configuration Release --no-build --no-restore --framework net10.0
-
-            -   name: Fail if any framework failed
-                if: always()
-                id: aggregate
                 shell: pwsh
                 run: |
-                    $results = @(
-                        @{ name = "net8.0"; outcome = "${{ steps.playwright_net8.outcome }}" },
-                        @{ name = "net9.0"; outcome = "${{ steps.playwright_net9.outcome }}" },
-                        @{ name = "net10.0"; outcome = "${{ steps.playwright_net10.outcome }}" }
+                    $frameworks = @(
+                        "net8.0", 
+                        "net9.0", 
+                        "net10.0"
+                    )
+                    
+                    $projects = @(
+                        "tests/InfiniFrameTests.Playwright.WebApp.Vue",
+                        "tests/InfiniFrameTests.Playwright.WebApp.React",
+                        "tests/InfiniFrameTests.Playwright.BlazorWebView"
                     )
                     
                     $failed = @()
                     
-                    foreach ($r in $results) {
-                        if ($r.outcome -eq "success") {
-                            Write-Host "✅ $($r.name) passed"
+                    foreach ($framework in $frameworks) {
+                      foreach ($project in $projects) {
+                        Write-Host ""
+                        Write-Host "▶ Running $project ($framework)"
+                    
+                        dotnet test --project $project `
+                          --configuration Release `
+                          --no-build `
+                          --no-restore `
+                          --framework $framework
+                    
+                        if ($LASTEXITCODE -ne 0) {
+                          Write-Host "❌ Failed: $project ($framework)"
+                          $failed += "$project ($framework)"
                         } else {
-                            Write-Host "❌ $($r.name) failed"
-                            $failed += $r.name
+                          Write-Host "✅ Passed: $project ($framework)"
                         }
+                      }
                     }
                     
                     if ($failed.Count -gt 0) {
                         $msg = "Windows Playwright tests failed: $($failed -join ', ')"
-                        
-                        # expose output for later steps
                         "failure_message=$msg" >> $env:GITHUB_OUTPUT
+                        "success_message=" >> $env:GITHUB_OUTPUT
                         
-                        Write-Host ""
                         Write-Host "❌ $msg"
                         exit 1
                     }
+                        
+                    $msg = "Windows Playwright tests passed (all frameworks/projects)"
+                    "success_message=$msg" >> $env:GITHUB_OUTPUT
+                    "failure_message=" >> $env:GITHUB_OUTPUT
                     
-                    $msg = "Windows Playwright tests passed (net8.0, net9.0, net10.0)"
-                    "failure_message=$msg" >> $env:GITHUB_OUTPUT
+                    Write-Host "✅ All tests passed"
                     
-                    Write-Host ""
-                    Write-Host "✅ All frameworks passed"
 
             -   name: Update Playwright Check
                 if: always()
@@ -235,5 +233,5 @@ jobs:
                     context: CI Testing - Windows Playwright
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
-                    success-description: ${{ steps.aggregate.outputs.failure_message }}
-                    failure-description: ${{ steps.aggregate.outputs.failure_message }}
+                    success-description: ${{ steps.playwright_all.outputs.success_message }}
+                    failure-description: ${{ steps.playwright_all.outputs.failure_message }}
