@@ -141,9 +141,7 @@ public static class GlobalPlaywrightContext {
             // ignored
         }
 
-        if (AppThread is not null && !AppThread.Join(TimeSpan.FromSeconds(5))) {
-            AppThread.Interrupt();
-        }
+        AppThread?.Join(TimeSpan.FromSeconds(10));
 
         BlazorApp = null;
         WindowValue = null;
