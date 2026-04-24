@@ -11,5 +11,5 @@ namespace InfiniFrameTests.Playwright.BlazorWebView;
 [InheritsTests]
 // ReSharper disable once UnusedType.Global
 public sealed class WebviewWindowTests : SharedWebviewWindowTests {
-    protected override IPlaywrightRuntimeContext RuntimeContext => BlazorWebViewPlaywrightRuntimeContext.Instance;
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 }

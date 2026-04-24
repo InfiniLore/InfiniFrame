@@ -1,37 +1,28 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-using Microsoft.Playwright;
+using InfiniFrameTests.Playwright.TestUtility;
 
 namespace InfiniFrameTests.Playwright.WebApp.React.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class ReactPlaywrightRuntimeContext : IPlaywrightRuntimeContext {
-    public static ReactPlaywrightRuntimeContext Instance { get; } = new();
-    
-    public string DefaultDocumentTitle => GlobalPlaywrightContext.DefaultDocumentTitle;
-
-    public IInfiniFrameWindow Window => GlobalPlaywrightContext.Window;
+public sealed class PlaywrightContext : ServerPlaywrightContextBase {
+    public static PlaywrightContext Instance { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private ReactPlaywrightRuntimeContext() {}
-    
+    private PlaywrightContext() : base("InfiniFrame Playwright React") {}
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public Task<IBrowser> GetOrCreateBrowserAsync(string relativeUrl = "/")
-        => GlobalPlaywrightContext.GetOrCreateBrowserAsync(relativeUrl);
+    [Before(Assembly)]
+    public static void BeforeAll(AssemblyHookContext _)
+        => Instance.BeforeAll();
 
-    public void ResetWindowCloseRequestCount()
-        => GlobalPlaywrightContext.ResetWindowCloseRequestCount();
-
-    public int GetWindowCloseRequestCount()
-        => GlobalPlaywrightContext.GetWindowCloseRequestCount();
-
-    public void SuppressWindowCloseRequests(bool suppress)
-        => GlobalPlaywrightContext.SuppressWindowCloseRequests(suppress);
+    [After(Assembly)]
+    public static void AfterAll(AssemblyHookContext _)
+        => Instance.AfterAll();
 }

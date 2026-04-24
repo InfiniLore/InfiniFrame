@@ -13,7 +13,7 @@ namespace InfiniFrameTests.Playwright.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // ReSharper disable once UnusedType.Global
 public sealed class ScriptSrcImportTests : InfiniFramePlaywrightTestBase {
-    protected override IPlaywrightRuntimeContext RuntimeContext => BlazorWebViewPlaywrightRuntimeContext.Instance;
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]

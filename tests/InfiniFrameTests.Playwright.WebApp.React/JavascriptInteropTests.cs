@@ -10,7 +10,7 @@ namespace InfiniFrameTests.Playwright.WebApp.React;
 // ---------------------------------------------------------------------------------------------------------------------
 [InheritsTests]
 public sealed class JavascriptInteropTests : SharedJavascriptInteropTests {
-    protected override IPlaywrightRuntimeContext RuntimeContext => ReactPlaywrightRuntimeContext.Instance;
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 
     protected override string FullscreenToggleButtonSelector => "#fullscreen-toggle-button";
 

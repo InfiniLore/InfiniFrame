@@ -10,5 +10,5 @@ namespace InfiniFrameTests.Playwright.WebApp.Vue;
 // ---------------------------------------------------------------------------------------------------------------------
 [InheritsTests]
 public sealed class JavascriptTests : SharedJavascriptTests {
-    protected override IPlaywrightRuntimeContext RuntimeContext => VuePlaywrightRuntimeContext.Instance;
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 }

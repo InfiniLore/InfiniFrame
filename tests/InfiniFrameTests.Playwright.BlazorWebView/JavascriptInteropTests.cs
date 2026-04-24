@@ -11,7 +11,7 @@ namespace InfiniFrameTests.Playwright.BlazorWebView;
 [InheritsTests]
 // ReSharper disable once UnusedType.Global
 public sealed class JavascriptInteropTests : SharedJavascriptInteropTests {
-    protected override IPlaywrightRuntimeContext RuntimeContext => BlazorWebViewPlaywrightRuntimeContext.Instance;
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 
     protected override string FullscreenToggleButtonSelector => "#fullscreen-toggle-button";
 

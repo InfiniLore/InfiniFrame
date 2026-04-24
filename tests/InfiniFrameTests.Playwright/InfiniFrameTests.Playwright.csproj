@@ -6,6 +6,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\InfiniFrame.BlazorWebView\InfiniFrame.BlazorWebView.csproj" />
         <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>

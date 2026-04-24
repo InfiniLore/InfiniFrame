@@ -10,5 +10,5 @@ namespace InfiniFrameTests.Playwright.WebApp.React;
 // ---------------------------------------------------------------------------------------------------------------------
 [InheritsTests]
 public sealed class WebviewWindowTests : SharedWebviewWindowTests {
-    protected override IPlaywrightRuntimeContext RuntimeContext => ReactPlaywrightRuntimeContext.Instance;
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 }

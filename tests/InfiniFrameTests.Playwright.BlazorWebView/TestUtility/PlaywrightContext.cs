@@ -1,37 +1,34 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
-using Microsoft.Playwright;
+using InfiniFrameTests.Playwright.BlazorWebView.Components;
+using InfiniFrameTests.Playwright.TestUtility;
+using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
 
-namespace InfiniFrameTests.Playwright.WebApp.Vue.TestUtility;
+namespace InfiniFrameTests.Playwright.BlazorWebView.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class VuePlaywrightRuntimeContext : IPlaywrightRuntimeContext {
-    public static VuePlaywrightRuntimeContext Instance { get; } = new();
-    
-    public string DefaultDocumentTitle => GlobalPlaywrightContext.DefaultDocumentTitle;
-
-    public IInfiniFrameWindow Window => GlobalPlaywrightContext.Window;
+public sealed class PlaywrightContext : BlazorPlaywrightContextBase<App> {
+    public static PlaywrightContext Instance { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private VuePlaywrightRuntimeContext() {}
-    
+    private PlaywrightContext() : base("InfiniFrame Playwright BlazorWebView") {}
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public Task<IBrowser> GetOrCreateBrowserAsync(string relativeUrl = "/")
-        => GlobalPlaywrightContext.GetOrCreateBrowserAsync(relativeUrl);
+    [Before(Assembly)]
+    public static void BeforeAll(AssemblyHookContext _)
+        => Instance.BeforeAll();
 
-    public void ResetWindowCloseRequestCount()
-        => GlobalPlaywrightContext.ResetWindowCloseRequestCount();
+    [After(Assembly)]
+    public static void AfterAll(AssemblyHookContext _)
+        => Instance.AfterAll();
 
-    public int GetWindowCloseRequestCount()
-        => GlobalPlaywrightContext.GetWindowCloseRequestCount();
-
-    public void SuppressWindowCloseRequests(bool suppress)
-        => GlobalPlaywrightContext.SuppressWindowCloseRequests(suppress);
+    protected override void ConfigureServices(IServiceCollection services)
+        => services.AddMudServices();
 }

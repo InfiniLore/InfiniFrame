@@ -10,7 +10,7 @@ namespace InfiniFrameTests.Playwright.WebApp.Vue;
 // ---------------------------------------------------------------------------------------------------------------------
 [InheritsTests]
 public sealed class JavascriptInteropTests : SharedJavascriptInteropTests {
-    protected override IPlaywrightRuntimeContext RuntimeContext => VuePlaywrightRuntimeContext.Instance;
+    protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 
     protected override string FullscreenToggleButtonSelector => "#fullscreen-toggle-button";
 
