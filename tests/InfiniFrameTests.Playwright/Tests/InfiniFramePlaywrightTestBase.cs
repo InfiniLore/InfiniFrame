@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using Microsoft.Playwright;
-using TUnit.Engine.Exceptions;
 
 namespace InfiniFrameTests.Playwright.Tests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -12,7 +11,7 @@ namespace InfiniFrameTests.Playwright.Tests;
 public abstract class InfiniFramePlaywrightTestBase {
     protected abstract IPlaywrightRuntimeContext RuntimeContext { get; }
 
-    protected virtual string RootRelativeUrl => "/";
+    private const string RootRelativeUrl = "/";
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -70,7 +69,7 @@ public abstract class InfiniFramePlaywrightTestBase {
         }
 
         Fail.Test("State change timeout exceeded");
-        throw new TestFailedException("State change timeout exceeded", null);
+        return default!;
     }
 
     protected static async Task<T> WaitForStateChangeAsync<T>(
@@ -92,6 +91,6 @@ public abstract class InfiniFramePlaywrightTestBase {
         }
 
         Fail.Test("State change timeout exceeded");
-        throw new TestFailedException("State change timeout exceeded", null);
+        return default!;
     }
 }

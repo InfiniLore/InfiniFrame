@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
+        <PackageReference Include="Microsoft.Playwright" />
+        <PackageReference Include="TUnit.Assertions" />
         <PackageReference Include="TUnit.Core"/>
-        <PackageReference Include="TUnit.Playwright"/>
     </ItemGroup>
 
     <ItemGroup>
