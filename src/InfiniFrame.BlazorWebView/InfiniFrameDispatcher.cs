@@ -15,6 +15,9 @@ internal class InfiniFrameDispatcher : Dispatcher {
         _context.UnhandledException += (_, e) => OnUnhandledException(e);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public override bool CheckAccess() => SynchronizationContext.Current == _context;
 
     public override Task InvokeAsync(Action workItem) {
