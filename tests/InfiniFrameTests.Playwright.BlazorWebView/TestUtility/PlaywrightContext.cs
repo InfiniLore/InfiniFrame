@@ -1,8 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.BlazorWebView;
 using InfiniFrameTests.Playwright.BlazorWebView.Components;
 using InfiniFrameTests.Playwright.TestUtility;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 
@@ -31,4 +33,7 @@ public sealed class PlaywrightContext : BlazorPlaywrightContextBase<App> {
 
     protected override void ConfigureServices(IServiceCollection services)
         => services.AddMudServices();
+
+    protected override void ConfigureRootComponents(RootComponentList rootComponents)
+        => rootComponents.RegisterForJavaScript<CustomElementProbe>("infiniframe-custom-element", "registerBlazorCustomElement");
 }
