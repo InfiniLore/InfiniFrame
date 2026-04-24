@@ -21,11 +21,12 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.10.0",
     "@docusaurus/types": "^3.10.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "overrides": {
-    "webpack": "5.105.4",
-    "serialize-javascript": "^7.0.5"
+    "webpack": "^5.106.2",
+    "serialize-javascript": "^7.0.5", 
+    "uuid": "^14.0.0"
   },
   "engines": {
     "node": ">=20.0"
