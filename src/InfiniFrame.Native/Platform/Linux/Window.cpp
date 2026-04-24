@@ -215,66 +215,71 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
 }
 
 void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings) {
-    simdjson::ondemand::parser parser;
-    auto padded = simdjson::padded_string(_browserControlInitParameters);
-    auto doc = parser.iterate(padded);
+    try {
+        simdjson::ondemand::parser parser;
+        auto padded = simdjson::padded_string(_browserControlInitParameters);
+        auto doc = parser.iterate(padded);
 
-    for (auto field : doc.get_object()) {
-        std::string_view keyView = field.unescaped_key();
-        auto value = field.value();
+        for (auto field : doc.get_object()) {
+            std::string_view keyView = field.unescaped_key();
+            auto value = field.value();
 
-        gchar* propertyName = g_strdup(std::string(keyView).c_str());
-        GValue* propertyValue = g_new0(GValue, 1);
+            gchar* propertyName = g_strdup(std::string(keyView).c_str());
+            GValue propertyValue = G_VALUE_INIT;
+            bool hasValidValue = false;
 
-        switch (value.type()) {
-            case simdjson::ondemand::json_type::string: {
-                std::string_view strVal;
-                if (value.get(strVal) == simdjson::SUCCESS) {
-                    g_value_init(propertyValue, G_TYPE_STRING);
-                    g_value_set_string(propertyValue, std::string(strVal).c_str());
-                }
-                break;
-            }
-            case simdjson::ondemand::json_type::boolean: {
-                bool boolVal;
-                if (value.get(boolVal) == simdjson::SUCCESS) {
-                    g_value_init(propertyValue, G_TYPE_BOOLEAN);
-                    g_value_set_boolean(propertyValue, boolVal);
-                }
-                break;
-            }
-            case simdjson::ondemand::json_type::number: {
-                int64_t intVal;
-                if (value.get(intVal) == simdjson::SUCCESS) {
-                    g_value_init(propertyValue, G_TYPE_INT);
-                    g_value_set_int(propertyValue, static_cast<int>(intVal));
-                }
-                else {
-                    double doubleVal;
-                    if (value.get(doubleVal) == simdjson::SUCCESS) {
-                        g_value_init(propertyValue, G_TYPE_DOUBLE);
-                        g_value_set_double(propertyValue, doubleVal);
+            switch (value.type()) {
+                case simdjson::ondemand::json_type::string: {
+                    std::string_view strVal;
+                    if (value.get(strVal) == simdjson::SUCCESS) {
+                        g_value_init(&propertyValue, G_TYPE_STRING);
+                        g_value_set_string(&propertyValue, std::string(strVal).c_str());
+                        hasValidValue = true;
                     }
+                    break;
                 }
-                break;
+                case simdjson::ondemand::json_type::boolean: {
+                    bool boolVal;
+                    if (value.get(boolVal) == simdjson::SUCCESS) {
+                        g_value_init(&propertyValue, G_TYPE_BOOLEAN);
+                        g_value_set_boolean(&propertyValue, boolVal);
+                        hasValidValue = true;
+                    }
+                    break;
+                }
+                case simdjson::ondemand::json_type::number: {
+                    int64_t intVal;
+                    if (value.get(intVal) == simdjson::SUCCESS) {
+                        g_value_init(&propertyValue, G_TYPE_INT);
+                        g_value_set_int(&propertyValue, static_cast<int>(intVal));
+                        hasValidValue = true;
+                    }
+                    else {
+                        double doubleVal;
+                        if (value.get(doubleVal) == simdjson::SUCCESS) {
+                            g_value_init(&propertyValue, G_TYPE_DOUBLE);
+                            g_value_set_double(&propertyValue, doubleVal);
+                            hasValidValue = true;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    // Ignore unsupported JSON value types instead of crashing.
+                    break;
             }
-            default: {
-                GtkWidget* dialog = gtk_message_dialog_new(
-                    nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-                    "Invalid value type for key: %s", propertyName
-                    );
-                gtk_dialog_run(GTK_DIALOG(dialog));
-                gtk_widget_destroy(dialog);
-                g_free(propertyValue);
-                g_free(propertyName);
-                throw std::runtime_error(std::string("Invalid value type for key: ") + propertyName);
-            }
-        }
 
-        g_object_set_property(G_OBJECT(settings), propertyName, propertyValue);
-        g_value_unset(propertyValue);
-        g_free(propertyValue);
-        g_free(propertyName);
+            if (hasValidValue) {
+                g_object_set_property(G_OBJECT(settings), propertyName, &propertyValue);
+                g_value_unset(&propertyValue);
+            }
+
+            g_free(propertyName);
+        }
+    }
+    catch (const simdjson::simdjson_error&) {
+        // Some callers pass CLI-like strings (e.g. --remote-debugging-port=9222).
+        // Ignore non-JSON payloads instead of aborting the process.
     }
 }
 

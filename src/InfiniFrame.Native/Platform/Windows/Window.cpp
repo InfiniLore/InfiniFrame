@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <comdef.h>
 #include <condition_variable>
 #include <cstring>
@@ -1102,11 +1103,17 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
     if (!PostMessage(m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo))) return;
 
     std::unique_lock<std::mutex> uLock(invokeLockMutex);
-    waitInfo.completionNotifier.wait(
-        uLock, [&] {
+    const bool completed = waitInfo.completionNotifier.wait_for(
+        uLock,
+        std::chrono::seconds(15),
+        [&] {
             return waitInfo.isCompleted;
         }
-        );
+    );
+
+    if (!completed) {
+        OutputDebugStringW(L"InfiniFrameWindow::Invoke timed out waiting for UI thread callback.\n");
+    }
 }
 
 std::string InfiniFrameWindow::ToUTF8String(const AutoString source) const {

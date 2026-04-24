@@ -28,11 +28,11 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public required IInfiniFrameWindow? Parent { get; init; }
     public required IInfiniFrameWindowEvents Events { get; init; }
     public required IInfiniFrameWindowMessageHandlers MessageHandlers { get; init; }
+    
     public IntPtr NativeType => WindowType.Value;
-
     public IntPtr InstanceHandle { get; private set; }
 
-    public Rectangle CachedPreFullScreenBounds { get; set; }
+    public Rectangle CachedPreFullScreenBounds { get; set; } = Rectangle.Empty;
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
     #region PROPERTIES

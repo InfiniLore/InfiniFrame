@@ -1,0 +1,51 @@
+name: infiniframe
+
+services:
+  linux-tests:
+    image: infiniframe/testing-linux:latest
+    build:
+      context: ../..
+      dockerfile: docker/linux-tests/Dockerfile
+    working_dir: /work
+    volumes:
+      - ../../:/src:ro
+      - infiniframe_linux_work:/work
+    environment:
+      - SOLUTION_FILTER=InfiniFrame.GitHubActions.Testing.slnf
+      - CONFIGURATION=Release
+      - NATIVE_PLATFORM=x64
+      - USE_HOST_DISPLAY=${USE_HOST_DISPLAY:-0}
+      - DISPLAY=${DISPLAY:-}
+      - NUGET_PACKAGES=/root/.nuget/packages
+      - NUGET_FALLBACK_PACKAGES=
+    entrypoint: ["/bin/bash", "-lc"]
+    command:
+      - "bash /src/docker/linux-tests/bootstrap-workspace.sh /src /work && bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/tests.sh"
+    stdin_open: true
+    tty: true
+  linux-playwright-tests:
+    image: infiniframe/testing-linux:latest
+    build:
+      context: ../..
+      dockerfile: docker/linux-tests/Dockerfile
+    working_dir: /work
+    volumes:
+      - ../../:/src:ro
+      - infiniframe_linux_work:/work
+    environment:
+      - SOLUTION_FILTER=InfiniFrame.GitHubActions.Testing.Playwright.slnf
+      - CONFIGURATION=Release
+      - NATIVE_PLATFORM=x64
+      - FRAMEWORKS=net8.0 net9.0 net10.0
+      - USE_HOST_DISPLAY=${USE_HOST_DISPLAY:-0}
+      - DISPLAY=${DISPLAY:-}
+      - NUGET_PACKAGES=/root/.nuget/packages
+      - NUGET_FALLBACK_PACKAGES=
+    entrypoint: ["/bin/bash", "-lc"]
+    command:
+      - "bash /src/docker/linux-tests/bootstrap-workspace.sh /src /work && bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/playwright.sh"
+    stdin_open: true
+    tty: true
+
+volumes:
+  infiniframe_linux_work:

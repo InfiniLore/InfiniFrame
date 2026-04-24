@@ -68,6 +68,7 @@ jobs:
                         ${{ runner.os }}-nuget-
 
             -   name: Setup Native dependencies
+                # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
@@ -115,13 +116,13 @@ jobs:
                 uses: actions/cache@v5
                 with:
                     path: ~\AppData\Local\ms-playwright
-                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj') }}
+                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.WebApp.React/InfiniFrameTests.Playwright.WebApp.React.csproj', 'tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj', 'tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj') }}
                     restore-keys: |
                         playwright-${{ runner.os }}-
 
             -   name: Install Playwright Browsers
                 if: steps.cache-playwright.outputs.cache-hit != 'true'
-                working-directory: tests/InfiniFrameTests.Playwright
+                working-directory: tests/InfiniFrameTests.Playwright.WebApp.Vue
                 shell: pwsh
                 run: |
                     $scripts = @(
@@ -140,12 +141,19 @@ jobs:
                 shell: pwsh
                 run: |
                     $frameworks = @("net8.0", "net9.0", "net10.0")
+                    $projects = @(
+                      "tests/InfiniFrameTests.Playwright.WebApp.React",
+                      "tests/InfiniFrameTests.Playwright.WebApp.Vue",
+                      "tests/InfiniFrameTests.Playwright.BlazorWebView"
+                    )
                     foreach ($framework in $frameworks) {
-                      $binPath = "tests/InfiniFrameTests.Playwright/bin/Release/$framework"
-                      foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
-                        $fullPath = Join-Path $binPath $dll
-                        if (-Not (Test-Path $fullPath)) {
-                          throw "$dll missing in $binPath"
+                      foreach ($project in $projects) {
+                        $binPath = "$project/bin/Release/$framework"
+                        foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
+                          $fullPath = Join-Path $binPath $dll
+                          if (-Not (Test-Path $fullPath)) {
+                            throw "$dll missing in $binPath"
+                          }
                         }
                       }
                     }
@@ -157,62 +165,60 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run Playwright (net8.0)
-                id: playwright_net8
-                working-directory: tests/InfiniFrameTests.Playwright/
-                if: always()
+            -   name: Run Playwright tests (all frameworks/projects)
+                id: playwright_all
                 continue-on-error: true
-                timeout-minutes: 20
-                run: dotnet test --configuration Release --no-build --no-restore --framework net8.0
-
-            -   name: Upload Playwright Logs (net8.0)
-                if: always()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: playwright-test-results-net8.0
-                    path: tests/InfiniFrameTests.Playwright/bin/Release/net8.0/TestResults
-
-            -   name: Run Playwright (net9.0)
-                id: playwright_net9
-                working-directory: tests/InfiniFrameTests.Playwright/
-                if: always()
-                continue-on-error: true
-                timeout-minutes: 20
-                run: dotnet test --configuration Release --no-build --no-restore --framework net9.0
-
-            -   name: Upload Playwright Logs (net9.0)
-                if: always()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: playwright-test-results-net9.0
-                    path: tests/InfiniFrameTests.Playwright/bin/Release/net9.0/TestResults
-
-            -   name: Run Playwright (net10.0)
-                id: playwright_net10
-                working-directory: tests/InfiniFrameTests.Playwright/
-                if: always()
-                continue-on-error: true
-                timeout-minutes: 20
-                run: dotnet test --configuration Release --no-build --no-restore --framework net10.0
-
-            -   name: Upload Playwright Logs (net10.0)
-                if: always()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: playwright-test-results-net10.0
-                    path: tests/InfiniFrameTests.Playwright/bin/Release/net10.0/TestResults
-
-            -   name: Fail If Any Framework Failed
-                if: always()
                 shell: pwsh
                 run: |
+                    $frameworks = @(
+                        "net8.0", 
+                        "net9.0", 
+                        "net10.0"
+                    )
+                    
+                    $projects = @(
+                        "tests/InfiniFrameTests.Playwright.WebApp.Vue",
+                        "tests/InfiniFrameTests.Playwright.WebApp.React",
+                        "tests/InfiniFrameTests.Playwright.BlazorWebView"
+                    )
+                    
                     $failed = @()
-                    if ("${{ steps.playwright_net8.outcome }}" -ne "success") { $failed += "net8.0" }
-                    if ("${{ steps.playwright_net9.outcome }}" -ne "success") { $failed += "net9.0" }
-                    if ("${{ steps.playwright_net10.outcome }}" -ne "success") { $failed += "net10.0" }
-                    if ($failed.Count -gt 0) {
-                      throw "Windows Playwright failed for framework(s): $($failed -join ', ')"
+                    
+                    foreach ($framework in $frameworks) {
+                      foreach ($project in $projects) {
+                        Write-Host ""
+                        Write-Host "▶ Running $project ($framework)"
+                    
+                        dotnet test --project $project `
+                          --configuration Release `
+                          --no-build `
+                          --no-restore `
+                          --framework $framework
+                    
+                        if ($LASTEXITCODE -ne 0) {
+                          Write-Host "❌ Failed: $project ($framework)"
+                          $failed += "$project ($framework)"
+                        } else {
+                          Write-Host "✅ Passed: $project ($framework)"
+                        }
+                      }
                     }
+                    
+                    if ($failed.Count -gt 0) {
+                        $msg = "Windows Playwright tests failed: $($failed -join ', ')"
+                        "failure_message=$msg" >> $env:GITHUB_OUTPUT
+                        "success_message=" >> $env:GITHUB_OUTPUT
+                        
+                        Write-Host "❌ $msg"
+                        exit 1
+                    }
+                        
+                    $msg = "Windows Playwright tests passed (all frameworks/projects)"
+                    "success_message=$msg" >> $env:GITHUB_OUTPUT
+                    "failure_message=" >> $env:GITHUB_OUTPUT
+                    
+                    Write-Host "✅ All tests passed"
+                    
 
             -   name: Update Playwright Check
                 if: always()
@@ -227,5 +233,5 @@ jobs:
                     context: CI Testing - Windows Playwright
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
-                    success-description: Windows Playwright tests passed (net8.0, net9.0, net10.0)
-                    failure-description: Windows Playwright tests failed (one or more frameworks)
+                    success-description: ${{ steps.playwright_all.outputs.success_message }}
+                    failure-description: ${{ steps.playwright_all.outputs.failure_message }}

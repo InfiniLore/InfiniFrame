@@ -200,10 +200,10 @@ public class InfiniFrameBlazorAppBuilderTests {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
         await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
-        IInfiniFrameUnhandledExceptionSource source = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
+        var source = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
 
         // Act
-        ArgumentNullException? exception = await Assert.ThrowsAsync<ArgumentNullException>(() => Task.Run(() => {
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => Task.Run(() => {
             source.Register(null!);
         }));
 

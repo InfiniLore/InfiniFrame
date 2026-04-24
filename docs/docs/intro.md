@@ -9,6 +9,7 @@ InfiniFrame documentation is organized into Guides, Concepts, and API references
 ## Sections
 
 - [Guides](guides/getting-started.md)
+- [Scripts Reference](guides/scripts.md)
 - [Packaging Tool Guide](guides/pack-tool.md)
 - [Migration Notes](migration/breaking-changes-from-photino.md)
 - [API References](api.md)
