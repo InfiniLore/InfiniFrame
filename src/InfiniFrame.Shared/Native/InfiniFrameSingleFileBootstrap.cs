@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Native;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using InfiniFrame.Native;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
@@ -11,12 +11,12 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-/// Initializes native runtime resolution for single-file deployments that embed InfiniFrame native binaries as managed
-/// resources.
+///     Initializes native runtime resolution for single-file deployments that embed InfiniFrame native binaries as managed
+///     resources.
 /// </summary>
 /// <remarks>
-/// Call <see cref="Initialize"/> once at application startup (before creating a window) when using packaged
-/// single-file/native outputs that embed <c>InfiniFrame.Native</c> and platform loader dependencies.
+///     Call <see cref="Initialize" /> once at application startup (before creating a window) when using packaged
+///     single-file/native outputs that embed <c>InfiniFrame.Native</c> and platform loader dependencies.
 /// </remarks>
 public static class InfiniFrameSingleFileBootstrap {
     private const string WebView2LoaderLibraryName = InfiniFrameNativeArtifactManifest.WindowsLoaderLibraryName;
@@ -32,10 +32,10 @@ public static class InfiniFrameSingleFileBootstrap {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    
+
     /// <summary>
-    /// Extracts embedded native runtime binaries to a temporary runtime-identifier-specific folder and registers a
-    /// <see cref="NativeLibrary"/> resolver for InfiniFrame native loading.
+    ///     Extracts embedded native runtime binaries to a temporary runtime-identifier-specific folder and registers a
+    ///     <see cref="NativeLibrary" /> resolver for InfiniFrame native loading.
     /// </summary>
     public static void Initialize() {
         lock (InitLock) {
@@ -144,9 +144,7 @@ public static class InfiniFrameSingleFileBootstrap {
         throw new PlatformNotSupportedException("Unsupported OS for native bootstrap.");
     }
 
-    private static string[] GetNativeFileNamesForCurrentPlatform() {
-        return InfiniFrameNativeArtifactManifest.RequiredFileNamesForCurrentPlatform();
-    }
+    private static string[] GetNativeFileNamesForCurrentPlatform() => InfiniFrameNativeArtifactManifest.RequiredFileNamesForCurrentPlatform();
 
     private static void TryCleanupNativeDirectory() {
         if (string.IsNullOrWhiteSpace(_nativeDir)) return;

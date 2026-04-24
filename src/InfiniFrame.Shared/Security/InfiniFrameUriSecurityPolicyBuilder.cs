@@ -3,13 +3,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameUriSecurityPolicyBuilder {
-    private readonly HashSet<string> _allowedNavigationSchemes;
     private readonly HashSet<string> _allowedExternalSchemes;
+    private readonly HashSet<string> _allowedNavigationSchemes;
     private readonly HashSet<Uri> _trustedOrigins;
     private bool _trustAllOrigins;
 
@@ -69,6 +68,7 @@ public sealed class InfiniFrameUriSecurityPolicyBuilder {
 
     public InfiniFrameUriSecurityPolicyBuilder AddTrustedOrigin(Uri origin) {
         if (!origin.IsAbsoluteUri) return this;
+
         _trustedOrigins.Add(origin);
         return this;
     }
@@ -83,6 +83,7 @@ public sealed class InfiniFrameUriSecurityPolicyBuilder {
 
     private static void AddScheme(HashSet<string> target, string scheme) {
         if (string.IsNullOrWhiteSpace(scheme)) return;
+
         target.Add(scheme.Trim());
     }
 }

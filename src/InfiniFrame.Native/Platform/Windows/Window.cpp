@@ -1095,12 +1095,17 @@ void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const {
 }
 
 void InfiniFrameWindow::Invoke(ACTION callback) {
-    if (!callback) return;
+    if (!callback)
+        return;
 
-    if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd)) return;
+    if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd))
+        return;
 
     InvokeWaitInfo waitInfo = {};
-    if (!PostMessage(m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo))) return;
+    if (!PostMessage(
+        m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo)
+        ))
+        return;
 
     std::unique_lock<std::mutex> uLock(invokeLockMutex);
     const bool completed = waitInfo.completionNotifier.wait_for(
@@ -1109,7 +1114,7 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
         [&] {
             return waitInfo.isCompleted;
         }
-    );
+        );
 
     if (!completed) {
         OutputDebugStringW(L"InfiniFrameWindow::Invoke timed out waiting for UI thread callback.\n");
@@ -1155,8 +1160,10 @@ void InfiniFrameWindow::AttachWebView() {
     bool requiresAppSchemeRegistration = std::any_of(
         m_impl->_customSchemeNames.begin(),
         m_impl->_customSchemeNames.end(),
-        [](const std::wstring& schemeName) { return _wcsicmp(schemeName.c_str(), L"app") == 0; }
-    );
+        [](const std::wstring& schemeName) {
+            return _wcsicmp(schemeName.c_str(), L"app") == 0;
+        }
+        );
     bool appSchemeRegistrationSupported = false;
 
     // Register custom schemes with WebView2 so top-level navigations like app://... are allowed.
@@ -1201,7 +1208,7 @@ void InfiniFrameWindow::AttachWebView() {
             L"This app requires WebView2 custom scheme registration for app://localhost/. Please update WebView2 Runtime to a version that supports ICoreWebView2EnvironmentOptions4.",
             L"WebView2 Runtime Too Old",
             MB_OK | MB_ICONERROR
-        );
+            );
         return;
     }
 
@@ -1501,9 +1508,9 @@ void InfiniFrameWindow::AttachWebView() {
                                                         );
                                                 if (
                                                     (source.get() == nullptr
-                                                     || source.get()[0] == L'\0')
+                                                        || source.get()[0] == L'\0')
                                                     && m_impl->_webviewWindow != nullptr
-                                                    ) {
+                                                ) {
                                                     m_impl->
                                                         _webviewWindow->
                                                         get_Source(
@@ -1531,14 +1538,14 @@ void InfiniFrameWindow::AttachWebView() {
                                     L"*",
                                     COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
                                     COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
-                                );
+                                    );
                             }
                             else {
                                 m_impl->_webviewWindow->
-                                    AddWebResourceRequestedFilter(
-                                        L"*",
-                                        COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
-                                    );
+                                        AddWebResourceRequestedFilter(
+                                            L"*",
+                                            COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
+                                            );
                             }
                             m_impl->_webviewWindow->
                                     add_WebResourceRequested(
@@ -1573,25 +1580,34 @@ void InfiniFrameWindow::AttachWebView() {
                                                 std::wstring requestOrigin;
                                                 if (SUCCEEDED(req->get_Headers(&requestHeaders)) && requestHeaders) {
                                                     wil::unique_cotaskmem_string originHeaderValue;
-                                                    if (SUCCEEDED(requestHeaders->GetHeader(L"Origin", &originHeaderValue))
+                                                    if (SUCCEEDED(
+                                                            requestHeaders->GetHeader(L"Origin", &originHeaderValue)
+                                                            )
                                                         && originHeaderValue.get() != nullptr
                                                         && originHeaderValue.get()[0] != L'\0') {
                                                         requestOrigin = originHeaderValue.get();
                                                     }
                                                 }
 
-                                                if (uriString.find(L"/_framework/blazor.modules.json") != std::wstring::npos) {
+                                                if (uriString.find(L"/_framework/blazor.modules.json") !=
+                                                    std::wstring::npos) {
                                                     static constexpr BYTE emptyModuleArray[] = {'[', ']'};
                                                     wil::com_ptr<IStream> dataStream;
-                                                    dataStream.attach(SHCreateMemStream(emptyModuleArray, sizeof(emptyModuleArray)));
-                                                    if (!dataStream) return S_OK;
+                                                    dataStream.attach(
+                                                        SHCreateMemStream(emptyModuleArray, sizeof(emptyModuleArray))
+                                                        );
+                                                    if (!dataStream)
+                                                        return S_OK;
 
                                                     std::wstring responseHeaders = L"Content-Type: application/json";
-                                                    responseHeaders += L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
+                                                    responseHeaders +=
+                                                        L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
                                                     responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
                                                     if (!requestOrigin.empty()) {
-                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: " + requestOrigin;
-                                                        responseHeaders += L"\r\nAccess-Control-Allow-Credentials: true";
+                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: " +
+                                                            requestOrigin;
+                                                        responseHeaders +=
+                                                            L"\r\nAccess-Control-Allow-Credentials: true";
                                                         responseHeaders += L"\r\nVary: Origin";
                                                     }
                                                     else {
@@ -1605,7 +1621,7 @@ void InfiniFrameWindow::AttachWebView() {
                                                         L"OK",
                                                         responseHeaders.c_str(),
                                                         &response
-                                                    );
+                                                        );
                                                     args->put_Response(response.get());
                                                     return S_OK;
                                                 }
@@ -1706,16 +1722,21 @@ void InfiniFrameWindow::AttachWebView() {
                                                             wil::com_ptr
                                                                 <ICoreWebView2WebResourceResponse>
                                                                 response;
-                                                            std::wstring responseHeaders = L"Content-Type: " + contentTypeWS;
-                                                            responseHeaders += L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
+                                                            std::wstring responseHeaders = L"Content-Type: " +
+                                                                contentTypeWS;
+                                                            responseHeaders +=
+                                                                L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
                                                             responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
                                                             if (!requestOrigin.empty()) {
-                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: " + requestOrigin;
-                                                                responseHeaders += L"\r\nAccess-Control-Allow-Credentials: true";
+                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: "
+                                                                    + requestOrigin;
+                                                                responseHeaders +=
+                                                                    L"\r\nAccess-Control-Allow-Credentials: true";
                                                                 responseHeaders += L"\r\nVary: Origin";
                                                             }
                                                             else {
-                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: *";
+                                                                responseHeaders +=
+                                                                    L"\r\nAccess-Control-Allow-Origin: *";
                                                             }
                                                             m_impl
                                                                 ->

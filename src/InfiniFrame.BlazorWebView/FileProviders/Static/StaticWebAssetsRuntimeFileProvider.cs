@@ -5,6 +5,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -14,6 +15,7 @@ namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, StaticWebAssetNode root) : IFileProvider {
     private const RegexOptions PatternRegexOptions = RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase;
+    private readonly ConcurrentDictionary<string, Regex> _patternRegexCache = new(StringComparer.Ordinal);
 
     private IFileProvider[] ContentRootProviders { get; } = contentRoots
         .Select(static rootPath => {
@@ -29,50 +31,6 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
         .ToArray();
 
     private StaticWebAssetNode Root { get; } = root;
-    private readonly ConcurrentDictionary<string, Regex> _patternRegexCache = new(StringComparer.Ordinal);
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    public static IFileProvider? TryCreate(string baseDirectory) {
-        if (string.IsNullOrWhiteSpace(baseDirectory)) return null;
-
-        ManifestCandidate[] candidates = GetManifestCandidates(baseDirectory).ToArray();
-        if (candidates.Length == 0) return null;
-
-        ScoredManifestCandidate? bestCandidate = null;
-        foreach (ManifestCandidate candidate in candidates) {
-            if (!TryLoadManifest(candidate.ManifestPath, out StaticWebAssetManifest? manifest)) continue;
-            if (manifest?.ContentRoots is null || manifest.ContentRoots.Length == 0 || manifest.Root is null) continue;
-
-            int score = candidate.BaseScore;
-            if (ContainsTopLevelNode(manifest.Root, "index.html")) score += 100;
-            if (ContainsTopLevelNode(manifest.Root, "_framework")) score += 50;
-            if (ContainsTopLevelNode(manifest.Root, "js")) score += 10;
-
-            if (bestCandidate is null
-                || score > bestCandidate.Score
-                || score == bestCandidate.Score
-                && string.Compare(candidate.ManifestPath, bestCandidate.ManifestPath, StringComparison.OrdinalIgnoreCase) < 0) {
-                bestCandidate = new ScoredManifestCandidate(manifest, score, candidate.ManifestPath);
-            }
-        }
-
-        if (bestCandidate is null) return null;
-
-        try {
-            string[] contentRoots = bestCandidate.Manifest.ContentRoots!
-                .Select(contentRoot => Path.IsPathRooted(contentRoot)
-                    ? contentRoot
-                    : Path.GetFullPath(Path.Join(baseDirectory, contentRoot)))
-                .ToArray();
-
-            return new StaticWebAssetsRuntimeFileProvider(contentRoots, bestCandidate.Manifest.Root!);
-        }
-        catch {
-            return null;
-        }
-    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -152,8 +110,49 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
         return BuildDirectoryContents(node);
     }
 
-    public IChangeToken Watch(string filter) {
-        return NullChangeToken.Singleton;
+    public IChangeToken Watch(string filter) => NullChangeToken.Singleton;
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    public static IFileProvider? TryCreate(string baseDirectory) {
+        if (string.IsNullOrWhiteSpace(baseDirectory)) return null;
+
+        ManifestCandidate[] candidates = GetManifestCandidates(baseDirectory).ToArray();
+        if (candidates.Length == 0) return null;
+
+        ScoredManifestCandidate? bestCandidate = null;
+        foreach (ManifestCandidate candidate in candidates) {
+            if (!TryLoadManifest(candidate.ManifestPath, out StaticWebAssetManifest? manifest)) continue;
+            if (manifest?.ContentRoots is null || manifest.ContentRoots.Length == 0 || manifest.Root is null) continue;
+
+            int score = candidate.BaseScore;
+            if (ContainsTopLevelNode(manifest.Root, "index.html")) score += 100;
+            if (ContainsTopLevelNode(manifest.Root, "_framework")) score += 50;
+            if (ContainsTopLevelNode(manifest.Root, "js")) score += 10;
+
+            if (bestCandidate is null
+                || score > bestCandidate.Score
+                || score == bestCandidate.Score
+                && string.Compare(candidate.ManifestPath, bestCandidate.ManifestPath, StringComparison.OrdinalIgnoreCase) < 0) {
+                bestCandidate = new ScoredManifestCandidate(manifest, score, candidate.ManifestPath);
+            }
+        }
+
+        if (bestCandidate is null) return null;
+
+        try {
+            string[] contentRoots = bestCandidate.Manifest.ContentRoots!
+                .Select(contentRoot => Path.IsPathRooted(contentRoot)
+                    ? contentRoot
+                    : Path.GetFullPath(Path.Join(baseDirectory, contentRoot)))
+                .ToArray();
+
+            return new StaticWebAssetsRuntimeFileProvider(contentRoots, bestCandidate.Manifest.Root!);
+        }
+        catch {
+            return null;
+        }
     }
 
     private static IEnumerable<ManifestCandidate> GetManifestCandidates(string baseDirectory) {
@@ -232,9 +231,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
         return new ManifestDirectoryContents(children);
     }
 
-    private IFileInfo GetAssetFileInfo(StaticWebAsset asset) {
-        return GetContentRootFileInfo(asset.ContentRootIndex, NormalizeSubPath(asset.SubPath));
-    }
+    private IFileInfo GetAssetFileInfo(StaticWebAsset asset) => GetContentRootFileInfo(asset.ContentRootIndex, NormalizeSubPath(asset.SubPath));
 
     private IFileInfo GetContentRootFileInfo(int contentRootIndex, string? subPath) {
         if (contentRootIndex < 0 || contentRootIndex >= ContentRootProviders.Length || string.IsNullOrEmpty(subPath)) {
@@ -265,7 +262,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
     }
 
     private Regex GetOrCreatePatternRegex(string pattern) {
-        return _patternRegexCache.GetOrAdd(pattern, static key => {
+        return _patternRegexCache.GetOrAdd(pattern, valueFactory: static key => {
             string normalizedPattern = NormalizeSubPath(key);
             if (string.IsNullOrEmpty(normalizedPattern)) {
                 normalizedPattern = "**";
@@ -277,7 +274,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
     }
 
     private static string GlobToRegex(string pattern) {
-        var regex = new System.Text.StringBuilder("^");
+        var regex = new StringBuilder("^");
         for (int i = 0; i < pattern.Length; i++) {
             char c = pattern[i];
             switch (c) {

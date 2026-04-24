@@ -13,7 +13,7 @@ public sealed class WindowReadyRegistrationState {
     #else
     public readonly object Lock = new();
     #endif
-    
+
     public bool ReadyHandlerRegistered { get; set; }
     public bool WindowCreatedHandlerRegistered { get; set; }
     public HashSet<string> RegistrationMessageIds { get; } = new(StringComparer.Ordinal);

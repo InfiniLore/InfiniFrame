@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -48,9 +47,7 @@ public static class InfiniWindowUriSecurityBuilderExtensions {
         return builder.ConfigureUriSecurityPolicy(policy => policy.SetTrustAllOrigins(trustAllOrigins));
     }
 
-    private static IEnumerable<Uri> ParseOrigins(IEnumerable<string> origins) {
-        return origins.Select(ParseOrigin);
-    }
+    private static IEnumerable<Uri> ParseOrigins(IEnumerable<string> origins) => origins.Select(ParseOrigin);
 
     private static Uri ParseOrigin(string origin) {
         if (!Uri.TryCreate(origin, UriKind.Absolute, out Uri? uri)) {

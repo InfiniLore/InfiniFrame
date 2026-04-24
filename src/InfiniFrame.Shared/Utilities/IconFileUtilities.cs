@@ -30,7 +30,7 @@ public static class IconFileUtilities {
         // Preserve support for absolute or current-directory-relative paths.
         string fromCurrentDirectory = Path.GetFullPath(filePath);
         if (!File.Exists(fromCurrentDirectory)) return false;
-        
+
         resolvedFilePath = fromCurrentDirectory;
         return true;
 

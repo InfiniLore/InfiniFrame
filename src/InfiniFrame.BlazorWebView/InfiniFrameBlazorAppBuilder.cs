@@ -14,19 +14,19 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilder {
-    public RootComponentList RootComponents { get; } = new();
-    public IServiceCollection Services { get; } = new ServiceCollection();
-    public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameBlazorAppBuilder() {}
+    public RootComponentList RootComponents { get; } = new();
+    public IServiceCollection Services { get; } = new ServiceCollection();
+    public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null
-    ) 
+    )
         => CreateDefault(null, args, windowBuilder);
 
     public static InfiniFrameBlazorAppBuilder CreateDefault(IFileProvider? fileProvider, string[]? args = null, Action<IInfiniFrameWindowBuilder>? windowBuilder = null) {
@@ -63,16 +63,16 @@ public class InfiniFrameBlazorAppBuilder {
     }
 
     /// <summary>
-    /// Configures the file provider to be used by the application.
-    /// If a custom <see cref="IFileProvider"/> is provided, that instance will be used.
-    /// Otherwise, a default provider will be configured based on the application's "wwwroot" directory.
+    ///     Configures the file provider to be used by the application.
+    ///     If a custom <see cref="IFileProvider" /> is provided, that instance will be used.
+    ///     Otherwise, a default provider will be configured based on the application's "wwwroot" directory.
     /// </summary>
     /// <param name="fileProvider">
-    /// An optional <see cref="IFileProvider"/> instance.
+    ///     An optional <see cref="IFileProvider" /> instance.
     /// </param>
     /// <returns>
-    /// An instance of <see cref="IFileProvider"/> that represents either the specified file provider
-    /// or the default provider if none is supplied.
+    ///     An instance of <see cref="IFileProvider" /> that represents either the specified file provider
+    ///     or the default provider if none is supplied.
     /// </returns>
     private static IFileProvider ConfigureFileProvider(IFileProvider? fileProvider) {
         if (fileProvider is not null) return fileProvider;
@@ -92,6 +92,7 @@ public class InfiniFrameBlazorAppBuilder {
 
         if (staticWebAssetsProvider is not null) return staticWebAssetsProvider;
         if (physicalWwwrootProvider is not null) return physicalWwwrootProvider;
+
         return new NullFileProvider();
     }
 
@@ -101,25 +102,26 @@ public class InfiniFrameBlazorAppBuilder {
     }
 
     /// <summary>
-    /// Builds a new <see cref="InfiniFrameBlazorApp"/> using a service provider created from <see cref="Services"/>.
+    ///     Builds a new <see cref="InfiniFrameBlazorApp" /> using a service provider created from <see cref="Services" />.
     /// </summary>
-    /// <returns>A newly created <see cref="InfiniFrameBlazorApp"/>.</returns>
+    /// <returns>A newly created <see cref="InfiniFrameBlazorApp" />.</returns>
     public InfiniFrameBlazorApp Build()
         => Build(Services.BuildServiceProvider());
 
     /// <summary>
-    /// Builds a new <see cref="InfiniFrameBlazorApp"/> using an externally supplied <see cref="IServiceProvider"/>.
+    ///     Builds a new <see cref="InfiniFrameBlazorApp" /> using an externally supplied <see cref="IServiceProvider" />.
     /// </summary>
     /// <param name="serviceProvider">
-    /// The pre-built service provider to use for resolving all application services.
-    /// Ownership is transferred to the returned app instance; when that app is disposed, this provider is disposed if it implements
-    /// <see cref="IAsyncDisposable"/> or <see cref="IDisposable"/>. Do not dispose the same provider separately.
+    ///     The pre-built service provider to use for resolving all application services.
+    ///     Ownership is transferred to the returned app instance; when that app is disposed, this provider is disposed if it
+    ///     implements
+    ///     <see cref="IAsyncDisposable" /> or <see cref="IDisposable" />. Do not dispose the same provider separately.
     /// </param>
-    /// <returns>A newly created <see cref="InfiniFrameBlazorApp"/>.</returns>
+    /// <returns>A newly created <see cref="InfiniFrameBlazorApp" />.</returns>
     /// <remarks>
-    /// Calling this method more than once on the same builder instance is not supported. Each call mutates builder state
-    /// (for example, by registering additional scheme handlers), which can lead to duplicate registrations.
-    /// Create a new builder for each app instance.
+    ///     Calling this method more than once on the same builder instance is not supported. Each call mutates builder state
+    ///     (for example, by registering additional scheme handlers), which can lead to duplicate registrations.
+    ///     Create a new builder for each app instance.
     /// </remarks>
     public InfiniFrameBlazorApp Build(IServiceProvider serviceProvider) {
         ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -149,8 +151,8 @@ public class InfiniFrameBlazorAppBuilder {
         var exceptionSource = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
         return exceptionSource.Register((_, error) => {
             serviceProvider
-            .GetService<IInfiniFrameWindow>()?
-            .ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+                .GetService<IInfiniFrameWindow>()?
+                .ShowMessage("Fatal exception", error.ExceptionObject.ToString());
         });
     }
 }

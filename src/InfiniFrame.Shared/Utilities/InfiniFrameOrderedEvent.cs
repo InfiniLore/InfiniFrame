@@ -16,12 +16,20 @@ public class InfiniFrameOrderedEvent {
     // -----------------------------------------------------------------------------------------------------------------
     public void Add(Action<IInfiniFrameWindow> handler) {
         ArgumentNullException.ThrowIfNull(handler);
-        ImmutableInterlocked.Update(ref _handlers, static (current, item) => current.Add(item), handler);
+        ImmutableInterlocked.Update(
+            ref _handlers,
+            transformer: static (current, item) => current.Add(item),
+            handler
+        );
     }
 
     public void Remove(Action<IInfiniFrameWindow> handler) {
         ArgumentNullException.ThrowIfNull(handler);
-        ImmutableInterlocked.Update(ref _handlers, static (current, item) => current.Remove(item), handler);
+        ImmutableInterlocked.Update(
+            ref _handlers,
+            transformer: static (current, item) => current.Remove(item),
+            handler
+        );
     }
 
     public void Invoke(IInfiniFrameWindow window) {
@@ -37,12 +45,12 @@ public class InfiniFrameOrderedEvent<TPayload> {
 
     public void Add(Action<IInfiniFrameWindow, TPayload> handler) {
         ArgumentNullException.ThrowIfNull(handler);
-        ImmutableInterlocked.Update(ref _handlers, static (current, item) => current.Add(item), handler);
+        ImmutableInterlocked.Update(ref _handlers, transformer: static (current, item) => current.Add(item), handler);
     }
 
     public void Remove(Action<IInfiniFrameWindow, TPayload> handler) {
         ArgumentNullException.ThrowIfNull(handler);
-        ImmutableInterlocked.Update(ref _handlers, static (current, item) => current.Remove(item), handler);
+        ImmutableInterlocked.Update(ref _handlers, transformer: static (current, item) => current.Remove(item), handler);
     }
 
     public void Invoke(IInfiniFrameWindow window, TPayload payload) {

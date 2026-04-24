@@ -14,19 +14,19 @@ internal readonly record struct InteropEnvelopeParseResult(
 ) {
     public static InteropEnvelopeParseResult CreateSuccess(string messageId, string? payload, bool isLegacyProtocol = false)
         => new(
-            Success: true,
-            MessageId: messageId,
-            Payload: payload,
-            Error: null,
-            IsLegacyProtocol: isLegacyProtocol
+            true,
+            messageId,
+            payload,
+            null,
+            isLegacyProtocol
         );
 
     public static InteropEnvelopeParseResult CreateFailure(string error)
         => new(
-            Success: false,
-            MessageId: null,
-            Payload: null,
-            Error: error,
-            IsLegacyProtocol: false
+            false,
+            null,
+            null,
+            error,
+            false
         );
 }

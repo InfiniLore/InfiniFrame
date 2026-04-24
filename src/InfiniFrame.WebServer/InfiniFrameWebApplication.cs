@@ -6,11 +6,11 @@ namespace InfiniFrame.WebServer;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebApplication {
+    private int _shutdownStarted;
+    
     public required WebApplication WebApp { get; init; }
     public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
     public IInfiniFrameWindow Window => LazyWindow.Value;
-
-    private int _shutdownStarted;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -37,14 +37,14 @@ public class InfiniFrameWebApplication {
     }
 
     /// <summary>
-    /// Configures the application to automatically handle server shutdown when the associated
-    /// window is closing or a close request is initiated. This method registers event handlers
-    /// that trigger graceful stopping of the web application upon user-initiated window close actions.
-    /// By invoking this method, the application ensures the proper release of resources and
-    /// termination of processes tied to the web server during window closure.
+    ///     Configures the application to automatically handle server shutdown when the associated
+    ///     window is closing or a close request is initiated. This method registers event handlers
+    ///     that trigger graceful stopping of the web application upon user-initiated window close actions.
+    ///     By invoking this method, the application ensures the proper release of resources and
+    ///     termination of processes tied to the web server during window closure.
     /// </summary>
     /// <returns>
-    /// Returns the current instance of <see cref="InfiniFrameWebApplication"/> to enable method chaining.
+    ///     Returns the current instance of <see cref="InfiniFrameWebApplication" /> to enable method chaining.
     /// </returns>
     public InfiniFrameWebApplication UseAutoServerClose() {
         if (LazyWindow.IsValueCreated) {
@@ -66,9 +66,9 @@ public class InfiniFrameWebApplication {
     }
 
     /// <summary>
-    /// Stops the web application and closes the associated application window.
-    /// This method ensures that both the server instance and the user interface
-    /// are gracefully terminated.
+    ///     Stops the web application and closes the associated application window.
+    ///     This method ensures that both the server instance and the user interface
+    ///     are gracefully terminated.
     /// </summary>
     public void Stop() {
         StopAsync().GetAwaiter().GetResult();

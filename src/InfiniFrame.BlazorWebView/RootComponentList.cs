@@ -17,9 +17,8 @@ public class RootComponentList : IEnumerable<(Type, string)>, IJSComponentConfig
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public IEnumerator<(Type, string)> GetEnumerator() => _components.GetEnumerator();
-
     IEnumerator IEnumerable.GetEnumerator() => _components.GetEnumerator();
-
+    
     public void Add<TComponent>(string selector) where TComponent : IComponent {
         _components.Add((typeof(TComponent), selector));
     }

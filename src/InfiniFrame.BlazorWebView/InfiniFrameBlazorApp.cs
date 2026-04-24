@@ -14,12 +14,12 @@ public class InfiniFrameBlazorApp(
     IInfiniFrameJsComponentConfiguration? rootComponentConfiguration = null,
     IDisposable? unhandledExceptionRegistration = null
 ) : IAsyncDisposable {
-    public IServiceProvider ServiceProvider { get; }= provider;
-    private RootComponentList RootComponents { get; }= rootComponents;
-    private IInfiniFrameJsComponentConfiguration? RootComponentConfiguration { get; }= rootComponentConfiguration;
-    private IDisposable? UnhandledExceptionRegistration { get; } = unhandledExceptionRegistration;
 
     private bool _disposed;
+    public IServiceProvider ServiceProvider { get; } = provider;
+    private RootComponentList RootComponents { get; } = rootComponents;
+    private IInfiniFrameJsComponentConfiguration? RootComponentConfiguration { get; } = rootComponentConfiguration;
+    private IDisposable? UnhandledExceptionRegistration { get; } = unhandledExceptionRegistration;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -42,7 +42,7 @@ public class InfiniFrameBlazorApp(
             await DisposeAsync();
         }
     }
-    
+
     public void Run() {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
@@ -62,6 +62,9 @@ public class InfiniFrameBlazorApp(
         }
     }
 
+    private static bool IsNonFatalException(Exception exception)
+        => exception is not (OutOfMemoryException or AccessViolationException);
+    
     public async ValueTask DisposeAsync() {
         if (_disposed) return;
 
@@ -94,7 +97,4 @@ public class InfiniFrameBlazorApp(
 
         GC.SuppressFinalize(this);
     }
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 }

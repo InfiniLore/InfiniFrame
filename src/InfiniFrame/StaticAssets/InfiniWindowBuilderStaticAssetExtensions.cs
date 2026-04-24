@@ -11,7 +11,9 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniWindowBuilderStaticAssetExtensions {
-    public static T UseEmbeddedWwwrootAssets<T>(this T builder, Assembly? assembly = null,
+    public static T UseEmbeddedWwwrootAssets<T>(
+        this T builder,
+        Assembly? assembly = null,
         string scheme = "app",
         string host = "localhost",
         string defaultDocument = "index.html",

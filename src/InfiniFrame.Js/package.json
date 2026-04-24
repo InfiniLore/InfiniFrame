@@ -1,24 +1,24 @@
 {
-  "name": "infinilore.infiniframe.js-build",
-  "version": "0.1.0",
-  "scripts": {
-    "production:build": "npx webpack --env production=true",
-    "watch:typescript": "npx webpack --watch --env production=false",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "GNUv3",
-  "description": "",
-  "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.5",
-    "jsdom": "^29.0.2",
-    "ts-loader": "^9.5.7",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.5",
-    "webpack": "^5.106.2",
-    "webpack-cli": "^7.0.2"
-  }
+    "name": "infinilore.infiniframe.js-build",
+    "version": "0.1.0",
+    "scripts": {
+        "production:build": "npx webpack --env production=true",
+        "watch:typescript": "npx webpack --watch --env production=false",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "GNUv3",
+    "description": "",
+    "devDependencies": {
+        "@vitest/coverage-v8": "^4.1.5",
+        "jsdom": "^29.0.2",
+        "ts-loader": "^9.5.7",
+        "typescript": "^6.0.3",
+        "vitest": "^4.1.5",
+        "webpack": "^5.106.2",
+        "webpack-cli": "^7.0.2"
+    }
 }

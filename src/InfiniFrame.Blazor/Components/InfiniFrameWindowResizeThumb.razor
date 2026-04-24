@@ -1,7 +1,6 @@
 ﻿@* ------------------------------------------------------------------------------------------------------------------ *@
 @* Imports
 @* ------------------------------------------------------------------------------------------------------------------ *@
-@using InfiniFrame
 @using InfiniFrame.Js
 @using Microsoft.AspNetCore.Components.Web
 
@@ -33,9 +32,12 @@
 @* ------------------------------------------------------------------------------------------------------------------ *@
 
 @code {
-    [EditorRequired, Parameter]  public ResizeOrigin ResizeThumb { get; set; }
-    [Parameter] public int ResizeArea { get; set; } = ResizeAreaValue;
-    [Parameter] public int ZIndex { get; set; } = ZIndexValue;
+    [EditorRequired, Parameter]
+    public ResizeOrigin ResizeThumb { get; set; }
+    [Parameter]
+    public int ResizeArea { get; set; } = ResizeAreaValue;
+    [Parameter]
+    public int ZIndex { get; set; } = ZIndexValue;
     internal const int ZIndexValue = 1000;
     internal const int ResizeAreaValue = 10;
 

@@ -39,13 +39,13 @@ describe("Observers", () => {
         let callback: MutationCallback = () => undefined;
 
         class FakeMutationObserver {
-            constructor(cb: MutationCallback) {
-                callback = cb;
-            }
-
             public observe = vi.fn();
             public disconnect = vi.fn();
             public takeRecords = vi.fn(() => []);
+
+            constructor(cb: MutationCallback) {
+                callback = cb;
+            }
         }
 
         globalThis.MutationObserver = FakeMutationObserver as unknown as typeof MutationObserver;

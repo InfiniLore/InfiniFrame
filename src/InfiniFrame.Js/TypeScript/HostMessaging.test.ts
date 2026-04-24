@@ -140,7 +140,11 @@ describe("HostMessaging", () => {
 
         const closeMessages = postMessage.mock.calls
             .map(call => call[0])
-            .filter(message => typeof message === "object" && message !== null && (message as { id?: string }).id === SendToHostMessageIds.windowClose);
+            .filter(
+                message => typeof message === "object" 
+                    && message !== null 
+                    && (message as { id?: string }).id === SendToHostMessageIds.windowClose
+            );
         expect(closeMessages.length).toBe(1);
 
         window.close = originalClose;

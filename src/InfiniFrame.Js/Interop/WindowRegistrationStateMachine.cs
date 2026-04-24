@@ -28,7 +28,6 @@ internal sealed class WindowRegistrationStateMachine {
             : WindowRegistrationHandshakeState.Failed;
     }
 
-    public bool ShouldLogReadyHandshakeTimeout() {
-        return HandshakeState == WindowRegistrationHandshakeState.ReadyPending;
-    }
+    public bool ShouldLogReadyHandshakeTimeout() 
+        => HandshakeState == WindowRegistrationHandshakeState.ReadyPending;
 }

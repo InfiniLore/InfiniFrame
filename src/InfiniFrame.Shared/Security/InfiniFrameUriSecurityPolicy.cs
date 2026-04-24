@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,8 +13,8 @@ public sealed class InfiniFrameUriSecurityPolicy(
     bool trustAllOrigins = false
 ) {
     public static InfiniFrameUriSecurityPolicy Default { get; } = new(
-        allowedNavigationSchemes: [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
-        allowedExternalSchemes: [Uri.UriSchemeHttps, Uri.UriSchemeHttp, Uri.UriSchemeMailto]
+        [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
+        [Uri.UriSchemeHttps, Uri.UriSchemeHttp, Uri.UriSchemeMailto]
     );
 
     public IReadOnlySet<string> AllowedNavigationSchemes { get; } = NormalizeSchemes(allowedNavigationSchemes);
@@ -36,7 +35,7 @@ public sealed class InfiniFrameUriSecurityPolicy(
         ArgumentNullException.ThrowIfNull(candidateOrigin);
 
         return IsNavigationSchemeAllowed(candidateOrigin.Scheme)
-               && (TrustAllOrigins || TrustedOrigins.Any(trustedOrigin => IsSameOrigin(candidateOrigin, trustedOrigin)));
+            && (TrustAllOrigins || TrustedOrigins.Any(trustedOrigin => IsSameOrigin(candidateOrigin, trustedOrigin)));
     }
 
     public bool IsTrustedOrigin(Uri candidateOrigin, Uri trustedOrigin) {
@@ -44,7 +43,7 @@ public sealed class InfiniFrameUriSecurityPolicy(
         ArgumentNullException.ThrowIfNull(trustedOrigin);
 
         return IsNavigationSchemeAllowed(candidateOrigin.Scheme)
-               && (TrustAllOrigins || IsSameOrigin(candidateOrigin, trustedOrigin));
+            && (TrustAllOrigins || IsSameOrigin(candidateOrigin, trustedOrigin));
     }
 
     public InfiniFrameUriSecurityPolicy WithTrustedOrigin(Uri trustedOrigin) {
@@ -61,10 +60,11 @@ public sealed class InfiniFrameUriSecurityPolicy(
         }
 
         return new InfiniFrameUriSecurityPolicy(
-            allowedNavigationSchemes: AllowedNavigationSchemes,
-            allowedExternalSchemes: AllowedExternalSchemes,
-            trustedOrigins: mergedTrustedOrigins,
-            trustAllOrigins: TrustAllOrigins);
+            AllowedNavigationSchemes,
+            AllowedExternalSchemes,
+            mergedTrustedOrigins,
+            TrustAllOrigins
+        );
     }
 
     private static HashSet<string> NormalizeSchemes(IEnumerable<string> schemes) {
@@ -83,11 +83,10 @@ public sealed class InfiniFrameUriSecurityPolicy(
         return normalized;
     }
 
-    private static bool IsSameOrigin(Uri left, Uri right) {
-        return string.Equals(left.Scheme, right.Scheme, StringComparison.OrdinalIgnoreCase)
-               && string.Equals(left.Host, right.Host, StringComparison.OrdinalIgnoreCase)
-               && left.Port == right.Port;
-    }
+    private static bool IsSameOrigin(Uri left, Uri right)
+        => string.Equals(left.Scheme, right.Scheme, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(left.Host, right.Host, StringComparison.OrdinalIgnoreCase)
+        && left.Port == right.Port;
 
     private sealed class OriginComparer : IEqualityComparer<Uri> {
         public static OriginComparer Instance { get; } = new();
@@ -95,15 +94,15 @@ public sealed class InfiniFrameUriSecurityPolicy(
         public bool Equals(Uri? x, Uri? y) {
             if (ReferenceEquals(x, y)) return true;
             if (x is null || y is null) return false;
+
             return IsSameOrigin(x, y);
         }
 
-        public int GetHashCode(Uri obj) {
-            return HashCode.Combine(
+        public int GetHashCode(Uri obj) =>
+            HashCode.Combine(
                 obj.Scheme.ToUpperInvariant(),
                 obj.Host.ToUpperInvariant(),
                 obj.Port
             );
-        }
     }
 }

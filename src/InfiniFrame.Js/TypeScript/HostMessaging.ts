@@ -65,6 +65,14 @@ class HostMessaging implements IHostMessaging {
         }
     }
 
+    public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {
+        this.messageHandlers.set(messageId, callback);
+    }
+
+    public unregisterMessageReceivedHandler(messageId: string) {
+        this.messageHandlers.delete(messageId);
+    }
+
     private assignWebMessageReceiver() {
         if (window.infiniframe?.host?.receiveMessage) {
             window.infiniframe.host.receiveMessage((message: string) => {
@@ -102,14 +110,6 @@ class HostMessaging implements IHostMessaging {
         }
 
         return true;
-    }
-
-    public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {
-        this.messageHandlers.set(messageId, callback);
-    }
-
-    public unregisterMessageReceivedHandler(messageId: string) {
-        this.messageHandlers.delete(messageId);
     }
 
     private registerOpenExternal() {

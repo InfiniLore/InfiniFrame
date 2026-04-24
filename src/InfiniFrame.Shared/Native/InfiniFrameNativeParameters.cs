@@ -171,17 +171,17 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.I1)]
     internal bool Transparent;
 
-    ///<summary>OPTIONAL: If true, user can access the browser control's context menu. Default is true.</summary>
+    ///<summary>OPTIONAL: If true, the user can access the browser control's context menu. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool ContextMenuEnabled;
 
     /// <summary>
-    /// OPTIONAL: If true, user can zoom the browser control. Default is true.
+    ///     OPTIONAL: If true, the user can zoom the browser control. Default is true.
     /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool ZoomEnabled;
 
-    ///<summary>OPTIONAL: If true, user can access the browser control's dev tools. Default is true.</summary>
+    ///<summary>OPTIONAL: If true, the user can access the browser control's dev tools. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool DevToolsEnabled;
 
@@ -365,10 +365,11 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         hashCode.Add(MinimizedHandler);
         hashCode.Add(MovedHandler);
         hashCode.Add(WebMessageReceivedHandler);
-        
+
         if (CustomSchemeNames is not null) {
-            foreach (IntPtr ptr in CustomSchemeNames)
+            foreach (IntPtr ptr in CustomSchemeNames) {
                 hashCode.Add(ptr);
+            }
         }
 
         hashCode.Add(CustomSchemeHandler);
