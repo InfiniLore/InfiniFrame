@@ -167,36 +167,51 @@ jobs:
 
             -   name: Run Playwright (net8.0)
                 id: playwright_net8
-                if: always()
                 continue-on-error: true
                 timeout-minutes: 20
                 run: dotnet test --solution InfiniFrame.GitHubActions.Testing.Playwright.slnf --configuration Release --no-build --no-restore --framework net8.0
 
             -   name: Run Playwright (net9.0)
                 id: playwright_net9
-                if: always()
                 continue-on-error: true
                 timeout-minutes: 20
                 run: dotnet test --solution InfiniFrame.GitHubActions.Testing.Playwright.slnf --configuration Release --no-build --no-restore --framework net9.0
 
             -   name: Run Playwright (net10.0)
                 id: playwright_net10
-                if: always()
                 continue-on-error: true
                 timeout-minutes: 20
                 run: dotnet test --solution InfiniFrame.GitHubActions.Testing.Playwright.slnf --configuration Release --no-build --no-restore --framework net10.0
 
-            -   name: Fail If Any Framework Failed
+            -   name: Fail if any framework failed
                 if: always()
                 shell: pwsh
                 run: |
+                    $results = @(
+                        @{ name = "net8.0"; outcome = "${{ steps.playwright_net8.outcome }}" },
+                        @{ name = "net9.0"; outcome = "${{ steps.playwright_net9.outcome }}" },
+                        @{ name = "net10.0"; outcome = "${{ steps.playwright_net10.outcome }}" }
+                    )
+                    
                     $failed = @()
-                    if ("${{ steps.playwright_net8.outcome }}" -ne "success") { $failed += "net8.0" }
-                    if ("${{ steps.playwright_net9.outcome }}" -ne "success") { $failed += "net9.0" }
-                    if ("${{ steps.playwright_net10.outcome }}" -ne "success") { $failed += "net10.0" }
-                    if ($failed.Count -gt 0) {
-                      throw "Windows Playwright failed for framework(s): $($failed -join ', ')"
+                    
+                    foreach ($r in $results) {
+                        if ($r.outcome -eq "success") {
+                            Write-Host "✅ $($r.name) passed"
+                        } else {
+                            Write-Host "❌ $($r.name) failed"
+                            $failed += $r.name
+                        }
                     }
+                    
+                    if ($failed.Count -gt 0) {
+                        Write-Host ""
+                        Write-Host "❌ Failed frameworks: $($failed -join ', ')"
+                        exit 1
+                    }
+                    
+                    Write-Host ""
+                    Write-Host "✅ All frameworks passed"
 
             -   name: Update Playwright Check
                 if: always()
