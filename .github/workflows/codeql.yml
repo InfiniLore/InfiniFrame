@@ -9,8 +9,12 @@ on:
     branches: [ "core" ]
   pull_request:
     branches: [ "core" ]
-  schedule:
-    - cron: '24 0 * * 0'
+    types: [ready_for_review, synchronize, reopened]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/*.md'
   workflow_dispatch:
 
 jobs:
@@ -18,6 +22,12 @@ jobs:
     name: Analyze (${{ matrix.language }} on ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
+
+    if: >
+      github.event_name != 'pull_request' ||
+      (
+        github.event.pull_request.draft == false
+      )
 
     permissions:
       security-events: write
