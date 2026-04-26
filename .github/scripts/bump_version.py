@@ -130,9 +130,12 @@ def update_all_package_json_files(repo_root: Path, new_version: str) -> None:
     Recursively updates all package.json files in the repository.
     """
     for pkg_path in repo_root.rglob("package.json"):
-        # skip node_modules just in case
+        # skip certain folders just in case
         if "node_modules" in pkg_path.parts:
             continue
+        if "InfiniFrame.Native" in pkg_path.parts:
+            continue
+            
         update_package_json_version(pkg_path, new_version)
 
 def main() -> int:
