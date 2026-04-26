@@ -5,7 +5,7 @@ import re
 import sys
 import xml.etree.ElementTree as Et
 from pathlib import Path
-from typing import Final, Literal, Never,  Iterable
+from typing import Final, Literal, Never
 import json
 
 # Resolve paths from the repository root: .github/scripts -> repo root is three levels up.
