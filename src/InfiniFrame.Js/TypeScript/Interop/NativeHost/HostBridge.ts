@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {InteropEnvelopeV1} from "../../Contracts/IInteropEnvelope";
+import {InteropEnvelopeV1} from "../../Contracts/InteropEnvelope";
 import {InteropEnvelopeVersion} from "../EnvelopeProtocol/InteropEnvelopeProtocol";
 
 // ---------------------------------------------------------------------------------------------------------------------
