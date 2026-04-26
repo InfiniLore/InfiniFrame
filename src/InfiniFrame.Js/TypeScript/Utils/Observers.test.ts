@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {afterEach, describe, expect, it, vi} from "vitest";
 import {getTitleObserver, getTitleObserverTarget} from "./Observers";
-import {SendToHostMessageIds} from "./Contracts/IInfiniFrameHostMessaging";
+import {SendToHostMessageIds} from "../Contracts/IInfiniFrameHostMessaging";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

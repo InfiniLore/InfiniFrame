@@ -7,7 +7,7 @@ import {IInfiniFrameHostMessaging} from "./IInfiniFrameHostMessaging";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export interface IInfiniFrame {
-    Host: IInfiniFrameHostMessaging;
+    HostMessaging: IInfiniFrameHostMessaging;
 
     setPointerCapture(element: Element, pointerId: number): void;
 

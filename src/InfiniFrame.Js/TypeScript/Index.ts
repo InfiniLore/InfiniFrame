@@ -8,4 +8,6 @@ import {installHostBridge} from "./Interop/HostBridge";
 // ---------------------------------------------------------------------------------------------------------------------
 export {};
 installHostBridge();
+
+
 window.infiniFrame = new InfiniFrame();

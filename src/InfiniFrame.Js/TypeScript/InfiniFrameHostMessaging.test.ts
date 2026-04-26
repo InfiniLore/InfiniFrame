@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import {ReceiveFromHostMessageIds, SendToHostMessageIds} from "./Contracts/IInfiniFrameHostMessaging";
-import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -44,8 +43,8 @@ describe("InfiniFrameHostMessaging", () => {
         const blankTargetHandler = vi.fn();
         const titleObserverObserve = vi.fn();
 
-        vi.doMock("./BlankTargetHandler", () => ({blankTargetHandler}));
-        vi.doMock("./Observers", () => ({
+        vi.doMock("./Utils/BlankTargetHandler", () => ({blankTargetHandler}));
+        vi.doMock("./Utils/Observers", () => ({
             getTitleObserverTarget: vi.fn(() => document.querySelector("title")),
             getTitleObserver: vi.fn(() => ({observe: titleObserverObserve}))
         }));

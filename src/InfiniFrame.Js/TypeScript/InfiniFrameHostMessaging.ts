@@ -9,8 +9,8 @@ import {
     SendToHostMessageIds
 } from "./Contracts/IInfiniFrameHostMessaging";
 import {createEnvelope, parseIncomingMessage} from "./Interop/InteropEnvelopeProtocol";
-import {blankTargetHandler} from "./BlankTargetHandler";
-import {getTitleObserver, getTitleObserverTarget} from "./Observers";
+import {blankTargetHandler} from "./Utils/BlankTargetHandler";
+import {getTitleObserver, getTitleObserverTarget} from "./Utils/Observers";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -28,7 +28,7 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     private readyHandshakeAttempts = 0;
     private readyHandshakeAcknowledged = false;
     private readyHandshakeRetryTimer: number | null = null;
-
+    
     constructor() {
         this.assignWebMessageReceiver();
 

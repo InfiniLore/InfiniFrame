@@ -8,7 +8,7 @@ import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class InfiniFrame implements IInfiniFrame {
-    Host: IInfiniFrameHostMessaging = new InfiniFrameHostMessaging();
+    HostMessaging: IInfiniFrameHostMessaging = new InfiniFrameHostMessaging();
     
     setPointerCapture(element: Element, pointerId: number) {
         element.setPointerCapture(pointerId);
@@ -17,6 +17,8 @@ export class InfiniFrame implements IInfiniFrame {
     releasePointerCapture(element: Element, pointerId: number) {
         element.releasePointerCapture(pointerId);
     }
+    
+    
 }
 
 export default InfiniFrame
