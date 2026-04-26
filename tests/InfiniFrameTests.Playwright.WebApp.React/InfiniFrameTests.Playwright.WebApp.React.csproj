@@ -4,14 +4,18 @@
         <EnableNativeDllCopy>true</EnableNativeDllCopy>
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepositoryRoot>
 
-        <!-- Build frontend exactly once during multi-target builds -->
-        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'=='' and '$(TargetFrameworks)'!=''">$([System.String]::Copy('$(TargetFrameworks)').Split(';')[0])</FrontendBuildOnceTargetFramework>
-        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'==''">$(TargetFramework)</FrontendBuildOnceTargetFramework>
+        <!-- Pick ONE TFM to run frontend build -->
+        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'=='' and '$(TargetFrameworks)'!=''">
+            $([System.String]::Copy('$(TargetFrameworks)').Split(';')[0])
+        </FrontendBuildOnceTargetFramework>
+        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'==''">
+            $(TargetFramework)
+        </FrontendBuildOnceTargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="TUnit"/>
-        <PackageReference Include="TUnit.Playwright"/>
+        <PackageReference Include="TUnit" />
+        <PackageReference Include="TUnit.Playwright" />
     </ItemGroup>
 
     <ItemGroup>
@@ -19,36 +23,43 @@
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
-    <Target Name="BuildFrontendCrossTargeting"
+    <!-- ✅ Build frontend exactly once -->
+    <Target Name="BuildFrontend"
             BeforeTargets="AssignTargetPaths;Build"
-            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'=='true'">
-        <Message Text="Installing npm packages" Importance="high"/>
-        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react"/>
-        <Message Text="Building frontend with npm..." Importance="high"/>
-        <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react"/>
+            Inputs="$(ProjectDir)Sources\infiniframe-playwright-react\package.json"
+            Outputs="$(ProjectDir)Sources\infiniframe-playwright-react\.buildstamp"
+            Condition="
+            '$(DesignTimeBuild)'!='true' and
+            '$(TargetFramework)'=='$(FrontendBuildOnceTargetFramework)'">
+
+        <Message Text="Running React frontend build (once)..." Importance="high" />
+
+        <!-- Install only if needed -->
+        <Exec Command="npm ci"
+              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react"
+              Condition="!Exists('$(ProjectDir)Sources\infiniframe-playwright-react\node_modules')" />
+
+        <!-- Build -->
+        <Exec Command="npm run build"
+              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react" />
+
+        <!-- Stamp file -->
+        <Touch Files="$(ProjectDir)Sources\infiniframe-playwright-react\.buildstamp" />
     </Target>
 
-    <Target Name="BuildFrontendSingleTarget"
-            BeforeTargets="AssignTargetPaths;Build"
-            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true' and '$(TargetFramework)'!=''">
-        <Message Text="Installing npm packages" Importance="high"/>
-        <Exec Command="npm install" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react"/>
-        <Message Text="Building frontend with npm..." Importance="high"/>
-        <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react"/>
-    </Target>
-
+    <!-- Copy InfiniFrame bridge script -->
     <Target Name="CopyInfiniFrameBridgeScript"
-            DependsOnTargets="BuildFrontendSingleTarget"
-            BeforeTargets="AssignTargetPaths;CopyFrontendToOutput"
-            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
+            BeforeTargets="AssignTargetPaths"
+            Condition="'$(DesignTimeBuild)'!='true'">
         <Copy SourceFiles="$(RepositoryRoot)src\InfiniFrame.Js\wwwroot\InfiniFrame.js"
               DestinationFiles="$(ProjectDir)wwwroot\InfiniFrame.js"
               SkipUnchangedFiles="true" />
     </Target>
 
+    <!-- Copy frontend output -->
     <Target Name="CopyFrontendToOutput"
             AfterTargets="Build"
-            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
+            Condition="'$(DesignTimeBuild)'!='true'">
         <ItemGroup>
             <FrontendFiles Include="$(ProjectDir)wwwroot\**\*" />
         </ItemGroup>
