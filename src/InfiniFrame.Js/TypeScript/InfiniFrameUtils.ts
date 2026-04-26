@@ -1,17 +1,17 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniFrame} from "./Contracts/IInfiniFrame";
-import {IInfiniFrameHostMessaging} from "./Contracts/IInfiniFrameHostMessaging";
-import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
 import {IInfiniFrameUtils} from "./Contracts/IInfiniFrameUtils";
-import {InfiniFrameUtils} from "./InfiniFrameUtils";
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrame implements IInfiniFrame {
-    hostMessaging: IInfiniFrameHostMessaging = new InfiniFrameHostMessaging();
-    utils: IInfiniFrameUtils = new InfiniFrameUtils()    
+export class InfiniFrameUtils implements IInfiniFrameUtils {
+    setPointerCapture(element: Element, pointerId: number): void {
+        element.setPointerCapture(pointerId);
+    }
+    
+    releasePointerCapture(element: Element, pointerId: number): void {
+        element.releasePointerCapture(pointerId);
+    }
 }
-
-export default InfiniFrame

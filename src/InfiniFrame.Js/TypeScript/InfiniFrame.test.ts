@@ -1,32 +1,46 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import {SendToHostMessageIds} from "./Contracts/IInfiniFrameHostMessaging";
+import {describe, it, expect, vi} from "vitest";
+import {InfiniFrame} from "./InfiniFrame";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 describe("InfiniFrame", () => {
-    beforeEach(() => {
-        vi.resetModules();
-    });
 
-    it("forwards pointer capture APIs to element", async () => {
-        const {InfiniFrame} = await import("./InfiniFrame");
+    it("initializes HostMessaging and Utils", () => {
         const instance = new InfiniFrame();
 
-        const setPointerCapture = vi.fn();
-        const releasePointerCapture = vi.fn();
-        const element = {
-            setPointerCapture,
-            releasePointerCapture
-        } as unknown as Element;
+        expect(instance.hostMessaging).toBeDefined();
+        expect(instance.utils).toBeDefined();
+    });
 
-        instance.setPointerCapture(element, 10);
-        instance.releasePointerCapture(element, 10);
+    it("creates independent instances", () => {
+        const a = new InfiniFrame();
+        const b = new InfiniFrame();
 
-        expect(setPointerCapture).toHaveBeenCalledWith(10);
-        expect(releasePointerCapture).toHaveBeenCalledWith(10);
+        expect(a.hostMessaging).not.toBe(b.hostMessaging);
+        expect(a.utils).not.toBe(b.utils);
+    });
+
+    it("does not define or mutate window.infiniframe.host", async () => {
+        const setSpy = vi.spyOn(Object, "defineProperty");
+
+        const win = window as any;
+
+        // ensure clean state
+        delete win.infiniframe;
+
+        await import("./InfiniFrame");
+
+        // library should not define host via Object.defineProperty
+        const hostDefinitionCalls = setSpy.mock.calls.filter(call =>
+            String(call[1])?.includes?.("host")
+        );
+
+        expect(hostDefinitionCalls.length).toBe(0);
+
+        setSpy.mockRestore();
     });
 });

@@ -1,13 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniFrameHostMessaging} from "./IInfiniFrameHostMessaging";
-import {IInfiniFrameUtils} from "./IInfiniFrameUtils";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface IInfiniFrame {
-    hostMessaging: IInfiniFrameHostMessaging;
-    utils: IInfiniFrameUtils;
+export interface IInfiniFrameUtils {
+    setPointerCapture(element: Element, pointerId: number): void;
+    releasePointerCapture(element: Element, pointerId: number): void;
 }

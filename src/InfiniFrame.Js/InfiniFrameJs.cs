@@ -12,7 +12,7 @@ namespace InfiniFrame.Js;
 public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) : IInfiniFrameJs {
     public async Task SetPointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default) {
         try {
-            await jsRuntime.InvokeVoidAsync("infiniFrame.setPointerCapture", ct, elementReference, pointerId);
+            await jsRuntime.InvokeVoidAsync("infiniFrame.utils.setPointerCapture", ct, elementReference, pointerId);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) {
             // ignore cancellation
@@ -27,7 +27,7 @@ public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) 
 
     public async Task ReleasePointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default) {
         try {
-            await jsRuntime.InvokeVoidAsync("infiniFrame.releasePointerCapture", ct, elementReference, pointerId);
+            await jsRuntime.InvokeVoidAsync("infiniFrame.utils.releasePointerCapture", ct, elementReference, pointerId);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested) {
             // ignore cancellation
