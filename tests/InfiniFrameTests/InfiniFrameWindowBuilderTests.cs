@@ -20,6 +20,8 @@ public class InfiniFrameWindowBuilderTests {
         return null;
     }
 
+    private const int DefaultIncludedMessageHandlers = 1;
+
     [Test]
     public async Task ResolveLogger_WithoutProvider_UsesSharedFallbackLogger() {
         // Act
@@ -76,8 +78,8 @@ public class InfiniFrameWindowBuilderTests {
         // Assert
         await Assert.That(first.Events.WindowCreated.Length).IsEqualTo(1);
         await Assert.That(second.Events.WindowCreated.Length).IsEqualTo(1);
-        await Assert.That(first.MessageHandlers.PostDataHandlers.Length).IsEqualTo(1);
-        await Assert.That(second.MessageHandlers.PostDataHandlers.Length).IsEqualTo(1);
+        await Assert.That(first.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1); // Default initialized with Get/Post data flow, so 1+1
+        await Assert.That(second.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1); // Default initialized with Get/Post data flow, so 1+1
         await Assert.That(first.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
         await Assert.That(second.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
         await Assert.That(first.CustomSchemes.OrderedSchemeNames[0]).IsEqualTo("app");
@@ -104,8 +106,8 @@ public class InfiniFrameWindowBuilderTests {
         firstSchemes.RegisterCustomSchemeHandler("only-first", EmptyHandler);
 
         // Assert
-        await Assert.That(firstMessageHandlers.IsEmpty).IsFalse();
-        await Assert.That(secondMessageHandlers.IsEmpty).IsTrue();
+        await Assert.That(firstMessageHandlers.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(secondMessageHandlers.Count).IsEqualTo(DefaultIncludedMessageHandlers);
         await Assert.That(firstEvents.WindowCreated.Snapshot.Length).IsEqualTo(secondEvents.WindowCreated.Snapshot.Length + 1);
         await Assert.That(firstSchemes.ContainsCustomSchemeHandler("only-first")).IsTrue();
         await Assert.That(secondSchemes.ContainsCustomSchemeHandler("only-first")).IsFalse();

@@ -19,6 +19,7 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
     private readonly ConcurrentDictionary<string, Func<IInfiniFrameWindow, string?, string?>> GetDataHandlers = new();
 
     public bool IsEmpty => PostDataHandlers.IsEmpty && GetDataHandlers.IsEmpty;
+    public int Count => PostDataHandlers.Count + GetDataHandlers.Count;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

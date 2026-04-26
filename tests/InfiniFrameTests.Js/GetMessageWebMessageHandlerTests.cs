@@ -20,7 +20,6 @@ public class GetMessageWebMessageHandlerTests {
         (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler messageHandler) = CreateWindowHarness();
         messageHandler.RegisterHandler("app:echo", (_, payload) => $"echo:{payload}");
         
-        
         string requestedEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("app:echo", "hello");
         string requestPayload = JsonSerializer.Serialize(new {
             requestId = "req-1",
@@ -98,9 +97,11 @@ public class GetMessageWebMessageHandlerTests {
     }
 
     private static JsonElement GetLatestGetMessageResponsePayload(RecordingInfiniFrameWindowSubstitute window) {
-        string responseEnvelope = window.GetSentMessagesSnapshot()
-            .Last(message => InteropEnvelopeProtocol.ParseIncomingMessage(message).MessageId == HandlerNames.GetMessageResponse);
+        string? responseEnvelope = window.GetSentMessagesSnapshot()
+            .LastOrDefault(message => InteropEnvelopeProtocol.ParseIncomingMessage(message).MessageId == HandlerNames.GetMessageResponse);
 
+        Fail.When(responseEnvelope is null, "Expected a getMessage response envelope.");
+        
         InteropEnvelopeParseResult parsedEnvelope = InteropEnvelopeProtocol.ParseIncomingMessage(responseEnvelope);
         if (!parsedEnvelope.Success || string.IsNullOrWhiteSpace(parsedEnvelope.Payload))
             throw new InvalidOperationException("Expected a successful getMessage response envelope with payload.");
