@@ -9,7 +9,9 @@
     auto *urlUtf8 = const_cast<char *>([url.absoluteString UTF8String]);
     int numBytes = 0;
     char* contentType = nullptr;
-    void* dotNetResponse = requestHandler(urlUtf8, &numBytes, &contentType);
+    void* dotNetResponse = requestHandler == nullptr
+        ? nullptr
+        : requestHandler(urlUtf8, &numBytes, &contentType);
 
     NSInteger statusCode = dotNetResponse == nullptr ? 404 : 200;
     NSString* nsContentType = contentType == nullptr

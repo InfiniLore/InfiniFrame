@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <X11/Xlib.h>
+#include <gio/gio.h>
 #include <webkit2/webkit2.h>
 #include <JavaScriptCore/JavaScript.h>
 #include <sstream>
@@ -124,6 +125,16 @@ static void HandleWebMessage(
 static void HandleCustomSchemeRequest(WebKitURISchemeRequest* request, const gpointer user_data) {
     WebResourceRequestedCallback webResourceRequestedCallback = reinterpret_cast<WebResourceRequestedCallback>(
         user_data);
+    if (webResourceRequestedCallback == nullptr) {
+        GError* error = g_error_new_literal(
+            G_IO_ERROR,
+            G_IO_ERROR_NOT_SUPPORTED,
+            "No custom scheme handler is registered.");
+        webkit_uri_scheme_request_finish_error(request, error);
+        g_error_free(error);
+        return;
+    }
+
     const gchar* uri = webkit_uri_scheme_request_get_uri(request);
     int numBytes = 0;
     AutoString contentType = nullptr;
@@ -284,6 +295,9 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings
 }
 
 void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
+    if (_customSchemeCallback == nullptr)
+        return;
+
     WebKitWebContext* context = webkit_web_context_get_default();
     WebKitSecurityManager* securityManager = webkit_web_context_get_security_manager(context);
     for (const auto& value : _customSchemeNames) {

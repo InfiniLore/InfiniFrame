@@ -227,6 +227,8 @@ void AddFilters(
  * @return Heap-allocated array of UTF-16 paths, or null if nothing was selected
  */
 AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount) {
+    *resultCount = 0;
+
     IShellItemArray* psiResults = nullptr;
     *hr = pfd->GetResults(&psiResults);
     if (SUCCEEDED(*hr)) {
@@ -234,7 +236,7 @@ AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount) {
         psiResults->GetCount(&count);
         if (count > 0) {
             *resultCount = static_cast<int>(count);
-            auto** result = new wchar_t*[count];
+            auto** result = new wchar_t*[count]();
             for (DWORD i = 0; i < count; ++i) {
                 IShellItem* psiItem = nullptr;
                 *hr = psiResults->GetItemAt(i, &psiItem);
