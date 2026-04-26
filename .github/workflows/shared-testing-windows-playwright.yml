@@ -1,4 +1,5 @@
 name: "Shared: Windows Playwright Tests"
+
 on:
     workflow_call:
         inputs:
@@ -18,22 +19,33 @@ on:
 
 jobs:
     windows-playwright:
-        name: CI Testing - Windows Playwright
+        name: CI Testing - Windows Playwright (${{ matrix.project }} / ${{ matrix.framework }})
         runs-on: windows-latest
         timeout-minutes: 75
+        
+        strategy:
+            fail-fast: false
+            matrix:
+                framework: [ net8.0, net9.0, net10.0 ]
+                project:
+                    - tests/InfiniFrameTests.Playwright.WebApp.Vue
+                    - tests/InfiniFrameTests.Playwright.WebApp.React
+                    - tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor
+        
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
             WORKFLOW_URL: ${{ inputs.workflow_url }}
+        
         permissions:
             contents: read
             statuses: write
             checks: write
-
+        
         steps:
             -   name: Checkout
                 uses: actions/checkout@v6
                 with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
             -   name: Set Playwright Check Pending
@@ -45,9 +57,9 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright
+                    context: CI Testing - Windows Playwright (${{ matrix.project }} / ${{ matrix.framework }})
                     state: pending
-                    status-description: Windows Playwright tests in progress (net8.0, net9.0, net10.0)
+                    status-description: Windows Playwright tests in progress
                     target-url: ${{ inputs.workflow_url }}
                     allow-status-422: 'true'
 
@@ -73,15 +85,14 @@ jobs:
                 # noinspection UndefinedParamsPresent
                 with:
                     apt-cache-version: 1.0
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-playwright.yml') }}
-                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+                    brew-cache-key: ${{ runner.os }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml') }}
+                    brew-restore-key: ${{ runner.os }}-brew-native-
 
             -   name: Prepare WebView2 Cache Directory
                 shell: pwsh
                 run: New-Item -ItemType Directory -Path ".cache\webview2" -Force | Out-Null
 
             -   name: Cache WebView2
-                id: cache-webview2
                 uses: actions/cache@v5
                 with:
                     path: .cache\webview2
@@ -99,139 +110,64 @@ jobs:
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.Playwright.slnf /p:NoWarn=NU1503
 
-            -   name: Build Release
+            -   name: Build Native
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$GITHUB_WORKSPACE/
 
+            -   name: Build Tests
+                run: |
                     dotnet build InfiniFrame.GitHubActions.Testing.Playwright.slnf `
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$GITHUB_WORKSPACE/
 
-            -   name: Cache Playwright Browsers
-                id: cache-playwright
-                uses: actions/cache@v5
-                with:
-                    path: ~\AppData\Local\ms-playwright
-                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.WebApp.React/InfiniFrameTests.Playwright.WebApp.React.csproj', 'tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj', 'tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.csproj') }}
-                    restore-keys: |
-                        playwright-${{ runner.os }}-
-
             -   name: Install Playwright Browsers
-                if: steps.cache-playwright.outputs.cache-hit != 'true'
-                working-directory: tests/InfiniFrameTests.Playwright.WebApp.Vue
                 shell: pwsh
                 run: |
-                    $scripts = @(
-                      "bin/Release/net10.0/playwright.ps1",
-                      "bin/Release/net9.0/playwright.ps1",
-                      "bin/Release/net8.0/playwright.ps1"
-                    )
-                    $script = $scripts | Where-Object { Test-Path $_ } | Select-Object -First 1
-                    if (-Not $script) {
-                      throw "Playwright install script not found in bin/Release/(net8.0|net9.0|net10.0)"
+                    $script = "${{ matrix.project }}/bin/Release/${{ matrix.framework }}/playwright.ps1"
+                    
+                    if (-not (Test-Path $script)) {
+                      throw "Playwright script not found: $script"
                     }
-
+                    
                     pwsh $script install
 
             -   name: Verify Native Binaries
                 shell: pwsh
                 run: |
-                    $frameworks = @("net8.0", "net9.0", "net10.0")
-                    $projects = @(
-                      "tests/InfiniFrameTests.Playwright.WebApp.React",
-                      "tests/InfiniFrameTests.Playwright.WebApp.Vue",
-                      "tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor"
-                    )
-                    foreach ($framework in $frameworks) {
-                      foreach ($project in $projects) {
-                        $binPath = "$project/bin/Release/$framework"
-                        foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
-                          $fullPath = Join-Path $binPath $dll
-                          if (-Not (Test-Path $fullPath)) {
-                            throw "$dll missing in $binPath"
-                          }
-                        }
+                    $binPath = "${{ matrix.project }}/bin/Release/${{ matrix.framework }}"
+                    
+                    foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
+                      $fullPath = Join-Path $binPath $dll
+                      if (-Not (Test-Path $fullPath)) {
+                        throw "$dll missing in $binPath"
                       }
                     }
 
-            -   name: Export Actions Runtime
-                uses: actions/github-script@v9
-                with:
-                    script: |
-                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
-                        core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
-
-            -   name: Run Playwright tests (all frameworks/projects)
-                id: playwright_all
-                continue-on-error: true
+            -   name: Run Playwright tests
                 shell: pwsh
                 run: |
-                    $frameworks = @(
-                        "net8.0", 
-                        "net9.0", 
-                        "net10.0"
-                    )
-                    
-                    $projects = @(
-                        "tests/InfiniFrameTests.Playwright.WebApp.Vue",
-                        "tests/InfiniFrameTests.Playwright.WebApp.React",
-                        "tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor"
-                    )
-                    
-                    $failed = @()
-                    
-                    foreach ($framework in $frameworks) {
-                      foreach ($project in $projects) {
-                        Write-Host ""
-                        Write-Host "▶ Running $project ($framework)"
-                    
-                        dotnet test --project $project `
-                          --configuration Release `
-                          --no-build `
-                          --no-restore `
-                          --framework $framework
-                    
-                        if ($LASTEXITCODE -ne 0) {
-                          Write-Host "❌ Failed: $project ($framework)"
-                          $failed += "$project ($framework)"
-                        } else {
-                          Write-Host "✅ Passed: $project ($framework)"
-                        }
-                      }
-                    }
-                    
-                    if ($failed.Count -gt 0) {
-                        $msg = "Windows Playwright tests failed: $($failed -join ', ')"
-                        "failure_message=$msg" >> $env:GITHUB_OUTPUT
-                        "success_message=" >> $env:GITHUB_OUTPUT
-                        
-                        Write-Host "❌ $msg"
-                        exit 1
-                    }
-                        
-                    $msg = "Windows Playwright tests passed (all frameworks/projects)"
-                    "success_message=$msg" >> $env:GITHUB_OUTPUT
-                    "failure_message=" >> $env:GITHUB_OUTPUT
-                    
-                    Write-Host "✅ All tests passed"
-                    
+                    dotnet test ${{ matrix.project }}.csproj `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --framework ${{ matrix.framework }}
 
             -   name: Update Playwright Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
+                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check-finalize
                 # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright
+                    context: CI Testing - Windows Playwright (${{ matrix.project }} / ${{ matrix.framework }})
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
-                    success-description: ${{ steps.playwright_all.outputs.success_message }}
-                    failure-description: ${{ steps.playwright_all.outputs.failure_message }}
+                    success-description: Windows Playwright tests passed
+                    failure-description: Windows Playwright tests failed
