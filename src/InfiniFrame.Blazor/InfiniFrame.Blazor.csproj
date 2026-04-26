@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.Blazor</PackageId>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
