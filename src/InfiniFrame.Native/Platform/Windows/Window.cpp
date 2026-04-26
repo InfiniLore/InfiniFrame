@@ -138,23 +138,51 @@ namespace {
 
     std::wstring LoadResourceStringW(int id)
     {
-        HMODULE hModule = GetModuleHandle(nullptr);
+        // GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS resolves the HMODULE of the
+        // binary that contains LoadResourceStringW itself — i.e. InfiniFrame.Native.dll.
+        // This is correct regardless of when _hInstance is set, and avoids the bug
+        // where GetModuleHandle(nullptr) returns the host EXE instead of this DLL.
+        HMODULE hModule = nullptr;
+        if (!GetModuleHandleExW(
+                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                reinterpret_cast<LPCWSTR>(&LoadResourceStringW),
+                &hModule) || !hModule)
+        {
+            OutputDebugStringW(L"[InfiniFrame] LoadResourceStringW: GetModuleHandleExW failed\n");
+            return {};
+        }
+
+        wchar_t modulePath[MAX_PATH] = {};
+        GetModuleFileNameW(hModule, modulePath, MAX_PATH);
+        OutputDebugStringW((std::wstring(L"[InfiniFrame] LoadResourceStringW: searching module: ") + modulePath + L"\n").c_str());
 
         HRSRC hRes = FindResourceW(hModule, MAKEINTRESOURCEW(id), RT_RCDATA);
-        if (!hRes) return {};
+        if (!hRes)
+        {
+            OutputDebugStringW(std::format(L"[InfiniFrame] LoadResourceStringW: FindResourceW failed for id={} — resource not embedded in DLL. GetLastError={}\n", id, GetLastError()).c_str());
+            return {};
+        }
 
         HGLOBAL hData = LoadResource(hModule, hRes);
-        if (!hData) return {};
+        if (!hData)
+        {
+            OutputDebugStringW(L"[InfiniFrame] LoadResourceStringW: LoadResource failed\n");
+            return {};
+        }
 
         const char* data = static_cast<const char*>(LockResource(hData));
         DWORD size = SizeofResource(hModule, hRes);
 
-        if (!data || size == 0) return {};
+        if (!data || size == 0)
+        {
+            OutputDebugStringW(std::format(L"[InfiniFrame] LoadResourceStringW: resource data empty (size={})\n", size).c_str());
+            return {};
+        }
 
-        // STEP 1: UTF-8 → std::string
+        OutputDebugStringW(std::format(L"[InfiniFrame] LoadResourceStringW: loaded {} bytes OK\n", size).c_str());
+
         std::string utf8(data, size);
-
-        // STEP 2: UTF-8 → std::wstring
         std::u16string utf16(simdutf::utf16_length_from_utf8(utf8.data(), utf8.size()), u'\0');
 
         size_t written = simdutf::convert_valid_utf8_to_utf16(
@@ -1292,10 +1320,57 @@ void InfiniFrameWindow::AttachWebView() {
                             if (envResult != S_OK) {
                                 return envResult;
                             }
-                            m_impl->_webviewController->
-                                    get_CoreWebView2(
-                                        &m_impl->_webviewWindow
-                                        );
+                            m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
+                            
+                            const auto scriptWide = LoadResourceStringW(IDR_WEBVIEW_SCRIPT);
+
+                            OutputDebugStringW(std::format(L"[InfiniFrame] Bridge script length: {} chars\n", scriptWide.size()).c_str());
+
+                            // AddScriptToExecuteOnDocumentCreated is async: the script is not
+                            // registered in the browser process until the completion callback fires.
+                            // We must not navigate until then, otherwise fast local navigations
+                            // (e.g., app://localhost/) reach ContentLoading before the bridge script
+                            // exists, and Blazor's Boot.WebView.ts throws because
+                            // window.external.receiveMessage is undefined.
+                            //
+                            // If script registration fails for any reason (e.g., empty resource),
+                            // we fall through and navigate anyway so the page still loads.
+                            struct NavigateOnce {
+                                InfiniFrameWindow* self;
+                                bool fired = false;
+                                void navigate() {
+                                    if (fired) return;
+                                    fired = true;
+                                    if (!self->m_impl->_startUrl.empty())
+                                        self->m_impl->_webviewWindow->Navigate(self->m_impl->_startUrl.c_str());
+                                    else if (!self->m_impl->_startString.empty())
+                                        self->m_impl->_webviewWindow->NavigateToString(self->m_impl->_startString.c_str());
+                                    else {
+                                        MessageBox(nullptr,
+                                            L"Neither StartUrl nor StartString was specified",
+                                            L"Native Initialization Failed", MB_OK);
+                                        exit(0);
+                                    }
+                                }
+                            };
+                            auto nav = std::make_shared<NavigateOnce>(NavigateOnce{this});
+
+                            HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
+                                scriptWide.c_str(),
+                                Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
+                                    [nav](HRESULT errorCode, LPCWSTR id) -> HRESULT {
+                                        OutputDebugStringW(std::format(L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: hr=0x{:08X} id={}\n", (unsigned)errorCode, id ? id : L"(null)").c_str());
+                                        nav->navigate();
+                                        return S_OK;
+                                    }
+                                ).Get()
+                            );
+
+                            // If AddScriptToExecuteOnDocumentCreated itself failed synchronously
+                            // (e.g., empty script string on some WebView2 versions), navigate now
+                            // so the page is not left blank.
+                            if (FAILED(addScriptHr))
+                                nav->navigate();
 
                             wil::com_ptr<ICoreWebView2Settings>
                                 settings;
@@ -1326,13 +1401,6 @@ void InfiniFrameWindow::AttachWebView() {
 
                             EventRegistrationToken
                                 webMessageToken;
-                            
-                            const auto scriptWide = LoadResourceStringW(IDR_WEBVIEW_SCRIPT);
-
-                            m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
-                                scriptWide.c_str(),
-                                nullptr
-                            );
                             
                             m_impl->_webviewWindow->
                                     add_WebMessageReceived(
@@ -1637,29 +1705,6 @@ void InfiniFrameWindow::AttachWebView() {
                                         .Get(),
                                         &permissionRequestedToken
                                         );
-
-                            if (!m_impl->_startUrl.empty())
-                                m_impl->_webviewWindow->
-                                        Navigate(
-                                            m_impl->_startUrl.
-                                                    c_str()
-                                            );
-                            else if (!m_impl->_startString.
-                                              empty())
-                                m_impl->_webviewWindow->
-                                        NavigateToString(
-                                            m_impl->_startString.
-                                                    c_str()
-                                            );
-                            else {
-                                MessageBox(
-                                    nullptr,
-                                    L"Neither StartUrl nor StartString was specified",
-                                    L"Native Initialization Failed",
-                                    MB_OK
-                                    );
-                                exit(0);
-                            }
 
                             if (m_impl->_contextMenuEnabled ==
                                 false)
