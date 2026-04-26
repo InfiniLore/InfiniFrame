@@ -1,13 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrameTests.Playwright.BlazorWebView.TestUtility;
+using InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.TestUtility;
 using InfiniFrameTests.Playwright.Tests;
 using InfiniFrameTests.Shared;
 using Microsoft.Playwright;
 using System.Text.Json;
 
-namespace InfiniFrameTests.Playwright.BlazorWebView;
+namespace InfiniFrameTests.Playwright.BlazorWebView.MudBlazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

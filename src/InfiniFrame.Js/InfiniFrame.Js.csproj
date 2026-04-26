@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.Js</PackageId>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>

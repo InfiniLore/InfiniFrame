@@ -22,10 +22,6 @@
             <Pack>false</Pack>
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </None>
-        <None Include="install-or-update-pack-tool.ps1">
-            <Pack>false</Pack>
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 
     <ItemGroup>

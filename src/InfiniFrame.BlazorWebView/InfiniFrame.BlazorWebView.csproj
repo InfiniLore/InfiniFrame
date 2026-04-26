@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.BlazorWebView</PackageId>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>

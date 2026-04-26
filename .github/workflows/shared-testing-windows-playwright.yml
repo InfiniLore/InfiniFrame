@@ -116,7 +116,7 @@ jobs:
                 uses: actions/cache@v5
                 with:
                     path: ~\AppData\Local\ms-playwright
-                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.WebApp.React/InfiniFrameTests.Playwright.WebApp.React.csproj', 'tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj', 'tests/InfiniFrameTests.Playwright.BlazorWebView/InfiniFrameTests.Playwright.BlazorWebView.csproj') }}
+                    key: playwright-${{ runner.os }}-${{ hashFiles('tests/InfiniFrameTests.Playwright.WebApp.React/InfiniFrameTests.Playwright.WebApp.React.csproj', 'tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj', 'tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.csproj') }}
                     restore-keys: |
                         playwright-${{ runner.os }}-
 
@@ -144,7 +144,7 @@ jobs:
                     $projects = @(
                       "tests/InfiniFrameTests.Playwright.WebApp.React",
                       "tests/InfiniFrameTests.Playwright.WebApp.Vue",
-                      "tests/InfiniFrameTests.Playwright.BlazorWebView"
+                      "tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor"
                     )
                     foreach ($framework in $frameworks) {
                       foreach ($project in $projects) {
@@ -179,7 +179,7 @@ jobs:
                     $projects = @(
                         "tests/InfiniFrameTests.Playwright.WebApp.Vue",
                         "tests/InfiniFrameTests.Playwright.WebApp.React",
-                        "tests/InfiniFrameTests.Playwright.BlazorWebView"
+                        "tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor"
                     )
                     
                     $failed = @()
