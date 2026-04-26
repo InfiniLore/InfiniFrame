@@ -17,6 +17,7 @@ declare global {
             };
         };
         infiniframe?: {
+            // Managed by InfiniFrame.Native
             host?: {
                 postMessage(envelope: InteropEnvelopeV1 | string): void;
                 receiveMessage(callback: (message: string) => void): void;

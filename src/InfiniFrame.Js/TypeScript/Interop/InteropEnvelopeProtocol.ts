@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {InteropEnvelopeV1, ParsedInteropMessage, ParseError} from "../Contracts/IInteropEnvelope";
+import {InteropEnvelopeV1, ParsedInteropMessage, InteropParseError} from "../Contracts/IInteropEnvelope";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -28,7 +28,7 @@ export function createEnvelopeMessage(id: string, data?: unknown, channel?: stri
     return JSON.stringify(envelope);
 }
 
-export function parseIncomingMessage(message: string): ParsedInteropMessage | ParseError {
+export function parseIncomingMessage(message: string): ParsedInteropMessage | InteropParseError {
     if (!message || message.trim().length === 0) {
         return {error: "Message is empty."};
     }
@@ -69,7 +69,7 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | Pa
     }
 }
 
-function parseLegacyMessage(message: string): ParsedInteropMessage | ParseError {
+function parseLegacyMessage(message: string): ParsedInteropMessage | InteropParseError {
     const separatorIndex = message.indexOf(";");
     const hasSeparator = separatorIndex >= 0;
     const messageId = (hasSeparator ? message.slice(0, separatorIndex) : message).trim();

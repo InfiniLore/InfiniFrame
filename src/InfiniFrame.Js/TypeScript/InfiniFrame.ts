@@ -2,19 +2,14 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {IInfiniFrame} from "./Contracts/IInfiniFrame";
-import {IHostMessaging, SendToHostMessageId} from "./Contracts/IHostMessaging";
-import HostMessaging from "./HostMessaging";
+import {IInfiniFrameHostMessaging} from "./Contracts/IInfiniFrameHostMessaging";
+import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class InfiniFrame implements IInfiniFrame {
-    HostMessaging: IHostMessaging = new HostMessaging();
-
-    // Overload to make a dev's life easier instead of having to go to the HostMessaging class
-    sendMessageToHost(id: SendToHostMessageId, data?: unknown) {
-        this.HostMessaging.sendMessageToHost(id, data);
-    }
-
+    Host: IInfiniFrameHostMessaging = new InfiniFrameHostMessaging();
+    
     setPointerCapture(element: Element, pointerId: number) {
         element.setPointerCapture(pointerId);
     }

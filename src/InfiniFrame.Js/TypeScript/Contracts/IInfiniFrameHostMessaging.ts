@@ -26,7 +26,7 @@ export const ReceiveFromHostMessageIds = {
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];
 export type MessageCallback = (data?: string) => void;
 
-export interface IHostMessaging {
+export interface IInfiniFrameHostMessaging {
     sendMessageToHost(id: SendToHostMessageId | string, data?: unknown): void;
 
     assignMessageReceivedHandler(messageId: string, callback: MessageCallback): void;

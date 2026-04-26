@@ -18,6 +18,6 @@ export interface ParsedInteropMessage {
     isLegacyProtocol?: boolean;
 }
 
-export interface ParseError {
+export interface InteropParseError {
     error: string;
 }

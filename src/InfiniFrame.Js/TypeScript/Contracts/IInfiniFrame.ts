@@ -1,15 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IHostMessaging, SendToHostMessageId} from "./IHostMessaging";
+import {IInfiniFrameHostMessaging} from "./IInfiniFrameHostMessaging";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export interface IInfiniFrame {
-    HostMessaging: IHostMessaging;
-
-    sendMessageToHost(id: SendToHostMessageId, data?: unknown): void;
+    Host: IInfiniFrameHostMessaging;
 
     setPointerCapture(element: Element, pointerId: number): void;
 

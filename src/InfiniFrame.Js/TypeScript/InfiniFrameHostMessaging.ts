@@ -2,12 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {
-    IHostMessaging,
+    IInfiniFrameHostMessaging,
     MessageCallback,
     ReceiveFromHostMessageIds,
     SendToHostMessageId,
     SendToHostMessageIds
-} from "./Contracts/IHostMessaging";
+} from "./Contracts/IInfiniFrameHostMessaging";
 import {createEnvelope, parseIncomingMessage} from "./Interop/InteropEnvelopeProtocol";
 import {blankTargetHandler} from "./BlankTargetHandler";
 import {getTitleObserver, getTitleObserverTarget} from "./Observers";
@@ -15,7 +15,7 @@ import {getTitleObserver, getTitleObserverTarget} from "./Observers";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-class HostMessaging implements IHostMessaging {
+class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     private static readonly BlazorWebViewMessagePrefix = "__bwv:";
     private static readonly ReadyHandshakeRetryIntervalMs = 1000;
     private static readonly MaxReadyHandshakeAttempts = 20;
@@ -62,6 +62,7 @@ class HostMessaging implements IHostMessaging {
             window.infiniframe.host.postMessage(envelope);
         } else {
             console.warn("Message to host failed. Host bridge API is not initialized.");
+            return;
         }
     }
 
@@ -79,6 +80,10 @@ class HostMessaging implements IHostMessaging {
                 this.handleInteropMessage(message);
             });
         }
+        else {
+            console.warn("Web message receiver failed. Host bridge API is not initialized.");
+            return;
+        }
     }
 
     private handleInteropMessage(message: any): boolean {
@@ -92,7 +97,7 @@ class HostMessaging implements IHostMessaging {
 
         // Blazor WebView internal transport messages are routed by blazor.webview.js.
         // They are not InfiniFrame host-message contracts and should not emit warnings.
-        if (parsedMessage.messageId.startsWith(HostMessaging.BlazorWebViewMessagePrefix)) {
+        if (parsedMessage.messageId.startsWith(InfiniFrameHostMessaging.BlazorWebViewMessagePrefix)) {
             return true;
         }
 
@@ -166,13 +171,13 @@ class HostMessaging implements IHostMessaging {
         this.sendReadyHandshake();
 
         this.readyHandshakeRetryTimer = window.setInterval(() => {
-            if (this.readyHandshakeAcknowledged || this.readyHandshakeAttempts >= HostMessaging.MaxReadyHandshakeAttempts) {
+            if (this.readyHandshakeAcknowledged || this.readyHandshakeAttempts >= InfiniFrameHostMessaging.MaxReadyHandshakeAttempts) {
                 this.stopReadyHandshakeRetry();
                 return;
             }
 
             this.sendReadyHandshake();
-        }, HostMessaging.ReadyHandshakeRetryIntervalMs);
+        }, InfiniFrameHostMessaging.ReadyHandshakeRetryIntervalMs);
     }
 
     private sendReadyHandshake() {
@@ -193,4 +198,4 @@ class HostMessaging implements IHostMessaging {
     }
 }
 
-export default HostMessaging
+export default InfiniFrameHostMessaging

@@ -27,16 +27,14 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
             () => ({
                 hasHostBridge: window.infiniframe?.host !== undefined && window.infiniframe?.host !== null,
                 hasInfiniFrameApi: window.infiniFrame !== undefined && window.infiniFrame !== null,
-                hasHostMessaging: window.infiniFrame?.HostMessaging !== undefined && window.infiniFrame?.HostMessaging !== null,
-                hasSendMessageToHost: typeof window.infiniFrame?.sendMessageToHost === 'function'
+                hasHost: window.infiniFrame?.Host !== undefined && window.infiniFrame?.Host !== null,
             })
             """
         );
 
         await Assert.That(initState.GetProperty("hasHostBridge").GetBoolean()).IsTrue();
         await Assert.That(initState.GetProperty("hasInfiniFrameApi").GetBoolean()).IsTrue();
-        await Assert.That(initState.GetProperty("hasHostMessaging").GetBoolean()).IsTrue();
-        await Assert.That(initState.GetProperty("hasSendMessageToHost").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasHost").GetBoolean()).IsTrue();
     }
 
     [Test]

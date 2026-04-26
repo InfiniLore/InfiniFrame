@@ -2,7 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {ReceiveFromHostMessageIds, SendToHostMessageIds} from "./Contracts/IHostMessaging";
+import {ReceiveFromHostMessageIds, SendToHostMessageIds} from "./Contracts/IInfiniFrameHostMessaging";
+import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -18,7 +19,7 @@ type TestWindow = Window & {
     };
 };
 
-describe("HostMessaging", () => {
+describe("InfiniFrameHostMessaging", () => {
     const testWindow = window as TestWindow;
 
     beforeEach(() => {
@@ -49,7 +50,7 @@ describe("HostMessaging", () => {
             getTitleObserver: vi.fn(() => ({observe: titleObserverObserve}))
         }));
 
-        const module = await import("./HostMessaging");
+        const module = await import("././InfiniFrameHostMessaging");
         const messaging = new module.default();
 
         return {
