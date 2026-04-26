@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
+import {InteropEnvelopeV1} from "./EnvelopeProtocol";
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,8 +16,7 @@ export const SendToHostMessageIds = {
     openExternalLink: `${infiniFrame}:open:external`,
     windowClose: `${infiniFrame}:window:close`,
     ready: `${infiniFrame}:ready`,
-    
-    
+    getMessageRequest: `${infiniFrame}:get:request`,
 }
 
 export const ReceiveFromHostMessageIds = {
@@ -23,6 +24,7 @@ export const ReceiveFromHostMessageIds = {
     registerFullscreenChange: `${infiniFrame}:register:fullscreen:change`,
     registerTitleChange: `${infiniFrame}:register:title:change`,
     registerWindowClose: `${infiniFrame}:register:window:close`,
+    getMessageResponse: `${infiniFrame}:get:response`,
 }
 
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];
@@ -30,6 +32,7 @@ export type MessageCallback = (data?: string) => void;
 
 export interface IInfiniFrameHostMessaging {
     sendMessageToHost(id: SendToHostMessageId | string, data?: unknown): void;
+    getMessageFromHost(message: InteropEnvelopeV1 | string): Promise<string>;
 
     assignMessageReceivedHandler(messageId: string, callback: MessageCallback): void;
 

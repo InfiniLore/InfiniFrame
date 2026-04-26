@@ -177,7 +177,7 @@ window.MessageHandlers.RegisterMessageHandler("myEvent", (window, payload) => {
 The JavaScript side must use the envelope format:
 
 ```js
-window.infiniframe.host.postMessage({ id: "myEvent", data: "some data", version: 1 });
+window.infiniframe.host.postData({ id: "myEvent", data: "some data", version: 1 });
 ```
 
 Legacy `messageId;payload` is out of support and not supported by InfiniFrame messaging contracts.

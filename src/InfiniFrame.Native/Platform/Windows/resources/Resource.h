@@ -1,0 +1,1 @@
+﻿#define IDR_WEBVIEW_SCRIPT 10

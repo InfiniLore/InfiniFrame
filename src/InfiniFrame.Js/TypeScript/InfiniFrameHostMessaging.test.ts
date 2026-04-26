@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {ReceiveFromHostMessageIds, SendToHostMessageIds} from "./Contracts/IInfiniFrameHostMessaging";
+import {ReceiveFromHostMessageIds, SendToHostMessageIds} from "./Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -12,8 +12,8 @@ type ReceiveMessageCallback = (message: string) => void;
 type TestWindow = Window & {
     infiniframe?: {
         host?: {
-            postMessage: (message: unknown) => void;
-            receiveMessage: (callback: ReceiveMessageCallback) => void;
+            postData: (message: unknown) => void;
+            receiveCallback: (callback: ReceiveMessageCallback) => void;
         };
     };
 };
@@ -27,16 +27,16 @@ describe("InfiniFrameHostMessaging", () => {
     });
 
     async function setupHostMessaging() {
-        const postMessage = vi.fn();
-        let receiveCallback: ReceiveMessageCallback | null = null;
-        const receiveMessage = vi.fn((callback: ReceiveMessageCallback) => {
-            receiveCallback = callback;
+        const postData = vi.fn();
+        let receiveCallbackInner: ReceiveMessageCallback | null = null;
+        const receiveCallback = vi.fn((callback: ReceiveMessageCallback) => {
+            receiveCallbackInner = callback;
         });
 
         testWindow.infiniframe = {
             host: {
-                postMessage,
-                receiveMessage
+                postData,
+                receiveCallback
             }
         };
 
@@ -54,20 +54,20 @@ describe("InfiniFrameHostMessaging", () => {
 
         return {
             messaging,
-            postMessage,
-            receiveMessage,
-            getReceiveCallback: () => receiveCallback!,
+            postData,
+            receiveCallback,
+            getReceiveCallback: () => receiveCallbackInner!,
             blankTargetHandler,
             titleObserverObserve
         };
     }
 
     it("sends ready message on startup and wires receive callback", async () => {
-        const {postMessage, receiveMessage} = await setupHostMessaging();
+        const {postData, receiveCallback} = await setupHostMessaging();
 
-        expect(receiveMessage).toHaveBeenCalledTimes(1);
-        expect(postMessage).toHaveBeenCalled();
-        expect(postMessage.mock.calls[0][0]).toMatchObject({
+        expect(receiveCallback).toHaveBeenCalledTimes(1);
+        expect(postData).toHaveBeenCalled();
+        expect(postData.mock.calls[0][0]).toMatchObject({
             id: SendToHostMessageIds.ready,
             version: 1
         });
@@ -132,13 +132,13 @@ describe("InfiniFrameHostMessaging", () => {
     });
 
     it("overrides window.close after registerWindowClose and routes to host", async () => {
-        const {getReceiveCallback, postMessage} = await setupHostMessaging();
+        const {getReceiveCallback, postData} = await setupHostMessaging();
         const originalClose = window.close;
         getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerWindowClose, version: 1}));
 
         window.close();
 
-        const closeMessages = postMessage.mock.calls
+        const closeMessages = postData.mock.calls
             .map(call => call[0])
             .filter(
                 message => typeof message === "object" 

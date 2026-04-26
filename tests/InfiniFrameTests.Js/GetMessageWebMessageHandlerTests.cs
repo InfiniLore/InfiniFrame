@@ -1,0 +1,125 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
+using InfiniFrame.Interop;
+using InfiniFrame.Js;
+using InfiniFrame.Js.Interop;
+using InfiniFrame.Js.Interop.MessageHandlers;
+using InfiniFrameTests.Shared.TestDoubles;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
+using System.Text.Json;
+
+namespace InfiniFrameTests.Js;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class GetMessageWebMessageHandlerTests {
+    [Test]
+    [DisplayName($"{nameof(GetMessageWebMessageHandlerTests)}.{nameof(GetMessage_ResolvesRegisteredHandlerAndReturnsData)}")]
+    public async Task GetMessage_ResolvesRegisteredHandlerAndReturnsData() {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddInfiniFrameJs();
+        IServiceProvider provider = services.BuildServiceProvider();
+        var getMessageService = provider.GetRequiredService<IInfiniFrameGetMessageService>();
+        getMessageService.RegisterHandler("app:echo", (_, payload) => $"echo:{payload}");
+
+        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness(provider);
+        builder.RegisterGetMessageWebMessageHandler();
+
+        string requestedEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("app:echo", "hello");
+        string requestPayload = JsonSerializer.Serialize(new {
+            requestId = "req-1",
+            message = requestedEnvelope
+        });
+        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.GetMessageRequest, requestPayload);
+
+        // Act
+        events.OnWebMessageReceived(inboundMessage);
+
+        // Assert
+        JsonElement responsePayload = GetLatestGetMessageResponsePayload(window);
+        await Assert.That(responsePayload.GetProperty("requestId").GetString()).IsEqualTo("req-1");
+        await Assert.That(responsePayload.GetProperty("success").GetBoolean()).IsTrue();
+        await Assert.That(responsePayload.GetProperty("data").GetString()).IsEqualTo("echo:hello");
+    }
+
+    [Test]
+    [DisplayName($"{nameof(GetMessageWebMessageHandlerTests)}.{nameof(GetMessage_WithoutRegisteredMessageHandler_ReturnsErrorResponse)}")]
+    public async Task GetMessage_WithoutRegisteredMessageHandler_ReturnsErrorResponse() {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddInfiniFrameJs();
+        IServiceProvider provider = services.BuildServiceProvider();
+
+        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness(provider);
+        builder.RegisterGetMessageWebMessageHandler();
+
+        string requestedEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("app:missing", "hello");
+        string requestPayload = JsonSerializer.Serialize(new {
+            requestId = "req-2",
+            message = requestedEnvelope
+        });
+        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.GetMessageRequest, requestPayload);
+
+        // Act
+        events.OnWebMessageReceived(inboundMessage);
+
+        // Assert
+        JsonElement responsePayload = GetLatestGetMessageResponsePayload(window);
+        await Assert.That(responsePayload.GetProperty("requestId").GetString()).IsEqualTo("req-2");
+        await Assert.That(responsePayload.GetProperty("success").GetBoolean()).IsFalse();
+        await Assert.That(responsePayload.GetProperty("error").GetString()).Contains("No getMessage handler is registered");
+    }
+
+    [Test]
+    [DisplayName($"{nameof(GetMessageWebMessageHandlerTests)}.{nameof(GetMessage_WithoutRegisteredService_ReturnsErrorResponse)}")]
+    public async Task GetMessage_WithoutRegisteredService_ReturnsErrorResponse() {
+        // Arrange
+        IServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness(provider);
+        builder.RegisterGetMessageWebMessageHandler();
+
+        string requestPayload = JsonSerializer.Serialize(new {
+            requestId = "req-3",
+            message = InteropEnvelopeProtocol.CreateEnvelopeMessage("app:echo", "hello")
+        });
+        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.GetMessageRequest, requestPayload);
+
+        // Act
+        events.OnWebMessageReceived(inboundMessage);
+
+        // Assert
+        JsonElement responsePayload = GetLatestGetMessageResponsePayload(window);
+        await Assert.That(responsePayload.GetProperty("requestId").GetString()).IsEqualTo("req-3");
+        await Assert.That(responsePayload.GetProperty("success").GetBoolean()).IsFalse();
+        await Assert.That(responsePayload.GetProperty("error").GetString()).Contains("No IInfiniFrameGetMessageService is registered");
+    }
+
+    private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness(IServiceProvider provider) {
+        var builder = InfiniFrameWindowBuilder.Create();
+        var events = (InfiniFrameWindowEvents)builder.Events;
+        RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
+            .BindToBuilder(builder);
+        window.Window.ServiceProvider.Returns(provider);
+
+        events.WebMessageReceived.Add(builder.MessageHandlers.Handle);
+        events.CompleteSetup(window.Window);
+
+        return (builder, events, window);
+    }
+
+    private static JsonElement GetLatestGetMessageResponsePayload(RecordingInfiniFrameWindowSubstitute window) {
+        string responseEnvelope = window.GetSentMessagesSnapshot()
+            .Last(message => InteropEnvelopeProtocol.ParseIncomingMessage(message).MessageId == HandlerNames.GetMessageResponse);
+
+        InteropEnvelopeParseResult parsedEnvelope = InteropEnvelopeProtocol.ParseIncomingMessage(responseEnvelope);
+        if (!parsedEnvelope.Success || string.IsNullOrWhiteSpace(parsedEnvelope.Payload))
+            throw new InvalidOperationException("Expected a successful getMessage response envelope with payload.");
+
+        using JsonDocument document = JsonDocument.Parse(parsedEnvelope.Payload);
+        return document.RootElement.Clone();
+    }
+}

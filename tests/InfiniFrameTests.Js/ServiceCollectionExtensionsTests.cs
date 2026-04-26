@@ -22,5 +22,9 @@ public class ServiceCollectionExtensionsTests {
         ServiceDescriptor descriptor = services.Single(d => d.ServiceType == typeof(IInfiniFrameJs));
         await Assert.That(descriptor.Lifetime).IsEqualTo(ServiceLifetime.Scoped);
         await Assert.That(descriptor.ImplementationType).IsEqualTo(typeof(InfiniFrameJs));
+
+        ServiceDescriptor getMessageDescriptor = services.Single(d => d.ServiceType == typeof(IInfiniFrameGetMessageService));
+        await Assert.That(getMessageDescriptor.Lifetime).IsEqualTo(ServiceLifetime.Singleton);
+        await Assert.That(getMessageDescriptor.ImplementationType).IsEqualTo(typeof(InfiniFrameGetMessageService));
     }
 }

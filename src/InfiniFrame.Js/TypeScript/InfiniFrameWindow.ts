@@ -9,8 +9,6 @@ import {IInfiniFrameWindow, SendToHostMessageIds} from "./Contracts";
 export class InfiniFrameWindow implements IInfiniFrameWindow {
     
     setTitle(title:string) {
-        document.title = title;
-        
         window.infiniFrame.hostMessaging.sendMessageToHost(SendToHostMessageIds.titleChange, title);
-    } 
+    }
 }

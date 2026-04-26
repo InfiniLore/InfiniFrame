@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {
     IInfiniFrameHostMessaging,
+    InteropEnvelopeV1,
     MessageCallback,
     ReceiveFromHostMessageIds,
     SendToHostMessageId,
@@ -58,12 +59,25 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     public sendMessageToHost(id: SendToHostMessageId | string, data?: unknown) {
         const envelope = createEnvelope(id, data);
 
-        if (window.infiniframe?.host?.postMessage) {
-            window.infiniframe.host.postMessage(envelope);
+        if (window.infiniframe?.host?.postData) {
+            window.infiniframe.host.postData(envelope);
         } else {
             console.warn("Message to host failed. Host bridge API is not initialized.");
             return;
         }
+    }
+    
+    public async getMessageFromHost(message: InteropEnvelopeV1 | string): Promise<string> {
+        const host = window.infiniframe?.host;
+        if (!host?.getData) {
+            throw new Error("Message to host failed. Host getData API is not initialized.");
+        }
+
+        const envelope = typeof message === "string"
+            ? createEnvelope(message)
+            : message;
+
+        return await host.getData(envelope);
     }
 
     public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {
@@ -75,8 +89,8 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     }
 
     private assignWebMessageReceiver() {
-        if (window.infiniframe?.host?.receiveMessage) {
-            window.infiniframe.host.receiveMessage((message: string) => {
+        if (window.infiniframe?.host?.receiveCallback) {
+            window.infiniframe.host.receiveCallback((message: string) => {
                 this.handleInteropMessage(message);
             });
         }

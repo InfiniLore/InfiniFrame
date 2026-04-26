@@ -6,13 +6,16 @@
 # - windows_sources: list of Windows-only source files
 # - header_files: list of header files for IDE organization
 function(infiniframe_configure_windows_target target_name common_sources test_sources windows_sources header_files)
-    add_library(${target_name} SHARED
+    add_library(${target_name} SHARED)
+
+    target_sources(${target_name} PRIVATE
             ${common_sources}
             ${test_sources}
             ${windows_sources}
             ${header_files}
+            ${CMAKE_SOURCE_DIR}/Platform/Windows/resources/resource.rc
     )
-
+    
     set_target_properties(${target_name} PROPERTIES
             OUTPUT_NAME "InfiniFrame.Native"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${INFINIFRAME_WINDOWS_ARCH_DIR}/${CMAKE_BUILD_TYPE}"

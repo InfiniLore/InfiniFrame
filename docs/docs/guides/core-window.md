@@ -301,7 +301,7 @@ await window.SendWebMessageAsync("async hello");
 In JavaScript, listen with:
 
 ```js
-window.infiniframe.host.receiveMessage(function(message) {
+window.infiniframe.host.receiveCallback(function(message) {
     console.log("Received:", message);
 });
 ```
@@ -311,7 +311,7 @@ window.infiniframe.host.receiveMessage(function(message) {
 In JavaScript, send with:
 
 ```js
-window.infiniframe.host.postMessage({ id: "hello", data: "from JS", version: 1 });
+window.infiniframe.host.postData({ id: "hello", data: "from JS", version: 1 });
 ```
 
 In C#, handle with:

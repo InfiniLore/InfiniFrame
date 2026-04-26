@@ -9,6 +9,7 @@
 #include <WebView2EnvironmentOptions.h>
 #include <windows.h>
 #include <wrl.h>
+#include <string>
 
 #include <format>
 
@@ -19,6 +20,7 @@
 #include "DarkMode.h"
 #include "ToastHandler.h"
 #include "Utils/Common.h"
+#include "resources/Resource.h"
 
 #pragma comment(lib, "Shcore.lib")
 #pragma comment(lib, "Urlmon.lib")
@@ -132,6 +134,41 @@ namespace {
         utf8.resize(written);
 
         return utf8;
+    }
+
+    std::wstring LoadResourceStringW(int id)
+    {
+        HMODULE hModule = GetModuleHandle(nullptr);
+
+        HRSRC hRes = FindResourceW(hModule, MAKEINTRESOURCEW(id), RT_RCDATA);
+        if (!hRes) return {};
+
+        HGLOBAL hData = LoadResource(hModule, hRes);
+        if (!hData) return {};
+
+        const char* data = static_cast<const char*>(LockResource(hData));
+        DWORD size = SizeofResource(hModule, hRes);
+
+        if (!data || size == 0) return {};
+
+        // STEP 1: UTF-8 → std::string
+        std::string utf8(data, size);
+
+        // STEP 2: UTF-8 → std::wstring
+        std::u16string utf16(simdutf::utf16_length_from_utf8(utf8.data(), utf8.size()), u'\0');
+
+        size_t written = simdutf::convert_valid_utf8_to_utf16(
+            utf8.data(),
+            utf8.size(),
+            reinterpret_cast<char16_t*>(utf16.data())
+        );
+
+        utf16.resize(written);
+
+        return std::wstring(
+            reinterpret_cast<const wchar_t*>(utf16.data()),
+            utf16.size()
+        );
     }
 }
 
@@ -1289,202 +1326,14 @@ void InfiniFrameWindow::AttachWebView() {
 
                             EventRegistrationToken
                                 webMessageToken;
-                            m_impl->_webviewWindow->
-                                    AddScriptToExecuteOnDocumentCreated(
-                                        L"(function(){window.infiniframe=window.infiniframe||{};window.infiniframe.host=window.infiniframe.host||{};window.infiniframe.host.postMessage=window.infiniframe.host.postMessage||function(envelope){var message=(typeof envelope==='string')?envelope:JSON.stringify(envelope);window.chrome.webview.postMessage(message);};window.infiniframe.host.receiveMessage=window.infiniframe.host.receiveMessage||function(callback){window.chrome.webview.addEventListener('message',function(e){callback(e.data);});};window.external=window.external||{};window.external.sendMessage=window.external.sendMessage||function(message){window.chrome.webview.postMessage(message);};window.external.postMessage=window.external.postMessage||window.external.sendMessage;window.external.receiveMessage=window.external.receiveMessage||function(callback){window.chrome.webview.addEventListener('message',function(e){callback(e.data);});};})();",
-                                        nullptr
-                                        );
-                            m_impl->_webviewWindow->
-                                    AddScriptToExecuteOnDocumentCreated(
-                                        L"(function(){if(window.__infiniframeBlazorModulesPatched){return;}window.__infiniframeBlazorModulesPatched=true;var originalFetch=window.fetch;window.fetch=function(input,init){try{var requestUrl=typeof input==='string'?input:(input&&input.url?input.url:'');if(requestUrl){var absoluteUrl=new URL(requestUrl,window.location.href).href;var isBlazorModulesJson=absoluteUrl==='http://localhost/_framework/blazor.modules.json'||absoluteUrl==='http://localhost/_framework/blazor.modules.json/'||absoluteUrl==='app://localhost/_framework/blazor.modules.json'||absoluteUrl==='app://localhost/_framework/blazor.modules.json/';if(isBlazorModulesJson){return Promise.resolve(new Response('[]',{status:200,statusText:'OK',headers:{'Content-Type':'application/json'}}));}}}catch(_){ }return originalFetch.call(this,input,init);};})();",
-                                        nullptr
-                                        );
-                            m_impl->_webviewWindow->
-                                    AddScriptToExecuteOnDocumentCreated(
-                                        LR"JS((function(){
-    if(window.__infiniframeRegisterBlazorCustomElement){return;}
-    window.__infiniframeRegisterBlazorCustomElement=true;
+                            
+                            const auto scriptWide = LoadResourceStringW(IDR_WEBVIEW_SCRIPT);
 
-    function toKebabCase(name){
-        return String(name)
-            .replace(/([a-z0-9])([A-Z])/g,'$1-$2')
-            .replace(/_/g,'-')
-            .toLowerCase();
-    }
-
-    function toParameterValue(rawValue, typeName){
-        if(typeName==='bool'||typeName==='boolean'){
-            if(rawValue===null){return false;}
-            if(rawValue===''){return true;}
-            return String(rawValue).toLowerCase()!=='false';
-        }
-        if(typeName==='number'||typeName==='int'||typeName==='float'||typeName==='double'||typeName==='decimal'){
-            var numericValue=Number(rawValue);
-            return Number.isNaN(numericValue)?rawValue:numericValue;
-        }
-        return rawValue;
-    }
-
-    window.registerBlazorCustomElement=window.registerBlazorCustomElement||function(identifier, parameterDefinitions){
-        if(!window.Blazor||!window.Blazor.rootComponents||!window.Blazor.rootComponents.add){
-            console.warn('registerBlazorCustomElement skipped: Blazor.rootComponents is unavailable.');
-            return;
-        }
-        if(!window.customElements||typeof window.customElements.define!=='function'){
-            console.warn('registerBlazorCustomElement skipped: customElements API is unavailable.');
-            return;
-        }
-        if(window.customElements.get(identifier)){
-            return;
-        }
-
-        var definitions=Array.isArray(parameterDefinitions)?parameterDefinitions:[];
-        var parametersByAttribute={};
-        for(var index=0;index<definitions.length;index++){
-            var definition=definitions[index];
-            if(!definition||!definition.name){continue;}
-            var parameterType=String(definition.type||'').toLowerCase();
-            if(parameterType==='eventcallback'){continue;}
-            var attributeName=toKebabCase(definition.name);
-            parametersByAttribute[attributeName]={
-                name:definition.name,
-                type:parameterType
-            };
-        }
-
-        var observedAttributes=Object.keys(parametersByAttribute);
-
-        class BlazorCustomElementHost extends HTMLElement{
-            static get observedAttributes(){
-                return observedAttributes;
-            }
-
-            constructor(){
-                super();
-                this._component=null;
-                this._isDisconnected=false;
-            }
-
-            connectedCallback(){
-                this._isDisconnected=false;
-                var parameters=this._getCurrentParameters();
-                window.Blazor.rootComponents
-                    .add(this, identifier, parameters)
-                    .then((component)=>{
-                        this._component=component;
-                        if(this._isDisconnected&&this._component){
-                            var detachedComponent=this._component;
-                            this._component=null;
-                            return detachedComponent.dispose();
-                        }
-                        return null;
-                    })
-                    .catch((error)=>{
-                        console.error('Failed to attach custom element component.', error);
-                    });
-            }
-
-            disconnectedCallback(){
-                this._isDisconnected=true;
-                var component=this._component;
-                this._component=null;
-                if(component&&typeof component.dispose==='function'){
-                    Promise.resolve(component.dispose()).catch(function(){});
-                }
-            }
-
-            attributeChangedCallback(attributeName, oldValue, newValue){
-                if(oldValue===newValue){return;}
-                if(!this._component||typeof this._component.setParameters!=='function'){return;}
-                var parameterInfo=parametersByAttribute[String(attributeName).toLowerCase()];
-                if(!parameterInfo){return;}
-
-                var nextParameters={};
-                nextParameters[parameterInfo.name]=toParameterValue(newValue, parameterInfo.type);
-
-                var updateResult=this._component.setParameters(nextParameters);
-                if(updateResult&&typeof updateResult.catch==='function'){
-                    updateResult.catch(function(error){
-                        console.error('Failed to update custom element parameters.', error);
-                    });
-                }
-            }
-
-            _getCurrentParameters(){
-                var parameters={};
-                for(var index=0;index<observedAttributes.length;index++){
-                    var attributeName=observedAttributes[index];
-                    if(!this.hasAttribute(attributeName)){continue;}
-                    var parameterInfo=parametersByAttribute[attributeName];
-                    parameters[parameterInfo.name]=toParameterValue(this.getAttribute(attributeName), parameterInfo.type);
-                }
-                return parameters;
-            }
-        }
-
-        window.customElements.define(identifier, BlazorCustomElementHost);
-    };
-
-    function shouldAutoRegisterMissingInitializerCustomElements(){
-        return true;
-    }
-
-    function autoRegisterMissingInitializerCustomElements(componentDefinitionsByIdentifier, identifiersByInitializer){
-        if(!shouldAutoRegisterMissingInitializerCustomElements()){return;}
-        if(typeof window.registerBlazorCustomElement!=='function'){return;}
-
-        var initializedIdentifiers={};
-        for(var initializerIdentifiers of Object.values(identifiersByInitializer||{})){
-            if(!Array.isArray(initializerIdentifiers)){continue;}
-            for(var identifier of initializerIdentifiers){
-                initializedIdentifiers[identifier]=true;
-            }
-        }
-
-        for(var entry of Object.entries(componentDefinitionsByIdentifier||{})){
-            var identifier=entry[0];
-            if(initializedIdentifiers[identifier]){continue;}
-            window.registerBlazorCustomElement(identifier, entry[1]);
-        }
-    }
-
-    function patchAttachWebRendererInteropIfAvailable(){
-        var blazor=window.Blazor;
-        if(!blazor||!blazor._internal||typeof blazor._internal.attachWebRendererInterop!=='function'){return false;}
-        if(blazor._internal.__infiniframeAttachWebRendererInteropPatched){return true;}
-
-        var originalAttach=blazor._internal.attachWebRendererInterop;
-        blazor._internal.attachWebRendererInterop=function(rendererId, interopMethods, componentDefinitionsByIdentifier, identifiersByInitializer){
-            var attachResult=originalAttach.apply(this, arguments);
-            autoRegisterMissingInitializerCustomElements(componentDefinitionsByIdentifier, identifiersByInitializer);
-            return attachResult;
-        };
-        blazor._internal.__infiniframeAttachWebRendererInteropPatched=true;
-        return true;
-    }
-
-    if(!patchAttachWebRendererInteropIfAvailable()){
-        var blazorDescriptor=Object.getOwnPropertyDescriptor(window,'Blazor');
-        if(!blazorDescriptor||blazorDescriptor.configurable){
-            var blazorValue=window.Blazor;
-            Object.defineProperty(window,'Blazor',{
-                configurable:true,
-                enumerable:true,
-                get:function(){return blazorValue;},
-                set:function(value){
-                    blazorValue=value;
-                    patchAttachWebRendererInteropIfAvailable();
-                }
-            });
-
-            if(blazorValue){
-                patchAttachWebRendererInteropIfAvailable();
-            }
-        }
-    }
-})();)JS",
-                                        nullptr
-                                        );
+                            m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
+                                scriptWide.c_str(),
+                                nullptr
+                            );
+                            
                             m_impl->_webviewWindow->
                                     add_WebMessageReceived(
                                         Callback<

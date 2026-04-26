@@ -10,6 +10,7 @@ namespace InfiniFrame.Js;
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddInfiniFrameJs(this IServiceCollection services) {
         services.AddScoped<IInfiniFrameJs, InfiniFrameJs>();
+        services.AddSingleton<IInfiniFrameGetMessageService, InfiniFrameGetMessageService>();
         return services;
     }
 }

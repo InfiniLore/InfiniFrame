@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {IInfiniFrame} from "./IInfiniFrame";
@@ -19,8 +19,9 @@ declare global {
         infiniframe?: {
             // Managed by InfiniFrame.Native
             host?: {
-                postMessage(envelope: InteropEnvelopeV1 | string): void;
-                receiveMessage(callback: (message: string) => void): void;
+                postData(envelope: InteropEnvelopeV1 | string): void;
+                receiveCallback(callback: (message: string) => void): void;
+                getData?(message: InteropEnvelopeV1 | string): Promise<string>;
             };
         };
         infiniFrame: IInfiniFrame

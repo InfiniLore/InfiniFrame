@@ -47,7 +47,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
 
         await page.EvaluateAsync(
             // lang=javascript
-            $"() => window.infiniframe?.host?.postMessage({{ id: '__infiniframe:title:change', data: '{NewTitleFromHostMessage}', version: 1 }})"
+            $"() => window.infiniframe?.host?.postData({{ id: '__infiniframe:title:change', data: '{NewTitleFromHostMessage}', version: 1 }})"
         );
         string updatedTitle = await WaitForStateChangeAsync(
             originalTitle,

@@ -18,7 +18,7 @@ The messaging channel works the same way regardless of whether you are using pla
 Use this JavaScript API as the primary send path:
 
 ```js
-window.infiniframe.host.postMessage({ id: "my:event", data: { value: 1 }, version: 1 });
+window.infiniframe.host.postData({ id: "my:event", data: { value: 1 }, version: 1 });
 ```
 
 Messages are validated against a versioned envelope contract:
@@ -41,7 +41,7 @@ await window.SendWebMessageAsync("async hello");
 In the browser:
 
 ```js
-window.infiniframe.host.receiveMessage(function(message) {
+window.infiniframe.host.receiveCallback(function(message) {
     console.log("Received from C#:", message);
 });
 ```
@@ -49,7 +49,7 @@ window.infiniframe.host.receiveMessage(function(message) {
 ### Sending from JavaScript to C#
 
 ```js
-window.infiniframe.host.postMessage({ id: "action", data: 42, version: 1 });
+window.infiniframe.host.postData({ id: "action", data: 42, version: 1 });
 ```
 
 In C#:
@@ -81,8 +81,8 @@ window.MessageHandlers.RegisterMessageHandler("set-title", (window, title) => {
 ```
 
 ```js
-window.infiniframe.host.postMessage({ id: "ping", data: null, version: 1 });
-window.infiniframe.host.postMessage({ id: "set-title", data: "New Title", version: 1 });
+window.infiniframe.host.postData({ id: "ping", data: null, version: 1 });
+window.infiniframe.host.postData({ id: "set-title", data: "New Title", version: 1 });
 ```
 
 ## InfiniFrame.Js
@@ -169,19 +169,19 @@ These are used internally by `InfiniFrameWindowDragArea`, `InfiniFrameWindowButt
 All messages follow a versioned JSON envelope:
 
 ```js
-window.infiniframe.host.postMessage({ id: "__infiniframe:window:minimize", data: null, version: 1 });
-window.infiniframe.host.postMessage({ id: "__infiniframe:window:maximize", data: null, version: 1 });
-window.infiniframe.host.postMessage({ id: "__infiniframe:window:close", data: null, version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:window:minimize", data: null, version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:window:maximize", data: null, version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:window:close", data: null, version: 1 });
 ```
 
 ```js
 // Title data is the new title string
-window.infiniframe.host.postMessage({ id: "__infiniframe:title:change", data: "New Window Title", version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:title:change", data: "New Window Title", version: 1 });
 ```
 
 ```js
-window.infiniframe.host.postMessage({ id: "__infiniframe:fullscreen:enter", data: null, version: 1 });
-window.infiniframe.host.postMessage({ id: "__infiniframe:fullscreen:exit", data: null, version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:fullscreen:enter", data: null, version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:fullscreen:exit", data: null, version: 1 });
 ```
 
 When using `InfiniFrame.js`, you can go through its API instead:
@@ -206,7 +206,7 @@ window.SendWebMessage(JsonSerializer.Serialize(new {
 ```
 
 ```js
-window.infiniframe.host.receiveMessage(function(raw) {
+window.infiniframe.host.receiveCallback(function(raw) {
     const envelope = JSON.parse(raw);
     if (envelope.id === "update") {
         updateUI(envelope.data.count);
@@ -217,7 +217,7 @@ window.infiniframe.host.receiveMessage(function(raw) {
 **JS → C#:**
 
 ```js
-window.infiniframe.host.postMessage({
+window.infiniframe.host.postData({
     id: "log",
     data: { message: "hello" },
     version: 1

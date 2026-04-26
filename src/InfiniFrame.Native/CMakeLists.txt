@@ -73,6 +73,7 @@ set(HEADER_FILES
         Utils/Event.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/DarkMode.h
+        Platform/Windows/resources/resource.h
         Platform/Mac/AppDelegate.h
         Platform/Mac/NavigationDelegate.h
         Platform/Mac/NSWindowBorderless.h
