@@ -98,6 +98,9 @@ void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSString *value)
 
 void InfiniFrameWindow::Impl::AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler)
 {
+    if (requestHandler == nullptr)
+        return;
+
     UrlSchemeHandler* schemeHandler = [[[UrlSchemeHandler alloc] init] autorelease];
     schemeHandler->requestHandler = requestHandler;
 
