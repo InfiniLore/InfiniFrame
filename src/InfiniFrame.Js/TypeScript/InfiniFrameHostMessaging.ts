@@ -8,7 +8,7 @@ import {
     SendToHostMessageId,
     SendToHostMessageIds
 } from "./Contracts/IInfiniFrameHostMessaging";
-import {createEnvelope, parseIncomingMessage} from "./Interop/InteropEnvelopeProtocol";
+import {createEnvelope, parseIncomingMessage} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
 import {blankTargetHandler} from "./Utils/BlankTargetHandler";
 import {getTitleObserver, getTitleObserverTarget} from "./Utils/Observers";
 
