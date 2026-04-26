@@ -1,7 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+// @ts-ignore
 import fs from "node:fs";
+// @ts-ignore
 import path from "node:path";
 import {describe, expect, it} from "vitest";
 import {createEnvelopeMessage, InteropMessageMaxSizeBytes, parseIncomingMessage} from "./InteropEnvelopeProtocol";
@@ -32,6 +34,7 @@ type GoldenVectors = {
 };
 
 function loadGoldenVectors(): GoldenVectors {
+    // @ts-ignore
     const filePath = path.resolve(__dirname, "./interop-envelope-golden-vectors.json");
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as GoldenVectors;
 }
