@@ -13,7 +13,7 @@
             "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
             "tests\\InfiniFrameTests.Playwright.WebApp.React\\InfiniFrameTests.Playwright.WebApp.React.csproj",
             "tests\\InfiniFrameTests.Playwright.WebApp.Vue\\InfiniFrameTests.Playwright.WebApp.Vue.csproj",
-            "tests\\InfiniFrameTests.Playwright.BlazorWebView\\InfiniFrameTests.Playwright.BlazorWebView.csproj",
+            "tests\\InfiniFrameTests.Playwright.BlazorWebView.MudBlazor\\InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.csproj",
             "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
             "tests\\InfiniFrameTests.Tools.Pack\\InfiniFrameTests.Tools.Pack.csproj",
             "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj",

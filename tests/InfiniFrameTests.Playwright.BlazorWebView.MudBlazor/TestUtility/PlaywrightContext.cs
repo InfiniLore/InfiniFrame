@@ -2,13 +2,13 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView;
-using InfiniFrameTests.Playwright.BlazorWebView.Components;
+using InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.Components;
 using InfiniFrameTests.Playwright.TestUtility;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 
-namespace InfiniFrameTests.Playwright.BlazorWebView.TestUtility;
+namespace InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
