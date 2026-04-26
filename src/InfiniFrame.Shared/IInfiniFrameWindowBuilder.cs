@@ -9,7 +9,7 @@ public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents {
     StaticAssetSettings? StaticAssets { get; set; }
 
     IInfiniFrameWindowNativeParameterBuilder Configuration { get; }
-    IInfiniFrameWindowMessageHandlers MessageHandlers { get; }
+    IInfiniFrameWindowMessageHandler MessageHandlers { get; }
     IInfiniFrameWindowCustomSchemeHandlers CustomSchemeHandlers { get; }
 
     IInfiniFrameWindow Build(IServiceProvider? provider = null);

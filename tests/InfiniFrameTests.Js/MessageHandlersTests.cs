@@ -146,7 +146,7 @@ public class MessageHandlersTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add(builder.MessageHandlers.Handle);
+        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
         events.CompleteSetup(window.Window);
 
         return (builder, events, window);

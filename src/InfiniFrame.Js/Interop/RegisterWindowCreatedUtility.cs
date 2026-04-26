@@ -18,14 +18,6 @@ public static class RegisterWindowCreatedUtility {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public static void RegisterMessageHandler(IInfiniFrameWindowBuilder builder, string messageId, Action<IInfiniFrameWindow, string?> handler) {
-        builder.MessageHandlers.RegisterMessageHandler(messageId, handler);
-    }
-
-    public static void RegisterMessageHandler(IInfiniFrameWindowBuilder builder, string messageId, Action<IInfiniFrameWindow> handler) {
-        builder.MessageHandlers.RegisterMessageHandler(messageId, handler: (w, _) => handler(w));
-    }
-
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
         WindowReadyRegistrationState registrationState = RegistrationStates.GetOrCreateValue(builder);
 
@@ -65,7 +57,7 @@ public static class RegisterWindowCreatedUtility {
             state.ReadyHandlerRegistered = true;
         }
 
-        RegisterMessageHandler(builder, HandlerNames.WindowReady, handler: (window, payload) => {
+        builder.MessageHandlers.RegisterHandler(HandlerNames.WindowReady, handler: (window, payload) => {
             WindowRegistrationState windowState;
             string[] registrationMessages;
             lock (state.Lock) {

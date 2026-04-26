@@ -7,19 +7,19 @@ namespace InfiniFrame.Js.Interop.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class FullscreenWebMessageHandler {
     public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
+        builder.MessageHandlers.RegisterHandler(
             HandlerNames.FullscreenEnter,
-            handler: static window => window.SetFullScreen(true)
+            (window, _) => window.SetFullScreen(true)
         );
-
-        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
+        
+        builder.MessageHandlers.RegisterHandler(
             HandlerNames.FullscreenExit,
-            handler: static window => window.SetFullScreen(false)
+            (window, _) => window.SetFullScreen(false)
         );
-
-        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
+        
+        builder.MessageHandlers.RegisterHandler(
             HandlerNames.FullscreenToggle,
-            handler: static window => window.SetFullScreen(!window.FullScreen)
+            (window, _) => window.SetFullScreen(!window.FullScreen)
         );
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterFullScreenChange);

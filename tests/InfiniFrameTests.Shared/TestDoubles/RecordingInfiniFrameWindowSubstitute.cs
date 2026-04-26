@@ -43,7 +43,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
 
         // Default wiring for simple tests that don't need explicit builder binding.
         Window.Events.Returns(new InfiniFrameWindowEvents());
-        Window.MessageHandlers.Returns(new InfiniFrameWindowMessageHandlers());
+        Window.MessageHandlers.Returns(new InfiniFrameWindowMessageHandler());
     }
 
     // -----------------------------------------------------------------------------------------------------------------

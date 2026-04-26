@@ -9,7 +9,7 @@ namespace InfiniFrame.Js.Interop.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class TitleChangedWebMessageHandler {
     public static T RegisterTitleChangedWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        RegisterWindowCreatedUtility.RegisterMessageHandler(builder, HandlerNames.TitleChanged, HandleWebMessage);
+        builder.MessageHandlers.RegisterHandler(HandlerNames.TitleChanged, HandleWebMessage);
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterTitleChange);
         return builder;
     }

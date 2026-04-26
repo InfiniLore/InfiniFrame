@@ -66,7 +66,7 @@ public class InfiniFrameWindowBuilderTests {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         builder.Events.WindowCreated.Add(_ => { });
-        builder.MessageHandlers.RegisterMessageHandler("ping", (_, _) => { });
+        builder.MessageHandlers.RegisterHandler("ping", (_, _) => { });
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
 
         // Act
@@ -76,8 +76,8 @@ public class InfiniFrameWindowBuilderTests {
         // Assert
         await Assert.That(first.Events.WindowCreated.Length).IsEqualTo(1);
         await Assert.That(second.Events.WindowCreated.Length).IsEqualTo(1);
-        await Assert.That(first.MessageHandlers.Handlers.Length).IsEqualTo(1);
-        await Assert.That(second.MessageHandlers.Handlers.Length).IsEqualTo(1);
+        await Assert.That(first.MessageHandlers.PostDataHandlers.Length).IsEqualTo(1);
+        await Assert.That(second.MessageHandlers.PostDataHandlers.Length).IsEqualTo(1);
         await Assert.That(first.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
         await Assert.That(second.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
         await Assert.That(first.CustomSchemes.OrderedSchemeNames[0]).IsEqualTo("app");
@@ -94,12 +94,12 @@ public class InfiniFrameWindowBuilderTests {
 
         InfiniFrameWindowEvents firstEvents = InfiniFrameWindowEvents.FromSnapshot(first.Events);
         InfiniFrameWindowEvents secondEvents = InfiniFrameWindowEvents.FromSnapshot(second.Events);
-        InfiniFrameWindowMessageHandlers firstMessageHandlers = InfiniFrameWindowMessageHandlers.FromSnapshot(first.MessageHandlers);
-        InfiniFrameWindowMessageHandlers secondMessageHandlers = InfiniFrameWindowMessageHandlers.FromSnapshot(second.MessageHandlers);
+        InfiniFrameWindowMessageHandler firstMessageHandlers = InfiniFrameWindowMessageHandler.FromSnapshot(first.MessageHandlers);
+        InfiniFrameWindowMessageHandler secondMessageHandlers = InfiniFrameWindowMessageHandler.FromSnapshot(second.MessageHandlers);
         InfiniFrameWindowCustomSchemeHandlers firstSchemes = InfiniFrameWindowCustomSchemeHandlers.FromSnapshot(first.CustomSchemes);
         InfiniFrameWindowCustomSchemeHandlers secondSchemes = InfiniFrameWindowCustomSchemeHandlers.FromSnapshot(second.CustomSchemes);
 
-        firstMessageHandlers.RegisterMessageHandler("ping", (_, _) => { });
+        firstMessageHandlers.RegisterHandler("ping", (_, _) => { });
         firstEvents.WindowCreated.Add(_ => { });
         firstSchemes.RegisterCustomSchemeHandler("only-first", EmptyHandler);
 

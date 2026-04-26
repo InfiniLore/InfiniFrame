@@ -21,7 +21,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add(builder.MessageHandlers.Handle);
+        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
         events.CompleteSetup(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
@@ -55,7 +55,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add(builder.MessageHandlers.Handle);
+        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
         events.CompleteSetup(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
@@ -82,7 +82,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add(builder.MessageHandlers.Handle);
+        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
         events.CompleteSetup(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);

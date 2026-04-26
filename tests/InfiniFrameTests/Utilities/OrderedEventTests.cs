@@ -19,7 +19,7 @@ public class OrderedEventTests {
             CustomSchemes = new InfiniFrameWindowCustomSchemeHandlers(),
             Parent = null,
             Events = events,
-            MessageHandlers = new InfiniFrameWindowMessageHandlers()
+            MessageHandlers = new InfiniFrameWindowMessageHandler()
         };
         events.CompleteSetup(window);
         return window;
