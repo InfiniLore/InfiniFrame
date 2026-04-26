@@ -1,16 +1,17 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniFrame} from "./Contracts/IInfiniFrame";
-import {IInfiniFrameHostMessaging} from "./Contracts/IInfiniFrameHostMessaging";
+import {IInfiniFrame, IInfiniFrameHostMessaging, IInfiniFrameUtils, IInfiniFrameWindow} from "./Contracts";
 import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
-import {IInfiniFrameUtils} from "./Contracts/IInfiniFrameUtils";
 import {InfiniFrameUtils} from "./InfiniFrameUtils";
+import {InfiniFrameWindow} from "./InfiniFrameWindow";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class InfiniFrame implements IInfiniFrame {
     hostMessaging: IInfiniFrameHostMessaging = new InfiniFrameHostMessaging();
+    hostWindow: IInfiniFrameWindow = new InfiniFrameWindow();
+    
     utils: IInfiniFrameUtils = new InfiniFrameUtils()    
 }
 

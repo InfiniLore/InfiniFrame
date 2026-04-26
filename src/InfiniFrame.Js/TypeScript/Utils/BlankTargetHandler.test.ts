@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import {blankTargetHandler} from "./BlankTargetHandler";
-import {SendToHostMessageIds} from "../Contracts/IInfiniFrameHostMessaging";
+import {IInfiniFrameHostMessaging, SendToHostMessageIds} from "../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -24,6 +24,7 @@ describe("blankTargetHandler", () => {
         document.body.innerHTML = "";
         sendMessageToHost.mockReset();
         testWindow.infiniFrame = {
+            // @ts-ignore
             hostMessaging: {
                 sendMessageToHost
             }

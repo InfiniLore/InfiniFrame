@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {afterEach, describe, expect, it, vi} from "vitest";
 import {getTitleObserver, getTitleObserverTarget} from "./Observers";
-import {SendToHostMessageIds} from "../Contracts/IInfiniFrameHostMessaging";
+import {SendToHostMessageIds} from "../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -50,6 +50,7 @@ describe("Observers", () => {
 
         globalThis.MutationObserver = FakeMutationObserver as unknown as typeof MutationObserver;
         testWindow.infiniFrame = {
+            // @ts-ignore
             hostMessaging: {
                 sendMessageToHost
             }

@@ -1,15 +1,16 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniFrameHostMessaging} from "./IInfiniFrameHostMessaging";
-import {IInfiniFrameUtils} from "./IInfiniFrameUtils";
-import {IInfiniFrameWindow} from "./IInfiniFrameWindow";
+import {IInfiniFrameWindow, SendToHostMessageIds} from "./Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface IInfiniFrame {
-    hostMessaging: IInfiniFrameHostMessaging;
-    hostWindow: IInfiniFrameWindow;
-    utils: IInfiniFrameUtils;
+export class InfiniFrameWindow implements IInfiniFrameWindow {
+    
+    setTitle(title:string) {
+        document.title = title;
+        
+        window.infiniFrame.hostMessaging.sendMessageToHost(SendToHostMessageIds.titleChange, title);
+    } 
 }
