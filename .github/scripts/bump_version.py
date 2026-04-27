@@ -15,7 +15,6 @@ CMAKE_FILE: Final[Path] = REPO_ROOT / "src" / "InfiniFrame.Native" / "CMakeLists
 VERSION_PATTERN: Final[re.Pattern[str]] = re.compile(r"^\d+\.\d+\.\d+(-preview\.\d+)?$")
 BumpPart = Literal["major", "minor", "patch", "preview"]
 
-
 def fail(message: str) -> Never:
     print(message)
     raise SystemExit(1)

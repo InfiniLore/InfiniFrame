@@ -50,8 +50,8 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
             """
         );
 
-        string? renderedAlpha = await WaitForStateChangeAsync(
-            (string?)null,
+        string? renderedAlpha = await WaitForStateChangeAsync<string?>(
+            null,
             stateProvider: () => page.EvaluateAsync<string?>(
                 // lang=javascript
                 "() => document.querySelector('#custom-element-test-host .custom-element-probe-value')?.textContent?.trim() ?? null"
