@@ -25,25 +25,20 @@
 
     <!-- Build frontend exactly once -->
     <Target Name="BuildFrontend"
-            BeforeTargets="AssignTargetPaths;Build"
+            BeforeTargets="Build"
             Inputs="$(ProjectDir)Sources\infiniframe-playwright-vue\package.json"
             Outputs="$(ProjectDir)Sources\infiniframe-playwright-vue\.buildstamp"
-            Condition="
-            '$(DesignTimeBuild)'!='true' and
-            '$(TargetFramework)'=='$(FrontendBuildOnceTargetFramework)'">
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'=='true'">
 
         <Message Text="Running frontend build (once)..." Importance="high" />
 
-        <!-- Install deps only if needed -->
         <Exec Command="npm ci"
               WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"
               Condition="!Exists('$(ProjectDir)Sources\infiniframe-playwright-vue\node_modules')" />
 
-        <!-- Always run build -->
         <Exec Command="npm run build"
               WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />
 
-        <!-- Stamp file for incremental builds -->
         <Touch Files="$(ProjectDir)Sources\infiniframe-playwright-vue\.buildstamp" />
     </Target>
 

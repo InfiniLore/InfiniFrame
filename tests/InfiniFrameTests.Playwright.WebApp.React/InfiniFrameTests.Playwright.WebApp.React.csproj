@@ -25,25 +25,20 @@
 
     <!-- ✅ Build frontend exactly once -->
     <Target Name="BuildFrontend"
-            BeforeTargets="AssignTargetPaths;Build"
+            BeforeTargets="Build"
             Inputs="$(ProjectDir)Sources\infiniframe-playwright-react\package.json"
             Outputs="$(ProjectDir)Sources\infiniframe-playwright-react\.buildstamp"
-            Condition="
-            '$(DesignTimeBuild)'!='true' and
-            '$(TargetFramework)'=='$(FrontendBuildOnceTargetFramework)'">
+            Condition="'$(DesignTimeBuild)'!='true' and '$(IsCrossTargetingBuild)'=='true'">
 
-        <Message Text="Running React frontend build (once)..." Importance="high" />
+        <Message Text="Running frontend build (once)..." Importance="high" />
 
-        <!-- Install only if needed -->
         <Exec Command="npm ci"
               WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react"
               Condition="!Exists('$(ProjectDir)Sources\infiniframe-playwright-react\node_modules')" />
 
-        <!-- Build -->
         <Exec Command="npm run build"
               WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react" />
 
-        <!-- Stamp file -->
         <Touch Files="$(ProjectDir)Sources\infiniframe-playwright-react\.buildstamp" />
     </Target>
 

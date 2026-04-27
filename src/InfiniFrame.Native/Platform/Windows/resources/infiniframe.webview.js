@@ -1,15 +1,17 @@
 ﻿(function () {
     console.log('InfiniFrame WebView JavaScript bridge initialized.');
-    
+
     /* ============================================================================================================== */
     /* 1. Messaging bridge (infiniframe host) */
     /* ============================================================================================================== */
     window.__receiveCallbackCallbacks = window.__receiveCallbackCallbacks || [];
 
     window.__dispatchMessageCallback = window.__dispatchMessageCallback || function (message) {
-        window.__receiveCallbackCallbacks.forEach(function (callback) {
-            callback(message);
-        });
+        for (let i = 0; i < window.__receiveCallbackCallbacks.length; i++) {
+            try {
+                window.__receiveCallbackCallbacks[i](message);
+            } catch (_) {}
+        }
     };
 
     if (window.chrome && window.chrome.webview && !window.__infiniframeWebviewReceiveAttached) {
@@ -21,16 +23,22 @@
 
     window.infiniframe = window.infiniframe || {};
     window.infiniframe.host = window.infiniframe.host || {};
-
+    
     window.infiniframe.host.postData = window.infiniframe.host.postData || function (envelope) {
         const message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);
         window.chrome.webview.postMessage(message);
     };
 
+    window.infiniframe.host.postMessage =
+        window.infiniframe.host.postMessage || window.infiniframe.host.postData;
+    
     window.infiniframe.host.receiveCallback = window.infiniframe.host.receiveCallback || function (callback) {
         window.__receiveCallbackCallbacks.push(callback);
     };
 
+    window.infiniframe.host.receiveMessage =
+        window.infiniframe.host.receiveMessage || window.infiniframe.host.receiveCallback;
+    
     window.infiniframe.host.getData = window.infiniframe.host.getData || function (message) {
         const requestId = 'if_req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
         const serializedMessage = (typeof message === 'string') ? message : JSON.stringify(message);
@@ -40,53 +48,41 @@
             const callback = function (rawMessage) {
                 try {
                     const envelope = JSON.parse(rawMessage);
-                    if (!envelope || envelope.id !== '__infiniframe:get:response' || typeof envelope.data !== 'string') {
-                        return;
-                    }
+                    if (!envelope || envelope.id !== '__infiniframe:get:response') return;
 
-                    const payload = JSON.parse(envelope.data);
-                    if (!payload || payload.requestId !== requestId) {
-                        return;
-                    }
+                    const payload = JSON.parse(envelope.data || '{}');
+                    if (!payload || payload.requestId !== requestId) return;
 
-                    const callbackIndex = window.__receiveCallbackCallbacks.indexOf(callback);
-                    if (callbackIndex >= 0) {
-                        window.__receiveCallbackCallbacks.splice(callbackIndex, 1);
-                    }
+                    // remove callback
+                    const idx = window.__receiveCallbackCallbacks.indexOf(callback);
+                    if (idx >= 0) window.__receiveCallbackCallbacks.splice(idx, 1);
 
                     if (payload.success === true) {
                         resolve(payload.data || '');
                     } else {
                         reject(new Error(payload.error || 'Host getData failed.'));
                     }
-                } catch (_) {
-                }
+                } catch (_) {}
             };
 
             window.infiniframe.host.receiveCallback(callback);
 
             window.infiniframe.host.postData({
                 id: '__infiniframe:get:request',
-                data: {requestId: requestId, message: serializedMessage},
+                data: {
+                    requestId: requestId,
+                    message: serializedMessage
+                },
                 version: 1
             });
         });
     };
 
+    /* ============================================================================================================== */
+    /* 2. window.external bridge (Blazor compatibility) */
+    /* ============================================================================================================== */
     window.external = window.external || {};
     window.__blazor_callbacks = window.__blazor_callbacks || [];
-
-    if (window.chrome && window.chrome.webview && !window.__blazor_bridge_attached) {
-        window.chrome.webview.addEventListener('message', function (e) {
-            for (let i = 0; i < window.__blazor_callbacks.length; i++) {
-                try {
-                    window.__blazor_callbacks[i](e.data);
-                } catch (_) {}
-            }
-        });
-
-        window.__blazor_bridge_attached = true;
-    }
 
     window.external.receiveMessage = function (callback) {
         window.__blazor_callbacks.push(callback);
@@ -99,9 +95,22 @@
     };
 
     window.external.postMessage = window.external.sendMessage;
-    
+
+    // hook Blazor callbacks into main dispatcher
+    if (!window.__blazor_dispatch_hooked) {
+        window.__blazor_dispatch_hooked = true;
+
+        window.__receiveCallbackCallbacks.push(function (message) {
+            for (let i = 0; i < window.__blazor_callbacks.length; i++) {
+                try {
+                    window.__blazor_callbacks[i](message);
+                } catch (_) {}
+            }
+        });
+    }
+
     /* ============================================================================================================== */
-    /* 2. Blazor modules fetch patch */
+    /* 3. Blazor modules fetch patch */
     /* ============================================================================================================== */
     if (!window.__infiniframeBlazorModulesPatched) {
         window.__infiniframeBlazorModulesPatched = true;
@@ -124,21 +133,68 @@
                         return Promise.resolve(new Response('[]', {
                             status: 200,
                             statusText: 'OK',
-                            headers: {'Content-Type': 'application/json'}
+                            headers: { 'Content-Type': 'application/json' }
                         }));
                     }
                 }
-            } catch (_) {
-            }
+            } catch (_) {}
 
             return originalFetch.call(this, input, init);
         };
     }
 
+    /* ============================================================================================================== */
+    /* 4. Blazor custom elements + interop patch */
+    /* ============================================================================================================== */
+    function patchAttachWebRendererInteropIfAvailable() {
+        const blazor = window.Blazor;
 
-    /* ============================================================================================================== */
-    /* 3. Blazor custom element + interop patch */
-    /* ============================================================================================================== */
+        if (!blazor || !blazor._internal || typeof blazor._internal.attachWebRendererInterop !== 'function') {
+            return false;
+        }
+
+        if (blazor._internal.__infiniframeAttachWebRendererInteropPatched) {
+            return true;
+        }
+
+        const original = blazor._internal.attachWebRendererInterop;
+
+        blazor._internal.attachWebRendererInterop = function () {
+            const result = original.apply(this, arguments);
+            autoRegisterMissingInitializerCustomElements(arguments[2], arguments[3]);
+            return result;
+        };
+
+        blazor._internal.__infiniframeAttachWebRendererInteropPatched = true;
+        return true;
+    }
+
+    if (!patchAttachWebRendererInteropIfAvailable()) {
+        const descriptor = Object.getOwnPropertyDescriptor(window, 'Blazor');
+
+        if (!descriptor || descriptor.configurable) {
+            let value = window.Blazor;
+
+            Object.defineProperty(window, 'Blazor', {
+                configurable: true,
+                enumerable: true,
+                get: function () { return value; },
+                set: function (v) {
+                    value = v;
+                    patchAttachWebRendererInteropIfAvailable();
+                }
+            });
+
+            if (value) {
+                patchAttachWebRendererInteropIfAvailable();
+            }
+        }
+    }
+
+    /* =================================================================================================== */
+    /* 5. Custom elements */
+    /* =================================================================================================== */
+
     if (!window.__infiniframeRegisterBlazorCustomElement) {
         window.__infiniframeRegisterBlazorCustomElement = true;
 
@@ -151,56 +207,40 @@
 
         function toParameterValue(rawValue, typeName) {
             if (typeName === 'bool' || typeName === 'boolean') {
-                if (rawValue === null) {
-                    return false;
-                }
-                if (rawValue === '') {
-                    return true;
-                }
+                if (rawValue === null) return false;
+                if (rawValue === '') return true;
                 return String(rawValue).toLowerCase() !== 'false';
             }
-            if (typeName === 'number' || typeName === 'int' || typeName === 'float' || typeName === 'double' || typeName === 'decimal') {
-                const numericValue = Number(rawValue);
-                return Number.isNaN(numericValue) ? rawValue : numericValue;
+
+            if (['number', 'int', 'float', 'double', 'decimal'].includes(typeName)) {
+                const n = Number(rawValue);
+                return Number.isNaN(n) ? rawValue : n;
             }
+
             return rawValue;
         }
 
-        window.registerBlazorCustomElement = window.registerBlazorCustomElement || function (identifier, parameterDefinitions) {
-            if (!window.Blazor || !window.Blazor.rootComponents || !window.Blazor.rootComponents.add) {
-                console.warn('registerBlazorCustomElement skipped: Blazor.rootComponents is unavailable.');
-                return;
-            }
-            if (!window.customElements || typeof window.customElements.define !== 'function') {
-                console.warn('registerBlazorCustomElement skipped: customElements API is unavailable.');
-                return;
-            }
-            if (window.customElements.get(identifier)) {
-                return;
-            }
+        window.registerBlazorCustomElement = function (identifier, parameterDefinitions) {
+            if (!window.Blazor?.rootComponents?.add) return;
+            if (!window.customElements?.define) return;
+            if (window.customElements.get(identifier)) return;
 
-            const definitions = Array.isArray(parameterDefinitions) ? parameterDefinitions : [];
-            const parametersByAttribute = {};
+            const defs = Array.isArray(parameterDefinitions) ? parameterDefinitions : [];
+            const map = {};
 
-            for (let index = 0; index < definitions.length; index++) {
-                const definition = definitions[index];
-                if (!definition || !definition.name) {
-                    continue;
-                }
-                const parameterType = String(definition.type || '').toLowerCase();
-                if (parameterType === 'eventcallback') {
-                    continue;
-                }
-                const attributeName = toKebabCase(definition.name);
-                parametersByAttribute[attributeName] = {
-                    name: definition.name,
-                    type: parameterType
-                };
+            for (const def of defs) {
+                if (!def?.name) continue;
+                const type = String(def.type || '').toLowerCase();
+                if (type === 'eventcallback') continue;
+
+                const attr = toKebabCase(def.name);
+                map[attr] = { name: def.name, type };
             }
 
-            const observedAttributes = Object.keys(parametersByAttribute);
+            const observed = Object.keys(map);
 
-            class BlazorCustomElementHost extends HTMLElement {
+            class Host extends HTMLElement {
+                static get observedAttributes() { return observed; }
 
                 constructor() {
                     super();
@@ -208,118 +248,67 @@
                     this._isDisconnected = false;
                 }
 
-                static get observedAttributes() {
-                    return observedAttributes;
-                }
-
                 connectedCallback() {
                     this._isDisconnected = false;
-                    const parameters = this._getCurrentParameters();
 
-                    window.Blazor.rootComponents.add(this, identifier, parameters)
-                        .then((component) => {
-                            this._component = component;
-                            if (this._isDisconnected && this._component) {
-                                var detached = this._component;
+                    window.Blazor.rootComponents.add(this, identifier, this._getParams())
+                        .then(c => {
+                            this._component = c;
+                            if (this._isDisconnected && c) {
                                 this._component = null;
-                                return detached.dispose();
+                                return c.dispose();
                             }
                         })
-                        .catch((error) => {
-                            console.error('Failed to attach custom element component.', error);
-                        });
+                        .catch(console.error);
                 }
 
                 disconnectedCallback() {
                     this._isDisconnected = true;
-                    const component = this._component;
+                    const c = this._component;
                     this._component = null;
-
-                    if (component && typeof component.dispose === 'function') {
-                        Promise.resolve(component.dispose()).catch(function () {
-                        });
-                    }
+                    if (c?.dispose) Promise.resolve(c.dispose()).catch(() => {});
                 }
 
-                attributeChangedCallback(attributeName, oldValue, newValue) {
-                    if (oldValue === newValue) {
-                        return;
-                    }
-                    if (!this._component || typeof this._component.setParameters !== 'function') {
-                        return;
-                    }
+                attributeChangedCallback(name, oldValue, newValue) {
+                    if (oldValue === newValue) return;
+                    if (!this._component?.setParameters) return;
 
-                    const parameterInfo = parametersByAttribute[String(attributeName).toLowerCase()];
-                    if (!parameterInfo) {
-                        return;
-                    }
+                    const info = map[name];
+                    if (!info) return;
 
-                    const nextParameters = {};
-                    nextParameters[parameterInfo.name] = toParameterValue(newValue, parameterInfo.type);
+                    const p = {};
+                    p[info.name] = toParameterValue(newValue, info.type);
 
-                    this._component.setParameters(nextParameters).catch(function (error) {
-                        console.error('Failed to update custom element parameters.', error);
-                    });
+                    this._component.setParameters(p).catch(console.error);
                 }
 
-                _getCurrentParameters() {
-                    const parameters = {};
-
-                    for (let index = 0; index < observedAttributes.length; index++) {
-                        const attributeName = observedAttributes[index];
-                        if (!this.hasAttribute(attributeName)) {
-                            continue;
-                        }
-                        const parameterInfo = parametersByAttribute[attributeName];
-                        parameters[parameterInfo.name] = toParameterValue(
-                            this.getAttribute(attributeName),
-                            parameterInfo.type
-                        );
+                _getParams() {
+                    const p = {};
+                    for (const attr of observed) {
+                        if (!this.hasAttribute(attr)) continue;
+                        const info = map[attr];
+                        p[info.name] = toParameterValue(this.getAttribute(attr), info.type);
                     }
-
-                    return parameters;
+                    return p;
                 }
             }
 
-            window.customElements.define(identifier, BlazorCustomElementHost);
+            window.customElements.define(identifier, Host);
+        };
 
-            function autoRegisterMissingInitializerCustomElements(componentDefinitionsByIdentifier, identifiersByInitializer) {
-                const initialized = {};
+        function autoRegisterMissingInitializerCustomElements(defs, initMap) {
+            const initialized = {};
 
-                for (const list of Object.values(identifiersByInitializer || {})) {
-                    if (!Array.isArray(list)) continue;
-                    for (const id of list) {
-                        initialized[id] = true;
-                    }
-                }
-
-                for (const entry of Object.entries(componentDefinitionsByIdentifier || {})) {
-                    const identifier = entry[0];
-                    if (initialized[identifier]) continue;
-                    window.registerBlazorCustomElement(identifier, entry[1]);
-                }
+            for (const list of Object.values(initMap || {})) {
+                if (!Array.isArray(list)) continue;
+                for (const id of list) initialized[id] = true;
             }
 
-            function patchAttach() {
-                const blazor = window.Blazor;
-                if (!blazor || !blazor._internal || typeof blazor._internal.attachWebRendererInterop !== 'function') {
-                    return false;
-                }
-
-                if (blazor._internal.__patched) return true;
-
-                const original = blazor._internal.attachWebRendererInterop;
-                blazor._internal.attachWebRendererInterop = function () {
-                    const result = original.apply(this, arguments);
-                    autoRegisterMissingInitializerCustomElements(arguments[2], arguments[3]);
-                    return result;
-                };
-
-                blazor._internal.__patched = true;
-                return true;
+            for (const [id, def] of Object.entries(defs || {})) {
+                if (initialized[id]) continue;
+                window.registerBlazorCustomElement(id, def);
             }
-
-            patchAttach();
         }
     }
-})()
+
+})();
