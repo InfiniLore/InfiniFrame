@@ -20,7 +20,7 @@ export function installHostBridge(): void {
     const host = (root.host ?? {}) as NonNullable<NonNullable<Window["__infiniframe"]>["host"]>;
     const existingPostData = host.postData;
     const existingReceiveCallback = host.receiveCallback;
-    const existingGetData = host.getData;
+    const existingGetData = host.getDataAsync;
 
     host.postData = (envelope: InteropEnvelopeV1 | string) => {
         dispatchEnvelopeToHost(envelope, existingPostData);
@@ -28,7 +28,7 @@ export function installHostBridge(): void {
     host.receiveCallback = (callback: (message: string) => void) => {
         registerWebMessageReceiver(callback, existingReceiveCallback);
     };
-    host.getData = (message: InteropEnvelopeV1 | string) => {
+    host.getDataAsync = (message: InteropEnvelopeV1 | string) => {
         return requestMessageFromHost(message, host, existingGetData, existingReceiveCallback);
     };
 
@@ -55,8 +55,6 @@ function dispatchEnvelopeToHost(
                 console.warn("Existing InfiniFrame host bridge failed. Falling back to platform adapters.", error);
             }
         }
-
-        sendViaPlatformTransport(rawMessage);
         return;
     }
 
@@ -82,8 +80,6 @@ function dispatchEnvelopeToHost(
             }
         }
     }
-
-    sendViaPlatformTransport(serializedEnvelope);
 }
 
 function requestMessageFromHost(
@@ -94,7 +90,7 @@ function requestMessageFromHost(
 ): Promise<string> {
     const normalizedMessage = normalizeGetMessageInput(message);
     if (!normalizedMessage) {
-        return Promise.reject(new Error("Host getData payload is invalid."));
+        return Promise.reject(new Error("Host getDataAsync payload is invalid."));
     }
 
     if (existingGetData) {
@@ -106,7 +102,7 @@ function requestMessageFromHost(
 
             return Promise.resolve(String(existingResult ?? ""));
         } catch (error) {
-            console.warn("Existing InfiniFrame getData bridge failed. Falling back to request/response transport.", error);
+            console.warn("Existing InfiniFrame getDataAsync bridge failed. Falling back to request/response transport.", error);
         }
     }
 
@@ -115,7 +111,7 @@ function requestMessageFromHost(
     return new Promise<string>((resolve, reject) => {
         const timeout = window.setTimeout(() => {
             unregisterWebMessageReceiver(responseCallback);
-            reject(new Error("Timed out waiting for getData response from host."));
+            reject(new Error("Timed out waiting for getDataAsync response from host."));
         }, GetMessageTimeoutMs);
 
         const responseCallback = (rawMessage: string) => {
@@ -143,7 +139,7 @@ function requestMessageFromHost(
                 return;
             }
 
-            reject(new Error(payload.error ?? "Host getData failed."));
+            reject(new Error(payload.error ?? "Host getDataAsync failed."));
         };
 
         registerWebMessageReceiver(responseCallback, existingReceiveCallback);
@@ -210,15 +206,6 @@ function normalizeEnvelope(envelope: InteropEnvelopeV1): InteropEnvelopeV1 | nul
     return normalized;
 }
 
-function sendViaPlatformTransport(message: string): void {
-    if (window.chrome?.webview) {
-        window.chrome.webview.postMessage(message);
-        return;
-    }
-
-    console.warn("Message to host failed. No supported host transport was found.");
-}
-
 function registerWebMessageReceiver(
     callback: (message: string) => void,
     existingReceiveCallback?: (callback: (message: string) => void) => void
@@ -250,14 +237,6 @@ function attachReceiveBridgeOnce(existingReceiveCallback?: (callback: (message: 
         } catch (error) {
             console.warn("Existing InfiniFrame host receive bridge failed. Falling back to platform adapters.", error);
         }
-    }
-
-    if (window.chrome?.webview) {
-        window.chrome.webview.addEventListener("message", (event) => {
-            dispatch(event.data);
-        });
-        receiveBridgeAttached = true;
-        return;
     }
 
     console.warn("Receive message registration failed. No supported host receive transport was found.");

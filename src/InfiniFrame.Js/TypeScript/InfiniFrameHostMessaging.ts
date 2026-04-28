@@ -68,13 +68,13 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     
     public async getMessageFromHostAsync(message: InteropEnvelopeV1 | string): Promise<string> {
         const host = window.__infiniframe?.host;
-        if (!host?.getData) throw new Error("Message to host failed. Host getData API is not initialized.");
+        if (!host?.getDataAsync) throw new Error("Message to host failed. Host getDataAsync API is not initialized.");
 
         const envelope = typeof message === "string"
             ? createEnvelope(message)
             : message;
 
-        return await host.getData(envelope);
+        return await host.getDataAsync(envelope);
     }
 
     public assignMessageReceivedHandler(messageId: string, callback: MessageCallback) {

@@ -1,120 +1,129 @@
 ﻿(function () {
     console.log('InfiniFrame WebView JavaScript bridge initialized.');
 
+    window.__infiniframeSetup = window.__infiniframeSetup || {
+        messagingBridgeInitialized: false,
+        WebviewReceiveAttached:false,
+        
+        windowExternalBridgeInitialized: false,
+        blazorModulesFetchPatchInitialized: false,
+        blazorCustomElementsPatchInitialized: false,
+        customElementsInitialized: false
+    }
+
     /* ============================================================================================================== */
     /* 1. Messaging bridge (infiniFrame host) */
     /* ============================================================================================================== */
-    window.__receiveCallbackCallbacks = window.__receiveCallbackCallbacks || [];
+    if (!window.__infiniframeSetup.messagingBridgeInitialized) {
+        window.__infiniframeSetup.messagingBridgeInitialized = true;
+        
+        window.__receiveCallbackCallbacks = [];
 
-    window.__dispatchMessageCallback = window.__dispatchMessageCallback || function (message) {
-        for (let i = 0; i < window.__receiveCallbackCallbacks.length; i++) {
-            try {
-                window.__receiveCallbackCallbacks[i](message);
-            } catch (_) {}
-        }
-    };
-
-    if (window.chrome && window.chrome.webview && !window.__infiniframeWebviewReceiveAttached) {
-        window.chrome.webview.addEventListener('message', function (e) {
-            window.__dispatchMessageCallback(e.data);
-        });
-        window.__infiniframeWebviewReceiveAttached = true;
-    }
-
-    window.__infiniframe = window.__infiniframe || {};
-    window.__infiniframe.host = window.__infiniframe.host || {};
-    
-    window.__infiniframe.host.postData = window.__infiniframe.host.postData || function (envelope) {
-        const message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);
-        window.chrome.webview.postMessage(message);
-    };
-
-    window.__infiniframe.host.postMessage =
-        window.__infiniframe.host.postMessage || window.__infiniframe.host.postData;
-    
-    window.__infiniframe.host.receiveCallback = window.__infiniframe.host.receiveCallback || function (callback) {
-        window.__receiveCallbackCallbacks.push(callback);
-    };
-
-    window.__infiniframe.host.receiveMessage =
-        window.__infiniframe.host.receiveMessage || window.__infiniframe.host.receiveCallback;
-    
-    window.__infiniframe.host.getData = window.__infiniframe.host.getData || function (message) {
-        const requestId = 'if_req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
-        const serializedMessage = (typeof message === 'string') ? message : JSON.stringify(message);
-
-        return new Promise(function (resolve, reject) {
-
-            const callback = function (rawMessage) {
+        window.__dispatchMessageCallback = function (message) {
+            for (let i = 0; i < window.__receiveCallbackCallbacks.length; i++) {
                 try {
-                    const envelope = JSON.parse(rawMessage);
-                    if (!envelope || envelope.id !== '__infiniframe:get:response') return;
-
-                    const payload = JSON.parse(envelope.data || '{}');
-                    if (!payload || payload.requestId !== requestId) return;
-
-                    // remove callback
-                    const idx = window.__receiveCallbackCallbacks.indexOf(callback);
-                    if (idx >= 0) window.__receiveCallbackCallbacks.splice(idx, 1);
-
-                    if (payload.success === true) {
-                        resolve(payload.data || '');
-                    } else {
-                        reject(new Error(payload.error || 'Host getData failed.'));
-                    }
+                    window.__receiveCallbackCallbacks[i](message);
                 } catch (_) {}
-            };
+            }
+        };
 
-            window.__infiniframe.host.receiveCallback(callback);
-
-            window.__infiniframe.host.postData({
-                id: '__infiniframe:get:request',
-                data: {
-                    requestId: requestId,
-                    message: serializedMessage
-                },
-                version: 1
+        if (window.chrome && window.chrome.webview && !window.__infiniframeSetup.WebviewReceiveAttached) {
+            window.chrome.webview.addEventListener('message', function (e) {
+                window.__dispatchMessageCallback(e.data);
             });
-        });
-    };
+            window.__infiniframeSetup.WebviewReceiveAttached = true;
+        }
 
+        window.__infiniframe = {host: {
+            postData: function (envelope) {
+                const message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);
+                window.chrome.webview.postMessage(message);
+            },
+            receiveCallback: function (callback) {
+                window.__receiveCallbackCallbacks.push(callback);
+            },
+            getDataAsync: function (message) {
+                const requestId = 'if_req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
+                const serializedMessage = (typeof message === 'string') ? message : JSON.stringify(message);
+
+                return new Promise(function (resolve, reject) {
+
+                    const callback = function (rawMessage) {
+                        try {
+                            const envelope = JSON.parse(rawMessage);
+                            if (!envelope || envelope.id !== '__infiniframe:get:response') return;
+
+                            const payload = JSON.parse(envelope.data || '{}');
+                            if (!payload || payload.requestId !== requestId) return;
+
+                            // remove callback
+                            const idx = window.__receiveCallbackCallbacks.indexOf(callback);
+                            if (idx >= 0) window.__receiveCallbackCallbacks.splice(idx, 1);
+
+                            if (payload.success === true) {
+                                resolve(payload.data || '');
+                            } else {
+                                reject(new Error(payload.error || 'Host getDataAsync failed.'));
+                            }
+                        } catch (_) {}
+                    };
+
+                    window.__infiniframe.host.receiveCallback(callback);
+
+                    window.__infiniframe.host.postData({
+                        id: '__infiniframe:get:request',
+                        data: {
+                            requestId: requestId,
+                            message: serializedMessage
+                        },
+                        version: 1
+                    });
+                });
+            },
+        }};
+    } 
+    
     /* ============================================================================================================== */
     /* 2. window.external bridge (Blazor compatibility) */
     /* ============================================================================================================== */
-    window.external = window.external || {};
-    window.__blazor_callbacks = window.__blazor_callbacks || [];
+    if (!window.__infiniframeSetup.windowExternalBridgeInitialized) {
+        window.__infiniframeSetup.windowExternalBridgeInitialized = true;
+        
+        window.external = window.external || {};
+        window.__blazor_callbacks = window.__blazor_callbacks || [];
 
-    window.external.receiveMessage = function (callback) {
-        window.__blazor_callbacks.push(callback);
-    };
+        window.external.receiveMessage = function (callback) {
+            window.__blazor_callbacks.push(callback);
+        };
 
-    window.external.receiveCallback = window.external.receiveMessage;
+        window.external.receiveCallback = window.external.receiveMessage;
 
-    window.external.sendMessage = function (message) {
-        window.chrome.webview.postMessage(message);
-    };
+        window.external.sendMessage = function (message) {
+            window.chrome.webview.postMessage(message);
+        };
 
-    window.external.postMessage = window.external.sendMessage;
+        window.external.postMessage = window.external.sendMessage;
 
-    // hook Blazor callbacks into main dispatcher
-    if (!window.__blazor_dispatch_hooked) {
-        window.__blazor_dispatch_hooked = true;
+        // hook Blazor callbacks into main dispatcher
+        if (!window.__blazor_dispatch_hooked) {
+            window.__blazor_dispatch_hooked = true;
 
-        window.__receiveCallbackCallbacks.push(function (message) {
-            for (let i = 0; i < window.__blazor_callbacks.length; i++) {
-                try {
-                    window.__blazor_callbacks[i](message);
-                } catch (_) {}
-            }
-        });
+            window.__receiveCallbackCallbacks.push(function (message) {
+                for (let i = 0; i < window.__blazor_callbacks.length; i++) {
+                    try {
+                        window.__blazor_callbacks[i](message);
+                    } catch (_) {}
+                }
+            });
+        }
     }
-
+    
     /* ============================================================================================================== */
     /* 3. Blazor modules fetch patch */
     /* ============================================================================================================== */
-    if (!window.__infiniframeBlazorModulesPatched) {
-        window.__infiniframeBlazorModulesPatched = true;
-
+    if (!window.__infiniframeSetup.blazorModulesFetchPatchInitialized) {
+        window.__infiniframeSetup.blazorModulesFetchPatchInitialized = true;
+        
         const originalFetch = window.fetch;
 
         window.fetch = function (input, init) {
@@ -146,47 +155,53 @@
     /* ============================================================================================================== */
     /* 4. Blazor custom elements + interop patch */
     /* ============================================================================================================== */
-    function patchAttachWebRendererInteropIfAvailable() {
-        const blazor = window.Blazor;
+    if (!window.__infiniframeSetup.blazorCustomElementsPatchInitialized) {
+        window.__infiniframeSetup.blazorCustomElementsPatchInitialized = true;
 
-        if (!blazor || !blazor._internal || typeof blazor._internal.attachWebRendererInterop !== 'function') {
-            return false;
-        }
+        function patchAttachWebRendererInteropIfAvailable() {
+            const blazor = window.Blazor;
 
-        if (blazor._internal.__infiniframeAttachWebRendererInteropPatched) {
+            if (!blazor || !blazor._internal || typeof blazor._internal.attachWebRendererInterop !== 'function') {
+                return false;
+            }
+
+            if (blazor._internal.__infiniframeAttachWebRendererInteropPatched) {
+                return true;
+            }
+
+            const original = blazor._internal.attachWebRendererInterop;
+
+            blazor._internal.attachWebRendererInterop = function () {
+                const result = original.apply(this, arguments);
+                autoRegisterMissingInitializerCustomElements(arguments[2], arguments[3]);
+                return result;
+            };
+
+            blazor._internal.__infiniframeAttachWebRendererInteropPatched = true;
             return true;
         }
 
-        const original = blazor._internal.attachWebRendererInterop;
+        if (!patchAttachWebRendererInteropIfAvailable()) {
+            const descriptor = Object.getOwnPropertyDescriptor(window, 'Blazor');
 
-        blazor._internal.attachWebRendererInterop = function () {
-            const result = original.apply(this, arguments);
-            autoRegisterMissingInitializerCustomElements(arguments[2], arguments[3]);
-            return result;
-        };
+            if (!descriptor || descriptor.configurable) {
+                let value = window.Blazor;
 
-        blazor._internal.__infiniframeAttachWebRendererInteropPatched = true;
-        return true;
-    }
+                Object.defineProperty(window, 'Blazor', {
+                    configurable: true,
+                    enumerable: true,
+                    get: function () {
+                        return value;
+                    },
+                    set: function (v) {
+                        value = v;
+                        patchAttachWebRendererInteropIfAvailable();
+                    }
+                });
 
-    if (!patchAttachWebRendererInteropIfAvailable()) {
-        const descriptor = Object.getOwnPropertyDescriptor(window, 'Blazor');
-
-        if (!descriptor || descriptor.configurable) {
-            let value = window.Blazor;
-
-            Object.defineProperty(window, 'Blazor', {
-                configurable: true,
-                enumerable: true,
-                get: function () { return value; },
-                set: function (v) {
-                    value = v;
+                if (value) {
                     patchAttachWebRendererInteropIfAvailable();
                 }
-            });
-
-            if (value) {
-                patchAttachWebRendererInteropIfAvailable();
             }
         }
     }
@@ -194,9 +209,8 @@
     /* =================================================================================================== */
     /* 5. Custom elements */
     /* =================================================================================================== */
-
-    if (!window.__infiniframeRegisterBlazorCustomElement) {
-        window.__infiniframeRegisterBlazorCustomElement = true;
+    if (!window.__infiniframeSetup.customElementsInitialized) {
+        window.__infiniframeSetup.customElementsInitialized = true; 
 
         function toKebabCase(name) {
             return String(name)
