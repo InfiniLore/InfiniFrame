@@ -66,7 +66,8 @@ set(HEADER_FILES
         Core/InfiniFrame.h
         Core/InfiniFrameWindow.h
         Core/InfiniFrameDialog.h
-        Embedded/InfiniFrameHostJs.h
+        Embedded/Embedded.h
+        Embedded/InfiniFrameHostJs/InfiniFrameHostJs.h
         Types/Basic.h
         Types/Dialog.h
         Core/InfiniFrameInitParams.h
@@ -92,13 +93,7 @@ if (WIN32)
             "${HEADER_FILES}"
     )
 
-    infiniframe_setup_embed_js(
-            ${PROJECT_NAME}
-            "${CMAKE_SOURCE_DIR}/Embedded/infiniframe.host.js"
-            GENERATED_JS_CPP
-    )
-
-    target_sources(${PROJECT_NAME} PRIVATE ${GENERATED_JS_CPP})
+    infiniframe_setup_embed_js(${PROJECT_NAME})
     
 elseif (APPLE)
     infiniframe_configure_macos_target(
@@ -107,13 +102,7 @@ elseif (APPLE)
             "${HEADER_FILES}"
     )
 
-    infiniframe_setup_embed_js(
-            ${PROJECT_NAME}
-            "${CMAKE_SOURCE_DIR}/Embedded/infiniframe.host.js"
-            GENERATED_JS_CPP
-    )
-
-    target_sources(${PROJECT_NAME} PRIVATE ${GENERATED_JS_CPP})
+    infiniframe_setup_embed_js(${PROJECT_NAME})
 elseif (UNIX)
     infiniframe_configure_linux_target(
             ${PROJECT_NAME}
@@ -123,13 +112,7 @@ elseif (UNIX)
             "${HEADER_FILES}"
     )
 
-    infiniframe_setup_embed_js(
-            ${PROJECT_NAME}
-            "${CMAKE_SOURCE_DIR}/Embedded/infiniframe.host.js"
-            GENERATED_JS_CPP
-    )
-
-    target_sources(${PROJECT_NAME} PRIVATE ${GENERATED_JS_CPP})
+    infiniframe_setup_embed_js(${PROJECT_NAME})
 endif ()
 
 # ----------------------------------------------------------------------------------------------------------------------

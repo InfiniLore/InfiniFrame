@@ -21,7 +21,7 @@
 #include "ToastHandler.h"
 #include "Utils/Common.h"
 
-#include "Embedded/InfiniFrameHostJs.h"
+#include "Embedded/Embedded.h"
 
 #pragma comment(lib, "Shcore.lib")
 #pragma comment(lib, "Urlmon.lib")
@@ -135,11 +135,6 @@ namespace {
         utf8.resize(written);
 
         return utf8;
-    }
-    
-    std::string_view GetEmbeddedBridgeScript() {
-        const auto data = reinterpret_cast<const char*>(g_infiniframe_host_js_data);
-        return std::string_view(data, g_infiniframe_host_js_size);
     }
 }
 
@@ -1264,14 +1259,9 @@ void InfiniFrameWindow::AttachWebView() {
                                 return envResult;
                             }
                             m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
-                            
-                            std::string_view js = GetEmbeddedBridgeScript();
-                            std::wstring js_wide;
 
-                            js_wide.resize(simdutf::utf16_length_from_utf8(js.data(), js.size()));
-                            simdutf::convert_valid_utf8_to_utf16(js.data(),js.size(),reinterpret_cast<char16_t*>(js_wide.data()));
-
-                            OutputDebugStringW(std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js.size()).c_str());
+                            const auto js_wide = Embedded::InfiniFrameHostJsUtf16();
+                            OutputDebugStringW(std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js_wide.size()).c_str());
 
                             // AddScriptToExecuteOnDocumentCreated is async: the script is not
                             // registered in the browser process until the completion callback fires.
