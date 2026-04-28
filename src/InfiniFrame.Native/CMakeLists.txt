@@ -20,6 +20,7 @@ endif ()
 # ----------------------------------------------------------------------------------------------------------------------
 
 include("${CMAKE_SOURCE_DIR}/cmake/NativeDependencies.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/EmbedJs.cmake")
 
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.Windows.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.MacOS.cmake")
@@ -65,6 +66,7 @@ set(HEADER_FILES
         Core/InfiniFrame.h
         Core/InfiniFrameWindow.h
         Core/InfiniFrameDialog.h
+        Embedded/InfiniFrameHostJs.h
         Types/Basic.h
         Types/Dialog.h
         Core/InfiniFrameInitParams.h
@@ -73,7 +75,6 @@ set(HEADER_FILES
         Utils/Event.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/DarkMode.h
-        Platform/Windows/resources/resource.h
         Platform/Mac/AppDelegate.h
         Platform/Mac/NavigationDelegate.h
         Platform/Mac/NSWindowBorderless.h
@@ -90,12 +91,29 @@ if (WIN32)
             "${WINDOWS_SOURCES}"
             "${HEADER_FILES}"
     )
+
+    infiniframe_setup_embed_js(
+            ${PROJECT_NAME}
+            "${CMAKE_SOURCE_DIR}/Embedded/infiniframe.host.js"
+            GENERATED_JS_CPP
+    )
+
+    target_sources(${PROJECT_NAME} PRIVATE ${GENERATED_JS_CPP})
+    
 elseif (APPLE)
     infiniframe_configure_macos_target(
             ${PROJECT_NAME}
             "${MAC_SOURCES}"
             "${HEADER_FILES}"
     )
+
+    infiniframe_setup_embed_js(
+            ${PROJECT_NAME}
+            "${CMAKE_SOURCE_DIR}/Embedded/infiniframe.host.js"
+            GENERATED_JS_CPP
+    )
+
+    target_sources(${PROJECT_NAME} PRIVATE ${GENERATED_JS_CPP})
 elseif (UNIX)
     infiniframe_configure_linux_target(
             ${PROJECT_NAME}
@@ -104,6 +122,14 @@ elseif (UNIX)
             "${LINUX_SOURCES}"
             "${HEADER_FILES}"
     )
+
+    infiniframe_setup_embed_js(
+            ${PROJECT_NAME}
+            "${CMAKE_SOURCE_DIR}/Embedded/infiniframe.host.js"
+            GENERATED_JS_CPP
+    )
+
+    target_sources(${PROJECT_NAME} PRIVATE ${GENERATED_JS_CPP})
 endif ()
 
 # ----------------------------------------------------------------------------------------------------------------------

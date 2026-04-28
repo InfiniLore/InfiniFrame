@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import urllib.request
+import urllib.error
 from pathlib import Path
 from typing import Any
 
@@ -39,27 +40,31 @@ def download_file(url: str, destination: Path, token: str) -> None:
     with urllib.request.urlopen(request, timeout=120) as response:
         destination.write_bytes(response.read())
 
-
-def get_latest_release(repo: str, token: str) -> tuple[str, dict[str, str]]:
+def get_latest_release(repo: str, token: str) -> tuple[str | None, dict[str, str]]:
     url = f"https://api.github.com/repos/{repo}/releases/latest"
-    payload = request_json(url, token)
+    try:
+        payload = request_json(url, token)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            # No releases → fallback mode
+            return None, {}
+        raise
 
     tag = payload.get("tag_name")
     if not isinstance(tag, str) or not tag:
-        raise RuntimeError(f"Missing tag_name for {repo}")
+        return None, {}
 
     assets_payload = payload.get("assets", [])
-    if not isinstance(assets_payload, list):
-        raise RuntimeError(f"Unexpected assets payload for {repo}")
-
     assets: dict[str, str] = {}
-    for asset in assets_payload:
-        if not isinstance(asset, dict):
-            continue
-        name = asset.get("name")
-        download_url = asset.get("browser_download_url")
-        if isinstance(name, str) and isinstance(download_url, str):
-            assets[name] = download_url
+
+    if isinstance(assets_payload, list):
+        for asset in assets_payload:
+            if not isinstance(asset, dict):
+                continue
+            name = asset.get("name")
+            download_url = asset.get("browser_download_url")
+            if isinstance(name, str) and isinstance(download_url, str):
+                assets[name] = download_url
 
     return tag, assets
 
@@ -92,6 +97,10 @@ def update_manifest(manifest_path: Path, check_only: bool) -> int:
 
         latest_tag, latest_assets = get_latest_release(repo, token)
 
+        # If no releases, stick to manifest tag (or empty)
+        if latest_tag is None:
+            latest_tag = current_tag or ""
+
         has_missing_files = False
         for entries in (assets, source_files, licenses):
             for asset_entry in entries:
@@ -104,7 +113,8 @@ def update_manifest(manifest_path: Path, check_only: bool) -> int:
             if has_missing_files:
                 break
 
-        needs_update = latest_tag != current_tag
+        has_release = latest_tag is not None and latest_tag != ""
+        needs_update = has_release and latest_tag != current_tag
         needs_download = needs_update or has_missing_files
 
         if not needs_download:
@@ -117,22 +127,23 @@ def update_manifest(manifest_path: Path, check_only: bool) -> int:
         if check_only:
             continue
 
-        for asset_entry in assets:
-            if not isinstance(asset_entry, dict):
-                raise RuntimeError(f"Library {name} has invalid asset entry")
-
-            asset_name = asset_entry.get("asset")
-            destination = asset_entry.get("destination")
-            if not isinstance(asset_name, str) or not isinstance(destination, str):
-                raise RuntimeError(f"Library {name} has invalid asset definition")
-
-            download_url = latest_assets.get(asset_name)
-            if not download_url:
-                raise RuntimeError(f"Asset '{asset_name}' not found in latest release for {repo}")
-
-            destination_path = REPO_ROOT / destination
-            print(f"  downloading {asset_name} -> {destination}")
-            download_file(download_url, destination_path, token)
+        if latest_assets:
+            for asset_entry in assets:
+                if not isinstance(asset_entry, dict):
+                    raise RuntimeError(f"Library {name} has invalid asset entry")
+    
+                asset_name = asset_entry.get("asset")
+                destination = asset_entry.get("destination")
+                if not isinstance(asset_name, str) or not isinstance(destination, str):
+                    raise RuntimeError(f"Library {name} has invalid asset definition")
+    
+                download_url = latest_assets.get(asset_name)
+                if not download_url:
+                    raise RuntimeError(f"Asset '{asset_name}' not found in latest release for {repo}")
+    
+                destination_path = REPO_ROOT / destination
+                print(f"  downloading {asset_name} -> {destination}")
+                download_file(download_url, destination_path, token)
 
         for source_entry in source_files:
             if not isinstance(source_entry, dict):

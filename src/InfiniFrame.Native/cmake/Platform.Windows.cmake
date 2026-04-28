@@ -13,17 +13,6 @@ function(infiniframe_configure_windows_target target_name common_sources test_so
             ${test_sources}
             ${windows_sources}
             ${header_files}
-            ${CMAKE_SOURCE_DIR}/Platform/Windows/resources/resource.rc
-    )
-
-    # The RC compiler resolves bare filenames (like "infiniframe.webview.js") relative
-    # to its working directory, which CMake sets to the build dir — not the source dir.
-    # Passing /I tells rc.exe to also search the .rc file's own directory, so it finds
-    # both resource.h and infiniframe.webview.js and embeds the script into the DLL.
-    set_source_files_properties(
-            ${CMAKE_SOURCE_DIR}/Platform/Windows/resources/resource.rc
-            PROPERTIES
-            COMPILE_FLAGS "/I \"${CMAKE_SOURCE_DIR}/Platform/Windows/resources\""
     )
 
     set_target_properties(${target_name} PROPERTIES

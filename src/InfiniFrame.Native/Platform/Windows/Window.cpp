@@ -20,7 +20,8 @@
 #include "DarkMode.h"
 #include "ToastHandler.h"
 #include "Utils/Common.h"
-#include "resources/Resource.h"
+
+#include "Embedded/InfiniFrameHostJs.h"
 
 #pragma comment(lib, "Shcore.lib")
 #pragma comment(lib, "Urlmon.lib")
@@ -135,68 +136,10 @@ namespace {
 
         return utf8;
     }
-
-    std::wstring LoadResourceStringW(int id)
-    {
-        // GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS resolves the HMODULE of the
-        // binary that contains LoadResourceStringW itself — i.e. InfiniFrame.Native.dll.
-        // This is correct regardless of when _hInstance is set, and avoids the bug
-        // where GetModuleHandle(nullptr) returns the host EXE instead of this DLL.
-        HMODULE hModule = nullptr;
-        if (!GetModuleHandleExW(
-                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-                GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                reinterpret_cast<LPCWSTR>(&LoadResourceStringW),
-                &hModule) || !hModule)
-        {
-            OutputDebugStringW(L"[InfiniFrame] LoadResourceStringW: GetModuleHandleExW failed\n");
-            return {};
-        }
-
-        wchar_t modulePath[MAX_PATH] = {};
-        GetModuleFileNameW(hModule, modulePath, MAX_PATH);
-        OutputDebugStringW((std::wstring(L"[InfiniFrame] LoadResourceStringW: searching module: ") + modulePath + L"\n").c_str());
-
-        HRSRC hRes = FindResourceW(hModule, MAKEINTRESOURCEW(id), RT_RCDATA);
-        if (!hRes)
-        {
-            OutputDebugStringW(std::format(L"[InfiniFrame] LoadResourceStringW: FindResourceW failed for id={} — resource not embedded in DLL. GetLastError={}\n", id, GetLastError()).c_str());
-            return {};
-        }
-
-        HGLOBAL hData = LoadResource(hModule, hRes);
-        if (!hData)
-        {
-            OutputDebugStringW(L"[InfiniFrame] LoadResourceStringW: LoadResource failed\n");
-            return {};
-        }
-
-        const char* data = static_cast<const char*>(LockResource(hData));
-        DWORD size = SizeofResource(hModule, hRes);
-
-        if (!data || size == 0)
-        {
-            OutputDebugStringW(std::format(L"[InfiniFrame] LoadResourceStringW: resource data empty (size={})\n", size).c_str());
-            return {};
-        }
-
-        OutputDebugStringW(std::format(L"[InfiniFrame] LoadResourceStringW: loaded {} bytes OK\n", size).c_str());
-
-        std::string utf8(data, size);
-        std::u16string utf16(simdutf::utf16_length_from_utf8(utf8.data(), utf8.size()), u'\0');
-
-        size_t written = simdutf::convert_valid_utf8_to_utf16(
-            utf8.data(),
-            utf8.size(),
-            reinterpret_cast<char16_t*>(utf16.data())
-        );
-
-        utf16.resize(written);
-
-        return std::wstring(
-            reinterpret_cast<const wchar_t*>(utf16.data()),
-            utf16.size()
-        );
+    
+    std::string_view GetEmbeddedBridgeScript() {
+        const auto data = reinterpret_cast<const char*>(g_infiniframe_host_js_data);
+        return std::string_view(data, g_infiniframe_host_js_size);
     }
 }
 
@@ -1322,9 +1265,13 @@ void InfiniFrameWindow::AttachWebView() {
                             }
                             m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
                             
-                            const auto scriptWide = LoadResourceStringW(IDR_WEBVIEW_SCRIPT);
+                            std::string_view js = GetEmbeddedBridgeScript();
+                            std::wstring js_wide;
 
-                            OutputDebugStringW(std::format(L"[InfiniFrame] Bridge script length: {} chars\n", scriptWide.size()).c_str());
+                            js_wide.resize(simdutf::utf16_length_from_utf8(js.data(), js.size()));
+                            simdutf::convert_valid_utf8_to_utf16(js.data(),js.size(),reinterpret_cast<char16_t*>(js_wide.data()));
+
+                            OutputDebugStringW(std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js.size()).c_str());
 
                             // AddScriptToExecuteOnDocumentCreated is async: the script is not
                             // registered in the browser process until the completion callback fires.
@@ -1356,7 +1303,7 @@ void InfiniFrameWindow::AttachWebView() {
                             auto nav = std::make_shared<NavigateOnce>(NavigateOnce{this});
 
                             HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
-                                scriptWide.c_str(),
+                                js_wide.c_str(),
                                 Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
                                     [nav](HRESULT errorCode, LPCWSTR id) -> HRESULT {
                                         OutputDebugStringW(std::format(L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: hr=0x{:08X} id={}\n", (unsigned)errorCode, id ? id : L"(null)").c_str());

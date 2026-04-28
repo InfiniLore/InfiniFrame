@@ -3,8 +3,8 @@
 
     window.__infiniframeSetup = window.__infiniframeSetup || {
         messagingBridgeInitialized: false,
-        WebviewReceiveAttached:false,
-        
+        WebviewReceiveAttached: false,
+
         windowExternalBridgeInitialized: false,
         blazorModulesFetchPatchInitialized: false,
         blazorCustomElementsPatchInitialized: false,
@@ -16,79 +16,79 @@
     /* ============================================================================================================== */
     if (!window.__infiniframeSetup.messagingBridgeInitialized) {
         window.__infiniframeSetup.messagingBridgeInitialized = true;
-        
-        window.__receiveCallbackCallbacks = [];
 
-        window.__dispatchMessageCallback = function (message) {
-            for (let i = 0; i < window.__receiveCallbackCallbacks.length; i++) {
-                try {
-                    window.__receiveCallbackCallbacks[i](message);
-                } catch (_) {}
+        window.__infiniframe = {
+            onReceiveMessageCallbacks : [],
+            host: {
+                postData: function (envelope) {
+                    const message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);
+                    window.chrome.webview.postMessage(message);
+                },
+                receiveCallback: function (callback) {
+                    window.__infiniframe.onReceiveMessageCallbacks.push(callback);
+                },
+                getDataAsync: function (message) {
+                    const requestId = 'if_req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
+                    const serializedMessage = (typeof message === 'string') ? message : JSON.stringify(message);
+
+                    return new Promise(function (resolve, reject) {
+
+                        const callback = function (rawMessage) {
+                            try {
+                                const envelope = JSON.parse(rawMessage);
+                                if (!envelope || envelope.id !== '__infiniframe:get:response') return;
+
+                                const payload = JSON.parse(envelope.data || '{}');
+                                if (!payload || payload.requestId !== requestId) return;
+
+                                // remove callback
+                                const idx = window.__infiniframe.onReceiveMessageCallbacks.indexOf(callback);
+                                if (idx >= 0) window.__infiniframe.onReceiveMessageCallbacks.splice(idx, 1);
+
+                                if (payload.success === true) {
+                                    resolve(payload.data || '');
+                                } else {
+                                    reject(new Error(payload.error || 'Host getDataAsync failed.'));
+                                }
+                            } catch (_) {
+                            }
+                        };
+
+                        window.__infiniframe.host.receiveCallback(callback);
+
+                        window.__infiniframe.host.postData({
+                            id: '__infiniframe:get:request',
+                            data: {
+                                requestId: requestId,
+                                message: serializedMessage
+                            },
+                            version: 1
+                        });
+                    });
+                },
             }
         };
 
         if (window.chrome && window.chrome.webview && !window.__infiniframeSetup.WebviewReceiveAttached) {
-            window.chrome.webview.addEventListener('message', function (e) {
-                window.__dispatchMessageCallback(e.data);
+            window.chrome.webview.addEventListener('message', function (message) {
+                for (let i = 0; i < window.__infiniframe.onReceiveMessageCallbacks.length; i++) {
+                    try {
+                        window.__infiniframe.onReceiveMessageCallbacks[i](message.data);
+                    } catch (_) {
+                    }
+                }
             });
+
             window.__infiniframeSetup.WebviewReceiveAttached = true;
         }
+    }
 
-        window.__infiniframe = {host: {
-            postData: function (envelope) {
-                const message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);
-                window.chrome.webview.postMessage(message);
-            },
-            receiveCallback: function (callback) {
-                window.__receiveCallbackCallbacks.push(callback);
-            },
-            getDataAsync: function (message) {
-                const requestId = 'if_req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
-                const serializedMessage = (typeof message === 'string') ? message : JSON.stringify(message);
-
-                return new Promise(function (resolve, reject) {
-
-                    const callback = function (rawMessage) {
-                        try {
-                            const envelope = JSON.parse(rawMessage);
-                            if (!envelope || envelope.id !== '__infiniframe:get:response') return;
-
-                            const payload = JSON.parse(envelope.data || '{}');
-                            if (!payload || payload.requestId !== requestId) return;
-
-                            // remove callback
-                            const idx = window.__receiveCallbackCallbacks.indexOf(callback);
-                            if (idx >= 0) window.__receiveCallbackCallbacks.splice(idx, 1);
-
-                            if (payload.success === true) {
-                                resolve(payload.data || '');
-                            } else {
-                                reject(new Error(payload.error || 'Host getDataAsync failed.'));
-                            }
-                        } catch (_) {}
-                    };
-
-                    window.__infiniframe.host.receiveCallback(callback);
-
-                    window.__infiniframe.host.postData({
-                        id: '__infiniframe:get:request',
-                        data: {
-                            requestId: requestId,
-                            message: serializedMessage
-                        },
-                        version: 1
-                    });
-                });
-            },
-        }};
-    } 
-    
     /* ============================================================================================================== */
     /* 2. window.external bridge (Blazor compatibility) */
     /* ============================================================================================================== */
     if (!window.__infiniframeSetup.windowExternalBridgeInitialized) {
         window.__infiniframeSetup.windowExternalBridgeInitialized = true;
-        
+
         window.external = window.external || {};
         window.__blazor_callbacks = window.__blazor_callbacks || [];
 
@@ -108,22 +108,23 @@
         if (!window.__blazor_dispatch_hooked) {
             window.__blazor_dispatch_hooked = true;
 
-            window.__receiveCallbackCallbacks.push(function (message) {
+            window.__infiniframe.onReceiveMessageCallbacks.push(function (message) {
                 for (let i = 0; i < window.__blazor_callbacks.length; i++) {
                     try {
                         window.__blazor_callbacks[i](message);
-                    } catch (_) {}
+                    } catch (_) {
+                    }
                 }
             });
         }
     }
-    
+
     /* ============================================================================================================== */
     /* 3. Blazor modules fetch patch */
     /* ============================================================================================================== */
     if (!window.__infiniframeSetup.blazorModulesFetchPatchInitialized) {
         window.__infiniframeSetup.blazorModulesFetchPatchInitialized = true;
-        
+
         const originalFetch = window.fetch;
 
         window.fetch = function (input, init) {
@@ -142,11 +143,12 @@
                         return Promise.resolve(new Response('[]', {
                             status: 200,
                             statusText: 'OK',
-                            headers: { 'Content-Type': 'application/json' }
+                            headers: {'Content-Type': 'application/json'}
                         }));
                     }
                 }
-            } catch (_) {}
+            } catch (_) {
+            }
 
             return originalFetch.call(this, input, init);
         };
@@ -210,7 +212,7 @@
     /* 5. Custom elements */
     /* =================================================================================================== */
     if (!window.__infiniframeSetup.customElementsInitialized) {
-        window.__infiniframeSetup.customElementsInitialized = true; 
+        window.__infiniframeSetup.customElementsInitialized = true;
 
         function toKebabCase(name) {
             return String(name)
@@ -248,18 +250,20 @@
                 if (type === 'eventcallback') continue;
 
                 const attr = toKebabCase(def.name);
-                map[attr] = { name: def.name, type };
+                map[attr] = {name: def.name, type};
             }
 
             const observed = Object.keys(map);
 
             class Host extends HTMLElement {
-                static get observedAttributes() { return observed; }
-
                 constructor() {
                     super();
                     this._component = null;
                     this._isDisconnected = false;
+                }
+
+                static get observedAttributes() {
+                    return observed;
                 }
 
                 connectedCallback() {
@@ -280,7 +284,8 @@
                     this._isDisconnected = true;
                     const c = this._component;
                     this._component = null;
-                    if (c?.dispose) Promise.resolve(c.dispose()).catch(() => {});
+                    if (c?.dispose) Promise.resolve(c.dispose()).catch(() => {
+                    });
                 }
 
                 attributeChangedCallback(name, oldValue, newValue) {

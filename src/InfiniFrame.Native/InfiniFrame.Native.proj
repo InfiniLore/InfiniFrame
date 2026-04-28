@@ -45,6 +45,10 @@
         <None Remove="packages\**\*"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ClCompile Include="Dependencies\infiniframehost\infiniframehost.cpp" />
+    </ItemGroup>
+
     <!-- Build target -->
     <Target Name="Build">
         <Message Text="Building InfiniFrame.Native ($(Configuration)|$(CMakePlatform))" Importance="High"/>
