@@ -25,40 +25,21 @@
             "message": "{\"id\":\"ping\",\"data\":\"hello\",\"version\":1}",
             "success": true,
             "messageId": "ping",
-            "payload": "hello",
-            "isLegacyProtocol": false
+            "payload": "hello"
         },
         {
             "name": "parse-envelope-null-payload",
             "message": "{\"id\":\"ping\",\"data\":null,\"version\":1}",
             "success": true,
             "messageId": "ping",
-            "payload": null,
-            "isLegacyProtocol": false
+            "payload": null
         },
         {
             "name": "parse-envelope-object-payload",
             "message": "{\"id\":\"complex\",\"data\":{\"name\":\"München\",\"values\":[1,2,3]},\"version\":1}",
             "success": true,
             "messageId": "complex",
-            "payload": "{\"name\":\"München\",\"values\":[1,2,3]}",
-            "isLegacyProtocol": false
-        },
-        {
-            "name": "parse-legacy-with-payload",
-            "message": "set-title;New Title",
-            "success": true,
-            "messageId": "set-title",
-            "payload": "New Title",
-            "isLegacyProtocol": true
-        },
-        {
-            "name": "parse-legacy-without-payload",
-            "message": "window-close",
-            "success": true,
-            "messageId": "window-close",
-            "payload": null,
-            "isLegacyProtocol": true
+            "payload": "{\"name\":\"München\",\"values\":[1,2,3]}"
         },
         {
             "name": "parse-invalid-missing-id",

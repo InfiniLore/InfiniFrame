@@ -114,7 +114,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Send a message to the native window's native browser control's JavaScript context.
     /// </summary>
     /// <remarks>
-    ///     In JavaScript, messages can be received via <code>window.infiniframe.host.receiveCallback(callback)</code>.
+    ///     In JavaScript, messages can be received via <code>window.__infiniframe.host.receiveCallback(callback)</code>.
     /// </remarks>
     /// <exception cref="ApplicationException">
     ///     Thrown when the window is not initialized.

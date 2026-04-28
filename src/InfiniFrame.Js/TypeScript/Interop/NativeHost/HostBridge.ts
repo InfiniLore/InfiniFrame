@@ -16,8 +16,8 @@ const receiveCallbacks = new Set<ReceiveCallback>();
 let receiveBridgeAttached = false;
 
 export function installHostBridge(): void {
-    const root: NonNullable<Window["infiniframe"]> = window.infiniframe ?? {};
-    const host = (root.host ?? {}) as NonNullable<NonNullable<Window["infiniframe"]>["host"]>;
+    const root: NonNullable<Window["__infiniframe"]> = window.__infiniframe ?? {};
+    const host = (root.host ?? {}) as NonNullable<NonNullable<Window["__infiniframe"]>["host"]>;
     const existingPostData = host.postData;
     const existingReceiveCallback = host.receiveCallback;
     const existingGetData = host.getData;
@@ -33,7 +33,7 @@ export function installHostBridge(): void {
     };
 
     root.host = host;
-    window.infiniframe = root;
+    window.__infiniframe = root;
 }
 
 function dispatchEnvelopeToHost(
@@ -88,7 +88,7 @@ function dispatchEnvelopeToHost(
 
 function requestMessageFromHost(
     message: InteropEnvelopeV1 | string,
-    host: NonNullable<NonNullable<Window["infiniframe"]>["host"]>,
+    host: NonNullable<NonNullable<Window["__infiniframe"]>["host"]>,
     existingGetData?: ((message: InteropEnvelopeV1 | string) => Promise<string> | string),
     existingReceiveCallback?: (callback: (message: string) => void) => void
 ): Promise<string> {

@@ -38,7 +38,7 @@ export async function blankTargetHandler(e: MouseEvent) {
         }
 
         e.preventDefault();
-        window.infiniFrame.hostMessaging.sendMessageToHost(SendToHostMessageIds.openExternalLink, anchor.href);
+        window.infiniframe.messaging.sendMessageToHost(SendToHostMessageIds.openExternalLink, anchor.href);
         return;
     }
 }

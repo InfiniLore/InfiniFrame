@@ -6,24 +6,24 @@ import {InteropEnvelopeV1} from "./EnvelopeProtocol";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-const infiniFrame: string = "__infiniframe";
+const infiniframe: string = "__infiniframe";
 
 export const SendToHostMessageIds = {
-    titleChange: `${infiniFrame}:title:change`,
-    fullscreenEnter: `${infiniFrame}:fullscreen:enter`,
-    fullscreenExit: `${infiniFrame}:fullscreen:exit`,
-    openExternalLink: `${infiniFrame}:open:external`,
-    windowClose: `${infiniFrame}:window:close`,
-    ready: `${infiniFrame}:ready`,
-    getMessageRequest: `${infiniFrame}:get:request`,
+    titleChange: `${infiniframe}:title:change`,
+    fullscreenEnter: `${infiniframe}:fullscreen:enter`,
+    fullscreenExit: `${infiniframe}:fullscreen:exit`,
+    openExternalLink: `${infiniframe}:open:external`,
+    windowClose: `${infiniframe}:window:close`,
+    ready: `${infiniframe}:ready`,
+    getMessageRequest: `${infiniframe}:get:request`,
 }
 
 export const ReceiveFromHostMessageIds = {
-    registerOpenExternal: `${infiniFrame}:register:open:external`,
-    registerFullscreenChange: `${infiniFrame}:register:fullscreen:change`,
-    registerTitleChange: `${infiniFrame}:register:title:change`,
-    registerWindowClose: `${infiniFrame}:register:window:close`,
-    getMessageResponse: `${infiniFrame}:get:response`,
+    registerOpenExternal: `${infiniframe}:register:open:external`,
+    registerFullscreenChange: `${infiniframe}:register:fullscreen:change`,
+    registerTitleChange: `${infiniframe}:register:title:change`,
+    registerWindowClose: `${infiniframe}:register:window:close`,
+    getMessageResponse: `${infiniframe}:get:response`,
 }
 
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];

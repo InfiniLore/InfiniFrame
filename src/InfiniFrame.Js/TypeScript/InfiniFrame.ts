@@ -9,8 +9,8 @@ import {InfiniFrameWindow} from "./InfiniFrameWindow";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export class InfiniFrame implements IInfiniFrame {
-    hostMessaging: IInfiniFrameHostMessaging = new InfiniFrameHostMessaging();
-    hostWindow: IInfiniFrameWindow = new InfiniFrameWindow();
+    messaging: IInfiniFrameHostMessaging = new InfiniFrameHostMessaging();
+    window: IInfiniFrameWindow = new InfiniFrameWindow();
     
     utils: IInfiniFrameUtils = new InfiniFrameUtils()    
 }

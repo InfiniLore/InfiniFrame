@@ -9,4 +9,4 @@ import {installHostBridge} from "./Interop/NativeHost/HostBridge";
 export {};
 installHostBridge();
 
-window.infiniFrame = new InfiniFrame();
+window.infiniframe = new InfiniFrame();

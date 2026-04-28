@@ -8,7 +8,7 @@ import {installHostBridge} from "./HostBridge";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 type TestWindow = Window & {
-    infiniframe?: {
+    __infiniframe?: {
         host?: {
             postData?: (message: unknown) => void;
             receiveCallback?: (callback: (message: string) => void) => void;
@@ -26,14 +26,14 @@ describe("HostBridge", () => {
     const testWindow = window as TestWindow;
 
     beforeEach(() => {
-        delete testWindow.infiniframe;
+        delete testWindow.__infiniframe;
         delete testWindow.chrome;
         vi.restoreAllMocks();
     });
 
     it("normalizes object envelopes to string for existing postData handlers", () => {
         const existingPostData = vi.fn();
-        testWindow.infiniframe = {
+        testWindow.__infiniframe = {
             host: {
                 postData: existingPostData,
                 receiveCallback: vi.fn()
@@ -41,7 +41,7 @@ describe("HostBridge", () => {
         };
 
         installHostBridge();
-        testWindow.infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
+        testWindow.__infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
 
         expect(existingPostData).toHaveBeenCalledTimes(1);
         expect(existingPostData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"data\":\"hello\",\"version\":1}");
@@ -51,7 +51,7 @@ describe("HostBridge", () => {
         const existingPostData = vi.fn((payload: unknown) => {
             if (typeof payload === "string") throw new Error("String payloads not supported.");
         });
-        testWindow.infiniframe = {
+        testWindow.__infiniframe = {
             host: {
                 postData: existingPostData,
                 receiveCallback: vi.fn()
@@ -59,7 +59,7 @@ describe("HostBridge", () => {
         };
 
         installHostBridge();
-        testWindow.infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
+        testWindow.__infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
 
         expect(existingPostData).toHaveBeenCalledTimes(2);
         expect(typeof existingPostData.mock.calls[0][0]).toBe("string");
@@ -76,7 +76,7 @@ describe("HostBridge", () => {
         };
 
         installHostBridge();
-        testWindow.infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
+        testWindow.__infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
 
         expect(postData).toHaveBeenCalledTimes(1);
         expect(postData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"data\":\"hello\",\"version\":1}");

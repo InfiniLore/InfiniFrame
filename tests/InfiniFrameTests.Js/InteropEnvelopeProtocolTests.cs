@@ -54,13 +54,11 @@ public class InteropEnvelopeProtocolTests {
             }
 
             string expectedMessageId = vector.GetProperty("messageId").GetString()!;
-            bool expectedIsLegacy = vector.GetProperty("isLegacyProtocol").GetBoolean();
             string? expectedPayload = vector.GetProperty("payload").ValueKind == JsonValueKind.Null
                 ? null
                 : vector.GetProperty("payload").GetString();
 
             await Assert.That(result.MessageId).IsEqualTo(expectedMessageId);
-            await Assert.That(result.IsLegacyProtocol).IsEqualTo(expectedIsLegacy);
             await Assert.That(result.Payload).IsEqualTo(expectedPayload);
         }
     }

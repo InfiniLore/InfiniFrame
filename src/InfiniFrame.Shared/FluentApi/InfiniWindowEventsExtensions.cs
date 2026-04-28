@@ -113,7 +113,7 @@ public static class InfiniWindowEventsExtensions {
     /// </returns>
     /// <remarks>
     ///     Messages should be sent from JavaScript via
-    ///     <code>window.infiniframe.host.postData({ id: "...", data: ..., version: 1 })</code>.
+    ///     <code>window.__infiniframe.host.postData({ id: "...", data: ..., version: 1 })</code>.
     /// </remarks>
     /// <param name="handler">Handler invoked with the window and message.</param>
     /// <param name="builder">The builder to register the handler for.</param>
@@ -131,7 +131,7 @@ public static class InfiniWindowEventsExtensions {
     /// </returns>
     /// <remarks>
     ///     Messages should be sent from JavaScript via
-    ///     <code>window.infiniframe.host.postData({ id: "...", data: ..., version: 1 })</code>.
+    ///     <code>window.__infiniframe.host.postData({ id: "...", data: ..., version: 1 })</code>.
     /// </remarks>
     /// <param name="handler">Handler that receives the resolved service and web message data.</param>
     /// <param name="builder">The builder to register the handler for.</param>

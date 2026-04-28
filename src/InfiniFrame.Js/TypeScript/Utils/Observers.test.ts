@@ -9,8 +9,8 @@ import {SendToHostMessageIds} from "../Contracts";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 type TestWindow = Window & {
-    infiniFrame?: {
-        hostMessaging: {
+    infiniframe?: {
+        messaging: {
             sendMessageToHost: (id: string, data?: unknown) => void;
         };
     };
@@ -49,9 +49,9 @@ describe("Observers", () => {
         }
 
         globalThis.MutationObserver = FakeMutationObserver as unknown as typeof MutationObserver;
-        testWindow.infiniFrame = {
+        testWindow.infiniframe = {
             // @ts-ignore
-            hostMessaging: {
+            messaging: {
                 sendMessageToHost
             }
         };

@@ -25,17 +25,19 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
             // lang=javascript
             """
             () => ({
-                hasHostBridge: window.infiniframe?.host !== undefined && window.infiniframe?.host !== null,
-                hasInfiniFrameApi: window.infiniFrame !== undefined && window.infiniFrame !== null,
-                hasHostMessaging: window.infiniFrame?.hostMessaging !== undefined && window.infiniFrame?.hostMessaging !== null,
-                hasUtils: window.infiniFrame?.utils !== undefined && window.infiniFrame?.utils !== null,
+                hasNativeHostBridge: window.__infiniframe?.host !== undefined && window.__infiniframe?.host !== null,
+                hasInfiniFrameApi: window.infiniframe !== undefined && window.infiniframe !== null,
+                hasMessaging: window.infiniframe?.messaging !== undefined && window.infiniframe?.messaging !== null,
+                hasWindow: window.infiniframe?.window !== undefined && window.infiniframe?.window !== null,
+                hasUtils: window.infiniframe?.utils !== undefined && window.infiniframe?.utils !== null,
             })
             """
         );
 
-        await Assert.That(initState.GetProperty("hasHostBridge").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasNativeHostBridge").GetBoolean()).IsTrue();
         await Assert.That(initState.GetProperty("hasInfiniFrameApi").GetBoolean()).IsTrue();
-        await Assert.That(initState.GetProperty("hasHostMessaging").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasMessaging").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasWindow").GetBoolean()).IsTrue();
         await Assert.That(initState.GetProperty("hasUtils").GetBoolean()).IsTrue();
     }
 
@@ -47,7 +49,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
 
         await page.EvaluateAsync(
             // lang=javascript
-            $"() => window.infiniframe?.host?.postData({{ id: '__infiniframe:title:change', data: '{NewTitleFromHostMessage}', version: 1 }})"
+            $"() => window.__infiniframe?.host?.postData({{ id: '__infiniframe:title:change', data: '{NewTitleFromHostMessage}', version: 1 }})"
         );
         string updatedTitle = await WaitForStateChangeAsync(
             originalTitle,

@@ -14,7 +14,6 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class GetMessageWebMessageHandlerTests {
     [Test]
-    [DisplayName($"{nameof(GetMessageWebMessageHandlerTests)}.{nameof(GetMessage_ResolvesRegisteredHandlerAndReturnsData)}")]
     public async Task GetMessage_ResolvesRegisteredHandlerAndReturnsData() {
         // Arrange
         (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler messageHandler) = CreateWindowHarness();
@@ -38,7 +37,6 @@ public class GetMessageWebMessageHandlerTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(GetMessageWebMessageHandlerTests)}.{nameof(GetMessage_WithoutRegisteredMessageHandler_ReturnsErrorResponse)}")]
     public async Task GetMessage_WithoutRegisteredMessageHandler_ReturnsErrorResponse() {
         // Arrange
         (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _) = CreateWindowHarness();
@@ -61,7 +59,6 @@ public class GetMessageWebMessageHandlerTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(GetMessageWebMessageHandlerTests)}.{nameof(GetMessage_WithoutRegisteredService_ReturnsErrorResponse)}")]
     public async Task GetMessage_WithoutRegisteredService_ReturnsErrorResponse() {
         // Arrange
         (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _) = CreateWindowHarness();

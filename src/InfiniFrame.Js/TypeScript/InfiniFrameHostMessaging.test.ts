@@ -10,7 +10,7 @@ import {ReceiveFromHostMessageIds, SendToHostMessageIds} from "./Contracts";
 type ReceiveMessageCallback = (message: string) => void;
 
 type TestWindow = Window & {
-    infiniframe?: {
+    __infiniframe?: {
         host?: {
             postData: (message: unknown) => void;
             receiveCallback: (callback: ReceiveMessageCallback) => void;
@@ -33,7 +33,7 @@ describe("InfiniFrameHostMessaging", () => {
             receiveCallbackInner = callback;
         });
 
-        testWindow.infiniframe = {
+        testWindow.__infiniframe = {
             host: {
                 postData,
                 receiveCallback
@@ -82,20 +82,6 @@ describe("InfiniFrameHostMessaging", () => {
 
         expect(handler).toHaveBeenCalledTimes(1);
         expect(handler).toHaveBeenCalledWith("payload");
-    });
-
-    it("logs legacy warning only once for repeated legacy messages", async () => {
-        const {messaging, getReceiveCallback} = await setupHostMessaging();
-        const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-        messaging.assignMessageReceivedHandler("legacy", vi.fn());
-
-        getReceiveCallback()("legacy;a");
-        getReceiveCallback()("legacy;b");
-
-        const legacyWarnings = warnSpy.mock.calls.filter(call =>
-            String(call[0]).includes("legacy inbound host message format")
-        );
-        expect(legacyWarnings.length).toBe(1);
     });
 
     it("ignores BlazorWebView internal __bwv messages without warning", async () => {

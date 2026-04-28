@@ -12,7 +12,7 @@ describe("InfiniFrame", () => {
     it("initializes HostMessaging and Utils", () => {
         const instance = new InfiniFrame();
 
-        expect(instance.hostMessaging).toBeDefined();
+        expect(instance.messaging).toBeDefined();
         expect(instance.utils).toBeDefined();
     });
 
@@ -20,11 +20,11 @@ describe("InfiniFrame", () => {
         const a = new InfiniFrame();
         const b = new InfiniFrame();
 
-        expect(a.hostMessaging).not.toBe(b.hostMessaging);
+        expect(a.messaging).not.toBe(b.messaging);
         expect(a.utils).not.toBe(b.utils);
     });
 
-    it("does not define or mutate window.infiniframe.host", async () => {
+    it("does not define or mutate window.__infiniframe.host", async () => {
         const setSpy = vi.spyOn(Object, "defineProperty");
 
         const win = window as any;

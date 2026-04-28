@@ -9,7 +9,7 @@ import {IInfiniFrameWindow} from "./IInfiniFrameWindow";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export interface IInfiniFrame {
-    hostMessaging: IInfiniFrameHostMessaging;
-    hostWindow: IInfiniFrameWindow;
+    messaging: IInfiniFrameHostMessaging;
+    window: IInfiniFrameWindow;
     utils: IInfiniFrameUtils;
 }

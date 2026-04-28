@@ -16,14 +16,14 @@ declare global {
                 addEventListener(type: 'message', listener: (event: { data: string }) => void): void;
             };
         };
-        infiniframe?: {
-            // Managed by InfiniFrame.Native
-            host?: {
+        infiniframe : IInfiniFrame;
+        // Managed by InfiniFrame.Native
+        __infiniframe?: {
+           host?: {
                 postData(envelope: InteropEnvelopeV1 | string): void;
                 receiveCallback(callback: (message: string) => void): void;
                 getData?(message: InteropEnvelopeV1 | string): Promise<string>;
             };
         };
-        infiniFrame: IInfiniFrame
     }
 }

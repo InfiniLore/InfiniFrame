@@ -9,8 +9,8 @@ import {IInfiniFrameHostMessaging, SendToHostMessageIds} from "../Contracts";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 type TestWindow = Window & {
-    infiniFrame?: {
-        hostMessaging: {
+    infiniframe?: {
+        messaging: {
             sendMessageToHost: (id: string, data?: unknown) => void;
         };
     };
@@ -23,9 +23,9 @@ describe("blankTargetHandler", () => {
     beforeEach(() => {
         document.body.innerHTML = "";
         sendMessageToHost.mockReset();
-        testWindow.infiniFrame = {
+        testWindow.infiniframe = {
             // @ts-ignore
-            hostMessaging: {
+            messaging: {
                 sendMessageToHost
             }
         };

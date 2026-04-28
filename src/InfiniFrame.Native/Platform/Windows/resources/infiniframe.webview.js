@@ -2,7 +2,7 @@
     console.log('InfiniFrame WebView JavaScript bridge initialized.');
 
     /* ============================================================================================================== */
-    /* 1. Messaging bridge (infiniframe host) */
+    /* 1. Messaging bridge (infiniFrame host) */
     /* ============================================================================================================== */
     window.__receiveCallbackCallbacks = window.__receiveCallbackCallbacks || [];
 
@@ -21,25 +21,25 @@
         window.__infiniframeWebviewReceiveAttached = true;
     }
 
-    window.infiniframe = window.infiniframe || {};
-    window.infiniframe.host = window.infiniframe.host || {};
+    window.__infiniframe = window.__infiniframe || {};
+    window.__infiniframe.host = window.__infiniframe.host || {};
     
-    window.infiniframe.host.postData = window.infiniframe.host.postData || function (envelope) {
+    window.__infiniframe.host.postData = window.__infiniframe.host.postData || function (envelope) {
         const message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);
         window.chrome.webview.postMessage(message);
     };
 
-    window.infiniframe.host.postMessage =
-        window.infiniframe.host.postMessage || window.infiniframe.host.postData;
+    window.__infiniframe.host.postMessage =
+        window.__infiniframe.host.postMessage || window.__infiniframe.host.postData;
     
-    window.infiniframe.host.receiveCallback = window.infiniframe.host.receiveCallback || function (callback) {
+    window.__infiniframe.host.receiveCallback = window.__infiniframe.host.receiveCallback || function (callback) {
         window.__receiveCallbackCallbacks.push(callback);
     };
 
-    window.infiniframe.host.receiveMessage =
-        window.infiniframe.host.receiveMessage || window.infiniframe.host.receiveCallback;
+    window.__infiniframe.host.receiveMessage =
+        window.__infiniframe.host.receiveMessage || window.__infiniframe.host.receiveCallback;
     
-    window.infiniframe.host.getData = window.infiniframe.host.getData || function (message) {
+    window.__infiniframe.host.getData = window.__infiniframe.host.getData || function (message) {
         const requestId = 'if_req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
         const serializedMessage = (typeof message === 'string') ? message : JSON.stringify(message);
 
@@ -65,9 +65,9 @@
                 } catch (_) {}
             };
 
-            window.infiniframe.host.receiveCallback(callback);
+            window.__infiniframe.host.receiveCallback(callback);
 
-            window.infiniframe.host.postData({
+            window.__infiniframe.host.postData({
                 id: '__infiniframe:get:request',
                 data: {
                     requestId: requestId,

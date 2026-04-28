@@ -61,7 +61,6 @@ describe("InteropEnvelopeProtocol", () => {
             expect(vector.success, vector.name).toBe(true);
             expect(result.messageId, vector.name).toBe(vector.messageId);
             expect(result.payload ?? null, vector.name).toBe(vector.payload ?? null);
-            expect(Boolean(result.isLegacyProtocol), vector.name).toBe(Boolean(vector.isLegacyProtocol));
         }
     });
 
