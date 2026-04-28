@@ -1,32 +1,88 @@
 ﻿(function () {
-    console.log('InfiniFrame WebView JavaScript bridge initialized.');
+    'use strict';
 
-    window.__infiniframeSetup = window.__infiniframeSetup || {
-        messagingBridgeInitialized: false,
-        WebviewReceiveAttached: false,
+    /* ============================================================================================================== */
+    /* Platform detection                                                                                            */
+    /* ============================================================================================================== */
 
-        windowExternalBridgeInitialized: false,
-        blazorModulesFetchPatchInitialized: false,
-        blazorCustomElementsPatchInitialized: false,
-        customElementsInitialized: false
+    /**
+     * Detects the active native messaging transport.
+     *
+     * - 'webview' → Windows (WebView2): window.chrome.webview
+     * - 'webkit'  → Linux / macOS (WKWebView): window.webkit.messageHandlers.infiniFrameInterop
+     * - null      → no native bridge available (plain browser / dev environment)
+     */
+    function detectPlatform() {
+        if (window.chrome && window.chrome.webview) return 'webview';
+        if (window.webkit && window.webkit.messageHandlers &&
+            window.webkit.messageHandlers.infiniFrameInterop) return 'webkit';
+        return null;
+    }
+
+    const PLATFORM = detectPlatform();
+
+    console.log('[InfiniFrame] bridge initializing – platform:', PLATFORM || 'none (dev/browser)');
+
+    /* ============================================================================================================== */
+    /* Low-level post helper (platform-specific)                                                                     */
+    /* ============================================================================================================== */
+
+    /**
+     * Sends a raw string message to the native host.
+     * Abstracted so the rest of the bridge is platform-agnostic.
+     */
+    function nativePost(message) {
+        switch (PLATFORM) {
+            case 'webview':
+                window.chrome.webview.postMessage(message);
+                break;
+            case 'webkit':
+                window.webkit.messageHandlers.infiniFrameInterop.postMessage(message);
+                break;
+            default:
+                console.warn('[InfiniFrame] nativePost called but no native bridge is available.', message);
+        }
     }
 
     /* ============================================================================================================== */
-    /* 1. Messaging bridge (infiniFrame host) */
+    /* Guard – run each section only once per page lifetime                                                          */
     /* ============================================================================================================== */
+
+    window.__infiniframeSetup = window.__infiniframeSetup || {
+        messagingBridgeInitialized: false,
+        nativeReceiveAttached: false,
+        windowExternalBridgeInitialized: false,
+        blazorModulesFetchPatchInitialized: false,
+        blazorCustomElementsPatchInitialized: false,
+        customElementsInitialized: false,
+    };
+
+    /* ============================================================================================================== */
+    /* 1. Core messaging bridge                                                                                       */
+    /* ============================================================================================================== */
+
     if (!window.__infiniframeSetup.messagingBridgeInitialized) {
         window.__infiniframeSetup.messagingBridgeInitialized = true;
 
         window.__infiniframe = {
-            onReceiveMessageCallbacks : [],
+            onReceiveMessageCallbacks: [],
             host: {
+
+                /** Send any value to the native host. Objects are JSON-serialised automatically. */
                 postData: function (envelope) {
                     const message = (typeof envelope === 'string') ? envelope : JSON.stringify(envelope);
-                    window.chrome.webview.postMessage(message);
+                    nativePost(message);
                 },
+
+                /** Register a callback that fires whenever the native host sends a message in. */
                 receiveCallback: function (callback) {
                     window.__infiniframe.onReceiveMessageCallbacks.push(callback);
                 },
+
+                /**
+                 * Send a request to the host and await a typed response.
+                 * Returns a Promise that resolves with the response payload string.
+                 */
                 getDataAsync: function (message) {
                     const requestId = 'if_req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
                     const serializedMessage = (typeof message === 'string') ? message : JSON.stringify(message);
@@ -41,7 +97,7 @@
                                 const payload = JSON.parse(envelope.data || '{}');
                                 if (!payload || payload.requestId !== requestId) return;
 
-                                // remove callback
+                                // De-register one-shot callback
                                 const idx = window.__infiniframe.onReceiveMessageCallbacks.indexOf(callback);
                                 if (idx >= 0) window.__infiniframe.onReceiveMessageCallbacks.splice(idx, 1);
 
@@ -50,64 +106,79 @@
                                 } else {
                                     reject(new Error(payload.error || 'Host getDataAsync failed.'));
                                 }
-                            } catch (_) {
-                            }
+                            } catch (_) { /* ignore parse errors from unrelated messages */ }
                         };
 
                         window.__infiniframe.host.receiveCallback(callback);
 
                         window.__infiniframe.host.postData({
                             id: '__infiniframe:get:request',
-                            data: {
-                                requestId: requestId,
-                                message: serializedMessage
-                            },
-                            version: 1
+                            data: { requestId, message: serializedMessage },
+                            version: 1,
                         });
                     });
                 },
-            }
+            },
         };
 
-        if (window.chrome && window.chrome.webview && !window.__infiniframeSetup.WebviewReceiveAttached) {
-            window.chrome.webview.addEventListener('message', function (message) {
+        /* ---- Attach the native → JS receive listener (platform-specific) ---- */
+
+        if (!window.__infiniframeSetup.nativeReceiveAttached) {
+            window.__infiniframeSetup.nativeReceiveAttached = true;
+
+            function dispatchToCallbacks(data) {
                 for (let i = 0; i < window.__infiniframe.onReceiveMessageCallbacks.length; i++) {
                     try {
-                        window.__infiniframe.onReceiveMessageCallbacks[i](message.data);
-                    } catch (_) {
-                    }
+                        window.__infiniframe.onReceiveMessageCallbacks[i](data);
+                    } catch (_) { /* isolate per-callback errors */ }
                 }
-            });
+            }
 
-            window.__infiniframeSetup.WebviewReceiveAttached = true;
+            switch (PLATFORM) {
+                case 'webview': // WebView2 (Windows) – native messages arrive as MessageEvent objects
+                    window.chrome.webview.addEventListener('message', function (event) {
+                        dispatchToCallbacks(event.data);
+                    });
+                    break;
+                case 'webkit': // WKWebView (Linux / macOS) – the native side calls
+                    // window.__dispatchMessageCallback(message) directly from Swift/ObjC/C++
+                    window.__receiveCallbackCallbacks = window.__receiveCallbackCallbacks || [];
+                    window.__dispatchMessageCallback = function (message) {
+                        dispatchToCallbacks(message);
+                    };
+                    // Also forward any callbacks already registered in __receiveCallbackCallbacks
+                    // (in case legacy code pushed to that array before this script ran)
+                    window.__infiniframe.host.receiveCallback(function (message) {
+                        for (let i = 0; i < window.__receiveCallbackCallbacks.length; i++) {
+                            try {
+                                window.__receiveCallbackCallbacks[i](message);
+                            } catch (_) {
+                            }
+                        }
+                    });
+                    break;
+            }
         }
     }
 
     /* ============================================================================================================== */
-    /* 2. window.external bridge (Blazor compatibility) */
+    /* 2. window.external bridge (Blazor / legacy compatibility)                                                     */
     /* ============================================================================================================== */
+
     if (!window.__infiniframeSetup.windowExternalBridgeInitialized) {
         window.__infiniframeSetup.windowExternalBridgeInitialized = true;
 
         window.external = window.external || {};
         window.__blazor_callbacks = window.__blazor_callbacks || [];
 
-        window.external.receiveMessage = function (callback) {
-            window.__blazor_callbacks.push(callback);
-        };
-
+        window.external.receiveMessage  = function (cb) { window.__blazor_callbacks.push(cb); };
         window.external.receiveCallback = window.external.receiveMessage;
+        window.external.sendMessage     = function (msg) { nativePost(msg); };
+        window.external.postMessage     = window.external.sendMessage;
 
-        window.external.sendMessage = function (message) {
-            window.chrome.webview.postMessage(message);
-        };
-
-        window.external.postMessage = window.external.sendMessage;
-
-        // hook Blazor callbacks into main dispatcher
+        // Forward all inbound native messages to registered Blazor callbacks (once)
         if (!window.__blazor_dispatch_hooked) {
             window.__blazor_dispatch_hooked = true;
-
             window.__infiniframe.onReceiveMessageCallbacks.push(function (message) {
                 for (let i = 0; i < window.__blazor_callbacks.length; i++) {
                     try {
@@ -120,8 +191,9 @@
     }
 
     /* ============================================================================================================== */
-    /* 3. Blazor modules fetch patch */
+    /* 3. Blazor modules fetch patch (all platforms)                                                                 */
     /* ============================================================================================================== */
+
     if (!window.__infiniframeSetup.blazorModulesFetchPatchInitialized) {
         window.__infiniframeSetup.blazorModulesFetchPatchInitialized = true;
 
@@ -147,16 +219,16 @@
                         }));
                     }
                 }
-            } catch (_) {
-            }
+            } catch (_) { }
 
             return originalFetch.call(this, input, init);
         };
     }
 
     /* ============================================================================================================== */
-    /* 4. Blazor custom elements + interop patch */
+    /* 4. Blazor custom elements + attachWebRendererInterop patch (all platforms)                                    */
     /* ============================================================================================================== */
+
     if (!window.__infiniframeSetup.blazorCustomElementsPatchInitialized) {
         window.__infiniframeSetup.blazorCustomElementsPatchInitialized = true;
 
@@ -178,14 +250,13 @@
                 autoRegisterMissingInitializerCustomElements(arguments[2], arguments[3]);
                 return result;
             };
-
             blazor._internal.__infiniframeAttachWebRendererInteropPatched = true;
             return true;
         }
 
+        // Patch eagerly if Blazor is already present, otherwise intercept its assignment
         if (!patchAttachWebRendererInteropIfAvailable()) {
             const descriptor = Object.getOwnPropertyDescriptor(window, 'Blazor');
-
             if (!descriptor || descriptor.configurable) {
                 let value = window.Blazor;
 
@@ -227,22 +298,26 @@
                 if (rawValue === '') return true;
                 return String(rawValue).toLowerCase() !== 'false';
             }
-
             if (['number', 'int', 'float', 'double', 'decimal'].includes(typeName)) {
                 const n = Number(rawValue);
                 return Number.isNaN(n) ? rawValue : n;
             }
-
             return rawValue;
         }
 
         window.registerBlazorCustomElement = function (identifier, parameterDefinitions) {
-            if (!window.Blazor?.rootComponents?.add) return;
-            if (!window.customElements?.define) return;
+            if (!window.Blazor?.rootComponents?.add) {
+                console.warn('[InfiniFrame] registerBlazorCustomElement skipped: Blazor.rootComponents unavailable.');
+                return;
+            }
+            if (!window.customElements?.define) {
+                console.warn('[InfiniFrame] registerBlazorCustomElement skipped: customElements API unavailable.');
+                return;
+            }
             if (window.customElements.get(identifier)) return;
 
             const defs = Array.isArray(parameterDefinitions) ? parameterDefinitions : [];
-            const map = {};
+            const map  = {};
 
             for (const def of defs) {
                 if (!def?.name) continue;
@@ -262,13 +337,8 @@
                     this._isDisconnected = false;
                 }
 
-                static get observedAttributes() {
-                    return observed;
-                }
-
                 connectedCallback() {
                     this._isDisconnected = false;
-
                     window.Blazor.rootComponents.add(this, identifier, this._getParams())
                         .then(c => {
                             this._component = c;
@@ -277,7 +347,7 @@
                                 return c.dispose();
                             }
                         })
-                        .catch(console.error);
+                        .catch(error => console.error('[InfiniFrame] Failed to attach custom element.', error));
                 }
 
                 disconnectedCallback() {
@@ -329,5 +399,7 @@
             }
         }
     }
+
+    console.log('[InfiniFrame] bridge ready.');
 
 })();
