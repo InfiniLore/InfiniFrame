@@ -15,7 +15,6 @@ export interface InteropEnvelopeV1 {
 export interface ParsedInteropMessage {
     messageId: string;
     payload?: string;
-    isLegacyProtocol?: boolean;
 }
 
 export interface InteropParseError {

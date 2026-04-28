@@ -25,7 +25,6 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     private fullscreenRegistered = false;
     private titleRegistered = false;
     private windowCloseRegistered = false;
-    private legacyInboundWarningLogged = false;
     private readyHandshakeAttempts = 0;
     private readyHandshakeAcknowledged = false;
     private readyHandshakeRetryTimer: number | null = null;
@@ -67,11 +66,9 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
         }
     }
     
-    public async getMessageFromHost(message: InteropEnvelopeV1 | string): Promise<string> {
+    public async getMessageFromHostAsync(message: InteropEnvelopeV1 | string): Promise<string> {
         const host = window.infiniframe?.host;
-        if (!host?.getData) {
-            throw new Error("Message to host failed. Host getData API is not initialized.");
-        }
+        if (!host?.getData) throw new Error("Message to host failed. Host getData API is not initialized.");
 
         const envelope = typeof message === "string"
             ? createEnvelope(message)
@@ -105,9 +102,7 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
         if (!message) return false;
         // Route only messages that match the explicit interop envelope contract.
         const parsedMessage = parseIncomingMessage(message);
-        if ("error" in parsedMessage) {
-            return false;
-        }
+        if ("error" in parsedMessage) return false;
 
         // Blazor WebView internal transport messages are routed by blazor.webview.js.
         // They are not InfiniFrame host-message contracts and should not emit warnings.
@@ -115,19 +110,14 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
             return true;
         }
 
-        if (parsedMessage.isLegacyProtocol && !this.legacyInboundWarningLogged) {
-            this.legacyInboundWarningLogged = true;
-            console.warn("Received legacy inbound host message format. Migrate host-to-web messages to the JSON envelope contract.");
-        }
-
         // Execute registered handler
         const handler = this.messageHandlers.get(parsedMessage.messageId);
-        if (handler) {
-            handler(parsedMessage.payload);
-        } else {
-            console.warn('No handler registered for message ID:', parsedMessage.messageId);
+        if (!handler) {
+            console.warn('No handler registered for message:', parsedMessage);
+            return false;
         }
 
+        handler(parsedMessage.payload);
         return true;
     }
 

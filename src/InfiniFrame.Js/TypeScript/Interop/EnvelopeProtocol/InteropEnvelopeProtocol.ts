@@ -37,10 +37,6 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | In
         return {error: `Message exceeds max size of ${InteropMessageMaxSizeBytes} bytes.`};
     }
 
-    if (!looksLikeJsonObject(message)) {
-        return parseLegacyMessage(message);
-    }
-
     try {
         const parsed = JSON.parse(message) as unknown;
         if (!isObject(parsed)) {
@@ -69,22 +65,6 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | In
     }
 }
 
-function parseLegacyMessage(message: string): ParsedInteropMessage | InteropParseError {
-    const separatorIndex = message.indexOf(";");
-    const hasSeparator = separatorIndex >= 0;
-    const messageId = (hasSeparator ? message.slice(0, separatorIndex) : message).trim();
-
-    if (messageId.length === 0) {
-        return {error: "Legacy message has an empty message ID."};
-    }
-
-    return {
-        messageId,
-        payload: hasSeparator ? message.slice(separatorIndex + 1) : undefined,
-        isLegacyProtocol: true
-    };
-}
-
 function convertDataToPayload(data: unknown): string | undefined {
     if (data === null || data === undefined) {
         return undefined;
@@ -95,10 +75,6 @@ function convertDataToPayload(data: unknown): string | undefined {
     }
 
     return JSON.stringify(data);
-}
-
-function looksLikeJsonObject(message: string): boolean {
-    return message.replace(/^\s+/, "").startsWith("{");
 }
 
 function getUtf8ByteCount(message: string): number {

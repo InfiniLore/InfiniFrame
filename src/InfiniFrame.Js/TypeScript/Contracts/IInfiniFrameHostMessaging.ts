@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 import {InteropEnvelopeV1} from "./EnvelopeProtocol";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -32,7 +31,7 @@ export type MessageCallback = (data?: string) => void;
 
 export interface IInfiniFrameHostMessaging {
     sendMessageToHost(id: SendToHostMessageId | string, data?: unknown): void;
-    getMessageFromHost(message: InteropEnvelopeV1 | string): Promise<string>;
+    getMessageFromHostAsync(message: InteropEnvelopeV1 | string): Promise<string>;
 
     assignMessageReceivedHandler(messageId: string, callback: MessageCallback): void;
 
