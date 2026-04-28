@@ -1,4 +1,4 @@
-﻿function(infiniframe_setup_embed_js target_name output_var)
+﻿function(infiniframe_setup_embed_js target_name)
     set(js_input "${CMAKE_SOURCE_DIR}/Embedded/InfiniFrameHostJs/infiniframe.host.js")
     set(cpp_output "${CMAKE_SOURCE_DIR}/Embedded/InfiniFrameHostJs/InfiniFrameHostJs.h")
 
@@ -7,7 +7,7 @@
             COMMAND ${CMAKE_COMMAND}
             -DINPUT=${js_input}
             -DOUTPUT=${cpp_output}
-            -P ${CMAKE_SOURCE_DIR}/cmake/EmbedJs_impl.cmake
+            -P ${CMAKE_SOURCE_DIR}/cmake/Embed.InfiniFrameHostJs.Impl.cmake
             DEPENDS ${js_input}
             COMMENT "Embedding JS: ${js_input}"
             VERBATIM

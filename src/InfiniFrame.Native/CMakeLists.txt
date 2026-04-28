@@ -18,9 +18,8 @@ endif ()
 # ----------------------------------------------------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
-
 include("${CMAKE_SOURCE_DIR}/cmake/NativeDependencies.cmake")
-include("${CMAKE_SOURCE_DIR}/cmake/EmbedJs.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/Embed.InfiniFrameHostJs.cmake")
 
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.Windows.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.MacOS.cmake")
@@ -31,7 +30,6 @@ infiniframe_setup_dependencies()
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
 # ----------------------------------------------------------------------------------------------------------------------
-
 set(COMMON_SOURCES
         Exports.cpp
 )
@@ -118,7 +116,6 @@ endif ()
 # ----------------------------------------------------------------------------------------------------------------------
 # Sanitizers (Debug only)
 # ----------------------------------------------------------------------------------------------------------------------
-
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         message(STATUS "Enabling sanitizers for Debug build")
@@ -136,7 +133,6 @@ endif ()
 # ----------------------------------------------------------------------------------------------------------------------
 # Precompiled Headers
 # ----------------------------------------------------------------------------------------------------------------------
-
 if (NOT APPLE)
     target_precompile_headers(${PROJECT_NAME} PRIVATE
             <string>
