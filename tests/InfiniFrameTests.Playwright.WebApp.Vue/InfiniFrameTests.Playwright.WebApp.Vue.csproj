@@ -32,6 +32,9 @@
             Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
 
         <Message Text="Running Vue frontend build..." Importance="high" />
+        
+        <Exec Command="npm ci"
+              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />
 
         <Exec Command="npm run build"
               WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />

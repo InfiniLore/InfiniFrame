@@ -33,6 +33,9 @@
 
         <Message Text="Running React frontend build..." Importance="high" />
 
+        <Exec Command="npm ci"
+              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />
+
         <Exec Command="npm run build"
               WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react" />
 
