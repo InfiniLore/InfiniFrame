@@ -17,9 +17,11 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_ResolvesRegisteredHandlerAndReturnsData() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler messageHandler) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler messageHandler)
+            = CreateWindowHarness();
+
         messageHandler.RegisterHandler("app:echo", (_, payload) => $"echo:{payload}");
-        
+
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             "app:echo",
             "hello",
@@ -31,16 +33,21 @@ public class GetMessageWebMessageHandlerTests {
         events.OnWebMessageReceived(inboundMessage);
 
         // Assert
-        JsonElement responsePayload = GetLatestGetMessageResponsePayload(window);
-        await Assert.That(responsePayload.GetProperty("requestId").GetString()).IsEqualTo("req-1");
-        await Assert.That(responsePayload.GetProperty("success").GetBoolean()).IsTrue();
-        await Assert.That(responsePayload.GetProperty("data").GetString()).IsEqualTo("echo:hello");
+        InteropEnvelopeParseResult response = GetLatestGetMessageResponse(window);
+
+        using JsonDocument doc = JsonDocument.Parse(response.Payload!);
+        JsonElement payload = doc.RootElement;
+
+        await Assert.That(payload.GetProperty("requestId").GetString()).IsEqualTo("req-1");
+        await Assert.That(payload.GetProperty("success").GetBoolean()).IsTrue();
+        await Assert.That(payload.GetProperty("data").GetString()).IsEqualTo("echo:hello");
     }
 
     [Test]
-    public async Task GetMessage_WithoutRegisteredMessageHandler_ReturnsErrorResponse() {
+    public async Task GetMessage_WithoutRegisteredHandler_ReturnsErrorResponse() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _)
+            = CreateWindowHarness();
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             "app:missing",
@@ -53,16 +60,22 @@ public class GetMessageWebMessageHandlerTests {
         events.OnWebMessageReceived(inboundMessage);
 
         // Assert
-        JsonElement responsePayload = GetLatestGetMessageResponsePayload(window);
-        await Assert.That(responsePayload.GetProperty("requestId").GetString()).IsEqualTo("req-2");
-        await Assert.That(responsePayload.GetProperty("success").GetBoolean()).IsFalse();
-        await Assert.That(responsePayload.GetProperty("error").GetString()).Contains("No getMessage handler is registered");
+        InteropEnvelopeParseResult response = GetLatestGetMessageResponse(window);
+
+        using JsonDocument doc = JsonDocument.Parse(response.Payload!);
+        JsonElement payload = doc.RootElement;
+
+        await Assert.That(payload.GetProperty("requestId").GetString()).IsEqualTo("req-2");
+        await Assert.That(payload.GetProperty("success").GetBoolean()).IsFalse();
+        await Assert.That(payload.GetProperty("error").GetString())
+            .Contains("No getMessage handler is registered");
     }
 
     [Test]
     public async Task GetMessage_WithoutRegisteredService_ReturnsErrorResponse() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _)
+            = CreateWindowHarness();
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             "app:echo",
@@ -75,17 +88,26 @@ public class GetMessageWebMessageHandlerTests {
         events.OnWebMessageReceived(inboundMessage);
 
         // Assert
-        JsonElement responsePayload = GetLatestGetMessageResponsePayload(window);
-        await Assert.That(responsePayload.GetProperty("requestId").GetString()).IsEqualTo("req-3");
-        await Assert.That(responsePayload.GetProperty("success").GetBoolean()).IsFalse();
-        await Assert.That(responsePayload.GetProperty("error").GetString()).Contains("No getMessage handler is registered");
+        InteropEnvelopeParseResult response = GetLatestGetMessageResponse(window);
+
+        using JsonDocument doc = JsonDocument.Parse(response.Payload!);
+        JsonElement payload = doc.RootElement;
+
+        await Assert.That(payload.GetProperty("requestId").GetString())
+            .IsEqualTo("req-3");
+
+        await Assert.That(payload.GetProperty("success").GetBoolean())
+            .IsFalse();
+
+        await Assert.That(payload.GetProperty("error").GetString())
+            .Contains("No getMessage handler is registered");
     }
 
     private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window, InfiniFrameWindowMessageHandler MessageHandler) CreateWindowHarness() {
         var builder = InfiniFrameWindowBuilder.Create();
         var events = (InfiniFrameWindowEvents)builder.Events;
         var messageHandler = (InfiniFrameWindowMessageHandler)builder.MessageHandlers;
-        
+
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
@@ -95,17 +117,18 @@ public class GetMessageWebMessageHandlerTests {
         return (builder, events, window, messageHandler);
     }
 
-    private static JsonElement GetLatestGetMessageResponsePayload(RecordingInfiniFrameWindowSubstitute window) {
-        string? responseEnvelope = window.GetSentMessagesSnapshot()
-            .LastOrDefault(message => InteropEnvelopeProtocol.ParseIncomingMessage(message).MessageId == HandlerNames.GetMessageResponse);
+    private static InteropEnvelopeParseResult GetLatestGetMessageResponse(
+        RecordingInfiniFrameWindowSubstitute window
+    ) {
+        InteropEnvelopeParseResult responseEnvelope = window.GetSentMessagesSnapshot()
+            .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
+            .LastOrDefault(r =>
+                r.Success &&
+                r.MessageId == HandlerNames.GetMessageResponse
+            );
 
-        Fail.When(responseEnvelope is null, "Expected a getMessage response envelope.");
-        
-        InteropEnvelopeParseResult parsedEnvelope = InteropEnvelopeProtocol.ParseIncomingMessage(responseEnvelope);
-        if (!parsedEnvelope.Success || string.IsNullOrWhiteSpace(parsedEnvelope.Payload))
-            throw new InvalidOperationException("Expected a successful getMessage response envelope with payload.");
+        Fail.When(!responseEnvelope.Success, "Expected a valid getMessage response envelope.");
 
-        using JsonDocument document = JsonDocument.Parse(parsedEnvelope.Payload);
-        return document.RootElement.Clone();
+        return responseEnvelope;
     }
 }

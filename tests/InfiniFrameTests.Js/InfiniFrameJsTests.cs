@@ -26,7 +26,7 @@ public class InfiniFrameJsTests {
 
         // Assert
         (string identifier, CancellationToken cancellationToken, object?[] jsArguments) = jsRuntime.Invocations.Single();
-        await Assert.That(identifier).IsEqualTo("infiniFrame.utils.setPointerCapture");
+        await Assert.That(identifier).IsEqualTo("infiniframe.utils.setPointerCapture");
         await Assert.That(cancellationToken).IsEqualTo(CancellationToken.None);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
         await Assert.That(jsArguments[0]).IsEqualTo(element);
@@ -47,7 +47,7 @@ public class InfiniFrameJsTests {
 
         // Assert
         (string identifier, CancellationToken cancellationToken, object?[] jsArguments) = jsRuntime.Invocations.Single();
-        await Assert.That(identifier).IsEqualTo("infiniFrame.utils.releasePointerCapture");
+        await Assert.That(identifier).IsEqualTo("infiniframe.utils.releasePointerCapture");
         await Assert.That(cancellationToken).IsEqualTo(CancellationToken.None);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
         await Assert.That(jsArguments[0]).IsEqualTo(element);
