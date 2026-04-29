@@ -38,6 +38,8 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
 
         // ReSharper disable once UseDeconstruction
         InteropEnvelopeParseResult parseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message);
+        if (parseResult == InteropEnvelopeParseResult.Ignored) return false;
+
         if (!parseResult.Success) {
             window.Logger.LogWarning("Rejected invalid web message: {Reason}", parseResult.Error ?? "Unknown error");
             return false;
@@ -69,6 +71,8 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
 
         // ReSharper disable once UseDeconstruction
         InteropEnvelopeParseResult parseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message);
+        if (parseResult.IsIgnored) return false; 
+        
         if (!parseResult.Success) {
             window.Logger.LogWarning("Rejected invalid web message: {Reason}", parseResult.Error ?? "Unknown error");
             return false;
@@ -119,6 +123,8 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
         }
 
         InteropEnvelopeParseResult parseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message);
+        if (parseResult.IsIgnored) return;
+        
         if (!parseResult.Success) {
             window.Logger.LogWarning("Rejected invalid web message: {Reason}", parseResult.Error ?? "Unknown error");
             return;
