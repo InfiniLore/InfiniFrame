@@ -19,7 +19,7 @@ on:
 
 jobs:
     windows-playwright:
-        name: CI Testing - Windows Playwright ${{ matrix.project_name }} - ${{ matrix.framework }}
+        name: CI Testing - Windows Playwright ${{ matrix.project.name }} - ${{ matrix.framework }}
         runs-on: windows-latest
         timeout-minutes: 75
         
@@ -30,13 +30,14 @@ jobs:
                     - net8.0
                     - net9.0
                     - net10.0
-                include:
-                    -   project: tests/InfiniFrameTests.Playwright.WebApp.Vue
-                        project_name: WebApp Vue
-                    -   project: tests/InfiniFrameTests.Playwright.WebApp.React
-                        project_name: WebApp React
-                    -   project: tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor
-                        project_name: Blazor MudBlazor
+                
+                project:
+                    -   name: WebApp Vue
+                        path: InfiniFrameTests.Playwright.WebApp.Vue
+                    -   name: WebApp React
+                        path: InfiniFrameTests.Playwright.WebApp.React
+                    -   name: Blazor MudBlazor
+                        path: InfiniFrameTests.Playwright.BlazorWebView.MudBlazor
         
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -63,7 +64,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright ${{ matrix.project_name }} - ${{ matrix.framework }}
+                    context: CI Testing - Windows Playwright ${{ matrix.project.name }} - ${{ matrix.framework }}
                     state: pending
                     status-description: Windows Playwright tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -150,7 +151,7 @@ jobs:
             -   name: Install Playwright Browsers
                 shell: pwsh
                 run: |
-                    $script = "${{ matrix.project }}/bin/Release/${{ matrix.framework }}/playwright.ps1"
+                    $script = "tests/${{ matrix.project.path }}/bin/Release/${{ matrix.framework }}/playwright.ps1"
                     
                     if (-not (Test-Path $script)) {
                       throw "Playwright script not found: $script"
@@ -161,7 +162,7 @@ jobs:
             -   name: Verify Native Binaries
                 shell: pwsh
                 run: |
-                    $binPath = "${{ matrix.project }}/bin/Release/${{ matrix.framework }}"
+                    $binPath = "tests/${{ matrix.project.path }}/bin/Release/${{ matrix.framework }}"
                     
                     foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
                       $fullPath = Join-Path $binPath $dll
@@ -174,7 +175,7 @@ jobs:
                 shell: pwsh
                 run: |
                     dotnet test `
-                      --project ${{ matrix.project }}.csproj `
+                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
                       --configuration Release `
                       --no-build `
                       --no-restore `
@@ -190,7 +191,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright ${{ matrix.project_name }} - ${{ matrix.framework }}
+                    context: CI Testing - Windows Playwright ${{ matrix.project.name }} - ${{ matrix.framework }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Windows Playwright tests passed
