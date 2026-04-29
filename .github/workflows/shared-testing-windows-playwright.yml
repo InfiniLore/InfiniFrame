@@ -63,10 +63,13 @@ jobs:
                 project:
                     -   name: WebApp Vue
                         path: InfiniFrameTests.Playwright.WebApp.Vue
+                        sourceFolder: tests/InfiniFrameTests.Playwright.WebApp.Vue/Sources/infiniframe-playwright-vue
                     -   name: WebApp React
                         path: InfiniFrameTests.Playwright.WebApp.React
+                        sourceFolder: tests/InfiniFrameTests.Playwright.WebApp.React/Sources/infiniframe-playwright-react
                     -   name: Blazor MudBlazor
                         path: InfiniFrameTests.Playwright.BlazorWebView.MudBlazor
+                        sourceFolder: ""
         
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -107,14 +110,6 @@ jobs:
                         9.x
                         10.x
 
-            -   name: Cache NuGet
-                uses: actions/cache@v5
-                with:
-                    path: ~\.nuget\packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-nuget-
-
             -   name: Setup Native dependencies
                 # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
@@ -130,13 +125,6 @@ jobs:
                     node-version: 20
                     cache: 'npm'
                     cache-dependency-path: '**/package-lock.json'
-
-            -   name: Cache frontend build
-                uses: actions/cache@v5
-                with:
-                    path: |
-                        tests/**/wwwroot
-                    key: frontend-${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/Sources/**') }}
 
             -   name: Prepare WebView2 Cache Directory
                 shell: pwsh
@@ -156,6 +144,26 @@ jobs:
                       Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
                     }
                     Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
+                    
+            -   name: NPM Install
+                if: ${{ matrix.project.sourceFolder != '' }}
+                shell: pwsh
+                run: |
+                    $dir = "${{ matrix.project.sourceFolder }}"
+
+                    if ([string]::IsNullOrWhiteSpace($dir)) {
+                        throw "sourceFolder is empty for ${{ matrix.project.name }}"
+                    }
+
+                    Write-Host "Installing npm dependencies in $dir"
+
+                    if (!(Test-Path $dir)) {
+                        throw "Directory not found: $dir"
+                    }
+
+                    Push-Location $dir
+                    npm ci
+                    Pop-Location
 
             -   name: Restore
                 run: |
