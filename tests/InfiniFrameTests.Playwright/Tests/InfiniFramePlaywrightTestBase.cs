@@ -19,9 +19,10 @@ public abstract class InfiniFramePlaywrightTestBase {
     [Before(Test)]
     public async Task ResetStateBeforeEachTest() {
         RuntimeContext.ResetWindowCloseRequestCount();
-        RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
 
         IPage page = await GetRootPageAsync();
+
+        RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
         await page.EvaluateAsync(
             // lang=javascript
             $"() => {{ document.title = '{RuntimeContext.DefaultDocumentTitle}'; }}"
