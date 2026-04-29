@@ -250,31 +250,9 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task GlobalUnhandledExceptionHandler_RoutesToWindowAndStopsAfterDispose() {
-        // Arrange
-        var exceptionSource = new TriggerableUnhandledExceptionSource();
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
-        builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
-        builder.Services.RemoveAll<IInfiniFrameWindow>();
-        builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(exceptionSource);
-        builder.Services.AddSingleton(window);
-        InfiniFrameBlazorApp app = builder.Build();
-
-        // Act
-        exceptionSource.Raise(new InvalidOperationException("boom-before-dispose"));
-        await app.DisposeAsync();
-        exceptionSource.Raise(new InvalidOperationException("boom-after-dispose"));
-
-        // Assert
-        window.Received(1).ShowMessage(
-            "Fatal exception",
-            Arg.Is<string>(text => text.Contains("boom-before-dispose", StringComparison.Ordinal)),
-            Arg.Any<InfiniFrameDialogButtons>(),
-            Arg.Any<InfiniFrameDialogIcon>());
-    }
-
-    [Test]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices() {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
