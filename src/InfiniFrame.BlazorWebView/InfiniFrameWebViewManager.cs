@@ -239,7 +239,10 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             }
         }
         catch (ChannelClosedException) {}
-        catch (OperationCanceledException) {}
+        catch (OperationCanceledException) {
+            LazyLogger.Value?.LogDebug("WebView message pump cancellation requested.");
+            return;
+        }
         catch (Exception ex) when (IsNonFatalException(ex)) {
             LazyLogger.Value?.LogError(ex, "Unhandled exception in WebView message pump.");
             throw;
