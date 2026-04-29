@@ -38,6 +38,7 @@ function(infiniframe_configure_linux_target target_name common_sources test_sour
     )
 
     target_link_libraries(${target_name} PRIVATE
+            simdutf::simdutf
             simdjson::simdjson
             ${GTK3_LIBRARIES}
             ${WEBKIT2_LIBRARIES}

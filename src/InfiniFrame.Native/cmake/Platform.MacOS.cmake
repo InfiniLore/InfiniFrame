@@ -24,6 +24,7 @@ function(infiniframe_configure_macos_target target_name mac_sources header_files
     )
 
     target_link_libraries(${target_name} PRIVATE
+            simdutf::simdutf
             simdjson::simdjson
             "-framework Cocoa"
             "-framework WebKit"
