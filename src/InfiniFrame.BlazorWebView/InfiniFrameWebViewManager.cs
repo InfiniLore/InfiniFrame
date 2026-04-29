@@ -248,7 +248,9 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     protected override async ValueTask DisposeAsyncCore() {
         try { _channel.Writer.Complete(); }
-        catch (ChannelClosedException) {}
+        catch (ChannelClosedException ex) {
+            LazyLogger.Value?.LogDebug(ex, "Channel was already closed during dispose.");
+        }
 
         try {
             await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
