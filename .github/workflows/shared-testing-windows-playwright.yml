@@ -179,19 +179,19 @@ jobs:
 
             -   name: Build Tests
                 run: |
-                    dotnet build InfiniFrame.GitHubActions.Testing.Playwright.slnf `
+                    dotnet build --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
                       --configuration Release `
                       --no-restore `
                       --framework net8.0 `
                       /p:SolutionDir=$GITHUB_WORKSPACE/
                     
-                    dotnet build InfiniFrame.GitHubActions.Testing.Playwright.slnf `
+                    dotnet build --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
                       --configuration Release `
                       --no-restore `
                       --framework net9.0 `
                       /p:SolutionDir=$GITHUB_WORKSPACE/
                     
-                    dotnet build InfiniFrame.GitHubActions.Testing.Playwright.slnf `
+                    dotnet build --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
                       --configuration Release `
                       --no-restore `
                       --framework net10.0 `
