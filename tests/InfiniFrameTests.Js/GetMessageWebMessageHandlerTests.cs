@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.HostMessaging;
 using InfiniFrame.Interop;
 using InfiniFrame.Js;
 using InfiniFrame.Js.Interop;

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.HostMessaging;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections.Immutable;

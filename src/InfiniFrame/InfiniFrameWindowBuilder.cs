@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Configuration;
+using InfiniFrame.HostMessaging;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

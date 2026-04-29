@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace InfiniFrame;
+namespace InfiniFrame.HostMessaging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -151,11 +151,14 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
     }
 
     private static void SendSuccess(IInfiniFrameWindow window, string? requestId, string? data) {
-        string responsePayloadJson = JsonSerializer.Serialize(new {
-            requestId,
-            success = true,
-            data
-        });
+        string responsePayloadJson = JsonSerializer.Serialize(
+            new GetMessageSuccessResponse {
+                RequestId = requestId,
+                Success = true,
+                Data = data
+            },
+            InfiniFrameWindowMessagesJsonContext.Default.GetMessageSuccessResponse
+        );
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             HandlerNames.GetMessageResponse,
             responsePayloadJson,
@@ -166,11 +169,14 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
     }
 
     private static void SendError(IInfiniFrameWindow window, string? requestId, string error) {
-        string responsePayloadJson = JsonSerializer.Serialize(new {
-            requestId,
-            success = false,
-            error
-        });
+        string responsePayloadJson = JsonSerializer.Serialize(
+            new GetMessageErrorResponse {
+                RequestId = requestId,
+                Success = false,
+                Error = error
+            },
+            InfiniFrameWindowMessagesJsonContext.Default.GetMessageErrorResponse
+        );
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             HandlerNames.GetMessageResponse,
             responsePayloadJson,
