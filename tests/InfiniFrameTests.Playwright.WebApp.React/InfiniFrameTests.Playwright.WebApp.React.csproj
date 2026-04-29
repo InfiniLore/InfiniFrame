@@ -5,12 +5,7 @@
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepositoryRoot>
 
         <!-- Run frontend build once -->
-        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'=='' and '$(TargetFrameworks)'!=''">
-            $([System.String]::Copy('$(TargetFrameworks)').Split(';')[0])
-        </FrontendBuildOnceTargetFramework>
-        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'==''">
-            $(TargetFramework)
-        </FrontendBuildOnceTargetFramework>
+        <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
 
         <!-- Anchor output -->
         <FrontendOutputFile>$(ProjectDir)wwwroot\index.html</FrontendOutputFile>
@@ -28,25 +23,23 @@
 
     <!-- Track ALL frontend sources -->
     <ItemGroup>
-        <FrontendSources Include="$(ProjectDir)Sources\infiniframe-playwright-vue\**\*" />
+        <FrontendSources Include="$(ProjectDir)Sources\infiniframe-playwright-react\**\*" />
     </ItemGroup>
 
     <!-- Incremental frontend build -->
     <Target Name="BuildFrontend"
             BeforeTargets="Build"
-            Inputs="@(FrontendSources)"
-            Outputs="$(FrontendOutputFile)"
-            Condition="'$(DesignTimeBuild)'!='true' 
-                     and '$(TargetFramework)'=='$(FrontendBuildOnceTargetFramework)'">
+            Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
 
         <Message Text="Running Vue frontend build..." Importance="high" />
 
-        <Exec Command="npm ci"
-              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"
-              Condition="!Exists('$(ProjectDir)Sources\infiniframe-playwright-vue\node_modules')" />
-
         <Exec Command="npm run build"
-              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />
+              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react" />
+
+        <!-- prevent re-running in same build graph -->
+        <PropertyGroup>
+            <RunFrontendBuild>false</RunFrontendBuild>
+        </PropertyGroup>
 
     </Target>
 
