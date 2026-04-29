@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import {blankTargetHandler} from "./BlankTargetHandler";
-import {IInfiniFrameHostMessaging, SendToHostMessageIds} from "../Contracts";
+import {SendToHostMessageIds} from "../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
