@@ -14,9 +14,9 @@
     <File Path="scripts/nuget-install.sh" />
   </Folder>
   <Folder Name="/.dev-tools/docker/">
-    <File Path="docker/linux-tests/example-blazorwebview.sh" />
-    <File Path="scripts/docker-compose-linux.sh" />
-    <File Path="scripts/docker-run-linux-tests.sh" />
+    <File Path="scripts/docker-linux-run-blazorwebview.sh" />
+    <File Path="scripts/docker-linux-compose.sh" />
+    <File Path="scripts/docker-linux-run-tests.sh" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />

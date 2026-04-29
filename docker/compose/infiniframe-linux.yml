@@ -2,10 +2,10 @@ name: infiniframe
 
 services:
   linux-tests:
-    image: infiniframe/testing-linux:latest
+    image: infiniframe/linux:latest
     build:
       context: ../..
-      dockerfile: docker/linux-tests/Dockerfile
+      dockerfile: docker/infiniframe-linux/Dockerfile
     working_dir: /work
     volumes:
       - ../../:/src:ro
@@ -20,14 +20,14 @@ services:
       - NUGET_FALLBACK_PACKAGES=
     entrypoint: ["/bin/bash", "-lc"]
     command:
-      - "bash /src/docker/linux-tests/bootstrap-workspace.sh /src /work && bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/tests.sh"
+      - "bash /src/docker/infiniframe-linux/bootstrap-workspace.sh /src /work && bash /work/scripts/nuget-install.sh && exec bash /work/docker/infiniframe-linux/tests.sh"
     stdin_open: true
     tty: true
   linux-tests-playwright:
-    image: infiniframe/testing-linux:latest
+    image: infiniframe/linux:latest
     build:
       context: ../..
-      dockerfile: docker/linux-tests/Dockerfile
+      dockerfile: docker/infiniframe-linux/Dockerfile
     working_dir: /work
     volumes:
       - ../../:/src:ro
@@ -43,14 +43,14 @@ services:
       - NUGET_FALLBACK_PACKAGES=
     entrypoint: ["/bin/bash", "-lc"]
     command:
-      - "bash /src/docker/linux-tests/bootstrap-workspace.sh /src /work && bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/playwright.sh"
+      - "bash /src/docker/infiniframe-linux/bootstrap-workspace.sh /src /work && bash /work/scripts/nuget-install.sh && exec bash /work/docker/infiniframe-linux/playwright.sh"
     stdin_open: true
     tty: true
   linux-example-blazorwebview:
-      image: infiniframe/example-blazorwebview:latest
+      image: infiniframe/linux:latest
       build:
           context: ../..
-          dockerfile: docker/example-blazorwebview/Dockerfile
+          dockerfile: docker/infiniframe-linux/Dockerfile
       working_dir: /work
       volumes:
           - ../../:/src:ro
@@ -66,7 +66,7 @@ services:
           - NUGET_FALLBACK_PACKAGES=
       entrypoint: ["/bin/bash", "-lc"]
       command:
-          - "bash /src/docker/linux-tests/bootstrap-workspace.sh /src /work && bash /work/scripts/nuget-install.sh && exec bash /work/docker/linux-tests/example-blazorwebview.sh"
+          - "bash /src/docker/infiniframe-linux/bootstrap-workspace.sh /src /work && bash /work/scripts/nuget-install.sh && exec bash /work/docker/infiniframe-linux/example-blazorwebview.sh"
       stdin_open: true
       tty: true
       
