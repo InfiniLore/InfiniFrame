@@ -19,7 +19,7 @@ on:
 
 jobs:
     windows-playwright:
-        name: CI Testing - Windows Playwright (${{ matrix.project }} / ${{ matrix.framework }})
+        name: CI Testing - Windows Playwright ${{ matrix.project }} - ${{ matrix.framework }}
         runs-on: windows-latest
         timeout-minutes: 75
         
