@@ -11,7 +11,6 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class RegisterWindowCreatedUtilityTests {
     [Test]
-    [DisplayName($"{nameof(RegisterWindowCreatedUtilityTests)}.{nameof(Registration_IsGatedByWindowReadyHandshake)}")]
     public async Task Registration_IsGatedByWindowReadyHandshake() {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
@@ -44,8 +43,6 @@ public class RegisterWindowCreatedUtilityTests {
     }
 
     [Test]
-    [DisplayName(
-        $"{nameof(RegisterWindowCreatedUtilityTests)}.{nameof(Registration_IsIdempotentAcrossRepeatedReadyMessages)}")]
     public async Task Registration_IsIdempotentAcrossRepeatedReadyMessages() {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
@@ -71,8 +68,6 @@ public class RegisterWindowCreatedUtilityTests {
     }
 
     [Test]
-    [DisplayName(
-        $"{nameof(RegisterWindowCreatedUtilityTests)}.{nameof(Registration_FallbackSend_DoesNotBlockLaterReadyResend)}")]
     public async Task Registration_FallbackSend_DoesNotBlockLaterReadyResend() {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";

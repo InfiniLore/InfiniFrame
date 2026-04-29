@@ -27,7 +27,6 @@ public class OrderedEventTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(OrderedEventTests)}.{nameof(OrderedEvent_InvokesInRegistrationOrder)}")]
     public async Task OrderedEvent_InvokesInRegistrationOrder() {
         // Arrange
         var orderedEvent = new InfiniFrameOrderedEvent();
@@ -47,7 +46,6 @@ public class OrderedEventTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(OrderedEventTests)}.{nameof(OrderedEvent_RemoveStopsInvocation)}")]
     public async Task OrderedEvent_RemoveStopsInvocation() {
         // Arrange
         var orderedEvent = new InfiniFrameOrderedEvent();
@@ -66,7 +64,6 @@ public class OrderedEventTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(OrderedEventTests)}.{nameof(OrderedEvent_SnapshotIsImmutable)}")]
     public async Task OrderedEvent_SnapshotIsImmutable() {
         // Arrange
         var orderedEvent = new InfiniFrameOrderedEvent();
@@ -85,7 +82,6 @@ public class OrderedEventTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(OrderedEventTests)}.{nameof(OrderedEvent_OperatorsAddAndRemove)}")]
     public async Task OrderedEvent_OperatorsAddAndRemove() {
         // Arrange
         var orderedEvent = new InfiniFrameOrderedEvent();
@@ -104,7 +100,6 @@ public class OrderedEventTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(OrderedEventTests)}.{nameof(OrderedEventWithPayload_InvokesWithPayload)}")]
     public async Task OrderedEventWithPayload_InvokesWithPayload() {
         // Arrange
         var orderedEvent = new InfiniFrameOrderedEvent<int>();
@@ -124,7 +119,6 @@ public class OrderedEventTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(OrderedEventTests)}.{nameof(ClosingEvent_ReturnsLastResult)}")]
     public async Task ClosingEvent_ReturnsLastResult() {
         // Arrange
         var closingEvent = new InfiniFrameOrderedClosingEvent();
@@ -141,7 +135,6 @@ public class OrderedEventTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(OrderedEventTests)}.{nameof(ClosingEvent_ReturnsNullWhenEmpty)}")]
     public async Task ClosingEvent_ReturnsNullWhenEmpty() {
         // Arrange
         var closingEvent = new InfiniFrameOrderedClosingEvent();

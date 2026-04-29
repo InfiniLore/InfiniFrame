@@ -30,7 +30,6 @@ public class WebMessageReceivedHandlerTests {
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [DisplayName($"{nameof(WebMessageReceivedHandlerTests)}.{nameof(Handler_ResolvesServiceFromProvider)}")]
     public async Task Handler_ResolvesServiceFromProvider() {
         // Arrange
         var events = new InfiniFrameWindowEvents();

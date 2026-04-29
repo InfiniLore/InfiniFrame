@@ -10,7 +10,6 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ServiceCollectionExtensionsTests {
     [Test]
-    [DisplayName($"{nameof(ServiceCollectionExtensionsTests)}.{nameof(AddInfiniFrameJs_RegistersScopedService)}")]
     public async Task AddInfiniFrameJs_RegistersScopedService() {
         // Arrange
         var services = new ServiceCollection();
