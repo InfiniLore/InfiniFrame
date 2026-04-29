@@ -18,10 +18,33 @@ on:
                 required: true
 
 jobs:
+    windows-playwright-pending:
+        name: CI Testing - Windows Playwright (Pending)
+        runs-on: windows-latest
+        timeout-minutes: 10
+
+        steps:
+            -   name: Set Playwright Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Playwright
+                    state: pending
+                    status-description: Windows Playwright tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+    
     windows-playwright:
         name: CI Testing - Windows Playwright ${{ matrix.project.name }} - ${{ matrix.framework }}
         runs-on: windows-latest
         timeout-minutes: 75
+        
+        needs: windows-playwright-pending
         
         strategy:
             fail-fast: false
@@ -94,14 +117,14 @@ jobs:
                     apt-cache-version: 1.0
                     brew-cache-key: ${{ runner.os }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml') }}
                     brew-restore-key: ${{ runner.os }}-brew-native-
-            
+
             -   name: Setup Node
                 uses: actions/setup-node@v6
                 with:
                     node-version: 20
                     cache: 'npm'
                     cache-dependency-path: '**/package-lock.json'
-            
+
             -   name: Cache frontend build
                 uses: actions/cache@v5
                 with:
@@ -112,7 +135,7 @@ jobs:
             -   name: Prepare WebView2 Cache Directory
                 shell: pwsh
                 run: New-Item -ItemType Directory -Path ".cache\webview2" -Force | Out-Null
-            
+
             -   name: Cache WebView2
                 uses: actions/cache@v5
                 with:
@@ -139,7 +162,7 @@ jobs:
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$GITHUB_WORKSPACE/
-            
+
             -   name: Build Tests
                 run: |
                     dotnet build InfiniFrame.GitHubActions.Testing.Playwright.slnf `
@@ -194,5 +217,29 @@ jobs:
                     context: CI Testing - Windows Playwright ${{ matrix.project.name }} - ${{ matrix.framework }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
+                    success-description: Windows Playwright tests passed
+                    failure-description: Windows Playwright tests failed
+    
+    windows-playwright-finalize:
+        name: CI Testing - Windows Playwright (Finalize)
+        runs-on: windows-latest
+        timeout-minutes: 10
+
+        needs: windows-playwright
+        if: always()
+
+        steps:
+            -   name: Set Playwright Check Final Status
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Playwright
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ needs.windows-playwright.result }}
                     success-description: Windows Playwright tests passed
                     failure-description: Windows Playwright tests failed
