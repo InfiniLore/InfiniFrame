@@ -59,51 +59,6 @@ public class InfiniFrameBlazorAppBuilderTests {
         }
     }
 
-    private sealed class TriggerableUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
-        private readonly object _gate = new();
-        private readonly List<UnhandledExceptionEventHandler> _handlers = [];
-
-        public IDisposable Register(UnhandledExceptionEventHandler handler) {
-            ArgumentNullException.ThrowIfNull(handler);
-
-            lock (_gate) {
-                _handlers.Add(handler);
-            }
-
-            return new Subscription(this, handler);
-        }
-
-        public void Raise(Exception exception) {
-            UnhandledExceptionEventHandler[] handlers;
-            lock (_gate) {
-                handlers = [.._handlers];
-            }
-
-            var args = new UnhandledExceptionEventArgs(exception, isTerminating: false);
-            foreach (UnhandledExceptionEventHandler handler in handlers) {
-                handler(this, args);
-            }
-        }
-
-        private void Unregister(UnhandledExceptionEventHandler handler) {
-            lock (_gate) {
-                _handlers.Remove(handler);
-            }
-        }
-
-        private sealed class Subscription(TriggerableUnhandledExceptionSource owner, UnhandledExceptionEventHandler handler) : IDisposable {
-            private TriggerableUnhandledExceptionSource? _owner = owner;
-            private UnhandledExceptionEventHandler? _handler = handler;
-
-            public void Dispose() {
-                TriggerableUnhandledExceptionSource? owner = Interlocked.Exchange(ref _owner, null);
-                UnhandledExceptionEventHandler? handler = Interlocked.Exchange(ref _handler, null);
-                if (owner is null || handler is null) return;
-                owner.Unregister(handler);
-            }
-        }
-    }
-
     [Test]
     public async Task Build_WithExternalProvider_ShouldUseProvidedServiceProvider() {
         // Arrange
