@@ -14,6 +14,7 @@
     <File Path="scripts/nuget-install.sh" />
   </Folder>
   <Folder Name="/.dev-tools/docker/">
+    <File Path="docker/linux-tests/example-blazorwebview.sh" />
     <File Path="scripts/docker-compose-linux.sh" />
     <File Path="scripts/docker-run-linux-tests.sh" />
   </Folder>

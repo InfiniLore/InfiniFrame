@@ -10,7 +10,7 @@ This page documents the repository scripts in `scripts/` and what each command d
 
 ### `docker-compose-linux.sh`
 
-Builds the Linux testing image from `docker/compose/linux-tests.yml` with a no-cache build.
+Builds the Linux testing image from `docker/compose/infiniframe-linux.yml` with a no-cache build.
 
 ```bash
 bash ./scripts/docker-compose-linux.sh

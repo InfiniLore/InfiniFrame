@@ -11,4 +11,4 @@ docker compose -f "${COMPOSE_FILE}" run --rm \
   -e USE_HOST_DISPLAY=1 \
   -e DISPLAY="${DISPLAY_VALUE}" \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
-  linux-tests
+  linux-example-blazorwebview

@@ -15,4 +15,4 @@ docker compose -f "${COMPOSE_FILE}" run --rm \
   -e PLAYWRIGHT_VISIBLE_DEBUG="${PLAYWRIGHT_VISIBLE_DEBUG_VALUE}" \
   -e PLAYWRIGHT_VISIBLE_DEBUG_SECONDS="${PLAYWRIGHT_VISIBLE_DEBUG_SECONDS_VALUE}" \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
-  linux-playwright-tests
+  linux-tests-playwright
