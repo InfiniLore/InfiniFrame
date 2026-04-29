@@ -17,6 +17,11 @@ on:
                 type: string
                 required: true
 
+permissions:
+    contents: read
+    checks: write
+    statuses: write
+
 jobs:
     windows-playwright-pending:
         name: CI Testing - Windows Playwright (Pending)
