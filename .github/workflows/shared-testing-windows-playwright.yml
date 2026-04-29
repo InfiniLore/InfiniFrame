@@ -19,7 +19,7 @@ on:
 
 jobs:
     windows-playwright:
-        name: CI Testing - Windows Playwright ${{ matrix.project }} - ${{ matrix.framework }}
+        name: CI Testing - Windows Playwright ${{ matrix.project_name }} - ${{ matrix.framework }}
         runs-on: windows-latest
         timeout-minutes: 75
         
@@ -30,10 +30,13 @@ jobs:
                     - net8.0
                     - net9.0
                     - net10.0
-                project:
-                    - tests/InfiniFrameTests.Playwright.WebApp.Vue
-                    - tests/InfiniFrameTests.Playwright.WebApp.React
-                    - tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor
+                include:
+                    - project: tests/InfiniFrameTests.Playwright.WebApp.Vue
+                      project_name: WebApp Vue
+                    - project: tests/InfiniFrameTests.Playwright.WebApp.React
+                      project_name: WebApp React
+                    - project: tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor
+                      project_name: Blazor MudBlazor
         
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -60,7 +63,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright (${{ matrix.project }} / ${{ matrix.framework }})
+                    context: CI Testing - Windows Playwright ${{ matrix.project_name }} - ${{ matrix.framework }}
                     state: pending
                     status-description: Windows Playwright tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -169,7 +172,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright (${{ matrix.project }} / ${{ matrix.framework }})
+                    context: CI Testing - Windows Playwright ${{ matrix.project_name }} - ${{ matrix.framework }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Windows Playwright tests passed
