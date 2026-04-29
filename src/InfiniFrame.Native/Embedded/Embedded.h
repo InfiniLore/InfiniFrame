@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Embedded/InfiniFrameHostJs/InfiniFrameHostJs.h"
+#include <simdutf.h>
 
 namespace Embedded {
     inline const std::wstring& InfiniFrameHostJsUtf16() {
