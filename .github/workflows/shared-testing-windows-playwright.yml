@@ -26,7 +26,10 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                framework: [ net8.0, net9.0, net10.0 ]
+                framework: 
+                    - net8.0
+                    - net9.0
+                    - net10.0
                 project:
                     - tests/InfiniFrameTests.Playwright.WebApp.Vue
                     - tests/InfiniFrameTests.Playwright.WebApp.React
