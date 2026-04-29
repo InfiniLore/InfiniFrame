@@ -1,29 +1,45 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {InteropEnvelopeV1, ParsedInteropMessage, InteropParseError} from "../../Contracts";
+import {InteropEnvelopeCommand, InteropEnvelopeV1, ParsedInteropMessage, InteropParseError} from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export const InteropEnvelopeVersion = 1;
+export const InteropEnvelopeVersion = 2;
 export const InteropMessageMaxSizeBytes = 1024 * 1024;
+export const InteropPostCommand: InteropEnvelopeCommand = "Post";
+export const InteropGetCommand: InteropEnvelopeCommand = "Get";
 
-export function createEnvelope(id: string, data?: unknown, channel?: string): InteropEnvelopeV1 {
+export function createEnvelope(
+    id: string,
+    data?: unknown,
+    channel?: string,
+    command: InteropEnvelopeCommand = InteropPostCommand,
+    requestId?: string
+): InteropEnvelopeV1 {
     if (!id || id.trim().length === 0) {
         throw new Error("Envelope 'id' is required.");
     }
 
     return {
         id,
+        command,
+        requestId,
         data,
         version: InteropEnvelopeVersion,
         channel
     };
 }
 
-export function createEnvelopeMessage(id: string, data?: unknown, channel?: string): string {
-    const envelope = createEnvelope(id, data, channel);
+export function createEnvelopeMessage(
+    id: string,
+    data?: unknown,
+    channel?: string,
+    command: InteropEnvelopeCommand = InteropPostCommand,
+    requestId?: string
+): string {
+    const envelope = createEnvelope(id, data, channel, command, requestId);
 
     return JSON.stringify(envelope);
 }
@@ -56,9 +72,20 @@ export function parseIncomingMessage(message: string): ParsedInteropMessage | In
         }
 
         const payload = convertDataToPayload(parsed.data);
+
+        if (!isSupportedCommand(parsed.command)) {
+            return {error: "Envelope 'command' must be 'Post' or 'Get'."};
+        }
+
+        if (parsed.requestId !== undefined && typeof parsed.requestId !== "string") {
+            return {error: "Envelope 'requestId' must be a string."};
+        }
+
         return {
             messageId: parsed.id,
-            payload
+            payload,
+            command: parsed.command,
+            requestId: parsed.requestId
         };
     } catch {
         return {error: "Envelope JSON is malformed."};
@@ -83,4 +110,8 @@ function getUtf8ByteCount(message: string): number {
 
 function isObject(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null;
+}
+
+function isSupportedCommand(command: unknown): command is InteropEnvelopeCommand {
+    return command === InteropPostCommand || command === InteropGetCommand;
 }

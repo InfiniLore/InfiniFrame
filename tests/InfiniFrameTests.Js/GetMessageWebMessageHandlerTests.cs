@@ -19,12 +19,12 @@ public class GetMessageWebMessageHandlerTests {
         (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler messageHandler) = CreateWindowHarness();
         messageHandler.RegisterHandler("app:echo", (_, payload) => $"echo:{payload}");
         
-        string requestedEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("app:echo", "hello");
-        string requestPayload = JsonSerializer.Serialize(new {
-            requestId = "req-1",
-            message = requestedEnvelope
-        });
-        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.GetMessageRequest, requestPayload);
+        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
+            "app:echo",
+            "hello",
+            InteropEnvelopeProtocol.GetCommand,
+            "req-1"
+        );
 
         // Act
         events.OnWebMessageReceived(inboundMessage);
@@ -41,12 +41,12 @@ public class GetMessageWebMessageHandlerTests {
         // Arrange
         (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _) = CreateWindowHarness();
 
-        string requestedEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("app:missing", "hello");
-        string requestPayload = JsonSerializer.Serialize(new {
-            requestId = "req-2",
-            message = requestedEnvelope
-        });
-        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.GetMessageRequest, requestPayload);
+        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
+            "app:missing",
+            "hello",
+            InteropEnvelopeProtocol.GetCommand,
+            "req-2"
+        );
 
         // Act
         events.OnWebMessageReceived(inboundMessage);
@@ -63,11 +63,12 @@ public class GetMessageWebMessageHandlerTests {
         // Arrange
         (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _) = CreateWindowHarness();
 
-        string requestPayload = JsonSerializer.Serialize(new {
-            requestId = "req-3",
-            message = InteropEnvelopeProtocol.CreateEnvelopeMessage("app:echo", "hello")
-        });
-        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.GetMessageRequest, requestPayload);
+        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
+            "app:echo",
+            "hello",
+            InteropEnvelopeProtocol.GetCommand,
+            "req-3"
+        );
 
         // Act
         events.OnWebMessageReceived(inboundMessage);
@@ -76,7 +77,7 @@ public class GetMessageWebMessageHandlerTests {
         JsonElement responsePayload = GetLatestGetMessageResponsePayload(window);
         await Assert.That(responsePayload.GetProperty("requestId").GetString()).IsEqualTo("req-3");
         await Assert.That(responsePayload.GetProperty("success").GetBoolean()).IsFalse();
-        await Assert.That(responsePayload.GetProperty("error").GetString()).Contains("No IInfiniFrameGetMessageService is registered");
+        await Assert.That(responsePayload.GetProperty("error").GetString()).Contains("No getMessage handler is registered");
     }
 
     private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window, InfiniFrameWindowMessageHandler MessageHandler) CreateWindowHarness() {
@@ -87,7 +88,7 @@ public class GetMessageWebMessageHandlerTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
+        events.WebMessageReceived.Add(InfiniFrameWindowMessageHandler.HandleMessageRequest);
         events.CompleteSetup(window.Window);
 
         return (builder, events, window, messageHandler);

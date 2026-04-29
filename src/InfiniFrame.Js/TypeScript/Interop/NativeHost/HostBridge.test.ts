@@ -41,10 +41,10 @@ describe("HostBridge", () => {
         };
 
         installHostBridge();
-        testWindow.__infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
+        testWindow.__infiniframe!.host!.postData!({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(existingPostData).toHaveBeenCalledTimes(1);
-        expect(existingPostData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"data\":\"hello\",\"version\":1}");
+        expect(existingPostData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"command\":\"Post\",\"data\":\"hello\",\"version\":2}");
     });
 
     it("falls back to object payload when existing postData rejects string payloads", () => {
@@ -59,11 +59,11 @@ describe("HostBridge", () => {
         };
 
         installHostBridge();
-        testWindow.__infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
+        testWindow.__infiniframe!.host!.postData!({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(existingPostData).toHaveBeenCalledTimes(2);
         expect(typeof existingPostData.mock.calls[0][0]).toBe("string");
-        expect(existingPostData.mock.calls[1][0]).toEqual({id: "ping", data: "hello", version: 1});
+        expect(existingPostData.mock.calls[1][0]).toEqual({id: "ping", command: "Post", data: "hello", version: 2});
     });
 
     it("uses platform transport when no existing bridge callback exists", () => {
@@ -76,9 +76,9 @@ describe("HostBridge", () => {
         };
 
         installHostBridge();
-        testWindow.__infiniframe!.host!.postData!({id: "ping", data: "hello", version: 1});
+        testWindow.__infiniframe!.host!.postData!({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(postData).toHaveBeenCalledTimes(1);
-        expect(postData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"data\":\"hello\",\"version\":1}");
+        expect(postData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"command\":\"Post\",\"data\":\"hello\",\"version\":2}");
     });
 });

@@ -24,7 +24,6 @@ type ParseVector = {
     success: boolean;
     messageId?: string;
     payload?: string | null;
-    isLegacyProtocol?: boolean;
     errorContains?: string;
 };
 

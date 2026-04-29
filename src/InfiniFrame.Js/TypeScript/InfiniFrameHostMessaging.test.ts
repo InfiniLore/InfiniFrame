@@ -69,7 +69,8 @@ describe("InfiniFrameHostMessaging", () => {
         expect(postData).toHaveBeenCalled();
         expect(postData.mock.calls[0][0]).toMatchObject({
             id: SendToHostMessageIds.ready,
-            version: 1
+            command: "Post",
+            version: 2
         });
     });
 
@@ -78,7 +79,7 @@ describe("InfiniFrameHostMessaging", () => {
         const handler = vi.fn();
         messaging.assignMessageReceivedHandler("custom:event", handler);
 
-        getReceiveCallback()(JSON.stringify({id: "custom:event", data: "payload", version: 1}));
+        getReceiveCallback()(JSON.stringify({id: "custom:event", command: "Post", data: "payload", version: 2}));
 
         expect(handler).toHaveBeenCalledTimes(1);
         expect(handler).toHaveBeenCalledWith("payload");
@@ -96,7 +97,7 @@ describe("InfiniFrameHostMessaging", () => {
     it("registers open-external click handler only once", async () => {
         const {getReceiveCallback, blankTargetHandler} = await setupHostMessaging();
         const addEventListenerSpy = vi.spyOn(document, "addEventListener");
-        const registerMessage = JSON.stringify({id: ReceiveFromHostMessageIds.registerOpenExternal, version: 1});
+        const registerMessage = JSON.stringify({id: ReceiveFromHostMessageIds.registerOpenExternal, command: "Post", version: 2});
 
         getReceiveCallback()(registerMessage);
         getReceiveCallback()(registerMessage);
@@ -112,7 +113,7 @@ describe("InfiniFrameHostMessaging", () => {
         document.head.appendChild(title);
 
         const {getReceiveCallback, titleObserverObserve} = await setupHostMessaging();
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, version: 1}));
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerTitleChange, command: "Post", version: 2}));
 
         expect(titleObserverObserve).toHaveBeenCalledWith(title, {childList: true});
     });
@@ -120,7 +121,7 @@ describe("InfiniFrameHostMessaging", () => {
     it("overrides window.close after registerWindowClose and routes to host", async () => {
         const {getReceiveCallback, postData} = await setupHostMessaging();
         const originalClose = window.close;
-        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerWindowClose, version: 1}));
+        getReceiveCallback()(JSON.stringify({id: ReceiveFromHostMessageIds.registerWindowClose, command: "Post", version: 2}));
 
         window.close();
 

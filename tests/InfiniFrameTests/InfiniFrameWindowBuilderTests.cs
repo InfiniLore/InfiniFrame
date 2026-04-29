@@ -20,7 +20,7 @@ public class InfiniFrameWindowBuilderTests {
         return null;
     }
 
-    private const int DefaultIncludedMessageHandlers = 1;
+    private const int DefaultIncludedMessageHandlers = 0;
 
     [Test]
     public async Task ResolveLogger_WithoutProvider_UsesSharedFallbackLogger() {
@@ -78,8 +78,8 @@ public class InfiniFrameWindowBuilderTests {
         // Assert
         await Assert.That(first.Events.WindowCreated.Length).IsEqualTo(1);
         await Assert.That(second.Events.WindowCreated.Length).IsEqualTo(1);
-        await Assert.That(first.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1); // Default initialized with Get/Post data flow, so 1+1
-        await Assert.That(second.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1); // Default initialized with Get/Post data flow, so 1+1
+        await Assert.That(first.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(second.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
         await Assert.That(first.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
         await Assert.That(second.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
         await Assert.That(first.CustomSchemes.OrderedSchemeNames[0]).IsEqualTo("app");

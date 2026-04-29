@@ -9,7 +9,7 @@ import {
     SendToHostMessageId,
     SendToHostMessageIds
 } from "./Contracts";
-import {createEnvelope, parseIncomingMessage} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
+import {createEnvelope, InteropGetCommand, parseIncomingMessage} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
 import {blankTargetHandler} from "./Utils/BlankTargetHandler";
 import {getTitleObserver, getTitleObserverTarget} from "./Utils/Observers";
 
@@ -71,7 +71,7 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
         if (!host?.getDataAsync) throw new Error("Message to host failed. Host getDataAsync API is not initialized.");
 
         const envelope = typeof message === "string"
-            ? createEnvelope(message)
+            ? createEnvelope(message, undefined, undefined, InteropGetCommand)
             : message;
 
         return await host.getDataAsync(envelope);

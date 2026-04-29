@@ -311,7 +311,7 @@ window.infiniframe.host.receiveCallback(function(message) {
 In JavaScript, send with:
 
 ```js
-window.infiniframe.host.postData({ id: "hello", data: "from JS", version: 1 });
+window.infiniframe.host.postData({ id: "hello", command: "Post", data: "from JS", version: 2 });
 ```
 
 In C#, handle with:

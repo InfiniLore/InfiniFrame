@@ -10,8 +10,10 @@ namespace InfiniFrame.Js.Interop;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class InteropEnvelopeProtocol {
-    internal const int CurrentVersion = 1;
+    internal const int CurrentVersion = 2;
     internal const int MaxMessageSizeBytes = 1024 * 1024;
+    internal const string PostCommand = "Post";
+    internal const string GetCommand = "Get";
 
     private static readonly JsonDocumentOptions JsonDocumentOptions = new() {
         AllowTrailingCommas = false,
@@ -19,14 +21,18 @@ internal static class InteropEnvelopeProtocol {
         MaxDepth = 64
     };
 
-    internal static string CreateEnvelopeMessage(string id, string? data = null) {
+    internal static string CreateEnvelopeMessage(string id, string? data = null, string command = PostCommand, string? requestId = null) {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ArgumentException.ThrowIfNullOrWhiteSpace(command);
 
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
         writer.WriteStartObject();
         writer.WriteString("id", id);
+        writer.WriteString("command", command);
+        if (!string.IsNullOrWhiteSpace(requestId))
+            writer.WriteString("requestId", requestId);
         if (data is null)
             writer.WriteNull("data");
         else
@@ -49,7 +55,7 @@ internal static class InteropEnvelopeProtocol {
             return InteropEnvelopeParseResult.CreateFailure($"Message exceeds max size of {MaxMessageSizeBytes} bytes.");
 
         if (!LooksLikeJsonObject(message))
-            return ParseLegacyMessage(message);
+            return InteropEnvelopeParseResult.CreateFailure("Envelope root must be a JSON object.");
 
         try {
             using JsonDocument jsonDocument = JsonDocument.Parse(message, JsonDocumentOptions);
@@ -73,11 +79,26 @@ internal static class InteropEnvelopeProtocol {
             if (version != CurrentVersion)
                 return InteropEnvelopeParseResult.CreateFailure($"Unsupported envelope version '{version}'.");
 
+            if (!root.TryGetProperty("command", out JsonElement commandElement) || commandElement.ValueKind != JsonValueKind.String)
+                return InteropEnvelopeParseResult.CreateFailure("Envelope 'command' is required and must be a string.");
+
+            string? command = commandElement.GetString();
+            if (!IsSupportedCommand(command))
+                return InteropEnvelopeParseResult.CreateFailure("Envelope 'command' must be 'Post' or 'Get'.");
+
             string? payload = null;
             if (root.TryGetProperty("data", out JsonElement dataElement))
                 payload = ConvertDataToPayload(dataElement);
 
-            return InteropEnvelopeParseResult.CreateSuccess(messageId, payload);
+            string? requestId = null;
+            if (root.TryGetProperty("requestId", out JsonElement requestIdElement)) {
+                if (requestIdElement.ValueKind != JsonValueKind.String)
+                    return InteropEnvelopeParseResult.CreateFailure("Envelope 'requestId' must be a string.");
+
+                requestId = requestIdElement.GetString();
+            }
+
+            return InteropEnvelopeParseResult.CreateSuccess(messageId, payload, command, requestId);
         }
         catch (JsonException) {
             return InteropEnvelopeParseResult.CreateFailure("Envelope JSON is malformed.");
@@ -101,17 +122,9 @@ internal static class InteropEnvelopeProtocol {
         }
     }
 
-    private static InteropEnvelopeParseResult ParseLegacyMessage(string message) {
-        int separatorIndex = message.IndexOf(';');
-        bool hasSeparator = separatorIndex >= 0;
-
-        string messageId = (hasSeparator ? message[..separatorIndex] : message).Trim();
-        if (string.IsNullOrWhiteSpace(messageId))
-            return InteropEnvelopeParseResult.CreateFailure("Legacy message has an empty message ID.");
-
-        string? payload = hasSeparator ? message[(separatorIndex + 1)..] : null;
-        return InteropEnvelopeParseResult.CreateSuccess(messageId, payload, true);
-    }
+    private static bool IsSupportedCommand(string? command)
+        => string.Equals(command, PostCommand, StringComparison.Ordinal)
+           || string.Equals(command, GetCommand, StringComparison.Ordinal);
 
     private static bool LooksLikeJsonObject(string message) {
         ReadOnlySpan<char> span = message.AsSpan().TrimStart();

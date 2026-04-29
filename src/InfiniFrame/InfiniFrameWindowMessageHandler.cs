@@ -46,6 +46,9 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
         string messageId = parseResult.MessageId!;
         string? payload = parseResult.Payload;
 
+        if (!string.Equals(parseResult.Command, InteropEnvelopeProtocol.PostCommand, StringComparison.Ordinal))
+            return false;
+
         if (!PostDataHandlers.TryGetValue(messageId, out Action<IInfiniFrameWindow, string?>? handler)) return false;
 
         try {
@@ -73,6 +76,9 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
 
         string messageId = parseResult.MessageId!;
         string? payload = parseResult.Payload;
+
+        if (!string.Equals(parseResult.Command, InteropEnvelopeProtocol.GetCommand, StringComparison.Ordinal))
+            return false;
 
         if (!GetDataHandlers.TryGetValue(messageId, out Func<IInfiniFrameWindow, string?, string?>? handler)) return false;
 
@@ -120,30 +126,42 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
 
         string messageId = parseResult.MessageId!;
 
+        if (string.Equals(parseResult.Command, InteropEnvelopeProtocol.PostCommand, StringComparison.Ordinal)) {
+            window.MessageHandlers.TryHandlePostDataRequest(window, message);
+            return;
+        }
+
+        if (!string.Equals(parseResult.Command, InteropEnvelopeProtocol.GetCommand, StringComparison.Ordinal)) {
+            return;
+        }
+
         try {
             if (window.MessageHandlers.TryHandleGetDataRequest(window, message, out string? responsePayload)) {
-                SendSuccess(window, messageId, responsePayload);
-            }
-            else if (window.MessageHandlers.TryHandlePostDataRequest(window, message)) {
+                SendSuccess(window, parseResult.RequestId, responsePayload);
                 return;
             }
 
-            SendError(window, messageId, $"No getMessage handler is registered for message ID '{messageId}'.");
+            SendError(window, parseResult.RequestId, $"No getMessage handler is registered for message ID '{messageId}'.");
 
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
             window.Logger.LogError(ex, "Unhandled exception while processing getMessage request '{MessageId}'.", messageId);
-            SendError(window, messageId, $"Unhandled exception while processing '{messageId}'.");
+            SendError(window, parseResult.RequestId, $"Unhandled exception while processing '{messageId}'.");
         }
     }
 
-    private static void SendSuccess(IInfiniFrameWindow window, string requestId, string? data) {
+    private static void SendSuccess(IInfiniFrameWindow window, string? requestId, string? data) {
         string responsePayloadJson = JsonSerializer.Serialize(new {
             requestId,
             success = true,
             data
         });
-        string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.GetMessageResponse, responsePayloadJson);
+        string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
+            HandlerNames.GetMessageResponse,
+            responsePayloadJson,
+            InteropEnvelopeProtocol.GetCommand,
+            requestId
+        );
         window.SendWebMessage(responseEnvelope);
     }
 
@@ -153,7 +171,12 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
             success = false,
             error
         });
-        string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.GetMessageResponse, responsePayloadJson);
+        string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
+            HandlerNames.GetMessageResponse,
+            responsePayloadJson,
+            InteropEnvelopeProtocol.GetCommand,
+            requestId
+        );
         window.SendWebMessage(responseEnvelope);
     }
 }

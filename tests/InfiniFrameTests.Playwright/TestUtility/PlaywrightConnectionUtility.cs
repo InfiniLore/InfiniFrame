@@ -19,11 +19,88 @@ public static class PlaywrightConnectionUtility {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public static int GetAvailablePort() {
-        using TcpListener listener = new(IPAddress.Loopback, 0);
-        listener.Start();
-        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
+        using Mutex mutex = new(false, "InfiniFramePlaywrightPortReservation");
+
+        try {
+            mutex.WaitOne();
+        }
+        catch (AbandonedMutexException) {
+            // Previous test process exited while reserving a port. The reservation file is still usable.
+        }
+
+        try {
+            string reservationFile = Path.Join(Path.GetTempPath(), "infiniframe-playwright", "reserved-ports.txt");
+            Directory.CreateDirectory(Path.GetDirectoryName(reservationFile)!);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset oldestValidReservation = now.AddHours(-6);
+
+            List<(int Port, DateTimeOffset ReservedAt)> activeReservations = File.Exists(reservationFile)
+                ? File.ReadLines(reservationFile)
+                    .Select(ParsePortReservation)
+                    .Where(reservation => reservation.Port > 0 && reservation.ReservedAt >= oldestValidReservation)
+                    .ToList()
+                : [];
+            HashSet<int> reservedPorts = activeReservations.Select(static reservation => reservation.Port).ToHashSet();
+
+            for (int attempt = 0; attempt < 100; attempt++) {
+                using TcpListener listener = new(IPAddress.Loopback, 0);
+                listener.Start();
+                int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+
+                if (reservedPorts.Contains(port))
+                    continue;
+
+                activeReservations.Add((port, now));
+                File.WriteAllLines(
+                    reservationFile,
+                    activeReservations.Select(static reservation => $"{reservation.Port}|{reservation.ReservedAt.UtcTicks}"));
+                return port;
+            }
+
+            throw new InvalidOperationException("Could not reserve an available Playwright port.");
+        }
+        finally {
+            mutex.ReleaseMutex();
+        }
+    }
+
+    private static (int Port, DateTimeOffset ReservedAt) ParsePortReservation(string line) {
+        string[] parts = line.Split('|', 2);
+
+        if (!int.TryParse(parts[0], out int port))
+            return (0, DateTimeOffset.MinValue);
+
+        if (parts.Length < 2 || !long.TryParse(parts[1], out long ticks))
+            return (port, DateTimeOffset.UtcNow);
+
+        return (port, new DateTimeOffset(ticks, TimeSpan.Zero));
+    }
+
+    public static string CreateUniqueWebViewUserDataPath(string name) {
+        string safeName = string.Concat(name.Select(static c => Path.GetInvalidFileNameChars().Contains(c) ? '-' : c));
+        string path = Path.Join(
+            Path.GetTempPath(),
+            "infiniframe-playwright",
+            $"{safeName}-{Environment.ProcessId}-{Guid.NewGuid():N}");
+
+        Directory.CreateDirectory(path);
+        return path;
+    }
+
+    public static void DeleteDirectorySafely(string? path) {
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        try {
+            if (Directory.Exists(path))
+                Directory.Delete(path, recursive: true);
+        }
+        catch (IOException) {
+            // WebView2 can release files shortly after the window closes.
+        }
+        catch (UnauthorizedAccessException) {
+            // Best-effort cleanup for test-only user data folders.
+        }
     }
 
     public static async Task<IPlaywright> CreatePlaywrightAsync(TimeSpan timeout = default) {

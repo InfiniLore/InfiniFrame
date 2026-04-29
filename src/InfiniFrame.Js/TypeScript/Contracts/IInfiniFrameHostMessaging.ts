@@ -15,7 +15,6 @@ export const SendToHostMessageIds = {
     openExternalLink: `${infiniframe}:open:external`,
     windowClose: `${infiniframe}:window:close`,
     ready: `${infiniframe}:ready`,
-    getMessageRequest: `${infiniframe}:get:request`,
 }
 
 export const ReceiveFromHostMessageIds = {

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Configuration;
-using InfiniFrame.Js;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,7 +38,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             _events = events ?? new InfiniFrameWindowEvents()
         };
 
-        builder.MessageHandlers.RegisterHandler(HandlerNames.GetMessageRequest, InfiniFrameWindowMessageHandler.HandleMessageRequest);
         return builder;
     }
 

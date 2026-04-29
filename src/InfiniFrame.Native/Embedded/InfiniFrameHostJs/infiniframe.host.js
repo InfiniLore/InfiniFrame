@@ -35,6 +35,45 @@
         }
     }
 
+    function normalizeEnvelope(envelope, command, requestId) {
+        if (!envelope || typeof envelope !== 'object') return null;
+        if (typeof envelope.id !== 'string' || envelope.id.trim().length === 0) return null;
+
+        const normalized = {
+            id: envelope.id,
+            command: command || envelope.command || 'Post',
+            data: envelope.data,
+            version: 2
+        };
+
+        const resolvedRequestId = requestId || envelope.requestId;
+        if (typeof resolvedRequestId === 'string' && resolvedRequestId.length > 0) {
+            normalized.requestId = resolvedRequestId;
+        }
+
+        if (typeof envelope.channel === 'string' && envelope.channel.trim().length > 0) {
+            normalized.channel = envelope.channel;
+        }
+
+        return normalized;
+    }
+
+    function createGetEnvelope(message, requestId) {
+        if (typeof message !== 'string') return normalizeEnvelope(message, 'Get', requestId);
+
+        const trimmed = message.trim();
+        if (!trimmed) return null;
+
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (parsed && typeof parsed === 'object') return normalizeEnvelope(parsed, 'Get', requestId);
+        } catch (_) {
+            // Plain strings are treated as get message IDs.
+        }
+
+        return normalizeEnvelope({ id: trimmed }, 'Get', requestId);
+    }
+
     /* ============================================================================================================== */
     /* 1. Messaging bridge */
     /* ============================================================================================================== */
@@ -46,7 +85,9 @@
             onReceiveMessageCallbacks: [],
             host: {
                 postData(envelope) {
-                    const message = typeof envelope === 'string' ? envelope : JSON.stringify(envelope);
+                    const normalized = typeof envelope === 'string' ? envelope : normalizeEnvelope(envelope, 'Post');
+                    if (!normalized) return;
+                    const message = typeof normalized === 'string' ? normalized : JSON.stringify(normalized);
                     nativePost(message);
                 },
 
@@ -58,7 +99,8 @@
                     const requestId =
                         'if_req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
 
-                    const serialized = typeof message === 'string' ? message : JSON.stringify(message);
+                    const getEnvelope = createGetEnvelope(message, requestId);
+                    if (!getEnvelope) return Promise.reject(new Error('Host getDataAsync payload is invalid.'));
 
                     return new Promise((resolve, reject) => {
 
@@ -81,11 +123,7 @@
 
                         window.__infiniframe.host.receiveCallback(callback);
 
-                        window.__infiniframe.host.postData({
-                            id: '__infiniframe:get:request',
-                            data: { requestId, message: serialized },
-                            version: 1
-                        });
+                        window.__infiniframe.host.postData(getEnvelope);
                     });
                 }
             }

@@ -2,12 +2,16 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {InteropEnvelopeV1} from "../../Contracts";
-import {InteropEnvelopeVersion, parseIncomingMessage} from "../EnvelopeProtocol/InteropEnvelopeProtocol";
+import {
+    InteropEnvelopeVersion,
+    InteropGetCommand,
+    InteropPostCommand,
+    parseIncomingMessage
+} from "../EnvelopeProtocol/InteropEnvelopeProtocol";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-const GetMessageRequestId = "__infiniframe:get:request";
 const GetMessageResponseId = "__infiniframe:get:response";
 const GetMessageTimeoutMs = 10_000;
 
@@ -55,6 +59,8 @@ function dispatchEnvelopeToHost(
                 console.warn("Existing InfiniFrame host bridge failed. Falling back to platform adapters.", error);
             }
         }
+
+        postToPlatform(rawMessage);
         return;
     }
 
@@ -80,6 +86,8 @@ function dispatchEnvelopeToHost(
             }
         }
     }
+
+    postToPlatform(serializedEnvelope);
 }
 
 function requestMessageFromHost(
@@ -143,15 +151,34 @@ function requestMessageFromHost(
         };
 
         registerWebMessageReceiver(responseCallback, existingReceiveCallback);
-        host.postData?.({
-            id: GetMessageRequestId,
-            data: {
-                requestId,
-                message: normalizedMessage
-            },
-            version: InteropEnvelopeVersion
-        });
+        const requestEnvelope = createGetRequestEnvelope(normalizedMessage, requestId);
+
+        if (!requestEnvelope) {
+            window.clearTimeout(timeout);
+            unregisterWebMessageReceiver(responseCallback);
+            reject(new Error("Host getDataAsync payload is invalid."));
+            return;
+        }
+
+        host.postData?.(requestEnvelope);
     });
+}
+
+function createGetRequestEnvelope(normalizedMessage: InteropEnvelopeV1 | string, requestId: string): InteropEnvelopeV1 | null {
+    if (typeof normalizedMessage !== "string") {
+        return normalizeEnvelope(normalizedMessage, InteropGetCommand, requestId);
+    }
+
+    try {
+        const parsed = JSON.parse(normalizedMessage) as unknown;
+        if (isObject(parsed)) {
+            return normalizeEnvelope(parsed as unknown as InteropEnvelopeV1, InteropGetCommand, requestId);
+        }
+    } catch {
+        // A plain string is treated as the message id for a get request.
+    }
+
+    return normalizeEnvelope({id: normalizedMessage, version: InteropEnvelopeVersion}, InteropGetCommand, requestId);
 }
 
 function normalizeGetMessageInput(message: InteropEnvelopeV1 | string): InteropEnvelopeV1 | string | null {
@@ -176,7 +203,11 @@ function createRequestId(): string {
     return `if_req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function normalizeEnvelope(envelope: InteropEnvelopeV1): InteropEnvelopeV1 | null {
+function normalizeEnvelope(
+    envelope: InteropEnvelopeV1,
+    command = envelope.command ?? InteropPostCommand,
+    requestId = envelope.requestId
+): InteropEnvelopeV1 | null {
     if (!envelope || typeof envelope !== "object") {
         console.warn("Host bridge payload must be an envelope object.");
         return null;
@@ -188,14 +219,12 @@ function normalizeEnvelope(envelope: InteropEnvelopeV1): InteropEnvelopeV1 | nul
         return null;
     }
 
-    const version = Number.isInteger(envelope.version)
-        ? envelope.version
-        : InteropEnvelopeVersion;
-
     const normalized: InteropEnvelopeV1 = {
         id: envelope.id,
+        command,
+        requestId,
         data: envelope.data,
-        version
+        version: InteropEnvelopeVersion
     };
 
     // noinspection SuspiciousTypeOfGuard
@@ -239,7 +268,33 @@ function attachReceiveBridgeOnce(existingReceiveCallback?: (callback: (message: 
         }
     }
 
+    if (window.chrome?.webview?.addEventListener) {
+        window.chrome.webview.addEventListener("message", event => dispatch(event.data));
+        receiveBridgeAttached = true;
+        return;
+    }
+
+    if (window.webkit?.messageHandlers?.infiniFrameInterop) {
+        window.__dispatchMessageCallback = dispatch;
+        receiveBridgeAttached = true;
+        return;
+    }
+
     console.warn("Receive message registration failed. No supported host receive transport was found.");
+}
+
+function postToPlatform(message: string): void {
+    if (window.chrome?.webview?.postMessage) {
+        window.chrome.webview.postMessage(message);
+        return;
+    }
+
+    if (window.webkit?.messageHandlers?.infiniFrameInterop?.postMessage) {
+        window.webkit.messageHandlers.infiniFrameInterop.postMessage(message);
+        return;
+    }
+
+    console.warn("[InfiniFrame] No native bridge available:", message);
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
