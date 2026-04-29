@@ -130,7 +130,6 @@ jobs:
             -   name: Restore
                 run: |
                     dotnet restore InfiniFrame.GitHubActions.Testing.Playwright.slnf `
-                      --framework ${{ matrix.framework }} `
                       /p:NoWarn=NU1503
 
             -   name: Build Native
