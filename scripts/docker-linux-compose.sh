@@ -1,4 +1,10 @@
 ﻿#!/usr/bin/env bash
 set -euo pipefail
 
-docker compose -f ../docker/compose/infiniframe-linux.yml build --no-cache linux-tests
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_FILE="$SCRIPT_DIR/../docker/compose/infiniframe-linux.yml"
+
+docker compose -f "$COMPOSE_FILE" build --no-cache \
+  linux-tests \
+  linux-tests-playwright \
+  linux-example-blazorwebview

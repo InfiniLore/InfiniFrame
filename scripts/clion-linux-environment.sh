@@ -1,10 +1,10 @@
 ﻿#!/bin/bash
 set -e
 
-echo "🔧 Updating package lists..."
+echo "Updating package lists..."
 sudo apt update
 
-echo "📦 Installing base dependencies..."
+echo "Installing base dependencies..."
 sudo apt install -y \
     apt-transport-https \
     ca-certificates \
@@ -18,7 +18,7 @@ sudo apt install -y \
 # ----------------------------------------------------------------------------------------------------------------------
 # CMake (latest via Kitware)
 # ----------------------------------------------------------------------------------------------------------------------
-echo "⚙️ Installing latest CMake..."
+echo "Installing latest CMake..."
 
 # Install key safely (no overwrite prompt, idempotent)
 wget -O- https://apt.kitware.com/keys/kitware-archive-latest.asc | \
@@ -42,7 +42,7 @@ sudo apt install -y cmake
 # ----------------------------------------------------------------------------------------------------------------------
 # Modern GCC (required for C++23 <expected>)
 # ----------------------------------------------------------------------------------------------------------------------
-echo "🧠 Installing modern GCC..."
+echo "Installing modern GCC..."
 
 if grep -qi ubuntu /etc/os-release; then
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
@@ -73,14 +73,14 @@ fi
 # ----------------------------------------------------------------------------------------------------------------------
 # Clang + libc++ (fallback / alternative toolchain)
 # ----------------------------------------------------------------------------------------------------------------------
-echo "🧪 Installing Clang toolchain (optional but recommended)..."
+echo "Installing Clang toolchain (optional but recommended)..."
 
 sudo apt install -y clang libc++-dev libc++abi-dev || true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # GTK / WebKit / Native deps
 # ----------------------------------------------------------------------------------------------------------------------
-echo "🖥️ Installing GTK/WebKit dependencies..."
+echo "Installing GTK/WebKit dependencies..."
 
 sudo apt install -y \
     libgtk-3-dev \
@@ -93,7 +93,7 @@ sudo apt install -y \
 # ----------------------------------------------------------------------------------------------------------------------
 # Toolchain environment (important for CMake correctness)
 # ----------------------------------------------------------------------------------------------------------------------
-echo "🧠 Setting compiler environment..."
+echo "Setting compiler environment..."
 
 export CC=gcc-13
 export CXX=g++-13
@@ -101,7 +101,7 @@ export CXX=g++-13
 # ----------------------------------------------------------------------------------------------------------------------
 # Verification
 # ----------------------------------------------------------------------------------------------------------------------
-echo "🔍 Verifying toolchain..."
+echo "Verifying toolchain..."
 
 echo "CMake version:"
 cmake --version
@@ -116,4 +116,4 @@ echo "Clang version:"
 clang++ --version || true
 
 echo ""
-echo "🚀 Setup complete!"
+echo "Setup complete!"

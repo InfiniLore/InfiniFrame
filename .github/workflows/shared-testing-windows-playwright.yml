@@ -128,7 +128,10 @@ jobs:
                     Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.Playwright.slnf /p:NoWarn=NU1503
+                run: |
+                    dotnet restore InfiniFrame.GitHubActions.Testing.Playwright.slnf `
+                      --framework ${{ matrix.framework }} `
+                      /p:NoWarn=NU1503
 
             -   name: Build Native
                 run: |
@@ -171,7 +174,8 @@ jobs:
             -   name: Run Playwright tests
                 shell: pwsh
                 run: |
-                    dotnet test ${{ matrix.project }}.csproj `
+                    dotnet test `
+                      --project ${{ matrix.project }}.csproj `
                       --configuration Release `
                       --no-build `
                       --no-restore `
