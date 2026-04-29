@@ -238,7 +238,9 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 await LazyWindow.Value.SendWebMessageAsync(message);
             }
         }
-        catch (ChannelClosedException) {}
+        catch (ChannelClosedException ex) {
+            LazyLogger.Value?.LogDebug(ex, "WebView message channel closed; stopping message pump.");
+        }
         catch (OperationCanceledException) {
             LazyLogger.Value?.LogDebug("WebView message pump cancellation requested.");
         }
