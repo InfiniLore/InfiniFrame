@@ -6,7 +6,7 @@ init_common_defaults() {
   NATIVE_PLATFORM="${NATIVE_PLATFORM:-x64}"
   USE_HOST_DISPLAY="${USE_HOST_DISPLAY:-0}"
   CMAKE_BUILD_DIR="${CMAKE_BUILD_DIR:-/tmp/infiniframe-cmake/${NATIVE_PLATFORM}/${CONFIGURATION}}"
-  NUGET_CONFIG_FILE="${NUGET_CONFIG_FILE:-/work/docker/linux-tests/NuGet.Config}"
+  NUGET_CONFIG_FILE="${NUGET_CONFIG_FILE:-/work/docker/infiniframe-linux/NuGet.Config}"
   NUGET_PACKAGES_DIR="${NUGET_PACKAGES:-/root/.nuget/packages}"
   DOTNET_MAX_CPU_COUNT="${DOTNET_MAX_CPU_COUNT:-1}"
 

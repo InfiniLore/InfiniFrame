@@ -6,10 +6,9 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
 
-        <PublishTrimmed>true</PublishTrimmed>
         <PublishAot>true</PublishAot>
-        <SelfContained>true</SelfContained>
         <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+        <UseAppHost>true</UseAppHost>
     </PropertyGroup>
 
     <ItemGroup>

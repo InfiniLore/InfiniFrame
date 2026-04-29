@@ -2,10 +2,10 @@
   <configuration default="false" name="example-blazorwebview.sh" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="bash example-blazorwebview.sh" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
-    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/docker/linux-tests/example-blazorwebview.sh" />
+    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/docker/infiniframe-linux/example-blazorwebview.sh" />
     <option name="SCRIPT_OPTIONS" value="" />
     <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
-    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/docker/linux-tests" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/docker/infiniframe-linux" />
     <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
     <option name="INTERPRETER_PATH" value="/usr/bin/env" />
     <option name="INTERPRETER_OPTIONS" value="bash" />
