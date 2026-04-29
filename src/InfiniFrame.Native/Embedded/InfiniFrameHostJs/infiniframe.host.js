@@ -179,6 +179,42 @@
             return originalFetch.call(this, input, init);
         };
     }
+
+    function toKebabCase(name) {
+        return String(name)
+            .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+            .replace(/_/g, '-')
+            .toLowerCase();
+    }
+
+    function toParameterValue(rawValue, typeName) {
+        if (typeName === 'bool' || typeName === 'boolean') {
+            if (rawValue === null) return false;
+            if (rawValue === '') return true;
+            return String(rawValue).toLowerCase() !== 'false';
+        }
+
+        if (['number', 'int', 'float', 'double', 'decimal'].includes(typeName)) {
+            const n = Number(rawValue);
+            return Number.isNaN(n) ? rawValue : n;
+        }
+
+        return rawValue;
+    }
+
+    function autoRegisterMissingInitializerCustomElements(defs, initMap) {
+        const initialized = {};
+
+        for (const list of Object.values(initMap || {})) {
+            if (!Array.isArray(list)) continue;
+            for (const id of list) initialized[id] = true;
+        }
+
+        for (const [id, def] of Object.entries(defs || {})) {
+            if (initialized[id]) continue;
+            window.registerBlazorCustomElement(id, def);
+        }
+    }
     
     /* ============================================================================================================== */
     /* 4. Blazor custom elements + interop patch */
@@ -239,28 +275,6 @@
     /* =================================================================================================== */
     if (!window.__infiniframeSetup.customElementsInitialized) {
         window.__infiniframeSetup.customElementsInitialized = true;
-
-        function toKebabCase(name) {
-            return String(name)
-                .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-                .replace(/_/g, '-')
-                .toLowerCase();
-        }
-
-        function toParameterValue(rawValue, typeName) {
-            if (typeName === 'bool' || typeName === 'boolean') {
-                if (rawValue === null) return false;
-                if (rawValue === '') return true;
-                return String(rawValue).toLowerCase() !== 'false';
-            }
-
-            if (['number', 'int', 'float', 'double', 'decimal'].includes(typeName)) {
-                const n = Number(rawValue);
-                return Number.isNaN(n) ? rawValue : n;
-            }
-
-            return rawValue;
-        }
 
         window.registerBlazorCustomElement = function (identifier, parameterDefinitions) {
             if (!window.Blazor?.rootComponents?.add) return;
@@ -340,20 +354,6 @@
 
             window.customElements.define(identifier, Host);
         };
-
-        function autoRegisterMissingInitializerCustomElements(defs, initMap) {
-            const initialized = {};
-
-            for (const list of Object.values(initMap || {})) {
-                if (!Array.isArray(list)) continue;
-                for (const id of list) initialized[id] = true;
-            }
-
-            for (const [id, def] of Object.entries(defs || {})) {
-                if (initialized[id]) continue;
-                window.registerBlazorCustomElement(id, def);
-            }
-        }
     }
 
 })();
