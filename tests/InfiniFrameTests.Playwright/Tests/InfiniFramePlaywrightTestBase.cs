@@ -21,6 +21,7 @@ public abstract class InfiniFramePlaywrightTestBase {
         RuntimeContext.ResetWindowCloseRequestCount();
 
         IPage page = await GetRootPageAsync();
+        await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
 
         RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
         await page.EvaluateAsync(
