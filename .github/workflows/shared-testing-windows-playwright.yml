@@ -29,6 +29,9 @@ jobs:
         timeout-minutes: 10
 
         steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                
             -   name: Set Playwright Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -234,6 +237,9 @@ jobs:
         if: always()
 
         steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+              
             -   name: Set Playwright Check Final Status
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
