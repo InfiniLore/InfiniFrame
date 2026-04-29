@@ -26,6 +26,9 @@ namespace Embedded {
     
     inline std::string  InfiniFrameHostJsUtf8() {
         const auto* src = reinterpret_cast<const char*>(g_infiniframe_host_js_data);
-        return std::string(src, g_infiniframe_host_js_size);
+        return {
+            src,
+            g_infiniframe_host_js_size
+        };
     }
 }
