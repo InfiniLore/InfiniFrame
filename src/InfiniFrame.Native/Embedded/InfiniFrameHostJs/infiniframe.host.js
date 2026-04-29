@@ -202,6 +202,39 @@
         return rawValue;
     }
 
+    const pendingAutoCustomElementRegistrations = [];
+    let autoCustomElementRegistrationScheduled = false;
+
+    function scheduleAutoRegisterMissingInitializerCustomElements(defs, initMap) {
+        if (!defs) return;
+
+        pendingAutoCustomElementRegistrations.push({ defs, initMap });
+
+        if (autoCustomElementRegistrationScheduled) return;
+        autoCustomElementRegistrationScheduled = true;
+
+        window.setTimeout(function () {
+            autoCustomElementRegistrationScheduled = false;
+            flushAutoRegisterMissingInitializerCustomElements();
+        }, 0);
+    }
+
+    function flushAutoRegisterMissingInitializerCustomElements() {
+        if (typeof window.registerBlazorCustomElement !== 'function') {
+            return;
+        }
+
+        while (pendingAutoCustomElementRegistrations.length > 0) {
+            const item = pendingAutoCustomElementRegistrations.shift();
+
+            try {
+                autoRegisterMissingInitializerCustomElements(item.defs, item.initMap);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
+
     function autoRegisterMissingInitializerCustomElements(defs, initMap) {
         const initialized = {};
 
@@ -237,7 +270,7 @@
 
             blazor._internal.attachWebRendererInterop = function () {
                 const result = original.apply(this, arguments);
-                autoRegisterMissingInitializerCustomElements(arguments[2], arguments[3]);
+                scheduleAutoRegisterMissingInitializerCustomElements(arguments[2], arguments[3]);
                 return result;
             };
 
