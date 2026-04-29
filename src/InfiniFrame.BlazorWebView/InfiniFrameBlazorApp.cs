@@ -64,34 +64,30 @@ public class InfiniFrameBlazorApp(
 
     private static bool IsNonFatalException(Exception exception)
         => exception is not (OutOfMemoryException or AccessViolationException);
-    
+
     public async ValueTask DisposeAsync() {
         if (_disposed) return;
 
         _disposed = true;
 
+        ILogger<InfiniFrameBlazorApp>? logger = null;
+
         try {
+            logger = ServiceProvider.GetService<ILogger<InfiniFrameBlazorApp>>();
+
             UnhandledExceptionRegistration?.Dispose();
 
             switch (ServiceProvider) {
-                case ServiceProvider serviceProvider: {
-                    await serviceProvider.DisposeAsync();
-                    break;
-                }
-
-                case IAsyncDisposable asyncDisposable: {
+                case IAsyncDisposable asyncDisposable:
                     await asyncDisposable.DisposeAsync();
                     break;
-                }
 
-                case IDisposable disposable: {
+                case IDisposable disposable:
                     disposable.Dispose();
                     break;
-                }
             }
         }
         catch (Exception e) when (IsNonFatalException(e)) {
-            var logger = ServiceProvider.GetService<ILogger<InfiniFrameBlazorApp>>();
             logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
         }
 

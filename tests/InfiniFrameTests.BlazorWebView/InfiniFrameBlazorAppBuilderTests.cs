@@ -108,7 +108,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task Build_WithExternalProvider_ShouldUseProvidedServiceProvider() {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
-        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+        ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
 
         // Act
         InfiniFrameBlazorApp app = builder.Build(serviceProvider);
@@ -152,7 +152,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         builder.RootComponents.RegisterForJavaScript<TestJsComponent>("test-js-component");
 
         // Assert
-        await using ServiceProvider provider = builder.Services.BuildServiceProvider();
+        ServiceProvider provider = builder.Services.BuildServiceProvider();
         var store = provider.GetRequiredService<JSComponentConfigurationStore>();
         var config = provider.GetRequiredService<IInfiniFrameJsComponentConfiguration>();
 
@@ -223,7 +223,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task CreateDefault_RegistersUnhandledExceptionSourceByDefault() {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
-        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+        ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
 
         // Act
         var source = serviceProvider.GetService<IInfiniFrameUnhandledExceptionSource>();
@@ -236,7 +236,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task CreateDefault_ExceptionSourceRejectsNullHandler() {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
-        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+        ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
         var source = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
 
         // Act
