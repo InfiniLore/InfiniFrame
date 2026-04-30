@@ -20,7 +20,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
     [NotInParallel(ParallelControl.Playwright)]
     public async Task InfiniWindowIsInitialized() {
         IPage page = await GetRootPageAsync();
-        var initState = await ExecuteWhenPageReadyAsync<JsonElement>(
+        var initState = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """
@@ -47,7 +47,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
         IPage page = await GetRootPageAsync();
         string originalTitle = RuntimeContext.Window.Title;
 
-        await ExecuteWhenPageReadyAsync(
+        await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
             $"() => window.__infiniframe?.host?.postData({{ id: '__infiniframe:title:change', command: 'Post', data: '{NewTitleFromHostMessage}', version: 2 }})"
@@ -70,7 +70,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
         RuntimeContext.SuppressWindowCloseRequests(true);
 
         try {
-            await ExecuteWhenPageReadyAsync(
+            await EvaluateWhenPageReadyAsync(
                 page,
                 // lang=javascript
                 "() => window.close()"

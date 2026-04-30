@@ -20,7 +20,7 @@ public sealed class ScriptSrcImportTests : InfiniFramePlaywrightTestBase {
     public async Task ClassicScriptSrc_IsLoaded_AndExecutesCode() {
         IPage page = await GetRootPageAsync();
 
-        var state = await ExecuteWhenPageReadyAsync<JsonElement>(
+        var state = await EvaluateWhenPageReadyAsync<JsonElement>(
             page,
             // lang=javascript
             """

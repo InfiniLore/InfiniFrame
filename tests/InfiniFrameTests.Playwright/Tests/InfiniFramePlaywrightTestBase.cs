@@ -23,7 +23,7 @@ public abstract class InfiniFramePlaywrightTestBase {
 
         IPage page = await GetRootPageAsync();
         RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
-        await ExecuteWhenPageReadyAsync(
+        await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
             $"() => {{ document.title = '{RuntimeContext.DefaultDocumentTitle}'; }}"
@@ -96,7 +96,7 @@ public abstract class InfiniFramePlaywrightTestBase {
         return default!;
     }
 
-    protected static async Task ExecuteWhenPageReadyAsync(IPage page, string script) {
+    protected static async Task EvaluateWhenPageReadyAsync(IPage page, string script) {
         for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
             try {
                 await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
@@ -113,7 +113,7 @@ public abstract class InfiniFramePlaywrightTestBase {
         Fail.Test($"Could not execute script: {script} within timeout");
     }
 
-    protected static async Task<T> ExecuteWhenPageReadyAsync<T>(IPage page, string script) {
+    protected static async Task<T> EvaluateWhenPageReadyAsync<T>(IPage page, string script) {
         for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
             try {
                 await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);

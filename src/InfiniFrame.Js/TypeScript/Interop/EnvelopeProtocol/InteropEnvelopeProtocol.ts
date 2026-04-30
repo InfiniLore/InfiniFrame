@@ -42,7 +42,7 @@ export function createGetEnvelope(
     command: string,
     args?: unknown,
 ): InteropEnvelopeV1 {
-    return createEnvelope(SendToHostMessageIds.getRequest, {command: "title", args: args}, undefined, InteropGetCommand);
+    return createEnvelope(SendToHostMessageIds.getRequest, {command, args}, undefined, InteropGetCommand);
 }
 
 export function createEnvelopeMessage(

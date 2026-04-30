@@ -19,7 +19,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
     public async Task CustomElement_Registers_Renders_AndUpdatesFromAttributes() {
         IPage page = await GetRootPageAsync();
 
-        bool isCustomElementDefined = await ExecuteWhenPageReadyAsync<bool>(
+        bool isCustomElementDefined = await EvaluateWhenPageReadyAsync<bool>(
             page,
             // lang=javascript
             "() => window.customElements.get('infiniframe-custom-element') !== undefined"
@@ -27,7 +27,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
         if (!isCustomElementDefined) {
             isCustomElementDefined = await WaitForStateChangeAsync(
                 false,
-                stateProvider: () => ExecuteWhenPageReadyAsync<bool>(
+                stateProvider: () => EvaluateWhenPageReadyAsync<bool>(
                     page,
                     // lang=javascript
                     "() => window.customElements.get('infiniframe-custom-element') !== undefined"
@@ -37,7 +37,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         await Assert.That(isCustomElementDefined).IsTrue();
 
-        await ExecuteWhenPageReadyAsync(
+        await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
             """
@@ -55,7 +55,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         string? renderedAlpha = await WaitForStateChangeAsync<string?>(
             null,
-            stateProvider: () => ExecuteWhenPageReadyAsync<string?>(
+            stateProvider: () => EvaluateWhenPageReadyAsync<string?>(
                 page,
                 // lang=javascript
                 "() => document.querySelector('#custom-element-test-host .custom-element-probe-value')?.textContent?.trim() ?? null"
@@ -64,7 +64,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         await Assert.That(renderedAlpha).IsEqualTo("alpha");
 
-        await ExecuteWhenPageReadyAsync(
+        await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
             "() => document.getElementById('custom-element-test-host')?.setAttribute('label', 'beta')"
@@ -72,7 +72,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         string? renderedBeta = await WaitForStateChangeAsync(
             renderedAlpha,
-            stateProvider: () => ExecuteWhenPageReadyAsync<string?>(
+            stateProvider: () => EvaluateWhenPageReadyAsync<string?>(
                 page,
                 // lang=javascript
                 "() => document.querySelector('#custom-element-test-host .custom-element-probe-value')?.textContent?.trim() ?? null"
@@ -87,7 +87,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
     public async Task JsComponent_WithoutInitializer_AutoRegisters_AsCustomElement_ByDefault() {
         IPage page = await GetRootPageAsync();
 
-        bool isCustomElementDefined = await ExecuteWhenPageReadyAsync<bool>(
+        bool isCustomElementDefined = await EvaluateWhenPageReadyAsync<bool>(
             page,
             // lang=javascript
             "() => window.customElements.get('infiniframe-no-init-component') !== undefined"
@@ -95,7 +95,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
         if (!isCustomElementDefined) {
             isCustomElementDefined = await WaitForStateChangeAsync(
                 false,
-                stateProvider: () => ExecuteWhenPageReadyAsync<bool>(
+                stateProvider: () => EvaluateWhenPageReadyAsync<bool>(
                     page,
                     // lang=javascript
                     "() => window.customElements.get('infiniframe-no-init-component') !== undefined"
@@ -105,7 +105,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         await Assert.That(isCustomElementDefined).IsTrue();
 
-        await ExecuteWhenPageReadyAsync(
+        await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
             """
@@ -123,7 +123,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         string? renderedGamma = await WaitForStateChangeAsync<string?>(
             null,
-            stateProvider: () => ExecuteWhenPageReadyAsync<string?>(
+            stateProvider: () => EvaluateWhenPageReadyAsync<string?>(
                 page,
                 // lang=javascript
                 "() => document.querySelector('#no-init-component-host .custom-element-probe-value')?.textContent?.trim() ?? null"
@@ -132,7 +132,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         await Assert.That(renderedGamma).IsEqualTo("gamma");
 
-        await ExecuteWhenPageReadyAsync(
+        await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
             "() => document.getElementById('no-init-component-host')?.setAttribute('label', 'delta')"
@@ -140,7 +140,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
         string? renderedDelta = await WaitForStateChangeAsync(
             renderedGamma,
-            stateProvider: () => ExecuteWhenPageReadyAsync<string?>(
+            stateProvider: () => EvaluateWhenPageReadyAsync<string?>(
                 page,
                 // lang=javascript
                 "() => document.querySelector('#no-init-component-host .custom-element-probe-value')?.textContent?.trim() ?? null"
