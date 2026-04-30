@@ -299,6 +299,6 @@ jobs:
                     sha: ${{ inputs.target_sha }}
                     context: CI Testing - Windows Playwright
                     target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ contains(needs.*.result, 'failure') && 'failure' || 'success' }}
+                    job-status: ${{ needs.windows-playwright.result == 'success' && 'success' || 'failure' }}
                     success-description: Windows Playwright tests passed
                     failure-description: Windows Playwright tests failed
