@@ -2,10 +2,17 @@ name: "InfiniFrame CodeQL Config"
 
 # Exclude third-party and generated content from CodeQL alerting.
 paths-ignore:
-  - src/InfiniFrame.Native/packages/**
-  - src/InfiniFrame.Native/Dependencies/**
+  - "src/InfiniFrame.Native/artifacts/**"
+  - "src/InfiniFrame.Native/build/**"
+  - "src/InfiniFrame.Native/packages/**"
+  - "src/InfiniFrame.Native/cmake-build-debug/**"
+  - "src/InfiniFrame.Native/cmake-build-debug-linux/**"
+  - "src/InfiniFrame.Native/cmake-build-debug-windows/**"
+  - "src/InfiniFrame.Native/cmake-build-release/**"
+  - "src/InfiniFrame.Native/cmake-build-release-linux/**"
+  - "src/InfiniFrame.Native/cmake-build-release-windows/**"
+  - "src/InfiniFrame.Native/Dependencies/**"
   - "**/node_modules/**"
   - "**/dist/**"
-  - "**/build/**"
   - "**/bin/**"
   - "**/obj/**"
