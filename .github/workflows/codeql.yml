@@ -21,6 +21,8 @@ jobs:
     changes:
         name: Detect Changed Areas
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
         outputs:
             csharp: ${{ steps.filter.outputs.csharp }}
             cpp: ${{ steps.filter.outputs.cpp }}
