@@ -166,7 +166,7 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
             InfiniFrameWindowMessagesJsonContext.Default.GetMessageSuccessResponse
         );
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
-            HandlerNames.GetMessageResponse,
+            HandlerNames.GetResponse,
             responsePayloadJson,
             InteropEnvelopeProtocol.GetCommand,
             requestId
@@ -184,7 +184,7 @@ public class InfiniFrameWindowMessageHandler : IInfiniFrameWindowMessageHandler 
             InfiniFrameWindowMessagesJsonContext.Default.GetMessageErrorResponse
         );
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
-            HandlerNames.GetMessageResponse,
+            HandlerNames.GetResponse,
             responsePayloadJson,
             InteropEnvelopeProtocol.GetCommand,
             requestId

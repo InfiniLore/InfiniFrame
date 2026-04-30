@@ -61,6 +61,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
             .SetTitle(DefaultDocumentTitle)
             .SetTemporaryFilesPath(_webViewUserDataPath)
             .SetBrowserControlInitParameters($"--remote-debugging-port={playwrightDevtoolsPort}")
+            .RegisterStandardGetWebMessageHandler()
             .RegisterWindowManagementWebMessageHandler()
             .RegisterFullScreenWebMessageHandler()
             .RegisterOpenExternalTargetWebMessageHandler()

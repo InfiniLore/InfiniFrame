@@ -6,5 +6,6 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export interface IInfiniFrameWindow {
-    
+    setTitle(title: string): void;
+    getTitleAsync(): Promise<string>;
 }

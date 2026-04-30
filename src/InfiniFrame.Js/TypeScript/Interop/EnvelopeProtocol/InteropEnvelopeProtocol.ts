@@ -1,7 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {InteropEnvelopeCommand, InteropEnvelopeV1, ParsedInteropMessage, InteropParseError} from "../../Contracts";
+import {
+    InteropEnvelopeCommand,
+    InteropEnvelopeV1,
+    ParsedInteropMessage,
+    InteropParseError,
+    SendToHostMessageIds
+} from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -30,6 +36,13 @@ export function createEnvelope(
         version: InteropEnvelopeVersion,
         channel
     };
+}
+
+export function createGetEnvelope(
+    command: string,
+    args?: unknown,
+): InteropEnvelopeV1 {
+    return createEnvelope(SendToHostMessageIds.getRequest, {command: "title", args: args}, undefined, InteropGetCommand);
 }
 
 export function createEnvelopeMessage(
