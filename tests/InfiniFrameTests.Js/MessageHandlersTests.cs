@@ -4,7 +4,6 @@
 using InfiniFrame;
 using InfiniFrame.Js;
 using InfiniFrame.Js.Interop;
-using InfiniFrame.Js.Interop.MessageHandlers;
 using InfiniFrameTests.Shared.TestDoubles;
 using Microsoft.Extensions.Logging;
 using NSubstitute;

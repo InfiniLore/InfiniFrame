@@ -222,7 +222,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         var app = new InfiniFrameBlazorApp(
             provider: services,
-            rootComponents: new RootComponentList());
+            rootComponents: new InfiniFrameRootComponentList());
 
         // Act
         app.Run();

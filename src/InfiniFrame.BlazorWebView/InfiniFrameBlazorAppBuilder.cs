@@ -13,16 +13,16 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameBlazorAppBuilder {
+public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
+    public IInfiniFrameRootComponentList RootComponents { get; } = new InfiniFrameRootComponentList();
+    public IServiceCollection Services { get; } = new ServiceCollection();
+    public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameBlazorAppBuilder() {}
-    public RootComponentList RootComponents { get; } = new();
-    public IServiceCollection Services { get; } = new ServiceCollection();
-    public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
-
+    
     public static InfiniFrameBlazorAppBuilder CreateDefault(
         string[]? args = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null
@@ -41,7 +41,6 @@ public class InfiniFrameBlazorAppBuilder {
                 var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
             })
-            .AddScoped<IInfiniFrameJs, InfiniFrameJs>()
             .AddSingleton<IInfiniFrameWebViewManager, InfiniFrameWebViewManager>()
             .AddSingleton<IInfiniFrameJsComponentConfiguration, InfiniFrameJsComponentConfiguration>()
             .AddSingleton<Dispatcher, InfiniFrameDispatcher>()
@@ -56,6 +55,8 @@ public class InfiniFrameBlazorAppBuilder {
             .AddSingleton(appBuilder.RootComponents.JSComponents);
 
         appBuilder.Services.TryAddSingleton<IInfiniFrameUnhandledExceptionSource, AppDomainUnhandledExceptionSource>();
+        
+        appBuilder.AddInfiniFrameJs();
 
         windowBuilder?.Invoke(appBuilder.WindowBuilder);
 
@@ -141,7 +142,7 @@ public class InfiniFrameBlazorAppBuilder {
 
         return new InfiniFrameBlazorApp(
             serviceProvider,
-            serviceProvider.GetRequiredService<RootComponentList>(),
+            serviceProvider.GetRequiredService<IInfiniFrameRootComponentList>(),
             serviceProvider.GetService<IInfiniFrameJsComponentConfiguration>(),
             unhandledExceptionRegistration
         );

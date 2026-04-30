@@ -1,15 +1,17 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Js;
 using System.Globalization;
 using System.Text.Json;
 
-namespace InfiniFrame.Js.Interop.MessageHandlers;
+// ReSharper disable once CheckNamespace
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class StandardGetWebMessageHandler {
-    public static T RegisterStandardGetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
+public static class GetWebMessageHandler {
+    public static T RegisterGetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.MessageHandlers.RegisterHandler(HandlerNames.GetRequest, HandleGetRequest);
         return builder;
     }

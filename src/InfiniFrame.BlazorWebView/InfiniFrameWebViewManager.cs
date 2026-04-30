@@ -50,8 +50,10 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             .GetForBuilder(builder)
             .WithTrustedOrigin(config.Value.AppBaseUri);
 
-        LazyWindow = new Lazy<IInfiniFrameWindow>(provider.GetRequiredService<IInfiniFrameWindow>);
-        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(provider.GetService<ILogger<InfiniFrameWebViewManager>>);
+        // ReSharper disable once ConvertClosureToMethodGroup
+        LazyWindow = new Lazy<IInfiniFrameWindow>(() => provider.GetRequiredService<IInfiniFrameWindow>());
+        // ReSharper disable once ConvertClosureToMethodGroup
+        LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(() => provider.GetService<ILogger<InfiniFrameWebViewManager>>());
 
         builder.RegisterWebMessageReceivedHandler((_, message) => {
             string? origin = InfiniFrameWebMessageContext.CurrentOrigin;

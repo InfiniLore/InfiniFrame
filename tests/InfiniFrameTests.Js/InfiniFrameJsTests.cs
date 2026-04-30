@@ -2,9 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Js;
+using InfiniFrameTests.Shared.JsRuntimes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using NSubstitute;
 
 namespace InfiniFrameTests.Js;
@@ -24,7 +24,7 @@ public class InfiniFrameJsTests {
         await sut.SetPointerCaptureAsync(element, 42);
 
         // Assert
-        (string identifier, CancellationToken cancellationToken, object?[] jsArguments) = jsRuntime.Invocations.Single();
+        (string identifier, object?[] jsArguments, CancellationToken cancellationToken) = jsRuntime.Invocations.Single();
         await Assert.That(identifier).IsEqualTo("infiniframe.utils.setPointerCapture");
         await Assert.That(cancellationToken).IsEqualTo(CancellationToken.None);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
@@ -44,7 +44,7 @@ public class InfiniFrameJsTests {
         await sut.ReleasePointerCaptureAsync(element, 7);
 
         // Assert
-        (string identifier, CancellationToken cancellationToken, object?[] jsArguments) = jsRuntime.Invocations.Single();
+        (string identifier, object?[] jsArguments, CancellationToken cancellationToken) = jsRuntime.Invocations.Single();
         await Assert.That(identifier).IsEqualTo("infiniframe.utils.releasePointerCapture");
         await Assert.That(cancellationToken).IsEqualTo(CancellationToken.None);
         await Assert.That(jsArguments.Length).IsEqualTo(2);
@@ -68,27 +68,5 @@ public class InfiniFrameJsTests {
         await sut.SetPointerCaptureAsync(new ElementReference("element-3"), 1, cts.Token);
         logger.DidNotReceiveWithAnyArgs().Log(default, default, null!, null, null!);
         await Assert.That(jsRuntime.Invocations.Count).IsEqualTo(1);
-    }
-
-    private sealed class RecordingJsRuntime : IJSRuntime {
-        public sealed record Invocation(string Identifier, CancellationToken CancellationToken, object?[] Arguments);
-
-        public List<Invocation> Invocations { get; } = [];
-        public Func<Invocation, Exception?>? ExceptionFactory { get; set; }
-
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) {
-            return InvokeAsync<TValue>(identifier, CancellationToken.None, args);
-        }
-
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args) {
-            var invocation = new Invocation(identifier, cancellationToken, args ?? []);
-            Invocations.Add(invocation);
-
-            Exception? ex = ExceptionFactory?.Invoke(invocation);
-            if (ex is not null)
-                return ValueTask.FromException<TValue>(ex);
-
-            return ValueTask.FromResult(default(TValue)!);
-        }
     }
 }

@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Js.Interop.MessageHandlers;
 using InfiniFrameTests.Shared;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
@@ -58,7 +57,6 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
                 .SetTitle(DefaultDocumentTitle)
                 .SetTemporaryFilesPath(_webViewUserDataPath)
                 .SetBrowserControlInitParameters($"--remote-debugging-port={_playwrightDevtoolsPort}")
-                .RegisterStandardGetWebMessageHandler()
                 .RegisterWindowManagementWebMessageHandler()
                 .RegisterFullScreenWebMessageHandler()
                 .RegisterOpenExternalTargetWebMessageHandler()

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
-using InfiniFrame.Js.Interop.MessageHandlers;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +12,7 @@ namespace InfiniFrameTests.Playwright.TestUtility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documentTitle) : PlaywrightContextBase(documentTitle)
-    where TRootComponent : IComponent
-{
+    where TRootComponent : IComponent {
     public override IInfiniFrameWindow Window => _window!;
     
     [UsedImplicitly] private InfiniFrameBlazorApp? _app; // kept for future reference
@@ -54,14 +52,13 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
 
     protected virtual void ConfigureServices(IServiceCollection services) {}
 
-    protected virtual void ConfigureRootComponents(RootComponentList rootComponents) {}
+    protected virtual void ConfigureRootComponents(IInfiniFrameRootComponentList rootComponents) {}
 
     protected virtual void ConfigureWindowBuilder(IInfiniFrameWindowBuilder windowBuilder, int playwrightDevtoolsPort) {
         windowBuilder
             .SetTitle(DefaultDocumentTitle)
             .SetTemporaryFilesPath(_webViewUserDataPath)
             .SetBrowserControlInitParameters($"--remote-debugging-port={playwrightDevtoolsPort}")
-            .RegisterStandardGetWebMessageHandler()
             .RegisterWindowManagementWebMessageHandler()
             .RegisterFullScreenWebMessageHandler()
             .RegisterOpenExternalTargetWebMessageHandler()

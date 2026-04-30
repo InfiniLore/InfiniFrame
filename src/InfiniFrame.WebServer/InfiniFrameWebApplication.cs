@@ -18,7 +18,7 @@ public class InfiniFrameWebApplication {
     public static InfiniFrameWebApplicationBuilder CreateBuilder(params string[] args)
         => new InfiniFrameWebApplicationBuilder {
             WebApp = WebApplication.CreateBuilder(args),
-            Window = InfiniFrameWindowBuilder.Create()
+            WindowBuilder = InfiniFrameWindowBuilder.Create()
         }.Initialize();
 
     public void Run() {

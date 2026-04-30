@@ -10,14 +10,14 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorApp(
     IServiceProvider provider,
-    RootComponentList rootComponents,
+    IInfiniFrameRootComponentList rootComponents,
     IInfiniFrameJsComponentConfiguration? rootComponentConfiguration = null,
     IDisposable? unhandledExceptionRegistration = null
 ) : IAsyncDisposable {
 
     private bool _disposed;
     public IServiceProvider ServiceProvider { get; } = provider;
-    private RootComponentList RootComponents { get; } = rootComponents;
+    private IInfiniFrameRootComponentList RootComponents { get; } = rootComponents;
     private IInfiniFrameJsComponentConfiguration? RootComponentConfiguration { get; } = rootComponentConfiguration;
     private IDisposable? UnhandledExceptionRegistration { get; } = unhandledExceptionRegistration;
 
