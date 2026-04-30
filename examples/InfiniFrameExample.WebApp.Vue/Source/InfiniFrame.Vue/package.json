@@ -9,14 +9,14 @@
     "vue.fullscreen-preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.21"
+    "vue": "^3.5.33"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/tsconfig": "^0.8.1",
-    "@types/node": "^20.12.5",
-    "typescript": "~5.8.3",
-    "vite": "^7.3.2",
-    "vue-tsc": "^3.0.7"
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/tsconfig": "^0.9.1",
+    "@types/node": "^25.6.0",
+    "typescript": "6.0.3",
+    "vite": "^8.0.10",
+    "vue-tsc": "^3.2.7"
   }
 }
