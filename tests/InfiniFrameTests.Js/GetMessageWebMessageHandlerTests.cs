@@ -17,35 +17,6 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class GetMessageWebMessageHandlerTests {
     [Test]
-    public async Task GetMessage_TitleGet_ReturnsWindowTitle() {
-        // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _)
-            = CreateWindowHarness();
-
-        builder.RegisterTitleChangedWebMessageHandler();
-        window.Window.Title.Returns("Native Test Title");
-
-        string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
-            HandlerNames.TitleGet,
-            command: InteropEnvelopeProtocol.GetCommand,
-            requestId: "req-title-1"
-        );
-
-        // Act
-        events.OnWebMessageReceived(inboundMessage);
-
-        // Assert
-        InteropEnvelopeParseResult response = GetLatestGetMessageResponse(window);
-
-        using JsonDocument doc = JsonDocument.Parse(response.Payload!);
-        JsonElement payload = doc.RootElement;
-
-        await Assert.That(payload.GetProperty("requestId").GetString()).IsEqualTo("req-title-1");
-        await Assert.That(payload.GetProperty("success").GetBoolean()).IsTrue();
-        await Assert.That(payload.GetProperty("data").GetString()).IsEqualTo("Native Test Title");
-    }
-
-    [Test]
     public async Task GetMessage_StandardGetRequest_Title_ReturnsWindowTitle() {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _)

@@ -74,7 +74,25 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle() {
+    public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitl() {
+        // Arrange
+        IPage page = await GetRootPageAsync();
+        string originalTitleState = RuntimeContext.Window.Title;
+
+        // Act
+        string titleFromJsInitially = await EvaluateWhenPageReadyAsync<string>(
+            page,
+            // lang=javascript
+            "async () => await window.infiniframe.window.getTitleAsync()"
+        );
+
+        // Assert
+        await Assert.That(titleFromJsInitially).IsEqualTo(originalTitleState);
+    }
+
+    [Test]
+    [NotInParallel(ParallelControl.Playwright)]
+    public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle_AndShouldReturnCorrectTitle() {
         IPage page = await GetRootPageAsync();
         string originalTitleState = RuntimeContext.Window.Title;
 
@@ -86,29 +104,21 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
 
         await Assert.That(titleFromJsInitially).IsEqualTo(originalTitleState);
 
-        try {
-            await page.ClickAsync(TitleToggleButtonSelector);
-            string toggledTitle = await WaitForStateChangeAsync(
-                originalTitleState,
-                stateProvider: () => RuntimeContext.Window.Title
-            );
+        await page.ClickAsync(TitleToggleButtonSelector);
+        string toggledTitle = await WaitForStateChangeAsync(
+            originalTitleState,
+            stateProvider: () => RuntimeContext.Window.Title
+        );
 
-            string titleFromJs = await EvaluateWhenPageReadyAsync<string>(
-                page,
-                // lang=javascript
-                "async () => await window.infiniframe.window.getTitleAsync()"
-            );
-
-            await Assert.That(toggledTitle).IsEqualTo(ToggledTitle);
-            await Assert.That(titleFromJs).IsEqualTo(ToggledTitle);
-        }
-        finally {
-            RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
-            await EvaluateWhenPageReadyAsync(
-                page,
-                // lang=javascript
-                $"() => {{ document.title = '{RuntimeContext.DefaultDocumentTitle}'; }}"
-            );
-        }
+        string titleFromJs = await EvaluateWhenPageReadyAsync<string>(
+            page,
+            // lang=javascript
+            "async () => await window.infiniframe.window.getTitleAsync()"
+        );
+        
+        await Assert.That(toggledTitle).IsEqualTo(ToggledTitle)
+            .And.IsNotEqualTo(originalTitleState);
+        await Assert.That(titleFromJs).IsEqualTo(ToggledTitle)
+            .And.IsNotEqualTo(originalTitleState);
     }
 }

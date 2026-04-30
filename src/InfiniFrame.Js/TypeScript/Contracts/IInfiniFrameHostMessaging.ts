@@ -11,7 +11,6 @@ const infiniframe: string = "__infiniframe";
 export const SendToHostMessageIds = {
     getRequest: `${infiniframe}:get`,
     titleChange: `${infiniframe}:title:change`,
-    titleGet: `${infiniframe}:title:get`,
     fullscreenEnter: `${infiniframe}:fullscreen:enter`,
     fullscreenExit: `${infiniframe}:fullscreen:exit`,
     openExternalLink: `${infiniframe}:open:external`,

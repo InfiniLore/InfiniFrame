@@ -18,19 +18,15 @@ public static class HandlerNames {
     internal const string RegisterOpenExternal = $"{InfiniFramePrefix}:register:open:external";
 
     internal const string TitleChanged = $"{InfiniFramePrefix}:title:change";
-    internal const string TitleGet = $"{InfiniFramePrefix}:title:get";
     internal const string RegisterTitleChange = $"{InfiniFramePrefix}:register:title:change";
 
     internal const string WindowReady = $"{InfiniFramePrefix}:ready";
     internal const string GetRequest = $"{InfiniFramePrefix}:get";
     internal const string GetResponse = $"{InfiniFramePrefix}:get:response";
 
-
     internal const string WindowMinimize = $"{InfiniFramePrefix}:window:minimize";
     internal const string WindowMaximize = $"{InfiniFramePrefix}:window:maximize";
     internal const string WindowClose = $"{InfiniFramePrefix}:window:close";
-    // internal const string WindowOpen = $"{InfiniFramePrefix}:window:open";
 
     internal const string RegisterWindowClose = $"{InfiniFramePrefix}:register:window:close";
-    // internal const string RegisterWindowOpen = $"{InfiniFramePrefix}:register:window:open";
 }
