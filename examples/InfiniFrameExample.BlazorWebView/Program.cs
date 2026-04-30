@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
-using InfiniFrame.Js.Interop.MessageHandlers;
 using InfiniFrameExample.BlazorWebView.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -34,7 +33,6 @@ public static class Program {
 
         appBuilder.WithInfiniFrameWindowBuilder(builder => {
             builder
-                .RegisterStandardGetWebMessageHandler()
                 // .SetTransparent(true)
                 // .SetChromeless(true)
                 // .SetResizable(true)

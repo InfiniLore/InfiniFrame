@@ -6,7 +6,6 @@ using InfiniFrame.HostMessaging;
 using InfiniFrame.Interop;
 using InfiniFrame.Js;
 using InfiniFrame.Js.Interop;
-using InfiniFrame.Js.Interop.MessageHandlers;
 using InfiniFrameTests.Shared.TestDoubles;
 using NSubstitute;
 using System.Text.Json;
@@ -22,7 +21,7 @@ public class GetMessageWebMessageHandlerTests {
         (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _)
             = CreateWindowHarness();
 
-        builder.RegisterStandardGetWebMessageHandler();
+        builder.RegisterGetWebMessageHandler();
         window.Window.Title.Returns("Native Test Title");
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(

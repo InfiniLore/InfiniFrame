@@ -7,7 +7,6 @@ using InfiniFrame.WebServer;
 using InfiniFrameExample.WebApp.Blazor.Components;
 using Serilog;
 using System.Drawing;
-using InfiniFrame.Js.Interop.MessageHandlers;
 
 namespace InfiniFrameExample.WebApp.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------

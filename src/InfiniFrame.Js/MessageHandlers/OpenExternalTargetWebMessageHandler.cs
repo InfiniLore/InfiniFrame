@@ -1,11 +1,14 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Js;
+using InfiniFrame.Js.Interop;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace InfiniFrame.Js.Interop.MessageHandlers;
+// ReSharper disable once CheckNamespace
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

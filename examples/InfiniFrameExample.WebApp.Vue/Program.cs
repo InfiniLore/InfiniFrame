@@ -4,7 +4,6 @@
 using InfiniFrame;
 using InfiniFrame.WebServer;
 using System.Drawing;
-using InfiniFrame.Js.Interop.MessageHandlers;
 
 namespace InfiniFrameExample.WebApp.Vue;
 // ---------------------------------------------------------------------------------------------------------------------

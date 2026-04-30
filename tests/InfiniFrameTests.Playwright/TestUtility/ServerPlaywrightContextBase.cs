@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Js.Interop.MessageHandlers;
 using InfiniFrameTests.Shared;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;

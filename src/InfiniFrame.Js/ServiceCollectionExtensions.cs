@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView;
-using InfiniFrame.Js.Interop.MessageHandlers;
 using InfiniFrame.WebServer;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,14 +19,14 @@ public static class ServiceCollectionExtensions {
     // ReSharper disable once UnusedMethodReturnValue.Global
     public static IInfiniFrameWebApplicationBuilder AddInfiniFrameJs(this IInfiniFrameWebApplicationBuilder builder) {
         builder.Services.AddInfiniFrameJs();
-        builder.WindowBuilder.RegisterStandardGetWebMessageHandler();
+        builder.WindowBuilder.RegisterGetWebMessageHandler();
         return builder;
     }
     
     // ReSharper disable once UnusedMethodReturnValue.Global
     public static IInfiniFrameBlazorAppBuilder AddInfiniFrameJs(this IInfiniFrameBlazorAppBuilder builder) {
         builder.Services.AddInfiniFrameJs();
-        builder.WindowBuilder.RegisterStandardGetWebMessageHandler();
+        builder.WindowBuilder.RegisterGetWebMessageHandler();
         return builder;
     }
 }
