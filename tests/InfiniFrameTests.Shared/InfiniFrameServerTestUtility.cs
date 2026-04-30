@@ -40,7 +40,7 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
                 builder.WebApp.WebHost.UseStaticWebAssets();
 
                 appBuilder?.Invoke(builder.WebApp);
-                windowBuilder?.Invoke(builder.Window);
+                windowBuilder?.Invoke(builder.WindowBuilder);
 
                 InfiniFrameWebApplication app = builder.Build();
 

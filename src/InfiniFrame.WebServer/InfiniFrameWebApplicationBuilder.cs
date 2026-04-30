@@ -1,22 +1,25 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Js;
+
 namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWebApplicationBuilder {
+public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilder {
     public required WebApplicationBuilder WebApp { get; init; }
-    public required InfiniFrameWindowBuilder Window { get; init; }
+    public required IInfiniFrameWindowBuilder WindowBuilder { get; init; }
+    
+    public IServiceCollection Services => WebApp.Services;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     internal InfiniFrameWebApplicationBuilder Initialize() {
-        WebApp.Services
-            .AddSingleton<IInfiniFrameWindowBuilder>(Window)
-            .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
-            ;
+        Services
+            .AddSingleton(WindowBuilder)
+            .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider));
 
         WebApp.WebHost.UseStaticWebAssets();
 
@@ -29,8 +32,10 @@ public class InfiniFrameWebApplicationBuilder {
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .FirstOrDefault();
 
-        if (startUrl is not null) Window.SetStartUrl(startUrl);
+        if (startUrl is not null) WindowBuilder.SetStartUrl(startUrl);
 
+        this.AddInfiniFrameJs();
+        
         return this;
     }
 

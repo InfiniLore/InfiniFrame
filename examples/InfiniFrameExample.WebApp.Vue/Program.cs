@@ -13,10 +13,10 @@ namespace InfiniFrameExample.WebApp.Vue;
 public static class Program {
     [STAThread]
     public static void Main(string[] args) {
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
+        InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
         // WebApplicationBuilder appBuilder = builder.WebApp;
 
-        builder.Window
+        appBuilder.WindowBuilder
             .Center()
             // .SetTransparent(true)
             // .SetUseOsDefaultSize(false)
@@ -36,7 +36,7 @@ public static class Program {
             })
             ;
         
-        InfiniFrameWebApplication application = builder.Build();
+        InfiniFrameWebApplication application = appBuilder.Build();
 
         application.UseAutoServerClose();
         

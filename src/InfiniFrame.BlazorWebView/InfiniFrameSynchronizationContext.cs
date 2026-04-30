@@ -23,9 +23,11 @@ namespace InfiniFrame.BlazorWebView;
 // relying on that for single-threadedness. Maybe also in the future InfiniFrame could consider having its own
 // built-in SyncContext/Dispatcher like other UI platforms.
 public class InfiniFrameSynchronizationContext(IServiceProvider provider, InfiniFrameSynchronizationState? state = null) : SynchronizationContext {
-    private readonly InfiniFrameSynchronizationState _state = state ?? new InfiniFrameSynchronizationState();
-    private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(provider.GetRequiredService<IInfiniFrameWindow>);
+    // ReSharper disable once ConvertClosureToMethodGroup
+    private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(() => provider.GetRequiredService<IInfiniFrameWindow>());
 
+    private readonly InfiniFrameSynchronizationState _state = state ?? new InfiniFrameSynchronizationState();
+    
     public event UnhandledExceptionEventHandler? UnhandledException;
 
     // -----------------------------------------------------------------------------------------------------------------

@@ -19,21 +19,18 @@ public static class Program {
         // -------------------------------------------------------------------------------------------------------------
         // Builder
         // -------------------------------------------------------------------------------------------------------------
-        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder(args);
-        WebApplicationBuilder appBuilder = builder.WebApp;
+        InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
 
-        appBuilder.Services.AddLogging(config => {
-            config.ClearProviders();
-            config.AddSerilog();
-        });
-
-        appBuilder.Services.AddSerilog(config => {
-            config.WriteTo.Async(static c => c.Console())
-                .MinimumLevel.Debug();
-        });
-
-        // register the root component and selector
-        appBuilder.Services.AddRazorComponents()
+        appBuilder.Services
+            .AddLogging(config => {
+                config.ClearProviders();
+                config.AddSerilog();
+            })
+            .AddSerilog(config => {
+                config.WriteTo.Async(static c => c.Console())
+                    .MinimumLevel.Debug();
+            })
+            .AddRazorComponents()
             .AddInteractiveServerComponents();
 
         appBuilder.Services.AddHttpClient("ServerApi", (sp, client) => {
@@ -54,10 +51,9 @@ public static class Program {
 
         appBuilder.Services.AddInfiniFrameJs();
         
-        appBuilder.WebHost.UseStaticWebAssets();
+        appBuilder.WebApp.WebHost.UseStaticWebAssets();
 
-        InfiniFrameWindowBuilder windowBuilder = builder.Window;
-        windowBuilder
+        appBuilder.WindowBuilder
             // .SetTransparent(true)
             // .SetChromeless(true)
             // .SetResizable(true)
@@ -76,7 +72,7 @@ public static class Program {
         // -------------------------------------------------------------------------------------------------------------
         // App
         // -------------------------------------------------------------------------------------------------------------
-        InfiniFrameWebApplication application = builder.Build();
+        InfiniFrameWebApplication application = appBuilder.Build();
         application.UseAutoServerClose();
         
         WebApplication webApp = application.WebApp;

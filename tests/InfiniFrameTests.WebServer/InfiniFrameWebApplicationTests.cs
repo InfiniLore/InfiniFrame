@@ -28,7 +28,7 @@ public class InfiniFrameWebApplicationTests {
         // Assert
         await Assert.That(builder).IsNotNull();
         await Assert.That(builder.WebApp).IsNotNull();
-        await Assert.That(builder.Window).IsNotNull();
+        await Assert.That(builder.WindowBuilder).IsNotNull();
     }
 
     [Test]

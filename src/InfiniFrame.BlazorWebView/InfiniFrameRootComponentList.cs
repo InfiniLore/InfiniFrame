@@ -9,7 +9,7 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class RootComponentList : IEnumerable<(Type, string)>, IJSComponentConfiguration {
+public class InfiniFrameRootComponentList : IInfiniFrameRootComponentList {
     private readonly List<(Type componentType, string domElementSelector)> _components = [];
     public JSComponentConfigurationStore JSComponents { get; } = new();
 
