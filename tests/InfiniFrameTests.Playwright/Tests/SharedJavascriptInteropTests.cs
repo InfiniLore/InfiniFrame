@@ -64,7 +64,8 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         }
         finally {
             RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
-            await page.EvaluateAsync(
+            await ExecuteWhenPageReadyAsync(
+                page,
                 // lang=javascript
                 $"() => {{ document.title = '{RuntimeContext.DefaultDocumentTitle}'; }}"
             );
