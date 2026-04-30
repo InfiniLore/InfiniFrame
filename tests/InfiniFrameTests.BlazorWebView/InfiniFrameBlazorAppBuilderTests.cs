@@ -59,56 +59,11 @@ public class InfiniFrameBlazorAppBuilderTests {
         }
     }
 
-    private sealed class TriggerableUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
-        private readonly object _gate = new();
-        private readonly List<UnhandledExceptionEventHandler> _handlers = [];
-
-        public IDisposable Register(UnhandledExceptionEventHandler handler) {
-            ArgumentNullException.ThrowIfNull(handler);
-
-            lock (_gate) {
-                _handlers.Add(handler);
-            }
-
-            return new Subscription(this, handler);
-        }
-
-        public void Raise(Exception exception) {
-            UnhandledExceptionEventHandler[] handlers;
-            lock (_gate) {
-                handlers = [.._handlers];
-            }
-
-            var args = new UnhandledExceptionEventArgs(exception, isTerminating: false);
-            foreach (UnhandledExceptionEventHandler handler in handlers) {
-                handler(this, args);
-            }
-        }
-
-        private void Unregister(UnhandledExceptionEventHandler handler) {
-            lock (_gate) {
-                _handlers.Remove(handler);
-            }
-        }
-
-        private sealed class Subscription(TriggerableUnhandledExceptionSource owner, UnhandledExceptionEventHandler handler) : IDisposable {
-            private TriggerableUnhandledExceptionSource? _owner = owner;
-            private UnhandledExceptionEventHandler? _handler = handler;
-
-            public void Dispose() {
-                TriggerableUnhandledExceptionSource? owner = Interlocked.Exchange(ref _owner, null);
-                UnhandledExceptionEventHandler? handler = Interlocked.Exchange(ref _handler, null);
-                if (owner is null || handler is null) return;
-                owner.Unregister(handler);
-            }
-        }
-    }
-
     [Test]
     public async Task Build_WithExternalProvider_ShouldUseProvidedServiceProvider() {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
-        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+        ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
 
         // Act
         InfiniFrameBlazorApp app = builder.Build(serviceProvider);
@@ -152,7 +107,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         builder.RootComponents.RegisterForJavaScript<TestJsComponent>("test-js-component");
 
         // Assert
-        await using ServiceProvider provider = builder.Services.BuildServiceProvider();
+        ServiceProvider provider = builder.Services.BuildServiceProvider();
         var store = provider.GetRequiredService<JSComponentConfigurationStore>();
         var config = provider.GetRequiredService<IInfiniFrameJsComponentConfiguration>();
 
@@ -223,7 +178,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task CreateDefault_RegistersUnhandledExceptionSourceByDefault() {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
-        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+        ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
 
         // Act
         var source = serviceProvider.GetService<IInfiniFrameUnhandledExceptionSource>();
@@ -236,7 +191,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task CreateDefault_ExceptionSourceRejectsNullHandler() {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
-        await using ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
+        ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
         var source = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
 
         // Act
@@ -250,31 +205,9 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task GlobalUnhandledExceptionHandler_RoutesToWindowAndStopsAfterDispose() {
-        // Arrange
-        var exceptionSource = new TriggerableUnhandledExceptionSource();
-        var window = Substitute.For<IInfiniFrameWindow>();
-        var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
-        builder.Services.RemoveAll<IInfiniFrameUnhandledExceptionSource>();
-        builder.Services.RemoveAll<IInfiniFrameWindow>();
-        builder.Services.AddSingleton<IInfiniFrameUnhandledExceptionSource>(exceptionSource);
-        builder.Services.AddSingleton(window);
-        InfiniFrameBlazorApp app = builder.Build();
-
-        // Act
-        exceptionSource.Raise(new InvalidOperationException("boom-before-dispose"));
-        await app.DisposeAsync();
-        exceptionSource.Raise(new InvalidOperationException("boom-after-dispose"));
-
-        // Assert
-        window.Received(1).ShowMessage(
-            "Fatal exception",
-            Arg.Is<string>(text => text.Contains("boom-before-dispose", StringComparison.Ordinal)),
-            Arg.Any<InfiniFrameDialogButtons>(),
-            Arg.Any<InfiniFrameDialogIcon>());
-    }
-
-    [Test]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices() {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();

@@ -17,6 +17,13 @@ public class PublishServiceTests {
     private static readonly SemaphoreSlim PublishTestLock = new(1, 1);
     private TemporaryDirectory TemporaryDirectory { get; set; } = null!;
 
+    
+    #if DEBUG
+    private const string Configuration = "Debug";
+    #else
+    private const string Configuration = "Release";
+    #endif
+    
     // -----------------------------------------------------------------------------------------------------------------
     // Test Setup
     // -----------------------------------------------------------------------------------------------------------------
@@ -40,7 +47,7 @@ public class PublishServiceTests {
         var options = new PublishOptions {
             ProjectPath = Path.Join(Path.GetTempPath(), $"missing-project-{Guid.NewGuid():N}.csproj"),
             Rid = "auto",
-            Configuration = "Release",
+            Configuration = Configuration,
             Framework = "net10.0",
             SelfContained = true
         };
@@ -77,7 +84,7 @@ public class PublishServiceTests {
         var options = new PublishOptions {
             ProjectPath = appProjectPath,
             Rid = rid,
-            Configuration = "Release",
+            Configuration = Configuration,
             Framework = "net10.0",
             SelfContained = true,
             Output = outputPath
@@ -136,7 +143,7 @@ public class PublishServiceTests {
         var options = new PublishOptions {
             ProjectPath = appProjectPath,
             Rid = rid,
-            Configuration = "Release",
+            Configuration = Configuration,
             Framework = "net10.0",
             SelfContained = true,
             Output = outputPath
@@ -199,7 +206,7 @@ public class PublishServiceTests {
         var options = new PublishOptions {
             ProjectPath = appProjectPath,
             Rid = rid,
-            Configuration = "Release",
+            Configuration = Configuration,
             Framework = "net10.0",
             SelfContained = true,
             Output = outputPath

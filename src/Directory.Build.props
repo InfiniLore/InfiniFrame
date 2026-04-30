@@ -1,27 +1,40 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Project>
     <PropertyGroup>
+        <!-- Targeting -->
         <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
         <LangVersion Condition="'$(TargetFramework)'=='net8.0'">12.0</LangVersion>
         <LangVersion Condition="'$(TargetFramework)'=='net9.0'">13.0</LangVersion>
         <LangVersion Condition="'$(TargetFramework)'=='net10.0'">14.0</LangVersion>
 
+        <!-- Code quality -->
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>latest</AnalysisLevel>
-
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <IsPackable>true</IsPackable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <DebugType>embedded</DebugType>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <Deterministic>true</Deterministic>
-        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == '' and '$(CI)' == 'true'">true</GeneratePackageOnBuild>
-        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">false</GeneratePackageOnBuild>
-        <IncludeBuildOutput>true</IncludeBuildOutput>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
+        <!-- Compilation / runtime behavior -->
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+        <!-- AOT / trimming -->
+        <PublishTrimmed>true</PublishTrimmed>
+        <PublishAot>true</PublishAot>
+
+        <!-- Debugging / reproducibility -->
+        <DebugType>embedded</DebugType>
+        <Deterministic>true</Deterministic>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+        <!-- Packaging -->
+        <IsPackable>true</IsPackable>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
+
+        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == '' and '$(CI)' == 'true'">true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">false</GeneratePackageOnBuild>
+
+        <!-- NuGet metadata -->
         <Version>0.10.0</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>

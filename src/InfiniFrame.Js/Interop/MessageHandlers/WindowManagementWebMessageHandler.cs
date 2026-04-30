@@ -7,17 +7,17 @@ namespace InfiniFrame.Js.Interop.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class WindowManagementWebMessageHandler {
     public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
+        builder.MessageHandlers.RegisterHandler(
             HandlerNames.WindowMinimize,
-            handler: static window => window.SetMinimized(true));
+            (window, _) => window.SetMinimized(true));
 
-        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
+        builder.MessageHandlers.RegisterHandler(
             HandlerNames.WindowMaximize,
-            handler: static window => window.SetMaximized(true));
+            (window, _) => window.SetMaximized(true));
 
-        RegisterWindowCreatedUtility.RegisterMessageHandler(builder,
+        builder.MessageHandlers.RegisterHandler(
             HandlerNames.WindowClose,
-            handler: static window => window.Close());
+            (window, _) => window.Close());
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterWindowClose);
         return builder;

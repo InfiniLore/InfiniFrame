@@ -20,23 +20,25 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
     [NotInParallel(ParallelControl.Playwright)]
     public async Task InfiniWindowIsInitialized() {
         IPage page = await GetRootPageAsync();
-
-        var initState = await page.EvaluateAsync<JsonElement>(
+        var initState = await EvaluateWhenPageReadyAsync<JsonElement>(
+            page,
             // lang=javascript
             """
             () => ({
-                hasHostBridge: window.infiniframe?.host !== undefined && window.infiniframe?.host !== null,
-                hasInfiniFrameApi: window.infiniFrame !== undefined && window.infiniFrame !== null,
-                hasHostMessaging: window.infiniFrame?.HostMessaging !== undefined && window.infiniFrame?.HostMessaging !== null,
-                hasSendMessageToHost: typeof window.infiniFrame?.sendMessageToHost === 'function'
+                hasNativeHostBridge: window.__infiniframe?.host !== undefined && window.__infiniframe?.host !== null,
+                hasInfiniFrameApi: window.infiniframe !== undefined && window.infiniframe !== null,
+                hasMessaging: window.infiniframe?.messaging !== undefined && window.infiniframe?.messaging !== null,
+                hasWindow: window.infiniframe?.window !== undefined && window.infiniframe?.window !== null,
+                hasUtils: window.infiniframe?.utils !== undefined && window.infiniframe?.utils !== null,
             })
             """
         );
 
-        await Assert.That(initState.GetProperty("hasHostBridge").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasNativeHostBridge").GetBoolean()).IsTrue();
         await Assert.That(initState.GetProperty("hasInfiniFrameApi").GetBoolean()).IsTrue();
-        await Assert.That(initState.GetProperty("hasHostMessaging").GetBoolean()).IsTrue();
-        await Assert.That(initState.GetProperty("hasSendMessageToHost").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasMessaging").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasWindow").GetBoolean()).IsTrue();
+        await Assert.That(initState.GetProperty("hasUtils").GetBoolean()).IsTrue();
     }
 
     [Test]
@@ -45,9 +47,10 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
         IPage page = await GetRootPageAsync();
         string originalTitle = RuntimeContext.Window.Title;
 
-        await page.EvaluateAsync(
+        await EvaluateWhenPageReadyAsync(
+            page,
             // lang=javascript
-            $"() => window.infiniframe?.host?.postMessage({{ id: '__infiniframe:title:change', data: '{NewTitleFromHostMessage}', version: 1 }})"
+            $"() => window.__infiniframe?.host?.postData({{ id: '__infiniframe:title:change', command: 'Post', data: '{NewTitleFromHostMessage}', version: 2 }})"
         );
         string updatedTitle = await WaitForStateChangeAsync(
             originalTitle,
@@ -67,7 +70,8 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
         RuntimeContext.SuppressWindowCloseRequests(true);
 
         try {
-            await page.EvaluateAsync(
+            await EvaluateWhenPageReadyAsync(
+                page,
                 // lang=javascript
                 "() => window.close()"
             );

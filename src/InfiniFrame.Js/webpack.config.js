@@ -13,7 +13,7 @@ module.exports = (env, _) => {
         },
         output: {
             path: path.resolve(__dirname, './wwwroot'),
-            filename: "InfiniFrame.js", // <--- Will be compiled to this single file
+            filename: "InfiniFrame.js",
         },
         resolve: {
             extensions: [".ts", ".tsx", ".js"],

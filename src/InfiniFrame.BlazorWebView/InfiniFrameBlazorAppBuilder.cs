@@ -149,10 +149,22 @@ public class InfiniFrameBlazorAppBuilder {
 
     private static IDisposable RegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
         var exceptionSource = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
+
         return exceptionSource.Register((_, error) => {
-            serviceProvider
-                .GetService<IInfiniFrameWindow>()?
-                .ShowMessage("Fatal exception", error.ExceptionObject.ToString());
+            try {
+                var window = serviceProvider.GetService<IInfiniFrameWindow>();
+
+                // Only interact if safe
+                window?.Invoke(() => {
+                    window.ShowMessage(
+                        "Fatal exception",
+                        error.ExceptionObject.ToString()
+                    );
+                });
+            }
+            catch (Exception) {
+                // Never throw from global exception handler
+            }
         });
     }
 }

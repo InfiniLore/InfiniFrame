@@ -4,13 +4,11 @@
         <EnableNativeDllCopy>true</EnableNativeDllCopy>
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepositoryRoot>
 
-        <!-- Pick ONE TFM to run frontend build -->
-        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'=='' and '$(TargetFrameworks)'!=''">
-            $([System.String]::Copy('$(TargetFrameworks)').Split(';')[0])
-        </FrontendBuildOnceTargetFramework>
-        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'==''">
-            $(TargetFramework)
-        </FrontendBuildOnceTargetFramework>
+        <!-- Run frontend build once -->
+        <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
+
+        <!-- Anchor output -->
+        <FrontendOutputFile>$(ProjectDir)wwwroot\index.html</FrontendOutputFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,28 +21,30 @@
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
-    <!-- Build frontend exactly once -->
+    <!-- Track ALL frontend sources -->
+    <ItemGroup>
+        <FrontendSources Include="$(ProjectDir)Sources\infiniframe-playwright-vue\**\*" />
+    </ItemGroup>
+
+    <!-- Incremental frontend build -->
     <Target Name="BuildFrontend"
-            BeforeTargets="AssignTargetPaths;Build"
-            Inputs="$(ProjectDir)Sources\infiniframe-playwright-vue\package.json"
-            Outputs="$(ProjectDir)Sources\infiniframe-playwright-vue\.buildstamp"
-            Condition="
-            '$(DesignTimeBuild)'!='true' and
-            '$(TargetFramework)'=='$(FrontendBuildOnceTargetFramework)'">
+            BeforeTargets="Build"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
 
-        <Message Text="Running frontend build (once)..." Importance="high" />
-
-        <!-- Install deps only if needed -->
+        <Message Text="Running Vue frontend build..." Importance="high" />
+        
         <Exec Command="npm ci"
-              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue"
-              Condition="!Exists('$(ProjectDir)Sources\infiniframe-playwright-vue\node_modules')" />
+              Condition="'$(CI)' == 'true'"
+              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />
 
-        <!-- Always run build -->
         <Exec Command="npm run build"
               WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />
 
-        <!-- Stamp file for incremental builds -->
-        <Touch Files="$(ProjectDir)Sources\infiniframe-playwright-vue\.buildstamp" />
+        <!-- prevent re-running in same build graph -->
+        <PropertyGroup>
+            <RunFrontendBuild>false</RunFrontendBuild>
+        </PropertyGroup>
+
     </Target>
 
     <!-- Copy InfiniFrame bridge script -->
@@ -56,7 +56,7 @@
               SkipUnchangedFiles="true" />
     </Target>
 
-    <!-- Copy frontend output to build output -->
+    <!-- Copy frontend output -->
     <Target Name="CopyFrontendToOutput"
             AfterTargets="Build"
             Condition="'$(DesignTimeBuild)'!='true'">

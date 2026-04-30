@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Configuration;
+using InfiniFrame.HostMessaging;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,14 +19,14 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     private readonly InfiniFrameWindowNativeParameterBuilder _configuration = new();
     private readonly InfiniFrameWindowCustomSchemeHandlers _customSchemeHandlers = new();
-    private readonly InfiniFrameWindowMessageHandlers _messageHandlers = new();
+    private readonly InfiniFrameWindowMessageHandler _messageHandlers = new();
 
     private InfiniFrameWindowEvents _events = new();
 
     private InfiniFrameWindowBuilder() {}
     public IInfiniFrameWindowNativeParameterBuilder Configuration => _configuration;
     public IInfiniFrameWindowEvents Events => _events;
-    public IInfiniFrameWindowMessageHandlers MessageHandlers => _messageHandlers;
+    public IInfiniFrameWindowMessageHandler MessageHandlers => _messageHandlers;
 
     public StaticAssetSettings? StaticAssets { get; set; }
     public IInfiniFrameWindowCustomSchemeHandlers CustomSchemeHandlers => _customSchemeHandlers;
@@ -33,9 +34,13 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    public static InfiniFrameWindowBuilder Create(InfiniFrameWindowEvents? events = null) => new() {
-        _events = events ?? new InfiniFrameWindowEvents()
-    };
+    public static InfiniFrameWindowBuilder Create(InfiniFrameWindowEvents? events = null) {
+        var builder = new InfiniFrameWindowBuilder {
+            _events = events ?? new InfiniFrameWindowEvents()
+        };
+
+        return builder;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -43,7 +48,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         InfiniFrameWindowBuildSnapshot snapshot = CreateSnapshot(provider);
         InfiniFrameWindowEvents events = InfiniFrameWindowEvents.FromSnapshot(snapshot.Events);
-        InfiniFrameWindowMessageHandlers messageHandlers = InfiniFrameWindowMessageHandlers.FromSnapshot(snapshot.MessageHandlers);
+        InfiniFrameWindowMessageHandler messageHandlers = InfiniFrameWindowMessageHandler.FromSnapshot(snapshot.MessageHandlers);
         InfiniFrameWindowCustomSchemeHandlers customSchemes = InfiniFrameWindowCustomSchemeHandlers.FromSnapshot(snapshot.CustomSchemes);
 
         var window = new InfiniFrameWindow {
@@ -103,9 +108,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             throw new InvalidOperationException("Maximum number of custom scheme handlers is 16.");
 
         InfiniFrameWindowMessageHandlersSnapshot messageHandlersSnapshot = _messageHandlers.ToSnapshot();
-        InfiniFrameWindowMessageHandlers messageHandlers = InfiniFrameWindowMessageHandlers.FromSnapshot(messageHandlersSnapshot);
-
-        InfiniFrameWindowEventsSnapshot eventsSnapshot = AddWebMessageHandler(_events.ToSnapshot(), messageHandlers.Handle);
+        InfiniFrameWindowEventsSnapshot eventsSnapshot = AddWebMessageHandler(_events.ToSnapshot());
         InfiniFrameWindowCustomSchemeHandlersSnapshot customSchemesSnapshot = _customSchemeHandlers.ToSnapshot();
 
         InfiniFrameWindowEvents events = InfiniFrameWindowEvents.FromSnapshot(eventsSnapshot);
@@ -133,10 +136,12 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     }
 
     private static InfiniFrameWindowEventsSnapshot AddWebMessageHandler(
-        InfiniFrameWindowEventsSnapshot snapshot,
-        Action<IInfiniFrameWindow, string> handler
+        InfiniFrameWindowEventsSnapshot snapshot
     ) {
-        Action<IInfiniFrameWindow, string>[] handlersWithBridge = [..snapshot.WebMessageReceived, handler];
+        Action<IInfiniFrameWindow, string>[] handlersWithBridge = [
+            ..snapshot.WebMessageReceived, 
+            InfiniFrameWindowMessageHandler.HandleMessageRequest
+        ];
 
         return snapshot with {
             WebMessageReceived = handlersWithBridge

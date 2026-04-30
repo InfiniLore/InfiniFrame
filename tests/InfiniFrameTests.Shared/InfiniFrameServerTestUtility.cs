@@ -107,8 +107,13 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
             // ignored
         }
 
-        if (!_thread.Join(TimeSpan.FromSeconds(5)))
+        bool stoppedInTime = _thread.Join(TimeSpan.FromSeconds(5));
+        if (!stoppedInTime) {
+            Console.WriteLine(
+                $"[InfiniFrameServerTestUtility] Warning: server thread did not stop within 5s. " +
+                $"ThreadId={_thread.ManagedThreadId}, State={_thread.ThreadState}. Interrupting thread.");
             _thread.Interrupt();
+        }
     }
 
     private static bool IsNonFatalException(Exception exception)

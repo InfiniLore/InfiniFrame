@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.HostMessaging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrameTests;
@@ -29,7 +30,6 @@ public class WebMessageReceivedHandlerTests {
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [DisplayName($"{nameof(WebMessageReceivedHandlerTests)}.{nameof(Handler_ResolvesServiceFromProvider)}")]
     public async Task Handler_ResolvesServiceFromProvider() {
         // Arrange
         var events = new InfiniFrameWindowEvents();
@@ -41,7 +41,7 @@ public class WebMessageReceivedHandlerTests {
             CustomSchemes = new InfiniFrameWindowCustomSchemeHandlers(),
             Parent = null,
             Events = events,
-            MessageHandlers = new InfiniFrameWindowMessageHandlers()
+            MessageHandlers = new InfiniFrameWindowMessageHandler()
         };
         events.CompleteSetup(window);
 

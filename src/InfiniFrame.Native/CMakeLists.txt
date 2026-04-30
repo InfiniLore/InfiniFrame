@@ -18,8 +18,8 @@ endif ()
 # ----------------------------------------------------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
-
 include("${CMAKE_SOURCE_DIR}/cmake/NativeDependencies.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/Embed.InfiniFrameHostJs.cmake")
 
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.Windows.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.MacOS.cmake")
@@ -30,7 +30,6 @@ infiniframe_setup_dependencies()
 # ----------------------------------------------------------------------------------------------------------------------
 # Source Files
 # ----------------------------------------------------------------------------------------------------------------------
-
 set(COMMON_SOURCES
         Exports.cpp
 )
@@ -65,6 +64,8 @@ set(HEADER_FILES
         Core/InfiniFrame.h
         Core/InfiniFrameWindow.h
         Core/InfiniFrameDialog.h
+        Embedded/Embedded.h
+        Embedded/InfiniFrameHostJs/InfiniFrameHostJs.h
         Types/Basic.h
         Types/Dialog.h
         Core/InfiniFrameInitParams.h
@@ -89,12 +90,17 @@ if (WIN32)
             "${WINDOWS_SOURCES}"
             "${HEADER_FILES}"
     )
+
+    infiniframe_setup_embed_js(${PROJECT_NAME})
+    
 elseif (APPLE)
     infiniframe_configure_macos_target(
             ${PROJECT_NAME}
             "${MAC_SOURCES}"
             "${HEADER_FILES}"
     )
+
+    infiniframe_setup_embed_js(${PROJECT_NAME})
 elseif (UNIX)
     infiniframe_configure_linux_target(
             ${PROJECT_NAME}
@@ -103,12 +109,13 @@ elseif (UNIX)
             "${LINUX_SOURCES}"
             "${HEADER_FILES}"
     )
+
+    infiniframe_setup_embed_js(${PROJECT_NAME})
 endif ()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Sanitizers (Debug only)
 # ----------------------------------------------------------------------------------------------------------------------
-
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         message(STATUS "Enabling sanitizers for Debug build")
@@ -126,7 +133,6 @@ endif ()
 # ----------------------------------------------------------------------------------------------------------------------
 # Precompiled Headers
 # ----------------------------------------------------------------------------------------------------------------------
-
 if (NOT APPLE)
     target_precompile_headers(${PROJECT_NAME} PRIVATE
             <string>

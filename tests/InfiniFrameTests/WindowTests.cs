@@ -15,7 +15,6 @@ public class WindowTests {
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [DisplayName($"{nameof(WindowTests)}.{nameof(InstanceHandle_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
@@ -31,7 +30,6 @@ public class WindowTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(WindowTests)}.{nameof(WindowHandle_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
@@ -49,7 +47,6 @@ public class WindowTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(WindowTests)}.{nameof(Monitors_IsNotEmpty)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
@@ -66,7 +63,6 @@ public class WindowTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(WindowTests)}.{nameof(NativeType_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
@@ -82,7 +78,6 @@ public class WindowTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(WindowTests)}.{nameof(Close_IsDefined)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]

@@ -7,26 +7,24 @@ namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 internal readonly record struct InteropEnvelopeParseResult(
     bool Success,
+    bool IsIgnored,
     string? MessageId,
     string? Payload,
-    string? Error,
-    bool IsLegacyProtocol
-) {
-    public static InteropEnvelopeParseResult CreateSuccess(string messageId, string? payload, bool isLegacyProtocol = false)
-        => new(
-            true,
-            messageId,
-            payload,
-            null,
-            isLegacyProtocol
-        );
+    string? Command,
+    string? RequestId,
+    string? Error
+)
+{
+    public static InteropEnvelopeParseResult Ignored => new(false, true, null, null, null, null, null);
+
+    public static InteropEnvelopeParseResult CreateSuccess(
+        string messageId,
+        string? payload,
+        string? command = null,
+        string? requestId = null
+    )
+        => new(true, false, messageId, payload, command, requestId, null);
 
     public static InteropEnvelopeParseResult CreateFailure(string error)
-        => new(
-            false,
-            null,
-            null,
-            error,
-            false
-        );
+        => new(false, false, null, null, null, null, error);
 }

@@ -4,13 +4,11 @@
         <EnableNativeDllCopy>true</EnableNativeDllCopy>
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepositoryRoot>
 
-        <!-- Pick ONE TFM to run frontend build -->
-        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'=='' and '$(TargetFrameworks)'!=''">
-            $([System.String]::Copy('$(TargetFrameworks)').Split(';')[0])
-        </FrontendBuildOnceTargetFramework>
-        <FrontendBuildOnceTargetFramework Condition="'$(FrontendBuildOnceTargetFramework)'==''">
-            $(TargetFramework)
-        </FrontendBuildOnceTargetFramework>
+        <!-- Run frontend build once -->
+        <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
+
+        <!-- Anchor output -->
+        <FrontendOutputFile>$(ProjectDir)wwwroot\index.html</FrontendOutputFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,28 +21,30 @@
         <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
-    <!-- ✅ Build frontend exactly once -->
+    <!-- Track ALL frontend sources -->
+    <ItemGroup>
+        <FrontendSources Include="$(ProjectDir)Sources\infiniframe-playwright-react\**\*" />
+    </ItemGroup>
+
+    <!-- Incremental frontend build -->
     <Target Name="BuildFrontend"
-            BeforeTargets="AssignTargetPaths;Build"
-            Inputs="$(ProjectDir)Sources\infiniframe-playwright-react\package.json"
-            Outputs="$(ProjectDir)Sources\infiniframe-playwright-react\.buildstamp"
-            Condition="
-            '$(DesignTimeBuild)'!='true' and
-            '$(TargetFramework)'=='$(FrontendBuildOnceTargetFramework)'">
+            BeforeTargets="Build"
+            Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
 
-        <Message Text="Running React frontend build (once)..." Importance="high" />
+        <Message Text="Running React frontend build..." Importance="high" />
 
-        <!-- Install only if needed -->
         <Exec Command="npm ci"
-              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react"
-              Condition="!Exists('$(ProjectDir)Sources\infiniframe-playwright-react\node_modules')" />
+              Condition="'$(CI)' == 'true'"
+              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react" />
 
-        <!-- Build -->
         <Exec Command="npm run build"
               WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-react" />
 
-        <!-- Stamp file -->
-        <Touch Files="$(ProjectDir)Sources\infiniframe-playwright-react\.buildstamp" />
+        <!-- prevent re-running in same build graph -->
+        <PropertyGroup>
+            <RunFrontendBuild>false</RunFrontendBuild>
+        </PropertyGroup>
+
     </Target>
 
     <!-- Copy InfiniFrame bridge script -->

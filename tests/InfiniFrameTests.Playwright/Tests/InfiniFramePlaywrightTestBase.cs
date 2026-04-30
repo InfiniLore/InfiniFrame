@@ -12,6 +12,7 @@ public abstract class InfiniFramePlaywrightTestBase {
     protected abstract IPlaywrightRuntimeContext RuntimeContext { get; }
 
     private const string RootRelativeUrl = "/";
+    private const int NavigationRetryCount = 5;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -19,10 +20,11 @@ public abstract class InfiniFramePlaywrightTestBase {
     [Before(Test)]
     public async Task ResetStateBeforeEachTest() {
         RuntimeContext.ResetWindowCloseRequestCount();
-        RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
 
         IPage page = await GetRootPageAsync();
-        await page.EvaluateAsync(
+        RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
+        await EvaluateWhenPageReadyAsync(
+            page,
             // lang=javascript
             $"() => {{ document.title = '{RuntimeContext.DefaultDocumentTitle}'; }}"
         );
@@ -93,4 +95,42 @@ public abstract class InfiniFramePlaywrightTestBase {
         Fail.Test("State change timeout exceeded");
         return default!;
     }
+
+    protected static async Task EvaluateWhenPageReadyAsync(IPage page, string script) {
+        for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
+            try {
+                await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+                await page.EvaluateAsync(script);
+                return;
+            }
+            catch (PlaywrightException exception) when (
+                attempt < NavigationRetryCount &&
+                IsExecutionContextDestroyedByNavigation(exception)
+            ) {
+                await page.WaitForTimeoutAsync(150);
+            }
+        }
+        Fail.Test($"Could not execute script: {script} within timeout");
+    }
+
+    protected static async Task<T> EvaluateWhenPageReadyAsync<T>(IPage page, string script) {
+        for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
+            try {
+                await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+                var result = await page.EvaluateAsync<T>(script);
+                return result;
+            }
+            catch (PlaywrightException exception) when (
+                attempt < NavigationRetryCount &&
+                IsExecutionContextDestroyedByNavigation(exception)
+            ) {
+                await page.WaitForTimeoutAsync(150);
+            }
+        }
+        Fail.Test($"Could not execute script: {script} within timeout");
+        return default!;
+    }
+
+    private static bool IsExecutionContextDestroyedByNavigation(PlaywrightException exception)
+        => exception.Message.Contains("Execution context was destroyed", StringComparison.OrdinalIgnoreCase);
 }

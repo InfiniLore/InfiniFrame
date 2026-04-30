@@ -11,7 +11,6 @@ namespace InfiniFrameTests.Js;
 // ---------------------------------------------------------------------------------------------------------------------
 public class RegisterWindowCreatedUtilityTests {
     [Test]
-    [DisplayName($"{nameof(RegisterWindowCreatedUtilityTests)}.{nameof(Registration_IsGatedByWindowReadyHandshake)}")]
     public async Task Registration_IsGatedByWindowReadyHandshake() {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
@@ -21,7 +20,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add(builder.MessageHandlers.Handle);
+        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
         events.CompleteSetup(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
@@ -44,8 +43,6 @@ public class RegisterWindowCreatedUtilityTests {
     }
 
     [Test]
-    [DisplayName(
-        $"{nameof(RegisterWindowCreatedUtilityTests)}.{nameof(Registration_IsIdempotentAcrossRepeatedReadyMessages)}")]
     public async Task Registration_IsIdempotentAcrossRepeatedReadyMessages() {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
@@ -55,7 +52,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add(builder.MessageHandlers.Handle);
+        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
         events.CompleteSetup(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
@@ -71,8 +68,6 @@ public class RegisterWindowCreatedUtilityTests {
     }
 
     [Test]
-    [DisplayName(
-        $"{nameof(RegisterWindowCreatedUtilityTests)}.{nameof(Registration_FallbackSend_DoesNotBlockLaterReadyResend)}")]
     public async Task Registration_FallbackSend_DoesNotBlockLaterReadyResend() {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
@@ -82,7 +77,7 @@ public class RegisterWindowCreatedUtilityTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add(builder.MessageHandlers.Handle);
+        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
         events.CompleteSetup(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);

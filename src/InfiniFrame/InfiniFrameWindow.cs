@@ -27,7 +27,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public required IServiceProvider? ServiceProvider { get; init; }
     public required IInfiniFrameWindow? Parent { get; init; }
     public required IInfiniFrameWindowEvents Events { get; init; }
-    public required IInfiniFrameWindowMessageHandlers MessageHandlers { get; init; }
+    public required IInfiniFrameWindowMessageHandler MessageHandlers { get; init; }
 
     public IntPtr NativeType => WindowType.Value;
     public IntPtr InstanceHandle { get; private set; }
@@ -114,7 +114,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Send a message to the native window's native browser control's JavaScript context.
     /// </summary>
     /// <remarks>
-    ///     In JavaScript, messages can be received via <code>window.infiniframe.host.receiveMessage(callback)</code>.
+    ///     In JavaScript, messages can be received via <code>window.__infiniframe.host.receiveCallback(callback)</code>.
     /// </remarks>
     /// <exception cref="ApplicationException">
     ///     Thrown when the window is not initialized.

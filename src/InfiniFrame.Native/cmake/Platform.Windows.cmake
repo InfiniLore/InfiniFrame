@@ -6,7 +6,9 @@
 # - windows_sources: list of Windows-only source files
 # - header_files: list of header files for IDE organization
 function(infiniframe_configure_windows_target target_name common_sources test_sources windows_sources header_files)
-    add_library(${target_name} SHARED
+    add_library(${target_name} SHARED)
+
+    target_sources(${target_name} PRIVATE
             ${common_sources}
             ${test_sources}
             ${windows_sources}

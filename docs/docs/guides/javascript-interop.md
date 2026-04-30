@@ -18,16 +18,16 @@ The messaging channel works the same way regardless of whether you are using pla
 Use this JavaScript API as the primary send path:
 
 ```js
-window.infiniframe.host.postMessage({ id: "my:event", data: { value: 1 }, version: 1 });
+window.infiniframe.host.postData({ id: "my:event", command: "Post", data: { value: 1 }, version: 2 });
 ```
 
 Messages are validated against a versioned envelope contract:
 
 ```json
-{ "id": "<string>", "data": <any>, "version": 1, "channel": "<optional-string>" }
+{ "id": "<string>", "command": "Post|Get", "data": <any>, "version": 2, "requestId": "<optional-string>", "channel": "<optional-string>" }
 ```
 
-`id` and `version` are required. `version` must be `1`.
+`id`, `command`, and `version` are required. `version` must be `2`.
 
 Legacy `id;payload` messaging is out of support. The JSON envelope contract is the only supported protocol.
 
@@ -41,7 +41,7 @@ await window.SendWebMessageAsync("async hello");
 In the browser:
 
 ```js
-window.infiniframe.host.receiveMessage(function(message) {
+window.infiniframe.host.receiveCallback(function(message) {
     console.log("Received from C#:", message);
 });
 ```
@@ -49,7 +49,7 @@ window.infiniframe.host.receiveMessage(function(message) {
 ### Sending from JavaScript to C#
 
 ```js
-window.infiniframe.host.postMessage({ id: "action", data: 42, version: 1 });
+window.infiniframe.host.postData({ id: "action", command: "Post", data: 42, version: 2 });
 ```
 
 In C#:
@@ -81,8 +81,8 @@ window.MessageHandlers.RegisterMessageHandler("set-title", (window, title) => {
 ```
 
 ```js
-window.infiniframe.host.postMessage({ id: "ping", data: null, version: 1 });
-window.infiniframe.host.postMessage({ id: "set-title", data: "New Title", version: 1 });
+window.infiniframe.host.postData({ id: "ping", command: "Post", data: null, version: 2 });
+window.infiniframe.host.postData({ id: "set-title", command: "Post", data: "New Title", version: 2 });
 ```
 
 ## InfiniFrame.Js
@@ -169,19 +169,19 @@ These are used internally by `InfiniFrameWindowDragArea`, `InfiniFrameWindowButt
 All messages follow a versioned JSON envelope:
 
 ```js
-window.infiniframe.host.postMessage({ id: "__infiniframe:window:minimize", data: null, version: 1 });
-window.infiniframe.host.postMessage({ id: "__infiniframe:window:maximize", data: null, version: 1 });
-window.infiniframe.host.postMessage({ id: "__infiniframe:window:close", data: null, version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:window:minimize", command: "Post", data: null, version: 2 });
+window.infiniframe.host.postData({ id: "__infiniframe:window:maximize", command: "Post", data: null, version: 2 });
+window.infiniframe.host.postData({ id: "__infiniframe:window:close", command: "Post", data: null, version: 2 });
 ```
 
 ```js
 // Title data is the new title string
-window.infiniframe.host.postMessage({ id: "__infiniframe:title:change", data: "New Window Title", version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:title:change", command: "Post", data: "New Window Title", version: 2 });
 ```
 
 ```js
-window.infiniframe.host.postMessage({ id: "__infiniframe:fullscreen:enter", data: null, version: 1 });
-window.infiniframe.host.postMessage({ id: "__infiniframe:fullscreen:exit", data: null, version: 1 });
+window.infiniframe.host.postData({ id: "__infiniframe:fullscreen:enter", command: "Post", data: null, version: 2 });
+window.infiniframe.host.postData({ id: "__infiniframe:fullscreen:exit", command: "Post", data: null, version: 2 });
 ```
 
 When using `InfiniFrame.js`, you can go through its API instead:
@@ -200,13 +200,14 @@ The message channel uses a JSON envelope, so structured data can be placed direc
 ```csharp
 window.SendWebMessage(JsonSerializer.Serialize(new {
     id = "update",
+    command = "Post",
     data = new { count = 42 },
-    version = 1
+    version = 2
 }));
 ```
 
 ```js
-window.infiniframe.host.receiveMessage(function(raw) {
+window.infiniframe.host.receiveCallback(function(raw) {
     const envelope = JSON.parse(raw);
     if (envelope.id === "update") {
         updateUI(envelope.data.count);
@@ -217,10 +218,11 @@ window.infiniframe.host.receiveMessage(function(raw) {
 **JS → C#:**
 
 ```js
-window.infiniframe.host.postMessage({
+window.infiniframe.host.postData({
     id: "log",
+    command: "Post",
     data: { message: "hello" },
-    version: 1
+    version: 2
 });
 ```
 

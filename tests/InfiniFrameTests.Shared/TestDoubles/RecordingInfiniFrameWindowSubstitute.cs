@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.HostMessaging;
 using InfiniFrame.Js.Interop;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -43,7 +44,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
 
         // Default wiring for simple tests that don't need explicit builder binding.
         Window.Events.Returns(new InfiniFrameWindowEvents());
-        Window.MessageHandlers.Returns(new InfiniFrameWindowMessageHandlers());
+        Window.MessageHandlers.Returns(new InfiniFrameWindowMessageHandler());
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -64,5 +65,11 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
         return snapshot
             .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
             .Count(result => result.Success && string.Equals(result.MessageId, messageId, StringComparison.Ordinal));
+    }
+
+    public IReadOnlyList<string> GetSentMessagesSnapshot() {
+        lock (_sentWebMessagesLock) {
+            return [.._sentWebMessages];
+        }
     }
 }

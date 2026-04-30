@@ -20,7 +20,6 @@ public class InteropEnvelopeProtocolTests {
     );
 
     [Test]
-    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(CreateEnvelope_GoldenVectors)}")]
     public async Task CreateEnvelope_GoldenVectors() {
         JsonElement vectors = GoldenVectors.RootElement.GetProperty("createVectors");
         foreach (JsonElement vector in vectors.EnumerateArray()) {
@@ -36,7 +35,6 @@ public class InteropEnvelopeProtocolTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(ParseEnvelope_GoldenVectors)}")]
     public async Task ParseEnvelope_GoldenVectors() {
         JsonElement vectors = GoldenVectors.RootElement.GetProperty("parseVectors");
         foreach (JsonElement vector in vectors.EnumerateArray()) {
@@ -54,19 +52,16 @@ public class InteropEnvelopeProtocolTests {
             }
 
             string expectedMessageId = vector.GetProperty("messageId").GetString()!;
-            bool expectedIsLegacy = vector.GetProperty("isLegacyProtocol").GetBoolean();
             string? expectedPayload = vector.GetProperty("payload").ValueKind == JsonValueKind.Null
                 ? null
                 : vector.GetProperty("payload").GetString();
 
             await Assert.That(result.MessageId).IsEqualTo(expectedMessageId);
-            await Assert.That(result.IsLegacyProtocol).IsEqualTo(expectedIsLegacy);
             await Assert.That(result.Payload).IsEqualTo(expectedPayload);
         }
     }
 
     [Test]
-    [DisplayName($"{nameof(InteropEnvelopeProtocolTests)}.{nameof(Parse_TooLargeMessage_IsRejected)}")]
     public async Task Parse_TooLargeMessage_IsRejected() {
         string message = new('a', InteropEnvelopeProtocol.MaxMessageSizeBytes + 1);
         InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(message);

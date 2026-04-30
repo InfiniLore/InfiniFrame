@@ -12,7 +12,7 @@ namespace InfiniFrame;
 public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrameEvents {
     ILogger<IInfiniFrameWindow> Logger { get; }
     IServiceProvider? ServiceProvider { get; }
-    IInfiniFrameWindowMessageHandlers MessageHandlers { get; }
+    IInfiniFrameWindowMessageHandler MessageHandlers { get; }
 
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }

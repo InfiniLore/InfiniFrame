@@ -2,10 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import InfiniFrame from "./InfiniFrame";
-import {installHostBridge} from "./Interop/HostBridge";
+import {installHostBridge} from "./Interop/NativeHost/HostBridge";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export {};
 installHostBridge();
-window.infiniFrame = new InfiniFrame();
+
+window.infiniframe = new InfiniFrame();

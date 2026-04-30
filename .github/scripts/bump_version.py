@@ -6,6 +6,7 @@ import sys
 import xml.etree.ElementTree as Et
 from pathlib import Path
 from typing import Final, Literal, Never
+import json
 
 # Resolve paths from the repository root: .github/scripts -> repo root is three levels up.
 REPO_ROOT: Final[Path] = Path(__file__).parent.parent.parent
@@ -13,7 +14,6 @@ FILE: Final[Path] = REPO_ROOT / "src" / "Directory.Build.props"
 CMAKE_FILE: Final[Path] = REPO_ROOT / "src" / "InfiniFrame.Native" / "CMakeLists.txt"
 VERSION_PATTERN: Final[re.Pattern[str]] = re.compile(r"^\d+\.\d+\.\d+(-preview\.\d+)?$")
 BumpPart = Literal["major", "minor", "patch", "preview"]
-
 
 def fail(message: str) -> Never:
     print(message)
@@ -82,6 +82,60 @@ def update_cmake_version(cmake_path: Path, new_version: str) -> None:
         fail("Error: Could not find InfiniFrame.Native version in CMakeLists.txt")
     cmake_path.write_text(updated, encoding="utf-8")
 
+def update_package_json_version(pkg_path: Path, new_version: str) -> None:
+    """
+    Updates:
+      - package.json "version"
+      - optionally replaces version placeholders inside scripts
+    """
+    data = json.loads(pkg_path.read_text(encoding="utf-8"))
+
+    # Update top-level version
+    if "version" in data:
+        data["version"] = new_version
+
+    # Optional: update version strings inside scripts
+    scripts = data.get("scripts", {})
+    for key, value in scripts.items():
+        if isinstance(value, str):
+            scripts[key] = _replace_version_in_string(value, new_version)
+
+    data["scripts"] = scripts
+
+    pkg_path.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        )
+
+def _replace_version_in_string(text: str, new_version: str) -> str:
+    """
+    Replace common version patterns inside arbitrary strings.
+    Extend this as needed per repo conventions.
+    """
+    # Example patterns you might have in scripts:
+    #  - --version 1.2.3
+    #  - v1.2.3
+    #  - 1.2.3-preview.4
+
+    text = re.sub(
+        r"\d+\.\d+\.\d+(?:-preview\.\d+)?",
+        new_version,
+        text,
+    )
+    return text
+
+def update_all_package_json_files(repo_root: Path, new_version: str) -> None:
+    """
+    Recursively updates all package.json files in the repository.
+    """
+    for pkg_path in repo_root.rglob("package.json"):
+        # skip certain folders just in case
+        if "node_modules" in pkg_path.parts:
+            continue
+        if "InfiniFrame.Native" in pkg_path.parts:
+            continue
+            
+        update_package_json_version(pkg_path, new_version)
 
 def main() -> int:
     if len(sys.argv) < 2:
@@ -122,6 +176,7 @@ def main() -> int:
     version_elem.text = new_version
     tree.write(FILE, encoding="utf-8", xml_declaration=True)
     update_cmake_version(CMAKE_FILE, new_version)
+    update_all_package_json_files(REPO_ROOT, new_version)
 
     print(f"Bumped version: {old_version} -> {new_version}")
     print(new_version)  # Output for GitHub Actions to capture
