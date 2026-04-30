@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Embedded/InfiniFrameHostJs/InfiniFrameHostJs.h"
+#include "InfiniFrameHostJs.h"
 #include <simdutf.h>
 
 namespace Embedded {
@@ -8,27 +8,26 @@ namespace Embedded {
         static const std::wstring cached = [] {
             const auto* src = reinterpret_cast<const char*>(g_infiniframe_host_js_data);
 
-            std::wstring result;
-            result.resize(simdutf::utf16_length_from_utf8(src, g_infiniframe_host_js_size));
+            std::u16string temp;
+            temp.resize(simdutf::utf16_length_from_utf8(src, g_infiniframe_host_js_size));
 
             const size_t written = simdutf::convert_utf8_to_utf16(
                 src,
                 g_infiniframe_host_js_size,
-                reinterpret_cast<char16_t*>(result.data())
+                temp.data()
             );
 
-            result.resize(written);
-            return result;
+            return std::wstring(temp.begin(), temp.begin() + written);
         }();
 
         return cached;
     }
     
-    inline std::string  InfiniFrameHostJsUtf8() {
-        const auto* src = reinterpret_cast<const char*>(g_infiniframe_host_js_data);
-        return {
-            src,
-            g_infiniframe_host_js_size
-        };
+    inline const std::string& InfiniFrameHostJsUtf8() {
+        static const std::string cached = [] {
+            const auto* src = reinterpret_cast<const char*>(g_infiniframe_host_js_data);
+            return std::string(src, g_infiniframe_host_js_size);
+        }();
+        return cached;
     }
 }

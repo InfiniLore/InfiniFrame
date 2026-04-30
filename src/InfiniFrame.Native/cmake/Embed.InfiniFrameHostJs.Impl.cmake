@@ -4,23 +4,40 @@ string(LENGTH "${JS_CONTENT}" LEN)
 math(EXPR LAST "${LEN} - 2")
 
 set(BYTES "")
+set(COUNT 0)
 
 foreach(i RANGE 0 ${LAST} 2)
     string(SUBSTRING "${JS_CONTENT}" ${i} 2 BYTE)
-    string(APPEND BYTES "0x${BYTE},")
+
+    if(i EQUAL ${LAST})
+        string(APPEND BYTES "0x${BYTE}")
+    else()
+        string(APPEND BYTES "0x${BYTE},")
+    endif()
+
+    math(EXPR COUNT "${COUNT} + 1")
+
+    if(COUNT EQUAL 16)
+        string(APPEND BYTES "\n")
+        set(COUNT 0)
+    endif()
 endforeach()
 
-file(WRITE "${OUTPUT}" "
-#pragma once
+# Header file
+file(WRITE "${OUTPUT_HEADER}" "#pragma once
+// ReSharper disable once CppUnusedIncludeDirective
 #include <cstddef>
 
-extern \"C\" {
+extern const unsigned char g_infiniframe_host_js_data[];
+extern const size_t g_infiniframe_host_js_size;
+")
 
-static const unsigned char g_infiniframe_host_js_data[] = {
+# Source file
+file(WRITE "${OUTPUT_SOURCE}" "#include \"InfiniFrameHostJs.h\"
+
+alignas(16) const unsigned char g_infiniframe_host_js_data[] = {
 ${BYTES}
 };
 
-constexpr size_t g_infiniframe_host_js_size = sizeof(g_infiniframe_host_js_data);
-
-}
+const size_t g_infiniframe_host_js_size = sizeof(g_infiniframe_host_js_data);
 ")
