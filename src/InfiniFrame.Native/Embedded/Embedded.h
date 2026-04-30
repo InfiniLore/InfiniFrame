@@ -17,7 +17,9 @@ namespace Embedded {
                 temp.data()
             );
 
-            return std::wstring(temp.begin(), temp.begin() + written);
+            temp.resize(written);
+
+            return std::wstring(temp.begin(), temp.end());
         }();
 
         return cached;
