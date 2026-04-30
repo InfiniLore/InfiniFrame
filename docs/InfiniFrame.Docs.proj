@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <None Include="**/*"
-          Exclude="bin/**;obj/**;_site/**;.doxygen/**;api/**/*.yml;api/toc.yml;api/.manifest" />
+          Exclude="build/**;.docusaurus/**;node_modules/**;bin/**;obj/**;_site/**;.doxygen/**;api/**/*.yml;api/toc.yml;api/.manifest" />
   </ItemGroup>
 
   <Target Name="Build">

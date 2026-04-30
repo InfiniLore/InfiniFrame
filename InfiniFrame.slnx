@@ -11,12 +11,19 @@
     <File Path="InfiniFrame.GitHubActions.Testing.slnf" />
     <File Path="InfiniFrame.GitHubActions.Release.slnf" />
     <File Path="InfiniFrame.GitHubActions.slnf" />
-    <File Path="scripts/nuget-install.sh" />
   </Folder>
-  <Folder Name="/.dev-tools/docker/">
-    <File Path="scripts/docker-linux-run-blazorwebview.sh" />
-    <File Path="scripts/docker-linux-compose.sh" />
-    <File Path="scripts/docker-linux-run-tests.sh" />
+  <Folder Name="/.dev-tools/docker/" />
+  <Folder Name="/.dev-tools/docker/compose/">
+    <File Path="docker/compose/infiniframe-linux.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/docker/infiniframe-linux/">
+    <File Path="docker/infiniframe-linux/bootstrap-workspace.sh" />
+    <File Path="docker/infiniframe-linux/common.sh" />
+    <File Path="docker/infiniframe-linux/Dockerfile" />
+    <File Path="docker/infiniframe-linux/example-blazorwebview.sh" />
+    <File Path="docker/infiniframe-linux/NuGet.Config" />
+    <File Path="docker/infiniframe-linux/playwright.sh" />
+    <File Path="docker/infiniframe-linux/tests.sh" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />
@@ -74,18 +81,26 @@
     <File Path=".github/workflows/shared-testing-windows-trim-aot.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
+  <Folder Name="/.dev-tools/scripts/">
+    <File Path="scripts/clion-linux-environment.sh" />
+    <File Path="scripts/docker-linux-compose.sh" />
+    <File Path="scripts/docker-linux-run-blazorwebview.sh" />
+    <File Path="scripts/docker-linux-run-playwrighttests.sh" />
+    <File Path="scripts/docker-linux-run-tests.sh" />
+    <File Path="scripts/nuget-install.sh" />
+  </Folder>
   <Folder Name="/docs/">
     <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />
   </Folder>
-  <Folder Name="/example/">
+  <Folder Name="/examples/">
+    <File Path="examples/Directory.Build.props" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView.MultiWindowSample/InfiniFrameExample.BlazorWebView.MultiWindowSample.csproj" />
     <Project Path="examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj" />
-    <Project Path="examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj" />
     <Project Path="examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj" />
+    <Project Path="examples/InfiniFrameExample.TrimAotSmoke/InfiniFrameExample.TrimAotSmoke.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.Blazor/InfiniFrameExample.WebApp.Blazor.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.React/InfiniFrameExample.WebApp.React.csproj" />
     <Project Path="examples/InfiniFrameExample.WebApp.Vue/InfiniFrameExample.WebApp.Vue.csproj" />
-    <File Path="examples/Directory.Build.props" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
