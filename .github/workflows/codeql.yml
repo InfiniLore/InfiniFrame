@@ -48,15 +48,8 @@ jobs:
         timeout-minutes: 90
         
         if: >
-            (
-              github.event_name != 'pull_request' ||
-              github.event.pull_request.draft == false
-            ) &&
-            (
-              (matrix.language == 'csharp' && needs.changes.outputs.csharp == 'true') ||
-              (matrix.language == 'c-cpp' && needs.changes.outputs.cpp == 'true') ||
-              (matrix.language != 'csharp' && matrix.language != 'c-cpp')
-            )
+            github.event_name != 'pull_request' ||
+            github.event.pull_request.draft == false
         
         permissions:
             security-events: write
@@ -88,12 +81,30 @@ jobs:
                         build-mode: none
         
         steps:
+            -   name: Determine Matrix Run
+                id: gate
+                shell: pwsh
+                run: |
+                    $run = 'false'
+                    if ("${{ matrix.language }}" -eq "csharp" -and "${{ needs.changes.outputs.csharp }}" -eq "true") {
+                      $run = 'true'
+                    }
+                    elseif ("${{ matrix.language }}" -eq "c-cpp" -and "${{ needs.changes.outputs.cpp }}" -eq "true") {
+                      $run = 'true'
+                    }
+                    elseif ("${{ matrix.language }}" -ne "csharp" -and "${{ matrix.language }}" -ne "c-cpp") {
+                      $run = 'true'
+                    }
+                    "run=$run" >> $env:GITHUB_OUTPUT
+
             -   name: Checkout
+                if: steps.gate.outputs.run == 'true'
                 uses: actions/checkout@v6
                 with:
                     fetch-depth: 1
 
             -   name: Setup .NET
+                if: steps.gate.outputs.run == 'true'
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -102,11 +113,11 @@ jobs:
                         10.x
 
             -   name: Setup CMake
-                if: matrix.language == 'c-cpp'
+                if: steps.gate.outputs.run == 'true' && matrix.language == 'c-cpp'
                 uses: lukka/get-cmake@latest
 
             -   name: Setup Native dependencies
-                if: matrix.language == 'c-cpp' || matrix.language == 'csharp'
+                if: steps.gate.outputs.run == 'true' && (matrix.language == 'c-cpp' || matrix.language == 'csharp')
                 # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
@@ -116,6 +127,7 @@ jobs:
                     brew-restore-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-
 
             -   name: Initialize CodeQL
+                if: steps.gate.outputs.run == 'true'
                 uses: github/codeql-action/init@v4
                 with:
                     languages: ${{ matrix.language }}
@@ -124,22 +136,23 @@ jobs:
                     config-file: ./.github/codeql-config.yml
 
             -   name: Restore C# (.slnx)
-                if: matrix.language == 'csharp'
+                if: steps.gate.outputs.run == 'true' && matrix.language == 'csharp'
                 run: |
                     dotnet restore InfiniFrame.slnx /p:NoWarn=NU1503
 
             -   name: Build Native (CodeQL)
-                if: matrix.language == 'c-cpp'
+                if: steps.gate.outputs.run == 'true' && matrix.language == 'c-cpp'
                 shell: pwsh
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj --configuration Release --no-restore -p:SolutionDir="${{ github.workspace }}/" -p:Platform=x64
 
             -   name: Build C# (.slnx)
-                if: matrix.language == 'csharp'
+                if: steps.gate.outputs.run == 'true' && matrix.language == 'csharp'
                 run: |
                     dotnet build InfiniFrame.slnx --no-restore --configuration Release -p:InfiniFramePackAfterBuild=false
 
             -   name: Perform CodeQL Analysis
+                if: steps.gate.outputs.run == 'true'
                 uses: github/codeql-action/analyze@v4
                 with:
                     category: "/language:${{ matrix.language }}"
