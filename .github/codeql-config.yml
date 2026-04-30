@@ -1,5 +1,13 @@
 name: "InfiniFrame CodeQL Config"
 
+# Keep analysis focused on source roots.
+paths:
+  - "src/**"
+  - ".github/actions/**"
+  - ".github/scripts/**"
+  - ".github/workflows/**"
+  - "scripts/**"
+
 # Exclude third-party and generated content from CodeQL alerting.
 paths-ignore:
   - "src/InfiniFrame.Native/artifacts/**"
@@ -12,6 +20,7 @@ paths-ignore:
   - "src/InfiniFrame.Native/cmake-build-release-linux/**"
   - "src/InfiniFrame.Native/cmake-build-release-windows/**"
   - "src/InfiniFrame.Native/Dependencies/**"
+  - "tests/**"
   - "**/node_modules/**"
   - "**/dist/**"
   - "**/bin/**"

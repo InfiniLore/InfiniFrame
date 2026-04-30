@@ -72,7 +72,7 @@ jobs:
                         build-mode: manual
                     -   language: csharp
                         os: ubuntu-latest
-                        build-mode: manual
+                        build-mode: none
                     -   language: javascript-typescript
                         os: ubuntu-latest
                         build-mode: none
@@ -117,7 +117,7 @@ jobs:
                 uses: lukka/get-cmake@latest
 
             -   name: Setup Native dependencies
-                if: steps.gate.outputs.run == 'true' && (matrix.language == 'c-cpp' || matrix.language == 'csharp')
+                if: steps.gate.outputs.run == 'true' && matrix.language == 'c-cpp'
                 # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
@@ -136,7 +136,7 @@ jobs:
                     config-file: ./.github/codeql-config.yml
 
             -   name: Restore C# (.slnx)
-                if: steps.gate.outputs.run == 'true' && matrix.language == 'csharp'
+                if: steps.gate.outputs.run == 'true' && matrix.language == 'csharp' && matrix.build-mode == 'manual'
                 run: |
                     dotnet restore InfiniFrame.slnx /p:NoWarn=NU1503
 
@@ -147,7 +147,7 @@ jobs:
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj --configuration Release --no-restore -p:SolutionDir="${{ github.workspace }}/" -p:Platform=x64
 
             -   name: Build C# (.slnx)
-                if: steps.gate.outputs.run == 'true' && matrix.language == 'csharp'
+                if: steps.gate.outputs.run == 'true' && matrix.language == 'csharp' && matrix.build-mode == 'manual'
                 run: |
                     dotnet build InfiniFrame.slnx --no-restore --configuration Release -p:InfiniFramePackAfterBuild=false
 
