@@ -162,7 +162,7 @@ public class InfiniFrameBlazorAppBuilder {
                     );
                 });
             }
-            catch {
+            catch (Exception) {
                 // Never throw from global exception handler
             }
         });
