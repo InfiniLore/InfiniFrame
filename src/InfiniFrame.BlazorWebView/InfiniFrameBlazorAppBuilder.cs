@@ -142,7 +142,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
 
         return new InfiniFrameBlazorApp(
             serviceProvider,
-            serviceProvider.GetRequiredService<InfiniFrameRootComponentList>(),
+            serviceProvider.GetRequiredService<IInfiniFrameRootComponentList>(),
             serviceProvider.GetService<IInfiniFrameJsComponentConfiguration>(),
             unhandledExceptionRegistration
         );
