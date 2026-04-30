@@ -3,9 +3,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.WebServer;
+using InfiniFrameTests.Shared.JsRuntimes;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.JSInterop;
 
 namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -38,6 +41,7 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
             try {
                 InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
                 builder.WebApp.WebHost.UseStaticWebAssets();
+                builder.WebApp.Services.TryAddScoped<IJSRuntime, TestJsRuntime>();
 
                 appBuilder?.Invoke(builder.WebApp);
                 windowBuilder?.Invoke(builder.WindowBuilder);
