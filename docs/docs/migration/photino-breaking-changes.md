@@ -1,8 +1,8 @@
-# Breaking Changes compared to Photino
+# Breaking Changes from Photino
 
-InfiniFrame is a complete, independent rework of [Photino.NET](https://github.com/tryphotino/photino.NET) and [Photino.Native](https://github.com/tryphotino/photino.native) and all other libraries within the Photino ecosystem.
-It is not a drop-in replacement and some API and general design decisions are different because of that.
-This document covers API, naming, and behavioral difference to assist with migration
+InfiniFrame is a full, independent rework of Photino.NET, Photino.Native, and the rest of the Photino ecosystem. 
+It's not a drop-in replacement, and some API decisions and general design choices are intentionally different.
+This document walks through what changed to help you migrate.
 
 ## Table of Contents
 
@@ -29,13 +29,15 @@ This document covers API, naming, and behavioral difference to assist with migra
 | Exported function prefix | `Photino_`                              | `InfiniFrame_`                       |
 | Default window title     | `"Photino"`                             | `"InfiniFrame"`                      |
 | Default user agent       | `"Photino WebView"`                     | `"InfiniFrame WebView"`              |
-| Default temp path        | `%LocalAppData%\Photino` (Windows-only) | `%TEMP%\infiniframe` (all platforms) |
+| Default temp path        | `%LocalAppData%\Photino` (Windows only) | `%TEMP%\infiniframe` (all platforms) |
 
-All type names that were prefixed `Photino` are now prefixed `InfiniFrame`. If you have any code targeting the native DLL directly via P/Invoke, all exported symbol names must be updated from `Photino_*` to `InfiniFrame_*`
+Every type that was prefixed `Photino` is now prefixed `InfiniFrame`. If you're calling the native DLL directly via P/Invoke, all exported symbol names need to change from `Photino_*` to `InfiniFrame_*`.
 
 ## Entry Point and Builder API
 
-### Photino — direct construction
+### Photino: direct construction
+
+In Photino, you construct `PhotinoWindow` directly and configure it by calling methods on the object:
 
 ```csharp
 var window = new PhotinoWindow()
@@ -45,9 +47,9 @@ var window = new PhotinoWindow()
 window.WaitForClose();
 ```
 
-`PhotinoWindow` is constructed directly. All configuration is done by calling methods on the object after construction. There is no separate builder class
+### InfiniFrame: explicit builder
 
-### InfiniFrame — explicit builder
+InfiniFrame uses a dedicated builder. Configuration must be set before calling `Build()`:
 
 ```csharp
 IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
@@ -58,11 +60,11 @@ IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
 window.WaitForClose();
 ```
 
-Configuration must be set **before** calling `Build()`. The builder accepts an optional `IServiceProvider` for DI integration. The resulting type is `IInfiniFrameWindow`, not a concrete class
+The builder optionally accepts an `IServiceProvider` for DI integration. The returned type is `IInfiniFrameWindow`, not a concrete class.
 
 ### Configuration from appsettings.json
 
-InfiniFrame supports sourcing window configuration from `IConfiguration` under an `"InfiniFrame"` key — not available in Photino:
+InfiniFrame can pull window configuration from `IConfiguration` under an `"InfiniFrame"` key. This wasn't available in Photino:
 
 ```json
 {
@@ -76,12 +78,12 @@ InfiniFrame supports sourcing window configuration from `IConfiguration` under a
 
 ### Type and class changes
 
-| Photino                                           | InfiniFrame                                                       | Notes                                          |
-|---------------------------------------------------|-------------------------------------------------------------------|------------------------------------------------|
-| `PhotinoWindow` (monolithic)                      | `IInfiniFrameWindow` (interface) + `InfiniFrameWindow` (concrete) | Users interact through the interface           |
-| No builder                                        | `InfiniFrameWindowBuilder`                                        | Separate builder class                         |
-| No configuration type                             | `InfiniFrameWindowConfiguration`                                  | Separates build-time config from runtime       |
-| `PhotinoWindow(PhotinoWindow parent)` constructor | `builder.SetParent(parentWindow)`                                 | Parent passed through builder, not constructor |
+| Photino                                           | InfiniFrame                                                       | Notes                                    |
+|---------------------------------------------------|-------------------------------------------------------------------|------------------------------------------|
+| `PhotinoWindow` (monolithic)                      | `IInfiniFrameWindow` (interface) + `InfiniFrameWindow` (concrete) | Users interact through the interface     |
+| No builder                                        | `InfiniFrameWindowBuilder`                                        | Separate builder class                   |
+| No configuration type                             | `InfiniFrameWindowConfiguration`                                  | Separates build-time config from runtime |
+| `PhotinoWindow(PhotinoWindow parent)` constructor | `builder.SetParent(parentWindow)`                                 | Parent is now passed through the builder |
 
 ## Runtime Window API
 
@@ -89,14 +91,14 @@ InfiniFrame supports sourcing window configuration from `IConfiguration` under a
 
 | Photino                                                                            | InfiniFrame                                                                         | Notes                                                                                             |
 |------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| `PhotinoWindow.Load(Uri)` / `Load(string)`                                         | `IInfiniFrameWindow.Load(Uri)` / `Load(string)`                                     | Renamed and available at runtime; initial URL can also be set via `SetStartUrl()` in the builder  |
+| `PhotinoWindow.Load(Uri)` / `Load(string)`                                         | `IInfiniFrameWindow.Load(Uri)` / `Load(string)`                                     | Available at runtime; initial URL can also be set via `SetStartUrl()` in the builder              |
 | `PhotinoWindow.LoadRawString(string)`                                              | `IInfiniFrameWindow.LoadRawString(string)`                                          | Available at runtime; initial HTML can also be set via `SetStartString()` in the builder          |
 | `PhotinoWindow.Center()`                                                           | `IInfiniFrameWindow.Center()` / `CenterOnCurrentMonitor()` / `CenterOnMonitor(int)` | Available at runtime                                                                              |
 | `PhotinoWindow.MoveTo(Point, bool)` / `Offset(Point)`                              | `window.SetLocation(x, y)` / `window.Offset(x, y)`                                  |                                                                                                   |
-| `PhotinoWindow.SetMinHeight(int)` / `SetMinWidth(int)`                             | Removed — use `SetMinSize(width, height)`                                           | Consolidated                                                                                      |
-| `PhotinoWindow.SetMaxHeight(int)` / `SetMaxWidth(int)`                             | Removed — use `SetMaxSize(width, height)`                                           | Consolidated                                                                                      |
-| `PhotinoWindow.SetLogVerbosity(int)`                                               | Removed — see [Logging](#logging)                                                   |                                                                                                   |
-| `PhotinoWindow.Win32SetWebView2Path(string)`                                       | Internal — not on public interface                                                  |                                                                                                   |
+| `PhotinoWindow.SetMinHeight(int)` / `SetMinWidth(int)`                             | Removed; use `SetMinSize(width, height)`                                            | Consolidated                                                                                      |
+| `PhotinoWindow.SetMaxHeight(int)` / `SetMaxWidth(int)`                             | Removed; use `SetMaxSize(width, height)`                                            | Consolidated                                                                                      |
+| `PhotinoWindow.SetLogVerbosity(int)`                                               | Removed; see [Logging](#logging)                                                    |                                                                                                   |
+| `PhotinoWindow.Win32SetWebView2Path(string)`                                       | Internal; not on public interface                                                   |                                                                                                   |
 | `PhotinoWindow.MacOsVersion` (static)                                              | Removed                                                                             |                                                                                                   |
 | `PhotinoWindow.IsWindowsPlatform` / `IsMacOsPlatform` / `IsLinuxPlatform` (static) | Removed from public interface                                                       |                                                                                                   |
 | `PhotinoWindow.WaitForClose()`                                                     | `IInfiniFrameWindow.WaitForClose()` and `WaitForCloseAsync()`                       | Async variant added                                                                               |
@@ -106,55 +108,53 @@ InfiniFrame supports sourcing window configuration from `IConfiguration` under a
 
 ### New APIs not in Photino
 
-| API                                                                         | Description                                                                 |
-|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| `IInfiniFrameWindow.Focused`                                                | Query or set keyboard focus state                                           |
-| `IInfiniFrameWindow.WaitForCloseAsync()`                                    | Async wait for window close                                                 |
-| `IInfiniFrameWindow.ManagedThreadId`                                        | Thread ID of the window's message loop                                      |
-| `IInfiniFrameWindow.InstanceHandle` / `NativeType`                          | Low-level native access                                                     |
-| `IInfiniFrameWindow.CachedPreFullScreenBounds` / `CachedPreMaximizedBounds` | Saved geometry for restore                                                  |
-| `RegisterCustomSchemeHandler()`                                             | Returns `IInfiniFrameWindow` (fluent) — in Photino it returned void         |
-| `ZoomEnabled`                                                               | Separate bool controlling whether user can zoom, distinct from `Zoom` level |
+| API                                                                         | Description                                                                         |
+|-----------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| `IInfiniFrameWindow.Focused`                                                | Query or set keyboard focus state                                                   |
+| `IInfiniFrameWindow.WaitForCloseAsync()`                                    | Async wait for window close                                                         |
+| `IInfiniFrameWindow.ManagedThreadId`                                        | Thread ID of the window's message loop                                              |
+| `IInfiniFrameWindow.InstanceHandle` / `NativeType`                          | Low-level native access                                                             |
+| `IInfiniFrameWindow.CachedPreFullScreenBounds` / `CachedPreMaximizedBounds` | Saved geometry for restore                                                          |
+| `RegisterCustomSchemeHandler()`                                             | Returns `IInfiniFrameWindow` (fluent); in Photino it returned void                  |
+| `ZoomEnabled`                                                               | Separate bool controlling whether the user can zoom, distinct from the `Zoom` level |
 
 ## Event System
 
-Photino uses standard .NET `EventHandler<T>` delegates. Assigning a new handler **replaces** the previous one:
+Photino uses standard .NET `EventHandler<T>` delegates. Assigning a new handler replaces the previous one:
 
 ```csharp
-// Photino — last assignment wins
+// Photino: last assignment wins
 window.RegisterWindowClosingHandler((sender, args) => { ... });
 ```
 
-InfiniFrame uses `InfiniFrameOrderedEvent<T>` — an ordered multi-subscriber system with deterministic execution order. Handlers are added via `.Add()` and execute in registration order:
+InfiniFrame uses `InfiniFrameOrderedEvent<T>`, an ordered multi-subscriber system with deterministic execution order. Handlers are added via `.Add()` and run in the order they were registered:
 
 ```csharp
-// InfiniFrame — all handlers run in order
+// InfiniFrame: all handlers run in order
 window.Events.WindowClosing.Add((window, args) => { ... });
 window.Events.WindowClosing.Add((window, args) => { ... }); // also runs
 ```
 
 ### Closing event split
 
-Photino has a single `RegisterWindowClosingHandler`. InfiniFrame splits this into two events:
+Photino has a single `RegisterWindowClosingHandler`. InfiniFrame splits this into two:
 
-| Event                    | Type                             | Description                                                                           |
-|--------------------------|----------------------------------|---------------------------------------------------------------------------------------|
-| `WindowClosingRequested` | `InfiniFrameOrderedClosingEvent` | Fired when close is requested and returning `true` from any handler cancels the close |
-| `WindowClosing`          | `InfiniFrameOrderedEvent`        | Fired when the window is definitively closing and cannot be cancelled                 |
+| Event                    | Type                             | Description                                                                 |
+|--------------------------|----------------------------------|-----------------------------------------------------------------------------|
+| `WindowClosingRequested` | `InfiniFrameOrderedClosingEvent` | Fired when close is requested; returning `true` from any handler cancels it |
+| `WindowClosing`          | `InfiniFrameOrderedEvent`        | Fired when the window is definitively closing and cannot be cancelled       |
 
 ### Event handler DI injection
 
-InfiniFrame event handlers support DI-resolved parameters when a `IServiceProvider` is provided to `Build()`:
+When an `IServiceProvider` is passed to `Build()`, InfiniFrame event handlers support DI-resolved parameters. This isn't available in Photino:
 
 ```csharp
 window.Events.WindowClosing.Add((MyService svc, IInfiniFrameWindow w) => { ... });
 ```
 
-This is not available in Photino.
-
 ## Web Messaging and Message Routing
 
-### Photino — single raw handler
+### Photino: single raw handler
 
 ```csharp
 window.RegisterWebMessageReceivedHandler((sender, message) => {
@@ -162,11 +162,11 @@ window.RegisterWebMessageReceivedHandler((sender, message) => {
 });
 ```
 
-One handler. The full message string is passed as-is.
+One handler, full message string, no routing.
 
-### InfiniFrame — typed message routing
+### InfiniFrame: typed message routing
 
-InfiniFrame uses a versioned JSON envelope protocol. Messages sent from JavaScript as `{"id":"myEvent","command":"Post","data":"some data","version":2}` are dispatched to the handler registered for `"myEvent"`:
+InfiniFrame uses a versioned JSON envelope protocol. Messages sent from JavaScript are dispatched to the handler registered for their `id`:
 
 ```csharp
 window.MessageHandlers.RegisterMessageHandler("myEvent", (window, payload) => {
@@ -174,49 +174,40 @@ window.MessageHandlers.RegisterMessageHandler("myEvent", (window, payload) => {
 });
 ```
 
-`RegisterWebMessageReceivedHandler` can still be used for raw message handling if needed, but protocol format is unchanged: JavaScript must send JSON envelopes.
-
 The JavaScript side must use the envelope format:
 
 ```js
 window.infiniframe.host.postData({ id: "myEvent", command: "Post", data: "some data", version: 2 });
 ```
 
-Legacy `messageId;payload` is out of support and not supported by InfiniFrame messaging contracts.
+`RegisterWebMessageReceivedHandler` is still available for raw message handling, but the legacy `messageId;payload` string format is gone. All messages must use the JSON envelope.
 
 ## Web Security, CORS, and Trusted Origins
 
-This is a major behavioral change from common Photino migration patterns.
+This is probably the most impactful behavioral change if you're coming from a typical Photino setup.
 
-In Photino, projects often used `SetWebSecurityEnabled(false)` to work around CORS/module-loading issues.
-In InfiniFrame, browser web security and InfiniFrame URI trust checks are separate concerns:
-
-- `SetWebSecurityEnabled(...)` controls browser engine web security toggles
-- URI origin trust is enforced by `InfiniFrameUriSecurityPolicy` (builder APIs such as `AddTrustedOrigin`, `SetTrustedOrigins`, and `SetTrustAllOrigins`)
-
-For BlazorWebView, InfiniFrame serves app content from an internal origin (`app://localhost/`) and validates requests/messages against trusted origins.
-On Windows, this relies on WebView2 custom scheme support (`ICoreWebView2EnvironmentOptions4`). Linux/macOS use WebKit and are not affected by WebView2 runtime availability.
-
-### Migration pattern
+In Photino, projects often just disabled web security to get around CORS and module-loading problems:
 
 ```csharp
-// Photino-style workaround pattern
+// Common Photino workaround
 windowBuilder.SetWebSecurityEnabled(false);
 ```
 
-Prefer this in InfiniFrame:
+In InfiniFrame, browser web security and URI origin trust are separate concerns. `SetWebSecurityEnabled(...)` still controls browser engine security toggles, but origin trust is managed through `InfiniFrameUriSecurityPolicy` via builder APIs like `AddTrustedOrigin`, `SetTrustedOrigins`, and `SetTrustAllOrigins`.
+
+For BlazorWebView, InfiniFrame serves content from `app://localhost/` and validates requests and messages against trusted origins. On Windows this relies on WebView2 custom scheme support (`ICoreWebView2EnvironmentOptions4`). Linux and macOS use WebKit and aren't affected by WebView2 runtime availability.
+
+The preferred migration pattern is to keep web security on and explicitly trust only the origins you need:
 
 ```csharp
-// Keep web security enabled and trust only required external origins
 var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
     wb.AddTrustedOrigin("https://xyz");
-    // Add redirect/CDN origins used by the module loader
     wb.AddTrustedOrigin("https://cdn.jsdelivr.net");
     wb.AddTrustedOrigin("https://unpkg.com");
 });
 ```
 
-If you need broad compatibility during migration, you can explicitly opt in to trust all origins:
+If you need broad compatibility during migration, you can opt in to trusting all origins:
 
 ```csharp
 var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
@@ -224,7 +215,7 @@ var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
 });
 ```
 
-`SetTrustAllOrigins(true)` is intentionally high-risk and should be treated as a temporary/dev-time compatibility switch, not a production default.
+`SetTrustAllOrigins(true)` is intentionally high-risk and should be treated as a temporary dev-time switch, not a production default.
 
 ### New API surface compared to Photino
 
@@ -237,34 +228,34 @@ var app = InfiniFrameBlazorAppBuilder.CreateDefault(windowBuilder: wb => {
 
 ## Logging
 
-### Photino — integer verbosity
+### Photino: integer verbosity
 
 ```csharp
 window.SetLogVerbosity(2); // 0 = silent, higher = more verbose
 ```
 
-Logs were written to `Console.Out`. Setting verbosity would itself log a message even when verbosity was 0 (known bug [#257](https://github.com/tryphotino/photino.NET/issues/257)).
+Logs went to `Console.Out`. There was also a known bug ([#257](https://github.com/tryphotino/photino.NET/issues/257)) where setting verbosity to 0 would still emit a log message.
 
-### InfiniFrame — ILogger
+### InfiniFrame: ILogger
 
-The integer verbosity system is removed entirely. InfiniFrame integrates with `Microsoft.Extensions.Logging`:
+The integer verbosity system is gone entirely. InfiniFrame integrates with `Microsoft.Extensions.Logging`:
 
 ```csharp
 var window = InfiniFrameWindowBuilder.Create()
     .Build(serviceProvider); // ILogger<IInfiniFrameWindow> resolved from DI
 ```
 
-Log output respects the configured logging provider and log-level filtering
+Log output respects your configured logging provider and level filters.
 
 ## Native C++ Interface
 
-This section is only relevant if you extend InfiniFrame at the native level or have code that calls the native DLL directly
+This section is only relevant if you're extending InfiniFrame at the native level or calling the native DLL directly.
 
 ### Pimpl architecture
 
-Photino's `Photino` class exposes platform-specific fields (`_hWnd`, `GtkWidget*`, `NSWindow*`) directly in its class declaration, requiring platform headers to be included everywhere the class is used.
+Photino's `Photino` class exposes platform-specific fields (`_hWnd`, `GtkWidget*`, `NSWindow*`) directly in its class declaration, which means platform headers have to be included everywhere the class is used.
 
-InfiniFrame uses the [Pimpl idiom](https://en.cppreference.com/w/cpp/language/pimpl.html) throughout: a `struct Impl` held by `std::unique_ptr<Impl>` is defined per-platform in the `.cpp`/`.mm` file. The `InfiniFrameWindow.h` header is entirely platform-agnostic
+InfiniFrame uses the [Pimpl idiom](https://en.cppreference.com/w/cpp/language/pimpl.html) throughout: a `struct Impl` held by `std::unique_ptr<Impl>` is defined per-platform in the `.cpp`/`.mm` file. The `InfiniFrameWindow.h` header is entirely platform-agnostic.
 
 ### Build system and dependencies
 
@@ -302,7 +293,7 @@ static partial void InfiniFrame_SetTitle(IntPtr instance, ...);
 
 ### String ownership
 
-Photino has no explicit API for freeing native-allocated strings, which leads to memory leaks in long-running applications
+Photino has no explicit API for freeing native-allocated strings, which causes memory leaks in long-running applications.
 
 InfiniFrame exports explicit free functions that must be called on any string returned from the native layer:
 
@@ -311,9 +302,9 @@ InfiniFrame_FreeString(ptr);
 InfiniFrame_FreeStringArray(ptr, count);
 ```
 
-These are called automatically by the managed wrapper — but if you call native exports directly, you are responsible for invoking them
+The managed wrapper calls these automatically. If you're calling native exports directly, you're responsible for invoking them yourself.
 
-### `SaveFileDialog` signature change
+### SaveFileDialog signature change
 
 The native `SaveFileDialog` export gained a `defaultFileName` parameter:
 
@@ -327,31 +318,27 @@ InfiniFrame_ShowSaveFile(title, defaultPath, filters, count, defaultFileName)
 
 ## Known Photino Issues Addressed
 
-The following are open or previously reported issues in the Photino repositories that are resolved in InfiniFrame:
-
-| Photino Issue                                                                      | Description                                                                            | How InfiniFrame Addresses It                                                                           |
-|------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| [photino.native #173/174](https://github.com/tryphotino/photino.native/issues/173) | Custom scheme handlers completely broken on Windows (WebResourceRequested never fires) | Rewritten registration path. Scheme handlers tested end-to-end in examples                             |
-| [photino.native #165](https://github.com/tryphotino/photino.native/issues/165)     | Memory leak in `SendWebMessage` on Windows                                             | Explicit `InfiniFrame_FreeString` ownership model. Pimpl isolates per-window native allocations        |
-| [photino.native #158](https://github.com/tryphotino/photino.native/issues/158)     | No way to programmatically focus a window                                              | `InfiniFrame_SetFocused` / `InfiniFrame_GetFocused` exported. Exposed via `IInfiniFrameWindow.Focused` |
-| [photino.native #163](https://github.com/tryphotino/photino.native/issues/163)     | UTF encoding bug in `SetWebView2RuntimePath` silently corrupts non-ASCII paths         | `simdutf` used for all UTF-8 ↔ UTF-16 conversions on Windows                                           |
-| [photino.native #141](https://github.com/tryphotino/photino.native/issues/141)     | Stack overflow in `WaitForExit` on Linux                                               | Per-window independent message loops. No shared global `MessageLoopState` lock                         |
-| [photino.NET #75](https://github.com/tryphotino/photino.NET/issues/75)             | `RegisterWindowClosingHandler` does not fire on Linux                                  | Closing handler rewritten using GTK `delete-event` signal correctly                                    |
-| [photino.NET #257](https://github.com/tryphotino/photino.NET/issues/257)           | `SetLogVerbosity(0)` still logs a message                                              | Integer verbosity removed entirely. Replaced by `ILogger<IInfiniFrameWindow>`                          |
-| [photino.NET #232](https://github.com/tryphotino/photino.NET/issues/232)           | Custom scheme handlers break `fetch`/`XHR` (CORS interference)                         | Scheme handler registration refactored. CORS headers handled correctly per platform                    |
-| [photino.native #175](https://github.com/tryphotino/photino.native/issues/175)     | `SetTopmost` uses wrong Win32 style. `null` crash on Linux                             | Fixed Win32 `HWND_TOPMOST`/`HWND_NOTOPMOST` usage. `null` guards added on Linux                        |
+| Photino Issue                                                                      | Description                                                                              | How InfiniFrame addresses it                                                                              |
+|------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| [photino.native #173/174](https://github.com/tryphotino/photino.native/issues/173) | Custom scheme handlers completely broken on Windows (`WebResourceRequested` never fires) | Rewritten registration path; scheme handlers tested end-to-end in examples                                |
+| [photino.native #165](https://github.com/tryphotino/photino.native/issues/165)     | Memory leak in `SendWebMessage` on Windows                                               | Explicit `InfiniFrame_FreeString` ownership model; Pimpl isolates per-window native allocations           |
+| [photino.native #158](https://github.com/tryphotino/photino.native/issues/158)     | No way to programmatically focus a window                                                | `InfiniFrame_SetFocused` / `InfiniFrame_GetFocused` exported and exposed via `IInfiniFrameWindow.Focused` |
+| [photino.native #163](https://github.com/tryphotino/photino.native/issues/163)     | UTF encoding bug in `SetWebView2RuntimePath` silently corrupts non-ASCII paths           | `simdutf` used for all UTF-8/UTF-16 conversions on Windows                                                |
+| [photino.native #141](https://github.com/tryphotino/photino.native/issues/141)     | Stack overflow in `WaitForExit` on Linux                                                 | Per-window independent message loops; no shared global `MessageLoopState` lock                            |
+| [photino.NET #75](https://github.com/tryphotino/photino.NET/issues/75)             | `RegisterWindowClosingHandler` does not fire on Linux                                    | Closing handler rewritten using the GTK `delete-event` signal correctly                                   |
+| [photino.NET #257](https://github.com/tryphotino/photino.NET/issues/257)           | `SetLogVerbosity(0)` still logs a message                                                | Integer verbosity removed entirely and replaced by `ILogger<IInfiniFrameWindow>`                          |
+| [photino.NET #232](https://github.com/tryphotino/photino.NET/issues/232)           | Custom scheme handlers break `fetch`/`XHR` (CORS interference)                           | Scheme handler registration refactored; CORS headers handled correctly per platform                       |
+| [photino.native #175](https://github.com/tryphotino/photino.native/issues/175)     | `SetTopmost` uses wrong Win32 style; `null` crash on Linux                               | Fixed Win32 `HWND_TOPMOST`/`HWND_NOTOPMOST` usage; `null` guards added on Linux                           |
 
 ## Removed or Replaced Features
 
-The following Photino features are not present in InfiniFrame:
-
-| Feature                                                                            | Notes                                                     |
-|------------------------------------------------------------------------------------|-----------------------------------------------------------|
-| `SetMinHeight` / `SetMinWidth` / `SetMaxHeight` / `SetMaxWidth` individual methods | Consolidated into `SetMinSize(w, h)` / `SetMaxSize(w, h)` |
-| `LogVerbosity` integer system                                                      | Replaced by `ILogger<IInfiniFrameWindow>`                 |
-| `MacOsVersion` static property                                                     | Removed                                                   |
-| `IsWindowsPlatform` / `IsMacOsPlatform` / `IsLinuxPlatform` static properties      | Internal. Not on public interface                         |
-| `UseOsDefaultLocation` / `UseOsDefaultSize` runtime properties                     | Builder / config time only                                |
-| `BrowserControlInitParameters` runtime property                                    | Builder / config time only                                |
-| `nlohmann/json.hpp` bundled JSON header                                            | Replaced by `simdjson`                                    |
-| `fmt` formatting library                                                           | Replaced by `std::format`                                 |
+| Feature                                                                       | Notes                                                     |
+|-------------------------------------------------------------------------------|-----------------------------------------------------------|
+| `SetMinHeight` / `SetMinWidth` / `SetMaxHeight` / `SetMaxWidth`               | Consolidated into `SetMinSize(w, h)` / `SetMaxSize(w, h)` |
+| `LogVerbosity` integer system                                                 | Replaced by `ILogger<IInfiniFrameWindow>`                 |
+| `MacOsVersion` static property                                                | Removed                                                   |
+| `IsWindowsPlatform` / `IsMacOsPlatform` / `IsLinuxPlatform` static properties | Internal; not on public interface                         |
+| `UseOsDefaultLocation` / `UseOsDefaultSize` runtime properties                | Builder / config time only                                |
+| `BrowserControlInitParameters` runtime property                               | Builder / config time only                                |
+| `nlohmann/json.hpp` bundled JSON header                                       | Replaced by `simdjson`                                    |
+| `fmt` formatting library                                                      | Replaced by `std::format`                                 |
