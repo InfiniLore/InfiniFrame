@@ -30,6 +30,9 @@ jobs:
     changes:
         name: Detect Changed Areas
         runs-on: ubuntu-latest
+        if: >
+            github.event_name != 'workflow_dispatch' ||
+            github.event.inputs.full_scan != 'true'
         permissions:
             contents: read
         outputs:
@@ -59,8 +62,16 @@ jobs:
         timeout-minutes: 90
 
         if: >
-            github.event_name != 'pull_request' ||
-            github.event.pull_request.draft == false
+            always() && (
+                needs.changes.result == 'success' 
+                || (
+                    github.event_name == 'workflow_dispatch' 
+                    && github.event.inputs.full_scan == 'true' 
+                    && needs.changes.result == 'skipped'
+            )) && (
+                github.event_name != 'pull_request' 
+                || github.event.pull_request.draft == false
+            )
 
         permissions:
             contents: read
