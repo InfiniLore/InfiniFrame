@@ -16,11 +16,23 @@ on:
             - '.github/ISSUE_TEMPLATE/**'
             - '.github/*.md'
     workflow_dispatch:
+        inputs:
+            full_scan:
+                description: "Run full CodeQL scan (ignore path filters)"
+                required: false
+                default: "false"
+                type: choice
+                options:
+                    - "false"
+                    - "true"
 
 jobs:
     changes:
         name: Detect Changed Areas
         runs-on: ubuntu-latest
+        if: >
+            github.event_name != 'workflow_dispatch' ||
+            github.event.inputs.full_scan != 'true'
         permissions:
             contents: read
         outputs:
@@ -30,7 +42,7 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@v6
                 with:
-                    fetch-depth: 0
+                    fetch-depth: 1
 
             -   name: Detect Changes
                 id: filter
@@ -90,15 +102,22 @@ jobs:
                 shell: pwsh
                 run: |
                     $run = 'false'
-                    if ("${{ matrix.language }}" -eq "csharp" -and "${{ needs.changes.outputs.csharp }}" -eq "true") {
+                    
+                    $isFullScan = "${{ github.event_name }}" -eq "workflow_dispatch" -and "${{ github.event.inputs.full_scan }}" -eq "true"
+                    
+                    if ($isFullScan) {
                       $run = 'true'
                     }
-                    elseif ("${{ matrix.language }}" -eq "c-cpp" -and "${{ needs.changes.outputs.cpp }}" -eq "true") {
+                    elseif ("${{ matrix.language }}" -eq "csharp" -and "${{ needs.changes.outputs.csharp || 'false' }}" -eq "true") {
+                      $run = 'true'
+                    }
+                    elseif ("${{ matrix.language }}" -eq "c-cpp" -and "${{ needs.changes.outputs.cpp || 'false' }}" -eq "true") {
                       $run = 'true'
                     }
                     elseif ("${{ matrix.language }}" -ne "csharp" -and "${{ matrix.language }}" -ne "c-cpp") {
                       $run = 'true'
                     }
+                    
                     "run=$run" >> $env:GITHUB_OUTPUT
 
             -   name: Checkout
