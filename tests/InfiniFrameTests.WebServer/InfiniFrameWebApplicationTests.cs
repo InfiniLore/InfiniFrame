@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Js;
 using InfiniFrame.WebServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ namespace InfiniFrameTests.WebServer;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebApplicationTests {
+    private const int DefaultMessageHandlerCount = 1;
 
     private static IInfiniFrameWindow CreateMockWindow() {
         var mockWindow = Substitute.For<IInfiniFrameWindow>();
@@ -29,6 +31,26 @@ public class InfiniFrameWebApplicationTests {
         await Assert.That(builder).IsNotNull();
         await Assert.That(builder.WebApp).IsNotNull();
         await Assert.That(builder.WindowBuilder).IsNotNull();
+    }
+
+    [Test]
+    public async Task Build_DefaultWebMessageHandlersWithoutBlazorJsRuntime_ShouldPassServiceValidation() {
+        // Arrange
+        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        builder.WebApp.Host.UseDefaultServiceProvider(static options => {
+            options.ValidateOnBuild = true;
+            options.ValidateScopes = true;
+        });
+
+        // Act
+        InfiniFrameWebApplication app = builder.Build();
+
+        // Assert
+        await Assert.That(builder.Services.Any(static descriptor => descriptor.ServiceType == typeof(IInfiniFrameJs)))
+            .IsFalse();
+        await Assert.That(builder.WindowBuilder.MessageHandlers.Count).IsGreaterThanOrEqualTo(DefaultMessageHandlerCount);
+
+        await app.WebApp.DisposeAsync();
     }
 
     [Test]
