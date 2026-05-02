@@ -30,9 +30,6 @@ jobs:
     changes:
         name: Detect Changed Areas
         runs-on: ubuntu-latest
-        if: >
-            github.event_name != 'workflow_dispatch' ||
-            github.event.inputs.full_scan != 'true'
         permissions:
             contents: read
         outputs:
@@ -62,15 +59,8 @@ jobs:
         timeout-minutes: 90
 
         if: >
-            (
-                github.event_name != 'pull_request' 
-                || github.event.pull_request.draft == false
-            ) && (
-                github.event_name == 'workflow_dispatch' && github.event.inputs.full_scan == 'true'
-                || matrix.language == 'csharp' && needs.changes.outputs.csharp == 'true'
-                || matrix.language == 'c-cpp' && needs.changes.outputs.cpp == 'true'
-                || matrix.language != 'csharp' && matrix.language != 'c-cpp'
-            )
+            github.event_name != 'pull_request' ||
+            github.event.pull_request.draft == false
 
         permissions:
             contents: read
@@ -104,12 +94,33 @@ jobs:
                         build-mode: none
 
         steps:
+            -   name: Decide Whether to Analyze
+                id: should_analyze
+                shell: bash
+                env:
+                    FULL_SCAN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.full_scan == 'true' }}
+                    LANGUAGE: ${{ matrix.language }}
+                    CSHARP_CHANGED: ${{ needs.changes.outputs.csharp }}
+                    CPP_CHANGED: ${{ needs.changes.outputs.cpp }}
+                run: |
+                    should_run=false
+
+                    if [[ "$FULL_SCAN" == "true" ]]; then should_run=true
+                    elif [[ "$LANGUAGE" == "csharp" && "$CSHARP_CHANGED" == "true" ]]; then should_run=true
+                    elif [[ "$LANGUAGE" == "c-cpp" && "$CPP_CHANGED" == "true" ]]; then should_run=true
+                    elif [[ "$LANGUAGE" != "csharp" && "$LANGUAGE" != "c-cpp" ]]; then should_run=true
+                    fi
+
+                    echo "run=$should_run" >> "$GITHUB_OUTPUT"
+
             -   name: Checkout
+                if: steps.should_analyze.outputs.run == 'true'
                 uses: actions/checkout@v6
                 with:
                     fetch-depth: 1
 
             -   name: Setup .NET
+                if: steps.should_analyze.outputs.run == 'true'
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -118,11 +129,11 @@ jobs:
                         10.x
 
             -   name: Setup CMake
-                if: matrix.language == 'c-cpp'
+                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'c-cpp'
                 uses: lukka/get-cmake@latest
 
             -   name: Setup Native dependencies
-                if: matrix.language == 'c-cpp'
+                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'c-cpp'
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
@@ -131,6 +142,7 @@ jobs:
                     brew-restore-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-
 
             -   name: Initialize CodeQL
+                if: steps.should_analyze.outputs.run == 'true'
                 uses: github/codeql-action/init@v4
                 with:
                     languages: ${{ matrix.language }}
@@ -139,22 +151,23 @@ jobs:
                     config-file: ./.github/codeql-config.yml
 
             -   name: Restore C# (.slnx)
-                if: matrix.language == 'csharp' && matrix.build-mode == 'manual'
+                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'csharp' && matrix.build-mode == 'manual'
                 run: |
                     dotnet restore InfiniFrame.slnx /p:NoWarn=NU1503
 
             -   name: Build Native (CodeQL)
-                if: matrix.language == 'c-cpp'
+                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'c-cpp'
                 shell: pwsh
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj --configuration Release --no-restore -p:SolutionDir="${{ github.workspace }}/" -p:Platform=x64
 
             -   name: Build C# (.slnx)
-                if: matrix.language == 'csharp' && matrix.build-mode == 'manual'
+                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'csharp' && matrix.build-mode == 'manual'
                 run: |
                     dotnet build InfiniFrame.slnx --no-restore --configuration Release -p:InfiniFramePackAfterBuild=false
 
             -   name: Perform CodeQL Analysis
+                if: steps.should_analyze.outputs.run == 'true'
                 uses: github/codeql-action/analyze@v4
                 with:
                     category: "/language:${{ matrix.language }}"
