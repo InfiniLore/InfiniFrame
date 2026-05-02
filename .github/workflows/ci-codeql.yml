@@ -36,8 +36,11 @@ jobs:
         permissions:
             contents: read
         outputs:
+            actions: ${{ steps.filter.outputs.actions }}
             csharp: ${{ steps.filter.outputs.csharp }}
             cpp: ${{ steps.filter.outputs.cpp }}
+            javascript_typescript: ${{ steps.filter.outputs.javascript_typescript }}
+            python: ${{ steps.filter.outputs.python }}
         steps:
             -   name: Checkout
                 uses: actions/checkout@v6
@@ -49,11 +52,67 @@ jobs:
                 uses: dorny/paths-filter@v4
                 with:
                     filters: |
+                        actions:
+                          - '.github/workflows/**'
+                          - '.github/actions/**'
+                          - '.github/dependabot.yml'
+                          - '.github/codeql-config.yml'
                         csharp:
-                          - '**'
-                          - '!src/InfiniFrame.Native/**'
+                          - 'src/**/*.cs'
+                          - 'src/**/*.csproj'
+                          - 'src/**/*.props'
+                          - 'src/**/*.targets'
+                          - 'src/**/*.razor'
+                          - 'src/**/*.razor.css'
+                          - 'Directory.Packages.props'
+                          - 'global.json'
+                          - '.github/workflows/ci-codeql.yml'
+                          - '.github/codeql-config.yml'
                         cpp:
                           - 'src/InfiniFrame.Native/**'
+                          - 'native-vendor-deps.json'
+                          - 'global.json'
+                          - '.github/actions/setup-dependencies-native/**'
+                          - '.github/workflows/ci-codeql.yml'
+                          - '.github/codeql-config.yml'
+                        javascript_typescript:
+                          - 'src/**/*.js'
+                          - 'src/**/*.jsx'
+                          - 'src/**/*.ts'
+                          - 'src/**/*.tsx'
+                          - 'src/**/*.mjs'
+                          - 'src/**/*.cjs'
+                          - 'src/**/*.vue'
+                          - 'src/**/*.html'
+                          - 'src/**/package.json'
+                          - 'src/**/package-lock.json'
+                          - 'src/**/tsconfig*.json'
+                          - 'src/**/vite.config.*'
+                          - 'src/**/webpack.config.*'
+                          - 'src/**/eslint.config.*'
+                          - '.github/actions/**/*.js'
+                          - '.github/actions/**/*.ts'
+                          - '.github/workflows/ci-codeql.yml'
+                          - '.github/codeql-config.yml'
+                        python:
+                          - '.github/scripts/**/*.py'
+                          - '.github/scripts/**/*.pyi'
+                          - '.github/scripts/**/pyproject.toml'
+                          - '.github/scripts/**/requirements*.txt'
+                          - '.github/scripts/**/Pipfile'
+                          - '.github/scripts/**/Pipfile.lock'
+                          - '.github/scripts/**/tox.ini'
+                          - '.github/scripts/**/setup.cfg'
+                          - 'scripts/**/*.py'
+                          - 'scripts/**/*.pyi'
+                          - 'scripts/**/pyproject.toml'
+                          - 'scripts/**/requirements*.txt'
+                          - 'scripts/**/Pipfile'
+                          - 'scripts/**/Pipfile.lock'
+                          - 'scripts/**/tox.ini'
+                          - 'scripts/**/setup.cfg'
+                          - '.github/workflows/ci-codeql.yml'
+                          - '.github/codeql-config.yml'
 
     analyze:
         name: Analyze (${{ matrix.language }} on ${{ matrix.os }})
@@ -111,15 +170,20 @@ jobs:
                 env:
                     FULL_SCAN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.full_scan == 'true' }}
                     LANGUAGE: ${{ matrix.language }}
+                    ACTIONS_CHANGED: ${{ needs.changes.outputs.actions }}
                     CSHARP_CHANGED: ${{ needs.changes.outputs.csharp }}
                     CPP_CHANGED: ${{ needs.changes.outputs.cpp }}
+                    JAVASCRIPT_TYPESCRIPT_CHANGED: ${{ needs.changes.outputs.javascript_typescript }}
+                    PYTHON_CHANGED: ${{ needs.changes.outputs.python }}
                 run: |
                     should_run=false
 
                     if [[ "$FULL_SCAN" == "true" ]]; then should_run=true
+                    elif [[ "$LANGUAGE" == "actions" && "$ACTIONS_CHANGED" == "true" ]]; then should_run=true
                     elif [[ "$LANGUAGE" == "csharp" && "$CSHARP_CHANGED" == "true" ]]; then should_run=true
                     elif [[ "$LANGUAGE" == "c-cpp" && "$CPP_CHANGED" == "true" ]]; then should_run=true
-                    elif [[ "$LANGUAGE" != "csharp" && "$LANGUAGE" != "c-cpp" ]]; then should_run=true
+                    elif [[ "$LANGUAGE" == "javascript-typescript" && "$JAVASCRIPT_TYPESCRIPT_CHANGED" == "true" ]]; then should_run=true
+                    elif [[ "$LANGUAGE" == "python" && "$PYTHON_CHANGED" == "true" ]]; then should_run=true
                     fi
 
                     echo "run=$should_run" >> "$GITHUB_OUTPUT"
