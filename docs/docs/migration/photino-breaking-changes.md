@@ -1,6 +1,8 @@
-# Breaking Changes vs Photino.NET
+# Breaking Changes compared to Photino
 
-InfiniFrame is a complete, independent rework of [Photino.NET](https://github.com/tryphotino/photino.NET) and [photino.native](https://github.com/tryphotino/photino.native). It is not a drop-in replacement — this document covers every API, naming, and behavioral difference to assist with migration
+InfiniFrame is a complete, independent rework of [Photino.NET](https://github.com/tryphotino/photino.NET) and [Photino.Native](https://github.com/tryphotino/photino.native) and all other libraries within the Photino ecosystem.
+It is not a drop-in replacement and some API and general design decisions are different because of that.
+This document covers API, naming, and behavioral difference to assist with migration
 
 ## Table of Contents
 
