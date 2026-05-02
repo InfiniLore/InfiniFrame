@@ -1,6 +1,6 @@
 # Core Window Guide
 
-This guide covers everything available through the `InfiniLore.InfiniFrame` package — the foundation of all InfiniFrame integrations
+This guide covers everything available through the `InfiniLore.InfiniFrame` package, the foundation of all InfiniFrame integrations.
 
 ## Contents
 
@@ -18,7 +18,7 @@ This guide covers everything available through the `InfiniLore.InfiniFrame` pack
 
 ## Building a Window
 
-All windows are created through `InfiniFrameWindowBuilder` using a fluent API
+All windows are created through `InfiniFrameWindowBuilder` using a fluent API.
 
 ```csharp
 using InfiniFrame;
@@ -33,8 +33,8 @@ var window = InfiniFrameWindowBuilder.Create()
 window.WaitForClose();
 ```
 
-`Build()` creates and displays the native window immediately on the calling thread
-The returned `IInfiniFrameWindow` gives you full control over the window at runtime
+`Build()` creates and displays the native window immediately on the calling thread.
+The returned `IInfiniFrameWindow` gives you full control over the window at runtime.
 
 ## Single-File Native Packaging
 
@@ -65,7 +65,7 @@ Use it for packaged deployments created by `InfiniLore.InfiniFrame.Tools.Pack` (
 
 ## Window Configuration
 
-All configuration methods are chainable and must be called before `Build()`
+All configuration methods are chainable and must be called before `Build()`.
 
 ### Title and Icon
 
@@ -79,7 +79,7 @@ builder
 
 ```csharp
 builder
-    .SetSize(1280, 720)         // Width × Height
+    .SetSize(1280, 720)         // Width x Height
     .SetMinSize(800, 600)
     .SetMaxSize(1920, 1080)
     .SetLocation(100, 100)      // Left, Top in screen coordinates
@@ -88,7 +88,7 @@ builder
     .SetUseOsDefaultLocation(true)
 ```
 
-Calling `SetSize` or `SetLocation` disables the corresponding OS default and centering behavior
+Calling `SetSize` or `SetLocation` disables the corresponding OS default and centering behavior.
 
 ### Window State
 
@@ -103,7 +103,7 @@ builder
     .SetTransparent(true)       // Enable window transparency
 ```
 
-On Windows, enabling `SetChromeless` automatically disables `UseOsDefaultLocation`, `UseOsDefaultSize`, and `Resizable` since they are incompatible
+On Windows, enabling `SetChromeless` automatically disables `UseOsDefaultLocation`, `UseOsDefaultSize`, and `Resizable` since they are incompatible.
 
 ### Content
 
@@ -114,7 +114,7 @@ builder
     .SetStartString("<html><body>Hello</body></html>")  // Render HTML directly
 ```
 
-`SetStartUrl` and `SetStartString` are mutually exclusive — the last one set wins
+`SetStartUrl` and `SetStartString` are mutually exclusive; the last one set wins.
 
 ## Browser Features
 
@@ -171,19 +171,19 @@ builder
 The `SetBrowserControlInitParameters` method passes raw flags to the underlying browser engine:
 
 ```csharp
-// Windows — space-separated Chromium flags
+// Windows: space-separated Chromium flags
 builder.SetBrowserControlInitParameters("--disable-gpu --no-sandbox")
 
-// Linux — JSON object matching WebKit2GTK settings
+// Linux: JSON object matching WebKit2GTK settings
 builder.SetBrowserControlInitParameters("{ \"enable_developer_extras\": true }")
 
-// macOS — JSON object matching WKPreferences keys
+// macOS: JSON object matching WKPreferences keys
 builder.SetBrowserControlInitParameters("{ \"minimumFontSize\": 12 }")
 ```
 
 ## Runtime Window Control
 
-Once a window is built, `IInfiniFrameWindow` provides methods to control it at runtime
+Once a window is built, `IInfiniFrameWindow` provides methods to control it at runtime.
 
 ### State and properties
 
@@ -196,7 +196,7 @@ window.Focused     // Whether the window currently has focus
 window.Maximized   // (via events, not a direct property at runtime)
 window.ScreenDpi   // Current DPI
 
-window.Monitors    // ImmutableArray<InfiniMonitor> — all connected monitors
+window.Monitors    // ImmutableArray<InfiniMonitor>; all connected monitors
 window.MainMonitor // The monitor the window is currently on
 ```
 
@@ -210,7 +210,7 @@ await window.WaitForCloseAsync()
 
 ### STA requirement (Windows)
 
-WebView2 is COM-based and requires the thread that calls `Build()` to be STA. Without `[STAThread]`, the window opens but the browser control renders as a black screen, and `Build()` now throws `InvalidOperationException` to surface this early
+WebView2 is COM-based and requires the thread that calls `Build()` to be STA. Without `[STAThread]`, the window opens but the browser control renders as a black screen, and `Build()` now throws `InvalidOperationException` to surface this early.
 
 ```csharp
 // Required for all InfiniFrame apps on Windows
@@ -226,13 +226,13 @@ internal class Program {
 }
 ```
 
-Top-level statements cannot carry `[STAThread]` so use an explicit `static void Main()` as shown above
+Top-level statements cannot carry `[STAThread]` so use an explicit `static void Main()` as shown above.
 
-> **Note:** `[STAThread]` is silently ignored on `async Task Main`. The async continuation runs on thread pool threads (MTA). Never use `async Task Main` as the entry point for an InfiniFrame application. **Linux does not have this restriction** because GTK has no COM apartment model. The native constructor calls `gtk_init()` itself and implicitly claims whichever thread calls `Build()` as the GTK main thread
+> **Note:** `[STAThread]` is silently ignored on `async Task Main`. The async continuation runs on thread pool threads (MTA). Never use `async Task Main` as the entry point for an InfiniFrame application. **Linux does not have this restriction** because GTK has no COM apartment model. The native constructor calls `gtk_init()` itself and implicitly claims whichever thread calls `Build()` as the GTK main thread.
 
 ### Cross-thread invocation
 
-All UI operations must run on the window's thread — use `Invoke` to marshal work from a background thread:
+All UI operations must run on the window's thread. Use `Invoke` to marshal work from a background thread:
 
 ```csharp
 Task.Run(() => {
@@ -246,7 +246,7 @@ Task.Run(() => {
 
 ## Events
 
-Events are available through `IInfiniFrameWindowEvents`, accessible via `IInfiniFrameWindowBuilder.Events`
+Events are available through `IInfiniFrameWindowEvents`, accessible via `IInfiniFrameWindowBuilder.Events`.
 
 ```csharp
 var builder = InfiniFrameWindowBuilder.Create();
@@ -281,17 +281,17 @@ Use `WindowClosing` to run cleanup before the window is destroyed:
 ```csharp
 builder.Events.WindowClosing.Add((window, cancel) => {
     SaveAppState();
-    return false; // returning false here does not cancel — use WindowClosingRequested for that
+    return false; // returning false here does not cancel; use WindowClosingRequested for that
 });
 ```
 
-See the generated C# API reference for the full event system documentation
+See the generated C# API reference for the full event system documentation.
 
 ## Web Messaging
 
-InfiniFrame provides a two-way messaging channel between JavaScript running in the browser control and your C# code
+InfiniFrame provides a two-way messaging channel between JavaScript running in the browser control and your C# code.
 
-### C# → JavaScript
+### C# to JavaScript
 
 ```csharp
 window.SendWebMessage("hello from C#");
@@ -306,7 +306,7 @@ window.infiniframe.host.receiveCallback(function(message) {
 });
 ```
 
-### JavaScript → C#
+### JavaScript to C#
 
 In JavaScript, send with:
 
@@ -332,7 +332,7 @@ builder.MessageHandlers.RegisterMessageHandler("ping", (window, _) => {
 
 ## Custom URL Schemes
 
-You can intercept requests for custom URL schemes (e.g. `app://`) and serve content from C# code — useful for loading local assets or implementing a virtual file system
+You can intercept requests for custom URL schemes (e.g. `app://`) and serve content from C# code. This is useful for loading local assets or implementing a virtual file system.
 
 ```csharp
 builder.RegisterCustomSchemeHandler("app", (sender, scheme, url, out string? contentType) => {
@@ -342,13 +342,13 @@ builder.RegisterCustomSchemeHandler("app", (sender, scheme, url, out string? con
 });
 ```
 
-- Up to 16 custom schemes can be registered before `Build()` is called
-- Additional handlers can be added after `Build()` via `window.RegisterCustomSchemeHandler(...)`
-- Scheme names are lowercased automatically
+- Up to 16 custom schemes can be registered before `Build()` is called.
+- Additional handlers can be added after `Build()` via `window.RegisterCustomSchemeHandler(...)`.
+- Scheme names are lowercased automatically.
 
 ## Dialogs
 
-InfiniFrame exposes the native OS dialog system
+InfiniFrame exposes the native OS dialog system.
 
 ### Message box
 
@@ -395,7 +395,7 @@ All dialogs also have async overloads (`ShowOpenFileAsync`, `ShowSaveFileAsync`,
 window.SendNotification("Update available", "A new version is ready to install");
 ```
 
-Requires `SetNotificationsEnabled()` and `SetNotificationRegistrationId(...)` to be set during configuration
+Requires `SetNotificationsEnabled()` and `SetNotificationRegistrationId(...)` to be set during configuration.
 
 ## Monitor Information
 
@@ -430,7 +430,7 @@ Pass the provider to `Build`:
 var window = builder.Build(serviceProvider);
 ```
 
-`IInfiniFrameWindow` will then be resolvable from the container if registered
+`IInfiniFrameWindow` will then be resolvable from the container if registered.
 
 ## Examples
 

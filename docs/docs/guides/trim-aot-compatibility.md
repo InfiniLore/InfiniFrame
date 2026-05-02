@@ -7,8 +7,8 @@ InfiniFrame includes CI validation lanes for trimming and NativeAOT compatibilit
 - The public APIs that rely on runtime reflection or dynamic code generation are explicitly annotated with `RequiresUnreferencedCode` and/or `RequiresDynamicCode`.
 - Trim/AOT compatibility checks run in CI and must pass before release workflows continue.
 - `InfiniFrame.Tools.Pack` is validated with a NativeAOT smoke publish using:
-  - `PublishTrimmed=true`
-  - `PublishAot=true`
+    - `PublishTrimmed=true`
+    - `PublishAot=true`
 
 ## Consumer Guidance
 
