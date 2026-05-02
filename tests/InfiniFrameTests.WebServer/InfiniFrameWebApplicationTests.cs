@@ -14,6 +14,7 @@ namespace InfiniFrameTests.WebServer;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebApplicationTests {
+    private const int DefaultMessageHandlerCount = 1;
 
     private static IInfiniFrameWindow CreateMockWindow() {
         var mockWindow = Substitute.For<IInfiniFrameWindow>();
@@ -33,7 +34,7 @@ public class InfiniFrameWebApplicationTests {
     }
 
     [Test]
-    public async Task Build_WithoutBlazorJsRuntime_ShouldPassServiceValidation() {
+    public async Task Build_DefaultWebMessageHandlersWithoutBlazorJsRuntime_ShouldPassServiceValidation() {
         // Arrange
         InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
         builder.WebApp.Host.UseDefaultServiceProvider(static options => {
@@ -47,6 +48,7 @@ public class InfiniFrameWebApplicationTests {
         // Assert
         await Assert.That(builder.Services.Any(static descriptor => descriptor.ServiceType == typeof(IInfiniFrameJs)))
             .IsFalse();
+        await Assert.That(builder.WindowBuilder.MessageHandlers.Count).IsGreaterThanOrEqualTo(DefaultMessageHandlerCount);
 
         await app.WebApp.DisposeAsync();
     }
