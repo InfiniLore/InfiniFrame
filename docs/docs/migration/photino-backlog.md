@@ -1,11 +1,8 @@
-﻿---
-title: Unimplemented / Pending Photino Features
-description: Overview of features and issues across Photino repositories that are not yet fully implemented or still under discussion.
----
+﻿# Photino Backlog
 
-# Photino Feature Status Overview
-
-This page tracks features and issues mentioned across the Photino ecosystem that are not yet fully implemented or still under discussion in their respective libraries.
+This page tracks features and issues mentioned across the Photino ecosystem that are not yet fully implemented or still under discussion in their respective original libraries.
+The intent is that eventually, all features will be either implemented or rejected to be brought into InfiniFrame.
+This backlog will be used to track any remaining issues or features that need to be addressed.
 
 **Table Legend**
 - ✅ : Implemented
