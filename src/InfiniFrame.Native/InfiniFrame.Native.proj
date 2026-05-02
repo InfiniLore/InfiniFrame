@@ -27,6 +27,9 @@
         <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
         <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
         <CMakeOSDir Condition="'$(IsMac)'=='true'">osx</CMakeOSDir>
+        <InfiniFrameNativeTestExports Condition="'$(InfiniFrameNativeTestExports)'==''">false</InfiniFrameNativeTestExports>
+        <CMakeBuildTestExports Condition="'$(InfiniFrameNativeTestExports)'=='true'">ON</CMakeBuildTestExports>
+        <CMakeBuildTestExports Condition="'$(CMakeBuildTestExports)'==''">OFF</CMakeBuildTestExports>
 
         <!-- Output all binaries to a fixed path under the solution -->
         <NativeOutputDir>$(SolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
@@ -53,15 +56,15 @@
         <MakeDir Directories="$(CMakeBuildDir)"/>
 
         <!-- Windows -->
-        <Exec Condition="$(IsWindows)" Command="cmake -B $(CMakeBuildDir) -S . -A $(CMakeArch)"/>
+        <Exec Condition="$(IsWindows)" Command="cmake -B $(CMakeBuildDir) -S . -A $(CMakeArch) -DINFINIFRAME_BUILD_TEST_EXPORTS=$(CMakeBuildTestExports)"/>
         <Exec Condition="$(IsWindows)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel"/>
 
         <!-- Linux -->
-        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S ."/>
+        <Exec Condition="$(IsLinux)" Command="cmake -B $(CMakeBuildDir) -S . -DINFINIFRAME_BUILD_TEST_EXPORTS=$(CMakeBuildTestExports)"/>
         <Exec Condition="$(IsLinux)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel"/>
 
         <!-- macOS -->
-        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeOSXArch)"/>
+        <Exec Condition="$(IsMac)" Command="cmake -B $(CMakeBuildDir) -S . -DCMAKE_OSX_ARCHITECTURES=$(CMakeOSXArch) -DINFINIFRAME_BUILD_TEST_EXPORTS=$(CMakeBuildTestExports)"/>
         <Exec Condition="$(IsMac)" Command="cmake --build $(CMakeBuildDir) --config $(Configuration) --parallel"/>
 
         <!-- Copy native binaries -->

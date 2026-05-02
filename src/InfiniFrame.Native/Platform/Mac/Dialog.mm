@@ -5,6 +5,7 @@
  */
 
 #import "Core/InfiniFrameDialog.h"
+#include "Interop/NativeString.h"
 
 #if defined(VSTGUI_USE_OBJC_UTTYPE)
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -71,9 +72,9 @@ AutoString* InfiniFrameDialog::ShowOpenFile(AutoString title, AutoString default
   if ([openDlg runModal] == NSModalResponseOK) {
     NSArray* files = [openDlg URLs];
     *resultCount = static_cast<int>([files count]);
-    auto** result = static_cast<char**>(malloc(*resultCount * sizeof(char*)));
+    auto** result = InfiniFrame::Native::Interop::AllocateNativeStringArray(*resultCount);
     for (int i = 0; i < *resultCount; i++) {
-      result[i] = strdup([[[files objectAtIndex:i] path] UTF8String]);
+      result[i] = InfiniFrame::Native::Interop::AllocateNativeStringCopy([[[files objectAtIndex:i] path] UTF8String]);
     }
     return result;
   }
@@ -95,9 +96,9 @@ AutoString* InfiniFrameDialog::ShowOpenFolder(AutoString title, AutoString defau
   if ([openDlg runModal] == NSModalResponseOK) {
     NSArray* files = [openDlg URLs];
     *resultCount = static_cast<int>([files count]);
-    auto** result = static_cast<char**>(malloc(*resultCount * sizeof(char*)));
+    auto** result = InfiniFrame::Native::Interop::AllocateNativeStringArray(*resultCount);
     for (int i = 0; i < *resultCount; i++) {
-      result[i] = strdup([[[files objectAtIndex:i] path] UTF8String]);
+      result[i] = InfiniFrame::Native::Interop::AllocateNativeStringCopy([[[files objectAtIndex:i] path] UTF8String]);
     }
     return result;
   }
@@ -129,7 +130,7 @@ AutoString InfiniFrameDialog::ShowSaveFile(AutoString title, AutoString defaultP
   }
 
   if ([saveDlg runModal] == NSModalResponseOK) {
-    return strdup([[saveDlg URL].path UTF8String]);
+    return InfiniFrame::Native::Interop::AllocateNativeStringCopy([[saveDlg URL].path UTF8String]);
   }
 
   return nullptr;

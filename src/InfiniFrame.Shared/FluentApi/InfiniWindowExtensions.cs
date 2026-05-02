@@ -27,7 +27,7 @@ public static class InfiniWindowExtensions {
     /// <param name="window">InfiniFrame window instance</param>
     public static T Load<T>(this T window, Uri uri) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".Load({uri})", uri);
-        window.Invoke(() => InfiniFrameNative.NavigateToUrl(window.InstanceHandle, uri.ToString()));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.NavigateToUrl(window.InstanceHandle, uri.ToString())));
         return window;
     }
 
@@ -82,7 +82,7 @@ public static class InfiniWindowExtensions {
     public static T LoadRawString<T>(this T window, string content) where T : class, IInfiniFrameWindow {
         string shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 47), "...") : content;
         window.Logger.LogDebug(".LoadRawString({Content})", shortContent);
-        window.Invoke(() => InfiniFrameNative.NavigateToString(window.InstanceHandle, content));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.NavigateToString(window.InstanceHandle, content)));
         return window;
     }
 
@@ -95,7 +95,7 @@ public static class InfiniWindowExtensions {
     /// </returns>
     public static T Center<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".Center()");
-        window.Invoke(() => InfiniFrameNative.Center(window.InstanceHandle));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.Center(window.InstanceHandle)));
         return window;
     }
 
@@ -109,7 +109,7 @@ public static class InfiniWindowExtensions {
     public static T CenterOnCurrentMonitor<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
             ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
-            InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
+            EnsureNative(InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle));
 
             // TODO think about proper unhappy flow here
             if (!MonitorsUtility.TryGetCurrentMonitor(monitors, rectangle, out InfiniMonitor monitor)) return;
@@ -117,7 +117,7 @@ public static class InfiniWindowExtensions {
             Rectangle area = monitor.MonitorArea;
 
             var newLocation = new Point(area.X + area.Width / 2 - rectangle.Width / 2, area.Y + area.Height / 2 - rectangle.Height / 2);
-            InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y));
         });
 
         return window;
@@ -142,11 +142,11 @@ public static class InfiniWindowExtensions {
                 return;
             }
 
-            InfiniFrameNative.GetSize(window.InstanceHandle, out Size size);
+            EnsureNative(InfiniFrameNative.GetSize(window.InstanceHandle, out Size size));
             Rectangle area = monitors[monitorIndex].MonitorArea;
 
             var newLocation = new Point(area.X + area.Width / 2 - size.Width / 2, area.Y + area.Height / 2 - size.Height / 2);
-            InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y));
         });
 
         return window;
@@ -201,7 +201,7 @@ public static class InfiniWindowExtensions {
                     : top;
             }
 
-            InfiniFrameNative.SetPosition(window.InstanceHandle, left, top);
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, left, top));
         });
         return window;
     }
@@ -245,8 +245,8 @@ public static class InfiniWindowExtensions {
     public static T Offset<T>(this T window, int left, int top) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".Offset({left}, {top})", left, top);
         window.Invoke(() => {
-            InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
-            InfiniFrameNative.SetPosition(window.InstanceHandle, oldLeft + left, oldTop + top);
+            EnsureNative(InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop));
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, oldLeft + left, oldTop + top));
         });
         return window;
     }
@@ -293,7 +293,7 @@ public static class InfiniWindowExtensions {
         }
 
         window.Logger.LogDebug("Invoking InfiniFrameNative.SetTransparentEnabled({value})", enabled);
-        window.Invoke(() => InfiniFrameNative.SetTransparentEnabled(window.InstanceHandle, enabled));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetTransparentEnabled(window.InstanceHandle, enabled)));
         return window;
     }
 
@@ -310,10 +310,10 @@ public static class InfiniWindowExtensions {
         window.Logger.LogDebug(".SetContextMenuEnabled({Enabled})", enabled);
 
         window.Invoke(() => {
-            InfiniFrameNative.GetContextMenuEnabled(window.InstanceHandle, out bool isEnabled);
+            EnsureNative(InfiniFrameNative.GetContextMenuEnabled(window.InstanceHandle, out bool isEnabled));
             if (isEnabled == enabled) return;
 
-            InfiniFrameNative.SetContextMenuEnabled(window.InstanceHandle, enabled);
+            EnsureNative(InfiniFrameNative.SetContextMenuEnabled(window.InstanceHandle, enabled));
         });
 
         return window;
@@ -332,10 +332,10 @@ public static class InfiniWindowExtensions {
         window.Logger.LogDebug(".SetDevTools({Enabled})", enabled);
 
         window.Invoke(() => {
-            InfiniFrameNative.GetDevToolsEnabled(window.InstanceHandle, out bool isEnabled);
+            EnsureNative(InfiniFrameNative.GetDevToolsEnabled(window.InstanceHandle, out bool isEnabled));
             if (isEnabled == enabled) return;
 
-            InfiniFrameNative.SetDevToolsEnabled(window.InstanceHandle, enabled);
+            EnsureNative(InfiniFrameNative.SetDevToolsEnabled(window.InstanceHandle, enabled));
         });
 
         return window;
@@ -361,21 +361,21 @@ public static class InfiniWindowExtensions {
             window.Invoke(()
                 => {
                 ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
-                InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int top);
-                InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height);
+                EnsureNative(InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int top));
+                EnsureNative(InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height));
 
                 window.CachedPreFullScreenBounds = new Rectangle(left, top, width, height);
                 if (!MonitorsUtility.TryGetCurrentMonitor(monitors, window.CachedPreFullScreenBounds, out InfiniMonitor currentMonitor)) {
                     window.Logger.LogError("Failed to get current monitor, defaulting to simple fullscreen call");
-                    InfiniFrameNative.SetFullScreen(window.InstanceHandle, true);
+                    EnsureNative(InfiniFrameNative.SetFullScreen(window.InstanceHandle, true));
                     return;
                 }
 
                 Rectangle currentMonitorArea = currentMonitor.MonitorArea;
 
-                InfiniFrameNative.SetFullScreen(window.InstanceHandle, true);
-                InfiniFrameNative.SetPosition(window.InstanceHandle, currentMonitorArea.X, currentMonitorArea.Y);
-                InfiniFrameNative.SetSize(window.InstanceHandle, currentMonitorArea.Width, currentMonitorArea.Height);
+                EnsureNative(InfiniFrameNative.SetFullScreen(window.InstanceHandle, true));
+                EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, currentMonitorArea.X, currentMonitorArea.Y));
+                EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, currentMonitorArea.Width, currentMonitorArea.Height));
             });
 
             return window;
@@ -383,9 +383,9 @@ public static class InfiniWindowExtensions {
 
         // Set Fullscreen to false => Restore to previous state
         window.Invoke(() => {
-            InfiniFrameNative.SetFullScreen(window.InstanceHandle, false);
-            InfiniFrameNative.SetPosition(window.InstanceHandle, window.CachedPreFullScreenBounds.X, window.CachedPreFullScreenBounds.Y);
-            InfiniFrameNative.SetSize(window.InstanceHandle, window.CachedPreFullScreenBounds.Width, window.CachedPreFullScreenBounds.Height);
+            EnsureNative(InfiniFrameNative.SetFullScreen(window.InstanceHandle, false));
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, window.CachedPreFullScreenBounds.X, window.CachedPreFullScreenBounds.Y));
+            EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, window.CachedPreFullScreenBounds.Width, window.CachedPreFullScreenBounds.Height));
         });
 
         return window;
@@ -404,8 +404,8 @@ public static class InfiniWindowExtensions {
         window.Logger.LogDebug(".SetHeight({Height})", height);
 
         window.Invoke(() => {
-            InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out _);
-            InfiniFrameNative.SetSize(window.InstanceHandle, width, height);
+            EnsureNative(InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out _));
+            EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, width, height));
         });
 
         return window;
@@ -437,7 +437,7 @@ public static class InfiniWindowExtensions {
             return window;
         }
 
-        window.Invoke(() => InfiniFrameNative.SetIconFile(window.InstanceHandle, resolvedIconFilePath));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetIconFile(window.InstanceHandle, resolvedIconFilePath)));
         return window;
     }
 
@@ -454,10 +454,10 @@ public static class InfiniWindowExtensions {
         window.Logger.LogDebug(".SetLeft({Left})", left);
 
         window.Invoke(() => {
-            InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int top);
+            EnsureNative(InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int top));
             if (left == oldLeft) return;
 
-            InfiniFrameNative.SetPosition(window.InstanceHandle, left, top);
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, left, top));
         });
 
         return window;
@@ -474,7 +474,7 @@ public static class InfiniWindowExtensions {
     /// <param name="window">InfiniFrame window instance</param>
     public static T SetResizable<T>(this T window, bool resizable) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetResizable({Resizable})", resizable);
-        window.Invoke(() => InfiniFrameNative.SetResizable(window.InstanceHandle, resizable));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetResizable(window.InstanceHandle, resizable)));
         return window;
     }
 
@@ -492,7 +492,7 @@ public static class InfiniWindowExtensions {
     public static T SetSize<T>(this T window, int width, int height) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetSize({Width}, {Height})", width, height);
 
-        window.Invoke(() => InfiniFrameNative.SetSize(window.InstanceHandle, width, height));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, width, height)));
         return window;
     }
 
@@ -521,10 +521,10 @@ public static class InfiniWindowExtensions {
     public static T SetLocation<T>(this T window, int left, int top) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetLocation({left}, {right})", left, top);
         window.Invoke(() => {
-            InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
+            EnsureNative(InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop));
             if (oldLeft == left && oldTop == top) return;
 
-            InfiniFrameNative.SetPosition(window.InstanceHandle, left, top);
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, left, top));
         });
 
         return window;
@@ -557,7 +557,7 @@ public static class InfiniWindowExtensions {
         window.Logger.LogDebug(".SetMaximized({Maximized})", maximized);
         window.Invoke(() => {
             if (!window.Chromeless) {
-                InfiniFrameNative.SetMaximized(window.InstanceHandle, maximized);
+                EnsureNative(InfiniFrameNative.SetMaximized(window.InstanceHandle, maximized));
                 return;
             }
 
@@ -569,15 +569,15 @@ public static class InfiniWindowExtensions {
             Rectangle workArea = monitor.WorkArea;
             if (maximized) {
                 window.CachedPreMaximizedBounds = windowRect;
-                InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
-                InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
+                EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top));
+                EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height));
                 window.Events.OnMaximized();
             }
 
             else if (window.CachedPreMaximizedBounds != Rectangle.Empty) {
                 Rectangle oldRect = window.CachedPreMaximizedBounds;
-                InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
-                InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
+                EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top));
+                EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height));
                 window.CachedPreMaximizedBounds = Rectangle.Empty;
                 window.Events.OnRestored();
             }
@@ -600,9 +600,9 @@ public static class InfiniWindowExtensions {
     public static T ToggleMaximized<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".ToggleMaximized()");
         window.Invoke(() => {
-            InfiniFrameNative.GetMaximized(window.InstanceHandle, out bool maximized);
+            EnsureNative(InfiniFrameNative.GetMaximized(window.InstanceHandle, out bool maximized));
             if (!window.Chromeless) {
-                InfiniFrameNative.SetMaximized(window.InstanceHandle, !maximized);
+                EnsureNative(InfiniFrameNative.SetMaximized(window.InstanceHandle, !maximized));
                 return;
             }
 
@@ -616,14 +616,14 @@ public static class InfiniWindowExtensions {
             Rectangle workArea = monitor.WorkArea;
             if (window.CachedPreMaximizedBounds == Rectangle.Empty) {
                 window.CachedPreMaximizedBounds = windowRect;
-                InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
-                InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
+                EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top));
+                EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height));
                 window.Events.OnMaximized();
             }
             else {
                 Rectangle oldRect = window.CachedPreMaximizedBounds;
-                InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
-                InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
+                EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top));
+                EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height));
                 window.CachedPreMaximizedBounds = Rectangle.Empty;
                 window.Events.OnRestored();
             }
@@ -642,7 +642,7 @@ public static class InfiniWindowExtensions {
     /// </returns>
     public static T SetMaxSize<T>(this T window, int maxWidth, int maxHeight) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
-        window.Invoke(() => InfiniFrameNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight)));
         return window;
     }
 
@@ -690,7 +690,7 @@ public static class InfiniWindowExtensions {
     /// <param name="window">InfiniFrame window instance</param>
     public static T SetMinimized<T>(this T window, bool minimized) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetMinimized({Minimized})", minimized);
-        window.Invoke(() => InfiniFrameNative.SetMinimized(window.InstanceHandle, minimized));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetMinimized(window.InstanceHandle, minimized)));
         return window;
     }
 
@@ -705,7 +705,7 @@ public static class InfiniWindowExtensions {
     /// </returns>
     public static T SetMinSize<T>(this T window, int minWidth, int minHeight) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
-        window.Invoke(() => InfiniFrameNative.SetMinSize(window.InstanceHandle, minWidth, minHeight));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetMinSize(window.InstanceHandle, minWidth, minHeight)));
         return window;
     }
 
@@ -756,11 +756,11 @@ public static class InfiniWindowExtensions {
 
         window.Invoke(() => {
             IntPtr ptr = InfiniFrameNative.GetTitle(window.InstanceHandle);
-            string? oldTitle = InfiniFrameNative.PtrToNativeString(ptr);
+            string? oldTitle = InfiniFrameNative.PtrToNativeStringAndFree(ptr);
             if (title == oldTitle) return;
 
             if (OperatingSystem.IsLinux() && title?.Length > 31) title = title[..31];// Due to Linux/Gtk platform limitations, the window title has to be no more than 31 chars
-            InfiniFrameNative.SetTitle(window.InstanceHandle, title ?? string.Empty);
+            EnsureNative(InfiniFrameNative.SetTitle(window.InstanceHandle, title ?? string.Empty));
         });
 
         return window;
@@ -778,10 +778,10 @@ public static class InfiniWindowExtensions {
     public static T SetTop<T>(this T window, int top) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetTop({Top})", top);
         window.Invoke(() => {
-            InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int oldTop);
+            EnsureNative(InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int oldTop));
             if (top == oldTop) return;
 
-            InfiniFrameNative.SetPosition(window.InstanceHandle, left, top);
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, left, top));
         });
 
         return window;
@@ -798,7 +798,7 @@ public static class InfiniWindowExtensions {
     /// <param name="window">InfiniFrame window instance</param>
     public static T SetTopMost<T>(this T window, bool topMost) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetTopMost({TopMost})", topMost);
-        window.Invoke(() => InfiniFrameNative.SetTopmost(window.InstanceHandle, topMost));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetTopmost(window.InstanceHandle, topMost)));
         return window;
     }
 
@@ -815,8 +815,8 @@ public static class InfiniWindowExtensions {
         window.Logger.LogDebug(".SetWidth({Width})", width);
 
         window.Invoke(() => {
-            InfiniFrameNative.GetSize(window.InstanceHandle, out _, out int height);
-            InfiniFrameNative.SetSize(window.InstanceHandle, width, height);
+            EnsureNative(InfiniFrameNative.GetSize(window.InstanceHandle, out _, out int height));
+            EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, width, height));
         });
 
         return window;
@@ -834,7 +834,7 @@ public static class InfiniWindowExtensions {
     /// <example>100 = 100%, 50 = 50%</example>
     public static T SetZoom<T>(this T window, int zoom) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetZoom({Zoom})", zoom);
-        window.Invoke(() => InfiniFrameNative.SetZoom(window.InstanceHandle, zoom));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetZoom(window.InstanceHandle, zoom)));
         return window;
     }
 
@@ -855,7 +855,7 @@ public static class InfiniWindowExtensions {
     public static T Win32SetWebView2Path<T>(this T window, string data) where T : class, IInfiniFrameWindow {
         if (OperatingSystem.IsWindows())
             window.Invoke(()
-                => InfiniFrameNative.SetWebView2RuntimePath_win32(window.NativeType, data));
+                => EnsureNative(InfiniFrameNative.SetWebView2RuntimePath_win32(window.NativeType, data)));
         else
             window.Logger.LogDebug("Win32SetWebView2Path is only supported on the Windows platform");
 
@@ -875,7 +875,7 @@ public static class InfiniWindowExtensions {
     public static T ClearBrowserAutoFill<T>(this T window) where T : class, IInfiniFrameWindow {
         if (OperatingSystem.IsWindows())
             window.Invoke(()
-                => InfiniFrameNative.ClearBrowserAutoFill(window.InstanceHandle));
+                => EnsureNative(InfiniFrameNative.ClearBrowserAutoFill(window.InstanceHandle)));
         else
             window.Logger.LogWarning("ClearBrowserAutoFill is only supported on the Windows platform");
 
@@ -894,8 +894,8 @@ public static class InfiniWindowExtensions {
     /// </returns>
     public static T Resize<T>(this T window, int widthOffset, int heightOffset, ResizeOrigin origin) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
-            InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height);
-            InfiniFrameNative.GetPosition(window.InstanceHandle, out int originalX, out int originalY);
+            EnsureNative(InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height));
+            EnsureNative(InfiniFrameNative.GetPosition(window.InstanceHandle, out int originalX, out int originalY));
 
             int x = originalX;
             int y = originalY;
@@ -977,8 +977,8 @@ public static class InfiniWindowExtensions {
                 y = originalY;
             }
 
-            InfiniFrameNative.SetSize(window.InstanceHandle, width, height);
-            InfiniFrameNative.SetPosition(window.InstanceHandle, x, y);
+            EnsureNative(InfiniFrameNative.SetSize(window.InstanceHandle, width, height));
+            EnsureNative(InfiniFrameNative.SetPosition(window.InstanceHandle, x, y));
 
         });
         return window;
@@ -993,7 +993,7 @@ public static class InfiniWindowExtensions {
     ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
     public static T SetZoomEnabled<T>(this T window, bool zoomEnabled) where T : class, IInfiniFrameWindow {
-        window.Invoke(() => InfiniFrameNative.SetZoomEnabled(window.InstanceHandle, zoomEnabled));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetZoomEnabled(window.InstanceHandle, zoomEnabled)));
         return window;
     }
 
@@ -1008,7 +1008,10 @@ public static class InfiniWindowExtensions {
     ///     This method invokes the native function to set focus on the window instance.
     /// </remarks>
     public static T SetFocused<T>(this T window) where T : class, IInfiniFrameWindow {
-        window.Invoke(() => InfiniFrameNative.SetFocused(window.InstanceHandle));
+        window.Invoke(() => EnsureNative(InfiniFrameNative.SetFocused(window.InstanceHandle)));
         return window;
     }
+
+    private static void EnsureNative(InfiniFrameNativeStatusCode status)
+        => InfiniFrameNative.EnsureSucceeded(status);
 }

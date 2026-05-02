@@ -5,6 +5,7 @@
  */
 
 #include "Core/InfiniFrameDialog.h"
+#include "Interop/NativeString.h"
 #include <gtk/gtk.h>
 
 /** @brief Distinguishes which GtkFileChooserAction to configure in ShowDialog */
@@ -122,9 +123,11 @@ AutoString* ShowDialog(
     if (type == OpenFile || type == OpenFolder) {
         GSList* pathList = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
         int count = g_slist_length(pathList);
-        char** results = new char*[count];
+        char** results = InfiniFrame::Native::Interop::AllocateNativeStringArray(count);
         for (int i = 0; i < count; i++) {
-            results[i] = g_strdup(static_cast<char*>(g_slist_nth_data(pathList, i)));
+            results[i] = InfiniFrame::Native::Interop::AllocateNativeStringCopy(
+                static_cast<char*>(g_slist_nth_data(pathList, i))
+                );
         }
         g_slist_free_full(pathList, g_free);
         *resultCount = count;
@@ -132,9 +135,14 @@ AutoString* ShowDialog(
         return results;
     }
     else {
-        char* result = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        char* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        char** result = InfiniFrame::Native::Interop::AllocateNativeStringArray(1);
+        if (result != nullptr)
+            result[0] = InfiniFrame::Native::Interop::AllocateNativeStringCopy(filename);
+
+        g_free(filename);
         gtk_widget_destroy(dialog);
-        return new char*[1]{result};
+        return result;
     }
 }
 
@@ -174,7 +182,7 @@ AutoString InfiniFrameDialog::ShowSaveFile(
     char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
     if (result != nullptr) {
         char* value = result[0];
-        delete[] result;
+        InfiniFrame::Native::Interop::FreeNativeStringArrayContainer(result);
         return value;
     }
     return nullptr;

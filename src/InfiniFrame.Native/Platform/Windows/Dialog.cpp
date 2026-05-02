@@ -236,7 +236,7 @@ AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount) {
         psiResults->GetCount(&count);
         if (count > 0) {
             *resultCount = static_cast<int>(count);
-            auto** result = new wchar_t*[count]();
+            auto** result = InfiniFrame::Native::Interop::AllocateNativeStringArray(*resultCount);
             for (DWORD i = 0; i < count; ++i) {
                 IShellItem* psiItem = nullptr;
                 *hr = psiResults->GetItemAt(i, &psiItem);
@@ -244,9 +244,7 @@ AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount) {
                     PWSTR pszName = nullptr;
                     *hr = psiItem->GetDisplayName(SIGDN_FILESYSPATH, &pszName);
                     if (SUCCEEDED(*hr)) {
-                        const auto len = wcslen(pszName);
-                        result[i] = new wchar_t[len + 1];
-                        wcscpy_s(result[i], len + 1, pszName);
+                        result[i] = InfiniFrame::Native::Interop::AllocateNativeStringCopy(pszName);
                         CoTaskMemFree(pszName);
                     }
                     psiItem->Release();
@@ -368,9 +366,7 @@ AutoString InfiniFrameDialog::ShowSaveFile(
                 PWSTR pszName = nullptr;
                 hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszName);
                 if (SUCCEEDED(hr)) {
-                    const auto len = wcslen(pszName);
-                    result = new wchar_t[len + 1];
-                    wcscpy_s(result, len + 1, pszName);
+                    result = InfiniFrame::Native::Interop::AllocateNativeStringCopy(pszName);
                     CoTaskMemFree(pszName);
                 }
                 psiResult->Release();

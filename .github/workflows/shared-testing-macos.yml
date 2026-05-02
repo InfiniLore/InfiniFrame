@@ -95,10 +95,11 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=${{ matrix.arch }}
+                      /p:Platform=${{ matrix.arch }} \
+                      /p:InfiniFrameNativeTestExports=true
 
             -   name: Build Release
-                run: dotnet build InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-restore
+                run: dotnet build InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-restore /p:InfiniFrameNativeTestExports=true
 
             -   name: Verify Native Binaries
                 uses: ./.github/actions/validate-native-test-binaries

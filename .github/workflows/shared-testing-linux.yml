@@ -84,6 +84,18 @@ jobs:
                     brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-linux.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
+            -   name: Native Format Check
+                if: matrix.arch == 'x64'
+                run: bash .github/scripts/native_quality.sh format
+
+            -   name: Native Clang-Tidy
+                if: matrix.arch == 'x64'
+                run: bash .github/scripts/native_quality.sh clang-tidy
+
+            -   name: Native Sanitizer Build
+                if: matrix.arch == 'x64'
+                run: bash .github/scripts/native_quality.sh sanitizer-build
+
             -   name: Compile GSettings schemas
                 run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 
@@ -96,11 +108,13 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=${{ matrix.arch }}
+                      /p:Platform=${{ matrix.arch }} \
+                      /p:InfiniFrameNativeTestExports=true
 
                     dotnet build InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
-                      --no-restore
+                      --no-restore \
+                      /p:InfiniFrameNativeTestExports=true
 
             -   name: Verify Native Binaries
                 uses: ./.github/actions/validate-native-test-binaries

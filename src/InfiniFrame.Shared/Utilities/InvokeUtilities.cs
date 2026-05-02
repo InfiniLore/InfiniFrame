@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Diagnostics;
+using InfiniFrame.Native;
 
 namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -41,17 +42,17 @@ internal static class InvokeUtilities {
         return value;
     }
 
-    public static T InvokeAndReturn<T>(IInfiniFrameWindow window, FuncWithOut<T> callback) {
+    public static T InvokeAndReturn<T>(IInfiniFrameWindow window, StatusFuncWithOut<T> callback) {
         T? value = default;
         // ReSharper disable once RedundantAssignment
         bool completed = false;
         window.Invoke(() => {
-            callback(window.InstanceHandle, out value);
+            InfiniFrameNative.EnsureSucceeded(callback(window.InstanceHandle, out value));
             completed = true;
         });
         Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
         return value!;
     }
 
-    internal delegate void FuncWithOut<T>(IntPtr handle, out T value);
+    internal delegate InfiniFrameNativeStatusCode StatusFuncWithOut<T>(IntPtr handle, out T value);
 }

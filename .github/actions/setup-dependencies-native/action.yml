@@ -50,6 +50,8 @@ runs:
             gsettings-desktop-schemas
             libnotify4
             libnotify-dev
+            clang-format
+            clang-tidy
             libwebkit2gtk-4.1-dev
             libgtk-3-dev
             libglib2.0-dev

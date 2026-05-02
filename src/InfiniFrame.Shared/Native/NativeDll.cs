@@ -14,6 +14,7 @@ internal static class NativeDll {
     internal const string InfiniFrame_register_mac = nameof(InfiniFrame_register_mac);
     internal const string InfiniFrame_ctor = nameof(InfiniFrame_ctor);
     internal const string InfiniFrame_dtor = nameof(InfiniFrame_dtor);
+    internal const string InfiniFrame_GetLastErrorMessage = nameof(InfiniFrame_GetLastErrorMessage);
     internal const string InfiniFrame_AddCustomSchemeName = nameof(InfiniFrame_AddCustomSchemeName);
     internal const string InfiniFrame_Close = nameof(InfiniFrame_Close);
     internal const string InfiniFrame_getHwnd_win32 = nameof(InfiniFrame_getHwnd_win32);

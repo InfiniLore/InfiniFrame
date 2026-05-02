@@ -49,7 +49,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public void Invoke(Action workItem) {
         // If we're already on the UI thread, no need to dispatch
         if (Environment.CurrentManagedThreadId == ManagedThreadId) workItem();
-        else InfiniFrameNative.Invoke(InstanceHandle, workItem.Invoke);
+        else InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.Invoke(InstanceHandle, workItem.Invoke));
     }
 
     /// <summary>
@@ -63,15 +63,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public void WaitForClose() {
         try {
             Logger.LogDebug("Starting message loop for window.");
-            Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
+            Invoke(() => InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.WaitForExit(InstanceHandle)));
         }
         catch (Exception ex) when (IsNonFatalException(ex)) {
-            int lastError = 0;
-            if (OperatingSystem.IsWindows())
-                lastError = Marshal.GetLastWin32Error();
+            int lastError = Marshal.GetLastPInvokeError();
+            string? nativeError = InfiniFrameNative.GetLastErrorMessageAndFree();
 
-            Logger.LogError(ex, "Error #{LastErrorCode} while running message loop", lastError);
-            throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
+            Logger.LogError(ex, "Error #{LastErrorCode} while running message loop: {NativeError}", lastError, nativeError);
+            throw new ApplicationException(CreateNativeExceptionMessage("Native code exception", lastError, nativeError), ex);
         }
         finally {
             Interlocked.Exchange(ref _shutdownRequested, 1);
@@ -106,7 +105,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 return;
             }
 
-            InfiniFrameNative.Close(InstanceHandle);
+            InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.Close(InstanceHandle));
         });
     }
 
@@ -135,7 +134,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 return;
             }
 
-            InfiniFrameNative.SendWebMessage(InstanceHandle, message);
+            InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.SendWebMessage(InstanceHandle, message));
         });
     }
 
@@ -168,7 +167,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 return;
             }
 
-            InfiniFrameNative.ShowNotification(InstanceHandle, title, body);
+            InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.ShowNotification(InstanceHandle, title, body));
         });
     }
 
@@ -326,7 +325,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         scheme = scheme.ToLower();
 
-        InfiniFrameNative.AddCustomSchemeName(InstanceHandle, scheme);
+        InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.AddCustomSchemeName(InstanceHandle, scheme));
 
         CustomSchemes.RegisterCustomSchemeHandler(scheme, handler);
         return this;
@@ -387,19 +386,24 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             // All C++ exceptions will bubble up to here.
             try {
                 if (OperatingSystem.IsWindows())
-                    Invoke(() => InfiniFrameNative.RegisterWin32(NativeType));
+                    Invoke(() => InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.RegisterWin32(NativeType)));
                 else if (OperatingSystem.IsMacOS())
-                    Invoke(InfiniFrameNative.RegisterMac);
+                    Invoke(() => InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.RegisterMac()));
 
                 Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in StartupParameters));
-            }
-            catch (Exception ex) when (IsNonFatalException(ex)) {
-                int lastError = 0;
-                if (OperatingSystem.IsWindows())
-                    lastError = Marshal.GetLastWin32Error();
 
-                Logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
-                throw new ApplicationException($"Native code exception. Error # {lastError}  See inner exception for details.", ex);
+                if (InstanceHandle == IntPtr.Zero) {
+                    int lastError = Marshal.GetLastPInvokeError();
+                    string? nativeError = InfiniFrameNative.GetLastErrorMessageAndFree();
+                    throw new ApplicationException(CreateNativeExceptionMessage("Native window creation failed", lastError, nativeError));
+                }
+            }
+            catch (Exception ex) when (IsNonFatalException(ex) && ex is not ApplicationException) {
+                int lastError = Marshal.GetLastPInvokeError();
+                string? nativeError = InfiniFrameNative.GetLastErrorMessageAndFree();
+
+                Logger.LogError(ex, "Error #{LastErrorCode} while creating native window: {NativeError}", lastError, nativeError);
+                throw new ApplicationException(CreateNativeExceptionMessage("Native code exception", lastError, nativeError), ex);
             }
 
             Events.OnWindowCreated();
@@ -866,5 +870,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     private static bool IsNonFatalException(Exception exception)
         => exception is not (OutOfMemoryException or AccessViolationException);
+
+    private static string CreateNativeExceptionMessage(string prefix, int lastError, string? nativeError)
+        => string.IsNullOrWhiteSpace(nativeError)
+            ? $"{prefix}. Error # {lastError}."
+            : $"{prefix}. Error # {lastError}. {nativeError}";
     #endregion
 }

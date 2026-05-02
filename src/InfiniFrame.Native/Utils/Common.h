@@ -7,6 +7,8 @@
 #ifndef INFINIFRAME_COMMON_H
 #define INFINIFRAME_COMMON_H
 
+#include "../Interop/NativeString.h"
+
 #include <string>
 #include <string_view>
 #include <memory>
@@ -155,31 +157,22 @@ template <typename T>
 
 #ifdef _WIN32
 inline wchar_t* AllocateStringCopy(const std::wstring& str) {
-    const size_t len = str.length();
-    wchar_t* copy = new wchar_t[len + 1];
-    std::memcpy(copy, str.c_str(), (len + 1) * sizeof(wchar_t));
-    return copy;
+    return InfiniFrame::Native::Interop::AllocateNativeStringCopy(str);
 }
 
 #elif __linux__
 inline char* AllocateStringCopy(const std::string& str) {
-    return g_strdup(str.c_str());
+    return InfiniFrame::Native::Interop::AllocateNativeStringCopy(str);
 }
 
 #elif __APPLE__
 inline char* AllocateStringCopy(const std::string& str) {
-    const size_t len = str.length();
-    char* copy = static_cast<char*>(malloc(len + 1));
-    std::memcpy(copy, str.c_str(), len + 1);
-    return copy;
+    return InfiniFrame::Native::Interop::AllocateNativeStringCopy(str);
 }
 
 #else
 inline char* AllocateStringCopy(const std::string& str) {
-    const size_t len = str.length();
-    char* copy = static_cast<char*>(malloc(len + 1));
-    std::memcpy(copy, str.c_str(), len + 1);
-    return copy;
+    return InfiniFrame::Native::Interop::AllocateNativeStringCopy(str);
 }
 #endif
 

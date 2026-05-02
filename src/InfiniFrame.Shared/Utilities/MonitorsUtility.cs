@@ -13,7 +13,7 @@ internal static class MonitorsUtility {
     public static ImmutableArray<InfiniMonitor> GetMonitors(IInfiniFrameWindow window) {
         ImmutableArray<InfiniMonitor>.Builder builder = ImmutableArray.CreateBuilder<InfiniMonitor>();
 
-        InfiniFrameNative.GetAllMonitors(window.InstanceHandle, Callback);
+        InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.GetAllMonitors(window.InstanceHandle, Callback));
         return builder.ToImmutable();
 
         int Callback(in NativeMonitor monitor) {
@@ -82,7 +82,7 @@ internal static class MonitorsUtility {
 
     public static bool TryGetCurrentWindowAndMonitor(IInfiniFrameWindow window, out Rectangle windowRect, out InfiniMonitor monitor) {
         ImmutableArray<InfiniMonitor> monitors = GetMonitors(window);
-        InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out windowRect);
+        InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out windowRect));
         return TryGetCurrentMonitor(monitors, windowRect, out monitor);
     }
 }
