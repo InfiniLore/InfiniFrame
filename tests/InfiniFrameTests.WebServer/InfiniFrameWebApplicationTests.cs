@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Js;
 using InfiniFrame.WebServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,25 @@ public class InfiniFrameWebApplicationTests {
         await Assert.That(builder).IsNotNull();
         await Assert.That(builder.WebApp).IsNotNull();
         await Assert.That(builder.WindowBuilder).IsNotNull();
+    }
+
+    [Test]
+    public async Task Build_WithoutBlazorJsRuntime_ShouldPassServiceValidation() {
+        // Arrange
+        InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
+        builder.WebApp.Host.UseDefaultServiceProvider(static options => {
+            options.ValidateOnBuild = true;
+            options.ValidateScopes = true;
+        });
+
+        // Act
+        InfiniFrameWebApplication app = builder.Build();
+
+        // Assert
+        await Assert.That(builder.Services.Any(static descriptor => descriptor.ServiceType == typeof(IInfiniFrameJs)))
+            .IsFalse();
+
+        await app.WebApp.DisposeAsync();
     }
 
     [Test]
