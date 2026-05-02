@@ -1,6 +1,6 @@
 # Custom Window Chrome Guide
 
-`InfiniLore.InfiniFrame.Blazor` provides pre-built Razor components for building custom window title bars and resize handles — typically used together with a chromeless window
+`InfiniLore.InfiniFrame.Blazor` provides pre-built Razor components for building custom window title bars and resize handles, typically used together with a chromeless window.
 
 ## Contents
 
@@ -17,7 +17,7 @@
 dotnet add package InfiniLore.InfiniFrame.Blazor
 ```
 
-This package is a companion to `InfiniLore.InfiniFrame.BlazorWebView` or `InfiniLore.InfiniFrame.WebServer`
+This package is a companion to `InfiniLore.InfiniFrame.BlazorWebView` or `InfiniLore.InfiniFrame.WebServer`.
 
 ## Enable Chromeless Mode
 
@@ -32,13 +32,13 @@ builder.WithInfiniFrameWindowBuilder(w => w
 );
 ```
 
-On Windows, enabling chromeless mode automatically disables `UseOsDefaultLocation`, `UseOsDefaultSize`, and `Resizable` — set them explicitly if needed after calling `SetChromeless`
+On Windows, enabling chromeless mode automatically disables `UseOsDefaultLocation`, `UseOsDefaultSize`, and `Resizable`. Set them explicitly if needed after calling `SetChromeless`.
 
 ## Components
 
 ### InfiniFrameWindowDragArea
 
-Makes any area of the page draggable — acts as the window's title bar
+Makes any area of the page draggable, acting as the window's title bar.
 
 ```razor
 <InfiniFrameWindowDragArea>
@@ -46,8 +46,8 @@ Makes any area of the page draggable — acts as the window's title bar
 </InfiniFrameWindowDragArea>
 ```
 
-Place this at the top of your layout to create a custom drag region
-The component handles pointer capture automatically so drag operations remain stable even when the cursor moves fast
+Place this at the top of your layout to create a custom drag region.
+The component handles pointer capture automatically so drag operations remain stable even when the cursor moves fast.
 
 ### InfiniFrameWindowButton
 
@@ -65,7 +65,7 @@ A button that performs a window action (minimize, maximize, or close):
 | `Maximize`     | Maximizes or restores the window            |
 | `Close`        | Closes the window and exits the application |
 
-Each button is styled via its `.razor.css` scoped stylesheet — override the styles in your own CSS by targeting the component's generated class or wrapping it in a styled container
+Each button is styled via its `.razor.css` scoped stylesheet. Override the styles in your own CSS by targeting the component's generated class or wrapping it in a styled container.
 
 ### InfiniFrameWindowResizeThumb
 
@@ -83,7 +83,7 @@ Renders resize thumbs for all edges and corners in a single declaration:
 <InfiniFrameWindowResizeThumbContainer />
 ```
 
-Place this at the root level of your layout so it covers the entire window perimeter
+Place this at the root level of your layout so it covers the entire window perimeter.
 
 ## Full Layout Example
 
@@ -159,7 +159,7 @@ A complete custom window chrome in a Blazor layout:
 
 ## JavaScript Interop for Drag Areas
 
-`InfiniLore.InfiniFrame.Js` is used internally by the drag and resize components to call `setPointerCapture` on the underlying DOM element — this ensures drag operations continue even when the pointer leaves the element boundary
+`InfiniLore.InfiniFrame.Js` is used internally by the drag and resize components to call `setPointerCapture` on the underlying DOM element. This ensures drag operations continue even when the pointer leaves the element boundary.
 
 If you are building your own drag components, you can use `IInfiniFrameJs` directly:
 
@@ -177,13 +177,13 @@ If you are building your own drag components, you can use `IInfiniFrameJs` direc
 }
 ```
 
-See the [JavaScript Interop Guide](javascript-interop.md) for full details
+See the [JavaScript Interop Guide](javascript-interop.md) for full details.
 
 ## Styling Tips
 
-- The resize thumbs are transparent by default — they only respond to pointer events at the window edge
-- On Windows with `SetTransparent(true)`, your CSS `background: transparent` will show through to the desktop, enabling acrylic or mica-style effects via the CSS backdrop
-- Double-clicking on a `InfiniFrameWindowDragArea` does not automatically maximize — handle `@ondblclick` yourself if you want that behavior:
+- The resize thumbs are transparent by default; they only respond to pointer events at the window edge.
+- On Windows with `SetTransparent(true)`, your CSS `background: transparent` will show through to the desktop, enabling acrylic or mica-style effects via the CSS backdrop.
+- Double-clicking on a `InfiniFrameWindowDragArea` does not automatically maximize. Handle `@ondblclick` yourself if you want that behavior:
 
 ```razor
 @inject IInfiniFrameWindow Window

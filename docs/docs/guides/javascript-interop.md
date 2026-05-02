@@ -2,15 +2,15 @@
 
 InfiniFrame provides two layers of JS interop:
 
+1. **Web messaging**: a versioned message channel between C# and the page's JavaScript
+2. **InfiniFrame.Js**: Blazor-specific utilities for pointer capture and built-in window management message handlers
+
 ## Contents
 
 - [Web Messaging](#web-messaging)
 - [InfiniFrame.Js](#infiniframejs)
 - [Built-in JavaScript Message Handlers](#built-in-javascript-message-handlers)
 - [Exchanging Structured Data](#exchanging-structured-data)
-
-1. **Web messaging** — a versioned message channel between C# and the page's JavaScript
-2. **InfiniFrame.Js** — Blazor-specific utilities for pointer capture and built-in window management message handlers
 
 ## Web Messaging
 
@@ -24,7 +24,7 @@ window.infiniframe.host.postData({ id: "my:event", command: "Post", data: { valu
 Messages are validated against a versioned envelope contract:
 
 ```json
-{ "id": "<string>", "command": "Post|Get", "data": <any>, "version": 2, "requestId": "<optional-string>", "channel": "<optional-string>" }
+{ "id": "<string>", "command": "Post|Get", "data": null, "version": 2, "requestId": "<optional-string>", "channel": "<optional-string>" }
 ```
 
 `id`, `command`, and `version` are required. `version` must be `2`.
@@ -76,7 +76,7 @@ window.MessageHandlers.RegisterMessageHandler("ping", (window, _) => {
 });
 
 window.MessageHandlers.RegisterMessageHandler("set-title", (window, title) => {
-    // handle title change — title is the parsed envelope data
+    // handle title change; title is the parsed envelope data
 });
 ```
 
@@ -87,7 +87,7 @@ window.infiniframe.host.postData({ id: "set-title", command: "Post", data: "New 
 
 ## InfiniFrame.Js
 
-`InfiniLore.InfiniFrame.Js` provides Blazor-specific interop and registers built-in message handlers for window management from JavaScript
+`InfiniLore.InfiniFrame.Js` provides Blazor-specific interop and registers built-in message handlers for window management from JavaScript.
 
 ### Installation
 
@@ -95,7 +95,7 @@ window.infiniframe.host.postData({ id: "set-title", command: "Post", data: "New 
 dotnet add package InfiniLore.InfiniFrame.Js
 ```
 
-This package is automatically included by `InfiniLore.InfiniFrame.BlazorWebView`
+This package is automatically included by `InfiniLore.InfiniFrame.BlazorWebView`.
 
 ### DI Registration
 
@@ -116,7 +116,7 @@ public interface IInfiniFrameJs {
 }
 ```
 
-These wrap the browser's `element.setPointerCapture(pointerId)` / `element.releasePointerCapture(pointerId)` APIs, which are necessary for reliable drag interactions — the pointer capture keeps events flowing to the element even after the pointer leaves it
+These wrap the browser's `element.setPointerCapture(pointerId)` / `element.releasePointerCapture(pointerId)` APIs, which are necessary for reliable drag interactions. The pointer capture keeps events flowing to the element even after the pointer leaves it.
 
 ```razor
 @inject IInfiniFrameJs InfiniJs
@@ -142,7 +142,7 @@ These wrap the browser's `element.setPointerCapture(pointerId)` / `element.relea
 
 ## Built-in JavaScript Message Handlers
 
-`InfiniFrame.Js` registers several message handlers that the client-side `InfiniFrame.js` script uses to control the native window from JavaScript
+`InfiniFrame.Js` registers several message handlers that the client-side `InfiniFrame.js` script uses to control the native window from JavaScript.
 
 ### Including the script
 
@@ -162,7 +162,7 @@ These wrap the browser's `element.setPointerCapture(pointerId)` / `element.relea
 | `__infiniframe:title:change`     | `InfiniFrame.js` | Update the native window title                           |
 | `__infiniframe:open:external`    | `InfiniFrame.js` | Open links with `target="_blank"` in the default browser |
 
-These are used internally by `InfiniFrameWindowDragArea`, `InfiniFrameWindowButton`, and related components — you do not need to call them manually unless you are building custom components
+These are used internally by `InfiniFrameWindowDragArea`, `InfiniFrameWindowButton`, and related components. You do not need to call them manually unless you are building custom components.
 
 ### Sending a window management message from custom JavaScript
 
@@ -193,9 +193,9 @@ window.infiniFrame.HostMessaging.sendMessageToHost("__infiniframe:title:change",
 
 ## Exchanging Structured Data
 
-The message channel uses a JSON envelope, so structured data can be placed directly in `data`:
+The message channel uses a JSON envelope, so structured data can be placed directly in `data`.
 
-**C# → JS:**
+**C# to JS:**
 
 ```csharp
 window.SendWebMessage(JsonSerializer.Serialize(new {
@@ -215,7 +215,7 @@ window.infiniframe.host.receiveCallback(function(raw) {
 });
 ```
 
-**JS → C#:**
+**JS to C#:**
 
 ```js
 window.infiniframe.host.postData({

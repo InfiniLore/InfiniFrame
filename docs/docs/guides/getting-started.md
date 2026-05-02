@@ -1,14 +1,14 @@
 # Getting Started
 
-This guide walks you through installing InfiniFrame and creating your first native desktop window
+This guide walks you through installing InfiniFrame and creating your first native desktop window.
 
 ## Contents
 
 - [Prerequisites](#prerequisites)
 - [Choose Your Integration](#choose-your-integration)
-- [Option 1 — Core Window](#option-1--core-window)
-- [Option 2 — Blazor WebView](#option-2--blazor-webview)
-- [Option 3 — Web Server](#option-3--web-server)
+- [Option 1: Core Window](#option-1-core-window)
+- [Option 2: Blazor WebView](#option-2-blazor-webview)
+- [Option 3: Web Server](#option-3-web-server)
 - [Next Steps](#next-steps)
 
 ## Prerequisites
@@ -18,11 +18,11 @@ This guide walks you through installing InfiniFrame and creating your first nati
 
 ### Platform-specific requirements
 
-| Platform | Requirement                                                                                                                                                     |
-|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows  | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) — pre-installed on Windows 11; available as a redistributable for Windows 10 |
-| Linux    | `webkit2gtk-4.0` and `libgtk-3-dev` installed via your package manager                                                                                          |
-| macOS    | macOS 10.15 Catalina or later (WKWebView is built into the OS)                                                                                                  |
+| Platform | Requirement                                                                                                                                                       |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Windows  | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/); pre-installed on Windows 11 and available as a redistributable for Windows 10 |
+| Linux    | `webkit2gtk-4.0` and `libgtk-3-dev` installed via your package manager                                                                                            |
+| macOS    | macOS 10.15 Catalina or later (WKWebView is built into the OS)                                                                                                    |
 
 ## Choose Your Integration
 
@@ -34,7 +34,7 @@ InfiniFrame supports three integration models depending on your use case:
 | Run a Blazor app inside a native window (no server) | `InfiniLore.InfiniFrame.BlazorWebView` |
 | Run an ASP.NET Core web app with a native window    | `InfiniLore.InfiniFrame.WebServer`     |
 
-## Option 1 — Core Window
+## Option 1: Core Window
 
 ### Install
 
@@ -59,10 +59,10 @@ var window = InfiniFrameWindowBuilder.Create()
 window.WaitForClose();
 ```
 
-The window opens immediately when `Build()` is called and runs on the current thread
-`WaitForClose()` blocks until the native window is destroyed
+The window opens immediately when `Build()` is called and runs on the current thread.
+`WaitForClose()` blocks until the native window is destroyed.
 
-> **Windows:** WebView2 requires the calling thread to be STA (single-threaded apartment). Add `[STAThread]` to your `Main` method. Top-level statements do not support `[STAThread]` directly — use an explicit `static void Main()` instead. Calling `Build()` on a non-STA thread will throw an `InvalidOperationException`
+> **Windows:** WebView2 requires the calling thread to be STA (single-threaded apartment). Add `[STAThread]` to your `Main` method. Top-level statements do not support `[STAThread]` directly; use an explicit `static void Main()` instead. Calling `Build()` on a non-STA thread will throw an `InvalidOperationException`.
 
 ### Single-file/native packaging bootstrap
 
@@ -90,9 +90,9 @@ public static class Program {
 
 You only need this for packaged outputs that embed native runtime files as resources. Standard development runs (`dotnet run`) do not require it.
 
-## Option 2 — Blazor WebView
+## Option 2: Blazor WebView
 
-This integration runs a Blazor application entirely in-process — no server, no HTTP port
+This integration runs a Blazor application entirely in-process with no server and no HTTP port.
 
 ### Install
 
@@ -102,13 +102,13 @@ dotnet add package InfiniLore.InfiniFrame.BlazorWebView
 
 ### Project setup
 
-Your project must use `Microsoft.NET.Sdk.Razor` and have a `wwwroot/` folder with `index.html`
+Your project must use `Microsoft.NET.Sdk.Razor` and have a `wwwroot/` folder with `index.html`.
 
 A minimal `index.html`:
 
 ```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <base href="/" />
@@ -116,7 +116,7 @@ A minimal `index.html`:
 <body>
     <div id="app">Loading...</div>
     <div id="blazor-error-ui">An error has occurred.</div>
-    <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script src="_framework/blazor.webview.js"></script>
 </body>
 </html>
 ```
@@ -153,9 +153,9 @@ builder.Build().Run();
 <button @onclick="() => Window.Close()">Exit</button>
 ```
 
-## Option 3 — Web Server
+## Option 3: Web Server
 
-This integration starts an ASP.NET Core web server in a background thread and opens a native window pointing at it — ideal when you want the full ASP.NET Core pipeline (middleware, controllers, SignalR, etc.)
+This integration starts an ASP.NET Core web server in a background thread and opens a native window pointing at it. It's ideal when you want the full ASP.NET Core pipeline (middleware, controllers, SignalR, etc.)
 
 ### Install
 
@@ -179,12 +179,12 @@ app.WebApp.MapGet("/", () => "Hello from InfiniFrame");
 app.Run();
 ```
 
-The start URL is automatically read from `ASPNETCORE_URLS` or the `urls` configuration key
-`UseAutoServerClose()` ensures the server shuts down gracefully when the window is closed
+The start URL is automatically read from `ASPNETCORE_URLS` or the `urls` configuration key.
+`UseAutoServerClose()` ensures the server shuts down gracefully when the window is closed.
 
 ## Next Steps
 
-- [Core Window Guide](core-window.md) — Window events, messaging, dialogs, custom schemes
-- [Blazor Guide](blazor-webview.md) — DI, file providers, component configuration
-- [Web Server Guide](web-server.md) — ASP.NET Core pipeline, DI access, graceful shutdown
-- [API Reference](../api.md) — Central API navigation and language-specific guides
+- [Core Window Guide](core-window.md): Window events, messaging, dialogs, custom schemes
+- [Blazor Guide](blazor-webview.md): DI, file providers, component configuration
+- [Web Server Guide](web-server.md): ASP.NET Core pipeline, DI access, graceful shutdown
+- [API Reference](../api.md): Central API navigation and language-specific guides
