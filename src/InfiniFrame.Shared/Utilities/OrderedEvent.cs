@@ -7,7 +7,7 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameOrderedEvent {
+public class OrderedEvent {
     private ImmutableArray<Action<IInfiniFrameWindow>> _handlers = ImmutableArray<Action<IInfiniFrameWindow>>.Empty;
     public ImmutableArray<Action<IInfiniFrameWindow>> Snapshot => _handlers;
 
@@ -39,10 +39,13 @@ public class InfiniFrameOrderedEvent {
     }
 }
 
-public class InfiniFrameOrderedEvent<TPayload> {
+public class OrderedEvent<TPayload> {
     private ImmutableArray<Action<IInfiniFrameWindow, TPayload>> _handlers = ImmutableArray<Action<IInfiniFrameWindow, TPayload>>.Empty;
     public ImmutableArray<Action<IInfiniFrameWindow, TPayload>> Snapshot => _handlers;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void Add(Action<IInfiniFrameWindow, TPayload> handler) {
         ArgumentNullException.ThrowIfNull(handler);
         ImmutableInterlocked.Update(ref _handlers, transformer: static (current, item) => current.Add(item), handler);

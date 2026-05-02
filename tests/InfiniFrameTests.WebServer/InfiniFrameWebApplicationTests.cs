@@ -124,8 +124,8 @@ public class InfiniFrameWebApplicationTests {
 
         // Act
         app.UseAutoServerClose();
-        NetClosingDelegate? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
-        bool? result = capturedHandler?.Invoke(new object(), EventArgs.Empty);
+        Func<IInfiniFrameWindow, EventArgs?, bool>? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
+        bool? result = capturedHandler?.Invoke(mockWindow, EventArgs.Empty);
 
         // Assert
         await Assert.That(capturedHandler).IsNotNull();
@@ -152,8 +152,8 @@ public class InfiniFrameWebApplicationTests {
         app.UseAutoServerClose();
 
         // Act
-        NetClosingDelegate? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
-        capturedHandler?.Invoke(new object(), EventArgs.Empty);
+        Func<IInfiniFrameWindow, EventArgs?, bool>? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
+        capturedHandler?.Invoke(mockWindow, EventArgs.Empty);
 
         var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();
         DateTime deadline = DateTime.UtcNow.AddSeconds(2);

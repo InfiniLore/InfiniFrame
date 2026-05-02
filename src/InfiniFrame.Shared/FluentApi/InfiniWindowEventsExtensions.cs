@@ -176,11 +176,9 @@ public static class InfiniWindowEventsExtensions {
     /// <returns>
     ///     Returns the current <see cref="IHasInfiniFrameEvents" /> instance.
     /// </returns>
-    /// <param name="handler">
-    ///     <see cref="NetClosingDelegate" />
-    /// </param>
     /// <param name="builder">The builder to register the handler for.</param>
-    public static T RegisterWindowClosingHandler<T>(this T builder, NetClosingDelegate handler) where T : IHasInfiniFrameEvents {
+    /// <param name="handler">The handler that will be invoked</param>
+    public static T RegisterWindowClosingHandler<T>(this T builder, Func<IInfiniFrameWindow,EventArgs?, bool> handler) where T : IHasInfiniFrameEvents {
         builder.Events.WindowClosing.Add(handler);
         return builder;
     }

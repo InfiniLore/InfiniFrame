@@ -12,18 +12,18 @@ namespace InfiniFrame;
 public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
 
     private IInfiniFrameWindow Sender { get; set; } = null!;
-    public InfiniFrameOrderedEvent<Point> WindowLocationChanged { get; } = new();
-    public InfiniFrameOrderedEvent<Size> WindowSizeChanged { get; } = new();
-    public InfiniFrameOrderedEvent WindowFocusIn { get; } = new();
-    public InfiniFrameOrderedEvent WindowMaximized { get; } = new();
-    public InfiniFrameOrderedEvent WindowRestored { get; } = new();
-    public InfiniFrameOrderedEvent WindowFocusOut { get; } = new();
-    public InfiniFrameOrderedEvent WindowMinimized { get; } = new();
-    public InfiniFrameOrderedEvent<string> WebMessageReceived { get; } = new();
-    public InfiniFrameOrderedEvent WindowClosingRequested { get; } = new();
-    public InfiniFrameOrderedClosingEvent WindowClosing { get; } = new();
-    public InfiniFrameOrderedEvent WindowCreating { get; } = new();
-    public InfiniFrameOrderedEvent WindowCreated { get; } = new();
+    public OrderedEvent<Point> WindowLocationChanged { get; } = new();
+    public OrderedEvent<Size> WindowSizeChanged { get; } = new();
+    public OrderedEvent WindowFocusIn { get; } = new();
+    public OrderedEvent WindowMaximized { get; } = new();
+    public OrderedEvent WindowRestored { get; } = new();
+    public OrderedEvent WindowFocusOut { get; } = new();
+    public OrderedEvent WindowMinimized { get; } = new();
+    public OrderedEvent<string> WebMessageReceived { get; } = new();
+    public OrderedEvent WindowClosingRequested { get; } = new();
+    public OrderedResultEvent<EventArgs?, bool> WindowClosing { get; } = new();
+    public OrderedEvent WindowCreating { get; } = new();
+    public OrderedEvent WindowCreated { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -103,10 +103,11 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     public byte OnWindowClosing() {
         //C++ handles bool values as a single byte, C# uses 4 bytes
         byte noClose = 0;
-        bool? doNotClose = WindowClosing.Invoke(Sender);
-        if (doNotClose ?? false)
+        bool[] doNotClose = WindowClosing.Invoke(Sender, null);
+        if (doNotClose.Any()) {
             noClose = 1;
-
+        }
+        
         return noClose;
     }
 
