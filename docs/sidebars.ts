@@ -38,7 +38,8 @@ const sidebars: SidebarsConfig = {
       type: "category",
       label: "Migration",
       items: [
-        "migration/breaking-changes-from-photino",
+        "migration/photino-breaking-changes",
+          "migration/photino-backlog"
       ],
     },
   ],
