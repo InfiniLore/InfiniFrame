@@ -42,7 +42,7 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@v6
                 with:
-                    fetch-depth: 1
+                    fetch-depth: 0
 
             -   name: Detect Changes
                 id: filter
@@ -54,16 +54,23 @@ jobs:
                           - '!src/InfiniFrame.Native/**'
                         cpp:
                           - 'src/InfiniFrame.Native/**'
-    
+
     analyze:
         name: Analyze (${{ matrix.language }} on ${{ matrix.os }})
         needs: changes
         runs-on: ${{ matrix.os }}
         timeout-minutes: 90
-        
+
         if: >
-            github.event_name != 'pull_request' 
-            || github.event.pull_request.draft == false
+            (
+                github.event_name != 'pull_request' 
+                || github.event.pull_request.draft == false
+            ) && (
+                github.event_name == 'workflow_dispatch' && github.event.inputs.full_scan == 'true'
+                || matrix.language == 'csharp' && needs.changes.outputs.csharp == 'true'
+                || matrix.language == 'c-cpp' && needs.changes.outputs.cpp == 'true'
+                || matrix.language != 'csharp' && matrix.language != 'c-cpp'
+            )
 
         permissions:
             contents: read
@@ -72,7 +79,7 @@ jobs:
             packages: read
             pull-requests: write
             checks: write
-        
+
         strategy:
             fail-fast: false
             matrix:
@@ -95,39 +102,14 @@ jobs:
                     -   language: python
                         os: ubuntu-latest
                         build-mode: none
-        
-        steps:
-            -   name: Determine Matrix Run
-                id: gate
-                shell: pwsh
-                run: |
-                    $run = 'false'
-                    
-                    $isFullScan = "${{ github.event_name }}" -eq "workflow_dispatch" -and "${{ github.event.inputs.full_scan }}" -eq "true"
-                    
-                    if ($isFullScan) {
-                      $run = 'true'
-                    }
-                    elseif ("${{ matrix.language }}" -eq "csharp" -and "${{ needs.changes.outputs.csharp || 'false' }}" -eq "true") {
-                      $run = 'true'
-                    }
-                    elseif ("${{ matrix.language }}" -eq "c-cpp" -and "${{ needs.changes.outputs.cpp || 'false' }}" -eq "true") {
-                      $run = 'true'
-                    }
-                    elseif ("${{ matrix.language }}" -ne "csharp" -and "${{ matrix.language }}" -ne "c-cpp") {
-                      $run = 'true'
-                    }
-                    
-                    "run=$run" >> $env:GITHUB_OUTPUT
 
+        steps:
             -   name: Checkout
-                if: steps.gate.outputs.run == 'true'
                 uses: actions/checkout@v6
                 with:
                     fetch-depth: 1
 
             -   name: Setup .NET
-                if: steps.gate.outputs.run == 'true'
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
@@ -136,12 +118,11 @@ jobs:
                         10.x
 
             -   name: Setup CMake
-                if: steps.gate.outputs.run == 'true' && matrix.language == 'c-cpp'
+                if: matrix.language == 'c-cpp'
                 uses: lukka/get-cmake@latest
 
             -   name: Setup Native dependencies
-                if: steps.gate.outputs.run == 'true' && matrix.language == 'c-cpp'
-                # noinspection UndefinedAction
+                if: matrix.language == 'c-cpp'
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
@@ -150,7 +131,6 @@ jobs:
                     brew-restore-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-
 
             -   name: Initialize CodeQL
-                if: steps.gate.outputs.run == 'true'
                 uses: github/codeql-action/init@v4
                 with:
                     languages: ${{ matrix.language }}
@@ -159,23 +139,22 @@ jobs:
                     config-file: ./.github/codeql-config.yml
 
             -   name: Restore C# (.slnx)
-                if: steps.gate.outputs.run == 'true' && matrix.language == 'csharp' && matrix.build-mode == 'manual'
+                if: matrix.language == 'csharp' && matrix.build-mode == 'manual'
                 run: |
                     dotnet restore InfiniFrame.slnx /p:NoWarn=NU1503
 
             -   name: Build Native (CodeQL)
-                if: steps.gate.outputs.run == 'true' && matrix.language == 'c-cpp'
+                if: matrix.language == 'c-cpp'
                 shell: pwsh
                 run: |
                     dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj --configuration Release --no-restore -p:SolutionDir="${{ github.workspace }}/" -p:Platform=x64
 
             -   name: Build C# (.slnx)
-                if: steps.gate.outputs.run == 'true' && matrix.language == 'csharp' && matrix.build-mode == 'manual'
+                if: matrix.language == 'csharp' && matrix.build-mode == 'manual'
                 run: |
                     dotnet build InfiniFrame.slnx --no-restore --configuration Release -p:InfiniFramePackAfterBuild=false
 
             -   name: Perform CodeQL Analysis
-                if: steps.gate.outputs.run == 'true'
                 uses: github/codeql-action/analyze@v4
                 with:
                     category: "/language:${{ matrix.language }}"
