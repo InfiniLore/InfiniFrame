@@ -7,14 +7,16 @@ concurrency:
 on:
     push:
         branches: [ "core" ]
+
     pull_request:
         branches: [ "core" ]
-        types: [ ready_for_review, synchronize, reopened ]
+        types: [ opened, synchronize, reopened, ready_for_review ]
         paths-ignore:
             - '**/*.md'
             - 'docs/**'
             - '.github/ISSUE_TEMPLATE/**'
             - '.github/*.md'
+
     workflow_dispatch:
         inputs:
             full_scan:
@@ -30,9 +32,7 @@ jobs:
     changes:
         name: Detect Changed Areas
         runs-on: ubuntu-latest
-        if: >
-            github.event_name != 'workflow_dispatch' ||
-            github.event.inputs.full_scan != 'true'
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.full_scan != 'true'
         permissions:
             contents: read
         outputs:
@@ -66,8 +66,6 @@ jobs:
                           - 'src/**/*.razor.css'
                           - 'Directory.Packages.props'
                           - 'global.json'
-                          - '.github/workflows/ci-codeql.yml'
-                          - '.github/codeql-config.yml'
                         cpp:
                           - 'src/InfiniFrame.Native/**'
                           - 'native-vendor-deps.json'
@@ -122,14 +120,11 @@ jobs:
 
         if: >
             always() && (
-                needs.changes.result == 'success' 
-                || (
-                    github.event_name == 'workflow_dispatch' 
-                    && github.event.inputs.full_scan == 'true' 
-                    && needs.changes.result == 'skipped'
-            )) && (
-                github.event_name != 'pull_request' 
-                || github.event.pull_request.draft == false
+                needs.changes.result == 'success' ||
+                (github.event_name == 'workflow_dispatch' && github.event.inputs.full_scan == 'true')
+            ) && (
+                github.event_name != 'pull_request' ||
+                github.event.pull_request.draft == false
             )
 
         permissions:
@@ -177,7 +172,7 @@ jobs:
                     PYTHON_CHANGED: ${{ needs.changes.outputs.python }}
                 run: |
                     should_run=false
-
+                    
                     if [[ "$FULL_SCAN" == "true" ]]; then should_run=true
                     elif [[ "$LANGUAGE" == "actions" && "$ACTIONS_CHANGED" == "true" ]]; then should_run=true
                     elif [[ "$LANGUAGE" == "csharp" && "$CSHARP_CHANGED" == "true" ]]; then should_run=true
@@ -185,7 +180,7 @@ jobs:
                     elif [[ "$LANGUAGE" == "javascript-typescript" && "$JAVASCRIPT_TYPESCRIPT_CHANGED" == "true" ]]; then should_run=true
                     elif [[ "$LANGUAGE" == "python" && "$PYTHON_CHANGED" == "true" ]]; then should_run=true
                     fi
-
+                    
                     echo "run=$should_run" >> "$GITHUB_OUTPUT"
 
             -   name: Checkout
