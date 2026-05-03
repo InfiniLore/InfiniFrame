@@ -126,16 +126,6 @@ jobs:
                     cache: 'npm'
                     cache-dependency-path: '**/package-lock.json'
 
-            -   name: Prepare WebView2 Cache Directory
-                shell: pwsh
-                run: New-Item -ItemType Directory -Path ".cache\webview2" -Force | Out-Null
-
-            -   name: Cache WebView2
-                uses: actions/cache@v5
-                with:
-                    path: .cache\webview2
-                    key: webview2-installer-${{ runner.os }}-v1
-
             -   name: Install WebView2 Runtime
                 shell: pwsh
                 run: |
