@@ -9,6 +9,7 @@ This backlog will be used to track any remaining issues or features that need to
 - 🚧 : Under construction
 - ❓ : Under discussion / unclear if should be handled natively
 - ❌ : Rejected for native implementation
+- 🚫 : Out of scope. Usually means this is normal behavior or not an issue with the original Photino codebase
 
 ---
 
@@ -29,7 +30,7 @@ This backlog will be used to track any remaining issues or features that need to
 | ❓      | Set icon in the taskbar on windows 11                                | [photino.Blazor#161](https://github.com/tryphotino/photino.Blazor/issues/161)                                                                              |                |
 | ✅      | .NET 10 support                                                      | [photino.Blazor#164](https://github.com/tryphotino/photino.Blazor/issues/164), [photino.Blazor#165](https://github.com/tryphotino/photino.Blazor/pull/165) |                |
 | ❓      | Fix handling of app:// URLs containing a #fragment                   | [photino.Blazor#166](https://github.com/tryphotino/photino.Blazor/pull/166)                                                                                |                |
-| ❓      | Top Empty window caption appear in SetChromeless(true)               | [photino.Blazor#167](https://github.com/tryphotino/photino.Blazor/issues/167)                                                                              |                |
+| 🚫     | Top Empty window caption appear in SetChromeless(true)               | [photino.Blazor#167](https://github.com/tryphotino/photino.Blazor/issues/167)                                                                              |                |
 
 ---
 
