@@ -50,33 +50,30 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         // Windows: WebView2 requires STA thread for COM initialization
         // Linux: GTK implicitly treats the calling thread as the main UI thread
         // macOS: Similar to Linux, but with additional main-thread restrictions for menu operations
-        if (OperatingSystem.IsWindows()) {
-            return CreateOnStaThread(windowBuilder);
-        }
-        else {
-            // On Linux/macOS, create the window in the current thread to ensure proper GTK initialization
-            IInfiniFrameWindow window = windowBuilder.Build();
+        if (OperatingSystem.IsWindows()) return CreateOnStaThread(windowBuilder);
 
-            var utility = new InfiniFrameWindowTestUtility {
-                Window = window
-            };
+        // On Linux/macOS, create the window in the current thread to ensure proper GTK initialization
+        IInfiniFrameWindow window = windowBuilder.Build();
 
-            var thread = new Thread(() => {
-                try {
-                    window.WaitForClose();
-                }
-                catch (ApplicationException) {
-                    // Ignore shutdown exceptions during test cleanup
-                }
-            }) {
-                IsBackground = true
-            };
+        var utility = new InfiniFrameWindowTestUtility {
+            Window = window
+        };
 
-            utility._windowThread = thread;
-            thread.Start();
+        var thread = new Thread(() => {
+            try {
+                window.WaitForClose();
+            }
+            catch (ApplicationException) {
+                // Ignore shutdown exceptions during test cleanup
+            }
+        }) {
+            IsBackground = true
+        };
 
-            return utility;
-        }
+        utility._windowThread = thread;
+        thread.Start();
+
+        return utility;
     }
 
     [SupportedOSPlatform("windows")]
