@@ -131,7 +131,7 @@ public class OrderedEventTests {
         bool[] result = closingEvent.Invoke(window, EventArgs.Empty);
 
         // Assert
-        await Assert.That(result).IsNotEmpty();
+        await Assert.That(result).Count().IsEqualTo(2);
         await Assert.That(result.First()).IsFalse();
         await Assert.That(result.Last()).IsTrue();
     }
