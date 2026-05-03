@@ -12,7 +12,7 @@ public class WindowRegistrationStateMachineTests {
     public async Task InitialState_IsReadyPending_AndTimeoutEligible() {
         var sut = new WindowRegistrationStateMachine();
 
-        await Assert.That(sut.ShouldLogReadyHandshakeTimeout()).IsTrue();
+        await Assert.That(sut.IsReadyPending()).IsTrue();
     }
 
     [Test]
@@ -24,11 +24,11 @@ public class WindowRegistrationStateMachineTests {
 
         await Assert.That(firstStart).IsTrue();
         await Assert.That(secondStart).IsFalse();
-        await Assert.That(sut.ShouldLogReadyHandshakeTimeout()).IsFalse();
+        await Assert.That(sut.IsReadyPending()).IsFalse();
     }
 
     [Test]
-    public async Task CompleteRegistrationSend_Success_BlocksFurtherSends() {
+    public async Task CompleteRegistrationSend_SuccessfulAck_BlocksFurtherSends() {
         var sut = new WindowRegistrationStateMachine();
         sut.TryBeginRegistrationSendOnReady();
 
@@ -36,7 +36,7 @@ public class WindowRegistrationStateMachineTests {
         bool startedAgain = sut.TryBeginRegistrationSendOnReady();
 
         await Assert.That(startedAgain).IsFalse();
-        await Assert.That(sut.ShouldLogReadyHandshakeTimeout()).IsFalse();
+        await Assert.That(sut.IsReadyPending()).IsFalse();
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class WindowRegistrationStateMachineTests {
         bool startedRetry = sut.TryBeginRegistrationSendOnReady();
 
         await Assert.That(startedRetry).IsTrue();
-        await Assert.That(sut.ShouldLogReadyHandshakeTimeout()).IsFalse();
+        await Assert.That(sut.IsReadyPending()).IsFalse();
     }
 
     [Test]
@@ -59,6 +59,6 @@ public class WindowRegistrationStateMachineTests {
         bool started = sut.TryBeginRegistrationSendOnReady();
 
         await Assert.That(started).IsTrue();
-        await Assert.That(sut.ShouldLogReadyHandshakeTimeout()).IsFalse();
+        await Assert.That(sut.IsReadyPending()).IsFalse();
     }
 }

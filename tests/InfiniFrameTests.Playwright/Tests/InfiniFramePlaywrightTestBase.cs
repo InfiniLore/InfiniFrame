@@ -32,7 +32,9 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     protected async Task<IPage> GetPageAsync(string relativeUrl) {
         IBrowserContext context = await GetContextAsync(relativeUrl);
-        return context.Pages[0];
+        IPage page = context.Pages[0];
+        await WaitForInfiniFrameReadyAsync(page);
+        return page;
     }
 
     protected Task<IPage> GetRootPageAsync()
@@ -130,6 +132,21 @@ public abstract class InfiniFramePlaywrightTestBase {
         Fail.Test($"Could not execute script: {script} within timeout");
         return default!;
     }
+
+    protected static Task WaitForInfiniFrameReadyAsync(IPage page)
+        => EvaluateWhenPageReadyAsync(
+            page,
+            // lang=javascript
+            """
+            async () => {
+                if (!window.infiniframe?.messaging?.ready) {
+                    throw new Error("InfiniFrame messaging ready promise is not initialized.");
+                }
+
+                await window.infiniframe.messaging.ready;
+            }
+            """
+        );
 
     private static bool IsExecutionContextDestroyedByNavigation(PlaywrightException exception)
         => exception.Message.Contains("Execution context was destroyed", StringComparison.OrdinalIgnoreCase);

@@ -23,6 +23,7 @@ export const ReceiveFromHostMessageIds = {
     registerFullscreenChange: `${infiniframe}:register:fullscreen:change`,
     registerTitleChange: `${infiniframe}:register:title:change`,
     registerWindowClose: `${infiniframe}:register:window:close`,
+    readyAck: `${infiniframe}:ready:ack`,
     getMessageResponse: `${infiniframe}:get:response`,
 }
 
@@ -30,6 +31,9 @@ export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendT
 export type MessageCallback = (data?: string) => void;
 
 export interface IInfiniFrameHostMessaging {
+    readonly ready: Promise<void>;
+    readonly isReady: boolean;
+
     sendMessageToHost(id: SendToHostMessageId | string, data?: unknown): void;
     getMessageFromHostAsync(message: InteropEnvelopeV1 | string): Promise<string>;
 

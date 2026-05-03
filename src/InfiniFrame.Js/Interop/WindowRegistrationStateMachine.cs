@@ -14,9 +14,9 @@ internal sealed class WindowRegistrationStateMachine {
     // -----------------------------------------------------------------------------------------------------------------
     public bool TryBeginRegistrationSendOnReady() {
         if (RegistrationSendInProgress) return false;
-        if (HandshakeState == WindowRegistrationHandshakeState.Sent) return false;
+        if (HandshakeState == WindowRegistrationHandshakeState.ReadyAcknowledged) return false;
 
-        HandshakeState = WindowRegistrationHandshakeState.ReadyReceived;
+        HandshakeState = WindowRegistrationHandshakeState.RegistrationSending;
         RegistrationSendInProgress = true;
         return true;
     }
@@ -24,10 +24,10 @@ internal sealed class WindowRegistrationStateMachine {
     public void CompleteRegistrationSend(bool success) {
         RegistrationSendInProgress = false;
         HandshakeState = success
-            ? WindowRegistrationHandshakeState.Sent
+            ? WindowRegistrationHandshakeState.ReadyAcknowledged
             : WindowRegistrationHandshakeState.Failed;
     }
 
-    public bool ShouldLogReadyHandshakeTimeout() 
+    public bool IsReadyPending() 
         => HandshakeState == WindowRegistrationHandshakeState.ReadyPending;
 }
