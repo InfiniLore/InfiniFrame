@@ -16,25 +16,24 @@ internal static class StaticAssetSchemeHandler {
         // yes, C# 14 and such have out parameters in their lambas, but we need to support .NET 8.0 which does not natively have this yet
         return NetCustomSchemeDelegateWrapper;
 
-        Stream? NetCustomSchemeDelegateWrapper(object sender, string scheme, string url, out string? contentType) {
+        Stream? NetCustomSchemeDelegateWrapper(IInfiniFrameWindow sender, string scheme, string url, out string? contentType) {
             #endif
             contentType = null;
-            if (sender is not IInfiniFrameWindow { Logger: var logger }) return null;
 
             if (!TryGetAssetPath(url, defaultDocument, out string assetPath)) {
-                logger.LogDebug("Rejected custom scheme path for {Scheme}: {Url}", scheme, url);
+                sender.Logger.LogDebug("Rejected custom scheme path for {Scheme}: {Url}", scheme, url);
                 return null;
             }
 
             IFileInfo file = fileProvider.GetFileInfo(assetPath);
             if (!file.Exists || file.IsDirectory) {
-                logger.LogDebug("Custom scheme miss for {Scheme}: {AssetPath} (from {Url})", scheme, assetPath,
+                sender.Logger.LogDebug("Custom scheme miss for {Scheme}: {AssetPath} (from {Url})", scheme, assetPath,
                     url);
                 return null;
             }
 
             contentType = GetContentType(assetPath);
-            logger.LogDebug("Custom scheme hit for {Scheme}: {AssetPath} ({ContentType})", scheme, assetPath,
+            sender.Logger.LogDebug("Custom scheme hit for {Scheme}: {AssetPath} ({ContentType})", scheme, assetPath,
                 contentType);
             return file.CreateReadStream();
 

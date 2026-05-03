@@ -7,13 +7,14 @@ using InfiniFrame.HostMessaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilderTests {
-    private static Stream? EmptyHandler(object sender, string scheme, string url, out string? contentType) {
+    private static Stream? EmptyHandler(IInfiniFrameWindow sender, string scheme, string url, out string? contentType) {
         _ = sender;
         _ = scheme;
         _ = url;
@@ -148,7 +149,7 @@ public class InfiniFrameWindowBuilderTests {
             .Where(static item => item.Key == "app")
             .Select(static item => item.Value)
             .FirstOrDefault();
-        copiedHandler?.Invoke(this, "app", "app://resource", out string? _);
+        copiedHandler?.Invoke(Substitute.For<IInfiniFrameWindow>(), "app", "app://resource", out string? _);
 
         // Assert
         await Assert.That(found).IsTrue();
@@ -156,7 +157,7 @@ public class InfiniFrameWindowBuilderTests {
         await Assert.That(callCount).IsEqualTo(2);
         return;
 
-        Stream? CountingHandler(object sender, string scheme, string url, out string? contentType) {
+        Stream? CountingHandler(IInfiniFrameWindow sender, string scheme, string url, out string? contentType) {
             _ = sender;
             _ = scheme;
             _ = url;
@@ -186,8 +187,8 @@ public class InfiniFrameWindowBuilderTests {
         int firstRegisteredCount = first.CustomSchemes.OrderedSchemeNames.Distinct(StringComparer.Ordinal).Count();
         int secondRegisteredCount = second.CustomSchemes.OrderedSchemeNames.Distinct(StringComparer.Ordinal).Count();
 
-        firstHandler?.Invoke(this, "app", "app://resource1", out string? _);
-        secondHandler?.Invoke(this, "app", "app://resource2", out string? _);
+        firstHandler?.Invoke(Substitute.For<IInfiniFrameWindow>(), "app", "app://resource1", out string? _);
+        secondHandler?.Invoke(Substitute.For<IInfiniFrameWindow>(), "app", "app://resource2", out string? _);
 
         // Assert
         await Assert.That(foundFirst).IsTrue();
