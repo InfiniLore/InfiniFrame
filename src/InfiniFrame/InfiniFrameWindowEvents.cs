@@ -104,7 +104,7 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
         //C++ handles bool values as a single byte, C# uses 4 bytes
         byte noClose = 0;
         bool[] doNotClose = WindowClosing.Invoke(Sender, null);
-        if (doNotClose.Any()) {
+        if (doNotClose.Any(r => r)) {
             noClose = 1;
         }
         
