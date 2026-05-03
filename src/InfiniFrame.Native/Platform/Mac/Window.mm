@@ -290,6 +290,13 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
     m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
 
+    if (!m_impl->_temporaryFilesPath.empty())
+    {
+        // WKWebView does not expose a public API for choosing an arbitrary website data directory.
+        // Use an isolated temporary store instead of silently falling back to the shared persistent store.
+        m_impl->_webviewConfiguration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
+    }
+
     for (const auto & scheme : m_impl->_customSchemeNames)
     {
         // Note:

@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <X11/Xlib.h>
 #include <gio/gio.h>
+#include <glib/gstdio.h>
 #include <webkit2/webkit2.h>
 #include <JavaScriptCore/JavaScript.h>
 #include <sstream>
@@ -186,6 +187,38 @@ static std::string escapeJsonString(std::string_view input) {
     return result;
 }
 
+static GtkWidget* create_web_view(
+    WebKitUserContentManager* contentManager,
+    const std::string& temporaryFilesPath
+    ) {
+    if (temporaryFilesPath.empty())
+        return webkit_web_view_new_with_user_content_manager(contentManager);
+
+    std::string dataDirectory = temporaryFilesPath + "/data";
+    std::string cacheDirectory = temporaryFilesPath + "/cache";
+
+    g_mkdir_with_parents(dataDirectory.c_str(), 0700);
+    g_mkdir_with_parents(cacheDirectory.c_str(), 0700);
+
+    WebKitWebsiteDataManager* dataManager = webkit_website_data_manager_new(
+        "base-data-directory", dataDirectory.c_str(),
+        "base-cache-directory", cacheDirectory.c_str(),
+        NULL
+        );
+    WebKitWebContext* context = webkit_web_context_new_with_website_data_manager(dataManager);
+    GtkWidget* webView = GTK_WIDGET(g_object_new(
+        WEBKIT_TYPE_WEB_VIEW,
+        "web-context", context,
+        "user-content-manager", contentManager,
+        NULL
+        ));
+
+    g_object_unref(context);
+    g_object_unref(dataManager);
+
+    return webView;
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Impl method definitions
 // ---------------------------------------------------------------------------------------------------------------------
@@ -299,7 +332,9 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
     if (_customSchemeCallback == nullptr)
         return;
 
-    WebKitWebContext* context = webkit_web_context_get_default();
+    WebKitWebContext* context = _webview != nullptr
+        ? webkit_web_view_get_context(WEBKIT_WEB_VIEW(_webview))
+        : webkit_web_context_get_default();
     WebKitSecurityManager* securityManager = webkit_web_context_get_security_manager(context);
     for (const auto& value : _customSchemeNames) {
         if (securityManager != nullptr && g_ascii_strcasecmp(value.c_str(), "app") == 0) {
@@ -1002,7 +1037,8 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         struct sigaction old_action;
         sigaction(SIGCHLD, nullptr, &old_action);
         WebKitUserContentManager* contentManager = webkit_user_content_manager_new();
-        m_impl->_webview = webkit_web_view_new_with_user_content_manager(contentManager);
+        m_impl->_webview = create_web_view(contentManager, m_impl->_temporaryFilesPath);
+        g_object_unref(contentManager);
 
         m_impl->set_webkit_settings();
 

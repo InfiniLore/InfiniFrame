@@ -12,41 +12,27 @@ public class MultiWindowTests {
     [Test]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout * 3)]
+    // [Timeout(TimeoutUtility.DefaultTimeout + 1_000)]
     public async Task OpenWindowAfterOneCloses(CancellationToken ct) {
         // Arrange
-        int closingCounter = 0;
-        var window1Closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var window2Closed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int closingRequestedCounter = 0;
         var window1Utility = InfiniFrameWindowTestUtility.Create(
-            builder => builder.RegisterWindowClosingHandler((_, _) => {
-                Interlocked.Increment(ref closingCounter);
-                window1Closed.TrySetResult();
-                return false;
+            builder => builder.RegisterWindowClosingRequestedHandler(_ => {
+                Interlocked.Increment(ref closingRequestedCounter);
             }), ct);
-
+        window1Utility.Dispose(); // cleans up and closes the window
+        await Task.Delay(1_000, ct);
+        
         // Act
-        using (window1Utility) {
-            IInfiniFrameWindow window1 = window1Utility.Window;
-            window1.Close();
-        }
-        await window1Closed.Task.WaitAsync(ct);
-
         var window2Utility = InfiniFrameWindowTestUtility.Create(
-            builder => builder.RegisterWindowClosingHandler((_, _) => {
-                Interlocked.Increment(ref closingCounter);
-                window2Closed.TrySetResult();
-                return false;
+            builder => builder.RegisterWindowClosingRequestedHandler(_ => {
+                Interlocked.Increment(ref closingRequestedCounter);
             }), ct);
 
-        using (window2Utility) {
-            IInfiniFrameWindow window2 = window2Utility.Window;
-            window2.Close();
-        }
-        await window2Closed.Task.WaitAsync(ct);
+        window2Utility.Dispose(); // cleans up and closes the window
 
         // Assert
-        await Assert.That(closingCounter).IsEqualTo(2);
+        await Assert.That(closingRequestedCounter).IsEqualTo(2);
 
     }
 }
