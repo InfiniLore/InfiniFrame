@@ -7,5 +7,4 @@ namespace InfiniFrame.Js.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class WindowRegistrationState {
     internal WindowRegistrationStateMachine StateMachine { get; } = new();
-    public CancellationTokenSource? HandshakeTimeoutCancellationSource { get; set; }
 }

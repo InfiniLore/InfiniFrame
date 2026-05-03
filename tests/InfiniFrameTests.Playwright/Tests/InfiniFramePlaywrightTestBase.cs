@@ -13,6 +13,7 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     private const string RootRelativeUrl = "/";
     private const int NavigationRetryCount = 5;
+    private const int InfiniFrameReadyTimeoutMs = 20_000;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -32,7 +33,9 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     protected async Task<IPage> GetPageAsync(string relativeUrl) {
         IBrowserContext context = await GetContextAsync(relativeUrl);
-        return context.Pages[0];
+        IPage page = context.Pages[0];
+        await WaitForInfiniFrameReadyAsync(page);
+        return page;
     }
 
     protected Task<IPage> GetRootPageAsync()
@@ -129,6 +132,32 @@ public abstract class InfiniFramePlaywrightTestBase {
         }
         Fail.Test($"Could not execute script: {script} within timeout");
         return default!;
+    }
+
+    protected static async Task WaitForInfiniFrameReadyAsync(IPage page) {
+        for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
+            try {
+                await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+                await page.WaitForFunctionAsync(
+                    // lang=javascript
+                    """
+                    () => window.infiniframe?.messaging?.isReady === true
+                    """,
+                    new PageWaitForFunctionOptions {
+                        Timeout = InfiniFrameReadyTimeoutMs
+                    }
+                );
+                return;
+            }
+            catch (PlaywrightException exception) when (
+                attempt < NavigationRetryCount &&
+                IsExecutionContextDestroyedByNavigation(exception)
+            ) {
+                await page.WaitForTimeoutAsync(150);
+            }
+        }
+
+        Fail.Test("InfiniFrame JavaScript interop readiness was not acknowledged.");
     }
 
     private static bool IsExecutionContextDestroyedByNavigation(PlaywrightException exception)

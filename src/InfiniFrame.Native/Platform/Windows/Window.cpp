@@ -1292,23 +1292,6 @@ void InfiniFrameWindow::AttachWebView() {
                             };
                             auto nav = std::make_shared<NavigateOnce>(NavigateOnce{this});
 
-                            HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
-                                js_wide.c_str(),
-                                Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
-                                    [nav](HRESULT errorCode, LPCWSTR id) -> HRESULT {
-                                        OutputDebugStringW(std::format(L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: hr=0x{:08X} id={}\n", (unsigned)errorCode, id ? id : L"(null)").c_str());
-                                        nav->navigate();
-                                        return S_OK;
-                                    }
-                                ).Get()
-                            );
-
-                            // If AddScriptToExecuteOnDocumentCreated itself failed synchronously
-                            // (e.g., empty script string on some WebView2 versions), navigate now
-                            // so the page is not left blank.
-                            if (FAILED(addScriptHr))
-                                nav->navigate();
-
                             wil::com_ptr<ICoreWebView2Settings>
                                 settings;
                             HRESULT settingsResult = m_impl->
@@ -1380,7 +1363,7 @@ void InfiniFrameWindow::AttachWebView() {
                                                         );
                                                 return S_OK;
                                             }
-                                            ).Get(),
+                                    ).Get(),
                                         &webMessageToken
                                         );
 
@@ -1660,6 +1643,23 @@ void InfiniFrameWindow::AttachWebView() {
 
                             if (m_impl->_zoom != 100)
                                 SetZoom(m_impl->_zoom);
+
+                            HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
+                                js_wide.c_str(),
+                                Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
+                                    [nav](HRESULT errorCode, LPCWSTR id) -> HRESULT {
+                                        OutputDebugStringW(std::format(L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: hr=0x{:08X} id={}\n", (unsigned)errorCode, id ? id : L"(null)").c_str());
+                                        nav->navigate();
+                                        return S_OK;
+                                    }
+                                ).Get()
+                            );
+
+                            // If AddScriptToExecuteOnDocumentCreated itself failed synchronously
+                            // (e.g., empty script string on some WebView2 versions), navigate now
+                            // so the page is not left blank.
+                            if (FAILED(addScriptHr))
+                                nav->navigate();
 
                             RefitContent();
 
