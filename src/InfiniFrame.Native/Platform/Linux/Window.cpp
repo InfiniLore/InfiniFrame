@@ -20,6 +20,7 @@
 #include "Embedded/Embedded.h"
 
 std::mutex invokeLockMutex;
+std::once_flag platformInitOnce;
 
 struct InvokeWaitInfo {
     ACTION callback;
@@ -52,6 +53,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
     std::string _temporaryFilesPath;
 
+    bool _closed = false;
     bool _isFullScreen = false;
     double _zoom = 100.0;
     int _minWidth = 0;
@@ -219,6 +221,14 @@ static GtkWidget* create_web_view(
     return webView;
 }
 
+static void ensure_platform_initialized() {
+    std::call_once(platformInitOnce, [] {
+        XInitThreads();
+        gtk_init(nullptr, nullptr);
+        notify_init("InfiniFrame");
+    });
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Impl method definitions
 // ---------------------------------------------------------------------------------------------------------------------
@@ -358,9 +368,7 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
 
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
     m_impl(std::make_unique<Impl>()) {
-    XInitThreads();
-    gtk_init(nullptr, nullptr);
-    notify_init(initParams->Title);
+    ensure_platform_initialized();
 
     if (initParams->Size != sizeof(InfiniFrameInitParams)) {
         GtkWidget* dialog = gtk_message_dialog_new(
@@ -529,8 +537,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
-    notify_uninit();
-    gtk_widget_destroy(m_impl->_window);
+    if (!m_impl->_closed && m_impl->_window != nullptr) {
+        m_impl->_closed = true;
+        gtk_widget_destroy(m_impl->_window);
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -582,7 +592,26 @@ void InfiniFrameWindow::ClearBrowserAutoFill() {
 }
 
 void InfiniFrameWindow::Close() {
-    gtk_window_close(GTK_WINDOW(m_impl->_window));
+    RequestClose();
+}
+
+bool InfiniFrameWindow::RequestClose() {
+    if (m_impl->_closed)
+        return true;
+
+    if (InvokeClose())
+        return false;
+
+    m_impl->_closed = true;
+
+    if (m_impl->_window != nullptr) {
+        gtk_widget_destroy(m_impl->_window);
+    }
+
+    if (gtk_main_level() > 0)
+        gtk_main_quit();
+
+    return true;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -896,11 +925,15 @@ void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoStrin
 }
 
 void InfiniFrameWindow::WaitForExit() {
+    if (m_impl->_closed)
+        return;
+
     g_signal_connect(
         G_OBJECT(m_impl->_window), "destroy",
         G_CALLBACK(
             +[](GtkWidget*, gpointer) {
-                gtk_main_quit();
+                if (gtk_main_level() > 0)
+                    gtk_main_quit();
             }
             ),
         nullptr
@@ -1137,7 +1170,8 @@ gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, co
 
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer self) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-    return instance->InvokeClose();
+    instance->RequestClose();
+    return TRUE;
 }
 
 gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {

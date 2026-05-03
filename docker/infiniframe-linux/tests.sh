@@ -18,4 +18,15 @@ dotnet test --solution "${SOLUTION_FILTER}" \
   --no-build \
   --no-restore \
   /p:UseAppHost=false \
-  "${COMMON_DOTNET_PROPS[@]}"
+  /p:TestTfmsInParallel=false \
+  "${COMMON_DOTNET_PROPS[@]}" || {
+    test_exit=$?
+    echo "=== Test command failed with exit code ${test_exit} ==="
+    echo "=== Xvfb log ==="
+    cat /tmp/xvfb.log || true
+    echo "=== Mutter log ==="
+    cat /tmp/mutter.log || true
+    echo "=== Process snapshot ==="
+    ps aux | grep -E '([X]vfb|[m]utter|[d]otnet|[W]ebKit)' || true
+    exit "${test_exit}"
+  }

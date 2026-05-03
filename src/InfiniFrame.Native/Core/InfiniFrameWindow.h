@@ -78,6 +78,11 @@ class InfiniFrameWindow {
         /** @brief Close the window and terminate the message loop */
         void Close();
 
+#ifdef __linux__
+        /** @brief Request close from a GTK delete-event handler */
+        [[nodiscard]] bool RequestClose();
+#endif
+
         // -----------------------------------------------------------------------------------------------------------------
         // Get Properties
         // -----------------------------------------------------------------------------------------------------------------

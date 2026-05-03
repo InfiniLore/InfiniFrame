@@ -12,7 +12,7 @@ public class MultiWindowTests {
     [Test]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    // [Timeout(TimeoutUtility.DefaultTimeout + 1_000)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task OpenWindowAfterOneCloses(CancellationToken ct) {
         // Arrange
         int closingRequestedCounter = 0;
@@ -20,19 +20,18 @@ public class MultiWindowTests {
             builder => builder.RegisterWindowClosingRequestedHandler(_ => {
                 Interlocked.Increment(ref closingRequestedCounter);
             }), ct);
-        window1Utility.Dispose(); // cleans up and closes the window
-        await Task.Delay(1_000, ct);
-        
+
         // Act
+        window1Utility.Dispose();
+
         var window2Utility = InfiniFrameWindowTestUtility.Create(
             builder => builder.RegisterWindowClosingRequestedHandler(_ => {
                 Interlocked.Increment(ref closingRequestedCounter);
             }), ct);
 
-        window2Utility.Dispose(); // cleans up and closes the window
+        window2Utility.Dispose();
 
         // Assert
         await Assert.That(closingRequestedCounter).IsEqualTo(2);
-
     }
 }

@@ -118,6 +118,15 @@ jobs:
 
                     eval "$(dbus-launch --sh-syntax)"
 
+                    export GDK_BACKEND=x11
+                    export NO_AT_BRIDGE=1
+                    export GALLIUM_DRIVER=llvmpipe
+                    export LIBGL_ALWAYS_SOFTWARE=1
+                    export LIBGL_DRI3_DISABLE=1
+                    export MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
+                    export WEBKIT_DISABLE_COMPOSITING_MODE=1
+                    export WEBKIT_DISABLE_DMABUF_RENDERER=1
+
                     echo "Launching Xvfb..."
                     Xvfb :99 \
                       -screen 0 1920x1080x24 \
@@ -176,7 +185,19 @@ jobs:
                     dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
                       --no-build \
-                      --no-restore
+                      --no-restore \
+                      -m:1 \
+                      /p:TestTfmsInParallel=false || {
+                        test_exit=$?
+                        echo "=== Test command failed with exit code ${test_exit} ==="
+                        echo "=== Xvfb log ==="
+                        cat xvfb.log || true
+                        echo "=== Mutter log ==="
+                        cat mutter.log || true
+                        echo "=== Process snapshot ==="
+                        ps aux | grep -E '([X]vfb|[m]utter|[d]otnet|[W]ebKit)' || true
+                        exit "${test_exit}"
+                      }
 
             -   name: Pack Tool E2E
                 if: always()

@@ -93,7 +93,14 @@ start_virtual_display() {
 setup_display_mode() {
   local xvfb_log="${1:-/tmp/xvfb.log}"
   local mutter_log="${2:-/tmp/mutter.log}"
+  export GDK_BACKEND="${GDK_BACKEND:-x11}"
   export NO_AT_BRIDGE="${NO_AT_BRIDGE:-1}"
+  export GALLIUM_DRIVER="${GALLIUM_DRIVER:-llvmpipe}"
+  export LIBGL_ALWAYS_SOFTWARE="${LIBGL_ALWAYS_SOFTWARE:-1}"
+  export LIBGL_DRI3_DISABLE="${LIBGL_DRI3_DISABLE:-1}"
+  export MESA_LOADER_DRIVER_OVERRIDE="${MESA_LOADER_DRIVER_OVERRIDE:-llvmpipe}"
+  export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-1}"
+  export WEBKIT_DISABLE_DMABUF_RENDERER="${WEBKIT_DISABLE_DMABUF_RENDERER:-1}"
   start_dbus_session
 
   if [[ "${USE_HOST_DISPLAY}" == "1" ]]; then
