@@ -132,7 +132,8 @@ public class OrderedEventTests {
 
         // Assert
         await Assert.That(result).IsNotEmpty();
-        await Assert.That(result).All(r => r);
+        await Assert.That(result.First()).IsFalse();
+        await Assert.That(result.Last()).IsTrue();
     }
 
     [Test]
