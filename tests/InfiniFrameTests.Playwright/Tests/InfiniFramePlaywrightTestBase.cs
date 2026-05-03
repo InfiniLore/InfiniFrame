@@ -13,6 +13,7 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     private const string RootRelativeUrl = "/";
     private const int NavigationRetryCount = 5;
+    private const int InfiniFrameReadyTimeoutMs = 20_000;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -133,20 +134,31 @@ public abstract class InfiniFramePlaywrightTestBase {
         return default!;
     }
 
-    protected static Task WaitForInfiniFrameReadyAsync(IPage page)
-        => EvaluateWhenPageReadyAsync(
-            page,
-            // lang=javascript
-            """
-            async () => {
-                if (!window.infiniframe?.messaging?.ready) {
-                    throw new Error("InfiniFrame messaging ready promise is not initialized.");
-                }
-
-                await window.infiniframe.messaging.ready;
+    protected static async Task WaitForInfiniFrameReadyAsync(IPage page) {
+        for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
+            try {
+                await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+                await page.WaitForFunctionAsync(
+                    // lang=javascript
+                    """
+                    () => window.infiniframe?.messaging?.isReady === true
+                    """,
+                    new PageWaitForFunctionOptions {
+                        Timeout = InfiniFrameReadyTimeoutMs
+                    }
+                );
+                return;
             }
-            """
-        );
+            catch (PlaywrightException exception) when (
+                attempt < NavigationRetryCount &&
+                IsExecutionContextDestroyedByNavigation(exception)
+            ) {
+                await page.WaitForTimeoutAsync(150);
+            }
+        }
+
+        Fail.Test("InfiniFrame JavaScript interop readiness was not acknowledged.");
+    }
 
     private static bool IsExecutionContextDestroyedByNavigation(PlaywrightException exception)
         => exception.Message.Contains("Execution context was destroyed", StringComparison.OrdinalIgnoreCase);
