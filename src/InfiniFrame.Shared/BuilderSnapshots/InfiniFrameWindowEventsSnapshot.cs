@@ -17,7 +17,7 @@ internal readonly record struct InfiniFrameWindowEventsSnapshot(
     Action<IInfiniFrameWindow>[] WindowMinimized,
     Action<IInfiniFrameWindow, string>[] WebMessageReceived,
     Action<IInfiniFrameWindow>[] WindowClosingRequested,
-    NetClosingDelegate[] WindowClosing,
+    Func<IInfiniFrameWindow, EventArgs?, bool>[] WindowClosing,
     Action<IInfiniFrameWindow>[] WindowCreating,
     Action<IInfiniFrameWindow>[] WindowCreated
 );

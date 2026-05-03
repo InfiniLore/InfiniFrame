@@ -29,7 +29,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEvent_InvokesInRegistrationOrder() {
         // Arrange
-        var orderedEvent = new InfiniFrameOrderedEvent();
+        var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
 
@@ -48,7 +48,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEvent_RemoveStopsInvocation() {
         // Arrange
-        var orderedEvent = new InfiniFrameOrderedEvent();
+        var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
         Action<IInfiniFrameWindow> handler = _ => calls.Add(1);
@@ -66,7 +66,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEvent_SnapshotIsImmutable() {
         // Arrange
-        var orderedEvent = new InfiniFrameOrderedEvent();
+        var orderedEvent = new OrderedEvent();
         Action<IInfiniFrameWindow> handler1 = _ => { };
         Action<IInfiniFrameWindow> handler2 = _ => { };
 
@@ -84,7 +84,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEvent_OperatorsAddAndRemove() {
         // Arrange
-        var orderedEvent = new InfiniFrameOrderedEvent();
+        var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
         Action<IInfiniFrameWindow> handler = _ => calls.Add(1);
@@ -102,7 +102,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEventWithPayload_InvokesWithPayload() {
         // Arrange
-        var orderedEvent = new InfiniFrameOrderedEvent<int>();
+        var orderedEvent = new OrderedEvent<int>();
         InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
 
@@ -121,29 +121,31 @@ public class OrderedEventTests {
     [Test]
     public async Task ClosingEvent_ReturnsLastResult() {
         // Arrange
-        var closingEvent = new InfiniFrameOrderedClosingEvent();
+        var closingEvent = new OrderedResultEvent<EventArgs?, bool>();
         InfiniFrameWindow window = CreateWindow();
 
         closingEvent.Add((_, _) => false);
         closingEvent.Add((_, _) => true);
 
         // Act
-        bool? result = closingEvent.Invoke(window);
+        bool[] result = closingEvent.Invoke(window, EventArgs.Empty);
 
         // Assert
-        await Assert.That(result).IsTrue();
+        await Assert.That(result).Count().IsEqualTo(2);
+        await Assert.That(result.First()).IsFalse();
+        await Assert.That(result.Last()).IsTrue();
     }
 
     [Test]
     public async Task ClosingEvent_ReturnsNullWhenEmpty() {
         // Arrange
-        var closingEvent = new InfiniFrameOrderedClosingEvent();
+        var closingEvent = new OrderedResultEvent<EventArgs?, bool>();
         InfiniFrameWindow window = CreateWindow();
 
         // Act
-        bool? result = closingEvent.Invoke(window);
+        bool[] result = closingEvent.Invoke(window, EventArgs.Empty);
 
         // Assert
-        await Assert.That(result).IsNull();
+        await Assert.That(result).IsEmpty();
     }
 }

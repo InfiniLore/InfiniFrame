@@ -9,18 +9,18 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowEvents {
-    InfiniFrameOrderedEvent<Point> WindowLocationChanged { get; }
-    InfiniFrameOrderedEvent<Size> WindowSizeChanged { get; }
-    InfiniFrameOrderedEvent WindowFocusIn { get; }
-    InfiniFrameOrderedEvent WindowMaximized { get; }
-    InfiniFrameOrderedEvent WindowRestored { get; }
-    InfiniFrameOrderedEvent WindowFocusOut { get; }
-    InfiniFrameOrderedEvent WindowMinimized { get; }
-    InfiniFrameOrderedEvent<string> WebMessageReceived { get; }
-    InfiniFrameOrderedEvent WindowClosingRequested { get; }
-    InfiniFrameOrderedClosingEvent WindowClosing { get; }
-    InfiniFrameOrderedEvent WindowCreating { get; }
-    InfiniFrameOrderedEvent WindowCreated { get; }
+    OrderedEvent<Point> WindowLocationChanged { get; }
+    OrderedEvent<Size> WindowSizeChanged { get; }
+    OrderedEvent WindowFocusIn { get; }
+    OrderedEvent WindowMaximized { get; }
+    OrderedEvent WindowRestored { get; }
+    OrderedEvent WindowFocusOut { get; }
+    OrderedEvent WindowMinimized { get; }
+    OrderedEvent<string> WebMessageReceived { get; }
+    OrderedEvent WindowClosingRequested { get; }
+    OrderedResultEvent<EventArgs?, bool> WindowClosing { get; }
+    OrderedEvent WindowCreating { get; }
+    OrderedEvent WindowCreated { get; }
 
     void CompleteSetup(IInfiniFrameWindow sender);
 
