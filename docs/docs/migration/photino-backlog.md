@@ -99,7 +99,7 @@ This backlog will be used to track any remaining issues or features that need to
 | ❓      | Optional window title 31-char-length-limitation on Linux/GTK                                  | [Photino.NET#267](https://github.com/tryphotino/photino.NET/pull/267)   |                                                                         |
 | ❓      | Inject Arbitrary Javascript into Webview                                                      | [Photino.NET#268](https://github.com/tryphotino/photino.NET/issues/268) |                                                                         |
 | ❓      | Parent vs child window behavior                                                               | [Photino.NET#269](https://github.com/tryphotino/photino.NET/issues/269) |                                                                         |
-| 🚧     | WindowClosed event                                                                            | [Photino.NET#271](https://github.com/tryphotino/photino.NET/issues/271) |                                                                         |
+| 🚧     | WindowClosed event                                                                            | [Photino.NET#271](https://github.com/tryphotino/photino.NET/issues/271) | [InfiniFrame#277](https://github.com/InfiniLore/InfiniFrame/issues/277) |
 | ✅      | SetIconFile Linux crash                                                                       | [Photino.NET#272](https://github.com/tryphotino/photino.NET/issues/272) | [InfiniFrame#165](https://github.com/InfiniLore/InfiniFrame/pull/165)   |
 
 ---
