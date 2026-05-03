@@ -229,9 +229,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     protected override void SendMessage(string message) {
-        while (!_channel.Writer.TryWrite(message)) {
-            Thread.Sleep(200);
-        }
+        if (_channel.Writer.TryWrite(message)) return;
+        LazyLogger.Value?.LogDebug("Skipping WebView message because the message channel is closed.");
     }
 
     private async Task MessagePump() {
@@ -253,20 +252,23 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     protected override async ValueTask DisposeAsyncCore() {
-        try { _channel.Writer.Complete(); }
-        catch (ChannelClosedException ex) {
-            LazyLogger.Value?.LogDebug(ex, "Channel was already closed during dispose.");
-        }
-
         try {
-            await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
+            await base.DisposeAsyncCore();
         }
-        catch (TimeoutException) {
-            LazyLogger.Value?.LogWarning(
-                "Timed out while waiting for WebView message pump shutdown.");
-        }
+        finally {
+            try { _channel.Writer.Complete(); }
+            catch (ChannelClosedException ex) {
+                LazyLogger.Value?.LogDebug(ex, "Channel was already closed during dispose.");
+            }
 
-        await base.DisposeAsyncCore();
+            try {
+                await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
+            }
+            catch (TimeoutException) {
+                LazyLogger.Value?.LogWarning(
+                    "Timed out while waiting for WebView message pump shutdown.");
+            }
+        }
     }
 
     private static bool IsNonFatalException(Exception exception)
