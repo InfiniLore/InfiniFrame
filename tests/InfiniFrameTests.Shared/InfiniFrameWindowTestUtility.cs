@@ -47,12 +47,12 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         windowBuilder.SetStartString(StartString);
         builder?.Invoke(windowBuilder);
 
-        // Windows: WebView2 requires STA thread for COM initialization
-        // Linux: GTK implicitly treats the calling thread as the main UI thread
-        // macOS: Similar to Linux, but with additional main-thread restrictions for menu operations
+        // Windows: WebView2 requires STA thread for COM initialization.
+        // Linux: GTK's message loop must run on the same thread that created the window.
+        // macOS: Create the window on the current thread because Cocoa has main-thread restrictions.
         if (OperatingSystem.IsWindows()) return CreateOnStaThread(windowBuilder);
+        if (OperatingSystem.IsLinux()) return CreateOnDedicatedThread(windowBuilder);
 
-        // On Linux/macOS, create the window in the current thread to ensure proper GTK initialization
         IInfiniFrameWindow window = windowBuilder.Build();
 
         var utility = new InfiniFrameWindowTestUtility {
@@ -72,6 +72,36 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         utility._windowThread = thread;
         thread.Start();
+
+        return utility;
+    }
+
+    [MustDisposeResource]
+    private static InfiniFrameWindowTestUtility CreateOnDedicatedThread(
+        InfiniFrameWindowBuilder windowBuilder
+    ) {
+        var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var thread = new Thread(() => {
+            try {
+                IInfiniFrameWindow window = windowBuilder.Build();
+                windowSource.SetResult(window);
+                window.WaitForClose();
+            }
+            catch (Exception ex) when (IsNonFatalException(ex)) {
+                windowSource.TrySetException(ex);
+            }
+        }) {
+            IsBackground = true,
+            Name = "InfiniFrame Test Window Thread"
+        };
+
+        thread.Start();
+
+        var utility = new InfiniFrameWindowTestUtility {
+            Window = windowSource.Task.GetAwaiter().GetResult(),
+            _windowThread = thread
+        };
 
         return utility;
     }
