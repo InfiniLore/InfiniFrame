@@ -19,21 +19,23 @@ public interface IInfiniFrameWindowEvents {
     OrderedEvent<string> WebMessageReceived { get; }
     OrderedEvent WindowClosingRequested { get; }
     OrderedResultEvent<EventArgs?, bool> WindowClosing { get; }
+    OrderedEvent WindowClosed { get; }
     OrderedEvent WindowCreating { get; }
     OrderedEvent WindowCreated { get; }
 
     void CompleteSetup(IInfiniFrameWindow sender);
 
-    void OnLocationChanged(int left, int top);
-    void OnSizeChanged(int width, int height);
     void OnFocusIn();
-    void OnMaximized();
-    void OnRestored();
     void OnFocusOut();
+    void OnLocationChanged(int left, int top);
+    void OnMaximized();
     void OnMinimized();
+    void OnRestored();
+    void OnSizeChanged(int width, int height);
     void OnWebMessageReceived(string message);
-    void OnWindowClosingRequested();
+    void OnWindowClosed();
     byte OnWindowClosing();
-    void OnWindowCreating();
+    void OnWindowClosingRequested();
     void OnWindowCreated();
+    void OnWindowCreating();
 }

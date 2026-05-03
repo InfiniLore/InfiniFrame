@@ -46,6 +46,7 @@ extern "C" {
         // Copy the rest using memcpy (copy everything except the strings we already handled)
         (*new_params)->ParentInstance = params->ParentInstance;
         (*new_params)->ClosingHandler = params->ClosingHandler;
+        (*new_params)->ClosedHandler = params->ClosedHandler;
         (*new_params)->FocusInHandler = params->FocusInHandler;
         (*new_params)->FocusOutHandler = params->FocusOutHandler;
         (*new_params)->ResizedHandler = params->ResizedHandler;

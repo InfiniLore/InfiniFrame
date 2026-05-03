@@ -22,6 +22,7 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     public OrderedEvent<string> WebMessageReceived { get; } = new();
     public OrderedEvent WindowClosingRequested { get; } = new();
     public OrderedResultEvent<EventArgs?, bool> WindowClosing { get; } = new();
+    public OrderedEvent WindowClosed { get; } = new();
     public OrderedEvent WindowCreating { get; } = new();
     public OrderedEvent WindowCreated { get; } = new();
 
@@ -91,6 +92,10 @@ public class InfiniFrameWindowEvents : IInfiniFrameWindowEvents {
     /// </summary>
     public void OnWebMessageReceived(string message) {
         OnWebMessageReceived(message, null);
+    }
+    
+    public void OnWindowClosed() {
+        WindowClosed.Invoke(Sender);
     }
 
     public void OnWindowClosingRequested() {

@@ -26,6 +26,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr NotificationRegistrationId;
         internal IntPtr NativeParent;
         internal IntPtr ClosingHandler;
+        internal IntPtr ClosedHandler;
         internal IntPtr FocusInHandler;
         internal IntPtr FocusOutHandler;
         internal IntPtr ResizedHandler;
@@ -100,6 +101,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 NotificationRegistrationId = ToUtf8Ptr(managed.NotificationRegistrationId),
                 NativeParent = managed.NativeParent,
                 ClosingHandler = ToFunctionPtr(managed.ClosingHandler),
+                ClosedHandler = ToFunctionPtr(managed.ClosedHandler),
                 FocusInHandler = ToFunctionPtr(managed.FocusInHandler),
                 FocusOutHandler = ToFunctionPtr(managed.FocusOutHandler),
                 ResizedHandler = ToFunctionPtr(managed.ResizedHandler),

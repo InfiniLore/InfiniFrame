@@ -715,6 +715,10 @@ extern "C" {
         instance->SetClosingCallback(callback);
     }
 
+    EXPORTED void InfiniFrame_setClosedClosedCallback(InfiniFrameWindow* instance, const ClosedCallback callback)
+    {   instance->SetClosedCallback(callback);
+    }
+
     /**
      * @brief Set focus-in callback
      * @param instance InfiniFrame instance
