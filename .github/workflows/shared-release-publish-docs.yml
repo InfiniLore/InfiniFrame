@@ -35,7 +35,7 @@ jobs:
 
             -   name: Install Docusaurus Dependencies
                 shell: bash
-                run: npm build --prefix docs
+                run: npm install --prefix docs
 
             -   name: Build Docusaurus Site
                 shell: bash
