@@ -63,6 +63,7 @@ jobs:
                     allow-status-422: 'true'
 
             -   name: Setup Native dependencies
+                # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
