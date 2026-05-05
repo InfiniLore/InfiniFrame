@@ -1881,8 +1881,8 @@ bool InfiniFrameWindow::InvokeClose() const noexcept {
 }
 
 void InfiniFrameWindow::InvokeClosed() const noexcept {
-    if (m_impl->_closedCallback)
-        m_impl->_closedCallback();
+    if (!m_impl->_closedCallback) return;
+    m_impl->_closedCallback();
 }
 
 void InfiniFrameWindow::InvokeFocusIn() const noexcept {

@@ -65,6 +65,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         InfiniFrameNativeParameters startupParameters = snapshot.StartupParameters;
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
         startupParameters.ClosingHandler = window.OnWindowClosing;
+        startupParameters.ClosedHandler = events.OnWindowClosed;
         startupParameters.ResizedHandler = events.OnSizeChanged;
         startupParameters.MaximizedHandler = events.OnMaximized;
         startupParameters.RestoredHandler = events.OnRestored;
@@ -116,14 +117,15 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         // These are callbacks from C++ to C# and must reference the per-window snapshot.
         InfiniFrameNativeParameters startupParameters = GetParameters(provider);
         ApplyCustomSchemeNames(ref startupParameters, customSchemesSnapshot);
+        startupParameters.ClosedHandler = events.OnWindowClosed;
         startupParameters.ClosingHandler = events.OnWindowClosing;
-        startupParameters.ResizedHandler = events.OnSizeChanged;
-        startupParameters.MaximizedHandler = events.OnMaximized;
-        startupParameters.RestoredHandler = events.OnRestored;
-        startupParameters.MinimizedHandler = events.OnMinimized;
-        startupParameters.MovedHandler = events.OnLocationChanged;
         startupParameters.FocusInHandler = events.OnFocusIn;
         startupParameters.FocusOutHandler = events.OnFocusOut;
+        startupParameters.MaximizedHandler = events.OnMaximized;
+        startupParameters.MinimizedHandler = events.OnMinimized;
+        startupParameters.MovedHandler = events.OnLocationChanged;
+        startupParameters.ResizedHandler = events.OnSizeChanged;
+        startupParameters.RestoredHandler = events.OnRestored;
         startupParameters.WebMessageReceivedHandler = events.OnWebMessageReceived;
 
         return new InfiniFrameWindowBuildSnapshot(

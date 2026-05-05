@@ -208,4 +208,9 @@ public static class InfiniWindowEventsExtensions {
         builder.Events.WindowCreated.Add(handler);
         return builder;
     }
+    
+    public static T RegisterWindowClosedHandler<T>(this T builder, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEvents {
+        builder.Events.WindowClosed.Add(handler);
+        return builder;
+    }
 }

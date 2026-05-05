@@ -32,9 +32,13 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     bool Focused { get; }
 
     void Invoke(Action workItem);
+    
     void WaitForClose();
     Task WaitForCloseAsync(CancellationToken ct = default);
+    
     void Close();
+    Task CloseAsync(CancellationToken ct = default);
+    
     void SendWebMessage(string message);
     Task SendWebMessageAsync(string message, CancellationToken ct = default);
     void SendNotification(string title, string body);

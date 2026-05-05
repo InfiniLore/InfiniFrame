@@ -107,7 +107,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             }
 
             InfiniFrameNative.Close(InstanceHandle);
+            InstanceHandle = IntPtr.Zero;
         });
+    }
+
+    public Task CloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
+        Close();
+        return Task.CompletedTask;
     }
 
     /// <summary>
