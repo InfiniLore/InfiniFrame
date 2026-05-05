@@ -421,6 +421,12 @@ class InfiniFrameWindow {
          * @param callback Returns true to allow closing, false to cancel
          */
         void SetClosingCallback(ClosingCallback callback);
+    
+        /**
+         * @brief Set callback invoked when the window is closed
+         * @param callback Invoked with no arguments
+         */
+        void SetClosedCallback(ClosedCallback callback);
 
         /**
          * @brief Set callback invoked when the window gains keyboard focus
@@ -475,6 +481,9 @@ class InfiniFrameWindow {
          * @return true if the window should close, false if the callback cancelled it
          */
         [[nodiscard]] bool InvokeClose() const noexcept;
+    
+        /** @brief Fire the close callback */
+        void InvokeClosed() const noexcept;
 
         /** @brief Fire the focus-in callback */
         void InvokeFocusIn() const noexcept;

@@ -11,15 +11,15 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class WindowManagementWebMessageHandler {
     public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.MessageHandlers.RegisterHandler(
+        builder.RegisterWebMessagePostHandler(
             HandlerNames.WindowMinimize,
             (window, _) => window.SetMinimized(true));
 
-        builder.MessageHandlers.RegisterHandler(
+        builder.RegisterWebMessagePostHandler(
             HandlerNames.WindowMaximize,
             (window, _) => window.SetMaximized(true));
 
-        builder.MessageHandlers.RegisterHandler(
+        builder.RegisterWebMessagePostHandler(
             HandlerNames.WindowClose,
             (window, _) => window.Close());
 

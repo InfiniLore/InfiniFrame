@@ -71,13 +71,13 @@
     protected override void OnInitialized() {
         base.OnInitialized();
 
-        Window.Events.WindowMaximized.Add(OnMaximized);
-        Window.Events.WindowRestored.Add(OnRestored);
+        Window.Events.EventsStore.WindowMaximized.Add(OnMaximized);
+        Window.Events.EventsStore.WindowRestored.Add(OnRestored);
     }
 
     public void Dispose() {
-        Window.Events.WindowMaximized.Remove(OnMaximized);
-        Window.Events.WindowRestored.Remove(OnRestored);
+        Window.Events.EventsStore.WindowMaximized.Remove(OnMaximized);
+        Window.Events.EventsStore.WindowRestored.Remove(OnRestored);
     }
 
     private void OnMaximized(IInfiniFrameWindow window) {

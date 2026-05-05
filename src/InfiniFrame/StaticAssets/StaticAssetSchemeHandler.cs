@@ -9,39 +9,24 @@ namespace InfiniFrame.StaticAssets;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class StaticAssetSchemeHandler {
-    public static NetCustomSchemeDelegate Create(IFileProvider fileProvider, string defaultDocument) {
-        #if NET10_0_OR_GREATER
-        return (sender, scheme, url, out contentType) => {
-        #else
-        // yes, C# 14 and such have out parameters in their lambas, but we need to support .NET 8.0 which does not natively have this yet
-        return NetCustomSchemeDelegateWrapper;
-
-        Stream? NetCustomSchemeDelegateWrapper(IInfiniFrameWindow sender, string scheme, string url, out string? contentType) {
-            #endif
-            contentType = null;
-
+    public static Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> Create(IFileProvider fileProvider, string defaultDocument) {
+        return (sender, url) => {
             if (!TryGetAssetPath(url, defaultDocument, out string assetPath)) {
-                sender.Logger.LogDebug("Rejected custom scheme path for {Scheme}: {Url}", scheme, url);
-                return null;
+                sender.Logger.LogDebug("Rejected custom scheme path for: {Url}", url);
+                return default;
             }
 
             IFileInfo file = fileProvider.GetFileInfo(assetPath);
             if (!file.Exists || file.IsDirectory) {
-                sender.Logger.LogDebug("Custom scheme miss for {Scheme}: {AssetPath} (from {Url})", scheme, assetPath,
+                sender.Logger.LogDebug("Custom scheme miss for: {AssetPath} (from {Url})", assetPath,
                     url);
-                return null;
+                return default;
             }
 
-            contentType = GetContentType(assetPath);
-            sender.Logger.LogDebug("Custom scheme hit for {Scheme}: {AssetPath} ({ContentType})", scheme, assetPath,
-                contentType);
-            return file.CreateReadStream();
-
-            #if NET10_0_OR_GREATER
+            string contentType = GetContentType(assetPath);
+            sender.Logger.LogDebug("Custom scheme hit for: {AssetPath} ({ContentType})", assetPath, contentType);
+            return ( file.CreateReadStream(), contentType);
         };
-            #else
-        }
-        #endif
     }
 
     public static bool TryResolveUri(

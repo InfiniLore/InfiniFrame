@@ -3,11 +3,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Immutable;
 
-namespace InfiniFrame.Utilities;
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class OrderedResultEvent<TPayload, TResult> {
+public sealed record OrderedWindowResultEvent<TPayload, TResult> {
     private ImmutableArray<Func<IInfiniFrameWindow, TPayload, TResult>> _handlers = ImmutableArray<Func<IInfiniFrameWindow, TPayload, TResult>>.Empty;
     public ImmutableArray<Func<IInfiniFrameWindow, TPayload, TResult>> Snapshot => _handlers;
 

@@ -58,10 +58,10 @@ public class InfiniFrameWebApplication {
         builder.RegisterWindowClosingRequestedHandler(_ => ClosingHandler());
         return this;
 
-        bool ClosingHandler() {
+        WindowClosingResult ClosingHandler() {
             StopWebApp();
             // return false else the window will be not be closed (see old InfiniFrame code why)
-            return false;
+            return WindowClosingResult.Close;
         }
     }
 

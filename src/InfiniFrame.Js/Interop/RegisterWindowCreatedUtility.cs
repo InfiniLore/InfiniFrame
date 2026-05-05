@@ -32,7 +32,7 @@ public static class RegisterWindowCreatedUtility {
             state.WindowCreatedHandlerRegistered = true;
         }
 
-        builder.Events.WindowCreated.Add(window => {
+        builder.EventsStore.WindowCreated.Add(window => {
             lock (state.Lock) {
                 state.Windows.GetOrCreateValue(window);
             }
@@ -46,7 +46,7 @@ public static class RegisterWindowCreatedUtility {
             state.ReadyHandlerRegistered = true;
         }
 
-        builder.MessageHandlers.RegisterHandler(HandlerNames.WindowReady, handler: (window, payload) => {
+        builder.RegisterWebMessagePostHandler(HandlerNames.WindowReady, handler: (window, payload) => {
             WindowRegistrationState windowState;
             string[] registrationMessages;
             lock (state.Lock) {

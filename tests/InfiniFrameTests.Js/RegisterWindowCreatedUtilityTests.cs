@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js.Interop;
+using InfiniFrame.Native;
 using InfiniFrameTests.Shared.TestDoubles;
 
 namespace InfiniFrameTests.Js;
@@ -16,12 +17,13 @@ public class RegisterWindowCreatedUtilityTests {
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
-        var events = (InfiniFrameWindowEvents)builder.Events;
+        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+        var events = new InfiniFrameWindowEvents(eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
-        events.CompleteSetup(window.Window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 
@@ -51,12 +53,13 @@ public class RegisterWindowCreatedUtilityTests {
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
-        var events = (InfiniFrameWindowEvents)builder.Events;
+        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+        var events = new InfiniFrameWindowEvents(eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
-        events.CompleteSetup(window.Window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 
@@ -76,12 +79,13 @@ public class RegisterWindowCreatedUtilityTests {
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
-        var events = (InfiniFrameWindowEvents)builder.Events;
+        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+        var events = new InfiniFrameWindowEvents(eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
-        events.CompleteSetup(window.Window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 
@@ -105,7 +109,7 @@ public class RegisterWindowCreatedUtilityTests {
                 ParseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message),
                 Index = index
             })
-            .Where(item => item.ParseResult.Success && string.Equals(item.ParseResult.MessageId, messageId, StringComparison.Ordinal))
+            .Where(item => item.ParseResult.IsSuccess && string.Equals(item.ParseResult.MessageId, messageId, StringComparison.Ordinal))
             .Select(item => item.Index)
             .FirstOrDefault(-1);
 }

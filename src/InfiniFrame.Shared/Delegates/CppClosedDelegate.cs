@@ -1,14 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Text.Json.Serialization;
+using System.Runtime.InteropServices;
 
-namespace InfiniFrame.HostMessaging;
-
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-[JsonSerializable(typeof(GetMessageSuccessResponse))]
-[JsonSerializable(typeof(GetMessageErrorResponse))]
-internal partial class InfiniFrameWindowMessagesJsonContext : JsonSerializerContext;
+[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+public delegate void CppClosedDelegate();

@@ -42,6 +42,7 @@ public class InfiniFrameNativeParameterTests {
 
                 // Initialize all callback delegates to null/default
                 ClosingHandler = null,
+                ClosedHandler = null,
                 FocusInHandler = null,
                 FocusOutHandler = null,
                 ResizedHandler = null,

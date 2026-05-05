@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.HostMessaging;
 using InfiniFrame.Js.Interop;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -26,6 +25,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
     // -----------------------------------------------------------------------------------------------------------------
     public RecordingInfiniFrameWindowSubstitute() {
         Window = Substitute.For<IInfiniFrameWindow>();
+        Window.InstanceHandle.Returns(IntPtr.MaxValue);
         Window.Logger.Returns(NullLogger<IInfiniFrameWindow>.Instance);
         Window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
         Window.SendWebMessageAsync(Arg.Any<string>())
@@ -43,16 +43,17 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
             });
 
         // Default wiring for simple tests that don't need explicit builder binding.
-        Window.Events.Returns(new InfiniFrameWindowEvents());
-        Window.MessageHandlers.Returns(new InfiniFrameWindowMessageHandler());
+        var eventsStore = new InfiniFrameWindowEventsStore();
+        Window.Events.Returns(new InfiniFrameWindowEvents(eventsStore));
+        Window.EventsStore.Returns(eventsStore);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public RecordingInfiniFrameWindowSubstitute BindToBuilder(IInfiniFrameWindowBuilder builder) {
-        Window.Events.Returns(builder.Events);
-        Window.MessageHandlers.Returns(builder.MessageHandlers);
+        Window.Events.Returns(new InfiniFrameWindowEvents(builder.EventsStore));
+        Window.EventsStore.Returns(builder.EventsStore);
         return this;
     }
 
@@ -64,7 +65,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
 
         return snapshot
             .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
-            .Count(result => result.Success && string.Equals(result.MessageId, messageId, StringComparison.Ordinal));
+            .Count(result => result.IsSuccess && string.Equals(result.MessageId, messageId, StringComparison.Ordinal));
     }
 
     public IReadOnlyList<string> GetSentMessagesSnapshot() {

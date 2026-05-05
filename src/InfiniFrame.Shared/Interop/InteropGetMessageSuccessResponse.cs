@@ -1,11 +1,12 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.BuilderSnapshots;
+namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal readonly record struct InfiniFrameWindowCustomSchemeHandlersSnapshot(
-    string[] OrderedSchemeNames,
-    KeyValuePair<string, NetCustomSchemeDelegate>[] Handlers
-);
+internal sealed class InteropGetMessageSuccessResponse {
+    public string? RequestId { get; init; }
+    public bool Success { get; init; }
+    public string? Data { get; init; }
+}

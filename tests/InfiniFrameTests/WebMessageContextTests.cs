@@ -2,7 +2,9 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Native;
 using InfiniFrameTests.Shared.TestDoubles;
+using System.Text.Json;
 
 namespace InfiniFrameTests;
 
@@ -10,69 +12,59 @@ namespace InfiniFrameTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebMessageContextTests {
+    private const string TestMessageCommand = nameof(TestMessageCommand);
     [Test]
-    public async Task Push_RestoresPreviousOriginOnDispose() {
+    public async Task OnWebMessageReceived_WithOrigin_PublishesOriginViaEventPayload() {
         // Arrange
-        string? originInsideScope;
-        string? originAfterScope;
-
-        // Act
-        using (InfiniFrameWebMessageContext.Push("https://outer.example")) {
-            using (InfiniFrameWebMessageContext.Push("https://inner.example")) {
-                originInsideScope = InfiniFrameWebMessageContext.CurrentOrigin;
-            }
-
-            originAfterScope = InfiniFrameWebMessageContext.CurrentOrigin;
-        }
-
-        // Assert
-        await Assert.That(originInsideScope).IsEqualTo("https://inner.example");
-        await Assert.That(originAfterScope).IsEqualTo("https://outer.example");
-        await Assert.That(InfiniFrameWebMessageContext.CurrentOrigin).IsNull();
-    }
-
-    [Test]
-    public async Task OnWebMessageReceived_WithOrigin_SetsAmbientOriginOnlyDuringHandlerInvocation() {
-        // Arrange
-        var events = new InfiniFrameWindowEvents();
+        var eventsStore = new InfiniFrameWindowEventsStore();
+        var events = new InfiniFrameWindowEvents(eventsStore);
         var window = new RecordingInfiniFrameWindowSubstitute();
-        events.CompleteSetup(window.Window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
-        string? observedInsideHandler = "not-set";
-        events.WebMessageReceived.Add((_, _) => {
-            observedInsideHandler = InfiniFrameWebMessageContext.CurrentOrigin;
+        string? observedMessage = null;
+        eventsStore.WebMessagePostData.Add(TestMessageCommand, (_, message) => {
+            observedMessage = message;
         });
 
         // Act
-        events.OnWebMessageReceived("ping", "https://webview.example");
-        string? observedAfterHandler = InfiniFrameWebMessageContext.CurrentOrigin;
+        events.OnWebMessageReceived(CreatePostEnvelope(TestMessageCommand,"TEST" ), "https://webview.example");
 
         // Assert
-        await Assert.That(observedInsideHandler).IsEqualTo("https://webview.example");
-        await Assert.That(observedAfterHandler).IsNull();
+        await Assert.That(observedMessage).IsNotNull();
     }
 
     [Test]
-    public async Task OnWebMessageReceived_WithoutOrigin_DoesNotLeakOuterAmbientOrigin() {
+    public async Task OnWebMessageReceived_WithBlazorWebViewMessage_PublishesRawMessage() {
         // Arrange
-        var events = new InfiniFrameWindowEvents();
+        var eventsStore = new InfiniFrameWindowEventsStore();
+        var events = new InfiniFrameWindowEvents(eventsStore);
         var window = new RecordingInfiniFrameWindowSubstitute();
-        events.CompleteSetup(window.Window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
-        string? observedInsideHandler = "not-set";
-        string? observedAfterHandler;
-        events.WebMessageReceived.Add((_, _) => {
-            observedInsideHandler = InfiniFrameWebMessageContext.CurrentOrigin;
+        string? observedMessage = null;
+        string? observedOrigin = null;
+        eventsStore.WebMessageReceived.Add((_, payload) => {
+            observedMessage = payload.Message;
+            observedOrigin = payload.Origin;
         });
 
+        const string blazorWebViewMessage = "__bwv:[\"AttachPage\",\"app://localhost/\",\"app://localhost/\"]";
+
         // Act
-        using (InfiniFrameWebMessageContext.Push("https://outer.example")) {
-            events.OnWebMessageReceived("ping");
-            observedAfterHandler = InfiniFrameWebMessageContext.CurrentOrigin;
-        }
+        events.OnWebMessageReceived(blazorWebViewMessage, "app://localhost/");
 
         // Assert
-        await Assert.That(observedInsideHandler).IsNull();
-        await Assert.That(observedAfterHandler).IsEqualTo("https://outer.example");
+        await Assert.That(observedMessage).IsEqualTo(blazorWebViewMessage);
+        await Assert.That(observedOrigin).IsEqualTo("app://localhost/");
     }
+
+    private static string CreatePostEnvelope(string id, string? data = null)
+        => JsonSerializer.Serialize(new {
+            id,
+            command = "Post",
+            version = 2,
+            data
+        });
 }

@@ -43,7 +43,7 @@ public class InteropEnvelopeProtocolTests {
 
             InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(message);
 
-            await Assert.That(result.Success).IsEqualTo(expectedSuccess);
+            await Assert.That(result.IsSuccess).IsEqualTo(expectedSuccess);
 
             if (!expectedSuccess) {
                 string errorContains = vector.GetProperty("errorContains").GetString()!;
@@ -66,7 +66,7 @@ public class InteropEnvelopeProtocolTests {
         string message = new('a', InteropEnvelopeProtocol.MaxMessageSizeBytes + 1);
         InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(message);
 
-        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.IsSuccess).IsFalse();
         await Assert.That(result.Error).Contains("exceeds max size");
     }
 }

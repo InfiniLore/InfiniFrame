@@ -1,12 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.HostMessaging;
+namespace InfiniFrame;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal sealed class GetMessageErrorResponse {
-    public string? RequestId { get; init; }
-    public bool Success { get; init; }
-    public string? Error { get; init; }
+public interface IHasInfiniFrameWindowEventsStore {
+    IInfiniFrameWindowEventsStore EventsStore { get; }
 }

@@ -33,6 +33,7 @@ struct InfiniFrameInitParams {
 
     // Event handlers
     ClosingCallback ClosingHandler;
+    ClosedCallback ClosedHandler;
     FocusInCallback FocusInHandler;
     FocusOutCallback FocusOutHandler;
     ResizedCallback ResizedHandler;

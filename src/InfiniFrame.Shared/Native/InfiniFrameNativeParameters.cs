@@ -73,6 +73,10 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppClosingDelegate? ClosingHandler;
+    
+    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    internal CppClosedDelegate? ClosedHandler;
 
     ///<summary>SET BY PHOTINOWINDOW CONSTRUCTOR</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]

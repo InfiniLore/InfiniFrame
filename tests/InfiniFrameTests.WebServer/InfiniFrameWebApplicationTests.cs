@@ -14,11 +14,13 @@ namespace InfiniFrameTests.WebServer;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebApplicationTests {
-    private const int DefaultMessageHandlerCount = 1;
+    private const int DefaultGetMessageHandlerCount = 1;
 
     private static IInfiniFrameWindow CreateMockWindow() {
         var mockWindow = Substitute.For<IInfiniFrameWindow>();
-        mockWindow.Events.Returns(new InfiniFrameWindowEvents());
+        var eventsStore = new InfiniFrameWindowEventsStore();
+        mockWindow.Events.Returns(new InfiniFrameWindowEvents(eventsStore));
+        mockWindow.EventsStore.Returns(eventsStore);
         return mockWindow;
     }
 
@@ -48,7 +50,7 @@ public class InfiniFrameWebApplicationTests {
         // Assert
         await Assert.That(builder.Services.Any(static descriptor => descriptor.ServiceType == typeof(IInfiniFrameJs)))
             .IsFalse();
-        await Assert.That(builder.WindowBuilder.MessageHandlers.Count).IsGreaterThanOrEqualTo(DefaultMessageHandlerCount);
+        await Assert.That(builder.WindowBuilder.EventsStore.WebMessageGetData.Count).IsGreaterThanOrEqualTo(DefaultGetMessageHandlerCount);
 
         await app.WebApp.DisposeAsync();
     }
@@ -57,8 +59,8 @@ public class InfiniFrameWebApplicationTests {
     public async Task UseAutoServerClose_WhenWindowNotCreated_ShouldRegisterWithBuilder() {
         // Arrange
         var mockWindowBuilder = Substitute.For<IInfiniFrameWindowBuilder>();
-        var mockBuilderEvents = new InfiniFrameWindowEvents();
-        mockWindowBuilder.Events.Returns(mockBuilderEvents);
+        var mockBuilderEventsStore = new InfiniFrameWindowEventsStore();
+        mockWindowBuilder.EventsStore.Returns(mockBuilderEventsStore);
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         webAppBuilder.Services.AddSingleton(mockWindowBuilder);
@@ -76,7 +78,7 @@ public class InfiniFrameWebApplicationTests {
 
         // Assert
         await Assert.That(result).IsEqualTo(app);
-        await Assert.That(mockBuilderEvents.WindowClosing.Snapshot.Length).IsGreaterThan(0);
+        await Assert.That(mockBuilderEventsStore.WindowClosing.Snapshot.Length).IsGreaterThan(0);
     }
 
     [Test]
@@ -102,7 +104,7 @@ public class InfiniFrameWebApplicationTests {
 
         // Assert
         await Assert.That(result).IsEqualTo(app);
-        await Assert.That(mockEvents.WindowClosing.Snapshot.Length).IsGreaterThan(0);
+        await Assert.That(mockEvents.EventsStore.WindowClosing.Snapshot.Length).IsGreaterThan(0);
     }
 
     [Test]
@@ -124,12 +126,12 @@ public class InfiniFrameWebApplicationTests {
 
         // Act
         app.UseAutoServerClose();
-        Func<IInfiniFrameWindow, EventArgs?, bool>? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
-        bool? result = capturedHandler?.Invoke(mockWindow, EventArgs.Empty);
+        Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult>? capturedHandler = mockEvents.EventsStore.WindowClosing.Snapshot.LastOrDefault();
+        WindowClosingResult? result = capturedHandler?.Invoke(mockWindow, EventArgs.Empty);
 
         // Assert
         await Assert.That(capturedHandler).IsNotNull();
-        await Assert.That(result).IsFalse();
+        await Assert.That(result).IsEqualTo(WindowClosingResult.Close);
     }
 
     [Test]
@@ -152,7 +154,7 @@ public class InfiniFrameWebApplicationTests {
         app.UseAutoServerClose();
 
         // Act
-        Func<IInfiniFrameWindow, EventArgs?, bool>? capturedHandler = mockEvents.WindowClosing.Snapshot.LastOrDefault();
+        Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult>? capturedHandler = mockEvents.EventsStore.WindowClosing.Snapshot.LastOrDefault();
         capturedHandler?.Invoke(mockWindow, EventArgs.Empty);
 
         var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();

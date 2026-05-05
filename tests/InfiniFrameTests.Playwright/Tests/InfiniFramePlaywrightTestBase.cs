@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using Microsoft.Playwright;
 
 namespace InfiniFrameTests.Playwright.Tests;
@@ -13,6 +12,7 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     private const string RootRelativeUrl = "/";
     private const int NavigationRetryCount = 5;
+    private const int NavigationRetryDelayMs = 150;
     private const int InfiniFrameReadyTimeoutMs = 20_000;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -23,7 +23,6 @@ public abstract class InfiniFramePlaywrightTestBase {
         RuntimeContext.ResetWindowCloseRequestCount();
 
         IPage page = await GetRootPageAsync();
-        RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
         await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
@@ -110,7 +109,7 @@ public abstract class InfiniFramePlaywrightTestBase {
                 attempt < NavigationRetryCount &&
                 IsExecutionContextDestroyedByNavigation(exception)
             ) {
-                await page.WaitForTimeoutAsync(150);
+                await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
         }
         Fail.Test($"Could not execute script: {script} within timeout");
@@ -127,7 +126,7 @@ public abstract class InfiniFramePlaywrightTestBase {
                 attempt < NavigationRetryCount &&
                 IsExecutionContextDestroyedByNavigation(exception)
             ) {
-                await page.WaitForTimeoutAsync(150);
+                await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
         }
         Fail.Test($"Could not execute script: {script} within timeout");
@@ -153,13 +152,13 @@ public abstract class InfiniFramePlaywrightTestBase {
                 attempt < NavigationRetryCount &&
                 IsExecutionContextDestroyedByNavigation(exception)
             ) {
-                await page.WaitForTimeoutAsync(150);
+                await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
         }
 
         Fail.Test("InfiniFrame JavaScript interop readiness was not acknowledged.");
     }
-
+    
     private static bool IsExecutionContextDestroyedByNavigation(PlaywrightException exception)
         => exception.Message.Contains("Execution context was destroyed", StringComparison.OrdinalIgnoreCase);
 }
