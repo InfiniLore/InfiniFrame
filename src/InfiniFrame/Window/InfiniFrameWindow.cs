@@ -105,7 +105,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         Events.OnWindowClosingRequested();
         if (InstanceHandle == IntPtr.Zero) return;
 
-        Interlocked.Exchange(ref _shutdownRequested, 1);
         Invoke(() => {
             if (InstanceHandle == IntPtr.Zero) {
                 Logger.LogDebug("Window already closed");
@@ -113,7 +112,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             }
 
             InfiniFrameNative.Close(InstanceHandle);
-            InstanceHandle = IntPtr.Zero;
         });
     }
 
