@@ -65,6 +65,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     int _lastTop = 0;
     int _lastWidth = 0;
     int _lastHeight = 0;
+    bool _isClosed = false;
 
     void set_webkit_settings();
     void set_webkit_customsettings(WebKitSettings* settings);
@@ -84,6 +85,25 @@ static gboolean invokeCallback(const gpointer data) {
     }
     waitInfo->completionNotifier.notify_one();
     return false;
+}
+
+static gboolean quitIfNoToplevelWindows(gpointer) {
+    GList* windows = gtk_window_list_toplevels();
+    bool hasVisibleWindow = false;
+
+    for (GList* item = windows; item != nullptr; item = item->next) {
+        if (GTK_IS_WINDOW(item->data) && gtk_widget_get_visible(GTK_WIDGET(item->data))) {
+            hasVisibleWindow = true;
+            break;
+        }
+    }
+
+    g_list_free(windows);
+
+    if (!hasVisibleWindow)
+        gtk_main_quit();
+
+    return G_SOURCE_REMOVE;
 }
 
 static void HandleWebMessage(
@@ -502,7 +522,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
 
 InfiniFrameWindow::~InfiniFrameWindow() {
     notify_uninit();
-    gtk_widget_destroy(m_impl->_window);
+    if (!m_impl->_isClosed && m_impl->_window != nullptr)
+        gtk_widget_destroy(m_impl->_window);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -868,15 +889,6 @@ void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoStrin
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    g_signal_connect(
-        G_OBJECT(m_impl->_window), "destroy",
-        G_CALLBACK(
-            +[](GtkWidget*, gpointer) {
-                gtk_main_quit();
-            }
-            ),
-        nullptr
-        );
     gtk_main();
 }
 
@@ -1120,9 +1132,15 @@ gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer se
     return instance->InvokeClose();
 }
 
-void on_widget_destroyed(GtkWidget* widget, const gpointer self) {
+void on_widget_destroyed(GtkWidget* widget, gpointer self) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    if (instance->m_impl->_isClosed)
+        return;
+
+    instance->m_impl->_isClosed = true;
+    instance->m_impl->_window = nullptr;
     instance->InvokeClosed();
+    g_idle_add(quitIfNoToplevelWindows, nullptr);
 }
 
 gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {

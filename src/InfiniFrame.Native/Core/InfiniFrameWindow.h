@@ -594,6 +594,10 @@ class InfiniFrameWindow {
         friend LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 
+#ifdef __linux__
+        friend void on_widget_destroyed(GtkWidget* widget, gpointer self);
+#endif
+
         struct Impl;
         std::unique_ptr<Impl> m_impl;
 };

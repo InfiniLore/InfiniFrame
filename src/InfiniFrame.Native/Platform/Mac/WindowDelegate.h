@@ -17,6 +17,7 @@
     {
         @public
          InfiniFrameWindow * infiniFrame; ///< The InfiniFrameWindow instance this delegate belongs to
+         BOOL closed;
 
     }
 @ end

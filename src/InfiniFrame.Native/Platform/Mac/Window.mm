@@ -399,10 +399,7 @@ void InfiniFrameWindow::ClearBrowserAutoFill()
 
 void InfiniFrameWindow::Close()
 {
-    if (m_impl->_chromeless)
-        [m_impl->_window close];
-    else
-        [m_impl->_window performClose: m_impl->_window];
+    [m_impl->_window performClose: m_impl->_window];
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -831,7 +828,6 @@ void InfiniFrameWindow::WaitForExit()
     }
 
     [[NSNotificationCenter defaultCenter] removeObserver: observer];
-    InvokeClosed();
 }
 
 void InfiniFrameWindow::CloseWebView()
