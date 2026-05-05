@@ -69,8 +69,8 @@ const config: Config = {
   ],
   themeConfig: {
     colorMode: {
-      defaultMode: 'dark', 
-      disableSwitch: false, 
+      defaultMode: "dark",
+      disableSwitch: false,
       respectPrefersColorScheme: false,
     },
     navbar: {

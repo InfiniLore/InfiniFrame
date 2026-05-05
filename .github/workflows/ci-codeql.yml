@@ -204,6 +204,7 @@ jobs:
 
             -   name: Setup Native dependencies
                 if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'c-cpp'
+                # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:

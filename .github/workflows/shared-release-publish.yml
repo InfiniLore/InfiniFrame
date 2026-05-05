@@ -53,6 +53,7 @@ jobs:
                         ${{ runner.os }}-nuget-
 
             -   name: Setup Native dependencies
+                # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:

@@ -79,6 +79,7 @@ jobs:
                         ${{ matrix.os }}-${{ matrix.arch }}-nuget-
 
             -   name: Setup Native dependencies
+                # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
@@ -102,6 +103,7 @@ jobs:
                       --no-restore
 
             -   name: Verify Native Binaries
+                # noinspection UndefinedAction
                 uses: ./.github/actions/validate-native-test-binaries
 
             -   name: Export Actions Runtime
