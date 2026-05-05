@@ -21,49 +21,71 @@ public partial class InfiniFrameWindowEvents {
     /// </summary>
     public void OnWebMessageReceived(string message, string? origin = null) {
         if (!SetupComplete) throw new InvalidOperationException("Setup not complete");
+
         ArgumentNullException.ThrowIfNull(message);
-        
+
         if (string.IsNullOrWhiteSpace(message)) {
             Sender.Logger.LogDebug("Rejected empty web message.");
             return;
         }
 
         InteropEnvelopeParseResult parseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message);
-        if (parseResult.IsIgnored) return;
-        
-        if (!parseResult.Success) {
-            Sender.Logger.LogWarning("Rejected invalid web message: {Reason}", parseResult.Error ?? "Unknown error");
-            return;
+        switch (parseResult) {
+            case { IsBlazor: true }: {
+                // Blazor messages are handled by the Blazor WebView
+                EventsStore.WebMessageReceived.Invoke(Sender, new InfiniFrameWebMessageReceivedEvent(message, origin));
+                return;
+            }
+
+            case { IsIgnored: true }: {
+                Sender.Logger.LogDebug("Ignored web message with ID '{messageId}' due to parsing rules. Defaulting to WebMessageReceived", parseResult.MessageId);
+                EventsStore.WebMessageReceived.Invoke(Sender, new InfiniFrameWebMessageReceivedEvent(message, origin));
+                return;
+            }
+
+            case { IsSuccess: false }: {
+                Sender.Logger.LogWarning("Rejected invalid web message: {Reason}", parseResult.Error ?? "Unknown error");
+                return;
+            }
         }
 
         string messageId = parseResult.MessageId!;
 
-        EventsStore.WebMessageReceived.Invoke(Sender, new InfiniFrameWebMessageReceivedEvent(message, origin));
-
-        if (string.Equals(parseResult.Command, InteropEnvelopeProtocol.PostCommand, StringComparison.Ordinal)) {
-            TryHandlePostDataRequest(Sender, message);
-            return;
-        }
-
-        if (!string.Equals(parseResult.Command, InteropEnvelopeProtocol.GetCommand, StringComparison.Ordinal)) {
-            return;
-        }
-
-        try {
-            if (TryHandleGetDataRequest(Sender, message, out string? responsePayload)) {
-                SendSuccess(Sender, parseResult.RequestId, responsePayload);
-                return;
+        switch (parseResult.Command) {
+            case InteropEnvelopeProtocol.PostCommand: {
+                try {
+                    if (!TryHandlePostDataRequest(Sender, message)) Sender.Logger.LogWarning("Failed to handle post data request for message ID '{messageId}'", messageId);
+                    return;
+                }
+                catch (Exception ex) when (IsNonFatalException(ex)) {
+                    Sender.Logger.LogError(ex, "Unhandled exception while processing getMessage request '{MessageId}'.", messageId);
+                    return;
+                }
             }
 
-            SendError(Sender, parseResult.RequestId, $"No getMessage handler is registered for message ID '{messageId}'.");
+            case InteropEnvelopeProtocol.GetCommand: {
+                try {
+                    if (!TryHandleGetDataRequest(Sender, message, out string? responsePayload)) {
+                        SendError(Sender, parseResult.RequestId, $"No getMessage handler is registered for message ID '{messageId}'.");
+                        return;
+                    }
 
-        }
-        catch (Exception ex) when (IsNonFatalException(ex)) {
-            Sender.Logger.LogError(ex, "Unhandled exception while processing getMessage request '{MessageId}'.", messageId);
-            SendError(Sender, parseResult.RequestId, $"Unhandled exception while processing '{messageId}'.");
+                    SendSuccess(Sender, parseResult.RequestId, responsePayload);
+                    return;
+                }
+                catch (Exception ex) when (IsNonFatalException(ex)) {
+                    Sender.Logger.LogError(ex, "Unhandled exception while processing getMessage request '{MessageId}'.", messageId);
+                    SendError(Sender, parseResult.RequestId, $"Unhandled exception while processing '{messageId}'.");
+                    return;
+                }
+            }
+
+            default:
+                Sender.Logger.LogWarning("Unhandled command '{command}' for message ID '{messageId}'", parseResult.Command, messageId);
+                return;
         }
     }
-    
+
     private bool TryHandlePostDataRequest(IInfiniFrameWindow window, string message) {
         if (string.IsNullOrWhiteSpace(message)) return false;
 
@@ -71,7 +93,7 @@ public partial class InfiniFrameWindowEvents {
         InteropEnvelopeParseResult parseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message);
         if (parseResult == InteropEnvelopeParseResult.Ignored) return false;
 
-        if (!parseResult.Success) {
+        if (!parseResult.IsSuccess) {
             window.Logger.LogWarning("Rejected invalid web message: {Reason}", parseResult.Error ?? "Unknown error");
             return false;
         }
@@ -98,9 +120,9 @@ public partial class InfiniFrameWindowEvents {
 
         // ReSharper disable once UseDeconstruction
         InteropEnvelopeParseResult parseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message);
-        if (parseResult.IsIgnored) return false; 
-        
-        if (!parseResult.Success) {
+        if (parseResult.IsIgnored) return false;
+
+        if (!parseResult.IsSuccess) {
             window.Logger.LogWarning("Rejected invalid web message: {Reason}", parseResult.Error ?? "Unknown error");
             return false;
         }
@@ -110,7 +132,7 @@ public partial class InfiniFrameWindowEvents {
 
         if (!string.Equals(parseResult.Command, InteropEnvelopeProtocol.GetCommand, StringComparison.Ordinal))
             return false;
-        
+
         try {
             return EventsStore.WebMessageGetData.TryInvoke(messageId, Sender!, payload, out response);
         }
@@ -123,8 +145,8 @@ public partial class InfiniFrameWindowEvents {
     private static bool IsNonFatalException(Exception exception)
         => exception is not (OutOfMemoryException or AccessViolationException);
 
-    
-    
+
+
     private static void SendSuccess(IInfiniFrameWindow window, string? requestId, string? data) {
         string responsePayloadJson = JsonSerializer.Serialize(
             new InteropGetMessageSuccessResponse {

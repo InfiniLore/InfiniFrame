@@ -64,7 +64,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
 
         return snapshot
             .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
-            .Count(result => result.Success && string.Equals(result.MessageId, messageId, StringComparison.Ordinal));
+            .Count(result => result.IsSuccess && string.Equals(result.MessageId, messageId, StringComparison.Ordinal));
     }
 
     public IReadOnlyList<string> GetSentMessagesSnapshot() {

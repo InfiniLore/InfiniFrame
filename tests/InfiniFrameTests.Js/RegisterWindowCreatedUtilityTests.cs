@@ -109,7 +109,7 @@ public class RegisterWindowCreatedUtilityTests {
                 ParseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message),
                 Index = index
             })
-            .Where(item => item.ParseResult.Success && string.Equals(item.ParseResult.MessageId, messageId, StringComparison.Ordinal))
+            .Where(item => item.ParseResult.IsSuccess && string.Equals(item.ParseResult.MessageId, messageId, StringComparison.Ordinal))
             .Select(item => item.Index)
             .FirstOrDefault(-1);
 }

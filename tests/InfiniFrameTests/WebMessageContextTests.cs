@@ -55,6 +55,32 @@ public class WebMessageContextTests {
         await Assert.That(observedOrigin).IsNull();
     }
 
+    [Test]
+    public async Task OnWebMessageReceived_WithBlazorWebViewMessage_PublishesRawMessage() {
+        // Arrange
+        var eventsStore = new InfiniFrameWindowEventsStore();
+        var events = new InfiniFrameWindowEvents(eventsStore);
+        var window = new RecordingInfiniFrameWindowSubstitute();
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
+
+        string? observedMessage = null;
+        string? observedOrigin = null;
+        eventsStore.WebMessageReceived.Add((_, payload) => {
+            observedMessage = payload.Message;
+            observedOrigin = payload.Origin;
+        });
+
+        const string blazorWebViewMessage = "__bwv:[\"AttachPage\",\"app://localhost/\",\"app://localhost/\"]";
+
+        // Act
+        events.OnWebMessageReceived(blazorWebViewMessage, "app://localhost/");
+
+        // Assert
+        await Assert.That(observedMessage).IsEqualTo(blazorWebViewMessage);
+        await Assert.That(observedOrigin).IsEqualTo("app://localhost/");
+    }
+
     private static string CreatePostEnvelope(string id)
         => JsonSerializer.Serialize(new {
             id,

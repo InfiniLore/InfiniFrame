@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame;
 using Microsoft.Playwright;
 
 namespace InfiniFrameTests.Playwright.Tests;
@@ -24,7 +23,6 @@ public abstract class InfiniFramePlaywrightTestBase {
         RuntimeContext.ResetWindowCloseRequestCount();
 
         IPage page = await GetRootPageAsync();
-        RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
         await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
@@ -33,80 +31,28 @@ public abstract class InfiniFramePlaywrightTestBase {
     }
 
     protected async Task<IPage> GetPageAsync(string relativeUrl) {
-        for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
-            IBrowserContext context = await GetContextAsync(relativeUrl);
-            IPage? page = context.Pages.FirstOrDefault();
-
-            if (page is null) {
-                if (attempt < NavigationRetryCount) {
-                    await Task.Delay(NavigationRetryDelayMs);
-                    continue;
-                }
-
-                Fail.Test($"No page was found in the context for '{relativeUrl}' after {NavigationRetryCount} attempts.");
-            }
-
-            try {
-                await WaitForInfiniFrameReadyAsync(page!);
-                return page!;
-            }
-            catch (PlaywrightException exception) when (
-                attempt < NavigationRetryCount &&
-                IsExecutionContextDestroyedByNavigation(exception)
-            ) {
-                await Task.Delay(NavigationRetryDelayMs);
-            }
-        }
-
-        Fail.Test($"No ready page was found for '{relativeUrl}' after {NavigationRetryCount} attempts.");
-        return null!;
+        IBrowserContext context = await GetContextAsync(relativeUrl);
+        IPage page = context.Pages[0];
+        await WaitForInfiniFrameReadyAsync(page);
+        return page;
     }
 
     protected Task<IPage> GetRootPageAsync()
         => GetPageAsync(RootRelativeUrl);
 
     protected async Task<IBrowserContext> GetContextAsync(string relativeUrl) {
-        for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
-            IBrowser browser = await GetBrowserAsync(relativeUrl);
-            IBrowserContext? context = browser.Contexts.FirstOrDefault();
-
-            if (context is null) {
-                if (attempt < NavigationRetryCount) {
-                    await Task.Delay(NavigationRetryDelayMs);
-                    continue;
-                }
-
-                Fail.Test($"No context was found for '{relativeUrl}' after {NavigationRetryCount} attempts.");
-            }
-
-            IPage? page = context?.Pages.FirstOrDefault();
-            if (page is null) {
-                if (attempt < NavigationRetryCount) {
-                    await Task.Delay(NavigationRetryDelayMs);
-                    continue;
-                }
-
-                Fail.Test($"No page was found in the context for '{relativeUrl}' after {NavigationRetryCount} attempts.");
-            }
-
-            try {
-                await WaitForInfiniFrameReadyAsync(page!);
-                return context!;
-            }
-            catch (PlaywrightException exception) when (
-                attempt < NavigationRetryCount &&
-                IsExecutionContextDestroyedByNavigation(exception)
-            ) {
-                await Task.Delay(NavigationRetryDelayMs);
-            }
-        }
-
-        Fail.Test($"No ready context was found for '{relativeUrl}' after {NavigationRetryCount} attempts.");
-        return null!;
+        IBrowser browser = await GetBrowserAsync(relativeUrl);
+        return browser.Contexts[0];
     }
+
+    protected Task<IBrowserContext> GetRootContextAsync()
+        => GetContextAsync(RootRelativeUrl);
 
     protected Task<IBrowser> GetBrowserAsync(string relativeUrl)
         => RuntimeContext.GetOrCreateBrowserAsync(relativeUrl);
+
+    protected Task<IBrowser> GetRootBrowserAsync()
+        => GetBrowserAsync(RootRelativeUrl);
 
     protected static async Task<T> WaitForStateChangeAsync<T>(
         T initialValue,
@@ -212,7 +158,7 @@ public abstract class InfiniFramePlaywrightTestBase {
 
         Fail.Test("InfiniFrame JavaScript interop readiness was not acknowledged.");
     }
-
+    
     private static bool IsExecutionContextDestroyedByNavigation(PlaywrightException exception)
         => exception.Message.Contains("Execution context was destroyed", StringComparison.OrdinalIgnoreCase);
 }

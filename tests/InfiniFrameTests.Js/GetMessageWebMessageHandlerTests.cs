@@ -154,11 +154,11 @@ public class GetMessageWebMessageHandlerTests {
         InteropEnvelopeParseResult responseEnvelope = window.GetSentMessagesSnapshot()
             .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
             .LastOrDefault(r =>
-                r.Success &&
+                r.IsSuccess &&
                 r.MessageId == HandlerNames.GetResponse
             );
 
-        Fail.When(!responseEnvelope.Success, "Expected a valid getMessage response envelope.");
+        Fail.When(!responseEnvelope.IsSuccess, "Expected a valid getMessage response envelope.");
 
         return responseEnvelope;
     }
