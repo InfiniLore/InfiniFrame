@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrameTests.Shared;
+using InfiniFrameTests.Shared.TestDoubles;
 using System.Runtime.InteropServices;
 using InfiniFrame.BuilderSnapshots;
 
@@ -23,10 +24,14 @@ public class RegisterCustomSchemeHandlerTests {
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        var nativeParameters = snapshot.StartupParameters;
+        var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
+        var window = new RecordingInfiniFrameWindowSubstitute().Window;
+        events.CompleteSetup(window, ref nativeParameters);
 
         // Assert
         await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("app")).IsTrue();
-        bool found = snapshot.StartupParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
+        bool found = nativeParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
         await Assert.That(found).IsTrue();
     }
 
@@ -41,9 +46,13 @@ public class RegisterCustomSchemeHandlerTests {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        var nativeParameters = snapshot.StartupParameters;
+        var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
+        var window = new RecordingInfiniFrameWindowSubstitute().Window;
+        events.CompleteSetup(window, ref nativeParameters);
 
         // Assert
-        int nativeAppCount = snapshot.StartupParameters.CustomSchemeNames
+        int nativeAppCount = nativeParameters.CustomSchemeNames
             .Where(static ptr => ptr != IntPtr.Zero)
             .Count(ptr => Marshal.PtrToStringAnsi(ptr) == "app");
         await Assert.That(nativeAppCount).IsEqualTo(1);

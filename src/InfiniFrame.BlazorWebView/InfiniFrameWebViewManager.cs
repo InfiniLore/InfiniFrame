@@ -55,9 +55,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         // ReSharper disable once ConvertClosureToMethodGroup
         LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(() => provider.GetService<ILogger<InfiniFrameWebViewManager>>());
 
-        builder.RegisterWebMessageReceivedHandler((_, message) => {
-            string? origin = InfiniFrameWebMessageContext.CurrentOrigin;
-
+        builder.RegisterWebMessageReceivedHandler((_, message, origin) => {
             LazyLogger.Value?.LogDebug(
                 "Web message callback from native. Origin: {Origin}, Message: {Message}",
                 origin,

@@ -45,12 +45,22 @@ public static class HasInfiniFrameWindowEventsStoreExtensions {
     }
 
     public static T RegisterWebMessageReceivedHandler<T>(this T obj, Action<IInfiniFrameWindow, string> handler) where T : IHasInfiniFrameWindowEventsStore {
-        obj.EventsStore.WebMessageReceived.Add(handler);
+        obj.EventsStore.WebMessageReceived.Add((window, payload) => handler(window, payload.Message));
         return obj;
     }
 
     public static T RegisterWebMessageReceivedHandler<T, TService>(this T obj, Action<IInfiniFrameWindow, string, TService> handler) where TService : notnull where T : IHasInfiniFrameWindowEventsStore {
-        obj.EventsStore.WebMessageReceived.AddWithServiceResolving(handler);
+        obj.EventsStore.WebMessageReceived.AddWithServiceResolving<TService>((window, payload, service) => handler(window, payload.Message, service));
+        return obj;
+    }
+
+    public static T RegisterWebMessageReceivedHandler<T>(this T obj, Action<IInfiniFrameWindow, string, string?> handler) where T : IHasInfiniFrameWindowEventsStore {
+        obj.EventsStore.WebMessageReceived.Add((window, payload) => handler(window, payload.Message, payload.Origin));
+        return obj;
+    }
+
+    public static T RegisterWebMessageReceivedHandler<T, TService>(this T obj, Action<IInfiniFrameWindow, string, string?, TService> handler) where TService : notnull where T : IHasInfiniFrameWindowEventsStore {
+        obj.EventsStore.WebMessageReceived.AddWithServiceResolving<TService>((window, payload, service) => handler(window, payload.Message, payload.Origin, service));
         return obj;
     }
 

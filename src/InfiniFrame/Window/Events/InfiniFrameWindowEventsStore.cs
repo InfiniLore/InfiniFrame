@@ -21,7 +21,7 @@ public record InfiniFrameWindowEventsStore : IInfiniFrameWindowEventsStore {
     public OrderedWindowEvent WindowCreating { get; } = new();
     public OrderedWindowEvent WindowCreated { get; } = new();
     
-    public OrderedWindowEvent<string> WebMessageReceived { get; } = new();
+    public OrderedWindowEvent<InfiniFrameWebMessageReceivedEvent> WebMessageReceived { get; } = new();
     public KeyedWindowEvent<string, string?> WebMessagePostData { get; } = new();
     public KeyedWindowResultEvent<string, string?, string?> WebMessageGetData { get; } = new();
     
@@ -34,6 +34,9 @@ public record InfiniFrameWindowEventsStore : IInfiniFrameWindowEventsStore {
         var copy = new InfiniFrameWindowEventsStore();
 
         CopyHandlers(WebMessageReceived.Snapshot, copy.WebMessageReceived.Add);
+        CopyHandlers(WebMessagePostData.Snapshot, static (target, item) => target.WebMessagePostData.Add(item.Key, item.Value), copy);
+        CopyHandlers(WebMessageGetData.Handlers, static (target, item) => target.WebMessageGetData.Add(item.Key, item.Value), copy);
+        CopyHandlers(CustomScheme.Handlers, static (target, item) => target.CustomScheme.Add(item.Key, item.Value), copy);
         
         CopyHandlers(WindowClosed.Snapshot, copy.WindowClosed.Add);
         CopyHandlers(WindowClosing.Snapshot, copy.WindowClosing.Add);
@@ -54,6 +57,12 @@ public record InfiniFrameWindowEventsStore : IInfiniFrameWindowEventsStore {
     private static void CopyHandlers<THandler>(IEnumerable<THandler> handlers, Action<THandler> addHandler) {
         foreach (THandler handler in handlers) {
             addHandler(handler);
+        }
+    }
+
+    private static void CopyHandlers<THandler, TTarget>(IEnumerable<THandler> handlers, Action<TTarget, THandler> addHandler, TTarget target) {
+        foreach (THandler handler in handlers) {
+            addHandler(target, handler);
         }
     }
 }

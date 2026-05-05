@@ -15,7 +15,7 @@ public interface IInfiniFrameWindowEventsStore {
     OrderedWindowEvent WindowRestored { get; }
     OrderedWindowEvent WindowFocusOut { get; }
     OrderedWindowEvent WindowMinimized { get; }
-    OrderedWindowEvent<string> WebMessageReceived { get; }
+    OrderedWindowEvent<InfiniFrameWebMessageReceivedEvent> WebMessageReceived { get; }
     
     KeyedWindowEvent<string, string?> WebMessagePostData { get; }
     KeyedWindowResultEvent<string, string?, string?> WebMessageGetData { get; }

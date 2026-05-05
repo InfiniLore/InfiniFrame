@@ -10,6 +10,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed record KeyedWindowEvent<TKey, TPayload> where TKey : notnull {
     private ConcurrentDictionary<TKey, Action<IInfiniFrameWindow, TPayload>> Handlers { get; } = [];
+    public IEnumerable<KeyValuePair<TKey, Action<IInfiniFrameWindow, TPayload>>> Snapshot => Handlers.ToArray();
     public int Count => Handlers.Count;
 
     // -----------------------------------------------------------------------------------------------------------------

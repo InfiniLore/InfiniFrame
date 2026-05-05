@@ -18,7 +18,6 @@ public partial class InfiniFrameWindowEvents {
     // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
     ///     Invokes registered user-defined handler methods when the native window sends a message.
-    ///     This overload carries the native-reported message origin in an ambient context.
     /// </summary>
     public void OnWebMessageReceived(string message, string? origin = null) {
         if (!SetupComplete) throw new InvalidOperationException("Setup not complete");
@@ -38,6 +37,8 @@ public partial class InfiniFrameWindowEvents {
         }
 
         string messageId = parseResult.MessageId!;
+
+        EventsStore.WebMessageReceived.Invoke(Sender, new InfiniFrameWebMessageReceivedEvent(message, origin));
 
         if (string.Equals(parseResult.Command, InteropEnvelopeProtocol.PostCommand, StringComparison.Ordinal)) {
             TryHandlePostDataRequest(Sender, message);

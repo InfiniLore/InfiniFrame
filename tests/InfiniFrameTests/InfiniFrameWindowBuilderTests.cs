@@ -77,12 +77,12 @@ public class InfiniFrameWindowBuilderTests {
         // Assert
         await Assert.That(first.EventsStore.WindowCreated.Snapshot.Length).IsEqualTo(1);
         await Assert.That(second.EventsStore.WindowCreated.Snapshot.Length).IsEqualTo(1);
-        await Assert.That(first.EventsStore.WebMessageReceived.Snapshot.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
-        await Assert.That(second.EventsStore.WebMessageReceived.Snapshot.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(first.EventsStore.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(second.EventsStore.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
         await Assert.That(first.EventsStore.CustomScheme.Count).IsEqualTo(1);
         await Assert.That(second.EventsStore.CustomScheme.Count).IsEqualTo(1);
         await Assert.That(first.EventsStore.CustomScheme.Handlers.Keys.FirstOrDefault()).IsEqualTo("app");
-        await Assert.That(first.EventsStore.CustomScheme.Handlers.Keys.FirstOrDefault()).IsEqualTo("app");
+        await Assert.That(second.EventsStore.CustomScheme.Handlers.Keys.FirstOrDefault()).IsEqualTo("app");
     }
 
     [Test]
@@ -116,10 +116,10 @@ public class InfiniFrameWindowBuilderTests {
 
         // Act
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
-        int registeredSchemeCount = snapshot.CustomSchemes.OrderedSchemeNames.Distinct(StringComparer.Ordinal).Count();
+        int registeredSchemeCount = snapshot.EventsStore.CustomScheme.Handlers.Keys.Distinct(StringComparer.Ordinal).Count();
 
         // Assert
-        await Assert.That(snapshot.CustomSchemes.Handlers.Length).IsEqualTo(1);
+        await Assert.That(snapshot.EventsStore.CustomScheme.Count).IsEqualTo(1);
         await Assert.That(registeredSchemeCount).IsEqualTo(1);
     }
 
@@ -134,26 +134,20 @@ public class InfiniFrameWindowBuilderTests {
 
         // Act
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
-        bool found = snapshot.CustomSchemes.Handlers.Any(static item => item.Key == "app");
-        NetCustomSchemeDelegate? copiedHandler = snapshot.CustomSchemes.Handlers
-            .Where(static item => item.Key == "app")
-            .Select(static item => item.Value)
-            .FirstOrDefault();
-        copiedHandler?.Invoke(Substitute.For<IInfiniFrameWindow>(), "app", "app://resource", out string? _);
+        bool found = snapshot.EventsStore.CustomScheme.ContainsKey("app");
+        bool invoked = snapshot.EventsStore.CustomScheme.TryInvoke("app", Substitute.For<IInfiniFrameWindow>(), "app://resource", out (Stream? Data, string? ContentType) _);
 
         // Assert
         await Assert.That(found).IsTrue();
-        await Assert.That(copiedHandler).IsNotNull();
-        await Assert.That(callCount).IsEqualTo(2);
+        await Assert.That(invoked).IsTrue();
+        await Assert.That(callCount).IsEqualTo(1);
         return;
 
-        Stream? CountingHandler(IInfiniFrameWindow sender, string scheme, string url, out string? contentType) {
+        (Stream? Data, string? ContentType) CountingHandler(IInfiniFrameWindow sender, string url) {
             _ = sender;
-            _ = scheme;
             _ = url;
             Interlocked.Increment(ref callCount);
-            contentType = null;
-            return null;
+            return default;
         }
     }
 
@@ -170,31 +164,27 @@ public class InfiniFrameWindowBuilderTests {
         // Act
         InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
         InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
-        bool foundFirst = first.CustomSchemes.Handlers.Any(static item => item.Key == "app");
-        bool foundSecond = second.CustomSchemes.Handlers.Any(static item => item.Key == "app");
-        NetCustomSchemeDelegate? firstHandler = first.CustomSchemes.Handlers.FirstOrDefault(static item => item.Key == "app").Value;
-        NetCustomSchemeDelegate? secondHandler = second.CustomSchemes.Handlers.FirstOrDefault(static item => item.Key == "app").Value;
-        int firstRegisteredCount = first.CustomSchemes.OrderedSchemeNames.Distinct(StringComparer.Ordinal).Count();
-        int secondRegisteredCount = second.CustomSchemes.OrderedSchemeNames.Distinct(StringComparer.Ordinal).Count();
+        bool foundFirst = first.EventsStore.CustomScheme.ContainsKey("app");
+        bool foundSecond = second.EventsStore.CustomScheme.ContainsKey("app");
+        int firstRegisteredCount = first.EventsStore.CustomScheme.Handlers.Keys.Distinct(StringComparer.Ordinal).Count();
+        int secondRegisteredCount = second.EventsStore.CustomScheme.Handlers.Keys.Distinct(StringComparer.Ordinal).Count();
 
-        firstHandler?.Invoke(Substitute.For<IInfiniFrameWindow>(), "app", "app://resource1", out string? _);
-        secondHandler?.Invoke(Substitute.For<IInfiniFrameWindow>(), "app", "app://resource2", out string? _);
+        first.EventsStore.CustomScheme.TryInvoke("app", Substitute.For<IInfiniFrameWindow>(), "app://resource1", out (Stream? Data, string? ContentType) _);
+        second.EventsStore.CustomScheme.TryInvoke("app", Substitute.For<IInfiniFrameWindow>(), "app://resource2", out (Stream? Data, string? ContentType) _);
 
         // Assert
         await Assert.That(foundFirst).IsTrue();
         await Assert.That(foundSecond).IsTrue();
         await Assert.That(firstRegisteredCount).IsEqualTo(1);
         await Assert.That(secondRegisteredCount).IsEqualTo(1);
-        await Assert.That(callCount).IsEqualTo(200);
+        await Assert.That(callCount).IsEqualTo(2);
         return;
 
-        Stream? CountingHandler(object sender, string scheme, string url, out string? contentType) {
+        (Stream? Data, string? ContentType) CountingHandler(IInfiniFrameWindow sender, string url) {
             _ = sender;
-            _ = scheme;
             _ = url;
             Interlocked.Increment(ref callCount);
-            contentType = null;
-            return null;
+            return default;
         }
     }
 
