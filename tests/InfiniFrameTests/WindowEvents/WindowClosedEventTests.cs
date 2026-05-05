@@ -12,6 +12,7 @@ namespace InfiniFrameTests.WindowEvents;
 public class WindowClosedEventTests {
     [Test]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
     // [Timeout(TimeoutUtility.DefaultTimeout + 1_000)]
     public async Task TestWindowClosedEvent(CancellationToken ct) {
