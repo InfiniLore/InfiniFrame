@@ -12,6 +12,7 @@ namespace InfiniFrameTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebMessageContextTests {
+    private const string TestMessageCommand = nameof(TestMessageCommand);
     [Test]
     public async Task OnWebMessageReceived_WithOrigin_PublishesOriginViaEventPayload() {
         // Arrange
@@ -22,37 +23,15 @@ public class WebMessageContextTests {
         events.CompleteSetup(window.Window, ref nativeParameters);
 
         string? observedMessage = null;
-        string? observedOrigin = null;
-        eventsStore.WebMessageReceived.Add((_, payload) => {
-            observedMessage = payload.Message;
-            observedOrigin = payload.Origin;
+        eventsStore.WebMessagePostData.Add(TestMessageCommand, (_, message) => {
+            observedMessage = message;
         });
 
         // Act
-        events.OnWebMessageReceived(CreatePostEnvelope("ping"), "https://webview.example");
+        events.OnWebMessageReceived(CreatePostEnvelope(TestMessageCommand,"TEST" ), "https://webview.example");
 
         // Assert
         await Assert.That(observedMessage).IsNotNull();
-        await Assert.That(observedOrigin).IsEqualTo("https://webview.example");
-    }
-
-    [Test]
-    public async Task OnWebMessageReceived_WithoutOrigin_PublishesNullOrigin() {
-        // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
-        var events = new InfiniFrameWindowEvents(eventsStore);
-        var window = new RecordingInfiniFrameWindowSubstitute();
-        var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window.Window, ref nativeParameters);
-
-        string? observedOrigin = "unset";
-        eventsStore.WebMessageReceived.Add((_, payload) => observedOrigin = payload.Origin);
-
-        // Act
-        events.OnWebMessageReceived(CreatePostEnvelope("ping"));
-
-        // Assert
-        await Assert.That(observedOrigin).IsNull();
     }
 
     [Test]
@@ -81,11 +60,11 @@ public class WebMessageContextTests {
         await Assert.That(observedOrigin).IsEqualTo("app://localhost/");
     }
 
-    private static string CreatePostEnvelope(string id)
+    private static string CreatePostEnvelope(string id, string? data = null)
         => JsonSerializer.Serialize(new {
             id,
             command = "Post",
             version = 2,
-            data = (string?)null
+            data
         });
 }

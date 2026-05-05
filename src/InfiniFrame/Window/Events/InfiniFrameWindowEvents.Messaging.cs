@@ -24,6 +24,11 @@ public partial class InfiniFrameWindowEvents {
 
         ArgumentNullException.ThrowIfNull(message);
 
+        if (Sender.InstanceHandle == IntPtr.Zero) {
+            Sender.Logger.LogDebug("Skipping web message handling because window is closed.");
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(message)) {
             Sender.Logger.LogDebug("Rejected empty web message.");
             return;

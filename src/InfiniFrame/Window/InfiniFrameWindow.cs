@@ -85,6 +85,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         return Task.CompletedTask;
     }
 
+    // Should only be used internally
+    void IInfiniFrameWindow.MarkClosedFromNativeCallback() {
+        Interlocked.Exchange(ref _shutdownRequested, 1);
+        Interlocked.Exchange(ref _shutdownStarted, 1);
+        InstanceHandle = IntPtr.Zero;
+    }
+
     /// <summary>
     ///     Closes the native window.
     /// </summary>

@@ -25,6 +25,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
     // -----------------------------------------------------------------------------------------------------------------
     public RecordingInfiniFrameWindowSubstitute() {
         Window = Substitute.For<IInfiniFrameWindow>();
+        Window.InstanceHandle.Returns(IntPtr.MaxValue);
         Window.Logger.Returns(NullLogger<IInfiniFrameWindow>.Instance);
         Window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
         Window.SendWebMessageAsync(Arg.Any<string>())

@@ -110,6 +110,8 @@ public partial class InfiniFrameWindowEvents(IInfiniFrameWindowEventsStore store
     
     public void OnWindowClosed() {
         if (!SetupComplete) throw new InvalidOperationException("Setup not complete");
+
+        Sender.MarkClosedFromNativeCallback();
         EventsStore.WindowClosed.Invoke(Sender);
     }
 
