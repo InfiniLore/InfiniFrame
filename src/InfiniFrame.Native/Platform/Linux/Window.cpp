@@ -4,8 +4,12 @@
 #include "Core/InfiniFrameWindowImpl.h"
 #include "Utils/Common.h"
 #include <climits>
+#include <chrono>
+#include <cstdint>
+#include <memory>
 #include <mutex>
 #include <condition_variable>
+#include <filesystem>
 #include <X11/Xlib.h>
 #include <gio/gio.h>
 #include <webkit2/webkit2.h>
@@ -14,6 +18,7 @@
 #include <iomanip>
 #include <libnotify/notify.h>
 #include <dlfcn.h>
+#include <unistd.h>
 #include <format>
 #include <simdjson.h>
 #include "Embedded/Embedded.h"
@@ -49,8 +54,11 @@ gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest*
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     GtkWidget* _window = nullptr;
     GtkWidget* _webview = nullptr;
+    WebKitWebContext* _webContext = nullptr;
 
     std::string _temporaryFilesPath;
+    std::string _webDataPath;
+    std::string _webCachePath;
 
     bool _isFullScreen = false;
     double _zoom = 100.0;
@@ -67,6 +75,10 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     int _lastHeight = 0;
     bool _isClosed = false;
 
+    ~Impl();
+
+    WebKitWebContext* create_web_context();
+    void release_web_context();
     void set_webkit_settings();
     void set_webkit_customsettings(WebKitSettings* settings);
     void AddCustomSchemeHandlers();
@@ -77,7 +89,10 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 // ---------------------------------------------------------------------------------------------------------------------
 
 static gboolean invokeCallback(const gpointer data) {
-    auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(data);
+    std::unique_ptr<std::shared_ptr<InvokeWaitInfo>> holder(
+        reinterpret_cast<std::shared_ptr<InvokeWaitInfo>*>(data)
+        );
+    std::shared_ptr<InvokeWaitInfo> waitInfo = *holder;
     waitInfo->callback();
     {
         std::lock_guard<std::mutex> guard(invokeLockMutex);
@@ -85,25 +100,6 @@ static gboolean invokeCallback(const gpointer data) {
     }
     waitInfo->completionNotifier.notify_one();
     return false;
-}
-
-static gboolean quitIfNoToplevelWindows(gpointer) {
-    GList* windows = gtk_window_list_toplevels();
-    bool hasVisibleWindow = false;
-
-    for (GList* item = windows; item != nullptr; item = item->next) {
-        if (GTK_IS_WINDOW(item->data) && gtk_widget_get_visible(GTK_WIDGET(item->data))) {
-            hasVisibleWindow = true;
-            break;
-        }
-    }
-
-    g_list_free(windows);
-
-    if (!hasVisibleWindow)
-        gtk_main_quit();
-
-    return G_SOURCE_REMOVE;
 }
 
 static void HandleWebMessage(
@@ -210,6 +206,51 @@ static std::string escapeJsonString(std::string_view input) {
 // ---------------------------------------------------------------------------------------------------------------------
 // Impl method definitions
 // ---------------------------------------------------------------------------------------------------------------------
+
+InfiniFrameWindow::Impl::~Impl() {
+    release_web_context();
+}
+
+WebKitWebContext* InfiniFrameWindow::Impl::create_web_context() {
+    if (_webContext != nullptr)
+        return _webContext;
+
+    std::filesystem::path basePath = _temporaryFilesPath.empty()
+        ? std::filesystem::temp_directory_path() / "infiniframe"
+        : std::filesystem::path(_temporaryFilesPath);
+
+    std::ostringstream suffix;
+    suffix << getpid() << "-" << std::hex << reinterpret_cast<std::uintptr_t>(this);
+
+    std::filesystem::path profilePath = basePath / "webkitgtk" / suffix.str();
+    std::filesystem::path dataPath = profilePath / "data";
+    std::filesystem::path cachePath = profilePath / "cache";
+
+    std::error_code error;
+    std::filesystem::create_directories(dataPath, error);
+    std::filesystem::create_directories(cachePath, error);
+
+    _webDataPath = dataPath.string();
+    _webCachePath = cachePath.string();
+
+    WebKitWebsiteDataManager* manager = webkit_website_data_manager_new(
+        "base-data-directory", _webDataPath.c_str(),
+        "base-cache-directory", _webCachePath.c_str(),
+        NULL
+        );
+
+    _webContext = webkit_web_context_new_with_website_data_manager(manager);
+    g_object_unref(manager);
+
+    return _webContext;
+}
+
+void InfiniFrameWindow::Impl::release_web_context() {
+    if (_webContext != nullptr) {
+        g_object_unref(_webContext);
+        _webContext = nullptr;
+    }
+}
 
 void InfiniFrameWindow::Impl::set_webkit_settings() {
     WebKitSettings* settings = webkit_settings_new_with_settings(
@@ -320,7 +361,7 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
     if (_customSchemeCallback == nullptr)
         return;
 
-    WebKitWebContext* context = webkit_web_context_get_default();
+    WebKitWebContext* context = create_web_context();
     WebKitSecurityManager* securityManager = webkit_web_context_get_security_manager(context);
     for (const auto& value : _customSchemeNames) {
         if (securityManager != nullptr && g_ascii_strcasecmp(value.c_str(), "app") == 0) {
@@ -511,8 +552,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
         G_CALLBACK(on_permission_request), this
         );
 
-    m_impl->AddCustomSchemeHandlers();
-
     if (initParams->Transparent)
         SetTransparentEnabled(true);
 
@@ -575,6 +614,9 @@ void InfiniFrameWindow::ClearBrowserAutoFill() {
 }
 
 void InfiniFrameWindow::Close() {
+    if (m_impl->_isClosed || m_impl->_window == nullptr)
+        return;
+
     gtk_window_close(GTK_WINDOW(m_impl->_window));
 }
 
@@ -889,11 +931,24 @@ void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoStrin
 }
 
 void InfiniFrameWindow::WaitForExit() {
+    if (m_impl->_isClosed || m_impl->_window == nullptr)
+        return;
+
+    g_signal_connect(
+        G_OBJECT(m_impl->_window), "destroy",
+        G_CALLBACK(
+            +[](GtkWidget*, gpointer) {
+                gtk_main_quit();
+            }
+            ),
+        nullptr
+        );
     gtk_main();
 }
 
 void InfiniFrameWindow::CloseWebView() {
-    // Not implemented on Linux
+    m_impl->_webview = nullptr;
+    m_impl->release_web_context();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -963,16 +1018,33 @@ void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback) {
 }
 
 void InfiniFrameWindow::Invoke(const ACTION callback) {
-    InvokeWaitInfo waitInfo = {};
-    waitInfo.callback = callback;
-    gdk_threads_add_idle(invokeCallback, &waitInfo);
+    if (!callback)
+        return;
+
+    if (m_impl->_isClosed || m_impl->_window == nullptr)
+        return;
+
+    auto waitInfo = std::make_shared<InvokeWaitInfo>();
+    waitInfo->callback = callback;
+
+    auto* holder = new std::shared_ptr<InvokeWaitInfo>(waitInfo);
+    const guint sourceId = gdk_threads_add_idle(invokeCallback, holder);
+    if (sourceId == 0) {
+        delete holder;
+        return;
+    }
 
     std::unique_lock<std::mutex> uLock(invokeLockMutex);
-    waitInfo.completionNotifier.wait(
-        uLock, [&] {
-            return waitInfo.isCompleted;
+    const bool completed = waitInfo->completionNotifier.wait_for(
+        uLock,
+        std::chrono::seconds(15),
+        [&] {
+            return waitInfo->isCompleted;
         }
         );
+
+    if (!completed && g_source_remove(sourceId))
+        delete holder;
 }
 
 [[nodiscard]] bool InfiniFrameWindow::InvokeClose() const noexcept {
@@ -1029,10 +1101,13 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     if (!m_impl->_webview) {
         struct sigaction old_action;
         sigaction(SIGCHLD, nullptr, &old_action);
-        WebKitUserContentManager* contentManager = webkit_user_content_manager_new();
-        m_impl->_webview = webkit_web_view_new_with_user_content_manager(contentManager);
+        m_impl->_webview = webkit_web_view_new_with_context(m_impl->create_web_context());
+        WebKitUserContentManager* contentManager = webkit_web_view_get_user_content_manager(
+            WEBKIT_WEB_VIEW(m_impl->_webview)
+            );
 
         m_impl->set_webkit_settings();
+        m_impl->AddCustomSchemeHandlers();
 
         gtk_container_add(GTK_CONTAINER(m_impl->_window), m_impl->_webview);
 
@@ -1139,8 +1214,8 @@ void on_widget_destroyed(GtkWidget* widget, gpointer self) {
 
     instance->m_impl->_isClosed = true;
     instance->m_impl->_window = nullptr;
+    instance->CloseWebView();
     instance->InvokeClosed();
-    g_idle_add(quitIfNoToplevelWindows, nullptr);
 }
 
 gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {

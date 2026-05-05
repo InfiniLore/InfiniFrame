@@ -290,6 +290,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         Center();
 
     m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
+    m_impl->_webviewConfiguration.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
 
     for (const auto & scheme : m_impl->_customSchemeNames)
     {

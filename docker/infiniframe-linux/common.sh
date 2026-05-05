@@ -133,9 +133,8 @@ build_native_project() {
 build_solution_filter() {
   local solution_filter="$1"
   local label="${2:-projects}"
-  echo "Building ${label} (max CPU count: ${DOTNET_MAX_CPU_COUNT})..."
+  echo "Building ${label} ..."
   dotnet build "${solution_filter}" \
-    -m:"${DOTNET_MAX_CPU_COUNT}" \
     --configuration "${CONFIGURATION}" \
     --no-restore \
     /p:UseAppHost=false \

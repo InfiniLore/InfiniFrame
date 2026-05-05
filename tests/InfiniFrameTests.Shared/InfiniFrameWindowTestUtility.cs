@@ -45,38 +45,42 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder.SetStartString(StartString);
+        windowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "infiniframe-tests", Guid.NewGuid().ToString("N")));
         builder?.Invoke(windowBuilder);
 
-        // Windows: WebView2 requires STA thread for COM initialization
-        // Linux: GTK implicitly treats the calling thread as the main UI thread
-        // macOS: Similar to Linux, but with additional main-thread restrictions for menu operations
-        if (OperatingSystem.IsWindows()) {
-            return CreateOnStaThread(windowBuilder);
-        }
-        else {
-            // On Linux/macOS, create the window in the current thread to ensure proper GTK initialization
-            IInfiniFrameWindow window = windowBuilder.Build();
+        return OperatingSystem.IsWindows()
+            ? CreateOnStaThread(windowBuilder)
+            : CreateOnWindowThread(windowBuilder);
+    }
 
-            var utility = new InfiniFrameWindowTestUtility {
-                Window = window
-            };
+    [MustDisposeResource]
+    private static InfiniFrameWindowTestUtility CreateOnWindowThread(
+        InfiniFrameWindowBuilder windowBuilder
+    ) {
+        var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var thread = new Thread(() => {
-                try {
-                    window.WaitForClose();
-                }
-                catch (ApplicationException) {
-                    // Ignore shutdown exceptions during test cleanup
-                }
-            }) {
-                IsBackground = true
-            };
+        var thread = new Thread(() => {
+            try {
+                IInfiniFrameWindow window = windowBuilder.Build();
+                windowSource.SetResult(window);
+                window.WaitForClose();
+            }
+            catch (Exception ex) when (IsNonFatalException(ex)) {
+                windowSource.TrySetException(ex);
+            }
+        }) {
+            IsBackground = true,
+            Name = "InfiniFrame Test Window Thread"
+        };
 
-            utility._windowThread = thread;
-            thread.Start();
+        thread.Start();
 
-            return utility;
-        }
+        var utility = new InfiniFrameWindowTestUtility {
+            Window = windowSource.Task.GetAwaiter().GetResult(),
+            _windowThread = thread
+        };
+
+        return utility;
     }
 
     [SupportedOSPlatform("windows")]
@@ -113,35 +117,6 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // ----------------------------------------------------------------------------------------------------------------
-    public async Task WaitForCloseAsync(CancellationToken ct = default) {
-        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-
-        try {
-            await Window.WaitForCloseAsync(ct);
-        }
-        catch (ApplicationException) {
-            // ignored
-        }
-        catch (ObjectDisposedException) {
-            // ignored
-        }
-
-        try {
-            if (_windowThread == null) return;
-            if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
-                _windowThread.Interrupt();
-        }
-        catch (ThreadInterruptedException) {
-            // ignored
-        }
-        catch (ThreadStateException) {
-            // ignored
-        }
-        catch (ObjectDisposedException) {
-            // ignored
-        }
-    }
-    
     public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
             return;
