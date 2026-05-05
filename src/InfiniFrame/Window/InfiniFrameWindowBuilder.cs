@@ -88,6 +88,4 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             StaticAssets,
             InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this));
     }
-
-    
 }

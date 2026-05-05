@@ -13,7 +13,7 @@ public class WindowClosedEventTests {
     [Test]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    // [Timeout(TimeoutUtility.DefaultTimeout)]
+    // [Timeout(TimeoutUtility.DefaultTimeout + 1_000)]
     public async Task TestWindowClosedEvent(CancellationToken ct) {
         // Arrange
         int closedEventCount = 0;
@@ -26,6 +26,7 @@ public class WindowClosedEventTests {
 
         // Act
         windowUtility.Window.Close();
+        await Task.Delay(1_000, ct);
 
         // Assert   
         await Assert.That(closedEventCount).IsEqualTo(1);

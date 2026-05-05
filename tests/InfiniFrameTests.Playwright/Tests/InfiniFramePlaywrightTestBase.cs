@@ -13,6 +13,7 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     private const string RootRelativeUrl = "/";
     private const int NavigationRetryCount = 5;
+    private const int NavigationRetryDelayMs = 150;
     private const int InfiniFrameReadyTimeoutMs = 20_000;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -32,28 +33,80 @@ public abstract class InfiniFramePlaywrightTestBase {
     }
 
     protected async Task<IPage> GetPageAsync(string relativeUrl) {
-        IBrowserContext context = await GetContextAsync(relativeUrl);
-        IPage page = context.Pages[0];
-        await WaitForInfiniFrameReadyAsync(page);
-        return page;
+        for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
+            IBrowserContext context = await GetContextAsync(relativeUrl);
+            IPage? page = context.Pages.FirstOrDefault();
+
+            if (page is null) {
+                if (attempt < NavigationRetryCount) {
+                    await Task.Delay(NavigationRetryDelayMs);
+                    continue;
+                }
+
+                Fail.Test($"No page was found in the context for '{relativeUrl}' after {NavigationRetryCount} attempts.");
+            }
+
+            try {
+                await WaitForInfiniFrameReadyAsync(page!);
+                return page!;
+            }
+            catch (PlaywrightException exception) when (
+                attempt < NavigationRetryCount &&
+                IsExecutionContextDestroyedByNavigation(exception)
+            ) {
+                await Task.Delay(NavigationRetryDelayMs);
+            }
+        }
+
+        Fail.Test($"No ready page was found for '{relativeUrl}' after {NavigationRetryCount} attempts.");
+        return null!;
     }
 
     protected Task<IPage> GetRootPageAsync()
         => GetPageAsync(RootRelativeUrl);
 
     protected async Task<IBrowserContext> GetContextAsync(string relativeUrl) {
-        IBrowser browser = await GetBrowserAsync(relativeUrl);
-        return browser.Contexts[0];
-    }
+        for (int attempt = 1; attempt <= NavigationRetryCount; attempt++) {
+            IBrowser browser = await GetBrowserAsync(relativeUrl);
+            IBrowserContext? context = browser.Contexts.FirstOrDefault();
 
-    protected Task<IBrowserContext> GetRootContextAsync()
-        => GetContextAsync(RootRelativeUrl);
+            if (context is null) {
+                if (attempt < NavigationRetryCount) {
+                    await Task.Delay(NavigationRetryDelayMs);
+                    continue;
+                }
+
+                Fail.Test($"No context was found for '{relativeUrl}' after {NavigationRetryCount} attempts.");
+            }
+
+            IPage? page = context?.Pages.FirstOrDefault();
+            if (page is null) {
+                if (attempt < NavigationRetryCount) {
+                    await Task.Delay(NavigationRetryDelayMs);
+                    continue;
+                }
+
+                Fail.Test($"No page was found in the context for '{relativeUrl}' after {NavigationRetryCount} attempts.");
+            }
+
+            try {
+                await WaitForInfiniFrameReadyAsync(page!);
+                return context!;
+            }
+            catch (PlaywrightException exception) when (
+                attempt < NavigationRetryCount &&
+                IsExecutionContextDestroyedByNavigation(exception)
+            ) {
+                await Task.Delay(NavigationRetryDelayMs);
+            }
+        }
+
+        Fail.Test($"No ready context was found for '{relativeUrl}' after {NavigationRetryCount} attempts.");
+        return null!;
+    }
 
     protected Task<IBrowser> GetBrowserAsync(string relativeUrl)
         => RuntimeContext.GetOrCreateBrowserAsync(relativeUrl);
-
-    protected Task<IBrowser> GetRootBrowserAsync()
-        => GetBrowserAsync(RootRelativeUrl);
 
     protected static async Task<T> WaitForStateChangeAsync<T>(
         T initialValue,
@@ -110,7 +163,7 @@ public abstract class InfiniFramePlaywrightTestBase {
                 attempt < NavigationRetryCount &&
                 IsExecutionContextDestroyedByNavigation(exception)
             ) {
-                await page.WaitForTimeoutAsync(150);
+                await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
         }
         Fail.Test($"Could not execute script: {script} within timeout");
@@ -127,7 +180,7 @@ public abstract class InfiniFramePlaywrightTestBase {
                 attempt < NavigationRetryCount &&
                 IsExecutionContextDestroyedByNavigation(exception)
             ) {
-                await page.WaitForTimeoutAsync(150);
+                await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
         }
         Fail.Test($"Could not execute script: {script} within timeout");
@@ -153,7 +206,7 @@ public abstract class InfiniFramePlaywrightTestBase {
                 attempt < NavigationRetryCount &&
                 IsExecutionContextDestroyedByNavigation(exception)
             ) {
-                await page.WaitForTimeoutAsync(150);
+                await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
         }
 

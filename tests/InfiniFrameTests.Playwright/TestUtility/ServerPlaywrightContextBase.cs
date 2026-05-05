@@ -62,8 +62,8 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
                 .RegisterOpenExternalTargetWebMessageHandler()
                 .RegisterTitleChangedWebMessageHandler()
                 .RegisterWindowClosingHandler((_, _) => {
-                    OnWindowClosingRequested();
-                    return WindowClosingResult.Close;
+                    bool suppressClose = OnWindowClosingRequested();
+                    return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
                 }),
             cancellationToken: startupCancellation.Token
         );

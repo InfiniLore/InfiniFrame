@@ -64,8 +64,8 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
                 .RegisterOpenExternalTargetWebMessageHandler()
                 .RegisterTitleChangedWebMessageHandler()
                 .RegisterWindowClosingHandler((_, _) => {
-                    OnWindowClosingRequested();
-                    return WindowClosingResult.Close;
+                    bool suppressClose = OnWindowClosingRequested();
+                    return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
                 });
     }
 
