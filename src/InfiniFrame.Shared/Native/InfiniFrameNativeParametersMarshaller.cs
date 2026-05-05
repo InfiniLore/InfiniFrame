@@ -192,6 +192,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         ? IntPtr.Zero
         : callback switch {
             CppClosingDelegate closing => Marshal.GetFunctionPointerForDelegate(closing),
+            CppClosedDelegate closed => Marshal.GetFunctionPointerForDelegate(closed),
             CppFocusInDelegate focusIn => Marshal.GetFunctionPointerForDelegate(focusIn),
             CppFocusOutDelegate focusOut => Marshal.GetFunctionPointerForDelegate(focusOut),
             CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
