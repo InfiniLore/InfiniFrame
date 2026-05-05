@@ -11,10 +11,8 @@ namespace InfiniFrameTests.WindowFunctionalities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class RegisterCustomSchemeHandlerTests {
-    private static Stream? EmptyHandler(object o, string s, string s1, out string? s2) {
-        s2 = null;
-        return null;
-    }
+    private static (Stream? Data, string? ContentType) EmptyHandler(IInfiniFrameWindow infiniFrameWindow, string s) 
+        => default;
 
     [Test]
     [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder)}")]
@@ -27,7 +25,7 @@ public class RegisterCustomSchemeHandlerTests {
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
 
         // Assert
-        await Assert.That(builder.CustomSchemeHandlers.ContainsCustomSchemeHandler("app")).IsTrue();
+        await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("app")).IsTrue();
         bool found = snapshot.StartupParameters.CustomSchemeNames.Any(ptr => ptr != IntPtr.Zero && Marshal.PtrToStringAnsi(ptr) == "app");
         await Assert.That(found).IsTrue();
     }
@@ -69,9 +67,9 @@ public class RegisterCustomSchemeHandlerTests {
             Assert.Fail("Expected window to be an InfiniFrameWindow instance.");
             return;
         }
-        IInfiniFrameWindowCustomSchemeHandlers customSchemes = windowCasted.CustomSchemes;
+        KeyedWindowResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
         await Assert.That(customSchemes).IsNotNull();
-        bool customScheme = customSchemes.ContainsCustomSchemeHandler("app");
+        bool customScheme = customSchemes.ContainsKey("app");
         await Assert.That(customScheme).IsTrue();
     }
 
@@ -95,9 +93,10 @@ public class RegisterCustomSchemeHandlerTests {
             Assert.Fail("Expected window to be an InfiniFrameWindow instance.");
             return;
         }
-        IInfiniFrameWindowCustomSchemeHandlers customSchemes = windowCasted.CustomSchemes;
+        
+        KeyedWindowResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
         await Assert.That(customSchemes).IsNotNull();
-        bool customScheme = customSchemes.ContainsCustomSchemeHandler("app");
+        bool customScheme = customSchemes.ContainsKey("app");
         await Assert.That(customScheme).IsTrue();
     }
 }

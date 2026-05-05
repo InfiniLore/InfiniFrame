@@ -5,4 +5,4 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public delegate Stream? NetCustomSchemeDelegate(IInfiniFrameWindow sender, string scheme, string url, out string? contentType);
+public delegate bool NetCustomSchemeDelegate(IInfiniFrameWindow sender, string url, out (Stream? Data, string? contentType) contentType);

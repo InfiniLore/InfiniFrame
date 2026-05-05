@@ -12,7 +12,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class TitleChangedWebMessageHandler {
     public static T RegisterTitleChangedWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.MessageHandlers.RegisterHandler(HandlerNames.TitleChanged, HandleWebMessage);
+        builder.RegisterWebMessagePostHandler(HandlerNames.TitleChanged, HandleWebMessage);
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterTitleChange);
         return builder;
     }

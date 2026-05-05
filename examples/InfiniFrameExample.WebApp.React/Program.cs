@@ -27,18 +27,17 @@ public static class Program {
             .Center()
             .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
             .SetSize(new Size(800, 600))
-            .RegisterCustomSchemeHandler("app", handler: (_, _, _, out contentType) => {
-                contentType = "text/javascript";
-                return new MemoryStream(
-                    """
-                        (() =>{
-                            window.setTimeout(() => {
-                                alert(`🎉 Dynamically inserted JavaScript.`);
-                            }, 1000);
-                        })();
-                        """u8.ToArray());
-            })
-            .RegisterWebMessageReceivedHandler((WebMessageCounter counter, IInfiniFrameWindow window, string message) => {
+            .RegisterCustomSchemeHandler("app", handler: (_, _) => (
+                new MemoryStream("""
+                    (() =>{
+                        window.setTimeout(() => {
+                            alert(`🎉 Dynamically inserted JavaScript.`);
+                        }, 1000);
+                    })();
+                    """u8.ToArray())
+                ,"text/javascript")
+            )
+            .RegisterWebMessageReceivedHandler((IInfiniFrameWindow window, string message, WebMessageCounter counter ) => {
                 int count = counter.Increment();
                 string response = $"[{count}] Received message: \"{message}\"";
                 window.SendWebMessage(response);

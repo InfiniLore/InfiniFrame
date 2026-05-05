@@ -2,10 +2,10 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.HostMessaging;
 using InfiniFrame.Interop;
 using InfiniFrame.Js;
 using InfiniFrame.Js.Interop;
+using InfiniFrame.Native;
 using InfiniFrameTests.Shared.TestDoubles;
 using NSubstitute;
 using System.Text.Json;
@@ -18,7 +18,7 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_StandardGetRequest_Title_ReturnsWindowTitle() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _)
+        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
         builder.RegisterGetWebMessageHandler();
@@ -48,10 +48,10 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_ResolvesRegisteredHandlerAndReturnsData() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler messageHandler)
+        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
-        messageHandler.RegisterHandler("app:echo", (_, payload) => $"echo:{payload}");
+        events.RegisterWebMessageGetHandler("app:echo", (_, payload) => $"echo:{payload}");
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             "app:echo",
@@ -77,7 +77,7 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_WithoutRegisteredHandler_ReturnsErrorResponse() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _)
+        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
@@ -105,7 +105,7 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_WithoutRegisteredService_ReturnsErrorResponse() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window, InfiniFrameWindowMessageHandler _)
+        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
@@ -134,18 +134,18 @@ public class GetMessageWebMessageHandlerTests {
             .Contains("No getMessage handler is registered");
     }
 
-    private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window, InfiniFrameWindowMessageHandler MessageHandler) CreateWindowHarness() {
+    private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
         var builder = InfiniFrameWindowBuilder.Create();
-        var events = (InfiniFrameWindowEvents)builder.Events;
-        var messageHandler = (InfiniFrameWindowMessageHandler)builder.MessageHandlers;
+        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
 
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
+        
+        var events = new InfiniFrameWindowEvents(eventsStore);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
-        events.WebMessageReceived.Add(InfiniFrameWindowMessageHandler.HandleMessageRequest);
-        events.CompleteSetup(window.Window);
-
-        return (builder, events, window, messageHandler);
+        return (builder, events, window);
     }
 
     private static InteropEnvelopeParseResult GetLatestGetMessageResponse(

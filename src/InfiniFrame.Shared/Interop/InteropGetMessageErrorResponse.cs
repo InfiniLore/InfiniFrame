@@ -1,16 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame;
+namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEvents {
-    StaticAssetSettings? StaticAssets { get; set; }
-
-    IInfiniFrameWindowNativeParameterBuilder Configuration { get; }
-    IInfiniFrameWindowMessageHandler MessageHandlers { get; }
-    IInfiniFrameWindowCustomSchemeHandlers CustomSchemeHandlers { get; }
-
-    IInfiniFrameWindow Build(IServiceProvider? provider = null);
+internal sealed class InteropGetMessageErrorResponse {
+    public string? RequestId { get; init; }
+    public bool Success { get; init; }
+    public string? Error { get; init; }
 }

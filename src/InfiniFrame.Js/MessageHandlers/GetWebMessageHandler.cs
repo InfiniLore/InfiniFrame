@@ -12,7 +12,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class GetWebMessageHandler {
     public static T RegisterGetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.MessageHandlers.RegisterHandler(HandlerNames.GetRequest, HandleGetRequest);
+        builder.RegisterWebMessageGetHandler(HandlerNames.GetRequest, HandleGetRequest);
         return builder;
     }
 

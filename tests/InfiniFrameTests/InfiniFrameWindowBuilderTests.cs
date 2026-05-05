@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BuilderSnapshots;
-using InfiniFrame.HostMessaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -14,12 +13,10 @@ namespace InfiniFrameTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilderTests {
-    private static Stream? EmptyHandler(IInfiniFrameWindow sender, string scheme, string url, out string? contentType) {
+    private static (Stream? Data, string? ContentType) EmptyHandler(IInfiniFrameWindow sender, string url) {
         _ = sender;
-        _ = scheme;
         _ = url;
-        contentType = null;
-        return null;
+        return default;
     }
 
     private const int DefaultIncludedMessageHandlers = 0;
@@ -69,8 +66,8 @@ public class InfiniFrameWindowBuilderTests {
     public async Task CreateSnapshot_CanBeCalledMoreThanOnce_WithUniqueMutableReferences() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        builder.Events.WindowCreated.Add(_ => { });
-        builder.MessageHandlers.RegisterHandler("ping", (_, _) => { });
+        builder.EventsStore.WindowCreated.Add(_ => { });
+        builder.RegisterWebMessagePostHandler("ping", (_, _) => { });
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
 
         // Act
@@ -78,14 +75,14 @@ public class InfiniFrameWindowBuilderTests {
         InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
 
         // Assert
-        await Assert.That(first.Events.WindowCreated.Length).IsEqualTo(1);
-        await Assert.That(second.Events.WindowCreated.Length).IsEqualTo(1);
-        await Assert.That(first.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
-        await Assert.That(second.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
-        await Assert.That(first.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
-        await Assert.That(second.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
-        await Assert.That(first.CustomSchemes.OrderedSchemeNames[0]).IsEqualTo("app");
-        await Assert.That(second.CustomSchemes.OrderedSchemeNames[0]).IsEqualTo("app");
+        await Assert.That(first.EventsStore.WindowCreated.Snapshot.Length).IsEqualTo(1);
+        await Assert.That(second.EventsStore.WindowCreated.Snapshot.Length).IsEqualTo(1);
+        await Assert.That(first.EventsStore.WebMessageReceived.Snapshot.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(second.EventsStore.WebMessageReceived.Snapshot.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(first.EventsStore.CustomScheme.Count).IsEqualTo(1);
+        await Assert.That(second.EventsStore.CustomScheme.Count).IsEqualTo(1);
+        await Assert.That(first.EventsStore.CustomScheme.Handlers.Keys.FirstOrDefault()).IsEqualTo("app");
+        await Assert.That(first.EventsStore.CustomScheme.Handlers.Keys.FirstOrDefault()).IsEqualTo("app");
     }
 
     [Test]
@@ -96,24 +93,17 @@ public class InfiniFrameWindowBuilderTests {
         InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
         InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
 
-        InfiniFrameWindowEvents firstEvents = InfiniFrameWindowEvents.FromSnapshot(first.Events);
-        InfiniFrameWindowEvents secondEvents = InfiniFrameWindowEvents.FromSnapshot(second.Events);
-        InfiniFrameWindowMessageHandler firstMessageHandlers = InfiniFrameWindowMessageHandler.FromSnapshot(first.MessageHandlers);
-        InfiniFrameWindowMessageHandler secondMessageHandlers = InfiniFrameWindowMessageHandler.FromSnapshot(second.MessageHandlers);
-        InfiniFrameWindowCustomSchemeHandlers firstSchemes = InfiniFrameWindowCustomSchemeHandlers.FromSnapshot(first.CustomSchemes);
-        InfiniFrameWindowCustomSchemeHandlers secondSchemes = InfiniFrameWindowCustomSchemeHandlers.FromSnapshot(second.CustomSchemes);
+        IInfiniFrameWindowEventsStore firstEvents = first.EventsStore;
+        IInfiniFrameWindowEventsStore secondEvents = second.EventsStore;
 
-        firstMessageHandlers.RegisterHandler("ping", (_, _) => { });
+        firstEvents.WebMessagePostData.Add("ping", (_, _) => { });
         firstEvents.WindowCreated.Add(_ => { });
-        firstSchemes.RegisterCustomSchemeHandler("only-first", EmptyHandler);
 
         // Assert
-        await Assert.That(firstMessageHandlers.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
-        await Assert.That(secondMessageHandlers.Count).IsEqualTo(DefaultIncludedMessageHandlers);
+        await Assert.That(firstEvents.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(secondEvents.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers);
         await Assert.That(firstEvents.WindowCreated.Snapshot.Length).IsEqualTo(secondEvents.WindowCreated.Snapshot.Length + 1);
-        await Assert.That(firstSchemes.ContainsCustomSchemeHandler("only-first")).IsTrue();
-        await Assert.That(secondSchemes.ContainsCustomSchemeHandler("only-first")).IsFalse();
-        await Assert.That(builder.CustomSchemeHandlers.ContainsCustomSchemeHandler("only-first")).IsFalse();
+       await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("only-first")).IsFalse();
     }
 
     [Test]

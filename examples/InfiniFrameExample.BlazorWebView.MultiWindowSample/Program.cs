@@ -48,7 +48,7 @@ public static class Program {
                 .RegisterWindowCreatedHandler(_ => Task.Run(() => CreateWindows(appBuilder, windowsToCreate)))
                 .RegisterWindowClosingHandler((_, _) => {
                     CloseAllWindows();
-                    return false;
+                    return WindowClosingResult.Close;
                 })
                 .Build()
         );
