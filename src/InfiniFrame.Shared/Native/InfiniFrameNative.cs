@@ -291,9 +291,9 @@ public static partial class InfiniFrameNative {
         userAgent = PtrToNativeString(ptr);
     }
 
-    internal static void GetTitle(IntPtr instance, out string title) {
+    internal static void GetTitle(IntPtr instance, out string? title) {
         IntPtr ptr = GetTitle(instance);
-        title = PtrToNativeString(ptr) ?? string.Empty;// The way on how infiniFrame works internally is that the title is always an empty string when we set it to null on our end.
+        title = PtrToNativeString(ptr);
     }
 
     internal static void GetIconFileName(IntPtr instance, out string iconFileName) {

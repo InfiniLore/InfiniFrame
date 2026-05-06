@@ -45,14 +45,14 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
     [NotInParallel(ParallelControl.Playwright)]
     public async Task DynamicallyUpdateTitleFromJs() {
         IPage page = await GetRootPageAsync();
-        string originalTitle = RuntimeContext.Window.Title;
+        string? originalTitle = RuntimeContext.Window.Title;
 
         await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
             $"() => window.__infiniframe?.host?.postData({{ id: '__infiniframe:title:change', command: 'Post', data: '{NewTitleFromHostMessage}', version: 2 }})"
         );
-        string updatedTitle = await WaitForStateChangeAsync(
+        string? updatedTitle = await WaitForStateChangeAsync(
             originalTitle,
             stateProvider: () => RuntimeContext.Window.Title
         );

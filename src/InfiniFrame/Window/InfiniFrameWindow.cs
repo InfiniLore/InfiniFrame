@@ -743,7 +743,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     The default is "InfiniFrame".
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string Title => InvokeUtilities.InvokeAndReturn<string>(this, InfiniFrameNative.GetTitle);
+    public string? Title => InvokeUtilities.InvokeAndReturn<string?>(this, InfiniFrameNative.GetTitle);
 
     /// <summary>
     ///     Gets the native window Top (Y) coordinate in pixels.
