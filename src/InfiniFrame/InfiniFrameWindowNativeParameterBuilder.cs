@@ -20,7 +20,7 @@ public class InfiniFrameWindowNativeParameterBuilder : IInfiniFrameWindowNativeP
     public bool FullScreen { get; set; }
     public bool GrantBrowserPermissions { get; set; } = true;
     public int Height { get; set; }
-    public string IconFilePath { get; set; } = string.Empty;
+    public string? IconFilePath { get; set; }
     public bool IgnoreCertificateErrorsEnabled { get; set; } = true;
     public bool JavascriptClipboardAccessEnabled { get; set; } = true;
     public int Left { get; set; }
@@ -55,9 +55,7 @@ public class InfiniFrameWindowNativeParameterBuilder : IInfiniFrameWindowNativeP
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameNativeParameters ToNativeParameters() {
-        string? resolvedIconFilePath = IconFileUtilities.TryResolveIconFilePath(IconFilePath, out string? resolvedPath)
-            ? resolvedPath
-            : null;
+        IconFileUtilities.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath);
 
         if (CustomSchemeNames.Count > CustomSchemeNameMemory.MaxCustomSchemeNames)
             throw new InvalidOperationException("Maximum number of custom schemes is 16.");

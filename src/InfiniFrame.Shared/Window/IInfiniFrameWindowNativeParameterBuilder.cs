@@ -25,7 +25,7 @@ public interface IInfiniFrameWindowNativeParameterBuilder {
     bool FullScreen { get; set; }
     bool GrantBrowserPermissions { get; set; }
     int Height { get; set; }
-    string IconFilePath { get; set; }
+    string? IconFilePath { get; set; }
     int Left { get; set; }
     int Top { get; set; }
     bool Maximized { get; set; }
