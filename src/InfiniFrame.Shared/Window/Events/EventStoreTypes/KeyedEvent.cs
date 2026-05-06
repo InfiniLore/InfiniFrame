@@ -2,21 +2,21 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniFrame;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed record KeyedWindowResultEvent<TKey, TPayload, TResult> where TKey : notnull {
-    public ConcurrentDictionary<TKey, Func<IInfiniFrameWindow, TPayload, TResult>> Handlers { get; } = [];
+public sealed record KeyedEvent<TKey, TPayload> where TKey : notnull {
+    private ConcurrentDictionary<TKey, Action<IInfiniFrameWindow, TPayload>> Handlers { get; } = [];
+    public IEnumerable<KeyValuePair<TKey, Action<IInfiniFrameWindow, TPayload>>> Snapshot => Handlers.ToArray();
     public int Count => Handlers.Count;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void Add(TKey key, Func<IInfiniFrameWindow, TPayload, TResult> handler) {
+    public void Add(TKey key, Action<IInfiniFrameWindow, TPayload> handler) {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(handler);
         Handlers.AddOrUpdate(key, handler, (_, _) => handler);
@@ -27,19 +27,16 @@ public sealed record KeyedWindowResultEvent<TKey, TPayload, TResult> where TKey 
         Handlers.TryRemove(key, out _);
     }
     
-    public bool TryInvoke(TKey key, IInfiniFrameWindow window, TPayload payload, [NotNullWhen(true)] out TResult? result) {
-        result = default;
-        if (!Handlers.TryGetValue(key, out Func<IInfiniFrameWindow, TPayload, TResult>? handler)) return false;
+    public bool TryInvoke(TKey key, IInfiniFrameWindow window, TPayload payload) {
+        if (!Handlers.TryGetValue(key, out Action<IInfiniFrameWindow, TPayload>? handler)) return false;
         
         try {
-            result = handler(window, payload);
+            handler(window, payload);
+            return true;
         }
         catch (Exception ex) when (ex is not OperationCanceledException) {
-            result = default;
             return false;
         }
-        
-        return result is not null;
     }
     
     public bool ContainsKey(TKey key) => Handlers.ContainsKey(key);

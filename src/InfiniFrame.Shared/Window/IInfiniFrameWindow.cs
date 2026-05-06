@@ -9,10 +9,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrameWindowEventsStore {
+public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrameEventsStore {
     ILogger<IInfiniFrameWindow> Logger { get; }
     IServiceProvider? ServiceProvider { get; }
-    IInfiniFrameWindowEvents Events { get; }
+    IInfiniFrameEvents Events { get; }
     
     IInfiniFrameOptions Configuration { get; }
     

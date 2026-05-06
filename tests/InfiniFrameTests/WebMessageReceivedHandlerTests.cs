@@ -33,7 +33,7 @@ public class WebMessageReceivedHandlerTests {
     [Test]
     public async Task Handler_ResolvesServiceFromProvider() {
         // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
+        var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameWindowEvents(eventsStore);
         var builder = InfiniFrameWindowBuilder.Create(eventsStore);
         var service = new TestService();
@@ -67,7 +67,7 @@ public class WebMessageReceivedHandlerTests {
     [Test]
     public async Task Handler_WithOrigin_ReceivesOriginFromEventPayload() {
         // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
+        var eventsStore = new InfiniFrameEventsStore();
         var builder = InfiniFrameWindowBuilder.Create(eventsStore);
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,

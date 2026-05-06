@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilder : IHasInfiniFrameWindowEventsStore {
+public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEventsStore {
     StaticAssetSettings? StaticAssets { get; set; }
 
     IInfiniFrameOptionsBuilder Configuration { get; }

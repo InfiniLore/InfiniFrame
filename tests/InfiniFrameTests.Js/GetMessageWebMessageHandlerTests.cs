@@ -136,7 +136,7 @@ public class GetMessageWebMessageHandlerTests {
 
     private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
         var builder = InfiniFrameWindowBuilder.Create();
-        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+        var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);

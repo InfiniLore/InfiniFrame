@@ -43,7 +43,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
             });
 
         // Default wiring for simple tests that don't need explicit builder binding.
-        var eventsStore = new InfiniFrameWindowEventsStore();
+        var eventsStore = new InfiniFrameEventsStore();
         Window.Events.Returns(new InfiniFrameWindowEvents(eventsStore));
         Window.EventsStore.Returns(eventsStore);
     }

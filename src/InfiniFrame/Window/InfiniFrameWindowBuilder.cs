@@ -16,7 +16,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     private static readonly ILogger<IInfiniFrameWindow> FallbackLogger = NullLogger<IInfiniFrameWindow>.Instance;
 
     public IInfiniFrameOptionsBuilder Configuration { get; } = new InfiniFrameOptionsBuilder();
-    public IInfiniFrameWindowEventsStore EventsStore { get; private init; } = new InfiniFrameWindowEventsStore();
+    public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
     
     public StaticAssetSettings? StaticAssets { get; set; }
 
@@ -25,9 +25,9 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameWindowBuilder() {}
     
-    public static InfiniFrameWindowBuilder Create(InfiniFrameWindowEventsStore? events = null) {
+    public static InfiniFrameWindowBuilder Create(InfiniFrameEventsStore? events = null) {
         var builder = new InfiniFrameWindowBuilder {
-            EventsStore = events ?? new InfiniFrameWindowEventsStore()
+            EventsStore = events ?? new InfiniFrameEventsStore()
         };
 
         return builder;

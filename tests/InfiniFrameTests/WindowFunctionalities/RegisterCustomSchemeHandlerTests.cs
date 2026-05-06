@@ -81,7 +81,7 @@ public class RegisterCustomSchemeHandlerTests {
             Assert.Fail("Expected window to be an InfiniFrameWindow instance.");
             return;
         }
-        KeyedWindowResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
+        KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
         await Assert.That(customSchemes).IsNotNull();
         bool customScheme = customSchemes.ContainsKey("app");
         await Assert.That(customScheme).IsTrue();
@@ -108,7 +108,7 @@ public class RegisterCustomSchemeHandlerTests {
             return;
         }
         
-        KeyedWindowResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
+        KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
         await Assert.That(customSchemes).IsNotNull();
         bool customScheme = customSchemes.ContainsKey("app");
         await Assert.That(customScheme).IsTrue();

@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowEvents : IHasInfiniFrameWindowEventsStore {
+public interface IInfiniFrameEvents : IHasInfiniFrameEventsStore {
     void OnFocusIn();
     void OnFocusOut();
     void OnLocationChanged(int left, int top);

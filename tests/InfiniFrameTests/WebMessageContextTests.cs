@@ -16,7 +16,7 @@ public class WebMessageContextTests {
     [Test]
     public async Task OnWebMessageReceived_WithOrigin_PublishesOriginViaEventPayload() {
         // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
+        var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameWindowEvents(eventsStore);
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
@@ -39,7 +39,7 @@ public class WebMessageContextTests {
     [Test]
     public async Task OnWebMessageReceived_WithBlazorWebViewMessage_PublishesRawMessage() {
         // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
+        var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameWindowEvents(eventsStore);
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);

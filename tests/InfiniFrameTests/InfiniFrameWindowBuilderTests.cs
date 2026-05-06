@@ -93,8 +93,8 @@ public class InfiniFrameWindowBuilderTests {
         InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
         InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
 
-        IInfiniFrameWindowEventsStore firstEvents = first.EventsStore;
-        IInfiniFrameWindowEventsStore secondEvents = second.EventsStore;
+        IInfiniFrameEventsStore firstEvents = first.EventsStore;
+        IInfiniFrameEventsStore secondEvents = second.EventsStore;
 
         firstEvents.WebMessagePostData.Add("ping", (_, _) => { });
         firstEvents.WindowCreated.Add(_ => { });

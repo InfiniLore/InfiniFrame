@@ -6,6 +6,6 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IHasInfiniFrameWindowEventsStore {
-    IInfiniFrameWindowEventsStore EventsStore { get; }
+public interface IHasInfiniFrameEventsStore {
+    IInfiniFrameEventsStore EventsStore { get; }
 }

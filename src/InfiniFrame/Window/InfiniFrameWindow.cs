@@ -24,9 +24,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
     public required IInfiniFrameWindow? Parent { get; init; }
-    public required IInfiniFrameWindowEvents Events { get; init; }
+    public required IInfiniFrameEvents Events { get; init; }
     public required IInfiniFrameOptions Configuration { get; init; }
-    public IInfiniFrameWindowEventsStore EventsStore => Events.EventsStore;
+    public IInfiniFrameEventsStore EventsStore => Events.EventsStore;
     
     public IntPtr NativeType => WindowType.Value;
     public IntPtr InstanceHandle { get; private set; }

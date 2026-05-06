@@ -9,8 +9,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class InfiniFrameWindowEvents(IInfiniFrameWindowEventsStore store) : IInfiniFrameWindowEvents {
-    public IInfiniFrameWindowEventsStore EventsStore { get; } = store;
+public partial class InfiniFrameWindowEvents(IInfiniFrameEventsStore store) : IInfiniFrameEvents {
+    public IInfiniFrameEventsStore EventsStore { get; } = store;
     
     private IInfiniFrameWindow? Sender { get; set; }
     [MemberNotNullWhen(true, nameof(Sender))] private bool SetupComplete { get; set; }
@@ -18,7 +18,7 @@ public partial class InfiniFrameWindowEvents(IInfiniFrameWindowEventsStore store
     // -----------------------------------------------------------------------------------------------------------------
     // constructors
     // -----------------------------------------------------------------------------------------------------------------
-    internal InfiniFrameWindowEvents() : this(new InfiniFrameWindowEventsStore()) {}
+    internal InfiniFrameWindowEvents() : this(new InfiniFrameEventsStore()) {}
     
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -133,7 +133,7 @@ public partial class InfiniFrameWindowEvents(IInfiniFrameWindowEventsStore store
         
         //C++ handles bool values as a single byte, C# uses 4 bytes
         byte cancel = 0;
-        WindowClosingResult[] doNotClose = EventsStore.WindowClosing.Invoke(Sender, null);
+        WindowClosingResult[] doNotClose = EventsStore.Closing.Invoke(Sender, null);
         if (doNotClose.Any(r => r == WindowClosingResult.Cancel)) {
             cancel = 1;
         }
