@@ -10,7 +10,7 @@ namespace InfiniFrame.Js.Interop;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class InteropEnvelopeProtocol {
-    internal const int CurrentVersion = 2;
+    private const int CurrentVersion = 2;
     internal const int MaxMessageSizeBytes = 1024 * 1024;
     internal const string PostCommand = "Post";
     internal const string GetCommand = "Get";
