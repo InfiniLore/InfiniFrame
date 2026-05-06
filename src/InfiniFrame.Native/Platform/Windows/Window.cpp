@@ -424,7 +424,24 @@ void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const {
 }
 
 void InfiniFrameWindow::GetFocused(bool* isFocused) const {
-    *isFocused = GetFocus() == m_impl->_hWnd;
+    if (isFocused == nullptr)
+        return;
+
+    const HWND activeWindow = GetActiveWindow();
+    if (activeWindow == m_impl->_hWnd) {
+        *isFocused = true;
+        return;
+    }
+
+    const HWND foregroundWindow = GetForegroundWindow();
+    if (foregroundWindow == m_impl->_hWnd) {
+        *isFocused = true;
+        return;
+    }
+
+    const HWND focusedWindow = GetFocus();
+    *isFocused = focusedWindow == m_impl->_hWnd 
+        || (focusedWindow != nullptr && IsChild(m_impl->_hWnd, focusedWindow));
 }
 
 AutoString InfiniFrameWindow::GetIconFileName() const {
@@ -755,6 +772,41 @@ void InfiniFrameWindow::SetFocused() {
     BringWindowToTop(m_impl->_hWnd);
     SetActiveWindow(m_impl->_hWnd);
     SetFocus(m_impl->_hWnd);
+
+    // Fallback path for environments where foreground activation is restricted.
+    if (GetForegroundWindow() != m_impl->_hWnd) {
+        using SwitchToThisWindowFn = void(WINAPI*)(HWND, BOOL);
+        const HMODULE user32Module = GetModuleHandleW(L"user32.dll");
+        const auto switchToThisWindow = user32Module == nullptr
+            ? nullptr
+            : reinterpret_cast<SwitchToThisWindowFn>(GetProcAddress(user32Module, "SwitchToThisWindow"));
+        if (switchToThisWindow != nullptr)
+            switchToThisWindow(m_impl->_hWnd, TRUE);
+
+        SetWindowPos(
+            m_impl->_hWnd,
+            HWND_TOPMOST,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+        );
+        SetWindowPos(
+            m_impl->_hWnd,
+            HWND_NOTOPMOST,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+        );
+
+        SetForegroundWindow(m_impl->_hWnd);
+        BringWindowToTop(m_impl->_hWnd);
+        SetActiveWindow(m_impl->_hWnd);
+        SetFocus(m_impl->_hWnd);
+    }
 
     if (fgThread && fgThread != thisThread)
         AttachThreadInput(fgThread, thisThread, FALSE);
