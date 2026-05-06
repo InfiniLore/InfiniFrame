@@ -13,22 +13,18 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <EmbeddedResource Include="wwwroot/InfiniFrame.js"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Content Update="TypeScript\**\*" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
+        <Content Update="TypeScript/**/*" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
 
         <Content Update="package.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
         <Content Update="package-lock.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
         <Content Update="tsconfig.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
         <Content Update="vitests.config.ts" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
         <Content Update="webpack.config.js" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="TypeScript\Interop\EnvelopeProtocol\interop-envelope-golden-vectors.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
+        <Content Update="TypeScript/Interop/EnvelopeProtocol/interop-envelope-golden-vectors.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
     </ItemGroup>
 
     <ItemGroup>

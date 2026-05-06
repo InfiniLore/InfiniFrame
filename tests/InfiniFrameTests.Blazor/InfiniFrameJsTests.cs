@@ -1,13 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Js;
+using InfiniFrame.Blazor;
 using InfiniFrameTests.Shared.JsRuntimes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace InfiniFrameTests.Js;
+namespace InfiniFrameTests.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

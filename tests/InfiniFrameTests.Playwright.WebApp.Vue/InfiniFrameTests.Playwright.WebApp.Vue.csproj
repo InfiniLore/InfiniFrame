@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <EnableNativeDllCopy>true</EnableNativeDllCopy>
-        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..'))\</RepositoryRoot>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../..'))/</RepositoryRoot>
 
         <!-- Run frontend build once -->
         <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
 
         <!-- Anchor output -->
-        <FrontendOutputFile>$(ProjectDir)wwwroot\index.html</FrontendOutputFile>
+        <FrontendOutputFile>$(ProjectDir)wwwroot/index.html</FrontendOutputFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,28 +17,24 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\InfiniFrameTests.Playwright\InfiniFrameTests.Playwright.csproj" />
-        <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
+        <ProjectReference Include="../InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
+        <ProjectReference Include="../InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
     <!-- Track ALL frontend sources -->
     <ItemGroup>
-        <FrontendSources Include="$(ProjectDir)Sources\infiniframe-playwright-vue\**\*" />
+        <FrontendSources Include="$(ProjectDir)Sources/infiniframe-playwright-vue/**/*" />
     </ItemGroup>
 
-    <!-- Incremental frontend build -->
+    <!-- Build frontend once before multi-target inner builds are dispatched. -->
     <Target Name="BuildFrontend"
-            BeforeTargets="Build"
+            BeforeTargets="DispatchToInnerBuilds;Build"
             Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
 
         <Message Text="Running Vue frontend build..." Importance="high" />
-        
-        <Exec Command="npm ci"
-              Condition="'$(CI)' == 'true'"
-              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />
 
-        <Exec Command="npm run build"
-              WorkingDirectory="$(ProjectDir)Sources\infiniframe-playwright-vue" />
+        <Exec Command="node &quot;$(RepositoryRoot)scripts\BuildFrontend.mjs&quot; &quot;$(ProjectDir)Sources\infiniframe-playwright-vue&quot; &quot;$(ProjectDir)obj\frontend-build.stamp&quot; &quot;$(FrontendOutputFile)&quot;"
+              WorkingDirectory="$(ProjectDir)" />
 
         <!-- prevent re-running in same build graph -->
         <PropertyGroup>
@@ -51,8 +47,8 @@
     <Target Name="CopyInfiniFrameBridgeScript"
             BeforeTargets="AssignTargetPaths"
             Condition="'$(DesignTimeBuild)'!='true'">
-        <Copy SourceFiles="$(RepositoryRoot)src\InfiniFrame.Js\wwwroot\InfiniFrame.js"
-              DestinationFiles="$(ProjectDir)wwwroot\InfiniFrame.js"
+        <Copy SourceFiles="$(RepositoryRoot)src/InfiniFrame.Js/wwwroot/InfiniFrame.js"
+              DestinationFiles="$(ProjectDir)wwwroot/InfiniFrame.js"
               SkipUnchangedFiles="true" />
     </Target>
 
@@ -61,11 +57,11 @@
             AfterTargets="Build"
             Condition="'$(DesignTimeBuild)'!='true'">
         <ItemGroup>
-            <FrontendFiles Include="$(ProjectDir)wwwroot\**\*" />
+            <FrontendFiles Include="$(ProjectDir)wwwroot/**/*" />
         </ItemGroup>
 
         <Copy SourceFiles="@(FrontendFiles)"
-              DestinationFiles="@(FrontendFiles->'$(TargetDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
+              DestinationFiles="@(FrontendFiles->'$(TargetDir)wwwroot/%(RecursiveDir)%(Filename)%(Extension)')"
               SkipUnchangedFiles="true" />
     </Target>
 

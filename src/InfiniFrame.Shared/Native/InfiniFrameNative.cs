@@ -15,7 +15,7 @@ public static partial class InfiniFrameNative {
 
     #region MARSHAL CALLS FROM Non-UI Thread to UI Thread
     [LibraryImport(DllName, EntryPoint = InfiniFrame_Invoke, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial void Invoke(IntPtr instance, InvokeCallback callback);
+    internal static partial void Invoke(IntPtr instance, Action callback);
     #endregion
     #region Register
     // ReSharper disable once UnusedMethodReturnValue.Local

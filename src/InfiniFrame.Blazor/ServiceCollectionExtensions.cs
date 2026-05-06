@@ -1,13 +1,17 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.AspNetCore.Components;
+using InfiniFrame.Blazor;
 
-namespace InfiniFrame.Js;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameJs {
-    Task SetPointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default);
-    Task ReleasePointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default);
+public static class ServiceCollectionExtensions {
+    // ReSharper disable once UnusedMethodReturnValue.Global
+    public static IServiceCollection AddInfiniFrameJs(this IServiceCollection services) {
+        services.AddScoped<IInfiniFrameJs, InfiniFrameJs>();
+        return services;
+    }
 }

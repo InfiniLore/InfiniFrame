@@ -1,11 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Runtime.InteropServices;
-
-namespace InfiniFrame;
+namespace InfiniFrame.BlazorWebView.Utils;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void InvokeCallback();
+public sealed class CallbackTaskCompletionSource<TCallback, TResult>(TCallback callback) : TaskCompletionSource<TResult> {
+    public TCallback Callback { get; } = callback;
+}

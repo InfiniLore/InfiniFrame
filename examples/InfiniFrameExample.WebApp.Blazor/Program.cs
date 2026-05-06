@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Js;
 using InfiniFrame.WebServer;
 using InfiniFrameExample.WebApp.Blazor.Components;
 using Serilog;
