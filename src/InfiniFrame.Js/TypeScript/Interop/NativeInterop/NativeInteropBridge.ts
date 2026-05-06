@@ -15,11 +15,10 @@ import {
 const GetMessageResponseId = "__infiniframe:get:response";
 const GetMessageTimeoutMs = 10_000;
 
-type ReceiveCallback = (message: string) => void;
-const receiveCallbacks = new Set<ReceiveCallback>();
+const receiveCallbacks = new Set<(message: string) => void>();
 let receiveBridgeAttached = false;
 
-export function installHostBridge(): void {
+export function installNativeInteropBridge(): void {
     const root: NonNullable<Window["__infiniframe"]> = window.__infiniframe ?? {};
     const host = (root.host ?? {}) as NonNullable<NonNullable<Window["__infiniframe"]>["host"]>;
     const existingPostData = host.postData;
@@ -243,7 +242,7 @@ function registerWebMessageReceiver(
     attachReceiveBridgeOnce(existingReceiveCallback);
 }
 
-function unregisterWebMessageReceiver(callback: ReceiveCallback): void {
+function unregisterWebMessageReceiver(callback: (message: string) => void): void {
     receiveCallbacks.delete(callback);
 }
 

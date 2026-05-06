@@ -2,35 +2,24 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import InfiniFrame from "./InfiniFrame";
-import {installHostBridge} from "./Interop/NativeHost/HostBridge";
-import {getSetupGuard} from "./Host/setupGuard";
-import {detectPlatform} from "./Host/platform";
-import {attachNativeReceiver, initMessagingBridge} from "./Host/messaging";
-import {initWindowExternalBridge} from "./Host/blazorExternalBridge";
-import {initBlazorModulesFetchPatch} from "./Host/blazorFetchPatch";
-import {initBlazorCustomElementsPatch, initCustomElements} from "./Host/customElements";
+import {installNativeInteropBridge} from "./Interop/NativeInterop/NativeInteropBridge";
+import {getSetupGuard} from "./Interop/NativeInterop/setupGuard";
+import {initWindowExternalBridge} from "./Interop/NativeInterop/blazorExternalBridge";
+import {initBlazorModulesFetchPatch} from "./Interop/NativeInterop/blazorFetchPatch";
+import {initBlazorCustomElementsPatch, initCustomElements} from "./Interop/NativeInterop/customElements";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export {};
-console.log('InfiniFrame WebView JavaScript bridge initialized.');
+console.log("InfiniFrame WebView JavaScript bridge initialized.");
 
 const setup = getSetupGuard();
-const platform = detectPlatform();
 
-if (!setup.messagingBridgeInitialized) {
-    setup.messagingBridgeInitialized = true;
-    initMessagingBridge(platform);
-}
-
-if (!setup.WebviewReceiveAttached) {
-    setup.WebviewReceiveAttached = true;
-    attachNativeReceiver(platform);
-}
+installNativeInteropBridge();
 
 if (!setup.windowExternalBridgeInitialized) {
     setup.windowExternalBridgeInitialized = true;
-    initWindowExternalBridge(platform);
+    initWindowExternalBridge();
 }
 
 if (!setup.blazorModulesFetchPatchInitialized) {
@@ -47,7 +36,5 @@ if (!setup.customElementsInitialized) {
     setup.customElementsInitialized = true;
     initCustomElements();
 }
-
-installHostBridge();
 
 window.infiniframe = new InfiniFrame();

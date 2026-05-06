@@ -7,3 +7,4 @@ export * from "./IInfiniFrame";
 export * from "./IInfiniFrameHostMessaging";
 export * from "./IInfiniFrameUtils";
 export * from "./IInfiniFrameWindow";
+export * from "./NativeInteropContracts";

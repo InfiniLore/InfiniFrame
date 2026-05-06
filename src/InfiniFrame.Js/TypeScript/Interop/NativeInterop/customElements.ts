@@ -1,79 +1,49 @@
-export interface ParameterDefinition {
-    name?: string;
-    type?: string;
-}
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+import {
+    BlazorComponent,
+    BlazorCustomElementAttributeInfo,
+    BlazorCustomElementInitMap,
+    BlazorCustomElementParameterDefinition,
+    PendingBlazorCustomElementRegistration
+} from "../../Contracts";
 
-type InitMap = Record<string, string[]>;
-
-interface AttributeInfo {
-    name: string;
-    type: string;
-}
-
-interface PendingRegistration {
-    defs: Record<string, ParameterDefinition[]>;
-    initMap: InitMap;
-}
-
-declare global {
-    interface Window {
-        registerBlazorCustomElement?: (
-            identifier: string,
-            parameterDefinitions: ParameterDefinition[]
-        ) => void;
-        Blazor?: {
-            rootComponents?: {
-                add: (
-                    element: HTMLElement,
-                    identifier: string,
-                    params: Record<string, unknown>
-                ) => Promise<BlazorComponent>;
-            };
-            _internal?: {
-                attachWebRendererInterop?: (...args: unknown[]) => unknown;
-                __infiniframeAttachWebRendererInteropPatched?: boolean;
-            };
-        };
-    }
-}
-
-interface BlazorComponent {
-    setParameters?: (params: Record<string, unknown>) => Promise<void>;
-    dispose?: () => void | Promise<void>;
-}
-
-// ─── String utilities ────────────────────────────────────────────────────────
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 function toKebabCase(name: string): string {
     return String(name)
-        .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-        .replace(/_/g, '-')
+        .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+        .replace(/_/g, "-")
         .toLowerCase();
 }
 
 function toParameterValue(rawValue: string | null, typeName: string): unknown {
-    if (typeName === 'bool' || typeName === 'boolean') {
+    if (typeName === "bool" || typeName === "boolean") {
         if (rawValue === null) return false;
-        if (rawValue === '') return true;
-        return String(rawValue).toLowerCase() !== 'false';
+        if (rawValue === "") return true;
+        return String(rawValue).toLowerCase() !== "false";
     }
 
-    if (['number', 'int', 'float', 'double', 'decimal'].includes(typeName)) {
-        const n = Number(rawValue);
-        return Number.isNaN(n) ? rawValue : n;
+    if (isNumericType(typeName)) {
+        const value = Number(rawValue);
+        return Number.isNaN(value) ? rawValue : value;
     }
 
     return rawValue;
 }
 
-// ─── Auto-registration queue ─────────────────────────────────────────────────
+function isNumericType(typeName: string): boolean {
+    return ["number", "int", "float", "double", "decimal"].indexOf(typeName) >= 0;
+}
 
-const pendingAutoCustomElementRegistrations: PendingRegistration[] = [];
+const pendingAutoCustomElementRegistrations: PendingBlazorCustomElementRegistration[] = [];
 let autoCustomElementRegistrationScheduled = false;
 
 function scheduleAutoRegisterMissingInitializerCustomElements(
-    defs: Record<string, ParameterDefinition[]>,
-    initMap: InitMap
+    defs: Record<string, BlazorCustomElementParameterDefinition[]>,
+    initMap: BlazorCustomElementInitMap
 ): void {
     if (!defs) return;
 
@@ -89,43 +59,48 @@ function scheduleAutoRegisterMissingInitializerCustomElements(
 }
 
 function flushAutoRegisterMissingInitializerCustomElements(): void {
-    if (typeof window.registerBlazorCustomElement !== 'function') return;
+    if (typeof window.registerBlazorCustomElement !== "function") return;
 
     while (pendingAutoCustomElementRegistrations.length > 0) {
-        const item = pendingAutoCustomElementRegistrations.shift()!;
+        const item = pendingAutoCustomElementRegistrations.shift();
+        if (!item) {
+            return;
+        }
+
         try {
             autoRegisterMissingInitializerCustomElements(item.defs, item.initMap);
-        } catch (e) {
-            console.error(e);
+        } catch (error) {
+            console.error(error);
         }
     }
 }
 
 function autoRegisterMissingInitializerCustomElements(
-    defs: Record<string, ParameterDefinition[]>,
-    initMap: InitMap
+    defs: Record<string, BlazorCustomElementParameterDefinition[]>,
+    initMap: BlazorCustomElementInitMap
 ): void {
     const initialized: Record<string, boolean> = {};
 
-    for (const list of Object.values(initMap ?? {})) {
+    const initMapEntries = initMap ?? {};
+    for (const key of Object.keys(initMapEntries)) {
+        const list = initMapEntries[key];
         if (!Array.isArray(list)) continue;
         for (const id of list) initialized[id] = true;
     }
 
-    for (const [id, def] of Object.entries(defs ?? {})) {
+    const definitions = defs ?? {};
+    for (const id of Object.keys(definitions)) {
         if (initialized[id]) continue;
-        window.registerBlazorCustomElement!(id, def);
+        window.registerBlazorCustomElement!(id, definitions[id]);
     }
 }
-
-// ─── Blazor interop patch ─────────────────────────────────────────────────────
 
 function patchAttachWebRendererInteropIfAvailable(): boolean {
     const blazor = window.Blazor;
 
     if (
         !blazor?._internal ||
-        typeof blazor._internal.attachWebRendererInterop !== 'function'
+        typeof blazor._internal.attachWebRendererInterop !== "function"
     ) {
         return false;
     }
@@ -137,8 +112,8 @@ function patchAttachWebRendererInteropIfAvailable(): boolean {
     blazor._internal.attachWebRendererInterop = function (...args: unknown[]) {
         const result = original.apply(this, args);
         scheduleAutoRegisterMissingInitializerCustomElements(
-            args[2] as Record<string, ParameterDefinition[]>,
-            args[3] as InitMap
+            args[2] as Record<string, BlazorCustomElementParameterDefinition[]>,
+            args[3] as BlazorCustomElementInitMap
         );
         return result;
     };
@@ -149,12 +124,12 @@ function patchAttachWebRendererInteropIfAvailable(): boolean {
 
 export function initBlazorCustomElementsPatch(): void {
     if (!patchAttachWebRendererInteropIfAvailable()) {
-        const descriptor = Object.getOwnPropertyDescriptor(window, 'Blazor');
+        const descriptor = Object.getOwnPropertyDescriptor(window, "Blazor");
 
         if (!descriptor || descriptor.configurable) {
             let value = window.Blazor;
 
-            Object.defineProperty(window, 'Blazor', {
+            Object.defineProperty(window, "Blazor", {
                 configurable: true,
                 enumerable: true,
                 get: () => value,
@@ -164,29 +139,29 @@ export function initBlazorCustomElementsPatch(): void {
                 },
             });
 
-            if (value) patchAttachWebRendererInteropIfAvailable();
+            if (value) {
+                patchAttachWebRendererInteropIfAvailable();
+            }
         }
     }
 }
 
-// ─── Custom element registry ──────────────────────────────────────────────────
-
 export function initCustomElements(): void {
     window.registerBlazorCustomElement = function (
         identifier: string,
-        parameterDefinitions: ParameterDefinition[]
+        parameterDefinitions: BlazorCustomElementParameterDefinition[]
     ): void {
         if (!window.Blazor?.rootComponents?.add) return;
         if (!window.customElements?.define) return;
         if (window.customElements.get(identifier)) return;
 
         const defs = Array.isArray(parameterDefinitions) ? parameterDefinitions : [];
-        const map: Record<string, AttributeInfo> = {};
+        const map: Record<string, BlazorCustomElementAttributeInfo> = {};
 
         for (const def of defs) {
             if (!def?.name) continue;
-            const type = String(def.type ?? '').toLowerCase();
-            if (type === 'eventcallback') continue;
+            const type = String(def.type ?? "").toLowerCase();
+            if (type === "eventcallback") continue;
 
             const attr = toKebabCase(def.name);
             map[attr] = { name: def.name, type };

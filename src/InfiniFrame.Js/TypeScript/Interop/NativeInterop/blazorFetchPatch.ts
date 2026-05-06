@@ -1,8 +1,11 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 const BLAZOR_MODULES_URLS = new Set([
-    'http://localhost/_framework/blazor.modules.json',
-    'http://localhost/_framework/blazor.modules.json/',
-    'app://localhost/_framework/blazor.modules.json',
-    'app://localhost/_framework/blazor.modules.json/',
+    "http://localhost/_framework/blazor.modules.json",
+    "http://localhost/_framework/blazor.modules.json/",
+    "app://localhost/_framework/blazor.modules.json",
+    "app://localhost/_framework/blazor.modules.json/",
 ]);
 
 export function initBlazorModulesFetchPatch(): void {
@@ -11,21 +14,21 @@ export function initBlazorModulesFetchPatch(): void {
     window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         try {
             const requestUrl =
-                typeof input === 'string'
+                typeof input === "string"
                     ? input
                     : input instanceof URL
                     ? input.href
-                    : (input as Request).url ?? '';
+                    : (input as Request).url ?? "";
 
             if (requestUrl) {
                 const absoluteUrl = new URL(requestUrl, window.location.href).href;
 
                 if (BLAZOR_MODULES_URLS.has(absoluteUrl)) {
                     return Promise.resolve(
-                        new Response('[]', {
+                        new Response("[]", {
                             status: 200,
-                            statusText: 'OK',
-                            headers: { 'Content-Type': 'application/json' },
+                            statusText: "OK",
+                            headers: { "Content-Type": "application/json" },
                         })
                     );
                 }

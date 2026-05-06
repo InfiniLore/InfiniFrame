@@ -2,46 +2,29 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {installHostBridge} from "./HostBridge";
+import {installNativeInteropBridge} from "./NativeInteropBridge";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-type TestWindow = Window & {
-    __infiniframe?: {
-        host?: {
-            postData?: (message: unknown) => void;
-            receiveCallback?: (callback: (message: string) => void) => void;
-        };
-    };
-    chrome?: {
-        webview?: {
-            postMessage: (message: string) => void;
-            addEventListener: (type: "message", listener: (event: { data: string }) => void) => void;
-        };
-    };
-};
-
-describe("HostBridge", () => {
-    const testWindow = window as TestWindow;
-
+describe("NativeInteropBridge", () => {
     beforeEach(() => {
-        delete testWindow.__infiniframe;
-        delete testWindow.chrome;
+        delete window.__infiniframe;
+        delete window.chrome;
         vi.restoreAllMocks();
     });
 
     it("normalizes object envelopes to string for existing postData handlers", () => {
         const existingPostData = vi.fn();
-        testWindow.__infiniframe = {
+        window.__infiniframe = {
             host: {
                 postData: existingPostData,
                 receiveCallback: vi.fn()
             }
         };
 
-        installHostBridge();
-        testWindow.__infiniframe!.host!.postData!({id: "ping", command: "Post", data: "hello", version: 2});
+        installNativeInteropBridge();
+        window.__infiniframe!.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(existingPostData).toHaveBeenCalledTimes(1);
         expect(existingPostData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"command\":\"Post\",\"data\":\"hello\",\"version\":2}");
@@ -51,15 +34,15 @@ describe("HostBridge", () => {
         const existingPostData = vi.fn((payload: unknown) => {
             if (typeof payload === "string") throw new Error("String payloads not supported.");
         });
-        testWindow.__infiniframe = {
+        window.__infiniframe = {
             host: {
                 postData: existingPostData,
                 receiveCallback: vi.fn()
             }
         };
 
-        installHostBridge();
-        testWindow.__infiniframe!.host!.postData!({id: "ping", command: "Post", data: "hello", version: 2});
+        installNativeInteropBridge();
+        window.__infiniframe!.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(existingPostData).toHaveBeenCalledTimes(2);
         expect(typeof existingPostData.mock.calls[0][0]).toBe("string");
@@ -68,15 +51,15 @@ describe("HostBridge", () => {
 
     it("uses platform transport when no existing bridge callback exists", () => {
         const postData = vi.fn();
-        testWindow.chrome = {
+        window.chrome = {
             webview: {
                 postMessage: postData,
                 addEventListener: vi.fn()
             }
         };
 
-        installHostBridge();
-        testWindow.__infiniframe!.host!.postData!({id: "ping", command: "Post", data: "hello", version: 2});
+        installNativeInteropBridge();
+        window.__infiniframe!.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(postData).toHaveBeenCalledTimes(1);
         expect(postData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"command\":\"Post\",\"data\":\"hello\",\"version\":2}");
