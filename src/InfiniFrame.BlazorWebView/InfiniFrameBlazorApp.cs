@@ -14,7 +14,7 @@ public class InfiniFrameBlazorApp(
     IInfiniFrameRootComponentList rootComponents,
     IInfiniFrameJsComponentConfiguration? rootComponentConfiguration = null,
     IDisposable? unhandledExceptionRegistration = null
-) : IAsyncDisposable {
+) : IInfiniFrameBlazorApp {
 
     private bool _disposed;
     public IServiceProvider ServiceProvider { get; } = provider;
