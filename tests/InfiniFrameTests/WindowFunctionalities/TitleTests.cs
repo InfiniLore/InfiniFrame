@@ -26,11 +26,11 @@ public class TitleTests {
         builder.SetTitle(title);
 
         // Assert
-        if (title is null) await Assert.That(builder.Configuration.Title).IsEqualTo(string.Empty);
+        if (title is null) await Assert.That(builder.Configuration.Title).IsNull();
         else await Assert.That(builder.Configuration.Title).IsEqualTo(title);
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
-        if (title is null) await Assert.That(configParameters.Title).IsEqualTo(string.Empty);
+        if (title is null) await Assert.That(configParameters.Title).IsNull();
         else await Assert.That(configParameters.Title).IsEqualTo(title);
     }
 
@@ -53,7 +53,7 @@ public class TitleTests {
         window.SetTitle(title);
 
         // Assert
-        if (title is null) await Assert.That(window.Title).IsEmpty();
+        if (title is null) await Assert.That(window.Title).IsNull();
         else await Assert.That(window.Title).IsEqualTo(title);
     }
 
@@ -78,7 +78,7 @@ public class TitleTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        if (title is null) await Assert.That(window.Title).IsEmpty();
+        if (title is null) await Assert.That(window.Title).IsNull();
         else await Assert.That(window.Title).IsEqualTo(title);
     }
 
