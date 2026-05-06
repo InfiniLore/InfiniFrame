@@ -2,11 +2,11 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Js.Interop;
+using InfiniFrame.Interop;
 using InfiniFrame.Native;
 using InfiniFrameTests.Shared.TestDoubles;
 
-namespace InfiniFrameTests.Js;
+namespace InfiniFrameTests.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame</PackageId>
@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="InfiniFrameTests.Shared"/>
         <InternalsVisibleTo Include="InfiniFrameTests"/>
         <InternalsVisibleTo Include="InfiniFrameTests.Playwright"/>
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>

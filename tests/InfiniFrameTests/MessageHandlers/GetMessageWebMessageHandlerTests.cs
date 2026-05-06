@@ -3,14 +3,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Interop;
-using InfiniFrame.Js;
-using InfiniFrame.Js.Interop;
 using InfiniFrame.Native;
 using InfiniFrameTests.Shared.TestDoubles;
 using NSubstitute;
 using System.Text.Json;
 
-namespace InfiniFrameTests.Js;
+namespace InfiniFrameTests.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,7 +23,7 @@ public class GetMessageWebMessageHandlerTests {
         window.Window.Title.Returns("Native Test Title");
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
-            HandlerNames.GetRequest,
+            JsHandlerNames.GetRequest,
             "{\"command\":\"title\"}",
             InteropEnvelopeProtocol.GetCommand,
             "req-standard-get-1"
@@ -156,7 +154,7 @@ public class GetMessageWebMessageHandlerTests {
             .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
             .LastOrDefault(r =>
                 r.IsSuccess &&
-                r.MessageId == HandlerNames.GetResponse
+                r.MessageId == JsHandlerNames.GetResponse
             );
 
         Fail.When(!responseEnvelope.IsSuccess, "Expected a valid getMessage response envelope.");

@@ -1,32 +1,28 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Js;
-using InfiniFrame.Js.Interop;
+using InfiniFrame.Interop;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class FullscreenWebMessageHandler {
-    public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
+public static class WindowManagementWebMessageHandler {
+    public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(
-            HandlerNames.FullscreenEnter,
-            (window, _) => window.SetFullScreen(true)
-        );
-        
-        builder.RegisterWebMessagePostHandler(
-            HandlerNames.FullscreenExit,
-            (window, _) => window.SetFullScreen(false)
-        );
-        
-        builder.RegisterWebMessagePostHandler(
-            HandlerNames.FullscreenToggle,
-            (window, _) => window.SetFullScreen(!window.FullScreen)
-        );
+            JsHandlerNames.WindowMinimize,
+            (window, _) => window.SetMinimized(true));
 
-        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterFullScreenChange);
+        builder.RegisterWebMessagePostHandler(
+            JsHandlerNames.WindowMaximize,
+            (window, _) => window.SetMaximized(true));
+
+        builder.RegisterWebMessagePostHandler(
+            JsHandlerNames.WindowClose,
+            (window, _) => window.Close());
+
+        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, JsHandlerNames.RegisterWindowClose);
         return builder;
     }
 }

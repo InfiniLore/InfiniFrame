@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Js;
+using InfiniFrame.Interop;
 using System.Globalization;
 using System.Text.Json;
 
@@ -12,7 +12,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class GetWebMessageHandler {
     public static T RegisterGetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.RegisterWebMessageGetHandler(HandlerNames.GetRequest, HandleGetRequest);
+        builder.RegisterWebMessageGetHandler(JsHandlerNames.GetRequest, HandleGetRequest);
         return builder;
     }
 

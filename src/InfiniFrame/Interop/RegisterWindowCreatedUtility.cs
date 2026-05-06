@@ -5,7 +5,7 @@ using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
-namespace InfiniFrame.Js.Interop;
+namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ public static class RegisterWindowCreatedUtility {
             state.ReadyHandlerRegistered = true;
         }
 
-        builder.RegisterWebMessagePostHandler(HandlerNames.WindowReady, handler: (window, payload) => {
+        builder.RegisterWebMessagePostHandler(JsHandlerNames.WindowReady, handler: (window, payload) => {
             WindowRegistrationState windowState;
             string[] registrationMessages;
             lock (state.Lock) {
@@ -59,7 +59,7 @@ public static class RegisterWindowCreatedUtility {
 
             window.Logger.LogDebug(
                 "Received '{ReadyMessageId}' handshake. Sending {RegistrationCount} registration messages before acknowledgement.",
-                HandlerNames.WindowReady,
+                JsHandlerNames.WindowReady,
                 registrationMessages.Length
             );
 
@@ -93,8 +93,8 @@ public static class RegisterWindowCreatedUtility {
             await window.SendWebMessageAsync(envelope);
         }
 
-        await window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.WindowReadyAck));
-        window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", HandlerNames.WindowReadyAck);
+        await window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowReadyAck));
+        window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", JsHandlerNames.WindowReadyAck);
         return true;
     }
 }

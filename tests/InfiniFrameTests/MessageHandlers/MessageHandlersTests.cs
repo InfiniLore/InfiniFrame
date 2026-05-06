@@ -2,14 +2,13 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Js;
-using InfiniFrame.Js.Interop;
+using InfiniFrame.Interop;
 using InfiniFrame.Native;
 using InfiniFrameTests.Shared.TestDoubles;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace InfiniFrameTests.Js;
+namespace InfiniFrameTests.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -21,7 +20,7 @@ public class MessageHandlersTests {
         builder.RegisterWindowManagementWebMessageHandler();
 
         // Act
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.WindowClose));
+        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowClose));
 
         // Assert
         int closeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Close));
@@ -36,11 +35,11 @@ public class MessageHandlersTests {
 
         // Act
         events.OnWindowCreated();
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.WindowReady));
+        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowReady));
         await Task.Delay(150);
 
         // Assert
-        int registrationCount = window.CountEnvelopeMessagesById(HandlerNames.RegisterWindowClose);
+        int registrationCount = window.CountEnvelopeMessagesById(JsHandlerNames.RegisterWindowClose);
         await Assert.That(registrationCount).IsEqualTo(1);
     }
 
@@ -51,7 +50,7 @@ public class MessageHandlersTests {
         builder.RegisterFullScreenWebMessageHandler();
 
         // Act
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.FullscreenToggle));
+        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.FullscreenToggle));
 
         // Assert
         int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Invoke));
@@ -65,7 +64,7 @@ public class MessageHandlersTests {
         builder.RegisterTitleChangedWebMessageHandler();
 
         // Act
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.TitleChanged, "new title"));
+        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.TitleChanged, "new title"));
 
         // Assert
         int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Invoke));
@@ -79,7 +78,7 @@ public class MessageHandlersTests {
         builder.RegisterTitleChangedWebMessageHandler();
 
         // Act
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.TitleChanged));
+        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.TitleChanged));
 
         // Assert
         int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Invoke));
@@ -95,7 +94,7 @@ public class MessageHandlersTests {
         builder.RegisterOpenExternalTargetWebMessageHandler();
 
         // Act
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.OpenExternal, "not-a-valid-url"));
+        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.OpenExternal, "not-a-valid-url"));
 
         // Assert
         bool warningLogged = logger.ReceivedCalls().Any(call =>
@@ -121,7 +120,7 @@ public class MessageHandlersTests {
         builder.RegisterOpenExternalTargetWebMessageHandler();
 
         // Act
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(HandlerNames.OpenExternal, "https://example.com"));
+        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.OpenExternal, "https://example.com"));
 
         // Assert
         bool warningLogged = logger.ReceivedCalls().Any(call =>

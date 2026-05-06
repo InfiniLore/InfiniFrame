@@ -1,8 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Js;
-using InfiniFrame.Js.Interop;
+using InfiniFrame.Interop;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -17,8 +16,8 @@ public static class OpenExternalTargetWebMessageHandler {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.RegisterWebMessagePostHandler(HandlerNames.OpenExternal, HandleWebMessage);
-        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterOpenExternal);
+        builder.RegisterWebMessagePostHandler(JsHandlerNames.OpenExternal, HandleWebMessage);
+        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, JsHandlerNames.RegisterOpenExternal);
         return builder;
     }
 

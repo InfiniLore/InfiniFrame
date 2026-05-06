@@ -1,29 +1,31 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Js;
-using InfiniFrame.Js.Interop;
+using InfiniFrame.Interop;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class WindowManagementWebMessageHandler {
-    public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
+public static class FullscreenWebMessageHandler {
+    public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(
-            HandlerNames.WindowMinimize,
-            (window, _) => window.SetMinimized(true));
-
+            JsHandlerNames.FullscreenEnter,
+            (window, _) => window.SetFullScreen(true)
+        );
+        
         builder.RegisterWebMessagePostHandler(
-            HandlerNames.WindowMaximize,
-            (window, _) => window.SetMaximized(true));
-
+            JsHandlerNames.FullscreenExit,
+            (window, _) => window.SetFullScreen(false)
+        );
+        
         builder.RegisterWebMessagePostHandler(
-            HandlerNames.WindowClose,
-            (window, _) => window.Close());
+            JsHandlerNames.FullscreenToggle,
+            (window, _) => window.SetFullScreen(!window.FullScreen)
+        );
 
-        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterWindowClose);
+        RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, JsHandlerNames.RegisterFullScreenChange);
         return builder;
     }
 }

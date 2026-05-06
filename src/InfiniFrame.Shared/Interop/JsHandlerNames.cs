@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Js;
+namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class HandlerNames {
+public static class JsHandlerNames {
     private const string InfiniFramePrefix = "__infiniframe";
 
     internal const string FullscreenEnter = $"{InfiniFramePrefix}:fullscreen:enter";

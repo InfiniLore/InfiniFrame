@@ -1262,7 +1262,7 @@ void InfiniFrameWindow::AttachWebView() {
                             }
                             m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
 
-                            const auto js_wide = Embedded::InfiniFrameHostJsUtf16();
+                            const auto js_wide = Embedded::InfiniFrameJsUtf16();
                             OutputDebugStringW(std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js_wide.size()).c_str());
 
                             // AddScriptToExecuteOnDocumentCreated is async: the script is not
