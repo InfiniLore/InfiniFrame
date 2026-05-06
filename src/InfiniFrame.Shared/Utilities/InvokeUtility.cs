@@ -16,7 +16,7 @@ namespace InfiniFrame.Utilities;
 ///         a synchronization primitive (e.g. <see cref="System.Threading.ManualResetEventSlim" />).
 ///     </para>
 /// </summary>
-internal static class InvokeUtilities {
+internal static class InvokeUtility {
     public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IInfiniFrameWindow, T> callback) {
         T? value = default;
         // ReSharper disable once RedundantAssignment

@@ -4,6 +4,7 @@
 using InfiniFrame.Interop;
 using InfiniFrame.Js;
 using InfiniFrame.Js.Interop;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -75,7 +76,7 @@ public partial class InfiniFrameEvents {
                         );
                     }
                 }
-                catch (Exception ex) when (IsNonFatalException(ex)) {
+                catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                     Sender.Logger.LogError(
                         ex,
                         "Unhandled exception while processing postMessage '{MessageId}'",
@@ -95,7 +96,7 @@ public partial class InfiniFrameEvents {
 
                     SendSuccess(Sender, parseResult.RequestId, response);
                 }
-                catch (Exception ex) when (IsNonFatalException(ex)) {
+                catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                     Sender.Logger.LogError(
                         ex,
                         "Unhandled exception while processing getMessage '{MessageId}'",
@@ -121,9 +122,6 @@ public partial class InfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------------------------------------------------------
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 
     private static void SendSuccess(IInfiniFrameWindow window, string? requestId, string? data) {
         string responsePayloadJson = JsonSerializer.Serialize(

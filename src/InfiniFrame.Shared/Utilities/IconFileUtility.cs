@@ -7,7 +7,7 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class IconFileUtilities {
+internal static class IconFileUtility {
     public static bool TryResolveIconFilePath(
         string? filePath,
         [NotNullWhen(true)] out string? resolvedFilePath,

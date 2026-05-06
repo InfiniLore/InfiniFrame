@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Utilities;
 using InfiniFrame.WebServer;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
@@ -65,7 +66,7 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
 
                 app.WebApp.StopAsync(cancellationToken).GetAwaiter().GetResult();
             }
-            catch (Exception ex) when (IsNonFatalException(ex)) {
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 ready.TrySetException(ex);
             }
         }) {
@@ -115,7 +116,4 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
             _thread.Interrupt();
         }
     }
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 }

@@ -25,7 +25,7 @@ public class IconFileUtilitiesTests {
 
         // Act
         try {
-            found = IconFileUtilities.TryResolveIconFilePath(relativePath, out resolved, baseDirectory);
+            found = IconFileUtility.TryResolveIconFilePath(relativePath, out resolved, baseDirectory);
         }
         finally {
             Directory.Delete(baseDirectory, true);
@@ -46,7 +46,7 @@ public class IconFileUtilitiesTests {
         bool found;
         string? resolved;
         try {
-            found = IconFileUtilities.TryResolveIconFilePath("missing.ico", out resolved, baseDirectory);
+            found = IconFileUtility.TryResolveIconFilePath("missing.ico", out resolved, baseDirectory);
         }
         finally {
             Directory.Delete(baseDirectory, true);

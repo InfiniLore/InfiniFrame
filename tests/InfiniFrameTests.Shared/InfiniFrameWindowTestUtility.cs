@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Utilities;
 using JetBrains.Annotations;
 using System.Runtime.Versioning;
 
@@ -88,7 +89,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
                 windowSource.SetResult(window);
                 window.WaitForClose();
             }
-            catch (Exception ex) when (IsNonFatalException(ex)) {
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 windowSource.TrySetException(ex);
             }
         }) {
@@ -170,7 +171,4 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
             // ignored
         }
     }
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 }

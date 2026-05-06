@@ -5,6 +5,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView.Utils;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniFrame.BlazorWebView;
@@ -45,7 +46,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
             catch (OperationCanceledException) {
                 completion.SetCanceled();
             }
-            catch (Exception exception) when (IsNonFatalException(exception)) {
+            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                 completion.SetException(exception);
             }
         }, completion);
@@ -66,7 +67,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
             catch (OperationCanceledException) {
                 completion.SetCanceled();
             }
-            catch (Exception exception) when (IsNonFatalException(exception)) {
+            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                 completion.SetException(exception);
             }
         }, completion);
@@ -86,7 +87,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
             catch (OperationCanceledException) {
                 completion.SetCanceled();
             }
-            catch (Exception exception) when (IsNonFatalException(exception)) {
+            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                 completion.SetException(exception);
             }
         }, completion);
@@ -107,7 +108,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
             catch (OperationCanceledException) {
                 completion.SetCanceled();
             }
-            catch (Exception exception) when (IsNonFatalException(exception)) {
+            catch (Exception exception) when (ExceptionsUtility.IsNonFatalException(exception)) {
                 completion.SetException(exception);
             }
         }, completion);
@@ -232,7 +233,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
             try {
                 ExecuteSynchronously(null, item.Callback, item.StateObject);
             }
-            catch (Exception ex) when (IsNonFatalException(ex)) {
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 DispatchException(ex);
             }
 
@@ -243,7 +244,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         try {
             ExecutionContext.Run(item.ExecutionContext, ExecutionContextThunk, item);
         }
-        catch (Exception ex) when (IsNonFatalException(ex)) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             DispatchException(ex);
         }
     }
@@ -252,7 +253,4 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         UnhandledExceptionEventHandler? handler = UnhandledException;
         handler?.Invoke(this, new UnhandledExceptionEventArgs(ex, false));
     }
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 }

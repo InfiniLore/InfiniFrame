@@ -42,7 +42,7 @@ internal static class Program {
             Log.Error(ex, "ERROR: {Message}", ex.Message);
             return ExitCodes.NativeDependencyMissing;
         }
-        catch (Exception ex) when (IsNonFatalException(ex)) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             Log.Error(ex, "ERROR: {Message}", ex.Message);
             return ExitCodes.GenericFailure;
         }
@@ -50,7 +50,4 @@ internal static class Program {
             await Log.CloseAndFlushAsync();
         }
     }
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 }
