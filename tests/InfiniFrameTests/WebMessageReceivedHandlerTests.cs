@@ -42,7 +42,8 @@ public class WebMessageReceivedHandlerTests {
             ServiceProvider =  new TestServiceProvider(service),
             Parent = null,
             Events = events,
-            Configuration = Substitute.For<IInfiniFrameOptions>()
+            Configuration = Substitute.For<IInfiniFrameOptions>(),
+            StaticAssets = null,
         };
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
@@ -74,7 +75,8 @@ public class WebMessageReceivedHandlerTests {
             ServiceProvider = null,
             Parent = null,
             Events = new InfiniFrameWindowEvents(eventsStore),
-            Configuration = Substitute.For<IInfiniFrameOptions>()
+            Configuration = Substitute.For<IInfiniFrameOptions>(),
+            StaticAssets = null,
         };
 
         var tcs = new TaskCompletionSource<string?>();

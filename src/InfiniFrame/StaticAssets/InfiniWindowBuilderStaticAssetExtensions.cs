@@ -40,7 +40,7 @@ public static class InfiniWindowBuilderStaticAssetExtensions {
                 $"Expected embedded naming like '{assemblyName}.wwwroot.{normalizedDefaultDocument.Replace('/', '.')}'.");
         }
 
-        builder.StaticAssets = new StaticAssetSettings {
+        builder.StaticAssets = new InfiniFrameStaticAssets {
             FileProvider = provider,
             BaseUri = baseUri,
             DefaultDocument = normalizedDefaultDocument

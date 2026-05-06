@@ -1,11 +1,16 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.BuilderSnapshots;
+using Microsoft.Extensions.FileProviders;
+
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal readonly record struct InfiniFrameWindowMessageHandlersSnapshot(
-    KeyValuePair<string, Action<IInfiniFrameWindow, string?>>[] PostDataHandlers,
-    KeyValuePair<string, Func<IInfiniFrameWindow, string?, string?>>[] GetDataHandlers
-);
+public interface IInfiniFrameStaticAssets {
+    IFileProvider FileProvider { get; }
+    string BaseUri { get; }
+    string DefaultDocument { get; }
+
+    IInfiniFrameStaticAssets DeepCopy();
+}

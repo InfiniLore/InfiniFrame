@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +17,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public IInfiniFrameOptionsBuilder Configuration { get; } = new InfiniFrameOptionsBuilder();
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
     
-    public StaticAssetSettings? StaticAssets { get; set; }
+    public IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -38,7 +37,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         // ReSharper disable once UseDeconstruction
-        InfiniFrameWindowBuildSnapshot snapshot = CreateSnapshot(provider);
+        InfiniFrameWindowBuilderSnapshot snapshot = CreateSnapshot(provider);
         
         InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
         var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
@@ -88,8 +87,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             ?? FallbackLogger;
     }
 
-    internal InfiniFrameWindowBuildSnapshot CreateSnapshot(IServiceProvider? provider = null) {
-        return new InfiniFrameWindowBuildSnapshot(
+    internal InfiniFrameWindowBuilderSnapshot CreateSnapshot(IServiceProvider? provider = null) {
+        return new InfiniFrameWindowBuilderSnapshot(
             GetNativeParameters(provider),
             EventsStore.DeepCopy(),
             StaticAssets?.DeepCopy(),

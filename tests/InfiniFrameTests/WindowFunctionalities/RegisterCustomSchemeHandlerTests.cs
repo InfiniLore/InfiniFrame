@@ -5,7 +5,6 @@ using InfiniFrame;
 using InfiniFrameTests.Shared;
 using InfiniFrameTests.Shared.TestDoubles;
 using System.Runtime.InteropServices;
-using InfiniFrame.BuilderSnapshots;
 using InfiniFrame.Native;
 
 namespace InfiniFrameTests.WindowFunctionalities;
@@ -24,7 +23,7 @@ public class RegisterCustomSchemeHandlerTests {
 
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
         var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
         IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
@@ -48,7 +47,7 @@ public class RegisterCustomSchemeHandlerTests {
         for (int i = 0; i < 100; i++) {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
         var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
         IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;

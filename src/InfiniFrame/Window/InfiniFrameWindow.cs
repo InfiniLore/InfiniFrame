@@ -20,12 +20,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     private int _shutdownRequested;
     private int _shutdownStarted;
-    internal StaticAssetSettings? StaticAssets { get; init; }
+
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
     public required IInfiniFrameWindow? Parent { get; init; }
     public required IInfiniFrameEvents Events { get; init; }
     public required IInfiniFrameOptions Configuration { get; init; }
+    public IInfiniFrameStaticAssets? StaticAssets { get; init; }
+    
     public IInfiniFrameEventsStore EventsStore => Events.EventsStore;
     
     public IntPtr NativeType => WindowType.Value;

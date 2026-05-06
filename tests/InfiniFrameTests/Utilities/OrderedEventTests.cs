@@ -20,7 +20,8 @@ public class OrderedEventTests {
             ServiceProvider = null,
             Parent = null,
             Events = events,
-            Configuration = Substitute.For<IInfiniFrameOptions>()
+            Configuration = Substitute.For<IInfiniFrameOptions>(),
+            StaticAssets = null,
         };
         var nativeParameters = default(InfiniFrameNativeParameters);    
         
