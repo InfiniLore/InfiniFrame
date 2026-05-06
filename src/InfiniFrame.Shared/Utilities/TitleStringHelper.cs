@@ -7,13 +7,13 @@ namespace InfiniFrame.Utilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class TitleStringHelper {
-    internal const string DefaultTitle = "InfiniFrame";
+    public const string DefaultTitle = "InfiniFrame";
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public static string Validate(string? title, bool limitLinuxLength) {
-        if (string.IsNullOrWhiteSpace(title)) return DefaultTitle;
+    public static string? Validate(string? title, bool limitLinuxLength) {
+        if (string.IsNullOrWhiteSpace(title)) return title;
         string newTitle = title.Trim();
 
         if (limitLinuxLength && OperatingSystem.IsLinux() && newTitle.Length > 31)

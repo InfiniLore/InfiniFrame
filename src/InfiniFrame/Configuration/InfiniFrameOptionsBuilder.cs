@@ -41,8 +41,8 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     public string? StartUrl { get; set; }
     public string? TemporaryFilesPath { get; set; } = Path.Join(Path.GetTempPath(), "infiniframe");
     
-    private string _title = TitleStringHelper.DefaultTitle;
-    public string Title {
+    private string? _title = TitleStringHelper.DefaultTitle;
+    public string? Title {
         get => _title;
         set => _title = TitleStringHelper.Validate(value, LimitLinuxWindowTitleLength);
     }

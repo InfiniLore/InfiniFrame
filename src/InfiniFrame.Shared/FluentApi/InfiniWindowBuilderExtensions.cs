@@ -291,7 +291,7 @@ public static class InfiniWindowBuilderExtensions {
     ///     Sets Title on the browser control at initialization.
     /// </summary>
     public static T SetTitle<T>(this T builder, string? title) where T : IInfiniFrameWindowBuilder {
-        builder.Configuration.Title = title ?? string.Empty;
+        builder.Configuration.Title = title;
         return builder;
     }
 

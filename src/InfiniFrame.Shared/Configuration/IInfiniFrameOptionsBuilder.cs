@@ -42,7 +42,7 @@ public interface IInfiniFrameOptionsBuilder {
     string? StartString { get; set; }
     string? TemporaryFilesPath { get; set; }
     string? NotificationRegistrationId { get; set; }
-    string Title { get; set; }
+    string? Title { get; set; }
     bool TopMost { get; set; }
     bool UseOsDefaultLocation { get; set; }
     bool UseOsDefaultSize { get; set; }
