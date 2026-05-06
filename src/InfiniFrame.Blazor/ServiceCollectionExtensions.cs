@@ -1,8 +1,17 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame;
+using InfiniFrame.Blazor;
+
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public delegate bool NetCustomSchemeDelegate(IInfiniFrameWindow sender, string url, out (Stream? Data, string? contentType) contentType);
+public static class ServiceCollectionExtensions {
+    // ReSharper disable once UnusedMethodReturnValue.Global
+    public static IServiceCollection AddInfiniFrameJs(this IServiceCollection services) {
+        services.AddScoped<IInfiniFrameJs, InfiniFrameJs>();
+        return services;
+    }
+}

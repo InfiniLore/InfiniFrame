@@ -1,8 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Js;
-
 namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -34,7 +32,7 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
 
         if (startUrl is not null) WindowBuilder.SetStartUrl(startUrl);
 
-        this.AddInfiniFrameJs();
+        WindowBuilder.RegisterGetWebMessageHandler();
         
         return this;
     }

@@ -1,11 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Components;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-internal delegate void InvokeCallback();
+public interface IInfiniFrameJs {
+    Task SetPointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default);
+    Task ReleasePointerCaptureAsync(ElementReference elementReference, long pointerId, CancellationToken ct = default);
+}
