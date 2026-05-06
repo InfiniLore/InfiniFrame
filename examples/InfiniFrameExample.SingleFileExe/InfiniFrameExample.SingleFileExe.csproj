@@ -8,21 +8,21 @@
         <InfiniFramePackAfterBuild>true</InfiniFramePackAfterBuild>
         <InfiniFramePackRid>auto</InfiniFramePackRid>
         <InfiniFramePackSelfContained>true</InfiniFramePackSelfContained>
-        <InfiniFramePackRepoProject>$(MSBuildThisFileDirectory)..\..\src\InfiniFrame.Tools.Pack\InfiniFrame.Tools.Pack.csproj</InfiniFramePackRepoProject>
+        <InfiniFramePackRepoProject>$(MSBuildThisFileDirectory)../../src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj</InfiniFramePackRepoProject>
         <InfiniFramePackCommand Condition="'$(InfiniFramePackCommand)'=='' and '$(CI)'!='true' and Exists('$(InfiniFramePackRepoProject)')">dotnet run --project &quot;$(InfiniFramePackRepoProject)&quot; --</InfiniFramePackCommand>
-        <InfiniFramePackCommand Condition="'$(InfiniFramePackCommand)'=='' and Exists('$(UserProfile)\.dotnet\tools\infiniframe-pack.exe')">&quot;$(UserProfile)\.dotnet\tools\infiniframe-pack.exe&quot;</InfiniFramePackCommand>
+        <InfiniFramePackCommand Condition="'$(InfiniFramePackCommand)'=='' and Exists('$(UserProfile)/.dotnet/tools/infiniframe-pack.exe')">&quot;$(UserProfile)/.dotnet/tools/infiniframe-pack.exe&quot;</InfiniFramePackCommand>
         <InfiniFramePackCommand Condition="'$(InfiniFramePackCommand)'==''">infiniframe-pack</InfiniFramePackCommand>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="bin\$(Configuration)\$(TargetFramework)\**\publish\$(AssemblyName).exe;
-                       bin\$(Configuration)\$(TargetFramework)\**\publish\$(AssemblyName)"
+        <None Include="bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName).exe;
+                       bin/$(Configuration)/$(TargetFramework)/**/publish/$(AssemblyName)"
               Visible="true">
-            <Link>builds\$(Configuration)\$(TargetFramework)\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Link>builds/$(Configuration)/$(TargetFramework)/%(RecursiveDir)%(Filename)%(Extension)</Link>
         </None>
     </ItemGroup>
 

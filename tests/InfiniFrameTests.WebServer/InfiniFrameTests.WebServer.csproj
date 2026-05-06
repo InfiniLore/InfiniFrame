@@ -10,14 +10,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
-        <ProjectReference Include="..\..\src\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
-        <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\..\assets\favicon.ico">
-            <Link>Assets\favicon.ico</Link>
+        <Content Include="../../assets/favicon.ico">
+            <Link>Assets/favicon.ico</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

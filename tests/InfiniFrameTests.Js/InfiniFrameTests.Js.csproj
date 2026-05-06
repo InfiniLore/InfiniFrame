@@ -9,14 +9,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniFrame.Js\InfiniFrame.Js.csproj" />
-        <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
-        <ProjectReference Include="..\InfiniFrameTests.Shared\InfiniFrameTests.Shared.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj" />
+        <ProjectReference Include="../InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\..\src\InfiniFrame.Js\TypeScript\Interop\EnvelopeProtocol\interop-envelope-golden-vectors.json">
-            <Link>TypeScript\Interop\interop-envelope-golden-vectors.json</Link>
+        <Content Include="../../src/InfiniFrame.Js/TypeScript/Interop/EnvelopeProtocol/interop-envelope-golden-vectors.json">
+            <Link>TypeScript/Interop/interop-envelope-golden-vectors.json</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

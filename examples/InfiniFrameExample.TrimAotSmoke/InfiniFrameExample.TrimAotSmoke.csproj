@@ -12,11 +12,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniFrame\InfiniFrame.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="wwwroot\**\*.*"
+        <EmbeddedResource Include="wwwroot/**/*.*"
                           LogicalName="$(AssemblyName).wwwroot.%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 </Project>

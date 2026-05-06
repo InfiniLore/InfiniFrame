@@ -5,12 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniFrame.Blazor\InfiniFrame.Blazor.csproj" />
-        <ProjectReference Include="..\..\src\InfiniFrame.WebServer\InfiniFrame.WebServer.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Update="wwwroot\**">
+        <Content Update="wwwroot/**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
