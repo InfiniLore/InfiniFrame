@@ -178,7 +178,7 @@ dotnet tool run infiniframe-pack publish src/MyApp/MyApp.csproj --rid win-x64
 
 ### Migration
 
-- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/migration/breaking-changes-from-photino) —
+- [Breaking Changes vs Photino.NET](https://docs.infiniframe.dev/migration/photino-breaking-changes) —
   API, namespace, event system, and behavioral differences from the original Photino projects
 
 ### Build Docs Locally

@@ -61,7 +61,7 @@
     <File Path=".github/workflows/ci-release.yml" />
     <File Path=".github/workflows/ci-testing-python.yml" />
     <File Path=".github/workflows/ci-todo.yml" />
-    <File Path=".github/workflows/codeql.yml" />
+    <File Path=".github/workflows/ci-codeql.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/">
     <File Path=".github/actions/validate-native-test-binaries/action.yml" />

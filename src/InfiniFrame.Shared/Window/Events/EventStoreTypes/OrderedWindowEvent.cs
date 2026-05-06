@@ -1,13 +1,14 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Immutable;
 
-namespace InfiniFrame.Utilities;
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameOrderedEvent {
+public sealed record OrderedWindowEvent {
     private ImmutableArray<Action<IInfiniFrameWindow>> _handlers = ImmutableArray<Action<IInfiniFrameWindow>>.Empty;
     public ImmutableArray<Action<IInfiniFrameWindow>> Snapshot => _handlers;
 
@@ -39,13 +40,31 @@ public class InfiniFrameOrderedEvent {
     }
 }
 
-public class InfiniFrameOrderedEvent<TPayload> {
+public sealed record OrderedWindowEvent<TPayload> {
     private ImmutableArray<Action<IInfiniFrameWindow, TPayload>> _handlers = ImmutableArray<Action<IInfiniFrameWindow, TPayload>>.Empty;
     public ImmutableArray<Action<IInfiniFrameWindow, TPayload>> Snapshot => _handlers;
-
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void Add(Action<IInfiniFrameWindow, TPayload> handler) {
         ArgumentNullException.ThrowIfNull(handler);
         ImmutableInterlocked.Update(ref _handlers, transformer: static (current, item) => current.Add(item), handler);
+    }
+
+    public void AddWithServiceResolving<TService>(Action<IInfiniFrameWindow, TPayload, TService> handler) where TService : notnull {
+        ArgumentNullException.ThrowIfNull(handler);
+
+        ImmutableInterlocked.Update(ref _handlers, transformer: (current, item) => current.Add(item), ActionCallback);
+        return;
+
+        void ActionCallback(IInfiniFrameWindow window, TPayload payload) {
+            IServiceProvider? provider = window.ServiceProvider;
+            if (provider is null) throw new InvalidOperationException("Service provider is null, cannot resolve service.");
+
+            var service = provider.GetRequiredService<TService>();
+            handler(window, payload, service);
+        }
     }
 
     public void Remove(Action<IInfiniFrameWindow, TPayload> handler) {

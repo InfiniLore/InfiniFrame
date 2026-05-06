@@ -171,6 +171,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_minimizedCallback = initParams->MinimizedHandler;
     m_impl->_movedCallback = initParams->MovedHandler;
     m_impl->_closingCallback = initParams->ClosingHandler;
+    m_impl->_closedCallback  = initParams->ClosedHandler;
     m_impl->_focusInCallback = initParams->FocusInHandler;
     m_impl->_focusOutCallback = initParams->FocusOutHandler;
     m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
@@ -937,6 +938,10 @@ void InfiniFrameWindow::SetClosingCallback(const ClosingCallback callback) {
     m_impl->_closingCallback = callback;
 }
 
+void InfiniFrameWindow::SetClosedCallback(const ClosedCallback callback) {
+    m_impl->_closedCallback = callback;
+}
+
 void InfiniFrameWindow::SetFocusInCallback(const FocusInCallback callback) {
     m_impl->_focusInCallback = callback;
 }
@@ -973,6 +978,11 @@ bool InfiniFrameWindow::InvokeClose() const noexcept {
     if (m_impl->_closingCallback)
         return m_impl->_closingCallback();
     return false;
+}
+
+void InfiniFrameWindow::InvokeClosed() const noexcept {
+    if (m_impl->_closedCallback)
+        m_impl->_closedCallback();
 }
 
 void InfiniFrameWindow::InvokeFocusIn() const noexcept {

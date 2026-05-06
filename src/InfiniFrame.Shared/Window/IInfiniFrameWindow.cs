@@ -9,10 +9,10 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrameEvents {
+public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrameWindowEventsStore {
     ILogger<IInfiniFrameWindow> Logger { get; }
     IServiceProvider? ServiceProvider { get; }
-    IInfiniFrameWindowMessageHandler MessageHandlers { get; }
+    IInfiniFrameWindowEvents Events { get; }
 
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
@@ -32,9 +32,13 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     bool Focused { get; }
 
     void Invoke(Action workItem);
+    
     void WaitForClose();
     Task WaitForCloseAsync(CancellationToken ct = default);
+    
     void Close();
+    Task CloseAsync(CancellationToken ct = default);
+    
     void SendWebMessage(string message);
     Task SendWebMessageAsync(string message, CancellationToken ct = default);
     void SendNotification(string title, string body);
@@ -45,7 +49,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
     Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default);
     InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
-    IInfiniFrameWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler);
 
     bool TryResolveStaticAssetUri(string path, out Uri uri);
+    internal void MarkClosedFromNativeCallback();
 }

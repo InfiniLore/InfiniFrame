@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Js.Interop;
+using InfiniFrame.Native;
 using InfiniFrameTests.Shared.TestDoubles;
 
 namespace InfiniFrameTests.Js;
@@ -16,12 +17,13 @@ public class RegisterWindowCreatedUtilityTests {
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
-        var events = (InfiniFrameWindowEvents)builder.Events;
+        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+        var events = new InfiniFrameWindowEvents(eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
-        events.CompleteSetup(window.Window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 
@@ -40,6 +42,9 @@ public class RegisterWindowCreatedUtilityTests {
         // Assert: exactly one registration send attempt after ready.
         int sendAttemptsAfterReady = window.CountEnvelopeMessagesById(registrationMessageId);
         await Assert.That(sendAttemptsAfterReady).IsEqualTo(1);
+
+        int ackAttemptsAfterReady = window.CountEnvelopeMessagesById("__infiniframe:ready:ack");
+        await Assert.That(ackAttemptsAfterReady).IsEqualTo(1);
     }
 
     [Test]
@@ -48,12 +53,13 @@ public class RegisterWindowCreatedUtilityTests {
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
-        var events = (InfiniFrameWindowEvents)builder.Events;
+        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+        var events = new InfiniFrameWindowEvents(eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
-        events.CompleteSetup(window.Window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 
@@ -68,47 +74,42 @@ public class RegisterWindowCreatedUtilityTests {
     }
 
     [Test]
-    public async Task Registration_FallbackSend_DoesNotBlockLaterReadyResend() {
+    public async Task Registration_AcknowledgementIsSentAfterRegistrations() {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
-        var events = (InfiniFrameWindowEvents)builder.Events;
+        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+        var events = new InfiniFrameWindowEvents(eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
-        events.CompleteSetup(window.Window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 
-        // Act: let the ready-timeout fallback send fire first.
+        // Act
         events.OnWindowCreated();
-        await WaitForSendAttempts(window, registrationMessageId, expectedCount: 1, timeout: TimeSpan.FromSeconds(10));
-
-        int sendAttemptsAfterFallback = window.CountEnvelopeMessagesById(registrationMessageId);
-        await Assert.That(sendAttemptsAfterFallback).IsEqualTo(1);
-
-        // Act: ready arrives after fallback.
         events.OnWebMessageReceived(readyEnvelope);
         await Task.Delay(150);
 
-        // Assert: ready still triggers another registration send.
-        await WaitForSendAttempts(window, registrationMessageId, expectedCount: 2, timeout: TimeSpan.FromSeconds(2));
-        int sendAttemptsAfterReady = window.CountEnvelopeMessagesById(registrationMessageId);
-        await Assert.That(sendAttemptsAfterReady).IsEqualTo(2);
+        // Assert
+        IReadOnlyList<string> sentMessages = window.GetSentMessagesSnapshot();
+        int registrationIndex = FindMessageIndex(sentMessages, registrationMessageId);
+        int ackIndex = FindMessageIndex(sentMessages, "__infiniframe:ready:ack");
+
+        await Assert.That(registrationIndex).IsGreaterThanOrEqualTo(0);
+        await Assert.That(ackIndex).IsGreaterThan(registrationIndex);
     }
 
-    private static async Task WaitForSendAttempts(
-        RecordingInfiniFrameWindowSubstitute window,
-        string messageId,
-        int expectedCount,
-        TimeSpan timeout
-    ) {
-        DateTime deadline = DateTime.UtcNow + timeout;
-        while (DateTime.UtcNow < deadline) {
-            if (window.CountEnvelopeMessagesById(messageId) >= expectedCount) return;
-            await Task.Delay(50);
-        }
-    }
+    private static int FindMessageIndex(IReadOnlyList<string> sentMessages, string messageId)
+        => sentMessages
+            .Select((message, index) => new {
+                ParseResult = InteropEnvelopeProtocol.ParseIncomingMessage(message),
+                Index = index
+            })
+            .Where(item => item.ParseResult.IsSuccess && string.Equals(item.ParseResult.MessageId, messageId, StringComparison.Ordinal))
+            .Select(item => item.Index)
+            .FirstOrDefault(-1);
 }

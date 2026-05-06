@@ -1,10 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame;
+using System.Text.Json.Serialization;
+
+namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IHasInfiniFrameEvents {
-    IInfiniFrameWindowEvents Events { get; }
-}
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSerializable(typeof(InteropGetMessageSuccessResponse))]
+[JsonSerializable(typeof(InteropGetMessageErrorResponse))]
+internal partial class InteropGetMessageJsonContext : JsonSerializerContext;

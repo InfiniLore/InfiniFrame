@@ -160,6 +160,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             InfiniFrameWindow* instance = TryGetWindowInstance(hwnd);
             if (instance) {
                 instance->CloseWebView();
+                instance->InvokeClosed();
             }
             UntrackWindowInstance(hwnd);
 

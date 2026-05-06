@@ -1,17 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using Microsoft.JSInterop;
-
-namespace InfiniFrameTests.Shared.JsRuntimes;
-
+namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class TestJsRuntime : IJSRuntime {
-    public ValueTask<TResult> InvokeAsync<TResult>(string identifier, object?[]? args)
-        => new(default(TResult)!);
-
-    public ValueTask<TResult> InvokeAsync<TResult>(string identifier, CancellationToken cancellationToken, object?[]? args)
-        => new(default(TResult)!);
+internal sealed class InteropGetMessageSuccessResponse {
+    public string? RequestId { get; init; }
+    public bool Success { get; init; }
+    public string? Data { get; init; }
 }

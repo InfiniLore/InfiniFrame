@@ -61,7 +61,10 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
                 .RegisterFullScreenWebMessageHandler()
                 .RegisterOpenExternalTargetWebMessageHandler()
                 .RegisterTitleChangedWebMessageHandler()
-                .RegisterWindowClosingHandler((_, _) => OnWindowClosingRequested()),
+                .RegisterWindowClosingHandler((_, _) => {
+                    bool suppressClose = OnWindowClosingRequested();
+                    return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
+                }),
             cancellationToken: startupCancellation.Token
         );
         Console.WriteLine("[PlaywrightSetup] Assembly setup completed.");

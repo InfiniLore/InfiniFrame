@@ -1,7 +1,7 @@
 # Web Server Guide
 
-`InfiniLore.InfiniFrame.WebServer` runs a standard ASP.NET Core web application in a background thread while opening a native window pointed at it
-This approach gives you the full ASP.NET Core pipeline — middleware, controllers, SignalR, minimal APIs, Blazor Server — without any browser overhead
+`InfiniLore.InfiniFrame.WebServer` runs a standard ASP.NET Core web application in a background thread while opening a native window pointed at it.
+This approach gives you the full ASP.NET Core pipeline (middleware, controllers, SignalR, minimal APIs, Blazor Server) without any browser overhead.
 
 ## Contents
 
@@ -18,9 +18,9 @@ This approach gives you the full ASP.NET Core pipeline — middleware, controlle
 
 ## How It Works
 
-- The ASP.NET Core server starts on a background thread
-- A native window opens and navigates to the server's URL
-- Both shut down together when the window is closed (with `UseAutoServerClose()`)
+- The ASP.NET Core server starts on a background thread.
+- A native window opens and navigates to the server's URL.
+- Both shut down together when the window is closed (with `UseAutoServerClose()`).
 
 ## Installation
 
@@ -42,16 +42,16 @@ app.WebApp.MapGet("/", () => "Hello from InfiniFrame");
 app.Run();
 ```
 
-`app.Run()` starts the web server in the background, opens the window, and blocks until the window is closed
+`app.Run()` starts the web server in the background, opens the window, and blocks until the window is closed.
 
 ## Builder API
 
 `InfiniFrameWebApplication.CreateBuilder(args)` returns an `InfiniFrameWebApplicationBuilder` with two properties:
 
-| Property | Type                       | Description                                                           |
-|----------|----------------------------|-----------------------------------------------------------------------|
-| `WebApp` | `WebApplicationBuilder`    | Standard ASP.NET Core builder — add services, configure Kestrel, etc. |
-| `Window` | `InfiniFrameWindowBuilder` | Fluent window configuration                                           |
+| Property | Type                       | Description                                                          |
+|----------|----------------------------|----------------------------------------------------------------------|
+| `WebApp` | `WebApplicationBuilder`    | Standard ASP.NET Core builder; add services, configure Kestrel, etc. |
+| `Window` | `InfiniFrameWindowBuilder` | Fluent window configuration                                          |
 
 ### Configuring the window
 
@@ -83,13 +83,12 @@ The window's start URL is automatically resolved from configuration in this prio
 3. Manual override via `builder.Window.SetStartUrl(...)`
 
 ```json
-// appsettings.json
 {
   "urls": "http://localhost:5200"
 }
 ```
 
-If multiple URLs are configured (e.g. `"http://localhost:5200;https://localhost:7200"`), the first one is used as the window's start URL
+If multiple URLs are configured (e.g. `"http://localhost:5200;https://localhost:7200"`), the first one is used as the window's start URL.
 
 ## Accessing the Window from ASP.NET Core
 
@@ -112,7 +111,7 @@ public class MyController(IInfiniFrameWindow window) : ControllerBase {
 }
 ```
 
-> **Note:** Window operations that affect the native UI must be marshalled to the window thread using `window.Invoke(...)`
+> **Note:** Window operations that affect the native UI must be marshalled to the window thread using `window.Invoke(...)`.
 
 ## Graceful Shutdown
 
@@ -124,7 +123,7 @@ Automatically stops the web server when the window is closed or a close is reque
 var app = builder.Build().UseAutoServerClose();
 ```
 
-Internally this registers handlers on both `WindowClosing` and `WindowClosingRequested` that call `WebApp.StopAsync()` in a background task, so the UI thread is never blocked
+Internally this registers handlers on both `WindowClosing` and `WindowClosingRequested` that call `WebApp.StopAsync()` in a background task, so the UI thread is never blocked.
 
 ### Manual shutdown
 
@@ -164,9 +163,9 @@ app.Run();
 
 ## Static Web Assets
 
-`UseStaticWebAssets()` is called automatically during builder initialization, so static files from Razor class libraries are served correctly without additional configuration
+`UseStaticWebAssets()` is called automatically during builder initialization, so static files from Razor class libraries are served correctly without additional configuration.
 
-`UseDefaultFiles()` is also applied during `Build()`, which causes requests to `/` to serve `wwwroot/index.html` if it exists
+`UseDefaultFiles()` is also applied during `Build()`, which causes requests to `/` to serve `wwwroot/index.html` if it exists.
 
 ## Thread Model
 
@@ -175,12 +174,10 @@ app.Run();
 | Main thread       | Native window (UI thread) |
 | Background thread | ASP.NET Core / Kestrel    |
 
-All window API calls from ASP.NET Core handlers must use `window.Invoke(...)` to marshal to the window thread
-Web server calls from window event handlers can be made directly since ASP.NET Core is thread-safe
+All window API calls from ASP.NET Core handlers must use `window.Invoke(...)` to marshal to the window thread.
+Web server calls from window event handlers can be made directly since ASP.NET Core is thread-safe.
 
-> **Windows:** The main thread must be STA. Add `[STAThread]` to your `Main` method and use an explicit `static void Main()` — top-level statements and `async Task Main` do not support STA correctly
-
----
+> **Windows:** The main thread must be STA. Add `[STAThread]` to your `Main` method and use an explicit `static void Main()`. Top-level statements and `async Task Main` do not support STA correctly.
 
 ## Examples
 

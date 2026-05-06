@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions {
 
     // ReSharper disable once UnusedMethodReturnValue.Global
     public static IInfiniFrameWebApplicationBuilder AddInfiniFrameJs(this IInfiniFrameWebApplicationBuilder builder) {
-        builder.Services.AddInfiniFrameJs();
+        // builder.Services.AddInfiniFrameJs(); // Cannot be added to a WebApp only, as the JSRuntime is Blazor specific
         builder.WindowBuilder.RegisterGetWebMessageHandler();
         return builder;
     }

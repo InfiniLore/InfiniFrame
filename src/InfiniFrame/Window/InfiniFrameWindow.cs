@@ -21,14 +21,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     private int _shutdownRequested;
     private int _shutdownStarted;
     public InfiniFrameNativeParameters StartupParameters;
-    public required IInfiniFrameWindowCustomSchemeHandlers CustomSchemes { get; init; }
     internal StaticAssetSettings? StaticAssets { get; init; }
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
     public required IInfiniFrameWindow? Parent { get; init; }
     public required IInfiniFrameWindowEvents Events { get; init; }
-    public required IInfiniFrameWindowMessageHandler MessageHandlers { get; init; }
-
+    public IInfiniFrameWindowEventsStore EventsStore => Events.EventsStore;
+    
     public IntPtr NativeType => WindowType.Value;
     public IntPtr InstanceHandle { get; private set; }
 
@@ -85,6 +84,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         return Task.CompletedTask;
     }
 
+    // Should only be used internally
+    void IInfiniFrameWindow.MarkClosedFromNativeCallback() {
+        Interlocked.Exchange(ref _shutdownRequested, 1);
+        Interlocked.Exchange(ref _shutdownStarted, 1);
+        InstanceHandle = IntPtr.Zero;
+    }
+
     /// <summary>
     ///     Closes the native window.
     /// </summary>
@@ -106,7 +112,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             }
 
             InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.Close(InstanceHandle));
+            InstanceHandle = IntPtr.Zero;
         });
+    }
+
+    public Task CloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
+        Close();
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -306,31 +319,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         return result;
     }
 
-    /// <summary>
-    ///     Registers user-defined custom schemes (other than 'http', 'https' and 'file') and handler methods to receive
-    ///     callbacks
-    ///     when the native browser control encounters them.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="InfiniFrameWindow" /> instance.
-    /// </returns>
-    /// <param name="scheme">The custom scheme</param>
-    /// <param name="handler">
-    ///     <see cref="EventHandler" />
-    /// </param>
-    /// <exception cref="ArgumentException">Thrown if no scheme or handler was provided</exception>
-    public IInfiniFrameWindow RegisterCustomSchemeHandler(string scheme, NetCustomSchemeDelegate handler) {
-        ArgumentException.ThrowIfNullOrWhiteSpace(scheme);
-        ArgumentNullException.ThrowIfNull(handler);
-
-        scheme = scheme.ToLower();
-
-        InfiniFrameNative.EnsureSucceeded(InfiniFrameNative.AddCustomSchemeName(InstanceHandle, scheme));
-
-        CustomSchemes.RegisterCustomSchemeHandler(scheme, handler);
-        return this;
-    }
-
     public bool TryResolveStaticAssetUri(string path, out Uri uri) {
         uri = null!;
         if (StaticAssets is null) return false;
@@ -341,19 +329,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             StaticAssets.BaseUri,
             StaticAssets.DefaultDocument,
             out uri);
-    }
-
-    internal byte OnWindowClosing() {
-        Interlocked.Exchange(ref _shutdownRequested, 1);
-        byte noClose = Events.OnWindowClosing();
-        if (noClose != 0) {
-            // Close was canceled by user code; resume normal window operation.
-            Interlocked.Exchange(ref _shutdownRequested, 0);
-            return noClose;
-        }
-
-        Interlocked.Exchange(ref _shutdownStarted, 1);
-        return 0;
     }
 
     private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct) {
@@ -465,61 +440,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         }
 
         return nativeFilters;
-    }
-
-    /// <summary>
-    ///     Invokes registered user-defined handler methods for user-defined custom schemes (other than 'http','https', and
-    ///     'file')
-    ///     when the native browser control encounters them.
-    /// </summary>
-    /// <param name="url">URL of the Scheme</param>
-    /// <param name="numBytes">Number of bytes of the response</param>
-    /// <param name="contentType">Content type of the response</param>
-    /// <returns>
-    ///     <see cref="IntPtr" />
-    /// </returns>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the URL does not contain a colon.
-    /// </exception>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when no handler is registered.
-    /// </exception>
-    public IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType) {
-        contentType = null;
-        numBytes = 0;
-        Logger.LogDebug("Custom scheme request: {Url}", url);
-        int colonPos = url.IndexOf(':');
-
-        if (colonPos < 0)
-            throw new ApplicationException($"URL: '{url}' does not contain a colon.");
-
-        string scheme = url[..colonPos].ToLower();
-
-        if (!CustomSchemes.TryGetHandler(scheme, out NetCustomSchemeDelegate? handler)) {
-            Logger.LogWarning("No custom scheme handler registered for {Scheme}", scheme);
-        }
-
-        Stream? responseStream = handler?.Invoke(this, scheme, url, out contentType);
-
-        if (responseStream is null) {
-            Logger.LogDebug("Custom scheme handler returned no content for URL '{Url}'", url);
-            // Webview should pass through request to normal handlers (e.g., network)
-            // or handle as 404 otherwise
-            return 0;
-        }
-
-        // Read the stream into memory and serve the bytes
-        // In the future, it would be possible to pass the stream through into C++
-        using Stream _ = responseStream;
-        using var ms = new MemoryStream();
-        responseStream.CopyTo(ms);
-
-        numBytes = (int)ms.Position;
-        Logger.LogDebug("Custom scheme response for {Url}. {NumBytes} bytes, ContentType={ContentType}",
-            url, numBytes, contentType ?? "<null>");
-        IntPtr buffer = Marshal.AllocCoTaskMem(numBytes);
-        Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
-        return buffer;
     }
 
     #region PROPERTIES

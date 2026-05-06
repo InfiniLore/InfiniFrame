@@ -55,9 +55,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         // ReSharper disable once ConvertClosureToMethodGroup
         LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(() => provider.GetService<ILogger<InfiniFrameWebViewManager>>());
 
-        builder.RegisterWebMessageReceivedHandler((_, message) => {
-            string? origin = InfiniFrameWebMessageContext.CurrentOrigin;
-
+        builder.RegisterWebMessageReceivedHandler((_, message, origin) => {
             LazyLogger.Value?.LogDebug(
                 "Web message callback from native. Origin: {Origin}, Message: {Message}",
                 origin,
@@ -80,28 +78,21 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // -----------------------------------------------------------------------------------------------------------------
     // Web Requests
     // -----------------------------------------------------------------------------------------------------------------
-    public Stream? HandleWebRequest(
-        object? sender,
-        string? schema,
-        string? url,
-        out string? contentType
-    ) {
-        contentType = null;
-
+    public (Stream? Data, string? ContentType) HandleWebRequest(IInfiniFrameWindow? infiniFrameWindow, string? url) {
         if (string.IsNullOrWhiteSpace(url)) {
             LazyLogger.Value?.LogWarning(
-                "Rejected web request because URL is null or empty. Schema: {Schema}",
-                schema
+                "Rejected web request because URL is null or empty. Url: {Url}",
+                url
             );
-            return null;
+            return default;
         }
 
         if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? requestUri)) {
             LazyLogger.Value?.LogWarning(
-                "Rejected web request because URL parsing failed. Url: {Url}, Schema: {Schema}",
-                url, schema
+                "Rejected web request because URL parsing failed. Url: {Url}",
+                url
             );
-            return null;
+            return default;
         }
 
         // ---------------------------------------------------------------------
@@ -119,12 +110,10 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             }.Uri;
 
             if (!TryGetResponseContent(sanitizedUri.AbsoluteUri, !hasFileExtension, out _, out _, out Stream content, out IDictionary<string, string> headers))
-                return null;
+                return default;
 
-            headers.TryGetValue("Content-Type", out contentType);
-            contentType ??= GetFallbackContentType(sanitizedUri.LocalPath);
-            return content;
-
+            headers.TryGetValue("Content-Type", out string? contentType);
+            return (content, contentType ?? GetFallbackContentType(sanitizedUri.LocalPath));
         }
 
         // ---------------------------------------------------------------------
@@ -135,7 +124,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 "Rejected web request due to disallowed URI scheme. Scheme: {Scheme}, Url: {Url}",
                 requestUri.Scheme,
                 requestUri);
-            return null;
+            return default;
         }
 
         if (!_uriSecurityPolicy.IsTrustedOrigin(requestUri)) {
@@ -143,17 +132,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
                 "Rejected web request due to untrusted origin. RequestOrigin: {RequestOrigin}, TrustedOrigins: {TrustedOrigins}",
                 requestUri,
                 _uriSecurityPolicy.TrustedOrigins);
-            return null;
-        }
-
-        if (!string.IsNullOrWhiteSpace(schema) &&
-            !string.Equals(schema, requestUri.Scheme, StringComparison.OrdinalIgnoreCase)) {
-            LazyLogger.Value?.LogWarning(
-                "Rejected web request due to schema mismatch. ReportedSchema: {ReportedSchema}, UriScheme: {UriScheme}, Url: {Url}",
-                schema,
-                requestUri.Scheme,
-                url);
-            return null;
+            return default;
         }
 
         string localPath2 = requestUri.LocalPath;
@@ -171,16 +150,16 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             out _,
             out Stream content2,
             out IDictionary<string, string> headers2)) {
-            headers2.TryGetValue("Content-Type", out contentType);
-            contentType ??= GetFallbackContentType(sanitizedUri2.LocalPath);
-            return content2;
+            
+            headers2.TryGetValue("Content-Type", out string? contentType);
+            return (content2, contentType ?? GetFallbackContentType(sanitizedUri2.LocalPath));
         }
 
         LazyLogger.Value?.LogWarning(
             "No web content found for trusted URL. Url: {Url}",
             sanitizedUri2);
 
-        return null;
+        return default;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -229,9 +208,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     protected override void SendMessage(string message) {
-        while (!_channel.Writer.TryWrite(message)) {
-            Thread.Sleep(200);
-        }
+        if (_channel.Writer.TryWrite(message)) return;
+        LazyLogger.Value?.LogDebug("Skipping WebView message because the message channel is closed.");
     }
 
     private async Task MessagePump() {
@@ -253,20 +231,23 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     protected override async ValueTask DisposeAsyncCore() {
-        try { _channel.Writer.Complete(); }
-        catch (ChannelClosedException ex) {
-            LazyLogger.Value?.LogDebug(ex, "Channel was already closed during dispose.");
-        }
-
         try {
-            await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
+            await base.DisposeAsyncCore();
         }
-        catch (TimeoutException) {
-            LazyLogger.Value?.LogWarning(
-                "Timed out while waiting for WebView message pump shutdown.");
-        }
+        finally {
+            try { _channel.Writer.Complete(); }
+            catch (ChannelClosedException ex) {
+                LazyLogger.Value?.LogDebug(ex, "Channel was already closed during dispose.");
+            }
 
-        await base.DisposeAsyncCore();
+            try {
+                await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
+            }
+            catch (TimeoutException) {
+                LazyLogger.Value?.LogWarning(
+                    "Timed out while waiting for WebView message pump shutdown.");
+            }
+        }
     }
 
     private static bool IsNonFatalException(Exception exception)

@@ -3,22 +3,20 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BuilderSnapshots;
-using InfiniFrame.HostMessaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilderTests {
-    private static Stream? EmptyHandler(object sender, string scheme, string url, out string? contentType) {
+    private static (Stream? Data, string? ContentType) EmptyHandler(IInfiniFrameWindow sender, string url) {
         _ = sender;
-        _ = scheme;
         _ = url;
-        contentType = null;
-        return null;
+        return default;
     }
 
     private const int DefaultIncludedMessageHandlers = 0;
@@ -68,8 +66,8 @@ public class InfiniFrameWindowBuilderTests {
     public async Task CreateSnapshot_CanBeCalledMoreThanOnce_WithUniqueMutableReferences() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        builder.Events.WindowCreated.Add(_ => { });
-        builder.MessageHandlers.RegisterHandler("ping", (_, _) => { });
+        builder.EventsStore.WindowCreated.Add(_ => { });
+        builder.RegisterWebMessagePostHandler("ping", (_, _) => { });
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
 
         // Act
@@ -77,14 +75,14 @@ public class InfiniFrameWindowBuilderTests {
         InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
 
         // Assert
-        await Assert.That(first.Events.WindowCreated.Length).IsEqualTo(1);
-        await Assert.That(second.Events.WindowCreated.Length).IsEqualTo(1);
-        await Assert.That(first.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
-        await Assert.That(second.MessageHandlers.PostDataHandlers.Length).IsEqualTo(DefaultIncludedMessageHandlers + 1);
-        await Assert.That(first.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
-        await Assert.That(second.CustomSchemes.OrderedSchemeNames.Length).IsEqualTo(1);
-        await Assert.That(first.CustomSchemes.OrderedSchemeNames[0]).IsEqualTo("app");
-        await Assert.That(second.CustomSchemes.OrderedSchemeNames[0]).IsEqualTo("app");
+        await Assert.That(first.EventsStore.WindowCreated.Snapshot.Length).IsEqualTo(1);
+        await Assert.That(second.EventsStore.WindowCreated.Snapshot.Length).IsEqualTo(1);
+        await Assert.That(first.EventsStore.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(second.EventsStore.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(first.EventsStore.CustomScheme.Count).IsEqualTo(1);
+        await Assert.That(second.EventsStore.CustomScheme.Count).IsEqualTo(1);
+        await Assert.That(first.EventsStore.CustomScheme.Handlers.Keys.FirstOrDefault()).IsEqualTo("app");
+        await Assert.That(second.EventsStore.CustomScheme.Handlers.Keys.FirstOrDefault()).IsEqualTo("app");
     }
 
     [Test]
@@ -95,24 +93,17 @@ public class InfiniFrameWindowBuilderTests {
         InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
         InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
 
-        InfiniFrameWindowEvents firstEvents = InfiniFrameWindowEvents.FromSnapshot(first.Events);
-        InfiniFrameWindowEvents secondEvents = InfiniFrameWindowEvents.FromSnapshot(second.Events);
-        InfiniFrameWindowMessageHandler firstMessageHandlers = InfiniFrameWindowMessageHandler.FromSnapshot(first.MessageHandlers);
-        InfiniFrameWindowMessageHandler secondMessageHandlers = InfiniFrameWindowMessageHandler.FromSnapshot(second.MessageHandlers);
-        InfiniFrameWindowCustomSchemeHandlers firstSchemes = InfiniFrameWindowCustomSchemeHandlers.FromSnapshot(first.CustomSchemes);
-        InfiniFrameWindowCustomSchemeHandlers secondSchemes = InfiniFrameWindowCustomSchemeHandlers.FromSnapshot(second.CustomSchemes);
+        IInfiniFrameWindowEventsStore firstEvents = first.EventsStore;
+        IInfiniFrameWindowEventsStore secondEvents = second.EventsStore;
 
-        firstMessageHandlers.RegisterHandler("ping", (_, _) => { });
+        firstEvents.WebMessagePostData.Add("ping", (_, _) => { });
         firstEvents.WindowCreated.Add(_ => { });
-        firstSchemes.RegisterCustomSchemeHandler("only-first", EmptyHandler);
 
         // Assert
-        await Assert.That(firstMessageHandlers.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
-        await Assert.That(secondMessageHandlers.Count).IsEqualTo(DefaultIncludedMessageHandlers);
+        await Assert.That(firstEvents.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
+        await Assert.That(secondEvents.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers);
         await Assert.That(firstEvents.WindowCreated.Snapshot.Length).IsEqualTo(secondEvents.WindowCreated.Snapshot.Length + 1);
-        await Assert.That(firstSchemes.ContainsCustomSchemeHandler("only-first")).IsTrue();
-        await Assert.That(secondSchemes.ContainsCustomSchemeHandler("only-first")).IsFalse();
-        await Assert.That(builder.CustomSchemeHandlers.ContainsCustomSchemeHandler("only-first")).IsFalse();
+       await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("only-first")).IsFalse();
     }
 
     [Test]
@@ -125,10 +116,10 @@ public class InfiniFrameWindowBuilderTests {
 
         // Act
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
-        int registeredSchemeCount = snapshot.CustomSchemes.OrderedSchemeNames.Distinct(StringComparer.Ordinal).Count();
+        int registeredSchemeCount = snapshot.EventsStore.CustomScheme.Handlers.Keys.Distinct(StringComparer.Ordinal).Count();
 
         // Assert
-        await Assert.That(snapshot.CustomSchemes.Handlers.Length).IsEqualTo(1);
+        await Assert.That(snapshot.EventsStore.CustomScheme.Count).IsEqualTo(1);
         await Assert.That(registeredSchemeCount).IsEqualTo(1);
     }
 
@@ -143,26 +134,20 @@ public class InfiniFrameWindowBuilderTests {
 
         // Act
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
-        bool found = snapshot.CustomSchemes.Handlers.Any(static item => item.Key == "app");
-        NetCustomSchemeDelegate? copiedHandler = snapshot.CustomSchemes.Handlers
-            .Where(static item => item.Key == "app")
-            .Select(static item => item.Value)
-            .FirstOrDefault();
-        copiedHandler?.Invoke(this, "app", "app://resource", out string? _);
+        bool found = snapshot.EventsStore.CustomScheme.ContainsKey("app");
+        bool invoked = snapshot.EventsStore.CustomScheme.TryInvoke("app", Substitute.For<IInfiniFrameWindow>(), "app://resource", out (Stream? Data, string? ContentType) _);
 
         // Assert
         await Assert.That(found).IsTrue();
-        await Assert.That(copiedHandler).IsNotNull();
-        await Assert.That(callCount).IsEqualTo(2);
+        await Assert.That(invoked).IsTrue();
+        await Assert.That(callCount).IsEqualTo(1);
         return;
 
-        Stream? CountingHandler(object sender, string scheme, string url, out string? contentType) {
+        (Stream? Data, string? ContentType) CountingHandler(IInfiniFrameWindow sender, string url) {
             _ = sender;
-            _ = scheme;
             _ = url;
             Interlocked.Increment(ref callCount);
-            contentType = null;
-            return null;
+            return default;
         }
     }
 
@@ -179,31 +164,27 @@ public class InfiniFrameWindowBuilderTests {
         // Act
         InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
         InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
-        bool foundFirst = first.CustomSchemes.Handlers.Any(static item => item.Key == "app");
-        bool foundSecond = second.CustomSchemes.Handlers.Any(static item => item.Key == "app");
-        NetCustomSchemeDelegate? firstHandler = first.CustomSchemes.Handlers.FirstOrDefault(static item => item.Key == "app").Value;
-        NetCustomSchemeDelegate? secondHandler = second.CustomSchemes.Handlers.FirstOrDefault(static item => item.Key == "app").Value;
-        int firstRegisteredCount = first.CustomSchemes.OrderedSchemeNames.Distinct(StringComparer.Ordinal).Count();
-        int secondRegisteredCount = second.CustomSchemes.OrderedSchemeNames.Distinct(StringComparer.Ordinal).Count();
+        bool foundFirst = first.EventsStore.CustomScheme.ContainsKey("app");
+        bool foundSecond = second.EventsStore.CustomScheme.ContainsKey("app");
+        int firstRegisteredCount = first.EventsStore.CustomScheme.Handlers.Keys.Distinct(StringComparer.Ordinal).Count();
+        int secondRegisteredCount = second.EventsStore.CustomScheme.Handlers.Keys.Distinct(StringComparer.Ordinal).Count();
 
-        firstHandler?.Invoke(this, "app", "app://resource1", out string? _);
-        secondHandler?.Invoke(this, "app", "app://resource2", out string? _);
+        first.EventsStore.CustomScheme.TryInvoke("app", Substitute.For<IInfiniFrameWindow>(), "app://resource1", out (Stream? Data, string? ContentType) _);
+        second.EventsStore.CustomScheme.TryInvoke("app", Substitute.For<IInfiniFrameWindow>(), "app://resource2", out (Stream? Data, string? ContentType) _);
 
         // Assert
         await Assert.That(foundFirst).IsTrue();
         await Assert.That(foundSecond).IsTrue();
         await Assert.That(firstRegisteredCount).IsEqualTo(1);
         await Assert.That(secondRegisteredCount).IsEqualTo(1);
-        await Assert.That(callCount).IsEqualTo(200);
+        await Assert.That(callCount).IsEqualTo(2);
         return;
 
-        Stream? CountingHandler(object sender, string scheme, string url, out string? contentType) {
+        (Stream? Data, string? ContentType) CountingHandler(IInfiniFrameWindow sender, string url) {
             _ = sender;
-            _ = scheme;
             _ = url;
             Interlocked.Increment(ref callCount);
-            contentType = null;
-            return null;
+            return default;
         }
     }
 

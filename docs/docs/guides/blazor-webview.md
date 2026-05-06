@@ -1,6 +1,6 @@
 # Blazor WebView Guide
 
-`InfiniLore.InfiniFrame.BlazorWebView` integrates a full Blazor WebAssembly-style application into a native window with no HTTP server required — the Blazor runtime runs entirely in-process
+`InfiniLore.InfiniFrame.BlazorWebView` integrates a full Blazor WebAssembly-style application into a native window with no HTTP server required. The Blazor runtime runs entirely in-process.
 
 ## Contents
 
@@ -18,8 +18,8 @@
 
 ## How It Works
 
-InfiniFrame serves Blazor resources from an internal origin (`app://localhost/`) and handles requests inside the native host — Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder
-There is no external ASP.NET server required; all communication happens through the native browser bridge
+InfiniFrame serves Blazor resources from an internal origin (`app://localhost/`) and handles requests inside the native host. Blazor component files, JavaScript, and CSS are served from an `IFileProvider` backed by your `wwwroot/` folder.
+There is no external ASP.NET server required; all communication happens through the native browser bridge.
 
 Platform notes:
 - Windows uses WebView2 and requires custom-scheme registration support (`ICoreWebView2EnvironmentOptions4`) to allow top-level `app://localhost/...` navigation.
@@ -61,7 +61,7 @@ A minimal host page:
     <div id="blazor-error-ui" style="display:none">
         An unhandled error has occurred.
     </div>
-    <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script src="_framework/blazor.webview.js"></script>
 </body>
 </html>
 ```
@@ -79,28 +79,28 @@ var builder = InfiniFrameBlazorAppBuilder.CreateDefault(args, w => w
     .SetChromeless(true)     // Optional: remove native title bar
 );
 
-// Register services — same as a standard Blazor or ASP.NET Core app
+// Register services (same as a standard Blazor or ASP.NET Core app)
 builder.Services.AddSingleton<MyDataService>();
 builder.Services.AddScoped<IMyRepository, MyRepository>();
 
-// Register root components — these map to elements in index.html
+// Register root components (these map to elements in index.html)
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Build().Run();
 ```
 
-`Run()` blocks until the window is closed and then disposes all services
+`Run()` blocks until the window is closed and then disposes all services.
 
 ## Available Builder API
 
 `InfiniFrameBlazorAppBuilder` exposes three properties for configuration:
 
-| Property         | Type                        | Description                                                                   |
-|------------------|-----------------------------|-------------------------------------------------------------------------------|
-| `WindowBuilder`  | `IInfiniFrameWindowBuilder` | Fluent window configuration — all options from the generated C# API reference |
-| `Services`       | `IServiceCollection`        | Standard .NET DI container                                                    |
-| `RootComponents` | `RootComponentList`         | Maps Blazor components to CSS selectors in index.html                         |
+| Property         | Type                        | Description                                                                  |
+|------------------|-----------------------------|------------------------------------------------------------------------------|
+| `WindowBuilder`  | `IInfiniFrameWindowBuilder` | Fluent window configuration; all options from the generated C# API reference |
+| `Services`       | `IServiceCollection`        | Standard .NET DI container                                                   |
+| `RootComponents` | `RootComponentList`         | Maps Blazor components to CSS selectors in index.html                        |
 
 ### Configuring the window separately
 
@@ -140,7 +140,7 @@ The following services are automatically registered and available for injection:
 
 ## Custom File Provider
 
-By default, files are served from `{AppBaseDirectory}/wwwroot/`
+By default, files are served from `{AppBaseDirectory}/wwwroot/`.
 You can supply a custom `IFileProvider` for embedded resources, encrypted assets, or virtual file systems:
 
 ```csharp
@@ -204,7 +204,7 @@ AppDomain.CurrentDomain.UnhandledException += (_, e) => {
 
 ## HttpClient
 
-An `HttpClient` is registered automatically with `BaseAddress` set to the internal app base URI
+An `HttpClient` is registered automatically with `BaseAddress` set to the internal app base URI.
 This lets you make in-process requests to your static assets or call external APIs:
 
 ```razor
@@ -233,9 +233,9 @@ DisposeAsync()  ← Disposes all services
 
 ## Custom Window Chrome
 
-Combine with `InfiniLore.InfiniFrame.Blazor` for a fully custom title bar
+Combine with `InfiniLore.InfiniFrame.Blazor` for a fully custom title bar.
 
-See the [Custom Window Chrome Guide](custom-window-chrome.md) for details
+See the [Custom Window Chrome Guide](custom-window-chrome.md) for details.
 
 ## Examples
 

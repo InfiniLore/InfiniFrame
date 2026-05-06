@@ -21,6 +21,7 @@ public static class HandlerNames {
     internal const string RegisterTitleChange = $"{InfiniFramePrefix}:register:title:change";
 
     internal const string WindowReady = $"{InfiniFramePrefix}:ready";
+    internal const string WindowReadyAck = $"{InfiniFramePrefix}:ready:ack";
     internal const string GetRequest = $"{InfiniFramePrefix}:get";
     internal const string GetResponse = $"{InfiniFramePrefix}:get:response";
 

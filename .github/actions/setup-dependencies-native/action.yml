@@ -23,14 +23,6 @@ runs:
       uses: lukka/get-cmake@latest
       with:
         cmakeVersion: "4.0.0"
-
-    - name: Cache CMake build
-      uses: actions/cache@v5
-      with:
-        path: src/InfiniFrame.Native/build
-        key: ${{ runner.os }}-setup-native-dependencies-cmake-${{ hashFiles('src/InfiniFrame.Native/**') }}
-        restore-keys: |
-          ${{ runner.os }}-setup-native-dependencies-cmake-
                 
     - name: Install GTK3 Deps (Linux)
       if: runner.os == 'Linux'

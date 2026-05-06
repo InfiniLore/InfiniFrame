@@ -7,7 +7,7 @@ namespace InfiniFrame.Js.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 internal enum WindowRegistrationHandshakeState {
     ReadyPending,
-    ReadyReceived,
-    Sent,
+    RegistrationSending,
+    ReadyAcknowledged,
     Failed
 }

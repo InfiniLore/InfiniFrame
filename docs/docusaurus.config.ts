@@ -47,7 +47,7 @@ const config: Config = {
         redirects: [
           { from: ["/index.html"], to: "/" },
           { from: ["/articles/guides"], to: "/guides/getting-started" },
-          { from: ["/articles/concepts"], to: "/migration/breaking-changes-from-photino" },
+          { from: ["/articles/concepts"], to: "/migration/photino-breaking-changes" },
           { from: ["/articles/csharp"], to: "/csharp/code-style" },
           { from: ["/articles/cpp"], to: "/cpp/native-cpp-api" },
           { from: ["/articles/guides/getting-started", "/articles/guides/getting-started.html"], to: "/guides/getting-started" },
@@ -57,8 +57,8 @@ const config: Config = {
           { from: ["/articles/guides/web-server", "/articles/guides/web-server.html"], to: "/guides/web-server" },
           { from: ["/articles/guides/javascript-interop", "/articles/guides/javascript-interop.html"], to: "/guides/javascript-interop" },
           { from: ["/articles/guides/custom-window-chrome", "/articles/guides/custom-window-chrome.html"], to: "/guides/custom-window-chrome" },
-          { from: ["/articles/concepts/breaking-changes-from-photino", "/articles/concepts/breaking-changes-from-photino.html"], to: "/migration/breaking-changes-from-photino" },
-          { from: ["/concepts/breaking-changes-from-photino"], to: "/migration/breaking-changes-from-photino" },
+          { from: ["/articles/concepts/photino-breaking-changes", "/articles/concepts/photino-breaking-changes.html"], to: "/migration/photino-breaking-changes" },
+          { from: ["/concepts/photino-breaking-changes"], to: "/migration/photino-breaking-changes" },
           { from: ["/articles/csharp/code-style", "/articles/csharp/code-style.html"], to: "/csharp/code-style" },
           { from: ["/articles/cpp/native-cpp-api", "/articles/cpp/native-cpp-api.html"], to: "/cpp/native-cpp-api" },
           { from: ["/articles/cpp/code-style", "/articles/cpp/code-style.html"], to: "/cpp/code-style" },
@@ -69,9 +69,9 @@ const config: Config = {
   ],
   themeConfig: {
     colorMode: {
-      defaultMode: 'dark', 
-      disableSwitch: false, 
-      respectPrefersColorScheme: true,
+      defaultMode: "dark",
+      disableSwitch: false,
+      respectPrefersColorScheme: false,
     },
     navbar: {
       title: "InfiniFrame",

@@ -45,11 +45,8 @@ internal static class InteropEnvelopeProtocol {
     }
 
     internal static InteropEnvelopeParseResult ParseIncomingMessage(string message) {
-        if (string.IsNullOrWhiteSpace(message))
-            return InteropEnvelopeParseResult.CreateFailure("Message is empty.");
-        
-        if (message.StartsWith("__bwv:", StringComparison.Ordinal))
-            return InteropEnvelopeParseResult.Ignored;
+        if (string.IsNullOrWhiteSpace(message)) return InteropEnvelopeParseResult.CreateFailure("Message is empty.");
+        if (message.StartsWith("__bwv:", StringComparison.Ordinal)) return InteropEnvelopeParseResult.BlazorMessage;
 
         message = TryUnwrapJsonEncodedString(message);
 

@@ -59,11 +59,14 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
             .SetTitle(DefaultDocumentTitle)
             .SetTemporaryFilesPath(_webViewUserDataPath)
             .SetBrowserControlInitParameters($"--remote-debugging-port={playwrightDevtoolsPort}")
-            .RegisterWindowManagementWebMessageHandler()
-            .RegisterFullScreenWebMessageHandler()
-            .RegisterOpenExternalTargetWebMessageHandler()
-            .RegisterTitleChangedWebMessageHandler()
-            .RegisterWindowClosingHandler((_, _) => OnWindowClosingRequested());
+                .RegisterWindowManagementWebMessageHandler()
+                .RegisterFullScreenWebMessageHandler()
+                .RegisterOpenExternalTargetWebMessageHandler()
+                .RegisterTitleChangedWebMessageHandler()
+                .RegisterWindowClosingHandler((_, _) => {
+                    bool suppressClose = OnWindowClosingRequested();
+                    return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
+                });
     }
 
     protected virtual void RunApp(InfiniFrameBlazorApp app)

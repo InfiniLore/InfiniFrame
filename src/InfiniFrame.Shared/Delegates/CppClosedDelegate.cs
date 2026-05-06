@@ -1,11 +1,11 @@
-// ---------------------------------------------------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.BuilderSnapshots;
+using System.Runtime.InteropServices;
+
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal readonly record struct InfiniFrameWindowCustomSchemeHandlersSnapshot(
-    string[] OrderedSchemeNames,
-    KeyValuePair<string, NetCustomSchemeDelegate>[] Handlers
-);
+[UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
+public delegate void CppClosedDelegate();

@@ -18,41 +18,47 @@ import {getTitleObserver, getTitleObserverTarget} from "./Utils/Observers";
 // ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     private static readonly BlazorWebViewMessagePrefix = "__bwv:";
-    private static readonly ReadyHandshakeRetryIntervalMs = 1000;
-    private static readonly MaxReadyHandshakeAttempts = 20;
     private messageHandlers: Map<string, MessageCallback> = new Map();
     private openExternalRegistered = false;
     private fullscreenRegistered = false;
     private titleRegistered = false;
     private windowCloseRegistered = false;
-    private readyHandshakeAttempts = 0;
     private readyHandshakeAcknowledged = false;
-    private readyHandshakeRetryTimer: number | null = null;
+    private resolveReady!: () => void;
+    public readonly ready: Promise<void>;
+
+    public get isReady(): boolean {
+        return this.readyHandshakeAcknowledged;
+    }
     
     constructor() {
+        this.ready = new Promise<void>(resolve => {
+            this.resolveReady = resolve;
+        });
+
         this.assignWebMessageReceiver();
 
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerOpenExternal, _ => {
-            this.markReadyHandshakeAcknowledged();
             this.registerOpenExternal();
         })
 
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerFullscreenChange, _ => {
-            this.markReadyHandshakeAcknowledged();
             this.registerFullscreenChange();
         })
 
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerTitleChange, _ => {
-            this.markReadyHandshakeAcknowledged();
             this.registerTitleChange();
         })
 
         this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.registerWindowClose, _ => {
-            this.markReadyHandshakeAcknowledged();
             this.registerWindowClose();
         })
 
-        this.sendReadyHandshakeWithRetry();
+        this.assignMessageReceivedHandler(ReceiveFromHostMessageIds.readyAck, _ => {
+            this.markReadyHandshakeAcknowledged();
+        })
+
+        this.sendReadyHandshake();
     }
 
     public sendMessageToHost(id: SendToHostMessageId | string, data?: unknown) {
@@ -171,34 +177,14 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
         };
     }
 
-    private sendReadyHandshakeWithRetry() {
-        this.sendReadyHandshake();
-
-        this.readyHandshakeRetryTimer = window.setInterval(() => {
-            if (this.readyHandshakeAcknowledged || this.readyHandshakeAttempts >= InfiniFrameHostMessaging.MaxReadyHandshakeAttempts) {
-                this.stopReadyHandshakeRetry();
-                return;
-            }
-
-            this.sendReadyHandshake();
-        }, InfiniFrameHostMessaging.ReadyHandshakeRetryIntervalMs);
-    }
-
     private sendReadyHandshake() {
-        this.readyHandshakeAttempts++;
         this.sendMessageToHost(SendToHostMessageIds.ready);
     }
 
     private markReadyHandshakeAcknowledged() {
         if (this.readyHandshakeAcknowledged) return;
         this.readyHandshakeAcknowledged = true;
-        this.stopReadyHandshakeRetry();
-    }
-
-    private stopReadyHandshakeRetry() {
-        if (this.readyHandshakeRetryTimer === null) return;
-        window.clearInterval(this.readyHandshakeRetryTimer);
-        this.readyHandshakeRetryTimer = null;
+        this.resolveReady();
     }
 }
 

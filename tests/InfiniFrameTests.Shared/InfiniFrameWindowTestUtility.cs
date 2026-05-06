@@ -112,7 +112,36 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
-    // -----------------------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------
+    public async Task WaitForCloseAsync(CancellationToken ct = default) {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+
+        try {
+            await Window.WaitForCloseAsync(ct);
+        }
+        catch (ApplicationException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
+            // ignored
+        }
+
+        try {
+            if (_windowThread == null) return;
+            if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
+                _windowThread.Interrupt();
+        }
+        catch (ThreadInterruptedException) {
+            // ignored
+        }
+        catch (ThreadStateException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
+            // ignored
+        }
+    }
+    
     public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
             return;

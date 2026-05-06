@@ -38,6 +38,7 @@ struct InfiniFrameWindowImpl {
     MinimizedCallback _minimizedCallback = nullptr;
     MovedCallback _movedCallback = nullptr;
     ClosingCallback _closingCallback = nullptr;
+    ClosedCallback _closedCallback = nullptr;
     FocusInCallback _focusInCallback = nullptr;
     FocusOutCallback _focusOutCallback = nullptr;
 

@@ -9,9 +9,7 @@ namespace InfiniFrame.BuilderSnapshots;
 // ---------------------------------------------------------------------------------------------------------------------
 internal readonly record struct InfiniFrameWindowBuildSnapshot(
     InfiniFrameNativeParameters StartupParameters,
-    InfiniFrameWindowEventsSnapshot Events,
-    InfiniFrameWindowMessageHandlersSnapshot MessageHandlers,
-    InfiniFrameWindowCustomSchemeHandlersSnapshot CustomSchemes,
+    IInfiniFrameWindowEventsStore EventsStore,
     StaticAssetSettings? StaticAssets,
     InfiniFrameUriSecurityPolicy UriSecurityPolicy
 );

@@ -110,6 +110,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
     m_impl->_resizedCallback = initParams->ResizedHandler;
     m_impl->_movedCallback = initParams->MovedHandler;
     m_impl->_closingCallback = initParams->ClosingHandler;
+    m_impl->_closedCallback  = initParams->ClosedHandler;
     m_impl->_focusInCallback = initParams->FocusInHandler;
     m_impl->_focusOutCallback = initParams->FocusOutHandler;
     m_impl->_maximizedCallback = initParams->MaximizedHandler;
@@ -540,6 +541,7 @@ void InfiniFrameWindow::WaitForExit()
     }
 
     [[NSNotificationCenter defaultCenter] removeObserver: observer];
+    InvokeClosed();
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -572,6 +574,11 @@ void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const
 void InfiniFrameWindow::SetClosingCallback(const ClosingCallback callback)
 {
     m_impl->_closingCallback = callback;
+}
+
+void InfiniFrameWindow::SetClosedCallback(const ClosedCallback callback)
+{
+    m_impl->_closedCallback = callback;
 }
 
 void InfiniFrameWindow::SetFocusInCallback(const FocusInCallback callback)
@@ -614,6 +621,12 @@ void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback)
     if (m_impl->_closingCallback)
         return m_impl->_closingCallback();
     return false;
+}
+
+void InfiniFrameWindow::InvokeClosed() const noexcept
+{
+    if (m_impl->_closedCallback)
+        m_impl->_closedCallback();
 }
 
 void InfiniFrameWindow::InvokeFocusIn() const noexcept

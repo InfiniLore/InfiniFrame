@@ -32,6 +32,28 @@ extern "C" {
     }
 
     /**
+     * @brief Set closed callback
+     * @param instance InfiniFrame instance
+     * @param callback Closed callback
+     */
+    INFINIFRAME_NATIVE_EXPORT NativeStatusCode InfiniFrame_SetClosedCallback(
+        InfiniFrameWindow* instance,
+        const ClosedCallback callback
+        ) {
+        return RunWindowExportStatus(instance, [=](InfiniFrameWindow& window) {
+            window.SetClosedCallback(callback);
+        });
+    }
+
+    // Backward-compatible export name retained for existing consumers.
+    INFINIFRAME_NATIVE_EXPORT NativeStatusCode InfiniFrame_setClosedClosedCallback(
+        InfiniFrameWindow* instance,
+        const ClosedCallback callback
+        ) {
+        return InfiniFrame_SetClosedCallback(instance, callback);
+    }
+
+    /**
      * @brief Set focus-in callback
      * @param instance InfiniFrame instance
      * @param callback Focus-in callback

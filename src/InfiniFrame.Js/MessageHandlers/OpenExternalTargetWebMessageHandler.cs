@@ -17,7 +17,7 @@ public static class OpenExternalTargetWebMessageHandler {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public static T RegisterOpenExternalTargetWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
-        builder.MessageHandlers.RegisterHandler(HandlerNames.OpenExternal, HandleWebMessage);
+        builder.RegisterWebMessagePostHandler(HandlerNames.OpenExternal, HandleWebMessage);
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, HandlerNames.RegisterOpenExternal);
         return builder;
     }

@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.HostMessaging;
+using InfiniFrame.Native;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrameTests;
@@ -32,31 +32,54 @@ public class WebMessageReceivedHandlerTests {
     [Test]
     public async Task Handler_ResolvesServiceFromProvider() {
         // Arrange
-        var events = new InfiniFrameWindowEvents();
-        var builder = InfiniFrameWindowBuilder.Create(events: events);
+        var eventsStore = new InfiniFrameWindowEventsStore();
+        var events = new InfiniFrameWindowEvents(eventsStore);
+        var builder = InfiniFrameWindowBuilder.Create(eventsStore);
         var service = new TestService();
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider =  new TestServiceProvider(service),
-            CustomSchemes = new InfiniFrameWindowCustomSchemeHandlers(),
             Parent = null,
-            Events = events,
-            MessageHandlers = new InfiniFrameWindowMessageHandler()
+            Events = events
         };
-        events.CompleteSetup(window);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window, ref nativeParameters);
 
         var tcs = new TaskCompletionSource<(string ServiceId, string Message)>();
 
-        builder.RegisterWebMessageReceivedHandler((TestService resolvedService, IInfiniFrameWindow _, string message) => {
+        builder.RegisterWebMessageReceivedHandler((IInfiniFrameWindow _, string message, TestService resolvedService) => {
             tcs.TrySetResult((resolvedService.Id, message));
         });
 
         // Act
-        builder.Events.OnWebMessageReceived("ping");
+        eventsStore.WebMessageReceived.Invoke(window, new InfiniFrameWebMessageReceivedEvent("ping", null));
 
         // Assert
         (string ServiceId, string Message) result = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
         await Assert.That(result.ServiceId).IsEqualTo(service.Id);
         await Assert.That(result.Message).IsEqualTo("ping");
+    }
+
+    [Test]
+    public async Task Handler_WithOrigin_ReceivesOriginFromEventPayload() {
+        // Arrange
+        var eventsStore = new InfiniFrameWindowEventsStore();
+        var builder = InfiniFrameWindowBuilder.Create(eventsStore);
+        var window = new InfiniFrameWindow {
+            Logger = NullLogger<IInfiniFrameWindow>.Instance,
+            ServiceProvider = null,
+            Parent = null,
+            Events = new InfiniFrameWindowEvents(eventsStore)
+        };
+
+        var tcs = new TaskCompletionSource<string?>();
+        builder.RegisterWebMessageReceivedHandler((_, _, origin) => tcs.TrySetResult(origin));
+
+        // Act
+        eventsStore.WebMessageReceived.Invoke(window, new InfiniFrameWebMessageReceivedEvent("ping", "https://example.test"));
+
+        // Assert
+        string? origin = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await Assert.That(origin).IsEqualTo("https://example.test");
     }
 }

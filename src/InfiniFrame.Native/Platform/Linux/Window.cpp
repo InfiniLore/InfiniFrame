@@ -15,6 +15,7 @@ static void disconnect_signal(GObject* instance, gulong& handlerId) noexcept;
 gboolean on_configure_event(GtkWidget* widget, GdkEvent* event, gpointer self);
 gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, gpointer self);
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, gpointer self);
+void on_widget_destroyed(GtkWidget* widget, gpointer self);
 gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, gpointer self);
 gboolean on_focus_out_event(GtkWidget* widget, GdkEvent* event, gpointer self);
 gboolean on_webview_context_menu(
@@ -83,6 +84,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
     m_impl->_resizedCallback = initParams->ResizedHandler;
     m_impl->_movedCallback = initParams->MovedHandler;
     m_impl->_closingCallback = initParams->ClosingHandler;
+    m_impl->_closedCallback = initParams->ClosedHandler;
     m_impl->_focusInCallback = initParams->FocusInHandler;
     m_impl->_focusOutCallback = initParams->FocusOutHandler;
     m_impl->_maximizedCallback = initParams->MaximizedHandler;
@@ -165,6 +167,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
         G_OBJECT(m_impl->_window), "delete-event",
         G_CALLBACK(on_widget_deleted), this
         );
+    
+    g_signal_connect(
+        G_OBJECT(m_impl->_window), "destroy",
+        G_CALLBACK(on_widget_destroyed), this
+    );
 
     Show(false);
 
@@ -503,6 +510,10 @@ void InfiniFrameWindow::SetClosingCallback(const ClosingCallback callback) {
     m_impl->_closingCallback = callback;
 }
 
+void InfiniFrameWindow::SetClosedCallback(const ClosedCallback callback) {
+    m_impl->_closedCallback = callback;
+}
+
 void InfiniFrameWindow::SetFocusInCallback(const FocusInCallback callback) {
     m_impl->_focusInCallback = callback;
 }
@@ -535,6 +546,11 @@ void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback) {
     if (m_impl->_closingCallback)
         return m_impl->_closingCallback();
     return false;
+}
+
+void InfiniFrameWindow::InvokeClosed() const noexcept {
+    if (m_impl->_closedCallback)
+        m_impl->_closedCallback();
 }
 
 void InfiniFrameWindow::InvokeFocusIn() const noexcept {
@@ -669,6 +685,11 @@ gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, co
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer self) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
     return instance->InvokeClose();
+}
+
+void on_widget_destroyed(GtkWidget* widget, const gpointer self) {
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    instance->InvokeClosed();
 }
 
 gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {

@@ -70,6 +70,9 @@ using MovedCallback = void (*)(int x, int y);
  */
 using ClosingCallback = bool (*)();
 
+/** @brief Called when the window is closed */
+using ClosedCallback = void (*)();
+
 /** @brief Called when the window gains keyboard focus */
 using FocusInCallback = void (*)();
 

@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Js;
 using InfiniFrame.Js.Interop;
+using InfiniFrame.Native;
 using InfiniFrameTests.Shared.TestDoubles;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -134,12 +135,14 @@ public class MessageHandlersTests {
 
     private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
         var builder = InfiniFrameWindowBuilder.Create();
-        var events = (InfiniFrameWindowEvents)builder.Events;
+        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
-
-        events.WebMessageReceived.Add((sender, message) => builder.MessageHandlers.TryHandlePostDataRequest(sender, message));
-        events.CompleteSetup(window.Window);
+        
+        var events = new InfiniFrameWindowEvents(eventsStore);
+        var nativeParameters = default(InfiniFrameNativeParameters);
+        events.CompleteSetup(window.Window, ref nativeParameters);
 
         return (builder, events, window);
     }
