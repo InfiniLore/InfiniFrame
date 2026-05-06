@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
+using System.Runtime.Versioning;
 
 namespace InfiniFrameTests.BlazorWebView;
 
@@ -293,30 +294,38 @@ public class InfiniFrameBlazorAppBuilderTests {
     [SkipUtility.SkipOnMacOs("Given init parameters are not supported on macOS")]
     [SkipUtility.SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only supported on Windows.");
+            return;
+        }
+
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
         
         // Act
-        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, builder => builder
-            .SetTitle("Test")
-            .SetBrowserControlInitParameters(initParameters)
-            .SetLeft(0)
-            .SetTop(0)
-            .SetSize(100, 100)
-            .SetResizable(false)
-            .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false)
-        );
+        string actualParameters = await RunOnStaThread(() => {
+            var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, builder => builder
+                .SetTitle("Test")
+                .SetBrowserControlInitParameters(initParameters)
+                .SetLeft(0)
+                .SetTop(0)
+                .SetSize(100, 100)
+                .SetResizable(false)
+                .SetChromeless(true)
+                .SetSmoothScrollingEnabled(false)
+            );
 
-        InfiniFrameBlazorApp app = appbuilder.Build();
-        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+            InfiniFrameBlazorApp app = appbuilder.Build();
+            var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+            string? value = window.BrowserControlInitParameters;
+            window.Close();
+            app.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            return value ?? string.Empty;
+        });
         
         // Assert
-        await Assert.That(window).IsNotNull();
-        await Assert.That(window.BrowserControlInitParameters).IsEqualTo(
-            initParameters
-        );
+        await Assert.That(actualParameters).IsEqualTo(initParameters);
     }
     
     [Test]
@@ -325,29 +334,60 @@ public class InfiniFrameBlazorAppBuilderTests {
     [SkipUtility.SkipOnMacOs("Given init parameters are not supported on macOS")]
     [SkipUtility.SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only supported on Windows.");
+            return;
+        }
+
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
         
         // Act
-        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
-        appbuilder.WindowBuilder
-            .SetTitle("Test")
-            .SetBrowserControlInitParameters(initParameters)
-            .SetLeft(0)
-            .SetTop(0)
-            .SetSize(100, 100)
-            .SetResizable(false)
-            .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false);
+        string actualParameters = await RunOnStaThread(() => {
+            var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
+            appbuilder.WindowBuilder
+                .SetTitle("Test")
+                .SetBrowserControlInitParameters(initParameters)
+                .SetLeft(0)
+                .SetTop(0)
+                .SetSize(100, 100)
+                .SetResizable(false)
+                .SetChromeless(true)
+                .SetSmoothScrollingEnabled(false);
 
-        InfiniFrameBlazorApp app = appbuilder.Build();
-        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+            InfiniFrameBlazorApp app = appbuilder.Build();
+            var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+            string? value = window.BrowserControlInitParameters;
+            window.Close();
+            app.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            return value ?? string.Empty;
+        });
         
         // Assert
-        await Assert.That(window).IsNotNull();
-        await Assert.That(window.BrowserControlInitParameters).IsEqualTo(
-            initParameters
-        );
+        await Assert.That(actualParameters).IsEqualTo(initParameters);
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static Task<T> RunOnStaThread<T>(Func<T> action) {
+        if (!OperatingSystem.IsWindows())
+            throw new PlatformNotSupportedException("RunOnStaThread is only supported on Windows.");
+
+        var source = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() => {
+            try {
+                source.TrySetResult(action());
+            }
+            catch (Exception ex) {
+                source.TrySetException(ex);
+            }
+        }) {
+            IsBackground = true
+        };
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+
+        return source.Task;
     }
 }

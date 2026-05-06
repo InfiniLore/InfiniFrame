@@ -272,8 +272,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     if (initParams->Topmost)
         SetTopmost(true);
 
-    m_impl->InitializeNotifications(this);
-
     m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);
 
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;

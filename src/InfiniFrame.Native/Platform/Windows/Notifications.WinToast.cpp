@@ -32,6 +32,11 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
     std::wstring wideTitle = ToUTF16String(title);
     std::wstring wideBody = ToUTF16String(body);
     if (m_impl->_notificationsEnabled && WinToast::isCompatible()) {
+        if (!m_impl->_toastHandler)
+            m_impl->InitializeNotifications(this);
+        if (!m_impl->_toastHandler)
+            return;
+
         WinToastTemplate toast = WinToastTemplate(WinToastTemplate::ImageAndText02);
         toast.setTextField(wideTitle.c_str(), WinToastTemplate::FirstLine);
         toast.setTextField(wideBody.c_str(), WinToastTemplate::SecondLine);
