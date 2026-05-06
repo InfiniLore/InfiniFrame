@@ -27,7 +27,10 @@
         <CMakeOSDir Condition="'$(IsWindows)'=='true'">windows</CMakeOSDir>
         <CMakeOSDir Condition="'$(IsLinux)'=='true'">linux</CMakeOSDir>
         <CMakeOSDir Condition="'$(IsMac)'=='true'">osx</CMakeOSDir>
-        <InfiniFrameNativeTestExports Condition="'$(InfiniFrameNativeTestExports)'==''">false</InfiniFrameNativeTestExports>
+        
+        <!-- Native Test Exporting-->
+        <InfiniFrameNativeTestExports Condition="'$(InfiniFrameNativeTestExports)' == '' and '$(Configuration)' == 'Debug'">true</InfiniFrameNativeTestExports>
+        <InfiniFrameNativeTestExports Condition="'$(InfiniFrameNativeTestExports)' == ''">false</InfiniFrameNativeTestExports>
         <CMakeBuildTestExports Condition="'$(InfiniFrameNativeTestExports)'=='true'">ON</CMakeBuildTestExports>
         <CMakeBuildTestExports Condition="'$(CMakeBuildTestExports)'==''">OFF</CMakeBuildTestExports>
 
