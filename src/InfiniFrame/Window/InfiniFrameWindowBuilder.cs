@@ -40,7 +40,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         InfiniFrameWindowBuilderSnapshot snapshot = CreateSnapshot(provider);
         
         InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
-        var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
+        var events = new InfiniFrameEvents(snapshot.EventsStore);
         events.AssignEventCallbacks(ref nativeParameters);
         
         var configuration = new InfiniFrameOptions {

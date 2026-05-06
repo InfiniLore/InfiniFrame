@@ -14,7 +14,7 @@ namespace InfiniFrameTests.Utilities;
 public class OrderedEventTests {
     private static InfiniFrameWindow CreateWindow() {
         var eventStore = new InfiniFrameEventsStore();
-        var events = new InfiniFrameWindowEvents(eventStore);
+        var events = new InfiniFrameEvents(eventStore);
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
@@ -27,7 +27,6 @@ public class OrderedEventTests {
         
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignSender(window);
-        events.CompleteSetup();
         
         return window;
     }

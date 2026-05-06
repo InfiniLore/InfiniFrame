@@ -34,7 +34,7 @@ public class WebMessageReceivedHandlerTests {
     public async Task Handler_ResolvesServiceFromProvider() {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var events = new InfiniFrameWindowEvents(eventsStore);
+        var events = new InfiniFrameEvents(eventsStore);
         var builder = InfiniFrameWindowBuilder.Create(eventsStore);
         var service = new TestService();
         var window = new InfiniFrameWindow {
@@ -48,7 +48,6 @@ public class WebMessageReceivedHandlerTests {
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignSender(window);
-        events.CompleteSetup();
 
         var tcs = new TaskCompletionSource<(string ServiceId, string Message)>();
 
@@ -74,7 +73,7 @@ public class WebMessageReceivedHandlerTests {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
             Parent = null,
-            Events = new InfiniFrameWindowEvents(eventsStore),
+            Events = new InfiniFrameEvents(eventsStore),
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null,
         };

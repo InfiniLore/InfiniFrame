@@ -18,7 +18,7 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_StandardGetRequest_Title_ReturnsWindowTitle() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window)
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
         builder.RegisterGetWebMessageHandler();
@@ -48,7 +48,7 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_ResolvesRegisteredHandlerAndReturnsData() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window)
+        (InfiniFrameWindowBuilder _, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
         events.RegisterWebMessageGetHandler("app:echo", (_, payload) => $"echo:{payload}");
@@ -77,7 +77,7 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_WithoutRegisteredHandler_ReturnsErrorResponse() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window)
+        (InfiniFrameWindowBuilder _, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
@@ -105,7 +105,7 @@ public class GetMessageWebMessageHandlerTests {
     [Test]
     public async Task GetMessage_WithoutRegisteredService_ReturnsErrorResponse() {
         // Arrange
-        (InfiniFrameWindowBuilder _, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window)
+        (InfiniFrameWindowBuilder _, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
@@ -134,18 +134,17 @@ public class GetMessageWebMessageHandlerTests {
             .Contains("No getMessage handler is registered");
     }
 
-    private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
+    private static (InfiniFrameWindowBuilder Builder, InfiniFrameEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
         var builder = InfiniFrameWindowBuilder.Create();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
         
-        var events = new InfiniFrameWindowEvents(eventsStore);
+        var events = new InfiniFrameEvents(eventsStore);
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignSender(window.Window);
-        events.CompleteSetup();
         
         return (builder, events, window);
     }

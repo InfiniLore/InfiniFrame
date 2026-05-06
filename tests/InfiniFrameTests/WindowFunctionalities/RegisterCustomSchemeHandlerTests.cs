@@ -25,11 +25,10 @@ public class RegisterCustomSchemeHandlerTests {
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
-        var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
+        var events = new InfiniFrameEvents(snapshot.EventsStore);
         IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignSender(window);
-        events.CompleteSetup();
 
         // Assert
         await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("app")).IsTrue();
@@ -49,11 +48,10 @@ public class RegisterCustomSchemeHandlerTests {
         }
         InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
-        var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
+        var events = new InfiniFrameEvents(snapshot.EventsStore);
         IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignSender(window);
-        events.CompleteSetup();
 
         // Assert
         int nativeAppCount = nativeParameters.CustomSchemeNames

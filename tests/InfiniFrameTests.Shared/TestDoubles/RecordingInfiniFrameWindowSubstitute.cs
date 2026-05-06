@@ -44,7 +44,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
 
         // Default wiring for simple tests that don't need explicit builder binding.
         var eventsStore = new InfiniFrameEventsStore();
-        Window.Events.Returns(new InfiniFrameWindowEvents(eventsStore));
+        Window.Events.Returns(new InfiniFrameEvents(eventsStore));
         Window.EventsStore.Returns(eventsStore);
     }
 
@@ -52,7 +52,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public RecordingInfiniFrameWindowSubstitute BindToBuilder(IInfiniFrameWindowBuilder builder) {
-        Window.Events.Returns(new InfiniFrameWindowEvents(builder.EventsStore));
+        Window.Events.Returns(new InfiniFrameEvents(builder.EventsStore));
         Window.EventsStore.Returns(builder.EventsStore);
         return this;
     }

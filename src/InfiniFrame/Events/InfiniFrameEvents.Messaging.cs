@@ -11,7 +11,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class InfiniFrameWindowEvents {
+public partial class InfiniFrameEvents {
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -20,8 +20,7 @@ public partial class InfiniFrameWindowEvents {
     ///     Invokes registered user-defined handler methods when the native window sends a message.
     /// </summary>
     public void OnWebMessageReceived(string message, string? origin = null) {
-        if (!SetupComplete) throw new InvalidOperationException("Setup not complete");
-
+        ArgumentNullException.ThrowIfNull(Sender);
         ArgumentNullException.ThrowIfNull(message);
 
         if (Sender.InstanceHandle == IntPtr.Zero) {
