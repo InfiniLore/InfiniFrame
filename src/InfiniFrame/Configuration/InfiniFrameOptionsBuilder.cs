@@ -67,7 +67,7 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameNativeParameters ToNativeParameters() {
-        IconFileUtilities.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath);
+        IconFileUtility.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath);
 
         if (CustomSchemeNames.Count > CustomSchemeNameMemory.MaxCustomSchemeNames)
             throw new InvalidOperationException("Maximum number of custom schemes is 16.");

@@ -8,7 +8,7 @@ namespace InfiniFrameTests.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class IconFileUtilitiesTests {
+public class IconFileUtilityTests {
     [Test]
     public async Task TryResolveIconFilePath_UsesBaseDirectoryForRelativePath() {
         // Arrange

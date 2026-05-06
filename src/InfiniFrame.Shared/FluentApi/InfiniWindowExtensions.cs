@@ -427,7 +427,7 @@ public static class InfiniWindowExtensions {
     public static T SetIconFile<T>(this T window, string iconFilePath) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetIconFile({IconFile})", iconFilePath);
 
-        if (!IconFileUtilities.TryResolveIconFilePath(iconFilePath, out string? resolvedIconFilePath)) {
+        if (!IconFileUtility.TryResolveIconFilePath(iconFilePath, out string? resolvedIconFilePath)) {
             window.Logger.LogWarning("Icon file {IconFile} does not exist or is an invalid file path.", iconFilePath);
             return window;
         }
