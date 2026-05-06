@@ -17,10 +17,7 @@ public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) 
         catch (OperationCanceledException) when (ct.IsCancellationRequested) {
             // ignore cancellation
         }
-        catch (JSException ex) {
-            logger.LogError(ex, "Something went wrong during setPointerCapture");
-        }
-        catch (InvalidOperationException ex) {
+        catch (Exception ex) when (ex is JSException or InvalidOperationException) {
             logger.LogError(ex, "Something went wrong during setPointerCapture");
         }
     }
@@ -32,10 +29,7 @@ public class InfiniFrameJs(IJSRuntime jsRuntime, ILogger<InfiniFrameJs> logger) 
         catch (OperationCanceledException) when (ct.IsCancellationRequested) {
             // ignore cancellation
         }
-        catch (JSException ex) {
-            logger.LogError(ex, "Something went wrong during releasePointerCapture");
-        }
-        catch (InvalidOperationException ex) {
+        catch (Exception ex) when (ex is JSException or InvalidOperationException) {
             logger.LogError(ex, "Something went wrong during releasePointerCapture");
         }
     }
