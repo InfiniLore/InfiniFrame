@@ -13,7 +13,9 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     ILogger<IInfiniFrameWindow> Logger { get; }
     IServiceProvider? ServiceProvider { get; }
     IInfiniFrameWindowEvents Events { get; }
-
+    
+    IInfiniFrameOptions Configuration { get; }
+    
     IntPtr InstanceHandle { get; }
     IntPtr WindowHandle { get; }
     IntPtr NativeType { get; }

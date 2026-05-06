@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using System.Collections.Immutable;
 
 namespace InfiniFrameTests.Utilities;
@@ -18,10 +19,15 @@ public class OrderedEventTests {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
             Parent = null,
-            Events = events
+            Events = events,
+            Configuration = Substitute.For<IInfiniFrameOptions>()
         };
         var nativeParameters = default(InfiniFrameNativeParameters);    
-        events.CompleteSetup(window, ref nativeParameters);
+        
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window);
+        events.CompleteSetup();
+        
         return window;
     }
 

@@ -9,7 +9,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameWindowNativeParameterBuilder : IInfiniFrameWindowNativeParameterBuilder {
+public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
+    #region Native Parameters
     public string? BrowserControlInitParameters { get; set; }
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }
@@ -39,7 +40,13 @@ public class InfiniFrameWindowNativeParameterBuilder : IInfiniFrameWindowNativeP
     public string? StartString { get; set; }
     public string? StartUrl { get; set; }
     public string? TemporaryFilesPath { get; set; } = Path.Join(Path.GetTempPath(), "infiniframe");
-    public string Title { get; set; } = "InfiniFrame";
+    
+    private string _title = TitleStringHelper.DefaultTitle;
+    public string Title {
+        get => _title;
+        set => _title = TitleStringHelper.Validate(value, LimitLinuxWindowTitleLength);
+    }
+    
     public int Top { get; set; }
     public bool TopMost { get; set; }
     public bool Transparent { get; set; }
@@ -50,7 +57,12 @@ public class InfiniFrameWindowNativeParameterBuilder : IInfiniFrameWindowNativeP
     public int Width { get; set; }
     public int Zoom { get; set; } = 100;
     public bool ZoomEnabled { get; set; } = true;
+    #endregion
 
+    #region C# Options
+    public bool LimitLinuxWindowTitleLength { get; set; } = false;
+    #endregion
+    
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

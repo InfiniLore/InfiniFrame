@@ -7,7 +7,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowNativeParameterBuilder {
+public interface IInfiniFrameOptionsBuilder {
+    #region Native Parameters
     bool Centered { get; set; }
     bool Chromeless { get; set; }
     bool Transparent { get; set; }
@@ -48,6 +49,11 @@ public interface IInfiniFrameWindowNativeParameterBuilder {
     List<string> CustomSchemeNames { get; set; }
     int Zoom { get; set; }
     bool ZoomEnabled { get; set; }
-
+    #endregion
+    
+    #region C# Options
+    bool LimitLinuxWindowTitleLength { get; set; }
+    #endregion
+    
     InfiniFrameNativeParameters ToNativeParameters();
 }

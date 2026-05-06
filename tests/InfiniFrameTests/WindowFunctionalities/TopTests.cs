@@ -33,7 +33,7 @@ public class TopTests {
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowNativeParameterBuilder {
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameOptionsBuilder {
             Top = Top,
             UseOsDefaultLocation = false,
             Centered = false

@@ -143,8 +143,10 @@ public class GetMessageWebMessageHandlerTests {
         
         var events = new InfiniFrameWindowEvents(eventsStore);
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window.Window, ref nativeParameters);
-
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window.Window);
+        events.CompleteSetup();
+        
         return (builder, events, window);
     }
 

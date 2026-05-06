@@ -23,7 +23,9 @@ public class RegisterWindowCreatedUtilityTests {
             .BindToBuilder(builder);
 
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window.Window, ref nativeParameters);
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window.Window);
+        events.CompleteSetup();
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 
@@ -59,7 +61,9 @@ public class RegisterWindowCreatedUtilityTests {
             .BindToBuilder(builder);
 
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window.Window, ref nativeParameters);
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window.Window);
+        events.CompleteSetup();
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 
@@ -85,7 +89,9 @@ public class RegisterWindowCreatedUtilityTests {
             .BindToBuilder(builder);
 
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window.Window, ref nativeParameters);
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window.Window);
+        events.CompleteSetup();
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
 

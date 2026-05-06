@@ -23,10 +23,12 @@ public partial class InfiniFrameWindowEvents(IInfiniFrameWindowEventsStore store
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void CompleteSetup(IInfiniFrameWindow sender, ref InfiniFrameNativeParameters parameters) {
+    public void AssignSender(IInfiniFrameWindow sender) {
         ArgumentNullException.ThrowIfNull(sender);
         Sender = sender;
-        
+    }
+    
+    public void AssignEventCallbacks(ref InfiniFrameNativeParameters parameters) {
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
         parameters.ClosingHandler = OnWindowClosing;
         parameters.CustomSchemeHandler = OnCustomScheme;
@@ -42,7 +44,10 @@ public partial class InfiniFrameWindowEvents(IInfiniFrameWindowEventsStore store
         parameters.WebMessageReceivedHandler = OnWebMessageReceived;
         
         ApplyCustomSchemeNames(ref parameters);
-        
+    }
+    
+    public void CompleteSetup() {
+        if (Sender is null) throw new InvalidOperationException("Sender not set");
         SetupComplete = true;
     }
 

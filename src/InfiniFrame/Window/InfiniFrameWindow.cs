@@ -20,12 +20,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     private int _shutdownRequested;
     private int _shutdownStarted;
-    public InfiniFrameNativeParameters StartupParameters;
     internal StaticAssetSettings? StaticAssets { get; init; }
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
     public required IInfiniFrameWindow? Parent { get; init; }
     public required IInfiniFrameWindowEvents Events { get; init; }
+    public required IInfiniFrameOptions Configuration { get; init; }
     public IInfiniFrameWindowEventsStore EventsStore => Events.EventsStore;
     
     public IntPtr NativeType => WindowType.Value;
@@ -340,19 +340,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     }
 
     public void Initialize() {
-        StartupParameters.NativeParent = Parent is InfiniFrameWindow parent
-            ? parent.InstanceHandle
-            : IntPtr.Zero;
-
-        StartupParameters.WindowIconFile = IconFileUtilities.TryResolveIconFilePath(
-            StartupParameters.WindowIconFile,
-            out string? resolvedIconFilePath
-        )
-            ? resolvedIconFilePath
-            : null;
-
+        InfiniFrameNativeParameters startupParameters = Configuration.StartupParameters;
+        
         try {
-            if (!InfiniFrameNativeParametersValidator.Validate(StartupParameters, Logger)) {
+            if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, Logger)) {
                 Logger.LogCritical("Startup Parameters Are Not Valid, please check the logs");
                 throw new ArgumentException("Startup Parameters Are Not Valid, please check the logs");
             }
@@ -366,7 +357,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 else if (OperatingSystem.IsMacOS())
                     Invoke(InfiniFrameNative.RegisterMac);
 
-                Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in StartupParameters));
+                Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in startupParameters));
             }
             catch (Exception ex) when (IsNonFatalException(ex)) {
                 int lastError = 0;
@@ -380,7 +371,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             Events.OnWindowCreated();
         }
         finally {
-            CustomSchemeNameMemory.FreeAll(StartupParameters.CustomSchemeNames);
+            CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
         }
     }
 
@@ -507,7 +498,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <remarks>
     ///     The user has to supply titlebar, border, dragging and resizing manually.
     /// </remarks>
-    public bool Chromeless => StartupParameters.Chromeless;
+    public bool Chromeless => Configuration.StartupParameters.Chromeless;
 
     /// <summary>
     ///     When true, the native window and browser control can be displayed with a transparent background.
@@ -520,7 +511,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool Transparent => OperatingSystem.IsWindows()
-        ? StartupParameters.Transparent// on windows it can only be set at startup
+        ? Configuration.StartupParameters.Transparent// on windows it can only be set at startup
         : InvokeUtilities.InvokeAndReturn<bool>(this, InfiniFrameNative.GetTransparentEnabled);
 
     /// <summary>
@@ -693,7 +684,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
     ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
     /// </summary>
-    public string? BrowserControlInitParameters => StartupParameters.BrowserControlInitParameters;
+    public string? BrowserControlInitParameters => Configuration.StartupParameters.BrowserControlInitParameters;
 
     /// <summary>
     ///     Gets an HTML string that the browser control will render when initialized.
@@ -706,7 +697,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    public string? StartString => StartupParameters.StartString;
+    public string? StartString => Configuration.StartupParameters.StartString;
 
     /// <summary>
     ///     Gets a URL that the browser control will navigate to when initialized.
@@ -719,7 +710,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown if trying to set a value after a native window is initialized.
     /// </exception>
-    public string? StartUrl => StartupParameters.StartUrl;
+    public string? StartUrl => Configuration.StartupParameters.StartUrl;
 
     /// <summary>
     ///     Gets the local path to store temp files for browser control.
@@ -731,7 +722,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public string? TemporaryFilesPath => StartupParameters.TemporaryFilesPath;
+    public string? TemporaryFilesPath => Configuration.StartupParameters.TemporaryFilesPath;
 
     /// <summary>
     ///     Gets the registration id for doing toast notifications.
@@ -743,7 +734,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <exception cref="ApplicationException">
     ///     Thrown if a platform is not Windows.
     /// </exception>
-    public string? NotificationRegistrationId => StartupParameters.NotificationRegistrationId;
+    public string? NotificationRegistrationId => Configuration.StartupParameters.NotificationRegistrationId;
 
     /// <summary>
     ///     Gets the native window title.

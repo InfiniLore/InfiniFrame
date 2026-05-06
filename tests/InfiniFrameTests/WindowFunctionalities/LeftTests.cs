@@ -33,7 +33,7 @@ public class LeftTests {
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowNativeParameterBuilder {
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameOptionsBuilder {
             Left = Left,
             UseOsDefaultLocation = false,
             Centered = false

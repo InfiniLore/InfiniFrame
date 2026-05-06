@@ -1,14 +1,15 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Native;
+
 namespace InfiniFrame;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilder : IHasInfiniFrameWindowEventsStore {
-    StaticAssetSettings? StaticAssets { get; set; }
-
-    IInfiniFrameOptionsBuilder Configuration { get; }
-
-    IInfiniFrameWindow Build(IServiceProvider? provider = null);
+public class InfiniFrameOptions : IInfiniFrameOptions {
+    public required InfiniFrameNativeParameters StartupParameters { get; init; }
+    
+    public required bool LimitLinuxWindowTitleLength { get; set; }
 }

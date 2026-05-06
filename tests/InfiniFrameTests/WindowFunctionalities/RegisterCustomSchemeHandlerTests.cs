@@ -6,6 +6,7 @@ using InfiniFrameTests.Shared;
 using InfiniFrameTests.Shared.TestDoubles;
 using System.Runtime.InteropServices;
 using InfiniFrame.BuilderSnapshots;
+using InfiniFrame.Native;
 
 namespace InfiniFrameTests.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -24,10 +25,12 @@ public class RegisterCustomSchemeHandlerTests {
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
-        var nativeParameters = snapshot.StartupParameters;
+        InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
         var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
-        var window = new RecordingInfiniFrameWindowSubstitute().Window;
-        events.CompleteSetup(window, ref nativeParameters);
+        IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window);
+        events.CompleteSetup();
 
         // Assert
         await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("app")).IsTrue();
@@ -46,10 +49,12 @@ public class RegisterCustomSchemeHandlerTests {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
         InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
-        var nativeParameters = snapshot.StartupParameters;
+        InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
         var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
-        var window = new RecordingInfiniFrameWindowSubstitute().Window;
-        events.CompleteSetup(window, ref nativeParameters);
+        IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window);
+        events.CompleteSetup();
 
         // Assert
         int nativeAppCount = nativeParameters.CustomSchemeNames
