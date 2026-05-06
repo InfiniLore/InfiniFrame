@@ -1,6 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Utilities;
+
 namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -89,7 +91,7 @@ public class InfiniFrameWebApplication {
         try {
             await WebApp.StopAsync(ct);
         }
-        catch (Exception e) when (IsNonFatalException(e)) {
+        catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             Window.Logger.LogError(e, "Error stopping web app");
         }
     }
@@ -102,7 +104,4 @@ public class InfiniFrameWebApplication {
             // Host shutdown cancellation is expected.
         }
     }
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 }

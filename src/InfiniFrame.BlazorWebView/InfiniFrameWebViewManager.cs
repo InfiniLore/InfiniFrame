@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView.Utils;
+using InfiniFrame.Utilities;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView;
@@ -224,7 +225,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         catch (OperationCanceledException) {
             LazyLogger.Value?.LogDebug("WebView message pump cancellation requested.");
         }
-        catch (Exception ex) when (IsNonFatalException(ex)) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             LazyLogger.Value?.LogError(ex, "Unhandled exception in WebView message pump.");
             throw;
         }
@@ -249,9 +250,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             }
         }
     }
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 
     private static string GetFallbackContentType(string localPath) {
         string extension = Path.GetExtension(localPath);

@@ -1,11 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
-namespace InfiniFrame.Utilities;
+namespace InfiniFrame.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ internal static class InfiniFrameNativeParametersValidator {
         }
 
         if (!string.IsNullOrWhiteSpace(windowIconFile) &&
-            !IconFileUtilities.TryResolveIconFilePath(windowIconFile, out _)) {
+            !IconFileUtility.TryResolveIconFilePath(windowIconFile, out _)) {
             logger.LogError("WindowIconFile: {WindowIconFile} cannot be found", windowIconFile);
             result = false;
         }

@@ -124,7 +124,7 @@ public static class InfiniWindowBuilderExtensions {
     ///     The file path to the icon.
     /// </value>
     public static T SetIconFile<T>(this T builder, string? iconFilePath) where T : IInfiniFrameWindowBuilder {
-        if (!IconFileUtilities.TryResolveIconFilePath(iconFilePath, out string? resolvedIconFilePath)) return builder;
+        if (!IconFileUtility.TryResolveIconFilePath(iconFilePath, out string? resolvedIconFilePath)) return builder;
 
         builder.Configuration.IconFilePath = resolvedIconFilePath;
         return builder;

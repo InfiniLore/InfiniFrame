@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
@@ -76,7 +77,7 @@ public static class RegisterWindowCreatedUtility {
         try {
             allMessagesSent = await SendRegistrationsAndAckAsync(window, registrationMessages);
         }
-        catch (Exception ex) when (IsNonFatalException(ex)) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
         }
         finally {
@@ -96,7 +97,4 @@ public static class RegisterWindowCreatedUtility {
         window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", HandlerNames.WindowReadyAck);
         return true;
     }
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
 }

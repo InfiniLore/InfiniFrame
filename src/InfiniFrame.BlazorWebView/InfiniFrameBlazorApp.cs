@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -62,9 +63,6 @@ public class InfiniFrameBlazorApp(
         }
     }
 
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
-
     public async ValueTask DisposeAsync() {
         if (_disposed) return;
 
@@ -87,7 +85,7 @@ public class InfiniFrameBlazorApp(
                     break;
             }
         }
-        catch (Exception e) when (IsNonFatalException(e)) {
+        catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
         }
 

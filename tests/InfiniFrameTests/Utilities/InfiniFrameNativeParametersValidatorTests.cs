@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
-using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniFrameTests.Utilities;
