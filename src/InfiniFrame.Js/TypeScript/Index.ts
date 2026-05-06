@@ -15,7 +15,10 @@ console.log("InfiniFrame WebView JavaScript bridge initialized.");
 
 const setup = getSetupGuard();
 
-installNativeInteropBridge();
+if (!setup.nativeInteropBridgeInitialized) {
+    setup.nativeInteropBridgeInitialized = true;
+    installNativeInteropBridge();
+}
 
 if (!setup.windowExternalBridgeInitialized) {
     setup.windowExternalBridgeInitialized = true;
@@ -37,4 +40,4 @@ if (!setup.customElementsInitialized) {
     initCustomElements();
 }
 
-window.infiniframe = new InfiniFrame();
+window.infiniframe = window.infiniframe ?? new InfiniFrame();

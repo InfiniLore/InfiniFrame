@@ -7,7 +7,7 @@ import type {BlazorCallback, InfiniFrameExternal} from "../../Contracts";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export function initWindowExternalBridge(): void {
-    const external = window.external as InfiniFrameExternal;
+    const external = ensureWindowExternal();
     window.__blazorCallbacks = window.__blazorCallbacks ?? [];
 
     external.receiveMessage = (callback: BlazorCallback): void => {
@@ -40,4 +40,20 @@ export function initWindowExternalBridge(): void {
             }
         });
     }
+}
+
+function ensureWindowExternal(): InfiniFrameExternal {
+    if (window.external) {
+        return window.external as InfiniFrameExternal;
+    }
+
+    const external = {} as InfiniFrameExternal;
+    Object.defineProperty(window, "external", {
+        configurable: true,
+        enumerable: true,
+        value: external,
+        writable: true
+    });
+
+    return external;
 }

@@ -35,6 +35,28 @@ describe("blazorExternalBridge", () => {
         expect(postData).toHaveBeenCalledWith("post-message");
     });
 
+    it("creates window.external when the runtime does not provide one", () => {
+        Object.defineProperty(window, "external", {
+            configurable: true,
+            value: undefined,
+            writable: true
+        });
+
+        window.__infiniframe = {
+            host: {
+                postData: vi.fn(),
+                receiveCallback: vi.fn()
+            }
+        };
+
+        initWindowExternalBridge();
+
+        const external = window.external as InfiniFrameExternal;
+        expect(external).toBeDefined();
+        expect(external.receiveMessage).toBeTypeOf("function");
+        expect(external.sendMessage).toBeTypeOf("function");
+    });
+
     it("dispatches host messages to registered Blazor callbacks", () => {
         let hostCallback: BlazorCallback | null = null;
         window.__infiniframe = {
