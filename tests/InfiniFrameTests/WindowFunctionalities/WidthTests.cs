@@ -37,12 +37,14 @@ public class WidthTests {
         InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowNativeParameterBuilder {
             Width = Width,
             UseOsDefaultSize = false,
-            Centered = false
+            Centered = false,
+            TemporaryFilesPath = null // Else testing fails due to the GUID behavior
         }.ToNativeParameters();
 
         // Act
         builder.SetUseOsDefaultSize(true);
         builder.SetWidth(Width);
+        builder.SetTemporaryFilesPath(null); // Else testing fails due to the GUID behavior
 
         // Assert
         await Assert.That(builder.Configuration.Width).IsEqualTo(Width);

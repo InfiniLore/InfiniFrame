@@ -36,13 +36,15 @@ public class LeftTests {
         InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowNativeParameterBuilder {
             Left = Left,
             UseOsDefaultLocation = false,
-            Centered = false
+            Centered = false,
+            TemporaryFilesPath = null // Else testing fails due to the GUID behavior
         }.ToNativeParameters();
 
         // Act
         builder.Center();
         builder.SetUseOsDefaultLocation(true);
         builder.SetLeft(Left);
+        builder.SetTemporaryFilesPath(null); // Else testing fails due to the GUID behavior
 
         // Assert
         await Assert.That(builder.Configuration.Left).IsEqualTo(Left);

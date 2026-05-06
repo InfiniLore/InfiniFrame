@@ -41,12 +41,14 @@ public class SizeTests {
             Width = Width,
             Height = Height,
             UseOsDefaultSize = false,
-            Centered = false
+            Centered = false,
+            TemporaryFilesPath = null // Else testing fails due to the GUID behavior
         }.ToNativeParameters();
 
         // Act
         builder.SetUseOsDefaultSize(true);
         builder.SetSize(Width, Height);
+        builder.SetTemporaryFilesPath(null); // Else testing fails due to the GUID behavior
 
         // Assert
         await Assert.That(builder.Configuration.Width).IsEqualTo(Width);

@@ -42,12 +42,14 @@ public class LocationTests {
             Left = Left,
             Top = Top,
             UseOsDefaultLocation = false,
-            Centered = false
+            Centered = false,
+            TemporaryFilesPath = null // Else testing fails due to the GUID behavior
         }.ToNativeParameters();
 
         // Act
         builder.SetUseOsDefaultLocation(true);
         builder.SetLocation(Left, Top);
+        builder.SetTemporaryFilesPath(null); // Else testing fails due to the GUID behavior
 
         // Assert
         await Assert.That(builder.Configuration.Left).IsEqualTo(Left);

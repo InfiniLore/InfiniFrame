@@ -37,12 +37,14 @@ public class HeightTests {
         InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowNativeParameterBuilder {
             Height = Height,
             UseOsDefaultSize = false,
-            Centered = false
+            Centered = false,
+            TemporaryFilesPath = null // Else testing fails due to the GUID behavior
         }.ToNativeParameters();
 
         // Act
         builder.SetUseOsDefaultSize(true);
         builder.SetHeight(Height);
+        builder.SetTemporaryFilesPath(null); // Else testing fails due to the GUID behavior
 
         // Assert
         await Assert.That(builder.Configuration.Height).IsEqualTo(Height);
