@@ -2,16 +2,17 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {
+    ReceiveFromHostMessageIds,
+    SendToHostMessageIds
+} from "./Contracts";
+import type {
     IInfiniFrameHostMessaging,
     InteropEnvelopeV1,
     MessageCallback,
-    ReceiveFromHostMessageIds,
-    SendToHostMessageId,
-    SendToHostMessageIds
+    SendToHostMessageId
 } from "./Contracts";
 import {createEnvelope, InteropGetCommand, parseIncomingMessage} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
-import {blankTargetHandler} from "./Utils/BlankTargetHandler";
-import {getTitleObserver, getTitleObserverTarget} from "./Utils/Observers";
+import {blankTargetHandler, getTitleObserver, getTitleObserverTarget} from "./Utils";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

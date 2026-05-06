@@ -10,6 +10,7 @@ export interface InfiniFrameSetup {
 
 export type BlazorCallback = (message: string) => void;
 
+// noinspection JSDeprecatedSymbols
 export interface InfiniFrameExternal extends External {
     receiveMessage?: (callback: BlazorCallback) => void;
     receiveCallback?: (callback: BlazorCallback) => void;

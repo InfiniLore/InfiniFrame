@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {InteropEnvelopeV1} from "../../Contracts";
+import type {InteropEnvelopeV1} from "../../Contracts";
 import {
     InteropEnvelopeVersion,
     InteropGetCommand,

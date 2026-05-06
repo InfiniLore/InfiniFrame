@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniFrame, IInfiniFrameHostMessaging, IInfiniFrameUtils, IInfiniFrameWindow} from "./Contracts";
+import type {IInfiniFrame, IInfiniFrameHostMessaging, IInfiniFrameUtils, IInfiniFrameWindow} from "./Contracts";
 import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
 import {InfiniFrameUtils} from "./InfiniFrameUtils";
 import {InfiniFrameWindow} from "./InfiniFrameWindow";

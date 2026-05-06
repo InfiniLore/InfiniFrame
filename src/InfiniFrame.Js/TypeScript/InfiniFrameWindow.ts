@@ -1,7 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniFrameWindow, SendToHostMessageIds} from "./Contracts";
+import type {IInfiniFrameWindow} from "./Contracts";
+import {SendToHostMessageIds} from "./Contracts";
 import {createGetEnvelope} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
 
 // ---------------------------------------------------------------------------------------------------------------------
