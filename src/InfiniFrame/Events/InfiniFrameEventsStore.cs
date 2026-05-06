@@ -7,31 +7,31 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public record InfiniFrameWindowEventsStore : IInfiniFrameWindowEventsStore {
-    public OrderedWindowEvent<Point> WindowLocationChanged { get; } = new();
-    public OrderedWindowEvent<Size> WindowSizeChanged { get; } = new();
-    public OrderedWindowEvent WindowFocusIn { get; } = new();
-    public OrderedWindowEvent WindowMaximized { get; } = new();
-    public OrderedWindowEvent WindowRestored { get; } = new();
-    public OrderedWindowEvent WindowFocusOut { get; } = new();
-    public OrderedWindowEvent WindowMinimized { get; } = new();
-    public OrderedWindowEvent WindowClosingRequested { get; } = new();
-    public OrderedWindowResultEvent<EventArgs?, WindowClosingResult> WindowClosing { get; } = new();
-    public OrderedWindowEvent WindowClosed { get; } = new();
-    public OrderedWindowEvent WindowCreating { get; } = new();
-    public OrderedWindowEvent WindowCreated { get; } = new();
+public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
+    public OrderedEvent<Point> WindowLocationChanged { get; } = new();
+    public OrderedEvent<Size> WindowSizeChanged { get; } = new();
+    public OrderedEvent WindowFocusIn { get; } = new();
+    public OrderedEvent WindowMaximized { get; } = new();
+    public OrderedEvent WindowRestored { get; } = new();
+    public OrderedEvent WindowFocusOut { get; } = new();
+    public OrderedEvent WindowMinimized { get; } = new();
+    public OrderedEvent WindowClosingRequested { get; } = new();
+    public OrderedResultEvent<EventArgs?, WindowClosingResult> Closing { get; } = new();
+    public OrderedEvent WindowClosed { get; } = new();
+    public OrderedEvent WindowCreating { get; } = new();
+    public OrderedEvent WindowCreated { get; } = new();
     
-    public OrderedWindowEvent<InfiniFrameWebMessageReceivedEvent> WebMessageReceived { get; } = new();
-    public KeyedWindowEvent<string, string?> WebMessagePostData { get; } = new();
-    public KeyedWindowResultEvent<string, string?, string?> WebMessageGetData { get; } = new();
+    public OrderedEvent<InfiniFrameWebMessageReceivedEvent> WebMessageReceived { get; } = new();
+    public KeyedEvent<string, string?> WebMessagePostData { get; } = new();
+    public KeyedResultEvent<string, string?, string?> WebMessageGetData { get; } = new();
     
-    public KeyedWindowResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; } = new();
+    public KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IInfiniFrameWindowEventsStore DeepCopy() {
-        var copy = new InfiniFrameWindowEventsStore();
+    public IInfiniFrameEventsStore DeepCopy() {
+        var copy = new InfiniFrameEventsStore();
 
         CopyHandlers(WebMessageReceived.Snapshot, copy.WebMessageReceived.Add);
         CopyHandlers(WebMessagePostData.Snapshot, static (target, item) => target.WebMessagePostData.Add(item.Key, item.Value), copy);
@@ -39,7 +39,7 @@ public record InfiniFrameWindowEventsStore : IInfiniFrameWindowEventsStore {
         CopyHandlers(CustomScheme.Handlers, static (target, item) => target.CustomScheme.Add(item.Key, item.Value), copy);
         
         CopyHandlers(WindowClosed.Snapshot, copy.WindowClosed.Add);
-        CopyHandlers(WindowClosing.Snapshot, copy.WindowClosing.Add);
+        CopyHandlers(Closing.Snapshot, copy.Closing.Add);
         CopyHandlers(WindowClosingRequested.Snapshot, copy.WindowClosingRequested.Add);
         CopyHandlers(WindowCreated.Snapshot, copy.WindowCreated.Add);
         CopyHandlers(WindowCreating.Snapshot, copy.WindowCreating.Add);

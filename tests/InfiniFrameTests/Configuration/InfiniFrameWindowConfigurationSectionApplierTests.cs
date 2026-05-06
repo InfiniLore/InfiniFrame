@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Configuration;
 using Microsoft.Extensions.Configuration;
 
 namespace InfiniFrameTests.Configuration;
@@ -13,7 +12,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
     public async Task Apply_OverridesConfiguredScalarValues() {
         // Arrange
-        var configuration = new InfiniFrameWindowNativeParameterBuilder {
+        var configuration = new InfiniFrameOptionsBuilder {
             Title = "Old Title",
             Width = 200,
             Centered = false,
@@ -28,7 +27,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameWindowNativeParameterSectionApplier.Apply(section, configuration);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.Title).IsEqualTo("New Title");
@@ -40,7 +39,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
     public async Task Apply_IgnoresInvalidOrMissingScalarValues() {
         // Arrange
-        var configuration = new InfiniFrameWindowNativeParameterBuilder {
+        var configuration = new InfiniFrameOptionsBuilder {
             Title = "Expected",
             Width = 640,
             Centered = true
@@ -52,7 +51,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameWindowNativeParameterSectionApplier.Apply(section, configuration);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.Title).IsEqualTo("Expected");
@@ -63,7 +62,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
     public async Task Apply_ReplacesCustomSchemeNamesWithNonEmptyValues() {
         // Arrange
-        var configuration = new InfiniFrameWindowNativeParameterBuilder {
+        var configuration = new InfiniFrameOptionsBuilder {
             CustomSchemeNames = ["old1", "old2"]
         };
 
@@ -75,7 +74,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameWindowNativeParameterSectionApplier.Apply(section, configuration);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.CustomSchemeNames.Count).IsEqualTo(2);

@@ -37,7 +37,7 @@ public class IconFilePathTests {
         builder.SetIconFile(InvalidIconFilePath);
 
         // Assert
-        await Assert.That(builder.Configuration.IconFilePath).IsEqualTo(string.Empty);
+        await Assert.That(builder.Configuration.IconFilePath).IsNull();
         await Assert.That(builder.Configuration.ToNativeParameters().WindowIconFile).IsNull();
     }
 

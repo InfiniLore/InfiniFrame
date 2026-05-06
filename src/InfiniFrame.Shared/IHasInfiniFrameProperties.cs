@@ -36,7 +36,7 @@ public interface IHasInfiniFrameProperties {
     string? StartString { get; }
     string? TemporaryFilesPath { get; }
     string? NotificationRegistrationId { get; }
-    string Title { get; }
+    string? Title { get; }
     bool TopMost { get; }
     int Zoom { get; }
     bool ZoomEnabled { get; }

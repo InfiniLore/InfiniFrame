@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.BuilderSnapshots;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -71,8 +70,8 @@ public class InfiniFrameWindowBuilderTests {
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
 
         // Act
-        InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
-        InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot first = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot second = builder.CreateSnapshot();
 
         // Assert
         await Assert.That(first.EventsStore.WindowCreated.Snapshot.Length).IsEqualTo(1);
@@ -90,11 +89,11 @@ public class InfiniFrameWindowBuilderTests {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
-        InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
-        InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot first = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot second = builder.CreateSnapshot();
 
-        IInfiniFrameWindowEventsStore firstEvents = first.EventsStore;
-        IInfiniFrameWindowEventsStore secondEvents = second.EventsStore;
+        IInfiniFrameEventsStore firstEvents = first.EventsStore;
+        IInfiniFrameEventsStore secondEvents = second.EventsStore;
 
         firstEvents.WebMessagePostData.Add("ping", (_, _) => { });
         firstEvents.WindowCreated.Add(_ => { });
@@ -115,7 +114,7 @@ public class InfiniFrameWindowBuilderTests {
         }
 
         // Act
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         int registeredSchemeCount = snapshot.EventsStore.CustomScheme.Handlers.Keys.Distinct(StringComparer.Ordinal).Count();
 
         // Assert
@@ -133,7 +132,7 @@ public class InfiniFrameWindowBuilderTests {
         builder.RegisterCustomSchemeHandler("app", CountingHandler);
 
         // Act
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         bool found = snapshot.EventsStore.CustomScheme.ContainsKey("app");
         bool invoked = snapshot.EventsStore.CustomScheme.TryInvoke("app", Substitute.For<IInfiniFrameWindow>(), "app://resource", out (Stream? Data, string? ContentType) _);
 
@@ -162,8 +161,8 @@ public class InfiniFrameWindowBuilderTests {
         }
 
         // Act
-        InfiniFrameWindowBuildSnapshot first = builder.CreateSnapshot();
-        InfiniFrameWindowBuildSnapshot second = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot first = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot second = builder.CreateSnapshot();
         bool foundFirst = first.EventsStore.CustomScheme.ContainsKey("app");
         bool foundSecond = second.EventsStore.CustomScheme.ContainsKey("app");
         int firstRegisteredCount = first.EventsStore.CustomScheme.Handlers.Keys.Distinct(StringComparer.Ordinal).Count();
@@ -196,7 +195,7 @@ public class InfiniFrameWindowBuilderTests {
             .SetAllowedExternalSchemes("mailto");
 
         // Act
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
 
         // Assert
         await Assert.That(snapshot.UriSecurityPolicy.IsNavigationSchemeAllowed("https")).IsTrue();
@@ -211,7 +210,7 @@ public class InfiniFrameWindowBuilderTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
 
         // Assert
         await Assert.That(snapshot.UriSecurityPolicy.IsNavigationSchemeAllowed("app")).IsTrue();
@@ -224,7 +223,7 @@ public class InfiniFrameWindowBuilderTests {
             .SetAllowedNavigationSchemes("https");
 
         // Act
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         bool trusted = snapshot.UriSecurityPolicy.IsTrustedOrigin(
             new Uri("http://localhost/"),
             new Uri("http://localhost/"));
@@ -240,7 +239,7 @@ public class InfiniFrameWindowBuilderTests {
             .SetTrustedOrigins("https://localhost/");
 
         // Act
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         bool trusted = snapshot.UriSecurityPolicy.IsTrustedOrigin(new Uri("https://localhost/some/path"));
 
         // Assert
@@ -255,7 +254,7 @@ public class InfiniFrameWindowBuilderTests {
             .SetTrustAllOrigins();
 
         // Act
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
         bool trusted = snapshot.UriSecurityPolicy.IsTrustedOrigin(new Uri("https://unknown.example/some/path"));
 
         // Assert

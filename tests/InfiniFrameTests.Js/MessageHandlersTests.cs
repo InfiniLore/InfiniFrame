@@ -17,7 +17,7 @@ public class MessageHandlersTests {
     [Test]
     public async Task WindowManagement_CloseMessage_ClosesWindow() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterWindowManagementWebMessageHandler();
 
         // Act
@@ -31,7 +31,7 @@ public class MessageHandlersTests {
     [Test]
     public async Task WindowManagement_RegistersWindowCloseSubscriptionAfterReadyHandshake() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterWindowManagementWebMessageHandler();
 
         // Act
@@ -47,7 +47,7 @@ public class MessageHandlersTests {
     [Test]
     public async Task FullscreenToggle_InvokesWindowMutation() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterFullScreenWebMessageHandler();
 
         // Act
@@ -61,7 +61,7 @@ public class MessageHandlersTests {
     [Test]
     public async Task TitleChanged_WithPayload_InvokesWindowMutation() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterTitleChangedWebMessageHandler();
 
         // Act
@@ -75,7 +75,7 @@ public class MessageHandlersTests {
     [Test]
     public async Task TitleChanged_WithoutPayload_DoesNotInvokeWindowMutation() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterTitleChangedWebMessageHandler();
 
         // Act
@@ -89,7 +89,7 @@ public class MessageHandlersTests {
     [Test]
     public async Task OpenExternal_WithInvalidUrl_LogsWarningWithoutThrowing() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         var logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
         window.Window.Logger.Returns(logger);
         builder.RegisterOpenExternalTargetWebMessageHandler();
@@ -110,7 +110,7 @@ public class MessageHandlersTests {
     [Test]
     public async Task OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing() {
         // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameWindowEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
+        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         var logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
         window.Window.Logger.Returns(logger);
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
@@ -133,16 +133,17 @@ public class MessageHandlersTests {
         await Assert.That(warningLogged).IsTrue();
     }
 
-    private static (InfiniFrameWindowBuilder Builder, InfiniFrameWindowEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
+    private static (InfiniFrameWindowBuilder Builder, InfiniFrameEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
         var builder = InfiniFrameWindowBuilder.Create();
-        var eventsStore = (InfiniFrameWindowEventsStore)builder.EventsStore;
+        var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
 
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
         
-        var events = new InfiniFrameWindowEvents(eventsStore);
+        var events = new InfiniFrameEvents(eventsStore);
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window.Window, ref nativeParameters);
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window.Window);
 
         return (builder, events, window);
     }

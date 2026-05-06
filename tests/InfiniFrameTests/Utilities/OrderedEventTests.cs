@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using System.Collections.Immutable;
 
 namespace InfiniFrameTests.Utilities;
@@ -12,23 +13,28 @@ namespace InfiniFrameTests.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class OrderedEventTests {
     private static InfiniFrameWindow CreateWindow() {
-        var eventStore = new InfiniFrameWindowEventsStore();
-        var events = new InfiniFrameWindowEvents(eventStore);
+        var eventStore = new InfiniFrameEventsStore();
+        var events = new InfiniFrameEvents(eventStore);
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
             Parent = null,
-            Events = events
+            Events = events,
+            Configuration = Substitute.For<IInfiniFrameOptions>(),
+            StaticAssets = null,
         };
         var nativeParameters = default(InfiniFrameNativeParameters);    
-        events.CompleteSetup(window, ref nativeParameters);
+        
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window);
+        
         return window;
     }
 
     [Test]
     public async Task OrderedEvent_InvokesInRegistrationOrder() {
         // Arrange
-        var orderedEvent = new OrderedWindowEvent();
+        var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
 
@@ -47,7 +53,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEvent_RemoveStopsInvocation() {
         // Arrange
-        var orderedEvent = new OrderedWindowEvent();
+        var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
         Action<IInfiniFrameWindow> handler = _ => calls.Add(1);
@@ -65,7 +71,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEvent_SnapshotIsImmutable() {
         // Arrange
-        var orderedEvent = new OrderedWindowEvent();
+        var orderedEvent = new OrderedEvent();
         Action<IInfiniFrameWindow> handler1 = _ => { };
         Action<IInfiniFrameWindow> handler2 = _ => { };
 
@@ -83,7 +89,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEvent_OperatorsAddAndRemove() {
         // Arrange
-        var orderedEvent = new OrderedWindowEvent();
+        var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
         Action<IInfiniFrameWindow> handler = _ => calls.Add(1);
@@ -101,7 +107,7 @@ public class OrderedEventTests {
     [Test]
     public async Task OrderedEventWithPayload_InvokesWithPayload() {
         // Arrange
-        var orderedEvent = new OrderedWindowEvent<int>();
+        var orderedEvent = new OrderedEvent<int>();
         InfiniFrameWindow window = CreateWindow();
         var calls = new List<int>();
 
@@ -120,7 +126,7 @@ public class OrderedEventTests {
     [Test]
     public async Task ClosingEvent_ReturnsLastResult() {
         // Arrange
-        var closingEvent = new OrderedWindowResultEvent<EventArgs?, bool>();
+        var closingEvent = new OrderedResultEvent<EventArgs?, bool>();
         InfiniFrameWindow window = CreateWindow();
 
         closingEvent.Add((_, _) => false);
@@ -138,7 +144,7 @@ public class OrderedEventTests {
     [Test]
     public async Task ClosingEvent_ReturnsNullWhenEmpty() {
         // Arrange
-        var closingEvent = new OrderedWindowResultEvent<EventArgs?, bool>();
+        var closingEvent = new OrderedResultEvent<EventArgs?, bool>();
         InfiniFrameWindow window = CreateWindow();
 
         // Act

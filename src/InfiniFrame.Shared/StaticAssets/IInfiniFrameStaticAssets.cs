@@ -1,11 +1,16 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame;
+using Microsoft.Extensions.FileProviders;
 
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IHasInfiniFrameWindowEventsStore {
-    IInfiniFrameWindowEventsStore EventsStore { get; }
+public interface IInfiniFrameStaticAssets {
+    IFileProvider FileProvider { get; }
+    string BaseUri { get; }
+    string DefaultDocument { get; }
+
+    IInfiniFrameStaticAssets DeepCopy();
 }

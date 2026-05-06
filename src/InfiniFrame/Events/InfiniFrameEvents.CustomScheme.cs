@@ -9,7 +9,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class InfiniFrameWindowEvents {
+public partial class InfiniFrameEvents {
     private void ApplyCustomSchemeNames(ref InfiniFrameNativeParameters startupParameters) {
         var availableHandlers = new HashSet<string>(EventsStore.CustomScheme.Handlers.Select(static item => item.Key), StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -40,7 +40,8 @@ public partial class InfiniFrameWindowEvents {
     ///     Thrown when no handler is registered.
     /// </exception>
     public IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType) {
-        if (!SetupComplete) throw new InvalidOperationException("Setup not complete");
+        ArgumentNullException.ThrowIfNull(Sender);
+        ArgumentNullException.ThrowIfNull(url);
 
         contentType = null;
         numBytes = 0;

@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -32,18 +33,21 @@ public class WebMessageReceivedHandlerTests {
     [Test]
     public async Task Handler_ResolvesServiceFromProvider() {
         // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
-        var events = new InfiniFrameWindowEvents(eventsStore);
+        var eventsStore = new InfiniFrameEventsStore();
+        var events = new InfiniFrameEvents(eventsStore);
         var builder = InfiniFrameWindowBuilder.Create(eventsStore);
         var service = new TestService();
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider =  new TestServiceProvider(service),
             Parent = null,
-            Events = events
+            Events = events,
+            Configuration = Substitute.For<IInfiniFrameOptions>(),
+            StaticAssets = null,
         };
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window, ref nativeParameters);
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window);
 
         var tcs = new TaskCompletionSource<(string ServiceId, string Message)>();
 
@@ -63,13 +67,15 @@ public class WebMessageReceivedHandlerTests {
     [Test]
     public async Task Handler_WithOrigin_ReceivesOriginFromEventPayload() {
         // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
+        var eventsStore = new InfiniFrameEventsStore();
         var builder = InfiniFrameWindowBuilder.Create(eventsStore);
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
             Parent = null,
-            Events = new InfiniFrameWindowEvents(eventsStore)
+            Events = new InfiniFrameEvents(eventsStore),
+            Configuration = Substitute.For<IInfiniFrameOptions>(),
+            StaticAssets = null,
         };
 
         var tcs = new TaskCompletionSource<string?>();

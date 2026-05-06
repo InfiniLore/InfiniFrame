@@ -179,7 +179,7 @@ public static partial class InfiniFrameNative {
     internal static partial void SetSize(IntPtr instance, int width, int height);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_SetTitle, SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial void SetTitle(IntPtr instance, string title);
+    internal static partial void SetTitle(IntPtr instance, string? title);
 
     [LibraryImport(DllName, EntryPoint = InfiniFrame_SetTopmost, SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial void SetTopmost(IntPtr instance, [MarshalAs(UnmanagedType.I1)] bool topmost);
@@ -291,9 +291,9 @@ public static partial class InfiniFrameNative {
         userAgent = PtrToNativeString(ptr);
     }
 
-    internal static void GetTitle(IntPtr instance, out string title) {
+    internal static void GetTitle(IntPtr instance, out string? title) {
         IntPtr ptr = GetTitle(instance);
-        title = PtrToNativeString(ptr) ?? string.Empty;// The way on how infiniFrame works internally is that the title is always an empty string when we set it to null on our end.
+        title = PtrToNativeString(ptr);
     }
 
     internal static void GetIconFileName(IntPtr instance, out string iconFileName) {

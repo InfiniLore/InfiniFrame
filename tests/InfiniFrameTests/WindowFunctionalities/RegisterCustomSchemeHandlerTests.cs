@@ -5,7 +5,7 @@ using InfiniFrame;
 using InfiniFrameTests.Shared;
 using InfiniFrameTests.Shared.TestDoubles;
 using System.Runtime.InteropServices;
-using InfiniFrame.BuilderSnapshots;
+using InfiniFrame.Native;
 
 namespace InfiniFrameTests.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -23,11 +23,12 @@ public class RegisterCustomSchemeHandlerTests {
 
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
-        var nativeParameters = snapshot.StartupParameters;
-        var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
-        var window = new RecordingInfiniFrameWindowSubstitute().Window;
-        events.CompleteSetup(window, ref nativeParameters);
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
+        var events = new InfiniFrameEvents(snapshot.EventsStore);
+        IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window);
 
         // Assert
         await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("app")).IsTrue();
@@ -45,11 +46,12 @@ public class RegisterCustomSchemeHandlerTests {
         for (int i = 0; i < 100; i++) {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
-        InfiniFrameWindowBuildSnapshot snapshot = builder.CreateSnapshot();
-        var nativeParameters = snapshot.StartupParameters;
-        var events = new InfiniFrameWindowEvents(snapshot.EventsStore);
-        var window = new RecordingInfiniFrameWindowSubstitute().Window;
-        events.CompleteSetup(window, ref nativeParameters);
+        InfiniFrameWindowBuilderSnapshot snapshot = builder.CreateSnapshot();
+        InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
+        var events = new InfiniFrameEvents(snapshot.EventsStore);
+        IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window);
 
         // Assert
         int nativeAppCount = nativeParameters.CustomSchemeNames
@@ -76,7 +78,7 @@ public class RegisterCustomSchemeHandlerTests {
             Assert.Fail("Expected window to be an InfiniFrameWindow instance.");
             return;
         }
-        KeyedWindowResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
+        KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
         await Assert.That(customSchemes).IsNotNull();
         bool customScheme = customSchemes.ContainsKey("app");
         await Assert.That(customScheme).IsTrue();
@@ -103,7 +105,7 @@ public class RegisterCustomSchemeHandlerTests {
             return;
         }
         
-        KeyedWindowResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
+        KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> customSchemes = windowCasted.EventsStore.CustomScheme;
         await Assert.That(customSchemes).IsNotNull();
         bool customScheme = customSchemes.ContainsKey("app");
         await Assert.That(customScheme).IsTrue();

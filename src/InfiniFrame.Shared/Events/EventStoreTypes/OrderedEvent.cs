@@ -8,7 +8,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed record OrderedWindowEvent {
+public sealed record OrderedEvent {
     private ImmutableArray<Action<IInfiniFrameWindow>> _handlers = ImmutableArray<Action<IInfiniFrameWindow>>.Empty;
     public ImmutableArray<Action<IInfiniFrameWindow>> Snapshot => _handlers;
 
@@ -40,7 +40,7 @@ public sealed record OrderedWindowEvent {
     }
 }
 
-public sealed record OrderedWindowEvent<TPayload> {
+public sealed record OrderedEvent<TPayload> {
     private ImmutableArray<Action<IInfiniFrameWindow, TPayload>> _handlers = ImmutableArray<Action<IInfiniFrameWindow, TPayload>>.Empty;
     public ImmutableArray<Action<IInfiniFrameWindow, TPayload>> Snapshot => _handlers;
     

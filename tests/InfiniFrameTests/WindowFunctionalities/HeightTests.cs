@@ -34,7 +34,7 @@ public class HeightTests {
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameWindowNativeParameterBuilder {
+        InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameOptionsBuilder {
             Height = Height,
             UseOsDefaultSize = false,
             Centered = false

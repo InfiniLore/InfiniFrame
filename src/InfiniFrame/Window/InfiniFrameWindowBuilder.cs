@@ -1,8 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BuilderSnapshots;
-using InfiniFrame.Configuration;
 using InfiniFrame.Native;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,20 +14,19 @@ namespace InfiniFrame;
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     private static readonly ILogger<IInfiniFrameWindow> FallbackLogger = NullLogger<IInfiniFrameWindow>.Instance;
 
-    private readonly InfiniFrameWindowNativeParameterBuilder _configuration = new();
-    private InfiniFrameWindowBuilder() {}
-    public IInfiniFrameWindowNativeParameterBuilder Configuration => _configuration;
-
-    public StaticAssetSettings? StaticAssets { get; set; }
+    public IInfiniFrameOptionsBuilder Configuration { get; } = new InfiniFrameOptionsBuilder();
+    public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
     
-    public IInfiniFrameWindowEventsStore EventsStore { get; init; } = new InfiniFrameWindowEventsStore();
+    public IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    public static InfiniFrameWindowBuilder Create(InfiniFrameWindowEventsStore? events = null) {
+    private InfiniFrameWindowBuilder() {}
+    
+    public static InfiniFrameWindowBuilder Create(InfiniFrameEventsStore? events = null) {
         var builder = new InfiniFrameWindowBuilder {
-            EventsStore = events ?? new InfiniFrameWindowEventsStore()
+            EventsStore = events ?? new InfiniFrameEventsStore()
         };
 
         return builder;
@@ -39,38 +36,47 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
-        InfiniFrameWindowBuildSnapshot snapshot = CreateSnapshot(provider);
-        var events = new InfiniFrameWindowEvents(snapshot.EventsStore.DeepCopy());
+        // ReSharper disable once UseDeconstruction
+        InfiniFrameWindowBuilderSnapshot snapshot = CreateSnapshot(provider);
+        
+        InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
+        var events = new InfiniFrameEvents(snapshot.EventsStore);
+        events.AssignEventCallbacks(ref nativeParameters);
+        
+        var configuration = new InfiniFrameOptions {
+            StartupParameters = nativeParameters,
+            LimitLinuxWindowTitleLength = Configuration.LimitLinuxWindowTitleLength,
+        };
         
         var window = new InfiniFrameWindow {
             ServiceProvider = provider,
             Logger = ResolveLogger(provider),
             Parent = null,
             Events = events,
-            StaticAssets = snapshot.StaticAssets
+            StaticAssets = snapshot.StaticAssets,
+            Configuration = configuration
         };
-        InfiniFrameUriSecurityPolicyRegistry.BindToWindow(window, snapshot.UriSecurityPolicy);
-
-        InfiniFrameNativeParameters startupParameters = snapshot.StartupParameters;
-        events.CompleteSetup(window, ref startupParameters);
         
-        window.StartupParameters = startupParameters;
+        InfiniFrameUriSecurityPolicyRegistry.BindToWindow(window, snapshot.UriSecurityPolicy);
+        
+        events.AssignSender(window);
         window.Initialize();
+        
         return window;
 
     }
 
-    private InfiniFrameNativeParameters GetParameters(IServiceProvider? provider = null) {
-        if (provider is null) return _configuration.ToNativeParameters();
+    private InfiniFrameNativeParameters GetNativeParameters(IServiceProvider? provider = null) {
+        if (provider is null) return Configuration.ToNativeParameters();
 
         var config = provider.GetService<IConfiguration>();
         IConfigurationSection? section = config?.GetSection("InfiniFrame");
 
         if (section is not null && section.Exists()) {
-            InfiniFrameWindowNativeParameterSectionApplier.Apply(section, _configuration);
+            InfiniFrameOptionsSectionApplier.Apply(section, Configuration);
         }
 
-        return _configuration.ToNativeParameters();
+        return Configuration.ToNativeParameters();
     }
 
     internal static ILogger<IInfiniFrameWindow> ResolveLogger(IServiceProvider? provider) {
@@ -81,11 +87,11 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             ?? FallbackLogger;
     }
 
-    internal InfiniFrameWindowBuildSnapshot CreateSnapshot(IServiceProvider? provider = null) {
-        return new InfiniFrameWindowBuildSnapshot(
-            GetParameters(provider),
+    internal InfiniFrameWindowBuilderSnapshot CreateSnapshot(IServiceProvider? provider = null) {
+        return new InfiniFrameWindowBuilderSnapshot(
+            GetNativeParameters(provider),
             EventsStore.DeepCopy(),
-            StaticAssets,
+            StaticAssets?.DeepCopy(),
             InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this));
     }
 }

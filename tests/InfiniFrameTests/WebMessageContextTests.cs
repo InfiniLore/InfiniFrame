@@ -16,11 +16,12 @@ public class WebMessageContextTests {
     [Test]
     public async Task OnWebMessageReceived_WithOrigin_PublishesOriginViaEventPayload() {
         // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
-        var events = new InfiniFrameWindowEvents(eventsStore);
+        var eventsStore = new InfiniFrameEventsStore();
+        var events = new InfiniFrameEvents(eventsStore);
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window.Window, ref nativeParameters);
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window.Window);
 
         string? observedMessage = null;
         eventsStore.WebMessagePostData.Add(TestMessageCommand, (_, message) => {
@@ -37,11 +38,12 @@ public class WebMessageContextTests {
     [Test]
     public async Task OnWebMessageReceived_WithBlazorWebViewMessage_PublishesRawMessage() {
         // Arrange
-        var eventsStore = new InfiniFrameWindowEventsStore();
-        var events = new InfiniFrameWindowEvents(eventsStore);
+        var eventsStore = new InfiniFrameEventsStore();
+        var events = new InfiniFrameEvents(eventsStore);
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.CompleteSetup(window.Window, ref nativeParameters);
+        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignSender(window.Window);
 
         string? observedMessage = null;
         string? observedOrigin = null;

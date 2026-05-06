@@ -18,8 +18,8 @@ public class InfiniFrameWebApplicationTests {
 
     private static IInfiniFrameWindow CreateMockWindow() {
         var mockWindow = Substitute.For<IInfiniFrameWindow>();
-        var eventsStore = new InfiniFrameWindowEventsStore();
-        mockWindow.Events.Returns(new InfiniFrameWindowEvents(eventsStore));
+        var eventsStore = new InfiniFrameEventsStore();
+        mockWindow.Events.Returns(new InfiniFrameEvents(eventsStore));
         mockWindow.EventsStore.Returns(eventsStore);
         return mockWindow;
     }
@@ -59,7 +59,7 @@ public class InfiniFrameWebApplicationTests {
     public async Task UseAutoServerClose_WhenWindowNotCreated_ShouldRegisterWithBuilder() {
         // Arrange
         var mockWindowBuilder = Substitute.For<IInfiniFrameWindowBuilder>();
-        var mockBuilderEventsStore = new InfiniFrameWindowEventsStore();
+        var mockBuilderEventsStore = new InfiniFrameEventsStore();
         mockWindowBuilder.EventsStore.Returns(mockBuilderEventsStore);
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
@@ -78,14 +78,14 @@ public class InfiniFrameWebApplicationTests {
 
         // Assert
         await Assert.That(result).IsEqualTo(app);
-        await Assert.That(mockBuilderEventsStore.WindowClosing.Snapshot.Length).IsGreaterThan(0);
+        await Assert.That(mockBuilderEventsStore.Closing.Snapshot.Length).IsGreaterThan(0);
     }
 
     [Test]
     public async Task UseAutoServerClose_WhenWindowCreated_ShouldRegisterWithWindow() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
-        IInfiniFrameWindowEvents mockEvents = mockWindow.Events;
+        IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         WebApplication webApp = webAppBuilder.Build();
@@ -104,14 +104,14 @@ public class InfiniFrameWebApplicationTests {
 
         // Assert
         await Assert.That(result).IsEqualTo(app);
-        await Assert.That(mockEvents.EventsStore.WindowClosing.Snapshot.Length).IsGreaterThan(0);
+        await Assert.That(mockEvents.EventsStore.Closing.Snapshot.Length).IsGreaterThan(0);
     }
 
     [Test]
     public async Task UseAutoServerClose_ClosingHandler_ShouldReturnFalse() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
-        IInfiniFrameWindowEvents mockEvents = mockWindow.Events;
+        IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         WebApplication webApp = webAppBuilder.Build();
@@ -126,7 +126,7 @@ public class InfiniFrameWebApplicationTests {
 
         // Act
         app.UseAutoServerClose();
-        Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult>? capturedHandler = mockEvents.EventsStore.WindowClosing.Snapshot.LastOrDefault();
+        Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult>? capturedHandler = mockEvents.EventsStore.Closing.Snapshot.LastOrDefault();
         WindowClosingResult? result = capturedHandler?.Invoke(mockWindow, EventArgs.Empty);
 
         // Assert
@@ -138,7 +138,7 @@ public class InfiniFrameWebApplicationTests {
     public async Task UseAutoServerClose_ClosingHandler_ShouldInitiateStopAsync() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();
-        IInfiniFrameWindowEvents mockEvents = mockWindow.Events;
+        IInfiniFrameEvents mockEvents = mockWindow.Events;
 
         WebApplicationBuilder webAppBuilder = WebApplication.CreateBuilder();
         WebApplication webApp = webAppBuilder.Build();
@@ -154,7 +154,7 @@ public class InfiniFrameWebApplicationTests {
         app.UseAutoServerClose();
 
         // Act
-        Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult>? capturedHandler = mockEvents.EventsStore.WindowClosing.Snapshot.LastOrDefault();
+        Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult>? capturedHandler = mockEvents.EventsStore.Closing.Snapshot.LastOrDefault();
         capturedHandler?.Invoke(mockWindow, EventArgs.Empty);
 
         var appLifetime = webApp.Services.GetRequiredService<IHostApplicationLifetime>();

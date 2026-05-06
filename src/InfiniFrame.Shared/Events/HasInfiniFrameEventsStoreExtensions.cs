@@ -8,83 +8,83 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class HasInfiniFrameWindowEventsStoreExtensions {
-    public static T RegisterLocationChangedHandler<T>(this T obj, Action<IInfiniFrameWindow, Point> handler) where T : IHasInfiniFrameWindowEventsStore {
+public static class HasInfiniFrameEventsStoreExtensions {
+    public static T RegisterLocationChangedHandler<T>(this T obj, Action<IInfiniFrameWindow, Point> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowLocationChanged.Add(handler);
         return obj;
     }
 
-    public static T RegisterSizeChangedHandler<T>(this T obj, Action<IInfiniFrameWindow, Size> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterSizeChangedHandler<T>(this T obj, Action<IInfiniFrameWindow, Size> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowSizeChanged.Add(handler);
         return obj;
     }
 
-    public static T RegisterFocusInHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterFocusInHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowFocusIn.Add(handler);
         return obj;
     }
 
-    public static T RegisterMaximizedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterMaximizedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowMaximized.Add(handler);
         return obj;
     }
 
-    public static T RegisterRestoredHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterRestoredHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowRestored.Add(handler);
         return obj;
     }
 
-    public static T RegisterFocusOutHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterFocusOutHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowFocusOut.Add(handler);
         return obj;
     }
 
-    public static T RegisterMinimizedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterMinimizedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowMinimized.Add(handler);
         return obj;
     }
 
-    public static T RegisterWebMessageReceivedHandler<T>(this T obj, Action<IInfiniFrameWindow, string> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWebMessageReceivedHandler<T>(this T obj, Action<IInfiniFrameWindow, string> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WebMessageReceived.Add((window, payload) => handler(window, payload.Message));
         return obj;
     }
 
-    public static T RegisterWebMessageReceivedHandler<T, TService>(this T obj, Action<IInfiniFrameWindow, string, TService> handler) where TService : notnull where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWebMessageReceivedHandler<T, TService>(this T obj, Action<IInfiniFrameWindow, string, TService> handler) where TService : notnull where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WebMessageReceived.AddWithServiceResolving<TService>((window, payload, service) => handler(window, payload.Message, service));
         return obj;
     }
 
-    public static T RegisterWebMessageReceivedHandler<T>(this T obj, Action<IInfiniFrameWindow, string, string?> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWebMessageReceivedHandler<T>(this T obj, Action<IInfiniFrameWindow, string, string?> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WebMessageReceived.Add((window, payload) => handler(window, payload.Message, payload.Origin));
         return obj;
     }
 
-    public static T RegisterWebMessageReceivedHandler<T, TService>(this T obj, Action<IInfiniFrameWindow, string, string?, TService> handler) where TService : notnull where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWebMessageReceivedHandler<T, TService>(this T obj, Action<IInfiniFrameWindow, string, string?, TService> handler) where TService : notnull where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WebMessageReceived.AddWithServiceResolving<TService>((window, payload, service) => handler(window, payload.Message, payload.Origin, service));
         return obj;
     }
 
-    public static T RegisterWindowClosingRequestedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWindowClosingRequestedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowClosingRequested.Add(handler);
         return obj;
     }
 
-    public static T RegisterWindowClosingHandler<T>(this T obj, Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult> handler) where T : IHasInfiniFrameWindowEventsStore {
-        obj.EventsStore.WindowClosing.Add(handler);
+    public static T RegisterWindowClosingHandler<T>(this T obj, Func<IInfiniFrameWindow, EventArgs?, WindowClosingResult> handler) where T : IHasInfiniFrameEventsStore {
+        obj.EventsStore.Closing.Add(handler);
         return obj;
     }
 
-    public static T RegisterWindowCreatingHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWindowCreatingHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowCreating.Add(handler);
         return obj;
     }
 
-    public static T RegisterWindowCreatedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWindowCreatedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowCreated.Add(handler);
         return obj;
     }
 
-    public static T RegisterWindowClosedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWindowClosedHandler<T>(this T obj, Action<IInfiniFrameWindow> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WindowClosed.Add(handler);
         return obj;
     }
@@ -131,12 +131,12 @@ public static class HasInfiniFrameWindowEventsStoreExtensions {
         return window;
     }
     
-    public static T RegisterWebMessagePostHandler<T>(this T obj, string messageId, Action<IInfiniFrameWindow, string?> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWebMessagePostHandler<T>(this T obj, string messageId, Action<IInfiniFrameWindow, string?> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WebMessagePostData.Add(messageId, handler);
         return obj;
     }
 
-    public static T RegisterWebMessageGetHandler<T>(this T obj, string messageId, Func<IInfiniFrameWindow, string?, string?> handler) where T : IHasInfiniFrameWindowEventsStore {
+    public static T RegisterWebMessageGetHandler<T>(this T obj, string messageId, Func<IInfiniFrameWindow, string?, string?> handler) where T : IHasInfiniFrameEventsStore {
         obj.EventsStore.WebMessageGetData.Add(messageId, handler);
         return obj;
     }

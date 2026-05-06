@@ -14,11 +14,10 @@ public class TitleTests {
     [Test]
     [DisplayName($"{nameof(TitleTests)}.{nameof(Builder)}")]
     [Arguments("")]
-    [Arguments(null)]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
-    public async Task Builder(string? title) {
+    public async Task Builder(string title) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -26,12 +25,26 @@ public class TitleTests {
         builder.SetTitle(title);
 
         // Assert
-        if (title is null) await Assert.That(builder.Configuration.Title).IsEqualTo(string.Empty);
-        else await Assert.That(builder.Configuration.Title).IsEqualTo(title);
+        await Assert.That(builder.Configuration.Title).IsEqualTo(title);
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
-        if (title is null) await Assert.That(configParameters.Title).IsEqualTo(string.Empty);
-        else await Assert.That(configParameters.Title).IsEqualTo(title);
+        await Assert.That(configParameters.Title).IsEqualTo(title);
+    }
+    
+    [Test]
+    [DisplayName($"{nameof(TitleTests)}.{nameof(Builder_OnNull)}")]
+    public async Task Builder_OnNull() {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        builder.SetTitle(null);
+
+        // Assert
+        await Assert.That(builder.Configuration.Title).IsNull();
+
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
+        await Assert.That(configParameters.Title).IsNull();
     }
 
     [Test]
@@ -40,11 +53,10 @@ public class TitleTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments("")]
-    [Arguments(null)]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
-    public async Task Window(string? title, CancellationToken ct) {
+    public async Task Window(string title, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -53,8 +65,24 @@ public class TitleTests {
         window.SetTitle(title);
 
         // Assert
-        if (title is null) await Assert.That(window.Title).IsEmpty();
-        else await Assert.That(window.Title).IsEqualTo(title);
+        await Assert.That(window.Title).IsEqualTo(title);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(TitleTests)}.{nameof(Window_OnNull)}")]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task Window_OnNull(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Act
+        window.SetTitle(null);
+
+        // Assert
+        await Assert.That(window.Title).IsEmpty();
     }
 
     [Test]
@@ -63,11 +91,10 @@ public class TitleTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments("")]
-    [Arguments(null)]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
-    public async Task FullIntegration(string? title, CancellationToken ct) {
+    public async Task FullIntegration(string title, CancellationToken ct) {
         // Arrange
 
         // Act
@@ -78,8 +105,26 @@ public class TitleTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        if (title is null) await Assert.That(window.Title).IsEmpty();
-        else await Assert.That(window.Title).IsEqualTo(title);
+        await Assert.That(window.Title).IsEqualTo(title);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    [Timeout(TimeoutUtility.DefaultTimeout)]
+    public async Task FullIntegration_OnNull(CancellationToken ct) {
+        // Arrange
+
+        // Act
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+            builder => builder.SetTitle(null),
+            ct
+        );
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Assert
+        await Assert.That(window.Title).IsEmpty();
     }
 
 }

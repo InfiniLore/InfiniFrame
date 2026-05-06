@@ -43,17 +43,17 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
     [NotInParallel(ParallelControl.Playwright)]
     public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle() {
         IPage page = await GetRootPageAsync();
-        string originalTitleState = RuntimeContext.Window.Title;
+        string? originalTitleState = RuntimeContext.Window.Title;
 
         try {
             await page.ClickAsync(TitleToggleButtonSelector);
-            string newTitleState = await WaitForStateChangeAsync(
+            string? newTitleState = await WaitForStateChangeAsync(
                 originalTitleState,
                 stateProvider: () => RuntimeContext.Window.Title
             );
 
             await page.ClickAsync(TitleToggleButtonSelector);
-            string finalTitleState = await WaitForStateChangeAsync(
+            string? finalTitleState = await WaitForStateChangeAsync(
                 newTitleState,
                 stateProvider: () => RuntimeContext.Window.Title
             );
@@ -77,7 +77,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
     public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitl() {
         // Arrange
         IPage page = await GetRootPageAsync();
-        string originalTitleState = RuntimeContext.Window.Title;
+        string? originalTitleState = RuntimeContext.Window.Title;
 
         // Act
         string titleFromJsInitially = await EvaluateWhenPageReadyAsync<string>(
@@ -94,9 +94,9 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
     [NotInParallel(ParallelControl.Playwright)]
     public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle_AndShouldReturnCorrectTitle() {
         IPage page = await GetRootPageAsync();
-        string originalTitleState = RuntimeContext.Window.Title;
+        string? originalTitleState = RuntimeContext.Window.Title;
 
-        string titleFromJsInitially = await EvaluateWhenPageReadyAsync<string>(
+        string? titleFromJsInitially = await EvaluateWhenPageReadyAsync<string?>(
             page,
             // lang=javascript
             "async () => await window.infiniframe.window.getTitleAsync()"
@@ -105,20 +105,20 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         await Assert.That(titleFromJsInitially).IsEqualTo(originalTitleState);
 
         await page.ClickAsync(TitleToggleButtonSelector);
-        string toggledTitle = await WaitForStateChangeAsync(
+        string? toggledTitle = await WaitForStateChangeAsync(
             originalTitleState,
             stateProvider: () => RuntimeContext.Window.Title
         );
 
-        string titleFromJs = await EvaluateWhenPageReadyAsync<string>(
+        string? titleFromJs = await EvaluateWhenPageReadyAsync<string?>(
             page,
             // lang=javascript
             "async () => await window.infiniframe.window.getTitleAsync()"
         );
         
         await Assert.That(toggledTitle).IsEqualTo(ToggledTitle)
-            .And.IsNotEqualTo(originalTitleState);
+            .And!.IsNotEqualTo(originalTitleState);
         await Assert.That(titleFromJs).IsEqualTo(ToggledTitle)
-            .And.IsNotEqualTo(originalTitleState);
+            .And!.IsNotEqualTo(originalTitleState);
     }
 }

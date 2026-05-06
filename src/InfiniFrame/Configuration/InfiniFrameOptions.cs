@@ -1,17 +1,15 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Native;
+
 namespace InfiniFrame;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowMessageHandler {
-    bool IsEmpty { get; }
-    int Count { get; }
-
-    void RegisterHandler(string messageId, Action<IInfiniFrameWindow, string?> handler);
-    void RegisterHandler(string messageId, Func<IInfiniFrameWindow, string?, string?> handler);
+public class InfiniFrameOptions : IInfiniFrameOptions {
+    public required InfiniFrameNativeParameters StartupParameters { get; init; }
     
-    bool TryHandlePostDataRequest(IInfiniFrameWindow sender, string message);
-    bool TryHandleGetDataRequest(IInfiniFrameWindow window, string message, out string? response);
+    public required bool LimitLinuxWindowTitleLength { get; set; }
 }
