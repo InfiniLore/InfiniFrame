@@ -82,6 +82,7 @@
     <File Path=".github/workflows/shared-testing.yml" />
   </Folder>
   <Folder Name="/.dev-tools/scripts/">
+    <File Path="scripts/BuildFrontend.mjs" />
     <File Path="scripts/clion-linux-environment.sh" />
     <File Path="scripts/docker-linux-compose.sh" />
     <File Path="scripts/docker-linux-run-blazorwebview.sh" />

@@ -26,19 +26,15 @@
         <FrontendSources Include="$(ProjectDir)Sources/infiniframe-playwright-vue/**/*" />
     </ItemGroup>
 
-    <!-- Incremental frontend build -->
+    <!-- Build frontend once before multi-target inner builds are dispatched. -->
     <Target Name="BuildFrontend"
-            BeforeTargets="Build"
+            BeforeTargets="DispatchToInnerBuilds;Build"
             Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
 
         <Message Text="Running Vue frontend build..." Importance="high" />
-        
-        <Exec Command="npm ci"
-              Condition="'$(CI)' == 'true'"
-              WorkingDirectory="$(ProjectDir)Sources/infiniframe-playwright-vue" />
 
-        <Exec Command="npm run build"
-              WorkingDirectory="$(ProjectDir)Sources/infiniframe-playwright-vue" />
+        <Exec Command="node &quot;$(RepositoryRoot)scripts\BuildFrontend.mjs&quot; &quot;$(ProjectDir)Sources\infiniframe-playwright-vue&quot; &quot;$(ProjectDir)obj\frontend-build.stamp&quot; &quot;$(FrontendOutputFile)&quot;"
+              WorkingDirectory="$(ProjectDir)" />
 
         <!-- prevent re-running in same build graph -->
         <PropertyGroup>
