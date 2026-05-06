@@ -1,4 +1,5 @@
 ﻿const path = require('path');
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = (env, _) => {
     const isProduction = env?.production === true
@@ -8,6 +9,29 @@ module.exports = (env, _) => {
     return {
         mode: isProduction ? 'production' : 'development',
         devtool: isProduction ? false : 'inline-source-map',
+
+        optimization: isProduction ? {
+            concatenateModules: true,
+            minimize: true,
+            minimizer: [
+                new TerserPlugin({
+                    terserOptions: {
+                        compress: {
+                            passes: 3,
+                            drop_console: true,
+                            drop_debugger: true,
+                            pure_funcs: ["console.log"]
+                        },
+                        mangle: true,
+                        format: {
+                            comments: false
+                        }
+                    },
+                    extractComments: false
+                })
+            ]
+        } : {},
+        
         entry: {
             main: "./TypeScript/Index.ts",
         },
