@@ -363,3 +363,8 @@ healthchecksdb
 
 # Local test/runner virtualenv
 /.run/.venv/
+
+
+src/InfiniFrame.Js/wwwroot/InfiniFrame.js
+src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js
+src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js.map
