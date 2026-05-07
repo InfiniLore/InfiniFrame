@@ -49,14 +49,14 @@ jobs:
 
             -   name: Build bundle
                 shell: bash
-                run: npm --prefix src/InfiniFrame.Js run production:build
+                run: npm --prefix src/InfiniFrame.Js run build
 
             -   name: Verify no drift
                 shell: bash
                 run: |
                     if ! git diff --exit-code -- src/InfiniFrame.Js/wwwroot/InfiniFrame.js; then
                         echo "❌ InfiniFrame.js is out of date."
-                        echo "Run: npm --prefix src/InfiniFrame.Js run production:build"
+                        echo "Run: npm --prefix src/InfiniFrame.Js run build"
                         echo "Then commit the updated src/InfiniFrame.Js/wwwroot/InfiniFrame.js"
                         exit 1
                     fi

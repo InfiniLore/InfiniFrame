@@ -17,7 +17,7 @@
     # Cross-platform command execution (no cmd /C, no &&)
     set(js_build_commands
             COMMAND ${NPM_EXECUTABLE} ci
-            COMMAND ${NPM_EXECUTABLE} run production:build
+            COMMAND ${NPM_EXECUTABLE} run build
     )
 
     # Track TS sources

@@ -1,13 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------------------------------------------------
+export * from "./BlazorInterop";
 export * from "./EnvelopeProtocol";
 export * from "./global";
 export * from "./InfiniFrame";
+export * from "./InfiniFrameExternal";
+export * from "./InfiniFrameHostBridge";
 export * from "./InfiniFrameHostMessaging";
+export * from "./InfiniFrameSetup";
 export * from "./InfiniFrameUtils";
 export * from "./InfiniFrameWindow";
-export * from "./BlazorInterop";
-export * from "./InfiniFrameHostBridge";
-export {InfiniFrameSetup} from "./InfiniFrameSetup";
-export {InfiniFrameExternal} from "./InfiniFrameExternal";

@@ -33,17 +33,17 @@
 
     <Target Name="BuildTypeScript" BeforeTargets="DispatchToInnerBuilds" Condition="'$(Configuration)' == 'Release' and '$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' == 'true'">
         <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run production:build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+        <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
     </Target>
 
     <Target Name="BuildTypeScriptSingleTarget" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Release' and '$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true' and '$(TargetFrameworks)' == ''">
         <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run production:build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+        <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
     </Target>
 
     <Target Name="BuildTypeScriptForPack" BeforeTargets="Pack" Condition="'$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' == 'true'">
         <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run production:build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+        <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
     </Target>
 
 </Project>
