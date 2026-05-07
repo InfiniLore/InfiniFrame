@@ -3,36 +3,71 @@
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.Js</PackageId>
         <OutputType>Library</OutputType>
+
+        <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
+
+        <FrontendOutputFile>$(ProjectDir)wwwroot/InfiniFrame.js</FrontendOutputFile>
+        <FrontendStampFile>$(ProjectDir)obj\frontend-build.stamp</FrontendStampFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Update="TypeScript/**/*" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
+        <Content Update="TypeScript/**/*"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"
+                 Visible="true"/>
 
-        <Content Update="package.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="package-lock.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="tsconfig.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="vite.config.ts" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="vitest.config.ts" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="TypeScript/Interop/EnvelopeProtocol/interop-envelope-golden-vectors.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
+        <Content Update="package.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"
+                 Visible="true"/>
+
+        <Content Update="package-lock.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"
+                 Visible="true"/>
+
+        <Content Update="tsconfig.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"
+                 Visible="true"/>
+
+        <Content Update="vite.config.ts"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"
+                 Visible="true"/>
+
+        <Content Update="vitest.config.ts"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never"
+                 Visible="true"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="wwwroot\" />
+        <Folder Include="wwwroot\" />
     </ItemGroup>
 
-    <Target Name="BuildTypeScript" BeforeTargets="DispatchToInnerBuilds" Condition="'$(Configuration)' == 'Release' and '$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' == 'true'">
-        <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-    </Target>
+    <Target Name="BuildFrontend"
+            BeforeTargets="DispatchToInnerBuilds;Build;Pack"
+            Condition="'$(DesignTimeBuild)'!='true'
+                    and '$(RunFrontendBuild)'=='true'
+                    and '$(SkipTypeScriptBuild)'!='true'">
 
-    <Target Name="BuildTypeScriptSingleTarget" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Release' and '$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true' and '$(TargetFrameworks)' == ''">
-        <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-    </Target>
+        <Message Text="Running frontend build..." Importance="high" />
 
-    <Target Name="BuildTypeScriptForPack" BeforeTargets="Pack" Condition="'$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' == 'true'">
-        <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+        <Exec
+            Command="node &quot;$(SolutionDir)scripts\BuildFrontend.mjs&quot; &quot;$([System.String]::Copy('$(ProjectDir)').TrimEnd('\'))&quot; &quot;$(FrontendStampFile)&quot; &quot;$(FrontendOutputFile)&quot;"
+            WorkingDirectory="$(ProjectDir)" />
+
+        <PropertyGroup>
+            <RunFrontendBuild>false</RunFrontendBuild>
+        </PropertyGroup>
+
     </Target>
 
 </Project>
