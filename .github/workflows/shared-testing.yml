@@ -90,6 +90,15 @@ jobs:
         with:
           checkout_ref: ${{ inputs.checkout_ref }}
           target_sha: ${{ needs.prepare.outputs.sha }}
+    
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    dotnetpack-validation:
+        name: Validate Dotnet Pack
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-dotnetpack.yml
+        with:
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     windows-trim-aot:
