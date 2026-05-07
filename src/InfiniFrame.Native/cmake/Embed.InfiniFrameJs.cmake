@@ -35,7 +35,8 @@
             "${js_project_dir}/package.json"
             "${js_project_dir}/package-lock.json"
             "${js_project_dir}/tsconfig.json"
-            "${js_project_dir}/vite.config.ts"
+            "${js_project_dir}/vite.config.dev.ts"
+            "${js_project_dir}/vite.config.prod.ts"
             COMMENT "Building JS: ${js_input}"
             VERBATIM
     )
