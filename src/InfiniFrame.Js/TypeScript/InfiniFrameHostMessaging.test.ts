@@ -33,6 +33,7 @@ describe("InfiniFrameHostMessaging", () => {
             receiveCallbackInner = callback;
         });
 
+        // @ts-ignore
         testWindow.infiniframe = {
             host: {
                 postData,

@@ -19,7 +19,7 @@ describe("blazorFetchPatch", () => {
         const fetch = vi.fn(() => Promise.resolve(new Response("original")));
         window.fetch = fetch;
 
-        initBlazorModulesFetchPatch();
+        initBlazorModulesFetchPatch(setup);
 
         const response = await window.fetch("https://localhost/_framework/blazor.modules.json");
 
@@ -32,7 +32,7 @@ describe("blazorFetchPatch", () => {
         const fetch = vi.fn(() => Promise.resolve(new Response("original")));
         window.fetch = fetch;
 
-        initBlazorModulesFetchPatch();
+        initBlazorModulesFetchPatch(setup);
 
         const response = await window.fetch("https://localhost/app.js");
 

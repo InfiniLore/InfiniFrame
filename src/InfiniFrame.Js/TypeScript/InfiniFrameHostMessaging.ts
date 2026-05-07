@@ -6,7 +6,7 @@ import {
     SendToHostMessageIds
 } from "./Contracts";
 import type {
-    InfiniFrameHostMessaging,
+    InfiniFrameHostMessaging as InfiniFrameHostMessagingContract,
     InteropEnvelopeV1,
     MessageCallback,
     SendToHostMessageId
@@ -17,7 +17,7 @@ import {blankTargetHandler, getTitleObserver, getTitleObserverTarget} from "./Ut
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-class InfiniFrameHostMessaging implements InfiniFrameHostMessaging {
+class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     private static readonly BlazorWebViewMessagePrefix = "__bwv:";
     private messageHandlers: Map<string, MessageCallback> = new Map();
     private openExternalRegistered = false;

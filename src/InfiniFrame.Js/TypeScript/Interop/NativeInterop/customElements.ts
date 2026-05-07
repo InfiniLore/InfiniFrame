@@ -5,7 +5,7 @@ import type {
     BlazorComponent,
     BlazorCustomElementAttributeInfo,
     BlazorCustomElementInitMap,
-    BlazorCustomElementParameterDefinition,
+    BlazorCustomElementParameterDefinition, InfiniFrameSetup,
     PendingBlazorCustomElementRegistration
 } from "../../Contracts";
 
@@ -122,7 +122,10 @@ function patchAttachWebRendererInteropIfAvailable(): boolean {
     return true;
 }
 
-export function initBlazorCustomElementsPatch(): void {
+export function initBlazorCustomElementsPatch(setup: InfiniFrameSetup): void {
+    if (setup.blazorCustomElementsPatchInitialized) return;
+    setup.blazorCustomElementsPatchInitialized = true;
+    
     if (!patchAttachWebRendererInteropIfAvailable()) {
         const descriptor = Object.getOwnPropertyDescriptor(window, "Blazor");
 
@@ -146,7 +149,10 @@ export function initBlazorCustomElementsPatch(): void {
     }
 }
 
-export function initCustomElements(): void {
+export function initCustomElements(setup: InfiniFrameSetup): void {
+    if (setup.customElementsInitialized) return;
+    setup.customElementsInitialized = true;
+    
     window.registerBlazorCustomElement = function (
         identifier: string,
         parameterDefinitions: BlazorCustomElementParameterDefinition[]

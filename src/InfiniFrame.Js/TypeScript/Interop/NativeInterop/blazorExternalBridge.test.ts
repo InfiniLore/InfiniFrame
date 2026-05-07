@@ -28,7 +28,7 @@ describe("blazorExternalBridge", () => {
             utils: undefined!
         };
 
-        initWindowExternalBridge();
+        initWindowExternalBridge(setup);
 
         const external = window.external as InfiniFrameExternal;
         external.sendMessage!("message");
@@ -55,7 +55,7 @@ describe("blazorExternalBridge", () => {
             utils: undefined!
         };
 
-        initWindowExternalBridge();
+        initWindowExternalBridge(setup);
 
         const external = window.external as InfiniFrameExternal;
         expect(external).toBeDefined();
@@ -77,7 +77,7 @@ describe("blazorExternalBridge", () => {
             utils: undefined!
         };
 
-        initWindowExternalBridge();
+        initWindowExternalBridge(setup);
 
         const callback = vi.fn();
         const external = window.external as InfiniFrameExternal;
@@ -99,8 +99,8 @@ describe("blazorExternalBridge", () => {
             utils: undefined!
         };
 
-        initWindowExternalBridge();
-        initWindowExternalBridge();
+        initWindowExternalBridge(setup);
+        initWindowExternalBridge(setup);
 
         expect(receiveCallback).toHaveBeenCalledTimes(1);
     });

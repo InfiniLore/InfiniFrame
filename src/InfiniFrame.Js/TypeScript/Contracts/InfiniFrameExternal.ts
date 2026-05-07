@@ -6,7 +6,8 @@ import type {BlazorCallback} from "./BlazorInterop";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface InfiniFrameExternal {
+// noinspection JSDeprecatedSymbols
+export interface InfiniFrameExternal extends External {
     receiveMessage?: (callback: BlazorCallback) => void;
     receiveCallback?: (callback: BlazorCallback) => void;
     sendMessage?: (message: string) => void;

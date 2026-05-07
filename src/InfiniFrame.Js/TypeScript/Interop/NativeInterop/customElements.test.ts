@@ -34,7 +34,7 @@ describe("customElements", () => {
             }
         };
 
-        initCustomElements();
+        initCustomElements(setup);
         window.registerBlazorCustomElement!(identifier, [
             {name: "TitleText", type: "string"},
             {name: "Count", type: "int"},
@@ -81,7 +81,7 @@ describe("customElements", () => {
             }
         };
 
-        initBlazorCustomElementsPatch();
+        initBlazorCustomElementsPatch(setup);
 
         const result = window.Blazor._internal!.attachWebRendererInterop!(
             {},

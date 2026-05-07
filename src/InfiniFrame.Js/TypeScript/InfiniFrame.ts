@@ -2,11 +2,12 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import type {
-    InfiniFrame,
+    InfiniFrame as InfiniFrameContract,
     InfiniFrameHostBridge,
-    InfiniFrameHostMessaging,
-    InfiniFrameUtils,
-    InfiniFrameWindow
+    InfiniFrameSetup,
+    InfiniFrameHostMessaging as InfiniFrameHostMessagingContract,
+    InfiniFrameUtils as InfiniFrameUtilsContract,
+    InfiniFrameWindow as InfiniFrameWindowContract
 } from "./Contracts";
 import InfiniFrameHostMessaging from "./InfiniFrameHostMessaging";
 import {InfiniFrameUtils} from "./InfiniFrameUtils";
@@ -14,14 +15,14 @@ import {InfiniFrameWindow} from "./InfiniFrameWindow";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrame implements InfiniFrame {
+export class InfiniFrame implements InfiniFrameContract {
     host?: InfiniFrameHostBridge;
-    setup?: InfiniFrame["setup"];
-    messaging: InfiniFrameHostMessaging;
-    window: InfiniFrameWindow;
-    utils: InfiniFrameUtils;
+    setup?: InfiniFrameSetup;
+    messaging: InfiniFrameHostMessagingContract;
+    window: InfiniFrameWindowContract;
+    utils: InfiniFrameUtilsContract;
 
-    constructor(existing?: Partial<InfiniFrame>) {
+    constructor(existing?: Partial<InfiniFrameContract>) {
         this.host = existing?.host;
         this.setup = existing?.setup;
         this.messaging = existing?.messaging ?? new InfiniFrameHostMessaging();

@@ -14,31 +14,11 @@ export {};
 console.log("InfiniFrame WebView JavaScript bridge initialized.");
 
 const setup = getSetupGuard();
-
-if (!setup.nativeInteropBridgeInitialized) {
-    setup.nativeInteropBridgeInitialized = true;
-    installNativeInteropBridge();
-}
-
-if (!setup.windowExternalBridgeInitialized) {
-    setup.windowExternalBridgeInitialized = true;
-    initWindowExternalBridge();
-}
-
-if (!setup.blazorModulesFetchPatchInitialized) {
-    setup.blazorModulesFetchPatchInitialized = true;
-    initBlazorModulesFetchPatch();
-}
-
-if (!setup.blazorCustomElementsPatchInitialized) {
-    setup.blazorCustomElementsPatchInitialized = true;
-    initBlazorCustomElementsPatch();
-}
-
-if (!setup.customElementsInitialized) {
-    setup.customElementsInitialized = true;
-    initCustomElements();
-}
+installNativeInteropBridge(setup);
+initWindowExternalBridge(setup);
+initBlazorModulesFetchPatch(setup);
+initBlazorCustomElementsPatch(setup);
+initCustomElements(setup);
 
 if (!window.infiniframe.messaging || !window.infiniframe.window || !window.infiniframe.utils) {
     window.infiniframe = new InfiniFrame(window.infiniframe);

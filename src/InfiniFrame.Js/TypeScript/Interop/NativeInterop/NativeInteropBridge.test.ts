@@ -26,7 +26,7 @@ describe("NativeInteropBridge", () => {
             utils: undefined!
         };
 
-        installNativeInteropBridge();
+        installNativeInteropBridge(setup);
         window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(existingPostData).toHaveBeenCalledTimes(1);
@@ -47,7 +47,7 @@ describe("NativeInteropBridge", () => {
             utils: undefined!
         };
 
-        installNativeInteropBridge();
+        installNativeInteropBridge(setup);
         window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(existingPostData).toHaveBeenCalledTimes(2);
@@ -64,7 +64,7 @@ describe("NativeInteropBridge", () => {
             }
         };
 
-        installNativeInteropBridge();
+        installNativeInteropBridge(setup);
         window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(postData).toHaveBeenCalledTimes(1);

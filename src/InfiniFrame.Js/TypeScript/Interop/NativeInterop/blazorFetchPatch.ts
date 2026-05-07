@@ -1,6 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+import {InfiniFrameSetup} from "../../Contracts";
+
 const BLAZOR_MODULES_URLS = new Set([
     "http://localhost/_framework/blazor.modules.json",
     "http://localhost/_framework/blazor.modules.json/",
@@ -10,7 +12,10 @@ const BLAZOR_MODULES_URLS = new Set([
     "app://localhost/_framework/blazor.modules.json/",
 ]);
 
-export function initBlazorModulesFetchPatch(): void {
+export function initBlazorModulesFetchPatch(setup: InfiniFrameSetup): void {
+    if (setup.blazorModulesFetchPatchInitialized) return;
+    setup.blazorModulesFetchPatchInitialized = true;
+    
     const originalFetch = window.fetch;
 
     window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {

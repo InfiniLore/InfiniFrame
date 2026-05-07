@@ -1,12 +1,15 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {BlazorCallback, InfiniFrameExternal} from "../../Contracts";
+import type {BlazorCallback, InfiniFrameExternal, InfiniFrameSetup} from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export function initWindowExternalBridge(): void {
+export function initWindowExternalBridge(setup: InfiniFrameSetup): void {
+    if (setup.windowExternalBridgeInitialized) return;
+    setup.windowExternalBridgeInitialized = true;
+    
     const external = ensureWindowExternal();
     window.__blazorCallbacks = window.__blazorCallbacks ?? [];
 
