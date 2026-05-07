@@ -72,4 +72,17 @@
 
     </Target>
 
+    <Target Name="CleanFrontendOutput" AfterTargets="Clean">
+        <ItemGroup>
+            <_FrontendGeneratedFiles Include="$(FrontendOutputFile)" />
+            <_FrontendGeneratedFiles Include="$(MSBuildProjectDirectory)\wwwroot\InfiniFrame.dev.js" />
+            <_FrontendGeneratedFiles Include="$(MSBuildProjectDirectory)\wwwroot\InfiniFrame.dev.js.map" />
+            <_FrontendGeneratedFiles Include="$(FrontendStampFile)" />
+        </ItemGroup>
+
+        <Delete Files="@(_FrontendGeneratedFiles)"
+                Condition="Exists('%(Identity)')"
+                TreatErrorsAsWarnings="true" />
+    </Target>
+
 </Project>
