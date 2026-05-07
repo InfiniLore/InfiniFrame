@@ -1,15 +1,15 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniFrameHostMessaging} from "./IInfiniFrameHostMessaging";
-import {IInfiniFrameUtils} from "./IInfiniFrameUtils";
-import {IInfiniFrameWindow} from "./IInfiniFrameWindow";
+import type {InteropEnvelopeV1} from "./EnvelopeProtocol";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface IInfiniFrame {
-    messaging: IInfiniFrameHostMessaging;
-    window: IInfiniFrameWindow;
-    utils: IInfiniFrameUtils;
+export interface InfiniFrameHostBridge {
+    postData(envelope: InteropEnvelopeV1 | string): void;
+
+    receiveCallback(callback: (message: string) => void): void;
+
+    getDataAsync?(message: InteropEnvelopeV1 | string): Promise<string>;
 }

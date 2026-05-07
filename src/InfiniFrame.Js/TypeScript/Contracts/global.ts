@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {IInfiniFrame} from "./IInfiniFrame";
-import {InteropEnvelopeV1} from "./EnvelopeProtocol";
+import type {InfiniFrame} from "./InfiniFrame";
+import type {BlazorCallback, BlazorComponent, BlazorCustomElementParameterDefinition} from "./BlazorInterop";
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,17 +10,10 @@ export {}
 declare global {
     // noinspection JSUnusedGlobalSymbols
     interface Window {
-        infiniframe : IInfiniFrame;
-        
-        // Managed by InfiniFrame.Native
-        __infiniframe?: {
-           host?: {
-                postData(envelope: InteropEnvelopeV1 | string): void;
-                receiveCallback(callback: (message: string) => void): void;
-                getDataAsync?(message: InteropEnvelopeV1 | string): Promise<string>;
-            };
-        };
+        infiniframe : InfiniFrame;
         __dispatchMessageCallback?: (message: string) => void;
+        
+        // Managed by the host: Webview or WebKit
         chrome?: {
             webview?: {
                 postMessage(message: string): void;
@@ -34,5 +27,26 @@ declare global {
                 };
             };
         };
+
+        // Managed by the Blazor framework.
+        __blazorCallbacks?: BlazorCallback[];
+        __blazorDispatchHooked?: boolean;
+        Blazor?: {
+            rootComponents?: {
+                add: (
+                    element: HTMLElement,
+                    identifier: string,
+                    params: Record<string, unknown>
+                ) => Promise<BlazorComponent>;
+            };
+            _internal?: {
+                attachWebRendererInterop?: (...args: unknown[]) => unknown;
+                __infiniframeAttachWebRendererInteropPatched?: boolean;
+            };
+        };
+        registerBlazorCustomElement?: (
+            identifier: string,
+            parameterDefinitions: BlazorCustomElementParameterDefinition[]
+        ) => void;
     }
 }

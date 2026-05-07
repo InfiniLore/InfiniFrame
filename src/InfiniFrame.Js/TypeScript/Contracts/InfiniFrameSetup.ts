@@ -5,7 +5,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface IInfiniFrameUtils {
-    setPointerCapture(element: Element, pointerId: number): void;
-    releasePointerCapture(element: Element, pointerId: number): void;
+export interface InfiniFrameSetup {
+    nativeInteropBridgeInitialized: boolean;
+    windowExternalBridgeInitialized: boolean;
+    blazorModulesFetchPatchInitialized: boolean;
+    blazorCustomElementsPatchInitialized: boolean;
+    customElementsInitialized: boolean;
 }

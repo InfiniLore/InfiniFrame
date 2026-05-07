@@ -49,6 +49,9 @@ module.exports = (env, _) => {
                     loader: "ts-loader",
                     options: {
                         configFile: path.resolve(__dirname, "tsconfig.json"),
+                        compilerOptions: {
+                            sourceMap: false
+                        }
                     },
                     exclude: /node_modules/
                 }

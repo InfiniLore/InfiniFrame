@@ -4,6 +4,8 @@
 const BLAZOR_MODULES_URLS = new Set([
     "http://localhost/_framework/blazor.modules.json",
     "http://localhost/_framework/blazor.modules.json/",
+    "https://localhost/_framework/blazor.modules.json",
+    "https://localhost/_framework/blazor.modules.json/",
     "app://localhost/_framework/blazor.modules.json",
     "app://localhost/_framework/blazor.modules.json/",
 ]);

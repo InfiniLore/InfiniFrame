@@ -1,12 +1,12 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {IInfiniFrameUtils} from "./Contracts";
+import type {InfiniFrameUtils} from "./Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameUtils implements IInfiniFrameUtils {
+export class InfiniFrameUtils implements InfiniFrameUtils {
     setPointerCapture(element: Element, pointerId: number): void {
         if (element === null) return;
         if (pointerId === null) return;

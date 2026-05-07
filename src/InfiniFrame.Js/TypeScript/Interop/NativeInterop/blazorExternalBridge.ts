@@ -17,12 +17,12 @@ export function initWindowExternalBridge(): void {
     external.receiveCallback = external.receiveMessage;
 
     external.sendMessage = (message: string): void => {
-        if (!window.__infiniframe?.host?.postData) {
+        if (!window.infiniframe?.host?.postData) {
             console.warn("Message to host failed. Host bridge API is not initialized.");
             return;
         }
 
-        window.__infiniframe.host.postData(message);
+        window.infiniframe.host.postData(message);
     };
 
     external.postMessage = external.sendMessage;
@@ -30,7 +30,7 @@ export function initWindowExternalBridge(): void {
     if (!window.__blazorDispatchHooked) {
         window.__blazorDispatchHooked = true;
 
-        window.__infiniframe?.host?.receiveCallback((message: string) => {
+        window.infiniframe?.host?.receiveCallback((message: string) => {
             for (const callback of window.__blazorCallbacks ?? []) {
                 try {
                     callback(message);

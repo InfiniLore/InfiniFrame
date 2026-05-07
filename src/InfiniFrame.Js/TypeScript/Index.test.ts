@@ -8,10 +8,9 @@ import {beforeEach, describe, expect, it, vi} from "vitest";
 // ---------------------------------------------------------------------------------------------------------------------
 describe("Index", () => {
     beforeEach(() => {
-        delete window.__infiniframe;
-        delete window.__infiniframeSetup;
         delete window.__blazorCallbacks;
         delete window.__blazorDispatchHooked;
+        // @ts-ignore
         delete window.infiniframe;
         delete window.chrome;
         vi.restoreAllMocks();

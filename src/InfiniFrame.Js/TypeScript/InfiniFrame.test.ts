@@ -24,13 +24,14 @@ describe("InfiniFrame", () => {
         expect(a.utils).not.toBe(b.utils);
     });
 
-    it("does not define or mutate window.__infiniframe.host", async () => {
+    it("does not define a legacy window.__infiniframe host", async () => {
         const setSpy = vi.spyOn(Object, "defineProperty");
 
         const win = window as any;
 
         // ensure clean state
         delete win.infiniframe;
+        delete win.__infiniframe;
 
         await import("./InfiniFrame");
 
@@ -40,6 +41,7 @@ describe("InfiniFrame", () => {
         );
 
         expect(hostDefinitionCalls.length).toBe(0);
+        expect(win.__infiniframe).toBeUndefined();
 
         setSpy.mockRestore();
     });

@@ -40,4 +40,6 @@ if (!setup.customElementsInitialized) {
     initCustomElements();
 }
 
-window.infiniframe = window.infiniframe ?? new InfiniFrame();
+if (!window.infiniframe.messaging || !window.infiniframe.window || !window.infiniframe.utils) {
+    window.infiniframe = new InfiniFrame(window.infiniframe);
+}

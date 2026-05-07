@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import {InteropEnvelopeV1} from "./EnvelopeProtocol";
+import type {InteropEnvelopeV1} from "./EnvelopeProtocol";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -30,7 +30,7 @@ export const ReceiveFromHostMessageIds = {
 export type SendToHostMessageId = typeof SendToHostMessageIds[keyof typeof SendToHostMessageIds];
 export type MessageCallback = (data?: string) => void;
 
-export interface IInfiniFrameHostMessaging {
+export interface InfiniFrameHostMessaging {
     readonly ready: Promise<void>;
     readonly isReady: boolean;
 

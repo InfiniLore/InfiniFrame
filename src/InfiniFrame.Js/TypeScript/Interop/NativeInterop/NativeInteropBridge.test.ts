@@ -9,22 +9,25 @@ import {installNativeInteropBridge} from "./NativeInteropBridge";
 // ---------------------------------------------------------------------------------------------------------------------
 describe("NativeInteropBridge", () => {
     beforeEach(() => {
-        delete window.__infiniframe;
+        delete window.infiniframe;
         delete window.chrome;
         vi.restoreAllMocks();
     });
 
     it("normalizes object envelopes to string for existing postData handlers", () => {
         const existingPostData = vi.fn();
-        window.__infiniframe = {
+        window.infiniframe = {
             host: {
                 postData: existingPostData,
                 receiveCallback: vi.fn()
-            }
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
         };
 
         installNativeInteropBridge();
-        window.__infiniframe!.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
+        window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(existingPostData).toHaveBeenCalledTimes(1);
         expect(existingPostData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"command\":\"Post\",\"data\":\"hello\",\"version\":2}");
@@ -34,15 +37,18 @@ describe("NativeInteropBridge", () => {
         const existingPostData = vi.fn((payload: unknown) => {
             if (typeof payload === "string") throw new Error("String payloads not supported.");
         });
-        window.__infiniframe = {
+        window.infiniframe = {
             host: {
                 postData: existingPostData,
                 receiveCallback: vi.fn()
-            }
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
         };
 
         installNativeInteropBridge();
-        window.__infiniframe!.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
+        window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(existingPostData).toHaveBeenCalledTimes(2);
         expect(typeof existingPostData.mock.calls[0][0]).toBe("string");
@@ -59,7 +65,7 @@ describe("NativeInteropBridge", () => {
         };
 
         installNativeInteropBridge();
-        window.__infiniframe!.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
+        window.infiniframe.host!.postData({id: "ping", command: "Post", data: "hello", version: 2});
 
         expect(postData).toHaveBeenCalledTimes(1);
         expect(postData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"command\":\"Post\",\"data\":\"hello\",\"version\":2}");

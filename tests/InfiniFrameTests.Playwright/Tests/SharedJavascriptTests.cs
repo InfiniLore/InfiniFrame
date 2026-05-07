@@ -25,8 +25,8 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
             // lang=javascript
             """
             () => ({
-                hasNativeHostBridge: window.__infiniframe?.host !== undefined && window.__infiniframe?.host !== null,
                 hasInfiniFrameApi: window.infiniframe !== undefined && window.infiniframe !== null,
+                hasNativeHostBridge: window.infiniframe?.host !== undefined && window.infiniframe?.host !== null,
                 hasMessaging: window.infiniframe?.messaging !== undefined && window.infiniframe?.messaging !== null,
                 hasWindow: window.infiniframe?.window !== undefined && window.infiniframe?.window !== null,
                 hasUtils: window.infiniframe?.utils !== undefined && window.infiniframe?.utils !== null,
@@ -50,7 +50,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
         await EvaluateWhenPageReadyAsync(
             page,
             // lang=javascript
-            $"() => window.__infiniframe?.host?.postData({{ id: '__infiniframe:title:change', command: 'Post', data: '{NewTitleFromHostMessage}', version: 2 }})"
+            $"() => window.infiniframe?.host?.postData({{ id: '__infiniframe:title:change', command: 'Post', data: '{NewTitleFromHostMessage}', version: 2 }})"
         );
         string? updatedTitle = await WaitForStateChangeAsync(
             originalTitle,

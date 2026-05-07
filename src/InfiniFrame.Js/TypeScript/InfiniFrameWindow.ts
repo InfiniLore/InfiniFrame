@@ -1,14 +1,14 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {IInfiniFrameWindow} from "./Contracts";
+import type {InfiniFrameWindow} from "./Contracts";
 import {SendToHostMessageIds} from "./Contracts";
 import {createGetEnvelope} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export class InfiniFrameWindow implements IInfiniFrameWindow {
+export class InfiniFrameWindow implements InfiniFrameWindow {
     
     private getMessageFromHostAsync(command: string, args?: any): Promise<string> {
         try {

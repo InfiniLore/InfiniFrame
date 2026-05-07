@@ -7,12 +7,13 @@ import type {InfiniFrameSetup} from "../../Contracts";
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 export function getSetupGuard(): InfiniFrameSetup {
-    window.__infiniframeSetup = window.__infiniframeSetup ?? {
+    window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
+    window.infiniframe.setup = window.infiniframe.setup ?? {
         nativeInteropBridgeInitialized: false,
         windowExternalBridgeInitialized: false,
         blazorModulesFetchPatchInitialized: false,
         blazorCustomElementsPatchInitialized: false,
         customElementsInitialized: false,
     };
-    return window.__infiniframeSetup;
+    return window.infiniframe.setup;
 }

@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-import type {InteropEnvelopeV1} from "../../Contracts";
+import type {InfiniFrameHostBridge, InteropEnvelopeV1} from "../../Contracts";
 import {
     InteropEnvelopeVersion,
     InteropGetCommand,
@@ -19,8 +19,8 @@ const receiveCallbacks = new Set<(message: string) => void>();
 let receiveBridgeAttached = false;
 
 export function installNativeInteropBridge(): void {
-    const root: NonNullable<Window["__infiniframe"]> = window.__infiniframe ?? {};
-    const host = (root.host ?? {}) as NonNullable<NonNullable<Window["__infiniframe"]>["host"]>;
+    window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
+    const host = (window.infiniframe.host ?? {}) as InfiniFrameHostBridge;
     const existingPostData = host.postData;
     const existingReceiveCallback = host.receiveCallback;
     const existingGetData = host.getDataAsync;
@@ -35,8 +35,7 @@ export function installNativeInteropBridge(): void {
         return requestMessageFromHost(message, host, existingGetData, existingReceiveCallback);
     };
 
-    root.host = host;
-    window.__infiniframe = root;
+    window.infiniframe.host = host;
 }
 
 function dispatchEnvelopeToHost(
@@ -91,7 +90,7 @@ function dispatchEnvelopeToHost(
 
 function requestMessageFromHost(
     message: InteropEnvelopeV1 | string,
-    host: NonNullable<NonNullable<Window["__infiniframe"]>["host"]>,
+    host: InfiniFrameHostBridge,
     existingGetData?: ((message: InteropEnvelopeV1 | string) => Promise<string> | string),
     existingReceiveCallback?: (callback: (message: string) => void) => void
 ): Promise<string> {

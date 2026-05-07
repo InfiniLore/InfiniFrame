@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-export interface IInfiniFrameWindow {
-    setTitle(title: string): void;
-    getTitleAsync(): Promise<string>;
+export interface InfiniFrameUtils {
+    setPointerCapture(element: Element, pointerId: number): void;
+    releasePointerCapture(element: Element, pointerId: number): void;
 }

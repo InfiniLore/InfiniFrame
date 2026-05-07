@@ -10,7 +10,7 @@ import {initWindowExternalBridge} from "./blazorExternalBridge";
 // ---------------------------------------------------------------------------------------------------------------------
 describe("blazorExternalBridge", () => {
     beforeEach(() => {
-        delete window.__infiniframe;
+        delete window.infiniframe;
         delete window.__blazorCallbacks;
         delete window.__blazorDispatchHooked;
         vi.restoreAllMocks();
@@ -18,11 +18,14 @@ describe("blazorExternalBridge", () => {
 
     it("routes Blazor outbound messages through the InfiniFrame host bridge", () => {
         const postData = vi.fn();
-        window.__infiniframe = {
+        window.infiniframe = {
             host: {
                 postData,
                 receiveCallback: vi.fn()
-            }
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
         };
 
         initWindowExternalBridge();
@@ -42,11 +45,14 @@ describe("blazorExternalBridge", () => {
             writable: true
         });
 
-        window.__infiniframe = {
+        window.infiniframe = {
             host: {
                 postData: vi.fn(),
                 receiveCallback: vi.fn()
-            }
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
         };
 
         initWindowExternalBridge();
@@ -59,13 +65,16 @@ describe("blazorExternalBridge", () => {
 
     it("dispatches host messages to registered Blazor callbacks", () => {
         let hostCallback: BlazorCallback | null = null;
-        window.__infiniframe = {
+        window.infiniframe = {
             host: {
                 postData: vi.fn(),
                 receiveCallback: vi.fn(callback => {
                     hostCallback = callback;
                 })
-            }
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
         };
 
         initWindowExternalBridge();
@@ -80,11 +89,14 @@ describe("blazorExternalBridge", () => {
 
     it("attaches the host receive callback only once", () => {
         const receiveCallback = vi.fn();
-        window.__infiniframe = {
+        window.infiniframe = {
             host: {
                 postData: vi.fn(),
                 receiveCallback
-            }
+            },
+            messaging: undefined!,
+            window: undefined!,
+            utils: undefined!
         };
 
         initWindowExternalBridge();
