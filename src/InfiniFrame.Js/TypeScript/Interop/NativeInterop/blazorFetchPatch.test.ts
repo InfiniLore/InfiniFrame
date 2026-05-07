@@ -21,7 +21,7 @@ describe("blazorFetchPatch", () => {
 
         initBlazorModulesFetchPatch();
 
-        const response = await window.fetch("http://localhost/_framework/blazor.modules.json");
+        const response = await window.fetch("https://localhost/_framework/blazor.modules.json");
 
         expect(fetch).not.toHaveBeenCalled();
         expect(response.status).toBe(200);
@@ -34,9 +34,9 @@ describe("blazorFetchPatch", () => {
 
         initBlazorModulesFetchPatch();
 
-        const response = await window.fetch("http://localhost/app.js");
+        const response = await window.fetch("https://localhost/app.js");
 
-        expect(fetch).toHaveBeenCalledWith("http://localhost/app.js", undefined);
+        expect(fetch).toHaveBeenCalledWith("https://localhost/app.js", undefined);
         expect(await response.text()).toBe("original");
     });
 });
