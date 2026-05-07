@@ -2,13 +2,17 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
+import type {InfiniFrameSetup} from "../../Contracts";
 import {installNativeInteropBridge} from "./NativeInteropBridge";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 describe("NativeInteropBridge", () => {
+    let setup: InfiniFrameSetup;
+
     beforeEach(() => {
+        setup = createSetup();
         delete window.infiniframe;
         delete window.chrome;
         vi.restoreAllMocks();
@@ -71,3 +75,13 @@ describe("NativeInteropBridge", () => {
         expect(postData.mock.calls[0][0]).toBe("{\"id\":\"ping\",\"command\":\"Post\",\"data\":\"hello\",\"version\":2}");
     });
 });
+
+function createSetup(): InfiniFrameSetup {
+    return {
+        nativeInteropBridgeInitialized: false,
+        windowExternalBridgeInitialized: false,
+        blazorModulesFetchPatchInitialized: false,
+        blazorCustomElementsPatchInitialized: false,
+        customElementsInitialized: false
+    };
+}

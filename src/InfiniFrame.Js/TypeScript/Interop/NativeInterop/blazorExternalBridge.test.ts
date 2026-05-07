@@ -2,14 +2,17 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {BlazorCallback, InfiniFrameExternal} from "../../Contracts";
+import {BlazorCallback, InfiniFrameExternal, InfiniFrameSetup} from "../../Contracts";
 import {initWindowExternalBridge} from "./blazorExternalBridge";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 describe("blazorExternalBridge", () => {
+    let setup: InfiniFrameSetup;
+
     beforeEach(() => {
+        setup = createSetup();
         delete window.infiniframe;
         delete window.__blazorCallbacks;
         delete window.__blazorDispatchHooked;
@@ -105,3 +108,13 @@ describe("blazorExternalBridge", () => {
         expect(receiveCallback).toHaveBeenCalledTimes(1);
     });
 });
+
+function createSetup(): InfiniFrameSetup {
+    return {
+        nativeInteropBridgeInitialized: false,
+        windowExternalBridgeInitialized: false,
+        blazorModulesFetchPatchInitialized: false,
+        blazorCustomElementsPatchInitialized: false,
+        customElementsInitialized: false
+    };
+}

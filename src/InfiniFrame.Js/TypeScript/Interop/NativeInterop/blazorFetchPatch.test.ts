@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
+import type {InfiniFrameSetup} from "../../Contracts";
 import {initBlazorModulesFetchPatch} from "./blazorFetchPatch";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -9,8 +10,10 @@ import {initBlazorModulesFetchPatch} from "./blazorFetchPatch";
 // ---------------------------------------------------------------------------------------------------------------------
 describe("blazorFetchPatch", () => {
     const originalFetch = window.fetch;
+    let setup: InfiniFrameSetup;
 
     beforeEach(() => {
+        setup = createSetup();
         window.fetch = originalFetch;
         vi.restoreAllMocks();
     });
@@ -40,3 +43,13 @@ describe("blazorFetchPatch", () => {
         expect(await response.text()).toBe("original");
     });
 });
+
+function createSetup(): InfiniFrameSetup {
+    return {
+        nativeInteropBridgeInitialized: false,
+        windowExternalBridgeInitialized: false,
+        blazorModulesFetchPatchInitialized: false,
+        blazorCustomElementsPatchInitialized: false,
+        customElementsInitialized: false
+    };
+}

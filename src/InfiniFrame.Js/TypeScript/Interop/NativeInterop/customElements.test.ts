@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
+import type {InfiniFrameSetup} from "../../Contracts";
 import {initBlazorCustomElementsPatch, initCustomElements} from "./customElements";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,8 +14,10 @@ function tick(): Promise<void> {
 
 describe("customElements", () => {
     let elementCounter = 0;
+    let setup: InfiniFrameSetup;
 
     beforeEach(() => {
+        setup = createSetup();
         document.body.innerHTML = "";
         delete window.Blazor;
         delete window.registerBlazorCustomElement;
@@ -105,3 +108,13 @@ describe("customElements", () => {
         );
     });
 });
+
+function createSetup(): InfiniFrameSetup {
+    return {
+        nativeInteropBridgeInitialized: false,
+        windowExternalBridgeInitialized: false,
+        blazorModulesFetchPatchInitialized: false,
+        blazorCustomElementsPatchInitialized: false,
+        customElementsInitialized: false
+    };
+}
