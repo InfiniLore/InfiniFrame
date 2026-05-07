@@ -14,12 +14,6 @@
     # Locate npm (works on Windows/Linux/macOS)
     find_program(NPM_EXECUTABLE NAMES npm npm.cmd REQUIRED)
 
-    # Cross-platform command execution (no cmd /C, no &&)
-    set(js_build_commands
-            COMMAND ${NPM_EXECUTABLE} ci
-            COMMAND ${NPM_EXECUTABLE} run build
-    )
-
     # Track TS sources
     file(GLOB_RECURSE js_sources CONFIGURE_DEPENDS
             "${js_project_dir}/TypeScript/*.ts"
@@ -27,9 +21,12 @@
 
     # Build JS bundle
     add_custom_command(
-            OUTPUT ${js_input}
-            ${js_build_commands}
-            WORKING_DIRECTORY ${js_project_dir}
+            OUTPUT "${js_input}"
+            COMMAND "${CMAKE_COMMAND}"
+            "-DNPM_EXECUTABLE=${NPM_EXECUTABLE}"
+            "-DJS_PROJECT_DIR=${js_project_dir}"
+            "-DJS_OUTPUT=${js_input}"
+            -P "${CMAKE_SOURCE_DIR}/cmake/Build.InfiniFrameJs.Impl.cmake"
             DEPENDS
             ${js_sources}
             "${js_project_dir}/package.json"
@@ -37,6 +34,7 @@
             "${js_project_dir}/tsconfig.json"
             "${js_project_dir}/vite.config.dev.ts"
             "${js_project_dir}/vite.config.prod.ts"
+            "${CMAKE_SOURCE_DIR}/cmake/Build.InfiniFrameJs.Impl.cmake"
             COMMENT "Building JS: ${js_input}"
             VERBATIM
     )
