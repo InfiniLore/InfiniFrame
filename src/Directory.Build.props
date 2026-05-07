@@ -60,6 +60,8 @@
         <InternalsVisibleTo Include="InfiniFrameTests.Shared"/>
         <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack"/>
         <InternalsVisibleTo Include="InfiniFrameTests.WebServer"/>
+        
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
     </ItemGroup>
 
     <Import Project="AnalyzerBaseline.props" Condition="Exists('AnalyzerBaseline.props')" />
