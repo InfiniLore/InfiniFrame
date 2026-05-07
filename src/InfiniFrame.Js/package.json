@@ -2,8 +2,8 @@
     "name": "infinilore.infiniframe.js-build",
     "version": "0.1.0",
     "scripts": {
-        "production:build": "npx webpack --env production=true",
-        "watch:typescript": "npx webpack --watch --env production=false",
+        "production:build": "vite build",
+        "watch:typescript": "vite build --watch --mode development",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage"
@@ -16,11 +16,9 @@
         "@types/node": "^25.6.0",
         "@vitest/coverage-v8": "^4.1.5",
         "jsdom": "^29.1.1",
-        "terser-webpack-plugin": "^5.5.0",
-        "ts-loader": "^9.5.7",
+        "terser": "^5.44.1",
         "typescript": "^6.0.3",
-        "vitest": "^4.1.5",
-        "webpack": "^5.106.2",
-        "webpack-cli": "^7.0.2"
+        "vite": "^7.2.7",
+        "vitest": "^4.1.5"
     }
 }

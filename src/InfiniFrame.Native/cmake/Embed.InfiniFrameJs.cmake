@@ -23,7 +23,6 @@
     # Track TS sources
     file(GLOB_RECURSE js_sources CONFIGURE_DEPENDS
             "${js_project_dir}/TypeScript/*.ts"
-            "${js_project_dir}/TypeScript/*.tsx"
     )
 
     # Build JS bundle
@@ -36,7 +35,7 @@
             "${js_project_dir}/package.json"
             "${js_project_dir}/package-lock.json"
             "${js_project_dir}/tsconfig.json"
-            "${js_project_dir}/webpack.config.js"
+            "${js_project_dir}/vite.config.ts"
             COMMENT "Building JS: ${js_input}"
             VERBATIM
     )

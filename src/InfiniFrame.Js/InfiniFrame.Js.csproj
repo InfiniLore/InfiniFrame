@@ -22,8 +22,8 @@
         <Content Update="package.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
         <Content Update="package-lock.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
         <Content Update="tsconfig.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="vitests.config.ts" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="webpack.config.js" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
+        <Content Update="vite.config.ts" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
+        <Content Update="vitest.config.ts" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
         <Content Update="TypeScript/Interop/EnvelopeProtocol/interop-envelope-golden-vectors.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
     </ItemGroup>
 
