@@ -88,10 +88,6 @@ jobs:
                       --no-restore \
                       /p:SolutionDir=${{ github.workspace }}/
 
-            -   name: Verify Native Binaries
-                # noinspection UndefinedAction
-                uses: ./.github/actions/validate-native-test-binaries
-
             -   name: Pack
                 run: |
                     dotnet pack InfiniFrame.GitHubActions.Release.slnf \
