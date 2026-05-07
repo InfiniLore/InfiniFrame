@@ -23,6 +23,9 @@ foreach(i RANGE 0 ${LAST} 2)
     endif()
 endforeach()
 
+# Generate timestamp
+string(TIMESTAMP GENERATED_AT "%Y-%m-%d %H:%M:%S UTC" UTC)
+
 # Header file
 file(WRITE "${OUTPUT_HEADER}" "#pragma once
 // ReSharper disable once CppUnusedIncludeDirective
@@ -34,6 +37,11 @@ extern const size_t g_infiniframe_js_size;
 
 # Source file
 file(WRITE "${OUTPUT_SOURCE}" "#include \"InfiniFrameJs.h\"
+
+// -----------------------------------------------------------------------------
+// Auto-generated file. Do not edit manually.
+// Generated at: ${GENERATED_AT}
+// -----------------------------------------------------------------------------
 
 alignas(16) const unsigned char g_infiniframe_js_data[] = {
 ${BYTES}
