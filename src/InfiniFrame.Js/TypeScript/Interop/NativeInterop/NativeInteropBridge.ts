@@ -19,7 +19,7 @@ const receiveCallbacks = new Set<(message: string) => void>();
 let receiveBridgeAttached = false;
 
 export function installNativeInteropBridge(setup: InfiniFrameSetup): void {
-    if (setup.nativeInteropBridgeInitialized) return
+    if (setup.nativeInteropBridgeInitialized) return;
     setup.nativeInteropBridgeInitialized = true;
     
     window.infiniframe = window.infiniframe ?? {} as Window["infiniframe"];
