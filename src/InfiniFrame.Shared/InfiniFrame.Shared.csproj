@@ -38,20 +38,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniFrame.Js"/>
-        <InternalsVisibleTo Include="InfiniFrame"/>
-        <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
-        <InternalsVisibleTo Include="InfiniFrame.Blazor"/>
-        <InternalsVisibleTo Include="InfiniFrame.BlazorWebView"/>
-        <InternalsVisibleTo Include="InfiniFrameTests"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Shared"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.WebServer"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Js"/>
-        <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
         
         <PackageReference Include="JetBrains.Annotations"/>
