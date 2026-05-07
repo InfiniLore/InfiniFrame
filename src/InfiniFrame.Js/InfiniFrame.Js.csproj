@@ -55,10 +55,10 @@
     </ItemGroup>
 
     <Target Name="BuildFrontend"
-            BeforeTargets="DispatchToInnerBuilds;Build;Pack"
+            BeforeTargets="PrepareForBuild"
             Condition="'$(DesignTimeBuild)'!='true'
-                  and '$(RunFrontendBuild)'=='true'
-                  and '$(SkipTypeScriptBuild)'!='true'">
+              and '$(RunFrontendBuild)'=='true'
+              and '$(SkipTypeScriptBuild)'!='true'">
 
         <Message Text="Running frontend build..." Importance="high" />
 
@@ -72,7 +72,10 @@
 
     </Target>
 
-    <Target Name="CleanFrontendOutput" AfterTargets="Clean">
+    <Target Name="CleanFrontendOutput"
+            AfterTargets="Clean"
+            Condition="'$(DesignTimeBuild)'!='true'">
+
         <ItemGroup>
             <_FrontendGeneratedFiles Include="$(FrontendOutputFile)" />
             <_FrontendGeneratedFiles Include="$(MSBuildProjectDirectory)\wwwroot\InfiniFrame.dev.js" />
@@ -81,7 +84,6 @@
         </ItemGroup>
 
         <Delete Files="@(_FrontendGeneratedFiles)"
-                Condition="Exists('%(Identity)')"
                 TreatErrorsAsWarnings="true" />
     </Target>
 
