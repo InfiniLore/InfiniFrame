@@ -61,7 +61,7 @@
         <Message Text="Running frontend build..." Importance="high" />
 
         <Exec
-            Command="node &quot;$(SolutionDir)scripts\BuildFrontend.mjs&quot; &quot;$([System.String]::Copy('$(ProjectDir)').TrimEnd('\'))&quot; &quot;$(FrontendStampFile)&quot; &quot;$(FrontendOutputFile)&quot;"
+            Command="node &quot;$(ProjectDir)..\..\scripts\BuildFrontend.mjs&quot; &quot;$([System.String]::Copy('$(ProjectDir)').TrimEnd('\'))&quot; &quot;$(FrontendStampFile)&quot; &quot;$(FrontendOutputFile)&quot;"
             WorkingDirectory="$(ProjectDir)" />
 
         <PropertyGroup>
