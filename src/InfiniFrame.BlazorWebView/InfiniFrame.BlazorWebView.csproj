@@ -1,17 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.BlazorWebView</PackageId>
         <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView" />
     </ItemGroup>
-
     <ItemGroup>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame/InfiniFrame.csproj"/>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
+        <ProjectReference Include="..\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
     </ItemGroup>
 
 </Project>

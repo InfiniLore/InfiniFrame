@@ -80,11 +80,11 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         }
     }
 
-    public Task WaitForCloseAsync(CancellationToken ct = default) {
-        if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
+    public ValueTask WaitForCloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested) return ValueTask.FromCanceled(ct);
 
         WaitForClose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     // Should only be used internally
@@ -119,10 +119,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         });
     }
 
-    public Task CloseAsync(CancellationToken ct = default) {
-        if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
+    public ValueTask CloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested) return ValueTask.FromCanceled(ct);
         Close();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     /// <summary>

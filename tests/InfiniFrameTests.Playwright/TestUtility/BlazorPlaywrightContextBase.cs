@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
+using InfiniFrameTests.Shared;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,17 +25,18 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    protected void BeforeAll() {
+    protected async Task BeforeAllAsync() {
         using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         var ready = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _appThread = CreateAppThread(ready);
         _appThread.Start();
 
-        ready.Task.WaitAsync(startupCancellation.Token).GetAwaiter().GetResult();
+        await ready.Task.WaitAsync(startupCancellation.Token);
     }
 
     protected void AfterAll() {
+        string? tempFolder = _window?.TemporaryFilesPath;
         BeforeAssemblyTeardown();
         CloseWindowSafely();
 
@@ -45,6 +47,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
         _appThread = null;
 
         PlaywrightConnectionUtility.DeleteDirectorySafely(_webViewUserDataPath);
+        if (tempFolder is not null) FileUtility.SafeDeleteDirectory(tempFolder);
     }
 
     protected override Uri CreatePlaywrightConnectionUri(string relativeUrl)
