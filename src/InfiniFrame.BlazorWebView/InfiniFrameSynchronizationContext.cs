@@ -6,6 +6,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView.Utils;
 using InfiniFrame.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
