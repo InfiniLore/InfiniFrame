@@ -50,19 +50,26 @@ function shouldRemoveExistingLock() {
         }
     }
 
-    const lockAgeMilliseconds = Date.now() - statSync(lockDirectory).mtimeMs;
-    return lockAgeMilliseconds > 60 * 1000;
+    try {
+        const lockAgeMilliseconds = Date.now() - statSync(lockDirectory).mtimeMs;
+        return lockAgeMilliseconds > 60 * 1000;
+    } catch (error) {
+        if (error?.code === 'ENOENT') {
+            return false;
+        }
+
+        throw error;
+    }
 }
 
 function acquireLock() {
     mkdirSync(path.dirname(stampFile), {recursive: true});
+    const ownerFile = path.join(lockDirectory, 'owner.txt');
 
     const startedAt = Date.now();
     while (true) {
         try {
             mkdirSync(lockDirectory);
-            writeFileSync(path.join(lockDirectory, 'owner.txt'), `${process.pid}\n`, 'utf8');
-            return;
         } catch (error) {
             if (error?.code !== 'EEXIST') {
                 throw error;
@@ -78,6 +85,18 @@ function acquireLock() {
             }
 
             sleep(250);
+            continue;
+        }
+
+        try {
+            writeFileSync(ownerFile, `${process.pid}\n`, {encoding: 'utf8', flag: 'wx'});
+            return;
+        } catch (error) {
+            if (error?.code === 'ENOENT' || error?.code === 'EEXIST') {
+                continue;
+            }
+
+            throw error;
         }
     }
 }
