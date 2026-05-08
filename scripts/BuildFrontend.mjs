@@ -21,6 +21,8 @@ const appDirectory = path.resolve(appDirectoryArg);
 const stampFile = path.resolve(stampFileArg);
 const outputFile = path.resolve(outputFileArg);
 const lockDirectory = `${stampFile}.lock`;
+const nodeModulesDirectory = path.join(appDirectory, 'node_modules');
+const packageLockFile = path.join(appDirectory, 'package-lock.json');
 const sourceExclusions = new Set(['node_modules', '.git']);
 
 function sleep(milliseconds) {
@@ -150,6 +152,11 @@ function runNpm(args) {
     }
 }
 
+function installDependencies() {
+    const hasLockFile = existsSync(packageLockFile);
+    runNpm(hasLockFile ? ['ci'] : ['install']);
+}
+
 acquireLock();
 
 try {
@@ -158,7 +165,9 @@ try {
         process.exit(0);
     }
 
-    if (process.env.CI === 'true') {
+    if (!existsSync(nodeModulesDirectory)) {
+        installDependencies();
+    } else if (process.env.CI === 'true') {
         runNpm(['ci']);
     }
 
