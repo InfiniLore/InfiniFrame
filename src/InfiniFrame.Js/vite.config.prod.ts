@@ -17,17 +17,8 @@ export default defineConfig({
             fileName: () => "InfiniFrame.js"
         },
 
-        rollupOptions: {
-            output: {
-                entryFileNames: "InfiniFrame.js",
-                extend: true,
-                codeSplitting: false
-            }
-        },
-
         terserOptions: {
             compress: {
-                drop_console: false,
                 drop_debugger: true
             },
             format: {

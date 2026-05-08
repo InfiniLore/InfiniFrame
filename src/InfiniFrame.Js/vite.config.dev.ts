@@ -15,14 +15,6 @@ export default defineConfig({
             formats: ["iife"],
             name: "InfiniFrameJs",
             fileName: () => "InfiniFrame.dev.js"
-        },
-
-        rollupOptions: {
-            output: {
-                entryFileNames: "InfiniFrame.dev.js",
-                extend: true,
-                codeSplitting: false
-            }
         }
     }
 });

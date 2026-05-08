@@ -8,63 +8,73 @@
 
         <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
 
-        <FrontendOutputFile>$(MSBuildProjectDirectory)\wwwroot\InfiniFrame.js</FrontendOutputFile>
-        <FrontendStampFile>$(MSBuildProjectDirectory)\obj\frontend-build.stamp</FrontendStampFile>
+        <!-- FIX: use forward slashes for Linux compatibility -->
+        <FrontendProdFile>$(MSBuildProjectDirectory)/wwwroot/InfiniFrame.js</FrontendProdFile>
+        <FrontendDevFile>$(MSBuildProjectDirectory)/wwwroot/InfiniFrame.dev.js</FrontendDevFile>
+
+        <FrontendStampFile>$(MSBuildProjectDirectory)/obj/frontend-build.stamp</FrontendStampFile>
     </PropertyGroup>
 
     <ItemGroup>
         <Content Update="TypeScript/**/*"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never"
-                 Visible="true" />
+                 CopyToPublishDirectory="Never" />
 
         <Content Update="package.json"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never"
-                 Visible="true" />
+                 CopyToPublishDirectory="Never" />
 
         <Content Update="package-lock.json"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never"
-                 Visible="true" />
+                 CopyToPublishDirectory="Never" />
 
         <Content Update="tsconfig.json"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never"
-                 Visible="true" />
+                 CopyToPublishDirectory="Never" />
 
-        <Content Update="vite.config.ts"
+        <Content Update="vite.config.dev.ts"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never"
-                 Visible="true" />
+                 CopyToPublishDirectory="Never" />
+
+        <Content Update="vite.config.prod.ts"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never" />
 
         <Content Update="vitest.config.ts"
                  Pack="false"
                  CopyToOutputDirectory="Never"
-                 CopyToPublishDirectory="Never"
-                 Visible="true" />
+                 CopyToPublishDirectory="Never" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="wwwroot\" />
+        <Folder Include="wwwroot/" />
     </ItemGroup>
 
     <Target Name="BuildFrontend"
-            BeforeTargets="PrepareForBuild"
+            BeforeTargets="ResolveStaticWebAssets"
             Condition="'$(DesignTimeBuild)'!='true'
-              and '$(RunFrontendBuild)'=='true'
-              and '$(SkipTypeScriptBuild)'!='true'">
+                     and '$(RunFrontendBuild)'=='true'
+                     and '$(SkipTypeScriptBuild)'!='true'">
 
         <Message Text="Running frontend build..." Importance="high" />
 
-        <Exec
-            Command='node "$(MSBuildProjectDirectory)\..\..\scripts\BuildFrontend.mjs" "$(MSBuildProjectDirectory)" "$(FrontendStampFile)" "$(FrontendOutputFile)"'
-            WorkingDirectory="$(MSBuildProjectDirectory)" />
+        <!-- FIX: ensure correct working directory + cross-platform npm execution -->
+        <Exec Command="npm run build"
+              WorkingDirectory="$(MSBuildProjectDirectory)" />
+
+        <Error Condition="!Exists('$(FrontendProdFile)')"
+               Text="Missing: $(FrontendProdFile)" />
+
+        <Error Condition="!Exists('$(FrontendDevFile)')"
+               Text="Missing: $(FrontendDevFile)" />
+
+        <Message Text="Frontend build completed successfully." Importance="high" />
 
         <PropertyGroup>
             <RunFrontendBuild>false</RunFrontendBuild>
@@ -77,14 +87,15 @@
             Condition="'$(DesignTimeBuild)'!='true'">
 
         <ItemGroup>
-            <_FrontendGeneratedFiles Include="$(FrontendOutputFile)" />
-            <_FrontendGeneratedFiles Include="$(MSBuildProjectDirectory)\wwwroot\InfiniFrame.dev.js" />
-            <_FrontendGeneratedFiles Include="$(MSBuildProjectDirectory)\wwwroot\InfiniFrame.dev.js.map" />
+            <_FrontendGeneratedFiles Include="$(FrontendProdFile)" />
+            <_FrontendGeneratedFiles Include="$(FrontendDevFile)" />
+            <_FrontendGeneratedFiles Include="$(FrontendDevFile).map" />
             <_FrontendGeneratedFiles Include="$(FrontendStampFile)" />
         </ItemGroup>
 
         <Delete Files="@(_FrontendGeneratedFiles)"
                 TreatErrorsAsWarnings="true" />
+
     </Target>
 
 </Project>
