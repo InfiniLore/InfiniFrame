@@ -1,0 +1,116 @@
+name: "Shared: Dotnet Pack Tests"
+
+on:
+    workflow_call:
+        inputs:
+            checkout_ref:
+                description: 'Git ref to checkout (optional)'
+                type: string
+                required: false
+                default: ''
+            target_sha:
+                description: 'Commit SHA used for status/check updates'
+                type: string
+                required: true
+
+permissions:
+    contents: read
+    statuses: write
+    checks: write
+
+jobs:
+    dotnet-pack-validation:
+        name: CI Testing - Dotnet Pack
+        runs-on: ubuntu-latest
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
+                    fetch-depth: 1
+                    
+            -   name: Setup Node
+                uses: actions/setup-node@v6
+                with:
+                    node-version: 24
+
+            -   name: Set Dotnet Pack Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction
+                uses: ./.github/actions/sync-check
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Dotnet Pack
+                    state: pending
+                    status-description: Dotnet Pack tests in progress
+                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+                    allow-status-422: 'true'
+
+            -   name: Setup .NET
+                uses: actions/setup-dotnet@v5
+                with:
+                    dotnet-version: |
+                        8.x
+                        9.x
+                        10.x
+
+            -   name: Cache NuGet
+                uses: actions/cache@v5
+                with:
+                    path: ~/.nuget/packages
+                    key: ${{ runner.os }}-x64-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
+                    restore-keys: |
+                        ${{ runner.os }}-x64-nuget-
+
+            -   name: Setup Native dependencies
+                # noinspection UndefinedAction
+                uses: ./.github/actions/setup-dependencies-native
+                # noinspection UndefinedParamsPresent
+                with:
+                    apt-cache-version: 1.0
+                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-dotnetpack.yml') }}
+                    brew-restore-key: ${{ runner.os }}-x64-brew-native-
+
+            -   name: Restore
+                run: dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
+
+            -   name: Build Release
+                run: |
+                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir="${{ github.workspace }}/" \
+                      /p:Platform=x64
+                    
+                    dotnet build InfiniFrame.GitHubActions.Release.slnf \
+                      --configuration Release \
+                      --no-restore \
+                      /p:SolutionDir=${{ github.workspace }}/
+
+            -   name: Pack
+                run: |
+                    dotnet pack InfiniFrame.GitHubActions.Release.slnf \
+                      --configuration Release \
+                      -o ./release
+            
+            -   name: Complete Dotnet Pack Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # noinspection UndefinedAction, UndefinedParamsPresent
+                uses: ./.github/actions/sync-check-finalize
+                # noinspection UndefinedParamsPresent
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ env.TARGET_SHA }}
+                    context: CI Testing - Dotnet Pack
+                    target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+                    job-status: ${{ job.status }}
+                    success-description: Dotnet Pack finished successfully
+                    failure-description: Dotnet Pack failed

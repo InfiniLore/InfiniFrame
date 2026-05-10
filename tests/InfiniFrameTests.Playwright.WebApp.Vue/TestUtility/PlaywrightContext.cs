@@ -23,6 +23,6 @@ public sealed class PlaywrightContext : ServerPlaywrightContextBase {
         => Instance.BeforeAll();
 
     [After(Assembly)]
-    public static void AfterAll(AssemblyHookContext _)
-        => Instance.AfterAll();
+    public static async ValueTask AfterAllAsync(AssemblyHookContext _)
+        => await Instance.AfterAllAsync();
 }

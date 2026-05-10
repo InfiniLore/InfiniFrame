@@ -19,7 +19,7 @@ endif ()
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
 include("${CMAKE_SOURCE_DIR}/cmake/NativeDependencies.cmake")
-include("${CMAKE_SOURCE_DIR}/cmake/Embed.InfiniFrameHostJs.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/Embed.InfiniFrameJs.cmake")
 
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.Windows.cmake")
 include("${CMAKE_SOURCE_DIR}/cmake/Platform.MacOS.cmake")
@@ -65,7 +65,7 @@ set(HEADER_FILES
         Core/InfiniFrameWindow.h
         Core/InfiniFrameDialog.h
         Embedded/Embedded.h
-        Embedded/InfiniFrameHostJs/InfiniFrameHostJs.h
+        Embedded/InfiniFrameJs/InfiniFrameJs.h
         Types/Basic.h
         Types/Dialog.h
         Core/InfiniFrameInitParams.h

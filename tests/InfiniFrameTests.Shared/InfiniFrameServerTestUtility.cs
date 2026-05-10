@@ -13,7 +13,7 @@ namespace InfiniFrameTests.Shared;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [MustDisposeResource]
-public sealed class InfiniFrameServerTestUtility : IDisposable {
+public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
     public required IInfiniFrameWindow Window { get; init; }
     public required WebApplication WebApplication { get; init; }
 
@@ -34,13 +34,14 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
     ) {
         var ready = new TaskCompletionSource<InfiniFrameServerTestUtility>(
             TaskCreationOptions.RunContinuationsAsynchronously);
-
         var thread = new Thread(() => {
             try {
                 InfiniFrameWebApplicationBuilder builder = InfiniFrameWebApplication.CreateBuilder();
                 builder.WebApp.WebHost.UseStaticWebAssets();
 
                 appBuilder?.Invoke(builder.WebApp);
+                
+                builder.WindowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "InfiniFrameServerTests", Guid.NewGuid().ToString()));
                 windowBuilder?.Invoke(builder.WindowBuilder);
 
                 InfiniFrameWebApplication app = builder.Build();
@@ -54,8 +55,8 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
 
                 app.WebApp.StartAsync(cancellationToken).GetAwaiter().GetResult();
                 IInfiniFrameWindow window = app.Window;
-
-                using var util = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
+                
+                var util = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
                     Window = window,
                     WebApplication = app.WebApp
                 };
@@ -65,6 +66,7 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
                 window.WaitForClose();
 
                 app.WebApp.StopAsync(cancellationToken).GetAwaiter().GetResult();
+                util.DisposeAsync().GetAwaiter().GetResult();
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 ready.TrySetException(ex);
@@ -84,12 +86,13 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void Dispose() {
-        if (Interlocked.Exchange(ref _disposed, 1) != 0)
-            return;
+    public async ValueTask DisposeAsync() {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+        
+        string? tempFolder = Window.TemporaryFilesPath;
 
         try {
-            Window.Close();
+            await Window.CloseAsync();
         }
         catch (ApplicationException) {
             // ignored
@@ -99,13 +102,25 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
         }
 
         try {
-            WebApplication.StopAsync().GetAwaiter().GetResult();
+            await WebApplication.StopAsync();
         }
         catch (OperationCanceledException) {
             // ignored
         }
         catch (ObjectDisposedException) {
             // ignored
+        }
+
+        if (tempFolder is not null) {
+            try {
+                FileUtility.SafeDeleteDirectory(tempFolder);
+            }
+            catch (ApplicationException) {
+                // ignored
+            }
+            catch (OperationCanceledException) {
+                // ignored
+            }
         }
 
         bool stoppedInTime = _thread.Join(TimeSpan.FromSeconds(5));
@@ -115,5 +130,7 @@ public sealed class InfiniFrameServerTestUtility : IDisposable {
                 $"ThreadId={_thread.ManagedThreadId}, State={_thread.ThreadState}. Interrupting thread.");
             _thread.Interrupt();
         }
+        
+        
     }
 }

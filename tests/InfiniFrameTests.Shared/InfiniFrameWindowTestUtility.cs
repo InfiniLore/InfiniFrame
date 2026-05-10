@@ -46,6 +46,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder.SetStartString(StartString);
+        windowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "InfiniFrameTests", Guid.NewGuid().ToString()));
         builder?.Invoke(windowBuilder);
 
         // Windows: WebView2 requires STA thread for COM initialization
@@ -111,38 +112,10 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // ----------------------------------------------------------------------------------------------------------------
-    public async Task WaitForCloseAsync(CancellationToken ct = default) {
+    public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
-        try {
-            await Window.WaitForCloseAsync(ct);
-        }
-        catch (ApplicationException) {
-            // ignored
-        }
-        catch (ObjectDisposedException) {
-            // ignored
-        }
-
-        try {
-            if (_windowThread == null) return;
-            if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
-                _windowThread.Interrupt();
-        }
-        catch (ThreadInterruptedException) {
-            // ignored
-        }
-        catch (ThreadStateException) {
-            // ignored
-        }
-        catch (ObjectDisposedException) {
-            // ignored
-        }
-    }
-    
-    public void Dispose() {
-        if (Interlocked.Exchange(ref _disposed, 1) != 0)
-            return;
+        string? tempFolder = Window.TemporaryFilesPath;
 
         try {
             Window.Close();
@@ -154,21 +127,33 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
             // ignored
         }
 
-        try {
-            if (_windowThread == null)
-                return;
+        if (_windowThread is not null) {
+            try {
+                if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
+                    _windowThread.Interrupt();
+            }
+            catch (ThreadInterruptedException) {
+                // ignored
+            }
+            catch (ThreadStateException) {
+                // ignored
+            }
+            catch (ObjectDisposedException) {
+                // ignored
+            }
+        }
 
-            if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
-                _windowThread.Interrupt();
-        }
-        catch (ThreadInterruptedException) {
-            // ignored
-        }
-        catch (ThreadStateException) {
-            // ignored
-        }
-        catch (ObjectDisposedException) {
-            // ignored
+        // ReSharper disable once InvertIf
+        if (tempFolder is not null) {
+            try {
+                FileUtility.SafeDeleteDirectory(tempFolder);
+            }
+            catch (ApplicationException) {
+                // ignored
+            }
+            catch (OperationCanceledException) {
+                // ignored
+            }
         }
     }
 }

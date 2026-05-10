@@ -10,8 +10,8 @@ import {ReceiveFromHostMessageIds, SendToHostMessageIds} from "./Contracts";
 type ReceiveMessageCallback = (message: string) => void;
 
 type TestWindow = Window & {
-    __infiniframe?: {
-        host?: {
+    infiniframe: Window["infiniframe"] & {
+        host: {
             postData: (message: unknown) => void;
             receiveCallback: (callback: ReceiveMessageCallback) => void;
         };
@@ -33,7 +33,8 @@ describe("InfiniFrameHostMessaging", () => {
             receiveCallbackInner = callback;
         });
 
-        testWindow.__infiniframe = {
+        // @ts-ignore
+        testWindow.infiniframe = {
             host: {
                 postData,
                 receiveCallback

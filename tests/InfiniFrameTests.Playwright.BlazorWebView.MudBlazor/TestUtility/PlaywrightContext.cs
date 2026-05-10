@@ -24,8 +24,8 @@ public sealed class PlaywrightContext : BlazorPlaywrightContextBase<App> {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Before(Assembly)]
-    public static void BeforeAll(AssemblyHookContext _)
-        => Instance.BeforeAll();
+    public static async Task BeforeAllAsync(AssemblyHookContext _)
+        => await Instance.BeforeAllAsync();
 
     [After(Assembly)]
     public static void AfterAll(AssemblyHookContext _)

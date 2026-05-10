@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Js.Interop;
+using InfiniFrame.Interop;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 

@@ -2,8 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Interop;
-using InfiniFrame.Js;
-using InfiniFrame.Js.Interop;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -134,7 +132,7 @@ public partial class InfiniFrameEvents {
         );
 
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
-            HandlerNames.GetResponse,
+            JsHandlerNames.GetResponse,
             responsePayloadJson,
             InteropEnvelopeProtocol.GetCommand,
             requestId
@@ -154,7 +152,7 @@ public partial class InfiniFrameEvents {
         );
 
         string responseEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage(
-            HandlerNames.GetResponse,
+            JsHandlerNames.GetResponse,
             responsePayloadJson,
             InteropEnvelopeProtocol.GetCommand,
             requestId

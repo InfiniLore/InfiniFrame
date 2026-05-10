@@ -187,8 +187,8 @@ window.infiniframe.host.postData({ id: "__infiniframe:fullscreen:exit", command:
 When using `InfiniFrame.js`, you can go through its API instead:
 
 ```js
-window.infiniFrame.HostMessaging.sendMessageToHost("__infiniframe:window:minimize");
-window.infiniFrame.HostMessaging.sendMessageToHost("__infiniframe:title:change", "New Title");
+window.infiniframe.messaging.sendMessageToHost("__infiniframe:window:minimize");
+window.infiniframe.messaging.sendMessageToHost("__infiniframe:title:change", "New Title");
 ```
 
 ## Exchanging Structured Data

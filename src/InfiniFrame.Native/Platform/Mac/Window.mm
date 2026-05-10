@@ -995,7 +995,7 @@ void InfiniFrameWindow::InvokeMinimized() const noexcept
 
 void InfiniFrameWindow::AttachWebView()
 {
-    auto js = Embedded::InfiniFrameHostJsUtf8();
+    auto js = Embedded::InfiniFrameJsUtf8();
 
     WKUserScript *script =
         [[WKUserScript alloc]

@@ -2,11 +2,13 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {
+    SendToHostMessageIds
+} from "../../Contracts";
+import type {
     InteropEnvelopeCommand,
     InteropEnvelopeV1,
     ParsedInteropMessage,
-    InteropParseError,
-    SendToHostMessageIds
+    InteropParseError
 } from "../../Contracts";
 
 // ---------------------------------------------------------------------------------------------------------------------

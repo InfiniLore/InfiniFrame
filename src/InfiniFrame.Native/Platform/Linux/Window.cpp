@@ -1024,7 +1024,7 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
 
         gtk_container_add(GTK_CONTAINER(m_impl->_window), m_impl->_webview);
 
-        auto js = Embedded::InfiniFrameHostJsUtf8();
+        auto js = Embedded::InfiniFrameJsUtf8();
 
         WebKitUserScript* script = webkit_user_script_new(
             js.c_str(),

@@ -5,17 +5,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView" />
     </ItemGroup>
-
     <ItemGroup>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame/InfiniFrame.csproj"/>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <InternalsVisibleTo Include="InfiniFrameTests.BlazorWebView"/>
+        <ProjectReference Include="..\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
     </ItemGroup>
 
 </Project>

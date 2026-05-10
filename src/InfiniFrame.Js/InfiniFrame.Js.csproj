@@ -3,47 +3,99 @@
     <PropertyGroup>
         <PackageId>InfiniLore.InfiniFrame.Js</PackageId>
         <OutputType>Library</OutputType>
+
+        <IsPackable>true</IsPackable>
+
+        <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
+
+        <!-- FIX: use forward slashes for Linux compatibility -->
+        <FrontendProdFile>$(MSBuildProjectDirectory)/wwwroot/InfiniFrame.js</FrontendProdFile>
+        <FrontendDevFile>$(MSBuildProjectDirectory)/wwwroot/InfiniFrame.dev.js</FrontendDevFile>
+
+        <FrontendStampFile>$(MSBuildProjectDirectory)/obj/frontend-build.stamp</FrontendStampFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniFrame"/>
-        <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Js"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Shared"/>
+        <Content Update="TypeScript/**/*"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never" />
+
+        <Content Update="package.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never" />
+
+        <Content Update="package-lock.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never" />
+
+        <Content Update="tsconfig.json"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never" />
+
+        <Content Update="vite.config.dev.ts"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never" />
+
+        <Content Update="vite.config.prod.ts"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never" />
+
+        <Content Update="vitest.config.ts"
+                 Pack="false"
+                 CopyToOutputDirectory="Never"
+                 CopyToPublishDirectory="Never" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="wwwroot/InfiniFrame.js"/>
+        <Folder Include="wwwroot/" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Update="TypeScript/**/*" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
+    <Target Name="BuildFrontend"
+            BeforeTargets="ResolveStaticWebAssets"
+            Condition="'$(DesignTimeBuild)'!='true'
+                     and '$(RunFrontendBuild)'=='true'
+                     and '$(SkipTypeScriptBuild)'!='true'">
 
-        <Content Update="package.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="package-lock.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="tsconfig.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="vitests.config.ts" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="webpack.config.js" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-        <Content Update="TypeScript/Interop/EnvelopeProtocol/interop-envelope-golden-vectors.json" Pack="false" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Visible="true"/>
-    </ItemGroup>
+        <Message Text="Running frontend build..." Importance="high" />
 
-    <ItemGroup>
-        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
-    </ItemGroup>
+        <!-- FIX: ensure correct working directory + cross-platform npm execution -->
+        <Exec Command="npm run build"
+              WorkingDirectory="$(MSBuildProjectDirectory)" />
 
-    <Target Name="BuildTypeScript" BeforeTargets="DispatchToInnerBuilds" Condition="'$(Configuration)' == 'Release' and '$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' == 'true'">
-        <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run production:build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+        <Error Condition="!Exists('$(FrontendProdFile)')"
+               Text="Missing: $(FrontendProdFile)" />
+
+        <Error Condition="!Exists('$(FrontendDevFile)')"
+               Text="Missing: $(FrontendDevFile)" />
+
+        <Message Text="Frontend build completed successfully." Importance="high" />
+
+        <PropertyGroup>
+            <RunFrontendBuild>false</RunFrontendBuild>
+        </PropertyGroup>
+
     </Target>
 
-    <Target Name="BuildTypeScriptSingleTarget" BeforeTargets="BeforeBuild" Condition="'$(Configuration)' == 'Release' and '$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' != 'true' and '$(TargetFrameworks)' == ''">
-        <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run production:build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-    </Target>
+    <Target Name="CleanFrontendOutput"
+            AfterTargets="Clean"
+            Condition="'$(DesignTimeBuild)'!='true'">
 
-    <Target Name="BuildTypeScriptForPack" BeforeTargets="Pack" Condition="'$(SkipTypeScriptBuild)' != 'true' and '$(IsCrossTargetingBuild)' == 'true'">
-        <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="npm run production:build" WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+        <ItemGroup>
+            <_FrontendGeneratedFiles Include="$(FrontendProdFile)" />
+            <_FrontendGeneratedFiles Include="$(FrontendDevFile)" />
+            <_FrontendGeneratedFiles Include="$(FrontendDevFile).map" />
+            <_FrontendGeneratedFiles Include="$(FrontendStampFile)" />
+        </ItemGroup>
+
+        <Delete Files="@(_FrontendGeneratedFiles)"
+                TreatErrorsAsWarnings="true" />
+
     </Target>
 
 </Project>

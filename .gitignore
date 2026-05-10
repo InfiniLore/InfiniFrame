@@ -348,7 +348,7 @@ healthchecksdb
 /src/InfiniFrame.Native/cmake-build-debug/
 /src/InfiniFrame.Native/cmake-build-debug-linux/
 /src/InfiniFrame.Native/cmake-build-debug-windows/
-/src/InfiniFrame.Native/Embedded/InfiniFrameHostJs/InfiniFrameHostJs.cpp
+/src/InfiniFrame.Native/Embedded/InfiniFrameJs/InfiniFrameJs.cpp
 
 # wwwroot folders from js web based projects
 /examples/InfiniFrameExample.WebApp.React/wwwroot/
@@ -363,3 +363,8 @@ healthchecksdb
 
 # Local test/runner virtualenv
 /.run/.venv/
+
+
+src/InfiniFrame.Js/wwwroot/InfiniFrame.js
+src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js
+src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js.map

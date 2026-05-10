@@ -2,21 +2,22 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {
-    IInfiniFrameHostMessaging,
-    InteropEnvelopeV1,
-    MessageCallback,
     ReceiveFromHostMessageIds,
-    SendToHostMessageId,
     SendToHostMessageIds
 } from "./Contracts";
+import type {
+    InfiniFrameHostMessaging as InfiniFrameHostMessagingContract,
+    InteropEnvelopeV1,
+    MessageCallback,
+    SendToHostMessageId
+} from "./Contracts";
 import {createEnvelope, InteropGetCommand, parseIncomingMessage} from "./Interop/EnvelopeProtocol/InteropEnvelopeProtocol";
-import {blankTargetHandler} from "./Utils/BlankTargetHandler";
-import {getTitleObserver, getTitleObserverTarget} from "./Utils/Observers";
+import {blankTargetHandler, getTitleObserver, getTitleObserverTarget} from "./Utils";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
+class InfiniFrameHostMessaging implements InfiniFrameHostMessagingContract {
     private static readonly BlazorWebViewMessagePrefix = "__bwv:";
     private messageHandlers: Map<string, MessageCallback> = new Map();
     private openExternalRegistered = false;
@@ -64,8 +65,8 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     public sendMessageToHost(id: SendToHostMessageId | string, data?: unknown) {
         const envelope = createEnvelope(id, data);
 
-        if (window.__infiniframe?.host?.postData) {
-            window.__infiniframe.host.postData(envelope);
+        if (window.infiniframe?.host?.postData) {
+            window.infiniframe.host.postData(envelope);
         } else {
             console.warn("Message to host failed. Host bridge API is not initialized.");
             return;
@@ -73,7 +74,7 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     }
     
     public async getMessageFromHostAsync(message: InteropEnvelopeV1 | string): Promise<string> {
-        const host = window.__infiniframe?.host;
+        const host = window.infiniframe?.host;
         if (!host?.getDataAsync) throw new Error("Message to host failed. Host getDataAsync API is not initialized.");
 
         const envelope = typeof message === "string"
@@ -92,8 +93,8 @@ class InfiniFrameHostMessaging implements IInfiniFrameHostMessaging {
     }
 
     private assignWebMessageReceiver() {
-        if (window.__infiniframe?.host?.receiveCallback) {
-            window.__infiniframe.host.receiveCallback((message: string) => {
+        if (window.infiniframe?.host?.receiveCallback) {
+            window.infiniframe.host.receiveCallback((message: string) => {
                 this.handleInteropMessage(message);
             });
         }

@@ -123,7 +123,6 @@
     <File Path="tests/Directory.Build.targets" />
     <Project Path="tests/InfiniFrameTests.Blazor/InfiniFrameTests.Blazor.csproj" />
     <Project Path="tests/InfiniFrameTests.BlazorWebView/InfiniFrameTests.BlazorWebView.csproj" />
-    <Project Path="tests/InfiniFrameTests.Js/InfiniFrameTests.Js.csproj" />
     <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
     <Project Path="tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.csproj" />
     <Project Path="tests/InfiniFrameTests.Playwright.WebApp.React/InfiniFrameTests.Playwright.WebApp.React.csproj" />

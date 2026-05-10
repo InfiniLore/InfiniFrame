@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {IInfiniFrameHostMessaging, SendToHostMessageIds} from "./Contracts";
+import {InfiniFrameHostMessaging, SendToHostMessageIds} from "./Contracts";
 import {InfiniFrameWindow} from "./InfiniFrameWindow";
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ describe("InfiniFrameWindow", () => {
         vi.restoreAllMocks();
     });
 
-    function createMessagingMocks(getMessageFromHostAsync: (message: string) => Promise<string>): IInfiniFrameHostMessaging {
+    function createMessagingMocks(getMessageFromHostAsync: (message: string) => Promise<string>): InfiniFrameHostMessaging {
         return {
             sendMessageToHost: vi.fn(),
             getMessageFromHostAsync,
@@ -24,7 +24,7 @@ describe("InfiniFrameWindow", () => {
         };
     }
 
-    function assignInfiniFrame(messaging: IInfiniFrameHostMessaging) {
+    function assignInfiniFrame(messaging: InfiniFrameHostMessaging) {
         testWindow.infiniframe = {
             messaging,
             window: {

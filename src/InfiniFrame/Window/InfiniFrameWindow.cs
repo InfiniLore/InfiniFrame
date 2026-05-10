@@ -80,11 +80,11 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         }
     }
 
-    public Task WaitForCloseAsync(CancellationToken ct = default) {
-        if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
+    public ValueTask WaitForCloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested) return ValueTask.FromCanceled(ct);
 
         WaitForClose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     // Should only be used internally
@@ -119,17 +119,17 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         });
     }
 
-    public Task CloseAsync(CancellationToken ct = default) {
-        if (ct.IsCancellationRequested) return Task.FromCanceled(ct);
+    public ValueTask CloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested) return ValueTask.FromCanceled(ct);
         Close();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     /// <summary>
     ///     Send a message to the native window's native browser control's JavaScript context.
     /// </summary>
     /// <remarks>
-    ///     In JavaScript, messages can be received via <code>window.__infiniframe.host.receiveCallback(callback)</code>.
+    ///     In JavaScript, messages can be received via <code>window.infiniframe.host.receiveCallback(callback)</code>.
     /// </remarks>
     /// <exception cref="ApplicationException">
     ///     Thrown when the window is not initialized.
