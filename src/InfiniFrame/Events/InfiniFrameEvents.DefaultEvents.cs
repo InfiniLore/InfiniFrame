@@ -15,6 +15,7 @@ public partial class InfiniFrameEvents {
     }
     
     private static void CloseChildWindows(IInfiniFrameWindow window) {
+        if (window.InstanceHandle == IntPtr.Zero) return;
         if (window.Configuration.ChildWindows.Count <= 0) return;
 
         window.Logger.LogDebug("Closing child windows");
