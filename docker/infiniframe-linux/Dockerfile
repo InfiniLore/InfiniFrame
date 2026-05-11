@@ -13,10 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ninja-build \
     pkg-config \
-    gnome-shell \
-    gnome-session \
-    gnome-settings-daemon \
-    mutter \
     xvfb \
     x11-utils \
     x11-xserver-utils \
@@ -42,6 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     gnupg \
     git \
+    openbox \
     && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -59,19 +56,6 @@ RUN node --version && npm --version
 # Python tooling
 # ----------------------------------------------------------------------------------------------------------------------
 RUN python3 -m pip install --no-cache-dir --break-system-packages cmake==4.0.0
-
-# ----------------------------------------------------------------------------------------------------------------------
-# NuGet restore (isolated temp layer)
-# ----------------------------------------------------------------------------------------------------------------------
-WORKDIR /tmp/nuget-build
-
-COPY ./*.slnx ./
-COPY ./*.csproj ./
-COPY ./**/*.csproj ./
-
-RUN dotnet restore --packages $NUGET_PACKAGES
-
-RUN rm -rf /tmp/nuget-build
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Playwright setup
