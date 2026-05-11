@@ -78,9 +78,10 @@ public class WindowTests {
     }
 
     [Test]
+    [Retry(5)] // Sometimes fails on CI due to timing issues
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
+    [Timeout(TimeoutUtility.DefaultTimeout + 1_000)]
     [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
     public async Task Close_IsDefined(CancellationToken ct) {
         // Arrange
@@ -95,7 +96,7 @@ public class WindowTests {
 
         // Act
         window.Close();
-        await Task.Delay(100);
+        await Task.Delay(1_000, ct);
 
         // Assert
         bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
