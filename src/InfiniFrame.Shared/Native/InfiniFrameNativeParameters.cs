@@ -66,16 +66,15 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     internal string? NotificationRegistrationId;
 
     /// <summary>
-    ///     OPTIONAL: If native window is created from another native windowm this is the pointer to the parent window. It
-    ///     is set automatically in WaitforExit().
+    ///     OPTIONAL: If native window is created from another native window, this is the pointer to the parent window.
     /// </summary>
     internal IntPtr NativeParent;
 
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppClosingDelegate? ClosingHandler;
     
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppClosedDelegate? ClosedHandler;
 
@@ -87,27 +86,27 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppFocusOutDelegate? FocusOutHandler;
 
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppResizedDelegate? ResizedHandler;
 
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppMaximizedDelegate? MaximizedHandler;
 
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppRestoredDelegate? RestoredHandler;
 
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppMinimizedDelegate? MinimizedHandler;
 
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppMovedDelegate? MovedHandler;
 
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppWebMessageReceivedDelegate? WebMessageReceivedHandler;
 
@@ -115,7 +114,7 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
     internal IntPtr[] CustomSchemeNames;
 
-    ///<summary>SET BY PHOTINIWINDOW CONSTRUCTOR</summary>
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppWebResourceRequestedDelegate? CustomSchemeHandler;
 

@@ -53,6 +53,7 @@ public interface IInfiniFrameOptionsBuilder {
     
     #region C# Options
     bool LimitLinuxWindowTitleLength { get; set; }
+    IInfiniFrameWindow? ParentWindow { get; set; }
     #endregion
     
     InfiniFrameNativeParameters ToNativeParameters();

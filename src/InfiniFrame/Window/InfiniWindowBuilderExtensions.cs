@@ -545,4 +545,14 @@ public static class InfiniWindowBuilderExtensions {
         builder.Configuration.ZoomEnabled = zoomEnabled;
         return builder;
     }
+    
+    public static T SetParentWindow<T>(this T builder, IInfiniFrameWindow parentWindow) where T : IInfiniFrameWindowBuilder {
+        builder.Configuration.ParentWindow = parentWindow;
+        return builder;
+    }
+    
+    public static T SetParentWindow<T>(this T builder, Action<IInfiniFrameWindowBuilder> parentWindowConfigurator) where T : IInfiniFrameWindowBuilder {
+        parentWindowConfigurator(builder);
+        return builder;
+    }
 }

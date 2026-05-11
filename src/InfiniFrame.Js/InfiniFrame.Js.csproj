@@ -8,10 +8,8 @@
 
         <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
 
-        <!-- FIX: use forward slashes for Linux compatibility -->
         <FrontendProdFile>$(MSBuildProjectDirectory)/wwwroot/InfiniFrame.js</FrontendProdFile>
         <FrontendDevFile>$(MSBuildProjectDirectory)/wwwroot/InfiniFrame.dev.js</FrontendDevFile>
-
         <FrontendStampFile>$(MSBuildProjectDirectory)/obj/frontend-build.stamp</FrontendStampFile>
     </PropertyGroup>
 
@@ -64,7 +62,6 @@
 
         <Message Text="Running frontend build..." Importance="high" />
 
-        <!-- FIX: ensure correct working directory + cross-platform npm execution -->
         <Exec Command="npm run build"
               WorkingDirectory="$(MSBuildProjectDirectory)" />
 
