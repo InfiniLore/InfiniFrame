@@ -38,15 +38,18 @@ jobs:
 
             -   name: Install dependencies
                 shell: bash
-                run: npm ci --prefix src/InfiniFrame.Js
-
-            -   name: Run unit tests
-                shell: bash
-                run: npm --prefix src/InfiniFrame.Js run test
+                working-directory: src/InfiniFrame.Js
+                run: npm ci
 
             -   name: Build bundle
                 shell: bash
-                run: npm --prefix src/InfiniFrame.Js run build
+                working-directory: src/InfiniFrame.Js
+                run: npm run build
+
+            -   name: Run unit tests
+                shell: bash
+                working-directory: src/InfiniFrame.Js
+                run: npm run test
             
             -   name: Complete Js Check
                 if: always()
