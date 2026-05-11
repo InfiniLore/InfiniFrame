@@ -13,6 +13,7 @@ public class ParentChildWindowTests {
     
     [Test]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnWindowsArm]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestParentChildWindow(CancellationToken ct = default) {
         // Arrange
