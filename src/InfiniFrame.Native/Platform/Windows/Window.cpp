@@ -356,7 +356,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         // Size and position
         normalizedLeft, normalizedTop, normalizedWidth, normalizedHeight,
 
-        nullptr, //Parent window handle
+        m_impl->_parent ? m_impl->_parent->getHwnd() : nullptr, //Parent window handle
         nullptr, //Menu
         _hInstance, //Instance handle
         this //Additional application data
