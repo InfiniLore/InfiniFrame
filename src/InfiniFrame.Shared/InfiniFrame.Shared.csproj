@@ -125,10 +125,6 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="FluentApi\" />
-    </ItemGroup>
-
     <Target Name="CheckNativeDlls" AfterTargets="Build">
         <Message Text="=== x64 ===" Importance="High"/>
 

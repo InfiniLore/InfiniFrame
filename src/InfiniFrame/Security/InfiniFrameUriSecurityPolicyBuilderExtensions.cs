@@ -5,7 +5,7 @@ namespace InfiniFrame.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class InfiniWindowUriSecurityBuilderExtensions {
+public static class InfiniFrameUriSecurityPolicyBuilderExtensions {
     private static T ConfigureUriSecurityPolicy<T>(this T builder, Action<InfiniFrameUriSecurityPolicyBuilder> configure)
         where T : IInfiniFrameWindowBuilder {
         InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure);
