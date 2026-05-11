@@ -10,7 +10,7 @@ namespace InfiniFrameTests.Configuration;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
-    public async Task Apply_OverridesConfiguredScalarValues() {
+    public async Task Apply_OverridesConfiguredScalarValues(CancellationToken ct = default) {
         // Arrange
         var configuration = new InfiniFrameOptionsBuilder {
             Title = "Old Title",
@@ -37,7 +37,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     }
 
     [Test]
-    public async Task Apply_IgnoresInvalidOrMissingScalarValues() {
+    public async Task Apply_IgnoresInvalidOrMissingScalarValues(CancellationToken ct = default) {
         // Arrange
         var configuration = new InfiniFrameOptionsBuilder {
             Title = "Expected",
@@ -60,7 +60,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     }
 
     [Test]
-    public async Task Apply_ReplacesCustomSchemeNamesWithNonEmptyValues() {
+    public async Task Apply_ReplacesCustomSchemeNamesWithNonEmptyValues(CancellationToken ct = default) {
         // Arrange
         var configuration = new InfiniFrameOptionsBuilder {
             CustomSchemeNames = ["old1", "old2"]

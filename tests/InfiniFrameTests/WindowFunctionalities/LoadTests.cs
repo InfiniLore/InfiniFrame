@@ -13,7 +13,7 @@ namespace InfiniFrameTests.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class LoadTests {
     [Test]
-    public async Task Load_WithAllowedAbsoluteUri_InvokesWindowNavigation() {
+    public async Task Load_WithAllowedAbsoluteUri_InvokesWindowNavigation(CancellationToken ct = default) {
         // Arrange
         var window = new RecordingInfiniFrameWindowSubstitute();
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
@@ -31,7 +31,7 @@ public class LoadTests {
     }
 
     [Test]
-    public async Task Load_WithDisallowedAbsoluteUri_DoesNotInvokeWindowNavigation() {
+    public async Task Load_WithDisallowedAbsoluteUri_DoesNotInvokeWindowNavigation(CancellationToken ct = default) {
         // Arrange
         var window = new RecordingInfiniFrameWindowSubstitute();
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
@@ -49,7 +49,7 @@ public class LoadTests {
     }
 
     [Test]
-    public async Task Load_WithSpoofedLocalPathContainingHttps_DoesNotTreatAsWebUrl() {
+    public async Task Load_WithSpoofedLocalPathContainingHttps_DoesNotTreatAsWebUrl(CancellationToken ct = default) {
         // Arrange
         var window = new RecordingInfiniFrameWindowSubstitute();
         string input = Path.Join(Path.GetTempPath(), $"foohttps://bar-{Guid.NewGuid():N}.html");
@@ -63,7 +63,7 @@ public class LoadTests {
     }
 
     [Test]
-    public async Task Load_WithAbsoluteFileUri_LoadsFromLocalFilePath() {
+    public async Task Load_WithAbsoluteFileUri_LoadsFromLocalFilePath(CancellationToken ct = default) {
         // Arrange
         var window = new RecordingInfiniFrameWindowSubstitute();
         string filePath = Path.Join(Path.GetTempPath(), $"infiniframe-load-{Guid.NewGuid():N}.html");

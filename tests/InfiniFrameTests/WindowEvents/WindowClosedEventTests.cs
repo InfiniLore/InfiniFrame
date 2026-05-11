@@ -14,8 +14,7 @@ public class WindowClosedEventTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    // [Timeout(TimeoutUtility.DefaultTimeout + 1_000)]
-    public async Task TestWindowClosedEvent(CancellationToken ct) {
+    public async Task TestWindowClosedEvent(CancellationToken ct = default) {
         // Arrange
         int closedEventCount = 0;
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder

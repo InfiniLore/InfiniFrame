@@ -11,7 +11,7 @@ namespace InfiniFrameTests.Playwright.Tests;
 public abstract class SharedWebviewWindowTests : InfiniFramePlaywrightTestBase {
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task Title_ShouldBeExpectedValue() {
+    public async Task Title_ShouldBeExpectedValue(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
         string title = await page.TitleAsync();

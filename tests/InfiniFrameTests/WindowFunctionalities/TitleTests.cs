@@ -17,7 +17,7 @@ public class TitleTests {
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
-    public async Task Builder(string title) {
+    public async Task Builder(string title, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -33,7 +33,7 @@ public class TitleTests {
     
     [Test]
     [DisplayName($"{nameof(TitleTests)}.{nameof(Builder_OnNull)}")]
-    public async Task Builder_OnNull() {
+    public async Task Builder_OnNull(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -51,12 +51,11 @@ public class TitleTests {
     [DisplayName($"{nameof(TitleTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments("")]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
-    public async Task Window(string title, CancellationToken ct) {
+    public async Task Window(string title, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -72,8 +71,7 @@ public class TitleTests {
     [DisplayName($"{nameof(TitleTests)}.{nameof(Window_OnNull)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Window_OnNull(CancellationToken ct) {
+    public async Task Window_OnNull(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -89,12 +87,11 @@ public class TitleTests {
     [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments("")]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
-    public async Task FullIntegration(string title, CancellationToken ct) {
+    public async Task FullIntegration(string title, CancellationToken ct = default) {
         // Arrange
 
         // Act
@@ -112,8 +109,7 @@ public class TitleTests {
     [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task FullIntegration_OnNull(CancellationToken ct) {
+    public async Task FullIntegration_OnNull(CancellationToken ct = default) {
         // Arrange
 
         // Act

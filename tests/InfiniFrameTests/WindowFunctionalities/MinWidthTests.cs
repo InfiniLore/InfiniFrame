@@ -12,9 +12,12 @@ namespace InfiniFrameTests.WindowFunctionalities;
 public class MinWidthTests {
     private const int MinWidth = 20;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
     [DisplayName($"{nameof(MinWidthTests)}.{nameof(Builder)}")]
-    public async Task Builder() {
+    public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -32,8 +35,7 @@ public class MinWidthTests {
     [DisplayName($"{nameof(MinWidthTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Window(CancellationToken ct) {
+    public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -49,8 +51,7 @@ public class MinWidthTests {
     [DisplayName($"{nameof(MinWidthTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task FullIntegration(CancellationToken ct) {
+    public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act

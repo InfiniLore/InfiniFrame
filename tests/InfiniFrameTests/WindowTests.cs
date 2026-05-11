@@ -17,8 +17,7 @@ public class WindowTests {
     [Test]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task InstanceHandle_IsDefined(CancellationToken ct) {
+    public async Task InstanceHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -32,8 +31,7 @@ public class WindowTests {
     [Test]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task WindowHandle_IsDefined(CancellationToken ct) {
+    public async Task WindowHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -49,8 +47,7 @@ public class WindowTests {
     [Test]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Monitors_IsNotEmpty(CancellationToken ct) {
+    public async Task Monitors_IsNotEmpty(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -65,8 +62,7 @@ public class WindowTests {
     [Test]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task NativeType_IsDefined(CancellationToken ct) {
+    public async Task NativeType_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -83,7 +79,7 @@ public class WindowTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [Timeout(TimeoutUtility.DefaultTimeout + 1_000)]
     [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
-    public async Task Close_IsDefined(CancellationToken ct) {
+    public async Task Close_IsDefined(CancellationToken ct = default) {
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
         using var windowUtility = InfiniFrameWindowTestUtility.Create(

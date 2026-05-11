@@ -18,7 +18,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen() {
+    public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen(CancellationToken ct = default) {
         bool originalFullscreenState = RuntimeContext.Window.FullScreen;
         IPage page = await GetRootPageAsync();
 
@@ -41,7 +41,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle() {
+    public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
         string? originalTitleState = RuntimeContext.Window.Title;
 
@@ -74,7 +74,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitl() {
+    public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle(CancellationToken ct = default) {
         // Arrange
         IPage page = await GetRootPageAsync();
         string? originalTitleState = RuntimeContext.Window.Title;
@@ -92,7 +92,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle_AndShouldReturnCorrectTitle() {
+    public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle_AndShouldReturnCorrectTitle(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
         string? originalTitleState = RuntimeContext.Window.Title;
 

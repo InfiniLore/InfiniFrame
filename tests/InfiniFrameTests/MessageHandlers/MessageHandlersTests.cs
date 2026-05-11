@@ -15,7 +15,7 @@ namespace InfiniFrameTests.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public class MessageHandlersTests {
     [Test]
-    public async Task WindowManagement_CloseMessage_ClosesWindow() {
+    public async Task WindowManagement_CloseMessage_ClosesWindow(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterWindowManagementWebMessageHandler();
@@ -29,7 +29,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
-    public async Task WindowManagement_RegistersWindowCloseSubscriptionAfterReadyHandshake() {
+    public async Task WindowManagement_RegistersWindowCloseSubscriptionAfterReadyHandshake(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterWindowManagementWebMessageHandler();
@@ -45,7 +45,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
-    public async Task FullscreenToggle_InvokesWindowMutation() {
+    public async Task FullscreenToggle_InvokesWindowMutation(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterFullScreenWebMessageHandler();
@@ -59,7 +59,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
-    public async Task TitleChanged_WithPayload_InvokesWindowMutation() {
+    public async Task TitleChanged_WithPayload_InvokesWindowMutation(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterTitleChangedWebMessageHandler();
@@ -73,7 +73,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
-    public async Task TitleChanged_WithoutPayload_DoesNotInvokeWindowMutation() {
+    public async Task TitleChanged_WithoutPayload_DoesNotInvokeWindowMutation(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         builder.RegisterTitleChangedWebMessageHandler();
@@ -87,7 +87,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
-    public async Task OpenExternal_WithInvalidUrl_LogsWarningWithoutThrowing() {
+    public async Task OpenExternal_WithInvalidUrl_LogsWarningWithoutThrowing(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         var logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
@@ -108,7 +108,7 @@ public class MessageHandlersTests {
     }
 
     [Test]
-    public async Task OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing() {
+    public async Task OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
         var logger = Substitute.For<ILogger<IInfiniFrameWindow>>();

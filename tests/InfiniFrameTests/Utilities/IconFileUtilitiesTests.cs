@@ -10,7 +10,7 @@ namespace InfiniFrameTests.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class IconFileUtilityTests {
     [Test]
-    public async Task TryResolveIconFilePath_UsesBaseDirectoryForRelativePath() {
+    public async Task TryResolveIconFilePath_UsesBaseDirectoryForRelativePath(CancellationToken ct = default) {
         // Arrange
         string baseDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
 
@@ -18,7 +18,7 @@ public class IconFileUtilityTests {
 
         const string relativePath = "favicon.ico";
         string expectedAbsolutePath = Path.GetFullPath(relativePath, baseDirectory);
-        await File.WriteAllTextAsync(expectedAbsolutePath, "icon");
+        await File.WriteAllTextAsync(expectedAbsolutePath, "icon", ct);
 
         bool found;
         string? resolved;
@@ -37,7 +37,7 @@ public class IconFileUtilityTests {
     }
 
     [Test]
-    public async Task TryResolveIconFilePath_ReturnsNullForMissingPath() {
+    public async Task TryResolveIconFilePath_ReturnsNullForMissingPath(CancellationToken ct = default) {
         // Arrange
         string baseDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(baseDirectory);

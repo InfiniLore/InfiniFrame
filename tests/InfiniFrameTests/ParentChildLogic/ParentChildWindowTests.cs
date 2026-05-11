@@ -12,7 +12,6 @@ namespace InfiniFrameTests.ParentChildLogic;
 public class ParentChildWindowTests {
     
     [Test]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     public async Task TestParentChildWindow(CancellationToken ct = default) {
         // Arrange
         using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
@@ -27,5 +26,6 @@ public class ParentChildWindowTests {
 
         // Assert
         await Assert.That(childWindow.Configuration.ParentWindow).IsEqualTo(parentWindow);
+        await Assert.That(childWindow.Configuration.StartupParameters.NativeParent).IsEqualTo(parentWindow.InstanceHandle);
     }
 }

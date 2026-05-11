@@ -12,7 +12,7 @@ namespace InfiniFrameTests.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 public class RegisterWindowCreatedUtilityTests {
     [Test]
-    public async Task Registration_IsGatedByWindowReadyHandshake() {
+    public async Task Registration_IsGatedByWindowReadyHandshake(CancellationToken ct = default) {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
@@ -30,7 +30,7 @@ public class RegisterWindowCreatedUtilityTests {
 
         // Act
         events.OnWindowCreated();
-        await Task.Delay(150);
+        await Task.Delay(150, ct);
 
         // Assert pre-ready: nothing should be sent yet.
         int sendAttemptsBeforeReady = window.CountEnvelopeMessagesById(registrationMessageId);
@@ -38,7 +38,7 @@ public class RegisterWindowCreatedUtilityTests {
 
         // Act: explicit ready handshake.
         events.OnWebMessageReceived(readyEnvelope);
-        await Task.Delay(150);
+        await Task.Delay(150, ct);
 
         // Assert: exactly one registration send attempt after ready.
         int sendAttemptsAfterReady = window.CountEnvelopeMessagesById(registrationMessageId);
@@ -49,7 +49,7 @@ public class RegisterWindowCreatedUtilityTests {
     }
 
     [Test]
-    public async Task Registration_IsIdempotentAcrossRepeatedReadyMessages() {
+    public async Task Registration_IsIdempotentAcrossRepeatedReadyMessages(CancellationToken ct = default) {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
@@ -68,7 +68,7 @@ public class RegisterWindowCreatedUtilityTests {
         // Act: ready envelope received multiple times.
         events.OnWebMessageReceived(readyEnvelope);
         events.OnWebMessageReceived(readyEnvelope);
-        await Task.Delay(150);
+        await Task.Delay(150, ct);
 
         // Assert: only one registration send attempt.
         int sendAttempts = window.CountEnvelopeMessagesById(registrationMessageId);
@@ -76,7 +76,7 @@ public class RegisterWindowCreatedUtilityTests {
     }
 
     [Test]
-    public async Task Registration_AcknowledgementIsSentAfterRegistrations() {
+    public async Task Registration_AcknowledgementIsSentAfterRegistrations(CancellationToken ct = default) {
         // Arrange
         const string registrationMessageId = "__infiniframe:register:test";
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
@@ -95,7 +95,7 @@ public class RegisterWindowCreatedUtilityTests {
         // Act
         events.OnWindowCreated();
         events.OnWebMessageReceived(readyEnvelope);
-        await Task.Delay(150);
+        await Task.Delay(150, ct);
 
         // Assert
         IReadOnlyList<string> sentMessages = window.GetSentMessagesSnapshot();

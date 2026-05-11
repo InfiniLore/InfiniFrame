@@ -14,9 +14,12 @@ public class MaxSizeTests {
     private const int Width = 10;
     private const int Height = 20;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
     [DisplayName($"{nameof(MaxSizeTests)}.{nameof(Builder)}")]
-    public async Task Builder() {
+    public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -36,8 +39,7 @@ public class MaxSizeTests {
     [DisplayName($"{nameof(MaxSizeTests)}.{nameof(Window)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Window(CancellationToken ct) {
+    public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -53,8 +55,7 @@ public class MaxSizeTests {
     [DisplayName($"{nameof(MaxSizeTests)}.{nameof(Window_AsSize)}")] 
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Window_AsSize(CancellationToken ct) {
+    public async Task Window_AsSize(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -70,8 +71,7 @@ public class MaxSizeTests {
     [DisplayName($"{nameof(MaxSizeTests)}.{nameof(FullIntegration)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task FullIntegration(CancellationToken ct) {
+    public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act

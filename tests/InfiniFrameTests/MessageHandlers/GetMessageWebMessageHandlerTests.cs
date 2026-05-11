@@ -14,7 +14,7 @@ namespace InfiniFrameTests.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public class GetMessageWebMessageHandlerTests {
     [Test]
-    public async Task GetMessage_StandardGetRequest_Title_ReturnsWindowTitle() {
+    public async Task GetMessage_StandardGetRequest_Title_ReturnsWindowTitle(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
@@ -44,7 +44,7 @@ public class GetMessageWebMessageHandlerTests {
     }
 
     [Test]
-    public async Task GetMessage_ResolvesRegisteredHandlerAndReturnsData() {
+    public async Task GetMessage_ResolvesRegisteredHandlerAndReturnsData(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder _, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
@@ -73,7 +73,7 @@ public class GetMessageWebMessageHandlerTests {
     }
 
     [Test]
-    public async Task GetMessage_WithoutRegisteredHandler_ReturnsErrorResponse() {
+    public async Task GetMessage_WithoutRegisteredHandler_ReturnsErrorResponse(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder _, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
@@ -101,7 +101,7 @@ public class GetMessageWebMessageHandlerTests {
     }
 
     [Test]
-    public async Task GetMessage_WithoutRegisteredService_ReturnsErrorResponse() {
+    public async Task GetMessage_WithoutRegisteredService_ReturnsErrorResponse(CancellationToken ct = default) {
         // Arrange
         (InfiniFrameWindowBuilder _, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
@@ -153,8 +153,7 @@ public class GetMessageWebMessageHandlerTests {
         InteropEnvelopeParseResult responseEnvelope = window.GetSentMessagesSnapshot()
             .Select(InteropEnvelopeProtocol.ParseIncomingMessage)
             .LastOrDefault(r =>
-                r.IsSuccess &&
-                r.MessageId == JsHandlerNames.GetResponse
+                r is { IsSuccess: true, MessageId: JsHandlerNames.GetResponse }
             );
 
         Fail.When(!responseEnvelope.IsSuccess, "Expected a valid getMessage response envelope.");

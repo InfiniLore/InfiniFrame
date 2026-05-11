@@ -59,8 +59,11 @@ public class InfiniFrameBlazorAppBuilderTests {
         }
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task Build_WithExternalProvider_ShouldUseProvidedServiceProvider() {
+    public async Task Build_WithExternalProvider_ShouldUseProvidedServiceProvider(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
         ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
@@ -74,7 +77,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task Build_WithoutProvider_ShouldCreateServiceProvider() {
+    public async Task Build_WithoutProvider_ShouldCreateServiceProvider(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
 
@@ -87,7 +90,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task CreateDefault_RootComponents_ImplementsIJsComponentConfiguration() {
+    public async Task CreateDefault_RootComponents_ImplementsIJsComponentConfiguration(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
 
@@ -99,7 +102,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task CreateDefault_RootComponents_RegisterForJavaScript_WritesToSharedStore() {
+    public async Task CreateDefault_RootComponents_RegisterForJavaScript_WritesToSharedStore(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
 
@@ -116,7 +119,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task GlobalUnhandledExceptionHandler_IsRemovedOnDispose() {
+    public async Task GlobalUnhandledExceptionHandler_IsRemovedOnDispose(CancellationToken ct = default) {
         // Arrange
         var recordingSource = new RecordingUnhandledExceptionSource();
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
@@ -133,7 +136,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task GlobalUnhandledExceptionHandler_RepeatedBuildDispose_DoesNotAccumulate() {
+    public async Task GlobalUnhandledExceptionHandler_RepeatedBuildDispose_DoesNotAccumulate(CancellationToken ct = default) {
         // Arrange
         var recordingSource = new RecordingUnhandledExceptionSource();
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
@@ -157,7 +160,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task GlobalUnhandledExceptionHandler_CanBeDisabled() {
+    public async Task GlobalUnhandledExceptionHandler_CanBeDisabled(CancellationToken ct = default) {
         // Arrange
         var recordingSource = new RecordingUnhandledExceptionSource();
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
@@ -175,7 +178,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task CreateDefault_RegistersUnhandledExceptionSourceByDefault() {
+    public async Task CreateDefault_RegistersUnhandledExceptionSourceByDefault(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
         ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
@@ -188,7 +191,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    public async Task CreateDefault_ExceptionSourceRejectsNullHandler() {
+    public async Task CreateDefault_ExceptionSourceRejectsNullHandler(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameBlazorAppBuilder.CreateDefault();
         ServiceProvider serviceProvider = builder.Services.BuildServiceProvider();
@@ -208,7 +211,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallel(ParallelControl.InfiniFrame)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
-    public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices() {
+    public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
         window.When(x => x.Invoke(Arg.Any<Action>()))
@@ -235,8 +238,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork(CancellationToken ct) {
+    public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
@@ -262,8 +264,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     
     [Test]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWork(CancellationToken ct) {
+    public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWork(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
@@ -289,10 +290,9 @@ public class InfiniFrameBlazorAppBuilderTests {
     
     [Test]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [SkipUtility.SkipOnMacOs("Given init parameters are not supported on macOS")]
     [SkipUtility.SkipOnLinux("Given init parameters are not supported on Linux")]
-    public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct) {
+    public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
@@ -321,10 +321,9 @@ public class InfiniFrameBlazorAppBuilderTests {
     
     [Test]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [SkipUtility.SkipOnMacOs("Given init parameters are not supported on macOS")]
     [SkipUtility.SkipOnLinux("Given init parameters are not supported on Linux")]
-    public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct) {
+    public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";

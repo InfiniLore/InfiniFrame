@@ -11,11 +11,11 @@ namespace InfiniFrameTests.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameNativeParametersValidatorTests {
     [Test]
-    public async Task Validate_AcceptsRelativeIconPathFromAppBaseDirectory() {
+    public async Task Validate_AcceptsRelativeIconPathFromAppBaseDirectory(CancellationToken ct = default) {
         // Arrange
         string fileName = $"icon-{Guid.NewGuid():N}.ico";
         string absolutePath = Path.Join(AppContext.BaseDirectory, fileName);
-        await File.WriteAllTextAsync(absolutePath, "icon");
+        await File.WriteAllTextAsync(absolutePath, "icon", ct);
 
         string temporaryCurrentDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(temporaryCurrentDirectory);

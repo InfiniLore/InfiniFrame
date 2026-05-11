@@ -16,7 +16,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task CustomElement_Registers_Renders_AndUpdatesFromAttributes() {
+    public async Task CustomElement_Registers_Renders_AndUpdatesFromAttributes(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
         bool isCustomElementDefined = await EvaluateWhenPageReadyAsync<bool>(
@@ -84,7 +84,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task JsComponent_WithoutInitializer_AutoRegisters_AsCustomElement_ByDefault() {
+    public async Task JsComponent_WithoutInitializer_AutoRegisters_AsCustomElement_ByDefault(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
         bool isCustomElementDefined = await EvaluateWhenPageReadyAsync<bool>(

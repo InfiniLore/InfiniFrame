@@ -30,8 +30,11 @@ public class OrderedEventTests {
         return window;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task OrderedEvent_InvokesInRegistrationOrder() {
+    public async Task OrderedEvent_InvokesInRegistrationOrder(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
@@ -50,7 +53,7 @@ public class OrderedEventTests {
     }
 
     [Test]
-    public async Task OrderedEvent_RemoveStopsInvocation() {
+    public async Task OrderedEvent_RemoveStopsInvocation(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
@@ -68,7 +71,7 @@ public class OrderedEventTests {
     }
 
     [Test]
-    public async Task OrderedEvent_SnapshotIsImmutable() {
+    public async Task OrderedEvent_SnapshotIsImmutable(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
         Action<IInfiniFrameWindow> handler1 = _ => { };
@@ -86,7 +89,7 @@ public class OrderedEventTests {
     }
 
     [Test]
-    public async Task OrderedEvent_OperatorsAddAndRemove() {
+    public async Task OrderedEvent_OperatorsAddAndRemove(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
         InfiniFrameWindow window = CreateWindow();
@@ -104,7 +107,7 @@ public class OrderedEventTests {
     }
 
     [Test]
-    public async Task OrderedEventWithPayload_InvokesWithPayload() {
+    public async Task OrderedEventWithPayload_InvokesWithPayload(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent<int>();
         InfiniFrameWindow window = CreateWindow();
@@ -123,7 +126,7 @@ public class OrderedEventTests {
     }
 
     [Test]
-    public async Task ClosingEvent_ReturnsLastResult() {
+    public async Task ClosingEvent_ReturnsLastResult(CancellationToken ct = default) {
         // Arrange
         var closingEvent = new OrderedResultEvent<EventArgs?, bool>();
         InfiniFrameWindow window = CreateWindow();
@@ -141,7 +144,7 @@ public class OrderedEventTests {
     }
 
     [Test]
-    public async Task ClosingEvent_ReturnsNullWhenEmpty() {
+    public async Task ClosingEvent_ReturnsNullWhenEmpty(CancellationToken ct = default) {
         // Arrange
         var closingEvent = new OrderedResultEvent<EventArgs?, bool>();
         InfiniFrameWindow window = CreateWindow();

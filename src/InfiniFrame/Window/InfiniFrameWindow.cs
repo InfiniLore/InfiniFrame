@@ -333,7 +333,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             out uri);
     }
 
-    private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct) {
+    private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) {
         return ct.IsCancellationRequested 
             ? Task.FromCanceled<TResult>(ct)
             // Dialog calls are intentionally offloaded for Blazor flows where synchronous dialog invocation is unsafe.

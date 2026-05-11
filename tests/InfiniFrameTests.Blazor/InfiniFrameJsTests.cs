@@ -13,7 +13,7 @@ namespace InfiniFrameTests.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameJsTests {
     [Test]
-    public async Task SetPointerCaptureAsync_InvokesExpectedJsFunction() {
+    public async Task SetPointerCaptureAsync_InvokesExpectedJsFunction(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
         var logger = Substitute.For<ILogger<InfiniFrameJs>>();
@@ -21,7 +21,7 @@ public class InfiniFrameJsTests {
         var element = new ElementReference("element-1");
 
         // Act
-        await sut.SetPointerCaptureAsync(element, 42);
+        await sut.SetPointerCaptureAsync(element, 42, ct);
 
         // Assert
         (string identifier, object?[] jsArguments, CancellationToken cancellationToken) = jsRuntime.Invocations.Single();
@@ -33,7 +33,7 @@ public class InfiniFrameJsTests {
     }
 
     [Test]
-    public async Task ReleasePointerCaptureAsync_InvokesExpectedJsFunction() {
+    public async Task ReleasePointerCaptureAsync_InvokesExpectedJsFunction(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
         var logger = Substitute.For<ILogger<InfiniFrameJs>>();
@@ -41,7 +41,7 @@ public class InfiniFrameJsTests {
         var element = new ElementReference("element-2");
 
         // Act
-        await sut.ReleasePointerCaptureAsync(element, 7);
+        await sut.ReleasePointerCaptureAsync(element, 7, ct);
 
         // Assert
         (string identifier, object?[] jsArguments, CancellationToken cancellationToken) = jsRuntime.Invocations.Single();
@@ -53,7 +53,7 @@ public class InfiniFrameJsTests {
     }
 
     [Test]
-    public async Task SetPointerCaptureAsync_SwallowsOperationCanceled_WhenCancellationRequested() {
+    public async Task SetPointerCaptureAsync_SwallowsOperationCanceled_WhenCancellationRequested(CancellationToken ct = default) {
         // Arrange
         var jsRuntime = new RecordingJsRuntime();
         var logger = Substitute.For<ILogger<InfiniFrameJs>>();

@@ -21,8 +21,11 @@ public class InfiniFrameWindowBuilderTests {
 
     private const int DefaultIncludedMessageHandlers = 0;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task ResolveLogger_WithoutProvider_UsesSharedFallbackLogger() {
+    public async Task ResolveLogger_WithoutProvider_UsesSharedFallbackLogger(CancellationToken ct = default) {
         // Act
         ILogger<IInfiniFrameWindow> first = InfiniFrameWindowBuilder.ResolveLogger(null);
         ILogger<IInfiniFrameWindow> second = InfiniFrameWindowBuilder.ResolveLogger(null);
@@ -33,7 +36,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task ResolveLogger_WithProvider_UsesRegisteredLogger() {
+    public async Task ResolveLogger_WithProvider_UsesRegisteredLogger(CancellationToken ct = default) {
         // Arrange
         var expectedLogger = NullLogger<IInfiniFrameWindow>.Instance;
         await using ServiceProvider provider = new ServiceCollection()
@@ -48,7 +51,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task ResolveLogger_WithProvider_UsesLoggerFactoryFallback() {
+    public async Task ResolveLogger_WithProvider_UsesLoggerFactoryFallback(CancellationToken ct = default) {
         // Arrange
         await using ServiceProvider provider = new ServiceCollection()
             .AddSingleton(LoggerFactory.Create(static _ => { }))
@@ -63,7 +66,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_CanBeCalledMoreThanOnce_WithUniqueMutableReferences() {
+    public async Task CreateSnapshot_CanBeCalledMoreThanOnce_WithUniqueMutableReferences(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         builder.EventsStore.WindowCreated.Add(_ => { });
@@ -86,7 +89,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_MutationsDoNotLeakBetweenSnapshots() {
+    public async Task CreateSnapshot_MutationsDoNotLeakBetweenSnapshots(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
@@ -107,7 +110,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_ReRegisteringSameScheme_DoesNotDuplicateSnapshotEntries() {
+    public async Task CreateSnapshot_ReRegisteringSameScheme_DoesNotDuplicateSnapshotEntries(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         for (int i = 0; i < 25; i++) {
@@ -124,7 +127,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_ReRegisteringSameScheme_DoesNotMultiplyDelegates() {
+    public async Task CreateSnapshot_ReRegisteringSameScheme_DoesNotMultiplyDelegates(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         int callCount = 0;
@@ -152,7 +155,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_ReRegisteringSameScheme_RemainsStableAcrossRepeatedSnapshots() {
+    public async Task CreateSnapshot_ReRegisteringSameScheme_RemainsStableAcrossRepeatedSnapshots(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         int callCount = 0;
@@ -189,7 +192,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_UsesConfiguredUriSecurityPolicy() {
+    public async Task CreateSnapshot_UsesConfiguredUriSecurityPolicy(CancellationToken ct = default) {
         // Arrange
         InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetAllowedNavigationSchemes("https")
@@ -206,7 +209,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_UsesDefaultUriSecurityPolicyIncludingAppScheme() {
+    public async Task CreateSnapshot_UsesDefaultUriSecurityPolicyIncludingAppScheme(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -218,7 +221,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_TrustedOriginRequiresAllowedScheme() {
+    public async Task CreateSnapshot_TrustedOriginRequiresAllowedScheme(CancellationToken ct = default) {
         // Arrange
         InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetAllowedNavigationSchemes("https");
@@ -234,7 +237,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_TrustedOriginCanBeConfiguredViaBuilderPolicy() {
+    public async Task CreateSnapshot_TrustedOriginCanBeConfiguredViaBuilderPolicy(CancellationToken ct = default) {
         // Arrange
         InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetTrustedOrigins("https://localhost/");
@@ -248,7 +251,7 @@ public class InfiniFrameWindowBuilderTests {
     }
 
     [Test]
-    public async Task CreateSnapshot_TrustAllOriginsCanBeConfiguredViaBuilderPolicy() {
+    public async Task CreateSnapshot_TrustAllOriginsCanBeConfiguredViaBuilderPolicy(CancellationToken ct = default) {
         // Arrange
         InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create()
             .SetAllowedNavigationSchemes("https")

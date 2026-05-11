@@ -13,8 +13,12 @@ namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebMessageContextTests {
     private const string TestMessageCommand = nameof(TestMessageCommand);
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task OnWebMessageReceived_WithOrigin_PublishesOriginViaEventPayload() {
+    public async Task OnWebMessageReceived_WithOrigin_PublishesOriginViaEventPayload(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameEvents(eventsStore);
@@ -36,7 +40,7 @@ public class WebMessageContextTests {
     }
 
     [Test]
-    public async Task OnWebMessageReceived_WithBlazorWebViewMessage_PublishesRawMessage() {
+    public async Task OnWebMessageReceived_WithBlazorWebViewMessage_PublishesRawMessage(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameEvents(eventsStore);

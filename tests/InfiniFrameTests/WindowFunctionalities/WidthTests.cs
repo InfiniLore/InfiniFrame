@@ -12,9 +12,12 @@ namespace InfiniFrameTests.WindowFunctionalities;
 public class WidthTests {
     private const int Width = 20;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
     [DisplayName($"{nameof(WidthTests)}.{nameof(Builder)}")]
-    public async Task Builder() {
+    public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -58,8 +61,7 @@ public class WidthTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Window(CancellationToken ct) {
+    public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -76,8 +78,7 @@ public class WidthTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task FullIntegration(CancellationToken ct) {
+    public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act
@@ -98,8 +99,7 @@ public class WidthTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Window_WithChromelessToGetSmallestWidth(CancellationToken ct) {
+    public async Task Window_WithChromelessToGetSmallestWidth(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
             builder => builder.SetChromeless(true),
@@ -118,8 +118,7 @@ public class WidthTests {
     [DisplayName($"{nameof(WidthTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestWidth)}")]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task FullIntegration_WithChromelessToGetSmallestWidth(CancellationToken ct) {
+    public async Task FullIntegration_WithChromelessToGetSmallestWidth(CancellationToken ct = default) {
         // Arrange
 
         // Act

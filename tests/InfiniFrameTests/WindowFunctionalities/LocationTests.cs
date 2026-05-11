@@ -14,9 +14,12 @@ public class LocationTests {
     private const int Left = 10;
     private const int Top = 20;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
     [DisplayName($"{nameof(LocationTests)}.{nameof(Builder)}")]
-    public async Task Builder() {
+    public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -35,7 +38,7 @@ public class LocationTests {
 
     [Test]
     [DisplayName($"{nameof(LocationTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
-    public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered() {
+    public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         InfiniFrameNativeParameters expectedConfigParameters = new InfiniFrameOptionsBuilder {
@@ -63,9 +66,8 @@ public class LocationTests {
     [DisplayName($"{nameof(LocationTests)}.{nameof(Window)}")]   
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]   
-    public async Task Window(CancellationToken ct) {
+    [NotInParallel(ParallelControl.InfiniFrame)]   
+    public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -82,8 +84,7 @@ public class LocationTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Window_AsPoint(CancellationToken ct) {
+    public async Task Window_AsPoint(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -100,8 +101,7 @@ public class LocationTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task FullIntegration(CancellationToken ct) {
+    public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act

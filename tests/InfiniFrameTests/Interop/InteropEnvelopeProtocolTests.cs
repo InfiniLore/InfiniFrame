@@ -9,18 +9,24 @@ namespace InfiniFrameTests.Interop;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InteropEnvelopeProtocolTests {
-    private static readonly JsonDocument GoldenVectors = JsonDocument.Parse(
-        File.ReadAllText(
+    private static async Task<JsonDocument> GetGoldenVectorsAsync(CancellationToken ct = default) => JsonDocument.Parse(
+        await File.ReadAllTextAsync(
             Path.GetFullPath(
-                Path.Join("TypeScript", "Interop", "interop-envelope-golden-vectors.json"),
+                Path.Join("Interop", "interop-envelope-golden-vectors.json"),
                 AppContext.BaseDirectory
-            )
-        )
+            ), ct)
     );
-
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task CreateEnvelope_GoldenVectors() {
-        JsonElement vectors = GoldenVectors.RootElement.GetProperty("createVectors");
+    public async Task CreateEnvelope_GoldenVectors(CancellationToken ct = default) {
+        // Arrange
+        JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
+        JsonElement vectors = goldenVectorsDocument.RootElement.GetProperty("createVectors");
+        
+        // Act & Assert
         foreach (JsonElement vector in vectors.EnumerateArray()) {
             string id = vector.GetProperty("id").GetString()!;
             string expectedMessage = vector.GetProperty("expectedMessage").GetString()!;
@@ -29,13 +35,18 @@ public class InteropEnvelopeProtocolTests {
                 : vector.GetProperty("data").GetString();
 
             string message = InteropEnvelopeProtocol.CreateEnvelopeMessage(id, data);
+            
             await Assert.That(message).IsEqualTo(expectedMessage);
         }
     }
 
     [Test]
-    public async Task ParseEnvelope_GoldenVectors() {
-        JsonElement vectors = GoldenVectors.RootElement.GetProperty("parseVectors");
+    public async Task ParseEnvelope_GoldenVectors(CancellationToken ct = default) {
+        // Arrange
+        JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
+        JsonElement vectors = goldenVectorsDocument.RootElement.GetProperty("createVectors");
+        
+        // Act & Assert
         foreach (JsonElement vector in vectors.EnumerateArray()) {
             string message = vector.GetProperty("message").GetString()!;
             bool expectedSuccess = vector.GetProperty("success").GetBoolean();
@@ -61,10 +72,14 @@ public class InteropEnvelopeProtocolTests {
     }
 
     [Test]
-    public async Task Parse_TooLargeMessage_IsRejected() {
+    public async Task Parse_TooLargeMessage_IsRejected(CancellationToken ct = default) {
+        // Arrange
         string message = new('a', InteropEnvelopeProtocol.MaxMessageSizeBytes + 1);
+
+        // Act
         InteropEnvelopeParseResult result = InteropEnvelopeProtocol.ParseIncomingMessage(message);
 
+        // Assert
         await Assert.That(result.IsSuccess).IsFalse();
         await Assert.That(result.Error).Contains("exceeds max size");
     }
