@@ -43,12 +43,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
         var events = new InfiniFrameEvents(snapshot.EventsStore);
         events.AssignEventCallbacks(ref nativeParameters);
-        
-        var configuration = new InfiniFrameOptions {
-            StartupParameters = nativeParameters,
-            LimitLinuxWindowTitleLength = Configuration.LimitLinuxWindowTitleLength,
-            ParentWindow = Configuration.ParentWindow
-        };
+
+        var configuration = new InfiniFrameOptions(Configuration, ref nativeParameters);
         
         var window = new InfiniFrameWindow {
             ServiceProvider = provider,
