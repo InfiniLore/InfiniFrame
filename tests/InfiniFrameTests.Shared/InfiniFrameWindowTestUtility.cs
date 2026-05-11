@@ -78,7 +78,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         return utility;
     }
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows"), MustDisposeResource]
     private static InfiniFrameWindowTestUtility CreateOnStaThread(
         InfiniFrameWindowBuilder windowBuilder
     ) {

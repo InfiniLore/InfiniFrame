@@ -316,31 +316,35 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     private sealed class TempStaticWebAssetsFixture : IDisposable {
-        public string BaseDirectory { get; } = Path.Join(Path.GetTempPath(), "InfiniFrameTests", Guid.NewGuid().ToString("N"));
+        public string BaseDirectory { get; } =
+            Path.Join(Path.GetTempPath(),
+                "InfiniFrameTests",
+                $"pid-{Environment.ProcessId}",
+                Guid.NewGuid().ToString("N"));
+
         public string ContentRoot => Path.Join(BaseDirectory, "content-root");
         public string FrameworkContentRoot => Path.Join(BaseDirectory, "framework-content-root");
 
         public TempStaticWebAssetsFixture() {
-            Directory.CreateDirectory(BaseDirectory);
             Directory.CreateDirectory(ContentRoot);
             Directory.CreateDirectory(FrameworkContentRoot);
         }
 
         public async Task WriteManifestAsync(object manifest, string? fileName = null, CancellationToken ct = default) {
-            string manifestPath = Path.Join(BaseDirectory, fileName ?? $"{Guid.NewGuid():N}.staticwebassets.runtime.json");
+            string manifestPath = Path.Join(BaseDirectory,
+                fileName ?? $"{Guid.NewGuid():N}.staticwebassets.runtime.json");
+
             string json = JsonSerializer.Serialize(manifest);
+
             await File.WriteAllTextAsync(manifestPath, json, ct);
         }
 
         public void Dispose() {
-            try {
-                if (Directory.Exists(BaseDirectory)) {
-                    Directory.Delete(BaseDirectory, recursive: true);
-                }
-            }
-            catch {
-                // Cleanup best effort.
-            }
+            // Do NOT block teardown on Windows IO
+            _ = Task.Run(() => {
+                if (Directory.Exists(BaseDirectory))
+                    Directory.Delete(BaseDirectory, true);
+            });
         }
     }
 }
