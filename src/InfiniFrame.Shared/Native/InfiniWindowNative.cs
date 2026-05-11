@@ -39,22 +39,4 @@ public static partial class InfiniWindowNative {
 
         FreeInitParamsNative(newParametersPtr);
     }
-
-    internal static InfiniFrameNativeParameters NativeParametersReturnAsIs(ref InfiniFrameNativeParameters parameters) {
-        IntPtr newParametersPtr = NativeParametersReturnAsIsPtr(ref parameters);
-
-        try {
-            // Marshal with explicit type to ensure proper handling
-            return Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
-        }
-        catch (ArgumentException ex) {
-            throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
-        }
-        catch (InvalidOperationException ex) {
-            throw new InvalidOperationException($"Failed to marshal returned structure from native code. Pointer: {newParametersPtr:X}", ex);
-        }
-        finally {
-            FreeInitParams(newParametersPtr);
-        }
-    }
 }

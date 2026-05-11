@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Interop;
+using InfiniFrame.Security;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -29,7 +30,7 @@ public static class OpenExternalTargetWebMessageHandler {
             return;
         }
 
-        InfiniFrameUriSecurityPolicy uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
+        IInfiniFrameUriSecurityPolicy uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
         if (!uriSecurityPolicy.IsExternalSchemeAllowed(uri.Scheme)) {
             window.Logger.LogWarning("Rejected external URI due to disallowed scheme. Scheme: {Scheme}, Uri: {Uri}", uri.Scheme, uri);
             return;

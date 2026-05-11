@@ -1,8 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-// ReSharper disable once CheckNamespace
-namespace InfiniFrame;
+namespace InfiniFrame.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -11,7 +10,7 @@ public sealed class InfiniFrameUriSecurityPolicy(
     IEnumerable<string> allowedExternalSchemes,
     IEnumerable<Uri>? trustedOrigins = null,
     bool trustAllOrigins = false
-) {
+) : IInfiniFrameUriSecurityPolicy {
     public static InfiniFrameUriSecurityPolicy Default { get; } = new(
         [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
         [Uri.UriSchemeHttps, Uri.UriSchemeHttp, Uri.UriSchemeMailto]
@@ -46,12 +45,12 @@ public sealed class InfiniFrameUriSecurityPolicy(
             && (TrustAllOrigins || IsSameOrigin(candidateOrigin, trustedOrigin));
     }
 
-    public InfiniFrameUriSecurityPolicy WithTrustedOrigin(Uri trustedOrigin) {
+    public IInfiniFrameUriSecurityPolicy WithTrustedOrigin(Uri trustedOrigin) {
         ArgumentNullException.ThrowIfNull(trustedOrigin);
         return WithTrustedOrigins([trustedOrigin]);
     }
 
-    public InfiniFrameUriSecurityPolicy WithTrustedOrigins(IEnumerable<Uri> trustedOrigins) {
+    public IInfiniFrameUriSecurityPolicy WithTrustedOrigins(IEnumerable<Uri> trustedOrigins) {
         ArgumentNullException.ThrowIfNull(trustedOrigins);
 
         var mergedTrustedOrigins = new HashSet<Uri>(TrustedOrigins, OriginComparer.Instance);

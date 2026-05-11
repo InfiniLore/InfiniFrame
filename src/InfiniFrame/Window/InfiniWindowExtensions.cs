@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
+using InfiniFrame.Security;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
@@ -41,7 +42,7 @@ public static class InfiniWindowExtensions {
     /// <param name="window">InfiniFrame window instance</param>
     public static T Load<T>(this T window, string path) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".Load({Path})", path);
-        InfiniFrameUriSecurityPolicy uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
+        IInfiniFrameUriSecurityPolicy uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
 
         if (Uri.TryCreate(path, UriKind.Absolute, out Uri? absoluteUri)) {
             if (uriSecurityPolicy.IsNavigationSchemeAllowed(absoluteUri.Scheme))

@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Interop;
 using InfiniFrame.Native;
+using InfiniFrame.Security;
 using InfiniFrameTests.Shared.TestDoubles;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
