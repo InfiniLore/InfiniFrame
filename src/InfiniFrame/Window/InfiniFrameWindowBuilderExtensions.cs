@@ -10,7 +10,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [SuppressMessage("ReSharper", "ConvertToExtensionBlock")]
-public static class InfiniWindowBuilderExtensions {
+public static class InfiniFrameWindowBuilderExtensions {
     /// <summary>
     ///     Sets the media autoplay functionality on the browser control at initialization.
     /// </summary>
