@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <cstring>
 #include <mutex>
+#include <shared_mutex>
 #include <Shellscalingapi.h>
 #include <Shlwapi.h>
 #include <WebView2EnvironmentOptions.h>
@@ -78,7 +79,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 auto CLASS_NAME = L"InfiniFrame";
-std::mutex hwndMapMutex;
+std::shared_mutex hwndMapMutex;
 HINSTANCE _hInstance;
 thread_local HWND messageLoopRootWindowHandle = nullptr;
 wchar_t _webview2RuntimePath[MAX_PATH];
@@ -134,6 +135,12 @@ namespace {
         utf8.resize(written);
 
         return utf8;
+    }
+
+    InfiniFrameWindow* LookupWindowInstance(const HWND hwnd) {
+        std::shared_lock<std::shared_mutex> lock(hwndMapMutex);
+        const auto it = hwndToInfiniFrame.find(hwnd);
+        return it != hwndToInfiniFrame.end() ? it->second : nullptr;
     }
 }
 
@@ -362,7 +369,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         this //Additional application data
         );
     {
-        std::lock_guard<std::mutex> lock(hwndMapMutex);
+        std::unique_lock<std::shared_mutex> lock(hwndMapMutex);
         hwndToInfiniFrame[m_impl->_hWnd] = this;
     }
 
@@ -458,7 +465,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_ACTIVATE: {
-            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
             if (instance) {
                 if (LOWORD(wParam) == WA_INACTIVE) {
                     instance->InvokeFocusOut();
@@ -473,7 +480,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_CLOSE: {
-            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
             if (instance) {
                 bool doNotClose = instance->InvokeClose();
 
@@ -485,13 +492,13 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_DESTROY: {
-            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
             if (instance) {
                 instance->CloseWebView();
                 instance->InvokeClosed();
             }
             {
-                std::lock_guard<std::mutex> lock(hwndMapMutex);
+                std::unique_lock<std::shared_mutex> lock(hwndMapMutex);
                 hwndToInfiniFrame.erase(hwnd);
             }
             // Terminate the message loop of the thread that owns this window
@@ -523,7 +530,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_GETMINMAXINFO: {
-            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
             if (instance == nullptr)
                 return 0;
 
@@ -539,7 +546,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_SIZE: {
-            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
             if (instance) {
                 instance->RefitContent();
                 int width, height;
@@ -559,7 +566,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_MOVE: {
-            InfiniFrameWindow * instance = hwndToInfiniFrame[hwnd];
+            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
             if (instance) {
                 int x, y;
                 instance->GetPosition(&x, &y);
