@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame;
+namespace InfiniFrame.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -50,9 +50,8 @@ public static class InfiniWindowUriSecurityBuilderExtensions {
     private static IEnumerable<Uri> ParseOrigins(IEnumerable<string> origins) => origins.Select(ParseOrigin);
 
     private static Uri ParseOrigin(string origin) {
-        if (!Uri.TryCreate(origin, UriKind.Absolute, out Uri? uri)) {
-            throw new ArgumentException($"Invalid trusted origin URI: '{origin}'", nameof(origin));
-        }
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (!Uri.TryCreate(origin, UriKind.Absolute, out Uri? uri)) throw new ArgumentException($"Invalid trusted origin URI: '{origin}'", nameof(origin));
 
         return uri;
     }

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Security;
 using InfiniFrameTests.Shared.TestDoubles;
 using NSubstitute;
 

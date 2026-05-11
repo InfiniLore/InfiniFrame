@@ -3,9 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.CompilerServices;
 
-
-// ReSharper disable once CheckNamespace
-namespace InfiniFrame;
+namespace InfiniFrame.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,7 +14,7 @@ public static class InfiniFrameUriSecurityPolicyRegistry {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public static InfiniFrameUriSecurityPolicy GetForBuilder(IInfiniFrameWindowBuilder builder) {
+    public static IInfiniFrameUriSecurityPolicy GetForBuilder(IInfiniFrameWindowBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
         return BuilderPolicies.GetValue(builder, createValueCallback: static _ => new PolicyHolder()).Policy;
     }
@@ -31,23 +29,23 @@ public static class InfiniFrameUriSecurityPolicyRegistry {
         holder.Policy = policyBuilder.Build();
     }
 
-    public static void BindToWindow(IInfiniFrameWindow window, InfiniFrameUriSecurityPolicy policy) {
+    public static void BindToWindow(IInfiniFrameWindow window, IInfiniFrameUriSecurityPolicy policy) {
         ArgumentNullException.ThrowIfNull(window);
         ArgumentNullException.ThrowIfNull(policy);
 
         WindowPolicies.AddOrUpdate(window, new PolicyHolder(policy));
     }
 
-    public static InfiniFrameUriSecurityPolicy GetForWindow(IInfiniFrameWindow window) {
+    public static IInfiniFrameUriSecurityPolicy GetForWindow(IInfiniFrameWindow window) {
         ArgumentNullException.ThrowIfNull(window);
         return WindowPolicies.TryGetValue(window, out PolicyHolder? holder)
             ? holder.Policy
             : InfiniFrameUriSecurityPolicy.Default;
     }
 
-    private sealed class PolicyHolder(InfiniFrameUriSecurityPolicy policy) {
-
+    private sealed class PolicyHolder(IInfiniFrameUriSecurityPolicy policy) {
+        public IInfiniFrameUriSecurityPolicy Policy { get; set; } = policy;
+        
         public PolicyHolder() : this(InfiniFrameUriSecurityPolicy.Default) {}
-        public InfiniFrameUriSecurityPolicy Policy { get; set; } = policy;
     }
 }

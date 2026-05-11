@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
+using InfiniFrame.Security;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -11,5 +12,5 @@ internal readonly record struct InfiniFrameWindowBuilderSnapshot(
     InfiniFrameNativeParameters StartupParameters,
     IInfiniFrameEventsStore EventsStore,
     IInfiniFrameStaticAssets? StaticAssets,
-    InfiniFrameUriSecurityPolicy UriSecurityPolicy
+    IInfiniFrameUriSecurityPolicy UriSecurityPolicy
 );

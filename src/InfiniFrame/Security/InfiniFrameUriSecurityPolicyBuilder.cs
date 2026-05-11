@@ -1,8 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-// ReSharper disable once CheckNamespace
-namespace InfiniFrame;
+namespace InfiniFrame.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -15,8 +14,8 @@ public sealed class InfiniFrameUriSecurityPolicyBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    public InfiniFrameUriSecurityPolicyBuilder(InfiniFrameUriSecurityPolicy? basePolicy = null) {
-        InfiniFrameUriSecurityPolicy initialPolicy = basePolicy ?? InfiniFrameUriSecurityPolicy.Default;
+    public InfiniFrameUriSecurityPolicyBuilder(IInfiniFrameUriSecurityPolicy? basePolicy = null) {
+        IInfiniFrameUriSecurityPolicy initialPolicy = basePolicy ?? InfiniFrameUriSecurityPolicy.Default;
         _allowedNavigationSchemes = new HashSet<string>(initialPolicy.AllowedNavigationSchemes, StringComparer.OrdinalIgnoreCase);
         _allowedExternalSchemes = new HashSet<string>(initialPolicy.AllowedExternalSchemes, StringComparer.OrdinalIgnoreCase);
         _trustedOrigins = new HashSet<Uri>();

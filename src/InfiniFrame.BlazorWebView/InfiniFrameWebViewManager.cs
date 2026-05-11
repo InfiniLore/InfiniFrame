@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView.Utils;
+using InfiniFrame.Security;
 using InfiniFrame.Utilities;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -33,7 +34,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     private readonly Task _messagePumpTask;
     private readonly SynchronousTaskScheduler _syncScheduler = new();
-    private readonly InfiniFrameUriSecurityPolicy _uriSecurityPolicy;
+    private readonly IInfiniFrameUriSecurityPolicy _uriSecurityPolicy;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructor

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Security;
 using InfiniFrameTests.Shared.TestDoubles;
 
 namespace InfiniFrameTests;
@@ -128,9 +129,9 @@ public class InfiniFrameUriSecurityPolicyTests {
         );
 
         // Act
-        InfiniFrameUriSecurityPolicy defaultPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window.Window);
+        IInfiniFrameUriSecurityPolicy defaultPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window.Window);
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(window.Window, policy);
-        InfiniFrameUriSecurityPolicy boundPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window.Window);
+        IInfiniFrameUriSecurityPolicy boundPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window.Window);
 
         // Assert
         await Assert.That(defaultPolicy.IsNavigationSchemeAllowed("app")).IsTrue();
@@ -147,7 +148,7 @@ public class InfiniFrameUriSecurityPolicyTests {
             .SetAllowedNavigationSchemes([Uri.UriSchemeHttps])
             .SetAllowedExternalSchemes([Uri.UriSchemeMailto])
             .SetTrustedOrigins([new Uri("https://trusted.example/")]));
-        InfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
+        IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
 
         // Assert
         await Assert.That(policy.IsNavigationSchemeAllowed(Uri.UriSchemeHttps)).IsTrue();
@@ -165,7 +166,7 @@ public class InfiniFrameUriSecurityPolicyTests {
         builder
             .SetAllowedNavigationSchemes(Uri.UriSchemeHttps)
             .SetTrustedOrigins("https://trusted.example/");
-        InfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
+        IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
 
         // Assert
         await Assert.That(policy.IsTrustedOrigin(new Uri("https://trusted.example/abc"))).IsTrue();
@@ -197,7 +198,7 @@ public class InfiniFrameUriSecurityPolicyTests {
             .SetTrustedOrigins([new Uri("https://one.example/")]));
         InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, policyBuilder => policyBuilder
             .AddTrustedOrigin(new Uri("https://two.example/")));
-        InfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
+        IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
 
         // Assert
         await Assert.That(policy.IsTrustedOrigin(new Uri("https://one.example/path"))).IsTrue();
@@ -213,7 +214,7 @@ public class InfiniFrameUriSecurityPolicyTests {
         builder
             .SetAllowedNavigationSchemes(Uri.UriSchemeHttps)
             .SetTrustAllOrigins();
-        InfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
+        IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
 
         // Assert
         await Assert.That(policy.TrustAllOrigins).IsTrue();
