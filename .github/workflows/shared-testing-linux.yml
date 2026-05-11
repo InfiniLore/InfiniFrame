@@ -175,6 +175,10 @@ jobs:
                     xdpyinfo | head -3 || true
 
                     echo "=== Running Tests ==="
+                    export LIBGL_ALWAYS_SOFTWARE=1
+                    export GALLIUM_DRIVER=llvmpipe
+                    export MESA_GL_VERSION_OVERRIDE=3.3
+    
                     dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
                       --no-build \

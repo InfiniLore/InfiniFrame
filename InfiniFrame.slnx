@@ -41,7 +41,9 @@
   <Folder Name="/.dev-tools/github/actions/sync-check/">
     <File Path=".github/actions/sync-check/action.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/validate-native-test-binaries/" />
+  <Folder Name="/.dev-tools/github/actions/validate-native-test-binaries/">
+    <File Path=".github/actions/validate-native-test-binaries/action.yml" />
+  </Folder>
   <Folder Name="/.dev-tools/github/scripts/">
     <File Path=".github/scripts/bump_version.py" />
     <File Path=".github/scripts/sync_github_checks.py" />
@@ -63,9 +65,7 @@
     <File Path=".github/workflows/ci-todo.yml" />
     <File Path=".github/workflows/ci-codeql.yml" />
   </Folder>
-  <Folder Name="/.dev-tools/github/actions/">
-    <File Path=".github/actions/validate-native-test-binaries/action.yml" />
-  </Folder>
+  <Folder Name="/.dev-tools/github/actions/" />
   <Folder Name="/.dev-tools/github/workflows/shared/">
     <File Path=".github/workflows/shared-release-build.yml" />
     <File Path=".github/workflows/shared-release-bump-version.yml" />

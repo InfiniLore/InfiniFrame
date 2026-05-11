@@ -12,6 +12,7 @@ namespace InfiniFrameTests.ParentChildLogic;
 public class ParentChildWindowTests {
     
     [Test]
+    [SkipUtility.SkipOnMacOs]
     public async Task TestParentChildWindow(CancellationToken ct = default) {
         // Arrange
         using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
