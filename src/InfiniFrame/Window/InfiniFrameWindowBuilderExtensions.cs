@@ -548,11 +548,7 @@ public static class InfiniFrameWindowBuilderExtensions {
     
     public static T SetParentWindow<T>(this T builder, IInfiniFrameWindow parentWindow) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.ParentWindow = parentWindow;
-        return builder;
-    }
-    
-    public static T SetParentWindow<T>(this T builder, Action<IInfiniFrameWindowBuilder> parentWindowConfigurator) where T : IInfiniFrameWindowBuilder {
-        parentWindowConfigurator(builder);
+        builder.EventsStore.WindowCreated.Add(window => parentWindow.Configuration.ChildWindows.Add(window));
         return builder;
     }
 }

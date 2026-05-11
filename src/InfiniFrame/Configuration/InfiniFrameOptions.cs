@@ -13,4 +13,5 @@ public class InfiniFrameOptions(IInfiniFrameOptionsBuilder configuration, ref In
 
     public bool LimitLinuxWindowTitleLength { get; set; } = configuration.LimitLinuxWindowTitleLength;
     public IInfiniFrameWindow? ParentWindow { get; } = configuration.ParentWindow;
+    public List<IInfiniFrameWindow> ChildWindows { get; } = configuration.ChildWindows.ToList();
 }

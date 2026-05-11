@@ -13,4 +13,5 @@ public interface IInfiniFrameOptions {
     
     bool LimitLinuxWindowTitleLength { get; set; }
     IInfiniFrameWindow? ParentWindow { get; }
+    List<IInfiniFrameWindow> ChildWindows { get; }
 }
