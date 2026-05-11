@@ -27,7 +27,6 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     Size MaxSize { get; }
     Size MinSize { get; }
     Size Size { get; }
-    IInfiniFrameWindow? Parent { get; }
     int ManagedThreadId { get; }
     Rectangle CachedPreFullScreenBounds { get; internal set; }
     Rectangle CachedPreMaximizedBounds { get; internal set; }

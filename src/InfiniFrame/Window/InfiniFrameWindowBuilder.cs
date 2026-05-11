@@ -47,12 +47,12 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         var configuration = new InfiniFrameOptions {
             StartupParameters = nativeParameters,
             LimitLinuxWindowTitleLength = Configuration.LimitLinuxWindowTitleLength,
+            ParentWindow = Configuration.ParentWindow
         };
         
         var window = new InfiniFrameWindow {
             ServiceProvider = provider,
             Logger = ResolveLogger(provider),
-            Parent = null,
             Events = events,
             StaticAssets = snapshot.StaticAssets,
             Configuration = configuration

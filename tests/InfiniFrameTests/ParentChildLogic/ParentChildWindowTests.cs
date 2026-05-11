@@ -26,6 +26,6 @@ public class ParentChildWindowTests {
         IInfiniFrameWindow childWindow = childWindowUtility.Window;
 
         // Assert
-        await Assert.That(childWindow.Parent).IsEqualTo(parentWindow);
+        await Assert.That(childWindow.Configuration.ParentWindow).IsEqualTo(parentWindow);
     }
 }

@@ -18,7 +18,6 @@ public class OrderedEventTests {
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
-            Parent = null,
             Events = events,
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null,

@@ -40,7 +40,6 @@ public class WebMessageReceivedHandlerTests {
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider =  new TestServiceProvider(service),
-            Parent = null,
             Events = events,
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null,
@@ -72,7 +71,6 @@ public class WebMessageReceivedHandlerTests {
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
-            Parent = null,
             Events = new InfiniFrameEvents(eventsStore),
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null,

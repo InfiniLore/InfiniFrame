@@ -12,4 +12,5 @@ public class InfiniFrameOptions : IInfiniFrameOptions {
     public required InfiniFrameNativeParameters StartupParameters { get; init; }
     
     public required bool LimitLinuxWindowTitleLength { get; set; }
+    public required IInfiniFrameWindow? ParentWindow { get; init; }
 }
