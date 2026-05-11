@@ -44,7 +44,7 @@ public class InteropEnvelopeProtocolTests {
     public async Task ParseEnvelope_GoldenVectors(CancellationToken ct = default) {
         // Arrange
         JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
-        JsonElement vectors = goldenVectorsDocument.RootElement.GetProperty("createVectors");
+        JsonElement vectors = goldenVectorsDocument.RootElement.GetProperty("parseVectors");
         
         // Act & Assert
         foreach (JsonElement vector in vectors.EnumerateArray()) {
