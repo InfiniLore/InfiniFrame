@@ -78,7 +78,6 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 auto CLASS_NAME = L"InfiniFrame";
-std::mutex invokeLockMutex;
 std::mutex hwndMapMutex;
 HINSTANCE _hInstance;
 thread_local HWND messageLoopRootWindowHandle = nullptr;
@@ -140,8 +139,10 @@ namespace {
 
 
 struct InvokeWaitInfo {
+    std::mutex mutex;
     std::condition_variable completionNotifier;
-    bool isCompleted;
+    bool isCompleted = false;
+    bool isAbandoned = false;
 };
 
 struct ShowMessageParams {
@@ -501,13 +502,24 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         }
         case WM_USER_INVOKE: {
             auto callback = reinterpret_cast<ACTION>(wParam);
-            callback();
             auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
-            {
-                std::lock_guard<std::mutex> guard(invokeLockMutex);
-                waitInfo->isCompleted = true;
+
+            if (callback)
+                callback();
+
+            if (waitInfo != nullptr) {
+                bool deleteWaitInfo = false;
+                {
+                    std::lock_guard<std::mutex> guard(waitInfo->mutex);
+                    waitInfo->isCompleted = true;
+                    deleteWaitInfo = waitInfo->isAbandoned;
+                }
+
+                waitInfo->completionNotifier.notify_one();
+
+                if (deleteWaitInfo)
+                    delete waitInfo;
             }
-            waitInfo->completionNotifier.notify_one();
             return 0;
         }
         case WM_GETMINMAXINFO: {
@@ -1106,24 +1118,31 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
     if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd))
         return;
 
-    InvokeWaitInfo waitInfo = {};
+    auto* waitInfo = new InvokeWaitInfo();
     if (!PostMessage(
-        m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(&waitInfo)
-        ))
+        m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(waitInfo)
+        )) {
+        delete waitInfo;
         return;
+    }
 
-    std::unique_lock<std::mutex> uLock(invokeLockMutex);
-    const bool completed = waitInfo.completionNotifier.wait_for(
+    std::unique_lock<std::mutex> uLock(waitInfo->mutex);
+    const bool completed = waitInfo->completionNotifier.wait_for(
         uLock,
         std::chrono::seconds(15),
         [&] {
-            return waitInfo.isCompleted;
+            return waitInfo->isCompleted;
         }
         );
 
     if (!completed) {
+        waitInfo->isAbandoned = true;
         OutputDebugStringW(L"InfiniFrameWindow::Invoke timed out waiting for UI thread callback.\n");
+        return;
     }
+
+    uLock.unlock();
+    delete waitInfo;
 }
 
 std::string InfiniFrameWindow::ToUTF8String(const AutoString source) const {
