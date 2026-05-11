@@ -49,7 +49,7 @@ runs:
                     libepoxy-dev
                     libx11-dev
                     libgl1-mesa-dri
-                    libegl1-mesa
+                    libegl1
                     mesa-utils
                     fonts-liberation
                     xfonts-base
