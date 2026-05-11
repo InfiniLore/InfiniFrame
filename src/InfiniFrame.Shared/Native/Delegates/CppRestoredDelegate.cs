@@ -3,9 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
-public delegate void CppClosedDelegate();
+public delegate void CppRestoredDelegate();

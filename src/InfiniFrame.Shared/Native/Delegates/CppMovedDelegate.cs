@@ -3,10 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------------
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
-public delegate IntPtr CppWebResourceRequestedDelegate(string url, out int outNumBytes, out string? outContentType);
+public delegate void CppMovedDelegate(int x, int y);

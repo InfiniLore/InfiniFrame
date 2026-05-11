@@ -3,9 +3,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Runtime.InteropServices;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Native;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Auto)]
-public delegate void CppMinimizedDelegate();
+public delegate IntPtr CppWebResourceRequestedDelegate(string url, out int outNumBytes, out string? outContentType);

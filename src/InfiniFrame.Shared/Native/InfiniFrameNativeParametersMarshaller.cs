@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Native.Delegates;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
