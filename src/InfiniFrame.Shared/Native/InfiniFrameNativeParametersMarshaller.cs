@@ -192,15 +192,15 @@ internal static class InfiniFrameNativeParametersMarshaller {
     private static IntPtr ToFunctionPtr(Delegate? callback) => callback is null
         ? IntPtr.Zero
         : callback switch {
-            CppClosingDelegate closing => Marshal.GetFunctionPointerForDelegate(closing),
             CppClosedDelegate closed => Marshal.GetFunctionPointerForDelegate(closed),
+            CppClosingDelegate closing => Marshal.GetFunctionPointerForDelegate(closing),
             CppFocusInDelegate focusIn => Marshal.GetFunctionPointerForDelegate(focusIn),
             CppFocusOutDelegate focusOut => Marshal.GetFunctionPointerForDelegate(focusOut),
-            CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
             CppMaximizedDelegate maximized => Marshal.GetFunctionPointerForDelegate(maximized),
-            CppRestoredDelegate restored => Marshal.GetFunctionPointerForDelegate(restored),
             CppMinimizedDelegate minimized => Marshal.GetFunctionPointerForDelegate(minimized),
             CppMovedDelegate moved => Marshal.GetFunctionPointerForDelegate(moved),
+            CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
+            CppRestoredDelegate restored => Marshal.GetFunctionPointerForDelegate(restored),
             CppWebMessageReceivedDelegate webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
             CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
             _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
