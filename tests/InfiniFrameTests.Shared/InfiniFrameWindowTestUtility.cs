@@ -46,7 +46,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder.SetStartString(StartString);
-        windowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "InfiniFrameTests", Guid.NewGuid().ToString()));
+        windowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "InfiniFrameTests"));
         builder?.Invoke(windowBuilder);
 
         // Windows: WebView2 requires STA thread for COM initialization

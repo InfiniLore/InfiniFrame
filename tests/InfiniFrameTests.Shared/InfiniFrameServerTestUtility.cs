@@ -41,7 +41,7 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
 
                 appBuilder?.Invoke(builder.WebApp);
                 
-                builder.WindowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "InfiniFrameServerTests", Guid.NewGuid().ToString()));
+                builder.WindowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "InfiniFrameServerTests"));
                 windowBuilder?.Invoke(builder.WindowBuilder);
 
                 InfiniFrameWebApplication app = builder.Build();
