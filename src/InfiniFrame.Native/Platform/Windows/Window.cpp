@@ -196,32 +196,6 @@ namespace {
 
         return parentHwnd;
     }
-
-    bool ApplyPendingOwnerWindow(const HWND hwnd, const HWND owner) {
-        if (owner == nullptr
-            || hwnd == nullptr
-            || owner == hwnd
-            || !IsWindow(owner)
-            || !IsWindow(hwnd)) {
-            return false;
-        }
-
-        SetLastError(ERROR_SUCCESS);
-        SetWindowLongPtr(hwnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(owner));
-        const DWORD setOwnerError = GetLastError();
-        if (setOwnerError != ERROR_SUCCESS) {
-            TraceTeardown(
-                L"SetWindowLongPtr(GWLP_HWNDPARENT) failed hwnd=%p owner=%p err=%lu",
-                hwnd,
-                owner,
-                setOwnerError
-                );
-            return false;
-        }
-
-        TraceTeardown(L"Owner applied hwnd=%p owner=%p", hwnd, owner);
-        return true;
-    }
 }
 
 
@@ -452,10 +426,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         windowInstance, //Instance handle
         this //Additional application data
         );
-
-    // Set owner immediately after creation to avoid teardown races where parent closes before WaitForExit applies it.
-    if (m_impl->_hWnd != nullptr)
-        ApplyPendingOwnerWindow(m_impl->_hWnd, m_impl->_pendingOwnerHwnd);
 
     if (initParams->WindowIconFile != nullptr) {
         SetIconFile(initParams->WindowIconFile);
@@ -1218,7 +1188,13 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    ApplyPendingOwnerWindow(m_impl->_hWnd, m_impl->_pendingOwnerHwnd);
+    if (m_impl->_pendingOwnerHwnd != nullptr
+        && m_impl->_hWnd != nullptr
+        && m_impl->_pendingOwnerHwnd != m_impl->_hWnd
+        && IsWindow(m_impl->_pendingOwnerHwnd)
+        && IsWindow(m_impl->_hWnd)) {
+        SetWindowLongPtr(m_impl->_hWnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(m_impl->_pendingOwnerHwnd));
+    }
 
     messageLoopRootWindowHandle = m_impl->_hWnd;
     TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, m_impl->_hWnd);
