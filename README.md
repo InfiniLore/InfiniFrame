@@ -215,6 +215,18 @@ The full scripts reference lives in docs:
 
 Local wrappers are under `scripts/` (Linux test runs, Playwright runs, and NuGet setup).
 
+## Docker Matrix (Local)
+
+Additional compose targets and wrappers are available for local matrix validation:
+
+- `docker/compose/infiniframe-linux.yml` + `scripts/docker-linux-*.sh`
+- `docker/compose/infiniframe-linux-arm64.yml` + `scripts/docker-linux-arm64-*.sh`
+- `docker/compose/infiniframe-linux-wayland.yml` + `scripts/docker-linux-wayland-*.sh`
+- `docker/compose/infiniframe-windows.yml` + `scripts/docker-windows-*.ps1`
+- `docker/compose/infiniframe-macos.yml` + `scripts/docker-macos-*.sh`
+
+`infiniframe-macos.yml` is an explicit placeholder. macOS runtime tests must run on a real macOS host/VM runner.
+
 ## Repo History
 
 This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of
