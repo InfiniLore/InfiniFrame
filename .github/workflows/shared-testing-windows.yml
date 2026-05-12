@@ -134,14 +134,20 @@ jobs:
                     echo "Running tests on Windows..."
                     if ("${{ matrix.arch }}" -eq "arm64") {
                       $env:INFINIFRAME_TRACE_TEARDOWN = "1"
+                      $diagDir = Join-Path "${{ github.workspace }}" "artifacts\test-results\windows-arm64"
+                      New-Item -ItemType Directory -Path $diagDir -Force | Out-Null
                       dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
                         --configuration Release `
                         --no-build `
                         --no-restore `
                         -- `
+                        --results-directory $diagDir `
                         --diagnostic `
+                        --diagnostic-output-directory $diagDir `
                         --diagnostic-synchronous-write `
-                        --diagnostic-verbosity Trace
+                        --diagnostic-verbosity Trace `
+                        --show-stdout All `
+                        --show-stderr All
                     }
                     else {
                       dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
@@ -157,6 +163,8 @@ jobs:
                     name: windows-arm64-crash-diagnostics
                     if-no-files-found: ignore
                     path: |
+                        artifacts/test-results/windows-arm64/**
+                        artifacts/crash-dumps/**
                         **/TestResults/**
                         **/*.dmp
                         **/*.mdmp
