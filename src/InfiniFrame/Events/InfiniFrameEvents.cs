@@ -32,6 +32,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         EventsStore = store;
 
         // Root stable delegate instances for native callback lifetime.
+        //      This has to be done to ensure GC lifetime management on windows ARM64
         ClosedHandler = OnWindowClosed;
         ClosingHandler = OnWindowClosing;
         CustomSchemeHandler = OnCustomScheme;
