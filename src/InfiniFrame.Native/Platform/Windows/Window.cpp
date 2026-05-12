@@ -599,6 +599,21 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                 bool doNotClose = instance->InvokeClose();
 
                 if (!doNotClose) {
+                    // On Windows ARM64 we observed occasional access violations during teardown when
+                    // owner/owned windows live on different UI threads. Detach owner linkage before
+                    // destruction to avoid cross-thread owner-chain teardown races.
+                    SetLastError(0);
+                    const LONG_PTR previousOwner = SetWindowLongPtr(hwnd, GWLP_HWNDPARENT, 0);
+                    const DWORD ownerDetachError = GetLastError();
+                    if (previousOwner != 0 || ownerDetachError == 0) {
+                        TraceTeardown(
+                            L"WM_CLOSE detached owner hwnd=%p prevOwner=%p err=%lu",
+                            hwnd,
+                            reinterpret_cast<void*>(previousOwner),
+                            ownerDetachError
+                            );
+                    }
+
                     DestroyWindow(hwnd);
                 }
             }
