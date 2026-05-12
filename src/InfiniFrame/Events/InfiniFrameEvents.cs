@@ -12,17 +12,19 @@ namespace InfiniFrame;
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
     public required IInfiniFrameEventsStore EventsStore { get; init; }
     private IInfiniFrameWindow? Sender { get; set; }
-    private CppClosingDelegate ClosingHandler { get; set; }
-    private CppWebResourceRequestedDelegate CustomSchemeHandler  { get; set; }
+    
+    // 
     private CppClosedDelegate ClosedHandler  { get; set; }
-    private CppResizedDelegate ResizedHandler  { get; set; }
-    private CppMaximizedDelegate MaximizedHandler  { get; set; }
-    private CppRestoredDelegate RestoredHandler  { get; set; }
-    private CppMinimizedDelegate MinimizedHandler  { get; set; }
-    private CppMovedDelegate MovedHandler  { get; set; }
+    private CppClosingDelegate ClosingHandler { get; set; }
     private CppFocusInDelegate FocusInHandler  { get; set; }
     private CppFocusOutDelegate FocusOutHandler  { get; set; }
+    private CppMaximizedDelegate MaximizedHandler  { get; set; }
+    private CppMinimizedDelegate MinimizedHandler  { get; set; }
+    private CppMovedDelegate MovedHandler  { get; set; }
+    private CppResizedDelegate ResizedHandler  { get; set; }
+    private CppRestoredDelegate RestoredHandler  { get; set; }
     private CppWebMessageReceivedDelegate WebMessageReceivedHandler  { get; set; }
+    private CppWebResourceRequestedDelegate CustomSchemeHandler  { get; set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -31,16 +33,16 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         EventsStore = store;
 
         // Root stable delegate instances for native callback lifetime.
+        ClosedHandler = OnWindowClosed;
         ClosingHandler = OnWindowClosing;
         CustomSchemeHandler = OnCustomScheme;
-        ClosedHandler = OnWindowClosed;
-        ResizedHandler = OnSizeChanged;
-        MaximizedHandler = OnMaximized;
-        RestoredHandler = OnRestored;
-        MinimizedHandler = OnMinimized;
-        MovedHandler = OnLocationChanged;
         FocusInHandler = OnFocusIn;
         FocusOutHandler = OnFocusOut;
+        MaximizedHandler = OnMaximized;
+        MinimizedHandler = OnMinimized;
+        MovedHandler = OnLocationChanged;
+        ResizedHandler = OnSizeChanged;
+        RestoredHandler = OnRestored;
         WebMessageReceivedHandler = OnWebMessageReceived;
     }
 
@@ -54,17 +56,16 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     
     public void AssignEventCallbacks(ref InfiniFrameNativeParameters parameters) {
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
+        parameters.ClosedHandler = ClosedHandler;
         parameters.ClosingHandler = ClosingHandler;
         parameters.CustomSchemeHandler = CustomSchemeHandler;
-        
-        parameters.ClosedHandler = ClosedHandler;
-        parameters.ResizedHandler = ResizedHandler;
-        parameters.MaximizedHandler = MaximizedHandler;
-        parameters.RestoredHandler = RestoredHandler;
-        parameters.MinimizedHandler = MinimizedHandler;
-        parameters.MovedHandler = MovedHandler;
         parameters.FocusInHandler = FocusInHandler;
         parameters.FocusOutHandler = FocusOutHandler;
+        parameters.MaximizedHandler = MaximizedHandler;
+        parameters.MinimizedHandler = MinimizedHandler;
+        parameters.MovedHandler = MovedHandler;
+        parameters.ResizedHandler = ResizedHandler;
+        parameters.RestoredHandler = RestoredHandler;
         parameters.WebMessageReceivedHandler = WebMessageReceivedHandler;
         
         ApplyCustomSchemeNames(ref parameters);
