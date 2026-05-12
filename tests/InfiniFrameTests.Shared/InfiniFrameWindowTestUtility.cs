@@ -140,15 +140,25 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         if (_windowThread is not null) {
             try {
-                // ARM64 runners can take noticeably longer to unwind WebView/native teardown.
-                // Interrupting a thread that is inside native shutdown has caused host instability.
-                // Wait longer and avoid Thread.Interrupt to keep teardown deterministic.
-                TimeSpan joinTimeout = OperatingSystem.IsWindows()
+                // Keep test disposal bounded so per-test timeout policies remain reliable.
+                TimeSpan firstJoinTimeout = OperatingSystem.IsWindows()
                     && RuntimeInformation.ProcessArchitecture == Architecture.Arm64
-                    ? TimeSpan.FromSeconds(30)
-                    : TimeSpan.FromSeconds(10);
+                    ? TimeSpan.FromSeconds(2)
+                    : TimeSpan.FromSeconds(3);
 
-                _windowThread.Join(joinTimeout);
+                if (!_windowThread.Join(firstJoinTimeout)) {
+                    try {
+                        Window.Close();
+                    }
+                    catch (ApplicationException) {
+                        // ignored
+                    }
+                    catch (ObjectDisposedException) {
+                        // ignored
+                    }
+
+                    _windowThread.Join(TimeSpan.FromSeconds(2));
+                }
             }
             catch (ThreadInterruptedException) {
                 // ignored
