@@ -69,20 +69,17 @@ jobs:
                         8.x
                         9.x
                         10.x
+                    cache: true
+                    cache-dependency-path: |
+                        **/*.csproj
+                        **/*.props
+                        **/Directory.Packages.props
 
             -   name: Setup Node
                 uses: actions/setup-node@v6
                 with:
                     node-version: 24
                     architecture: ${{ matrix.arch }}
-
-            -   name: Cache NuGet
-                uses: actions/cache@v5
-                with:
-                    path: ~\.nuget\packages
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
 
             -   name: Setup Native dependencies
                 # noinspection UndefinedAction
@@ -106,8 +103,7 @@ jobs:
 
                     dotnet build InfiniFrame.GitHubActions.Testing.slnf `
                       --configuration Release `
-                      --no-restore `
-                      -p:Platform=${{ matrix.arch }}
+                      --no-restore
 
             -   name: Verify Native Binaries
                 # noinspection UndefinedAction

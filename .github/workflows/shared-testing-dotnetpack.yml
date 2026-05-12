@@ -59,14 +59,11 @@ jobs:
                         8.x
                         9.x
                         10.x
-
-            -   name: Cache NuGet
-                uses: actions/cache@v5
-                with:
-                    path: ~/.nuget/packages
-                    key: ${{ runner.os }}-x64-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-x64-nuget-
+                    cache: true
+                    cache-dependency-path: |
+                        **/*.csproj
+                        **/*.props
+                        **/Directory.Packages.props
 
             -   name: Setup Native dependencies
                 # noinspection UndefinedAction
