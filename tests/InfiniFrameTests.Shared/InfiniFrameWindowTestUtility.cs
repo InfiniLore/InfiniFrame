@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Utilities;
 using JetBrains.Annotations;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 namespace InfiniFrameTests.Shared;
@@ -139,8 +140,15 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         if (_windowThread is not null) {
             try {
-                if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
-                    _windowThread.Interrupt();
+                // ARM64 runners can take noticeably longer to unwind WebView/native teardown.
+                // Interrupting a thread that is inside native shutdown has caused host instability.
+                // Wait longer and avoid Thread.Interrupt to keep teardown deterministic.
+                TimeSpan joinTimeout = OperatingSystem.IsWindows()
+                    && RuntimeInformation.ProcessArchitecture == Architecture.Arm64
+                    ? TimeSpan.FromSeconds(30)
+                    : TimeSpan.FromSeconds(10);
+
+                _windowThread.Join(joinTimeout);
             }
             catch (ThreadInterruptedException) {
                 // ignored
