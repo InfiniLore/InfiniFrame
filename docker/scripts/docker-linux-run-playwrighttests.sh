@@ -2,8 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-COMPOSE_FILE="${REPO_ROOT}/docker/compose/infiniframe-linux-arm64.yml"
+COMPOSE_FILE="${SCRIPT_DIR}/../compose/infiniframe-linux.yml"
 
 DISPLAY_VALUE="${DISPLAY:-:0}"
 PLAYWRIGHT_VISIBLE_DEBUG_VALUE="${PLAYWRIGHT_VISIBLE_DEBUG:-0}"
@@ -15,4 +14,4 @@ docker compose -f "${COMPOSE_FILE}" run --rm \
   -e PLAYWRIGHT_VISIBLE_DEBUG="${PLAYWRIGHT_VISIBLE_DEBUG_VALUE}" \
   -e PLAYWRIGHT_VISIBLE_DEBUG_SECONDS="${PLAYWRIGHT_VISIBLE_DEBUG_SECONDS_VALUE}" \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
-  linux-arm64-tests-playwright
+  linux-tests-playwright

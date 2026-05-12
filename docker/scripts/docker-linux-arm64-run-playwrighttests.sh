@@ -2,19 +2,16 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-COMPOSE_FILE="${REPO_ROOT}/docker/compose/infiniframe-linux-wayland.yml"
+COMPOSE_FILE="${SCRIPT_DIR}/../compose/infiniframe-linux-arm64.yml"
 
-WAYLAND_DISPLAY_VALUE="${WAYLAND_DISPLAY:-wayland-0}"
-XDG_RUNTIME_DIR_VALUE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+DISPLAY_VALUE="${DISPLAY:-:0}"
 PLAYWRIGHT_VISIBLE_DEBUG_VALUE="${PLAYWRIGHT_VISIBLE_DEBUG:-0}"
 PLAYWRIGHT_VISIBLE_DEBUG_SECONDS_VALUE="${PLAYWRIGHT_VISIBLE_DEBUG_SECONDS:-8}"
 
 docker compose -f "${COMPOSE_FILE}" run --rm \
   -e USE_HOST_DISPLAY=1 \
-  -e WAYLAND_DISPLAY="${WAYLAND_DISPLAY_VALUE}" \
-  -e XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR_VALUE}" \
+  -e DISPLAY="${DISPLAY_VALUE}" \
   -e PLAYWRIGHT_VISIBLE_DEBUG="${PLAYWRIGHT_VISIBLE_DEBUG_VALUE}" \
   -e PLAYWRIGHT_VISIBLE_DEBUG_SECONDS="${PLAYWRIGHT_VISIBLE_DEBUG_SECONDS_VALUE}" \
-  -v "${XDG_RUNTIME_DIR_VALUE}:${XDG_RUNTIME_DIR_VALUE}" \
-  linux-wayland-tests-playwright
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  linux-arm64-tests-playwright

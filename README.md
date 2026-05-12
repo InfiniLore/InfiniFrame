@@ -213,16 +213,16 @@ The full scripts reference lives in docs:
 
 - [Scripts Reference](https://docs.infiniframe.dev/guides/scripts)
 
-Local wrappers are under `scripts/` (Linux test runs, Playwright runs, and NuGet setup).
+Local Docker wrappers are under `docker/scripts/` (Linux/Windows test runs and Playwright runs). Shared helper scripts (for example NuGet bootstrap) remain in `scripts/`.
 
 ## Docker Matrix (Local)
 
 Additional compose targets and wrappers are available for local matrix validation:
 
-- `docker/compose/infiniframe-linux.yml` + `scripts/docker-linux-*.sh`
-- `docker/compose/infiniframe-linux-arm64.yml` + `scripts/docker-linux-arm64-*.sh`
-- `docker/compose/infiniframe-linux-wayland.yml` + `scripts/docker-linux-wayland-*.sh`
-- `docker/compose/infiniframe-windows.yml` + `scripts/docker-windows-*.ps1`
+- `docker/compose/infiniframe-linux.yml` + `docker/scripts/docker-linux-*.sh`
+- `docker/compose/infiniframe-linux-arm64.yml` + `docker/scripts/docker-linux-arm64-*.sh`
+- `docker/compose/infiniframe-linux-wayland.yml` + `docker/scripts/docker-linux-wayland-*.sh`
+- `docker/compose/infiniframe-windows.yml` + `docker/scripts/docker-windows-*.ps1`
 
 ## Repo History
 

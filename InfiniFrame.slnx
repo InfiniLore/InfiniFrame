@@ -12,19 +12,6 @@
     <File Path="InfiniFrame.GitHubActions.Release.slnf" />
     <File Path="InfiniFrame.GitHubActions.slnf" />
   </Folder>
-  <Folder Name="/.dev-tools/docker/" />
-  <Folder Name="/.dev-tools/docker/compose/">
-    <File Path="docker/compose/infiniframe-linux.yml" />
-  </Folder>
-  <Folder Name="/.dev-tools/docker/infiniframe-linux/">
-    <File Path="docker/infiniframe-linux/bootstrap-workspace.sh" />
-    <File Path="docker/infiniframe-linux/common.sh" />
-    <File Path="docker/infiniframe-linux/Dockerfile" />
-    <File Path="docker/infiniframe-linux/example-blazorwebview.sh" />
-    <File Path="docker/infiniframe-linux/NuGet.Config" />
-    <File Path="docker/infiniframe-linux/playwright.sh" />
-    <File Path="docker/infiniframe-linux/tests.sh" />
-  </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />
     <File Path=".github/dependabot.yml" />
@@ -89,6 +76,62 @@
     <File Path="scripts/docker-linux-run-playwrighttests.sh" />
     <File Path="scripts/docker-linux-run-tests.sh" />
     <File Path="scripts/nuget-install.sh" />
+  </Folder>
+  <Folder Name="/docker/" />
+  <Folder Name="/docker/compose/">
+    <File Path="docker/compose/infiniframe-linux-arm64.yml" />
+    <File Path="docker/compose/infiniframe-linux-wayland.yml" />
+    <File Path="docker/compose/infiniframe-linux.yml" />
+    <File Path="docker/compose/infiniframe-windows.yml" />
+  </Folder>
+  <Folder Name="/docker/infiniframe-linux-arm64/">
+    <File Path="docker/infiniframe-linux-arm64/.dockerignore" />
+    <File Path="docker/infiniframe-linux-arm64/Dockerfile" />
+  </Folder>
+  <Folder Name="/docker/infiniframe-linux-wayland/">
+    <File Path="docker/infiniframe-linux-wayland/.dockerignore" />
+    <File Path="docker/infiniframe-linux-wayland/common.sh" />
+    <File Path="docker/infiniframe-linux-wayland/Dockerfile" />
+    <File Path="docker/infiniframe-linux-wayland/example-blazorwebview.sh" />
+    <File Path="docker/infiniframe-linux-wayland/playwright.sh" />
+    <File Path="docker/infiniframe-linux-wayland/tests.sh" />
+  </Folder>
+  <Folder Name="/docker/infiniframe-linux/">
+    <File Path="docker/infiniframe-linux/.dockerignore" />
+    <File Path="docker/infiniframe-linux/bootstrap-workspace.sh" />
+    <File Path="docker/infiniframe-linux/common.sh" />
+    <File Path="docker/infiniframe-linux/Dockerfile" />
+    <File Path="docker/infiniframe-linux/example-blazorwebview.sh" />
+    <File Path="docker/infiniframe-linux/NuGet.Config" />
+    <File Path="docker/infiniframe-linux/playwright.sh" />
+    <File Path="docker/infiniframe-linux/tests.sh" />
+  </Folder>
+  <Folder Name="/docker/infiniframe-windows/">
+    <File Path="docker/infiniframe-windows/bootstrap-workspace.ps1" />
+    <File Path="docker/infiniframe-windows/common.ps1" />
+    <File Path="docker/infiniframe-windows/Dockerfile" />
+    <File Path="docker/infiniframe-windows/example-blazorwebview.ps1" />
+    <File Path="docker/infiniframe-windows/NuGet.Config" />
+    <File Path="docker/infiniframe-windows/playwright.ps1" />
+    <File Path="docker/infiniframe-windows/tests.ps1" />
+  </Folder>
+  <Folder Name="/docker/scripts/">
+    <File Path="docker/scripts/docker-linux-arm64-compose.sh" />
+    <File Path="docker/scripts/docker-linux-arm64-run-blazorwebview.sh" />
+    <File Path="docker/scripts/docker-linux-arm64-run-playwrighttests.sh" />
+    <File Path="docker/scripts/docker-linux-arm64-run-tests.sh" />
+    <File Path="docker/scripts/docker-linux-compose.sh" />
+    <File Path="docker/scripts/docker-linux-run-blazorwebview.sh" />
+    <File Path="docker/scripts/docker-linux-run-playwrighttests.sh" />
+    <File Path="docker/scripts/docker-linux-run-tests.sh" />
+    <File Path="docker/scripts/docker-linux-wayland-compose.sh" />
+    <File Path="docker/scripts/docker-linux-wayland-run-blazorwebview.sh" />
+    <File Path="docker/scripts/docker-linux-wayland-run-playwrighttests.sh" />
+    <File Path="docker/scripts/docker-linux-wayland-run-tests.sh" />
+    <File Path="docker/scripts/docker-windows-compose.ps1" />
+    <File Path="docker/scripts/docker-windows-run-blazorwebview.ps1" />
+    <File Path="docker/scripts/docker-windows-run-playwrighttests.ps1" />
+    <File Path="docker/scripts/docker-windows-run-tests.ps1" />
   </Folder>
   <Folder Name="/docs/">
     <Project Path="docs/InfiniFrame.Docs.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d8" />
