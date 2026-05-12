@@ -580,12 +580,9 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         case WM_USER_INVOKE: {
             auto callback = reinterpret_cast<ACTION>(wParam);
             auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
-            const bool skipCallback = instance != nullptr
-                && instance->m_impl->_isClosingOrClosed.load(std::memory_order_acquire);
 
             if (waitInfo == nullptr) {
-                if (callback && !skipCallback)
+                if (callback)
                     callback();
                 return 0;
             }
@@ -593,7 +590,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             bool deleteWaitInfo = false;
             {
                 std::lock_guard<std::mutex> guard(waitInfo->mutex);
-                if (!waitInfo->isAbandoned && !skipCallback && callback)
+                if (!waitInfo->isAbandoned && callback)
                     callback();
                 waitInfo->isCompleted = true;
                 deleteWaitInfo = waitInfo->isAbandoned;
@@ -666,36 +663,21 @@ void InfiniFrameWindow::CloseWebView() {
         m_impl->_webviewEnvironment.get()
         );
 
-    if (m_impl->_webviewWindow != nullptr) {
-        if (m_impl->_hasWebMessageReceivedToken) {
-            const HRESULT hr = m_impl->_webviewWindow->remove_WebMessageReceived(m_impl->_webMessageReceivedToken);
-            TraceTeardown(L"remove_WebMessageReceived hr=0x%08X", static_cast<unsigned>(hr));
-            m_impl->_hasWebMessageReceivedToken = false;
-        }
-
-        if (m_impl->_hasWebResourceRequestedToken) {
-            const HRESULT hr = m_impl->_webviewWindow->remove_WebResourceRequested(
-                m_impl->_webResourceRequestedTokenForCustomScheme
-                );
-            TraceTeardown(L"remove_WebResourceRequested hr=0x%08X", static_cast<unsigned>(hr));
-            m_impl->_hasWebResourceRequestedToken = false;
-        }
-
-        if (m_impl->_hasPermissionRequestedToken) {
-            const HRESULT hr = m_impl->_webviewWindow->remove_PermissionRequested(m_impl->_permissionRequestedToken);
-            TraceTeardown(L"remove_PermissionRequested hr=0x%08X", static_cast<unsigned>(hr));
-            m_impl->_hasPermissionRequestedToken = false;
-        }
-
-        const HRESULT stopHr = m_impl->_webviewWindow->Stop();
-        TraceTeardown(L"webview Stop hr=0x%08X", static_cast<unsigned>(stopHr));
-        m_impl->_webviewWindow = nullptr;
-    }
-
+    // Keep teardown non-blocking in WM_DESTROY path: Close() the controller first and
+    // avoid synchronous event unsubscription / Stop() calls that can stall shutdown.
     if (m_impl->_webviewController != nullptr) {
         m_impl->_webviewController->Close();
         m_impl->_webviewController = nullptr;
     }
+
+    m_impl->_webviewWindow = nullptr;
+
+    m_impl->_hasWebMessageReceivedToken = false;
+    m_impl->_hasWebResourceRequestedToken = false;
+    m_impl->_hasPermissionRequestedToken = false;
+    m_impl->_webMessageReceivedToken = {};
+    m_impl->_webResourceRequestedTokenForCustomScheme = {};
+    m_impl->_permissionRequestedToken = {};
 
     if (m_impl->_webviewEnvironment != nullptr) {
         m_impl->_webviewEnvironment = nullptr;
@@ -1254,8 +1236,6 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
         return;
 
     if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd))
-        return;
-    if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
         return;
 
     auto* waitInfo = new InvokeWaitInfo();
