@@ -119,55 +119,13 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Configure ARM64 WER LocalDumps
-                if: ${{ matrix.arch == 'arm64' }}
-                shell: pwsh
-                run: |
-                    $dumpFolder = Join-Path "${{ github.workspace }}" "artifacts\crash-dumps"
-                    New-Item -ItemType Directory -Path $dumpFolder -Force | Out-Null
-                    reg add "HKCU\Software\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d $dumpFolder /f
-                    reg add "HKCU\Software\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
-                    reg add "HKCU\Software\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpCount /t REG_DWORD /d 10 /f
-
             -   name: Run Tests
                 run: |
                     echo "Running tests on Windows..."
-                    if ("${{ matrix.arch }}" -eq "arm64") {
-                      $env:INFINIFRAME_TRACE_TEARDOWN = "1"
-                      $diagDir = Join-Path "${{ github.workspace }}" "artifacts\test-results\windows-arm64"
-                      New-Item -ItemType Directory -Path $diagDir -Force | Out-Null
-                      dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-                        --configuration Release `
-                        --no-build `
-                        --no-restore `
-                        -- `
-                        --diagnostic `
-                        --diagnostic-output-directory $diagDir `
-                        --diagnostic-synchronous-write `
-                        --diagnostic-verbosity Trace `
-                        --show-stdout All `
-                        --show-stderr All
-                    }
-                    else {
-                      dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-                        --configuration Release `
-                        --no-build `
-                        --no-restore
-                    }
-
-            -   name: Upload ARM64 Crash Diagnostics
-                if: ${{ always() && matrix.arch == 'arm64' }}
-                uses: actions/upload-artifact@v4
-                with:
-                    name: windows-arm64-crash-diagnostics
-                    if-no-files-found: ignore
-                    path: |
-                        artifacts/test-results/windows-arm64/**
-                        artifacts/crash-dumps/**
-                        **/TestResults/**
-                        **/*.dmp
-                        **/*.mdmp
-                        **/*.diag
+                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore
 
             -   name: Pack Tool E2E
                 if: always()
