@@ -10,21 +10,20 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
-    public required IInfiniFrameEventsStore EventsStore { get; init; }
+    public IInfiniFrameEventsStore EventsStore { get; }
     private IInfiniFrameWindow? Sender { get; set; }
     
-    // 
-    private CppClosedDelegate ClosedHandler  { get; set; }
-    private CppClosingDelegate ClosingHandler { get; set; }
-    private CppFocusInDelegate FocusInHandler  { get; set; }
-    private CppFocusOutDelegate FocusOutHandler  { get; set; }
-    private CppMaximizedDelegate MaximizedHandler  { get; set; }
-    private CppMinimizedDelegate MinimizedHandler  { get; set; }
-    private CppMovedDelegate MovedHandler  { get; set; }
-    private CppResizedDelegate ResizedHandler  { get; set; }
-    private CppRestoredDelegate RestoredHandler  { get; set; }
-    private CppWebMessageReceivedDelegate WebMessageReceivedHandler  { get; set; }
-    private CppWebResourceRequestedDelegate CustomSchemeHandler  { get; set; }
+    private CppClosedDelegate ClosedHandler  { get; }
+    private CppClosingDelegate ClosingHandler { get; }
+    private CppFocusInDelegate FocusInHandler  { get; }
+    private CppFocusOutDelegate FocusOutHandler  { get; }
+    private CppMaximizedDelegate MaximizedHandler  { get; }
+    private CppMinimizedDelegate MinimizedHandler  { get; }
+    private CppMovedDelegate MovedHandler  { get; }
+    private CppResizedDelegate ResizedHandler  { get; }
+    private CppRestoredDelegate RestoredHandler  { get; }
+    private CppWebMessageReceivedDelegate WebMessageReceivedHandler  { get; }
+    private CppWebResourceRequestedDelegate CustomSchemeHandler  { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
