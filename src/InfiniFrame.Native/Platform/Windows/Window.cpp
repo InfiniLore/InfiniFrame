@@ -707,6 +707,8 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 
 void InfiniFrameWindow::CloseWebView() {
     m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
+    const bool deferEnvironmentRelease =
+        m_impl->_isWebView2Initializing && m_impl->_webviewController == nullptr;
     TraceTeardown(
         L"CloseWebView begin instance=%p hwnd=%p controller=%p webview=%p env=%p",
         this,
@@ -732,12 +734,22 @@ void InfiniFrameWindow::CloseWebView() {
     m_impl->_webResourceRequestedTokenForCustomScheme = {};
     m_impl->_permissionRequestedToken = {};
 
-    if (m_impl->_webviewEnvironment != nullptr) {
+    if (m_impl->_webviewEnvironment != nullptr && !deferEnvironmentRelease) {
         m_impl->_webviewEnvironment = nullptr;
     }
 
     m_impl->_isInitialized = false;
-    m_impl->_isWebView2Initializing = false;
+    if (!deferEnvironmentRelease)
+        m_impl->_isWebView2Initializing = false;
+
+    if (deferEnvironmentRelease) {
+        TraceTeardown(
+            L"CloseWebView deferring environment release instance=%p env=%p",
+            this,
+            m_impl->_webviewEnvironment.get()
+            );
+    }
+
     TraceTeardown(L"CloseWebView end instance=%p", this);
 }
 
@@ -1439,6 +1451,7 @@ void InfiniFrameWindow::AttachWebView() {
             ) -> HRESULT {
                 if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
                     m_impl->_isWebView2Initializing = false;
+                    m_impl->_webviewEnvironment = nullptr;
                     TraceTeardown(L"CreateEnvironment callback while closing; ignoring");
                     return S_OK;
                 }
@@ -1469,6 +1482,11 @@ void InfiniFrameWindow::AttachWebView() {
                         ) ->
                         HRESULT {
                             if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
+                                if (controller != nullptr)
+                                    controller->Close();
+                                m_impl->_webviewController = nullptr;
+                                m_impl->_webviewWindow = nullptr;
+                                m_impl->_webviewEnvironment = nullptr;
                                 m_impl->_isWebView2Initializing = false;
                                 TraceTeardown(L"CreateController callback while closing; ignoring");
                                 return S_OK;
