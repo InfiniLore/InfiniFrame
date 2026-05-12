@@ -102,16 +102,19 @@ setup_display_mode() {
   export LIBGL_ALWAYS_SOFTWARE=1
   export GALLIUM_DRIVER=llvmpipe
   export MESA_GL_VERSION_OVERRIDE=3.3
-  export WEBKIT_DISABLE_COMPOSITING_MODE=1
   export NO_AT_BRIDGE=1
 
   if [[ "${USE_HOST_DISPLAY}" == "1" ]]; then
     echo "Using host DISPLAY mode"
     : "${DISPLAY:?DISPLAY must be set when USE_HOST_DISPLAY=1}"
+    export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-0}"
   else
     echo "Using internal virtual display mode (Xvfb + Mutter)"
+    export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-1}"
     start_virtual_display "${xvfb_log}" "${mutter_log}"
   fi
+
+  echo "Display env: XDG_SESSION_TYPE=${XDG_SESSION_TYPE:-<unset>}, DISPLAY=${DISPLAY:-<unset>}, WEBKIT_DISABLE_COMPOSITING_MODE=${WEBKIT_DISABLE_COMPOSITING_MODE}"
 }
 
 restore_solution_filter() {

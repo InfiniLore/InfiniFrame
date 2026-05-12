@@ -15,7 +15,6 @@ start_wayland_compositor() {
   export GDK_BACKEND=wayland
   export QT_QPA_PLATFORM=wayland
   export MOZ_ENABLE_WAYLAND=1
-  export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-1}"
 
   mkdir -p "${XDG_RUNTIME_DIR}"
   chmod 700 "${XDG_RUNTIME_DIR}"
@@ -67,6 +66,13 @@ setup_display_mode() {
   export GDK_BACKEND=wayland
   export QT_QPA_PLATFORM=wayland
   export MOZ_ENABLE_WAYLAND=1
+  if [[ "${USE_HOST_DISPLAY}" == "1" ]]; then
+    export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-0}"
+  elif [[ "${weston_backend}" == "x11-backend.so" ]]; then
+    export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-0}"
+  else
+    export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-1}"
+  fi
   if [[ "${USE_HOST_DISPLAY}" == "1" ]]; then
     unset DISPLAY || true
   fi
