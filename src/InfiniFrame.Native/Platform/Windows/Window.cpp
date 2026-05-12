@@ -4,7 +4,6 @@
 #include <condition_variable>
 #include <cstring>
 #include <mutex>
-#include <shared_mutex>
 #include <Shellscalingapi.h>
 #include <Shlwapi.h>
 #include <WebView2EnvironmentOptions.h>
@@ -79,11 +78,9 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 auto CLASS_NAME = L"InfiniFrame";
-std::shared_mutex hwndMapMutex;
 HINSTANCE _hInstance;
 thread_local HWND messageLoopRootWindowHandle = nullptr;
 wchar_t _webview2RuntimePath[MAX_PATH];
-std::map<HWND, InfiniFrameWindow*> hwndToInfiniFrame;
 
 namespace {
     static_assert(sizeof(wchar_t) == sizeof(char16_t));
@@ -138,9 +135,7 @@ namespace {
     }
 
     InfiniFrameWindow* LookupWindowInstance(const HWND hwnd) {
-        std::shared_lock<std::shared_mutex> lock(hwndMapMutex);
-        const auto it = hwndToInfiniFrame.find(hwnd);
-        return it != hwndToInfiniFrame.end() ? it->second : nullptr;
+        return reinterpret_cast<InfiniFrameWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     }
 }
 
@@ -368,11 +363,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         _hInstance, //Instance handle
         this //Additional application data
         );
-    {
-        std::unique_lock<std::shared_mutex> lock(hwndMapMutex);
-        hwndToInfiniFrame[m_impl->_hWnd] = this;
-    }
-
     if (initParams->WindowIconFile != nullptr) {
         SetIconFile(initParams->WindowIconFile);
     }
@@ -416,6 +406,12 @@ HWND InfiniFrameWindow::getHwnd() {
 
 LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {
     switch (uMsg) {
+        case WM_NCCREATE: {
+            const auto* createParams = reinterpret_cast<const CREATESTRUCT*>(lParam);
+            auto* instance = reinterpret_cast<InfiniFrameWindow*>(createParams->lpCreateParams);
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(instance));
+            return TRUE;
+        }
         case WM_CREATE: {
             EnableDarkMode(hwnd, true);
             if (IsDarkModeEnabled())
@@ -497,15 +493,15 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                 instance->CloseWebView();
                 instance->InvokeClosed();
             }
-            {
-                std::unique_lock<std::shared_mutex> lock(hwndMapMutex);
-                hwndToInfiniFrame.erase(hwnd);
-            }
             // Terminate the message loop of the thread that owns this window
             if (hwnd == messageLoopRootWindowHandle)
                 PostQuitMessage(0);
 
             return 0;
+        }
+        case WM_NCDESTROY: {
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
+            break;
         }
         case WM_USER_INVOKE: {
             auto callback = reinterpret_cast<ACTION>(wParam);
