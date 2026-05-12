@@ -20,6 +20,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     private int _shutdownRequested;
     private int _shutdownStarted;
+    private Delegate[] _nativeCallbackRoots = Array.Empty<Delegate>();
 
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
@@ -351,6 +352,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             }
 
             Events.OnWindowCreating();
+            RootNativeCallbackDelegates(startupParameters);
 
             // All C++ exceptions will bubble up to here.
             try {
@@ -375,6 +377,26 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         finally {
             CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
         }
+    }
+
+    private void RootNativeCallbackDelegates(InfiniFrameNativeParameters startupParameters) {
+        // Native stores function pointers for the lifetime of the window.
+        // Keep managed delegates strongly rooted to avoid GC reclaiming callback targets while native code still calls them.
+        var roots = new List<Delegate>(12);
+
+        if (startupParameters.ClosingHandler is not null) roots.Add(startupParameters.ClosingHandler);
+        if (startupParameters.ClosedHandler is not null) roots.Add(startupParameters.ClosedHandler);
+        if (startupParameters.FocusInHandler is not null) roots.Add(startupParameters.FocusInHandler);
+        if (startupParameters.FocusOutHandler is not null) roots.Add(startupParameters.FocusOutHandler);
+        if (startupParameters.ResizedHandler is not null) roots.Add(startupParameters.ResizedHandler);
+        if (startupParameters.MaximizedHandler is not null) roots.Add(startupParameters.MaximizedHandler);
+        if (startupParameters.RestoredHandler is not null) roots.Add(startupParameters.RestoredHandler);
+        if (startupParameters.MinimizedHandler is not null) roots.Add(startupParameters.MinimizedHandler);
+        if (startupParameters.MovedHandler is not null) roots.Add(startupParameters.MovedHandler);
+        if (startupParameters.WebMessageReceivedHandler is not null) roots.Add(startupParameters.WebMessageReceivedHandler);
+        if (startupParameters.CustomSchemeHandler is not null) roots.Add(startupParameters.CustomSchemeHandler);
+
+        _nativeCallbackRoots = roots.ToArray();
     }
 
     /// <summary>
