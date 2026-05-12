@@ -66,7 +66,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             Logger.LogDebug("Starting message loop for window.");
             Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
         }
-        catch (Exception ex) when (IsNonFatalException(ex)) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             int lastError = 0;
             if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
@@ -361,7 +361,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
                 Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in startupParameters));
             }
-            catch (Exception ex) when (IsNonFatalException(ex)) {
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 int lastError = 0;
                 if (OperatingSystem.IsWindows())
                     lastError = Marshal.GetLastWin32Error();
@@ -776,8 +776,5 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ZoomEnabled => InvokeUtility.InvokeAndReturn<bool>(this, InfiniFrameNative.GetZoomEnabled);
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
     #endregion
 }
