@@ -223,9 +223,6 @@ Additional compose targets and wrappers are available for local matrix validatio
 - `docker/compose/infiniframe-linux-arm64.yml` + `scripts/docker-linux-arm64-*.sh`
 - `docker/compose/infiniframe-linux-wayland.yml` + `scripts/docker-linux-wayland-*.sh`
 - `docker/compose/infiniframe-windows.yml` + `scripts/docker-windows-*.ps1`
-- `docker/compose/infiniframe-macos.yml` + `scripts/docker-macos-*.sh`
-
-`infiniframe-macos.yml` is an explicit placeholder. macOS runtime tests must run on a real macOS host/VM runner.
 
 ## Repo History
 
