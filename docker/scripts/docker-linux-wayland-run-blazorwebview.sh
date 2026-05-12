@@ -39,6 +39,7 @@ else
     echo "Rendering Weston to host X runner via DISPLAY=${DISPLAY_VALUE}."
     RUN_ARGS+=(
       -e WESTON_BACKEND=x11-backend.so
+      -e WESTON_ENABLE_XWAYLAND=0
       -e DISPLAY="${DISPLAY_VALUE}"
       -v /tmp/.X11-unix:/tmp/.X11-unix
     )

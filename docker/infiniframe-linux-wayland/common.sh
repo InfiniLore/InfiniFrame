@@ -6,6 +6,7 @@ source "/work/docker/infiniframe-linux/common.sh"
 start_wayland_compositor() {
   local weston_log="${1:-/tmp/weston.log}"
   local weston_backend="${WESTON_BACKEND:-headless-backend.so}"
+  local enable_xwayland="${WESTON_ENABLE_XWAYLAND:-1}"
   export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-$(id -un)}"
   export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
   export XDG_SESSION_TYPE=wayland
@@ -14,7 +15,7 @@ start_wayland_compositor() {
   export GDK_BACKEND=wayland
   export QT_QPA_PLATFORM=wayland
   export MOZ_ENABLE_WAYLAND=1
-  export WEBKIT_DISABLE_COMPOSITING_MODE=1
+  export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-1}"
 
   mkdir -p "${XDG_RUNTIME_DIR}"
   chmod 700 "${XDG_RUNTIME_DIR}"
@@ -23,12 +24,16 @@ start_wayland_compositor() {
     : "${DISPLAY:?DISPLAY must be set when WESTON_BACKEND=x11-backend.so}"
   fi
 
-  weston \
-    --backend="${weston_backend}" \
-    --socket="${WAYLAND_DISPLAY}" \
-    --idle-time=0 \
-    --xwayland \
-    > "${weston_log}" 2>&1 &
+  local weston_args=(
+    "--backend=${weston_backend}"
+    "--socket=${WAYLAND_DISPLAY}"
+    "--idle-time=0"
+  )
+  if [[ "${enable_xwayland}" == "1" ]]; then
+    weston_args+=("--xwayland")
+  fi
+
+  weston "${weston_args[@]}" > "${weston_log}" 2>&1 &
   WESTON_PID=$!
   MUTTER_PID="${WESTON_PID}"
 
@@ -37,6 +42,12 @@ start_wayland_compositor() {
     cat "${weston_log}" || true
     exit 1
   }
+
+  if ! kill -0 "${WESTON_PID}" >/dev/null 2>&1; then
+    echo "Weston exited unexpectedly"
+    cat "${weston_log}" || true
+    exit 1
+  fi
 }
 
 setup_display_mode() {
@@ -70,10 +81,19 @@ setup_display_mode() {
       exit 1
     fi
   else
-    echo "Using internal virtual Wayland mode (Weston headless)"
+    echo "Using internal virtual Wayland mode (Weston)"
+    echo "Weston backend: ${weston_backend}"
     if [[ "${weston_backend}" == "x11-backend.so" ]]; then
       : "${DISPLAY:?DISPLAY must be set when WESTON_BACKEND=x11-backend.so}"
     fi
     start_wayland_compositor "${weston_log}"
+    # Keep DISPLAY when Weston uses x11-backend (nested/X runner mode), because
+    # some subprocesses in the WebKit stack may still rely on X access even when
+    # the main GTK client backend is forced to Wayland.
+    if [[ "${weston_backend}" != "x11-backend.so" ]]; then
+      unset DISPLAY || true
+    fi
   fi
+
+  echo "Display env: XDG_SESSION_TYPE=${XDG_SESSION_TYPE}, GDK_BACKEND=${GDK_BACKEND}, WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-}, DISPLAY=${DISPLAY:-<unset>}, WEBKIT_DISABLE_COMPOSITING_MODE=${WEBKIT_DISABLE_COMPOSITING_MODE}"
 }

@@ -8,11 +8,11 @@ SOLUTION="${SOLUTION:-InfiniFrame.slnx}"
 
 init_common_defaults
 setup_cleanup_trap
-setup_display_mode "/tmp/weston-example.log"
 restore_solution_filter "${SOLUTION}"
 build_native_project
 build_solution_filter "${SOLUTION}" "tests"
 
+setup_display_mode "/tmp/weston-example.log"
 echo "Running Blazor Webview Example..."
 dotnet run \
   --project examples/InfiniFrameExample.BlazorWebView/InfiniFrameExample.BlazorWebView.csproj \
