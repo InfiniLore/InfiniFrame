@@ -102,7 +102,7 @@ public class WindowTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
-    [TimeoutUtility.WithDefaultTimeout(1_000)]
+    [TimeoutUtility.WithDefaultTimeout(6_000)]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task IsClosed_TracksWindowState(CancellationToken ct = default) {
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
@@ -111,7 +111,10 @@ public class WindowTests {
         await Assert.That(window.IsClosed).IsFalse();
 
         window.Close();
-        await Task.Delay(1_000, ct);
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (!window.IsClosed && DateTime.UtcNow < timeoutAt) {
+            await Task.Delay(50, ct);
+        }
 
         await Assert.That(window.IsClosed).IsTrue();
     }

@@ -3,7 +3,11 @@
 #include <chrono>
 #include <comdef.h>
 #include <condition_variable>
+#include <cstdlib>
+#include <cstdarg>
+#include <cstdio>
 #include <cstring>
+#include <cwchar>
 #include <mutex>
 #include <Shellscalingapi.h>
 #include <Shlwapi.h>
@@ -43,6 +47,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _notificationsEnabled = false;
     bool _isInitialized = false;
     bool _isWebView2Initializing = false;
+    std::atomic<bool> _isClosingOrClosed = false;
     bool _centerOnInitialize = false;
     bool _chromeless = false;
     bool _fullScreen = false;
@@ -70,10 +75,14 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
     EventRegistrationToken _webMessageReceivedToken = {};
     EventRegistrationToken _webResourceRequestedTokenForCustomScheme = {};
+    EventRegistrationToken _permissionRequestedToken = {};
     EventRegistrationToken _windowClosedToken = {};
     EventRegistrationToken _windowClosingToken = {};
     EventRegistrationToken _documentTitleChangedToken = {};
     EventRegistrationToken _coreWebView2InitializedToken = {};
+    bool _hasWebMessageReceivedToken = false;
+    bool _hasWebResourceRequestedToken = false;
+    bool _hasPermissionRequestedToken = false;
 
     std::unique_ptr<WinToastHandler> _toastHandler;
 };
@@ -87,6 +96,42 @@ std::mutex webview2RuntimePathMutex;
 
 namespace {
     static_assert(sizeof(wchar_t) == sizeof(char16_t));
+
+    bool IsTeardownTraceEnabled() {
+        static const bool enabled = [] {
+            wchar_t value[32] = {};
+            const DWORD len = GetEnvironmentVariableW(L"INFINIFRAME_TRACE_TEARDOWN", value, _countof(value));
+            if (len == 0 || len >= _countof(value))
+                return false;
+
+            return _wcsicmp(value, L"1") == 0
+                || _wcsicmp(value, L"true") == 0
+                || _wcsicmp(value, L"yes") == 0
+                || _wcsicmp(value, L"on") == 0;
+        }();
+
+        return enabled;
+    }
+
+    void TraceTeardown(const wchar_t* format, ...) {
+        if (!IsTeardownTraceEnabled())
+            return;
+
+        wchar_t message[1024] = {};
+        va_list args;
+        va_start(args, format);
+        _vsnwprintf_s(message, _countof(message), _TRUNCATE, format, args);
+        va_end(args);
+
+        const std::wstring line = std::format(
+            L"[InfiniFrame][teardown][tid={}] {}\n",
+            GetCurrentThreadId(),
+            message
+            );
+        OutputDebugStringW(line.c_str());
+        std::fwprintf(stderr, L"%ls", line.c_str());
+        std::fflush(stderr);
+    }
 
     std::wstring Utf8ToWide(const AutoString source) {
         if (source == nullptr)
@@ -497,6 +542,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         case WM_CLOSE: {
             InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
             if (instance) {
+                TraceTeardown(L"WM_CLOSE hwnd=%p instance=%p", hwnd, instance);
                 bool doNotClose = instance->InvokeClose();
 
                 if (!doNotClose) {
@@ -509,8 +555,11 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
         case WM_DESTROY: {
             InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
             if (instance) {
+                instance->m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
+                TraceTeardown(L"WM_DESTROY begin hwnd=%p instance=%p", hwnd, instance);
                 instance->CloseWebView();
                 instance->InvokeClosed();
+                TraceTeardown(L"WM_DESTROY end hwnd=%p instance=%p", hwnd, instance);
             }
             // Terminate the message loop of the thread that owns this window
             if (hwnd == messageLoopRootWindowHandle)
@@ -519,15 +568,24 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_NCDESTROY: {
+            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
+            if (instance) {
+                instance->m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
+                instance->m_impl->_hWnd = nullptr;
+            }
+            TraceTeardown(L"WM_NCDESTROY hwnd=%p instance=%p", hwnd, instance);
             SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
             break;
         }
         case WM_USER_INVOKE: {
             auto callback = reinterpret_cast<ACTION>(wParam);
             auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
+            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
+            const bool skipCallback = instance != nullptr
+                && instance->m_impl->_isClosingOrClosed.load(std::memory_order_acquire);
 
             if (waitInfo == nullptr) {
-                if (callback)
+                if (callback && !skipCallback)
                     callback();
                 return 0;
             }
@@ -535,7 +593,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             bool deleteWaitInfo = false;
             {
                 std::lock_guard<std::mutex> guard(waitInfo->mutex);
-                if (!waitInfo->isAbandoned && callback)
+                if (!waitInfo->isAbandoned && !skipCallback && callback)
                     callback();
                 waitInfo->isCompleted = true;
                 deleteWaitInfo = waitInfo->isAbandoned;
@@ -598,19 +656,54 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 }
 
 void InfiniFrameWindow::CloseWebView() {
+    m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
+    TraceTeardown(
+        L"CloseWebView begin instance=%p hwnd=%p controller=%p webview=%p env=%p",
+        this,
+        m_impl->_hWnd,
+        m_impl->_webviewController.get(),
+        m_impl->_webviewWindow.get(),
+        m_impl->_webviewEnvironment.get()
+        );
+
+    if (m_impl->_webviewWindow != nullptr) {
+        if (m_impl->_hasWebMessageReceivedToken) {
+            const HRESULT hr = m_impl->_webviewWindow->remove_WebMessageReceived(m_impl->_webMessageReceivedToken);
+            TraceTeardown(L"remove_WebMessageReceived hr=0x%08X", static_cast<unsigned>(hr));
+            m_impl->_hasWebMessageReceivedToken = false;
+        }
+
+        if (m_impl->_hasWebResourceRequestedToken) {
+            const HRESULT hr = m_impl->_webviewWindow->remove_WebResourceRequested(
+                m_impl->_webResourceRequestedTokenForCustomScheme
+                );
+            TraceTeardown(L"remove_WebResourceRequested hr=0x%08X", static_cast<unsigned>(hr));
+            m_impl->_hasWebResourceRequestedToken = false;
+        }
+
+        if (m_impl->_hasPermissionRequestedToken) {
+            const HRESULT hr = m_impl->_webviewWindow->remove_PermissionRequested(m_impl->_permissionRequestedToken);
+            TraceTeardown(L"remove_PermissionRequested hr=0x%08X", static_cast<unsigned>(hr));
+            m_impl->_hasPermissionRequestedToken = false;
+        }
+
+        const HRESULT stopHr = m_impl->_webviewWindow->Stop();
+        TraceTeardown(L"webview Stop hr=0x%08X", static_cast<unsigned>(stopHr));
+        m_impl->_webviewWindow = nullptr;
+    }
+
     if (m_impl->_webviewController != nullptr) {
         m_impl->_webviewController->Close();
         m_impl->_webviewController = nullptr;
     }
 
-    if (m_impl->_webviewWindow != nullptr) {
-        m_impl->_webviewWindow->Stop();
-        m_impl->_webviewWindow = nullptr;
-    }
-
     if (m_impl->_webviewEnvironment != nullptr) {
         m_impl->_webviewEnvironment = nullptr;
     }
+
+    m_impl->_isInitialized = false;
+    m_impl->_isWebView2Initializing = false;
+    TraceTeardown(L"CloseWebView end instance=%p", this);
 }
 
 
@@ -1104,13 +1197,25 @@ void InfiniFrameWindow::WaitForExit() {
     }
 
     messageLoopRootWindowHandle = m_impl->_hWnd;
+    TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, m_impl->_hWnd);
 
     // Run the message loop
     MSG msg = {};
-    while (GetMessage(&msg, nullptr, 0, 0)) {
+    while (true) {
+        const int getMessageResult = GetMessage(&msg, nullptr, 0, 0);
+        if (getMessageResult == -1) {
+            TraceTeardown(L"WaitForExit GetMessage failed err=%lu", GetLastError());
+            break;
+        }
+        if (getMessageResult == 0)
+            break;
+
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    messageLoopRootWindowHandle = nullptr;
+    TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, m_impl->_hWnd);
 }
 
 
@@ -1149,6 +1254,8 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
         return;
 
     if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd))
+        return;
+    if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
         return;
 
     auto* waitInfo = new InvokeWaitInfo();
@@ -1197,6 +1304,13 @@ std::wstring InfiniFrameWindow::ToUTF16String(const AutoString source) const {
 }
 
 void InfiniFrameWindow::AttachWebView() {
+    if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+        return;
+
+    if (m_impl->_isWebView2Initializing || m_impl->_isInitialized)
+        return;
+    m_impl->_isWebView2Initializing = true;
+
     std::wstring configuredRuntimePath;
     {
         std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
@@ -1280,6 +1394,7 @@ void InfiniFrameWindow::AttachWebView() {
             L"WebView2 Runtime Too Old",
             MB_OK | MB_ICONERROR
             );
+        m_impl->_isWebView2Initializing = false;
         return;
     }
 
@@ -1291,31 +1406,54 @@ void InfiniFrameWindow::AttachWebView() {
         options.Get(),
         Callback<
             ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-            [&](
+            [this](
             const HRESULT result,
             ICoreWebView2Environment* env
             ) -> HRESULT {
+                if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
+                    m_impl->_isWebView2Initializing = false;
+                    TraceTeardown(L"CreateEnvironment callback while closing; ignoring");
+                    return S_OK;
+                }
                 if (result != S_OK) {
+                    m_impl->_isWebView2Initializing = false;
+                    TraceTeardown(L"CreateEnvironment callback failed hr=0x%08X", static_cast<unsigned>(result));
                     return result;
+                }
+                if (env == nullptr) {
+                    m_impl->_isWebView2Initializing = false;
+                    return E_POINTER;
                 }
                 HRESULT envResult = env->QueryInterface(
                     &m_impl->_webviewEnvironment
                     );
                 if (envResult != S_OK) {
+                    m_impl->_isWebView2Initializing = false;
                     return envResult;
                 }
 
-                env->CreateCoreWebView2Controller(
+                const HRESULT createControllerHr = env->CreateCoreWebView2Controller(
                     m_impl->_hWnd,
                     Callback<
                         ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                        [&](
+                        [this](
                         const HRESULT result,
                         ICoreWebView2Controller* controller
                         ) ->
                         HRESULT {
+                            if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
+                                m_impl->_isWebView2Initializing = false;
+                                TraceTeardown(L"CreateController callback while closing; ignoring");
+                                return S_OK;
+                            }
                             if (result != S_OK) {
+                                m_impl->_isWebView2Initializing = false;
+                                TraceTeardown(L"CreateController callback failed hr=0x%08X", static_cast<unsigned>(result));
                                 return result;
+                            }
+                            if (controller == nullptr) {
+                                m_impl->_isWebView2Initializing = false;
+                                return E_POINTER;
                             }
 
                             HRESULT envResult = controller->
@@ -1324,9 +1462,14 @@ void InfiniFrameWindow::AttachWebView() {
                                     _webviewController
                                     );
                             if (envResult != S_OK) {
+                                m_impl->_isWebView2Initializing = false;
                                 return envResult;
                             }
                             m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
+                            if (!m_impl->_webviewWindow) {
+                                m_impl->_isWebView2Initializing = false;
+                                return E_FAIL;
+                            }
 
                             const auto js_wide = Embedded::InfiniFrameJsUtf16();
                             OutputDebugStringW(std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js_wide.size()).c_str());
@@ -1394,11 +1537,14 @@ void InfiniFrameWindow::AttachWebView() {
                                     add_WebMessageReceived(
                                         Callback<
                                             ICoreWebView2WebMessageReceivedEventHandler>(
-                                            [&](
+                                            [this](
                                             ICoreWebView2*,
                                             ICoreWebView2WebMessageReceivedEventArgs
                                             * args
                                             ) -> HRESULT {
+                                                if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+                                                    return S_OK;
+
                                                 wil::unique_cotaskmem_string
                                                     message;
                                                 wil::unique_cotaskmem_string
@@ -1434,6 +1580,8 @@ void InfiniFrameWindow::AttachWebView() {
                                     ).Get(),
                                         &webMessageToken
                                         );
+                            m_impl->_webMessageReceivedToken = webMessageToken;
+                            m_impl->_hasWebMessageReceivedToken = true;
 
                             EventRegistrationToken
                                 webResourceRequestedToken;
@@ -1456,11 +1604,14 @@ void InfiniFrameWindow::AttachWebView() {
                                     add_WebResourceRequested(
                                         Callback<
                                             ICoreWebView2WebResourceRequestedEventHandler>(
-                                            [&](
+                                            [this](
                                             ICoreWebView2*,
                                             ICoreWebView2WebResourceRequestedEventArgs
                                             * args
                                             ) {
+                                                if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+                                                    return S_OK;
+
                                                 wil::com_ptr<
                                                         ICoreWebView2WebResourceRequest>
                                                     req;
@@ -1669,6 +1820,8 @@ void InfiniFrameWindow::AttachWebView() {
                                             ).Get(),
                                         &webResourceRequestedToken
                                         );
+                            m_impl->_webResourceRequestedTokenForCustomScheme = webResourceRequestedToken;
+                            m_impl->_hasWebResourceRequestedToken = true;
 
                             EventRegistrationToken
                                 permissionRequestedToken;
@@ -1676,11 +1829,14 @@ void InfiniFrameWindow::AttachWebView() {
                                     add_PermissionRequested(
                                         Callback<
                                             ICoreWebView2PermissionRequestedEventHandler>(
-                                            [&](
+                                            [this](
                                             ICoreWebView2*,
                                             ICoreWebView2PermissionRequestedEventArgs
                                             * args
                                             ) -> HRESULT {
+                                                if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+                                                    return S_OK;
+
                                                 if (m_impl->
                                                     _grantBrowserPermissions)
                                                     args->
@@ -1693,6 +1849,8 @@ void InfiniFrameWindow::AttachWebView() {
                                         .Get(),
                                         &permissionRequestedToken
                                         );
+                            m_impl->_permissionRequestedToken = permissionRequestedToken;
+                            m_impl->_hasPermissionRequestedToken = true;
 
                             if (m_impl->_contextMenuEnabled ==
                                 false)
@@ -1715,8 +1873,10 @@ void InfiniFrameWindow::AttachWebView() {
                             HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
                                 js_wide.c_str(),
                                 Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
-                                    [nav](HRESULT errorCode, LPCWSTR id) -> HRESULT {
+                                    [nav, this](HRESULT errorCode, LPCWSTR id) -> HRESULT {
                                         OutputDebugStringW(std::format(L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: hr=0x{:08X} id={}\n", (unsigned)errorCode, id ? id : L"(null)").c_str());
+                                        if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+                                            return S_OK;
                                         nav->navigate();
                                         return S_OK;
                                     }
@@ -1737,16 +1897,22 @@ void InfiniFrameWindow::AttachWebView() {
                             if (m_impl->_topmost)
                                 SetTopmost(true);
 
+                            m_impl->_isInitialized = true;
+                            m_impl->_isWebView2Initializing = false;
                             return S_OK;
                         }
                         ).Get()
                     );
-                return S_OK;
+                if (FAILED(createControllerHr))
+                    m_impl->_isWebView2Initializing = false;
+
+                return createControllerHr;
             }
             ).Get()
         );
 
     if (envResult != S_OK) {
+        m_impl->_isWebView2Initializing = false;
         _com_error err(envResult);
         LPCTSTR errMsg = err.ErrorMessage();
         MessageBox(m_impl->_hWnd, errMsg, L"Error instantiating webview", MB_OK);
