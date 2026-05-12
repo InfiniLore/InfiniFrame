@@ -186,7 +186,6 @@ jobs:
                       --configuration Release `
                       --no-build `
                       --no-restore `
-                      -p:Platform=${{ matrix.arch }} `
                       --results-directory artifacts/testresults/arm64-infiniframetests `
                       --output Detailed `
                       --show-stderr All `
