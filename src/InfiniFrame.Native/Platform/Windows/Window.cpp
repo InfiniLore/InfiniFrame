@@ -27,7 +27,6 @@
 #pragma comment(lib, "Urlmon.lib")
 
 #define WM_USER_INVOKE (WM_USER + 0x0002)
-#define WM_USER_SET_OWNER (WM_USER + 0x0003)
 
 using namespace WinToastLib;
 using namespace Microsoft::WRL;
@@ -540,12 +539,6 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                 if (deleteWaitInfo)
                     delete waitInfo;
             }
-            return 0;
-        }
-        case WM_USER_SET_OWNER: {
-            auto ownerHwnd = reinterpret_cast<HWND>(wParam);
-            if (ownerHwnd != nullptr && IsWindow(ownerHwnd) && ownerHwnd != hwnd)
-                SetWindowLongPtr(hwnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(ownerHwnd));
             return 0;
         }
         case WM_GETMINMAXINFO: {
@@ -1096,6 +1089,14 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
 }
 
 void InfiniFrameWindow::WaitForExit() {
+    if (m_impl->_pendingOwnerHwnd != nullptr
+        && m_impl->_hWnd != nullptr
+        && m_impl->_pendingOwnerHwnd != m_impl->_hWnd
+        && IsWindow(m_impl->_pendingOwnerHwnd)
+        && IsWindow(m_impl->_hWnd)) {
+        SetWindowLongPtr(m_impl->_hWnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(m_impl->_pendingOwnerHwnd));
+    }
+
     messageLoopRootWindowHandle = m_impl->_hWnd;
 
     // Run the message loop
@@ -1852,17 +1853,6 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
         ShowWindow(m_impl->_hWnd, SW_SHOWDEFAULT);
 
     UpdateWindow(m_impl->_hWnd);
-
-    // Apply owner asynchronously after message pumping starts on the child UI thread.
-    // This avoids create-time cross-thread owner interactions on ARM64.
-    if (m_impl->_pendingOwnerHwnd != nullptr && IsWindow(m_impl->_pendingOwnerHwnd)) {
-        PostMessage(
-            m_impl->_hWnd,
-            WM_USER_SET_OWNER,
-            reinterpret_cast<WPARAM>(m_impl->_pendingOwnerHwnd),
-            0
-        );
-    }
 
     // WebView2 must be created after the window is visible.
     if (!m_impl->_webviewController) {
