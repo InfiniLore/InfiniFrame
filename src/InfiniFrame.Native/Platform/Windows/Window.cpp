@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <comdef.h>
 #include <condition_variable>
@@ -79,9 +80,10 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 auto CLASS_NAME = L"InfiniFrame";
-HINSTANCE _hInstance;
+std::atomic<HINSTANCE> _hInstance{nullptr};
 thread_local HWND messageLoopRootWindowHandle = nullptr;
 wchar_t _webview2RuntimePath[MAX_PATH];
+std::mutex webview2RuntimePathMutex;
 
 namespace {
     static_assert(sizeof(wchar_t) == sizeof(char16_t));
@@ -204,7 +206,7 @@ namespace detail {
 void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
     InitDarkModeSupport();
 
-    _hInstance = hInstance;
+    _hInstance.store(hInstance, std::memory_order_release);
 
     // Register the window class
     WNDCLASSEX wcx;
@@ -364,6 +366,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_pendingOwnerHwnd = parentWindowHandle;
 
     //Create the window
+    const HINSTANCE windowInstance = _hInstance.load(std::memory_order_acquire);
     m_impl->_hWnd = CreateWindowEx(
         initParams->Transparent ? WS_EX_LAYERED : 0, //WS_EX_OVERLAPPEDWINDOW, //An optional extended window style.
         CLASS_NAME, //Window class
@@ -375,7 +378,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
         nullptr, //Parent window handle is set after creation via GWLP_HWNDPARENT to avoid cross-thread create-time interactions.
         nullptr, //Menu
-        _hInstance, //Instance handle
+        windowInstance, //Instance handle
         this //Additional application data
         );
 
@@ -523,22 +526,25 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             auto callback = reinterpret_cast<ACTION>(wParam);
             auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
 
-            if (callback)
-                callback();
-
-            if (waitInfo != nullptr) {
-                bool deleteWaitInfo = false;
-                {
-                    std::lock_guard<std::mutex> guard(waitInfo->mutex);
-                    waitInfo->isCompleted = true;
-                    deleteWaitInfo = waitInfo->isAbandoned;
-                }
-
-                waitInfo->completionNotifier.notify_one();
-
-                if (deleteWaitInfo)
-                    delete waitInfo;
+            if (waitInfo == nullptr) {
+                if (callback)
+                    callback();
+                return 0;
             }
+
+            bool deleteWaitInfo = false;
+            {
+                std::lock_guard<std::mutex> guard(waitInfo->mutex);
+                if (!waitInfo->isAbandoned && callback)
+                    callback();
+                waitInfo->isCompleted = true;
+                deleteWaitInfo = waitInfo->isAbandoned;
+            }
+
+            waitInfo->completionNotifier.notify_one();
+
+            if (deleteWaitInfo)
+                delete waitInfo;
             return 0;
         }
         case WM_GETMINMAXINFO: {
@@ -1163,7 +1169,17 @@ void InfiniFrameWindow::Invoke(ACTION callback) {
         );
 
     if (!completed) {
-        waitInfo->isAbandoned = true;
+        bool deleteWaitInfo = false;
+        if (waitInfo->isCompleted)
+            deleteWaitInfo = true;
+        else
+            waitInfo->isAbandoned = true;
+
+        uLock.unlock();
+
+        if (deleteWaitInfo)
+            delete waitInfo;
+
         OutputDebugStringW(L"InfiniFrameWindow::Invoke timed out waiting for UI thread callback.\n");
         return;
     }
@@ -1181,8 +1197,12 @@ std::wstring InfiniFrameWindow::ToUTF16String(const AutoString source) const {
 }
 
 void InfiniFrameWindow::AttachWebView() {
-    size_t runtimePathLen = wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath));
-    PCWSTR runtimePath = runtimePathLen > 0 ? &_webview2RuntimePath[0] : nullptr;
+    std::wstring configuredRuntimePath;
+    {
+        std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
+        configuredRuntimePath = _webview2RuntimePath;
+    }
+    PCWSTR runtimePath = configuredRuntimePath.empty() ? nullptr : configuredRuntimePath.c_str();
 
     std::wstring startupString;
     if (!m_impl->_userAgent.empty())
@@ -1845,6 +1865,7 @@ void InfiniFrameWindow::SetWebView2RuntimePath(const AutoString pathToWebView2) 
         return;
 
     std::wstring widePath = Utf8ToWide(pathToWebView2);
+    std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
     wcsncpy_s(_webview2RuntimePath, widePath.c_str(), _countof(_webview2RuntimePath));
 }
 
@@ -1856,7 +1877,12 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
 
     // WebView2 must be created after the window is visible.
     if (!m_impl->_webviewController) {
-        if (wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath)) > 0 || EnsureWebViewIsInstalled())
+        bool hasConfiguredRuntimePath = false;
+        {
+            std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
+            hasConfiguredRuntimePath = wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath)) > 0;
+        }
+        if (hasConfiguredRuntimePath || EnsureWebViewIsInstalled())
             AttachWebView();
         else
             exit(0);
