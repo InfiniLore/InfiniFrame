@@ -19,9 +19,9 @@
   <ItemGroup>
     <PackageVersion Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.85.0" />
     <PackageVersion Include="JetBrains.Annotations" Version="2025.2.4" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="10.0.8" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="10.0.7" />
-    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.8" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="10.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.7" />
