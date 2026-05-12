@@ -359,6 +359,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         normalizedWidth = initParams->MinWidth;
 
 
+    const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->_parent);
+
     //Create the window
     m_impl->_hWnd = CreateWindowEx(
         initParams->Transparent ? WS_EX_LAYERED : 0, //WS_EX_OVERLAPPEDWINDOW, //An optional extended window style.
@@ -369,11 +371,14 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         // Size and position
         normalizedLeft, normalizedTop, normalizedWidth, normalizedHeight,
 
-        ResolveParentWindowHandle(m_impl->_parent), //Parent window handle
+        nullptr, //Parent window handle is set after creation via GWLP_HWNDPARENT to avoid cross-thread create-time interactions.
         nullptr, //Menu
         _hInstance, //Instance handle
         this //Additional application data
         );
+
+    if (m_impl->_hWnd != nullptr && parentWindowHandle != nullptr)
+        SetWindowLongPtr(m_impl->_hWnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(parentWindowHandle));
     if (initParams->WindowIconFile != nullptr) {
         SetIconFile(initParams->WindowIconFile);
     }

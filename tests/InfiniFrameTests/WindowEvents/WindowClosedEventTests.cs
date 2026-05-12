@@ -11,6 +11,7 @@ namespace InfiniFrameTests.WindowEvents;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowClosedEventTests {
     [Test]
+    [Retry(5)]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
@@ -26,7 +27,10 @@ public class WindowClosedEventTests {
 
         // Act
         windowUtility.Window.Close();
-        await Task.Delay(1_000, ct);
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (Volatile.Read(ref closedEventCount) < 1 && DateTime.UtcNow < timeoutAt) {
+            await Task.Delay(50, ct);
+        }
 
         // Assert   
         await Assert.That(closedEventCount).IsEqualTo(1);

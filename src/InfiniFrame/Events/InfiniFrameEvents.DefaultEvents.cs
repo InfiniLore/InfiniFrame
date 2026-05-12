@@ -26,6 +26,11 @@ public partial class InfiniFrameEvents {
 
         window.Logger.LogDebug("Closing child windows");
         foreach (IInfiniFrameWindow childWindow in childWindows) {
+            // Child windows created via SetParentWindow are now natively parented on each platform.
+            // Avoid issuing a second close request while native parent teardown is already in progress.
+            if (ReferenceEquals(childWindow.Configuration.ParentWindow, window))
+                continue;
+
             childWindow.Close();
         }
     }

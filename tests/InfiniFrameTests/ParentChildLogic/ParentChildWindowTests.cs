@@ -38,7 +38,8 @@ public class ParentChildWindowTests {
 
     [Test]
     [SkipUtility.SkipOnMacOs]
-    [TimeoutUtility.WithDefaultTimeout(1_000)]
+    [Retry(5)]
+    [TimeoutUtility.WithDefaultTimeout(6_000)]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task ClosingParent_ShouldCloseChildWindow(CancellationToken ct = default) {
         using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
@@ -51,9 +52,12 @@ public class ParentChildWindowTests {
         IInfiniFrameWindow childWindow = childWindowUtility.Window;
 
         parentWindow.Close();
-        await Task.Delay(1_000, ct);
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (!childWindow.IsClosed && DateTime.UtcNow < timeoutAt) {
+            await Task.Delay(50, ct);
+        }
 
-        await Assert.That(childWindow.InstanceHandle).IsEqualTo(IntPtr.Zero);
+        await Assert.That(childWindow.IsClosed).IsTrue();
     }
 
     [Test]

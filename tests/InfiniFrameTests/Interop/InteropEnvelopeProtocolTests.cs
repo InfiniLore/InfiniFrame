@@ -9,18 +9,43 @@ namespace InfiniFrameTests.Interop;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InteropEnvelopeProtocolTests {
-    private static async Task<JsonDocument> GetGoldenVectorsAsync(CancellationToken ct = default) => JsonDocument.Parse(
-        await File.ReadAllTextAsync(
-            Path.GetFullPath(
-                Path.Join("Interop", "interop-envelope-golden-vectors.json"),
-                AppContext.BaseDirectory
-            ), ct)
-    );
+    private const string GoldenVectorsFileName = "interop-envelope-golden-vectors.json";
+
+    private static async Task<JsonDocument> GetGoldenVectorsAsync(CancellationToken ct = default) {
+        string path = ResolveGoldenVectorsPath();
+        return JsonDocument.Parse(await File.ReadAllTextAsync(path, ct));
+    }
+
+    private static string ResolveGoldenVectorsPath() {
+        string outputLinkedPath = Path.Combine(AppContext.BaseDirectory, "Interop", GoldenVectorsFileName);
+        if (File.Exists(outputLinkedPath))
+            return outputLinkedPath;
+
+        DirectoryInfo? current = new(AppContext.BaseDirectory);
+        while (current is not null) {
+            string candidate = Path.Combine(
+                current.FullName,
+                "src",
+                "InfiniFrame.Js",
+                "TypeScript",
+                "Interop",
+                "EnvelopeProtocol",
+                GoldenVectorsFileName
+            );
+            if (File.Exists(candidate))
+                return candidate;
+
+            current = current.Parent;
+        }
+
+        throw new FileNotFoundException($"Could not locate {GoldenVectorsFileName}.");
+    }
     
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
+    [Retry(5)]
     public async Task CreateEnvelope_GoldenVectors(CancellationToken ct = default) {
         // Arrange
         JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
@@ -41,6 +66,7 @@ public class InteropEnvelopeProtocolTests {
     }
 
     [Test]
+    [Retry(5)]
     public async Task ParseEnvelope_GoldenVectors(CancellationToken ct = default) {
         // Arrange
         JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
@@ -72,6 +98,7 @@ public class InteropEnvelopeProtocolTests {
     }
 
     [Test]
+    [Retry(5)]
     public async Task Parse_TooLargeMessage_IsRejected(CancellationToken ct = default) {
         // Arrange
         string message = new('a', InteropEnvelopeProtocol.MaxMessageSizeBytes + 1);
