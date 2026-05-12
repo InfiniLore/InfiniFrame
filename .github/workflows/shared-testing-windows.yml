@@ -126,7 +126,7 @@ jobs:
                     New-ItemProperty -Path $werBase -Name DumpType -PropertyType DWord -Value 2 -Force | Out-Null
                     New-ItemProperty -Path $werBase -Name DumpCount -PropertyType DWord -Value 20 -Force | Out-Null
 
-                    foreach ($exe in @("testhost.exe", "dotnet.exe")) {
+                    foreach ($exe in @("testhost.exe", "InfiniFrameTests.exe", "dotnet.exe")) {
                       $exeKey = Join-Path $werBase $exe
                       New-Item -Path $exeKey -Force | Out-Null
                       New-ItemProperty -Path $exeKey -Name DumpFolder -PropertyType ExpandString -Value $dumpRoot -Force | Out-Null
@@ -223,7 +223,7 @@ jobs:
 
             -   name: Upload ARM64 Crash Diagnostics
                 if: always() && matrix.arch == 'arm64'
-                uses: actions/upload-artifact@v7
+                uses: actions/upload-artifact@v4
                 with:
                     name: windows-arm64-crash-diagnostics
                     if-no-files-found: warn
