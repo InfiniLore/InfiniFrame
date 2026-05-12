@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS node
+FROM node:24-bookworm-slim AS node
 FROM mcr.microsoft.com/dotnet/sdk:10.0
 
 ENV DEBIAN_FRONTEND=noninteractive
