@@ -20,6 +20,7 @@ public class WindowClosedEventTests {
         int closedEventCount = 0;
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder
             .RegisterWindowClosedHandler(_ => {
+                // ReSharper disable once AccessToModifiedClosure
                 Interlocked.Increment(ref closedEventCount);
             })
             ,ct
