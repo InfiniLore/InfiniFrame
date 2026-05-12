@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrameTests.Shared;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace InfiniFrameTests.ParentChildLogic;
@@ -12,14 +13,45 @@ namespace InfiniFrameTests.ParentChildLogic;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ParentChildWindowTests {
     private const uint GwOwner = 4;
+    private static int _diagnosticsPrinted;
 
     [DllImport("user32.dll", EntryPoint = "GetWindow", SetLastError = true)]
     private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
+
+    private static void WriteDiagnostics(string context) {
+        Console.Error.WriteLine(
+            $"[ParentChildWindowTests] {context} pid={Environment.ProcessId} " +
+            $"framework={RuntimeInformation.FrameworkDescription} os={RuntimeInformation.OSDescription} " +
+            $"procArch={RuntimeInformation.ProcessArchitecture} osArch={RuntimeInformation.OSArchitecture} " +
+            $"is64={Environment.Is64BitProcess} thread={Environment.CurrentManagedThreadId} apt={Thread.CurrentThread.GetApartmentState()}");
+
+        if (Interlocked.Exchange(ref _diagnosticsPrinted, 1) != 0) return;
+
+        try {
+            using var process = Process.GetCurrentProcess();
+            foreach (ProcessModule module in process.Modules) {
+                string fileName = module.FileName;
+                if (!fileName.Contains("InfiniFrame.Native", StringComparison.OrdinalIgnoreCase)
+                    && !fileName.Contains("WebView2", StringComparison.OrdinalIgnoreCase)
+                    && !fileName.Contains("testhost", StringComparison.OrdinalIgnoreCase)) {
+                    continue;
+                }
+
+                Console.Error.WriteLine(
+                    $"[ParentChildWindowTests] module={module.ModuleName} base=0x{module.BaseAddress.ToInt64():X} file={fileName}");
+            }
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine($"[ParentChildWindowTests] module enumeration failed: {ex.Message}");
+        }
+    }
     
     [Test]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestParentChildWindow(CancellationToken ct = default) {
+        WriteDiagnostics(nameof(TestParentChildWindow));
+
         // Arrange
         using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
@@ -38,10 +70,11 @@ public class ParentChildWindowTests {
 
     [Test]
     [SkipUtility.SkipOnMacOs]
-    [Retry(5)]
     [TimeoutUtility.WithDefaultTimeout(6_000)]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task ClosingParent_ShouldCloseChildWindow(CancellationToken ct = default) {
+        WriteDiagnostics(nameof(ClosingParent_ShouldCloseChildWindow));
+
         using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
 
@@ -64,6 +97,8 @@ public class ParentChildWindowTests {
     [SkipUtility.OnlyRunOnWindows]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task ChildWindow_ShouldHaveNativeOwnerWindow_OnWindows(CancellationToken ct = default) {
+        WriteDiagnostics(nameof(ChildWindow_ShouldHaveNativeOwnerWindow_OnWindows));
+
         using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
 

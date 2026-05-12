@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace InfiniFrame;
 
@@ -27,6 +28,22 @@ public partial class InfiniFrameEvents {
         window.Logger.LogDebug("Closing child windows");
         foreach (IInfiniFrameWindow childWindow in childWindows) {
             childWindow.Close();
+
+            // Keep parent teardown ordered for cross-thread ownership scenarios.
+            // If parent and child share a UI thread, do not block here to avoid deadlock.
+            if (childWindow.ManagedThreadId == window.ManagedThreadId) continue;
+
+            var timeout = Stopwatch.StartNew();
+            while (!childWindow.IsClosed && timeout.Elapsed < TimeSpan.FromSeconds(5)) {
+                Thread.Sleep(25);
+            }
+
+            if (!childWindow.IsClosed) {
+                window.Logger.LogWarning(
+                    "Timed out waiting for child window close. Parent={ParentWindowId}, Child={ChildWindowId}",
+                    window.Id,
+                    childWindow.Id);
+            }
         }
     }
 }

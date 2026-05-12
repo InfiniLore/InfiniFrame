@@ -69,6 +69,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
     HWND _hWnd = nullptr;
     HWND _pendingOwnerHwnd = nullptr;
+    bool _ownerAssigned = false;
     wil::com_ptr<ICoreWebView2Controller> _webviewController;
     wil::com_ptr<ICoreWebView2> _webviewWindow;
     wil::com_ptr<ICoreWebView2Environment> _webviewEnvironment;
@@ -195,6 +196,56 @@ namespace {
             return nullptr;
 
         return parentHwnd;
+    }
+
+    template <typename TImpl>
+    void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
+        if (impl == nullptr)
+            return;
+        if (impl->_ownerAssigned)
+            return;
+
+        if (impl->_pendingOwnerHwnd == nullptr || impl->_hWnd == nullptr)
+            return;
+
+        if (impl->_pendingOwnerHwnd == impl->_hWnd)
+            return;
+
+        if (!IsWindow(impl->_pendingOwnerHwnd) || !IsWindow(impl->_hWnd))
+            return;
+
+        SetLastError(0);
+        const LONG_PTR previousOwner = SetWindowLongPtr(
+            impl->_hWnd,
+            GWLP_HWNDPARENT,
+            reinterpret_cast<LONG_PTR>(impl->_pendingOwnerHwnd)
+            );
+        const DWORD lastError = GetLastError();
+
+        if (previousOwner == 0 && lastError != 0) {
+            TraceTeardown(
+                L"ApplyPendingOwnerWindow failed phase=%ls child=%p owner=%p err=%lu",
+                phase,
+                impl->_hWnd,
+                impl->_pendingOwnerHwnd,
+                lastError
+                );
+            return;
+        }
+
+        impl->_ownerAssigned = true;
+
+        const DWORD childThreadId = GetWindowThreadProcessId(impl->_hWnd, nullptr);
+        const DWORD ownerThreadId = GetWindowThreadProcessId(impl->_pendingOwnerHwnd, nullptr);
+        TraceTeardown(
+            L"ApplyPendingOwnerWindow success phase=%ls child=%p owner=%p childTid=%lu ownerTid=%lu prev=%p",
+            phase,
+            impl->_hWnd,
+            impl->_pendingOwnerHwnd,
+            childThreadId,
+            ownerThreadId,
+            reinterpret_cast<void*>(previousOwner)
+            );
     }
 }
 
@@ -426,6 +477,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         windowInstance, //Instance handle
         this //Additional application data
         );
+
+    ApplyPendingOwnerWindow(m_impl.get(), L"ctor");
 
     if (initParams->WindowIconFile != nullptr) {
         SetIconFile(initParams->WindowIconFile);
@@ -1170,13 +1223,7 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    if (m_impl->_pendingOwnerHwnd != nullptr
-        && m_impl->_hWnd != nullptr
-        && m_impl->_pendingOwnerHwnd != m_impl->_hWnd
-        && IsWindow(m_impl->_pendingOwnerHwnd)
-        && IsWindow(m_impl->_hWnd)) {
-        SetWindowLongPtr(m_impl->_hWnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(m_impl->_pendingOwnerHwnd));
-    }
+    ApplyPendingOwnerWindow(m_impl.get(), L"wait_for_exit");
 
     messageLoopRootWindowHandle = m_impl->_hWnd;
     TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, m_impl->_hWnd);

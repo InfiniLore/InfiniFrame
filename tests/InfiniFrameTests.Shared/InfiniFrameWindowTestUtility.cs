@@ -86,7 +86,12 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var thread = new Thread(() => {
             try {
+                Console.Error.WriteLine(
+                    $"[InfiniFrameWindowTestUtility] STA thread started managedThreadId={Environment.CurrentManagedThreadId} apt={Thread.CurrentThread.GetApartmentState()} pid={Environment.ProcessId}");
+
                 IInfiniFrameWindow window = windowBuilder.Build();
+                Console.Error.WriteLine(
+                    $"[InfiniFrameWindowTestUtility] window initialized instance=0x{window.InstanceHandle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
                 windowSource.SetResult(window);
                 window.WaitForClose();
             }

@@ -106,11 +106,72 @@ jobs:
 
                     dotnet build InfiniFrame.GitHubActions.Testing.slnf `
                       --configuration Release `
-                      --no-restore
+                      --no-restore `
+                      -p:Platform=${{ matrix.arch }}
 
             -   name: Verify Native Binaries
                 # noinspection UndefinedAction
                 uses: ./.github/actions/validate-native-test-binaries
+
+            -   name: Prepare ARM64 Crash Diagnostics
+                if: matrix.arch == 'arm64'
+                shell: pwsh
+                run: |
+                    $dumpRoot = Join-Path $env:GITHUB_WORKSPACE "artifacts\crashdumps"
+                    $diagRoot = Join-Path $env:GITHUB_WORKSPACE "artifacts\testdiag"
+                    $resultRoot = Join-Path $env:GITHUB_WORKSPACE "artifacts\testresults"
+                    New-Item -ItemType Directory -Force -Path $dumpRoot | Out-Null
+                    New-Item -ItemType Directory -Force -Path $diagRoot | Out-Null
+                    New-Item -ItemType Directory -Force -Path $resultRoot | Out-Null
+
+                    $werBase = "HKCU:\Software\Microsoft\Windows\Windows Error Reporting\LocalDumps"
+                    New-Item -Path $werBase -Force | Out-Null
+                    New-ItemProperty -Path $werBase -Name DumpFolder -PropertyType ExpandString -Value $dumpRoot -Force | Out-Null
+                    New-ItemProperty -Path $werBase -Name DumpType -PropertyType DWord -Value 2 -Force | Out-Null
+                    New-ItemProperty -Path $werBase -Name DumpCount -PropertyType DWord -Value 20 -Force | Out-Null
+
+                    foreach ($exe in @("testhost.exe", "dotnet.exe")) {
+                      $exeKey = Join-Path $werBase $exe
+                      New-Item -Path $exeKey -Force | Out-Null
+                      New-ItemProperty -Path $exeKey -Name DumpFolder -PropertyType ExpandString -Value $dumpRoot -Force | Out-Null
+                      New-ItemProperty -Path $exeKey -Name DumpType -PropertyType DWord -Value 2 -Force | Out-Null
+                      New-ItemProperty -Path $exeKey -Name DumpCount -PropertyType DWord -Value 20 -Force | Out-Null
+                    }
+
+                    Write-Host "Configured WER LocalDumps at $dumpRoot"
+
+            -   name: Emit ARM64 Runtime/Binary Diagnostics
+                if: matrix.arch == 'arm64'
+                shell: pwsh
+                run: |
+                    function Get-PeMachine([string]$Path) {
+                      $fs = [System.IO.File]::OpenRead($Path)
+                      try {
+                        $br = New-Object System.IO.BinaryReader($fs)
+                        $fs.Position = 0x3C
+                        $peOffset = $br.ReadInt32()
+                        $fs.Position = $peOffset + 4
+                        $machine = $br.ReadUInt16()
+                        switch ($machine) {
+                          0x8664 { return "x64 (0x8664)" }
+                          0xAA64 { return "arm64 (0xAA64)" }
+                          default { return ("0x{0:X4}" -f $machine) }
+                        }
+                      }
+                      finally {
+                        $fs.Dispose()
+                      }
+                    }
+
+                    Write-Host "Runner architecture: $env:PROCESSOR_ARCHITECTURE"
+                    dotnet --info
+
+                    $nativeFiles = Get-ChildItem -Path "tests/InfiniFrameTests/bin/Release" -Recurse -File `
+                      | Where-Object { $_.Name -in @("InfiniFrame.Native.dll", "WebView2Loader.dll", "testhost.exe") }
+                    foreach ($file in $nativeFiles) {
+                      $machine = Get-PeMachine $file.FullName
+                      Write-Host "$($file.FullName) => $machine"
+                    }
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v9
@@ -119,13 +180,63 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run Tests
+            -   name: Run InfiniFrameTests Project (ARM64 Diagnostics)
+                if: matrix.arch == 'arm64'
+                env:
+                    INFINIFRAME_TRACE_TEARDOWN: 1
+                run: |
+                    echo "Running ParentChildWindowTests diagnostics on Windows ARM64..."
+                    dotnet test --project tests/InfiniFrameTests/InfiniFrameTests.csproj `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      -p:Platform=${{ matrix.arch }} `
+                      --results-directory artifacts/testresults/arm64-infiniframetests `
+                      --output Detailed `
+                      --show-stderr All `
+                      --show-stdout All `
+                      --diagnostic `
+                      --diagnostic-output-directory artifacts/testdiag/arm64-infiniframetests `
+                      --treenode-filter "/*/*/ParentChildWindowTests/*" `
+                      --minimum-expected-tests 1
+
+            -   name: Run Tests (ARM64)
+                if: matrix.arch == 'arm64'
+                env:
+                    INFINIFRAME_TRACE_TEARDOWN: 1
+                run: |
+                    echo "Running full tests on Windows ARM64..."
+                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --results-directory artifacts/testresults/arm64-full `
+                      --output Normal `
+                      --show-stderr All `
+                      --show-stdout Failed `
+                      --diagnostic `
+                      --diagnostic-output-directory artifacts/testdiag/arm64-full
+
+            -   name: Run Tests (x64)
+                if: matrix.arch != 'arm64'
                 run: |
                     echo "Running tests on Windows..."
                     dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore
+
+            -   name: Upload ARM64 Crash Diagnostics
+                if: always() && matrix.arch == 'arm64'
+                uses: actions/upload-artifact@v7
+                with:
+                    name: windows-arm64-crash-diagnostics
+                    if-no-files-found: warn
+                    retention-days: 14
+                    path: |
+                        artifacts/crashdumps/**
+                        artifacts/testdiag/**
+                        artifacts/testresults/**
 
             -   name: Pack Tool E2E
                 if: always()
