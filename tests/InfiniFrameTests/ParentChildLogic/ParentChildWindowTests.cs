@@ -73,7 +73,15 @@ public class ParentChildWindowTests {
         );
         IInfiniFrameWindow childWindow = childWindowUtility.Window;
 
-        IntPtr ownerWindow = GetWindow(childWindow.WindowHandle, GwOwner);
+        IntPtr ownerWindow = IntPtr.Zero;
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (DateTime.UtcNow < timeoutAt) {
+            ownerWindow = GetWindow(childWindow.WindowHandle, GwOwner);
+            if (ownerWindow == parentWindow.WindowHandle)
+                break;
+
+            await Task.Delay(50, ct);
+        }
 
         await Assert.That(ownerWindow).IsEqualTo(parentWindow.WindowHandle);
     }

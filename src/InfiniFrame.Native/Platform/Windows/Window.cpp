@@ -27,6 +27,7 @@
 #pragma comment(lib, "Urlmon.lib")
 
 #define WM_USER_INVOKE (WM_USER + 0x0002)
+#define WM_USER_SET_OWNER (WM_USER + 0x0003)
 
 using namespace WinToastLib;
 using namespace Microsoft::WRL;
@@ -62,6 +63,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     int _maxHeight = MaxWindowDimension;
 
     HWND _hWnd = nullptr;
+    HWND _pendingOwnerHwnd = nullptr;
     wil::com_ptr<ICoreWebView2Controller> _webviewController;
     wil::com_ptr<ICoreWebView2> _webviewWindow;
     wil::com_ptr<ICoreWebView2Environment> _webviewEnvironment;
@@ -360,6 +362,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
 
     const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->_parent);
+    m_impl->_pendingOwnerHwnd = parentWindowHandle;
 
     //Create the window
     m_impl->_hWnd = CreateWindowEx(
@@ -377,8 +380,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         this //Additional application data
         );
 
-    if (m_impl->_hWnd != nullptr && parentWindowHandle != nullptr)
-        SetWindowLongPtr(m_impl->_hWnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(parentWindowHandle));
     if (initParams->WindowIconFile != nullptr) {
         SetIconFile(initParams->WindowIconFile);
     }
@@ -539,6 +540,12 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                 if (deleteWaitInfo)
                     delete waitInfo;
             }
+            return 0;
+        }
+        case WM_USER_SET_OWNER: {
+            auto ownerHwnd = reinterpret_cast<HWND>(wParam);
+            if (ownerHwnd != nullptr && IsWindow(ownerHwnd) && ownerHwnd != hwnd)
+                SetWindowLongPtr(hwnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(ownerHwnd));
             return 0;
         }
         case WM_GETMINMAXINFO: {
@@ -1845,6 +1852,17 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
         ShowWindow(m_impl->_hWnd, SW_SHOWDEFAULT);
 
     UpdateWindow(m_impl->_hWnd);
+
+    // Apply owner asynchronously after message pumping starts on the child UI thread.
+    // This avoids create-time cross-thread owner interactions on ARM64.
+    if (m_impl->_pendingOwnerHwnd != nullptr && IsWindow(m_impl->_pendingOwnerHwnd)) {
+        PostMessage(
+            m_impl->_hWnd,
+            WM_USER_SET_OWNER,
+            reinterpret_cast<WPARAM>(m_impl->_pendingOwnerHwnd),
+            0
+        );
+    }
 
     // WebView2 must be created after the window is visible.
     if (!m_impl->_webviewController) {
