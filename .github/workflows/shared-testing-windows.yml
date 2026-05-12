@@ -141,7 +141,6 @@ jobs:
                         --no-build `
                         --no-restore `
                         -- `
-                        --results-directory $diagDir `
                         --diagnostic `
                         --diagnostic-output-directory $diagDir `
                         --diagnostic-synchronous-write `
