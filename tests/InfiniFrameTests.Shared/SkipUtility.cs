@@ -33,6 +33,12 @@ public static class SkipUtility {
         public override Task<bool> ShouldSkip(TestRegisteredContext context)
             => Task.FromResult(OperatingSystem.IsMacOS());
     }
+    
+    public class OnlyRunOnWindows(string? message = null) : SkipAttribute(message ?? "This test is only supported on Windows environments") {
+        public override Task<bool> ShouldSkip(TestRegisteredContext context)
+            => Task.FromResult(!OperatingSystem.IsWindows());
+    }
+    
     #endregion
 
     #region Methods

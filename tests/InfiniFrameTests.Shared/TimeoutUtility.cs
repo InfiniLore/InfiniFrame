@@ -7,4 +7,6 @@ namespace InfiniFrameTests.Shared;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class TimeoutUtility {
     public const int DefaultTimeout = 10_000;
+
+    public class WithDefaultTimeout(int offset = 0) : TimeoutAttribute(DefaultTimeout + offset);
 }

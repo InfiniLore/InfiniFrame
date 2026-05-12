@@ -26,6 +26,8 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl
     NSWindow* _window = nil;
     WKWebView* _webview = nil;
     WKWebViewConfiguration* _webviewConfiguration = nil;
+    NSWindow* _nativeParentWindow = nil;
+    id _parentWillCloseObserver = nil;
 
     std::string _temporaryFilesPath;
 
@@ -263,6 +265,25 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
     m_impl->_transparentEnabled = initParams->Transparent;
 
+    if (m_impl->_parent != nullptr && m_impl->_parent->m_impl != nullptr)
+    {
+        auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(m_impl->_parent->m_impl.get());
+        m_impl->_nativeParentWindow = parentImpl->_window;
+        if (m_impl->_nativeParentWindow != nil && m_impl->_nativeParentWindow != m_impl->_window)
+        {
+            [m_impl->_nativeParentWindow addChildWindow:m_impl->_window ordered:NSWindowAbove];
+
+            NSWindow* childWindow = m_impl->_window;
+            m_impl->_parentWillCloseObserver = [[NSNotificationCenter defaultCenter]
+                addObserverForName:NSWindowWillCloseNotification
+                object:m_impl->_nativeParentWindow
+                queue:nil
+                usingBlock:^(NSNotification*) {
+                    [childWindow close];
+                }];
+        }
+    }
+
     [m_impl->_window setCollectionBehavior:
         [m_impl->_window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
 
@@ -377,6 +398,16 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
 InfiniFrameWindow::~InfiniFrameWindow()
 {
+    if (m_impl->_parentWillCloseObserver != nil) {
+        [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
+        m_impl->_parentWillCloseObserver = nil;
+    }
+
+    if (m_impl->_nativeParentWindow != nil && m_impl->_window != nil) {
+        [m_impl->_nativeParentWindow removeChildWindow:m_impl->_window];
+        m_impl->_nativeParentWindow = nil;
+    }
+
     [m_impl->_webviewConfiguration release];
     [m_impl->_webview release];
     [m_impl->_window performClose: m_impl->_window];
@@ -399,6 +430,16 @@ void InfiniFrameWindow::ClearBrowserAutoFill()
 
 void InfiniFrameWindow::Close()
 {
+    if (m_impl->_parentWillCloseObserver != nil) {
+        [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
+        m_impl->_parentWillCloseObserver = nil;
+    }
+
+    if (m_impl->_nativeParentWindow != nil && m_impl->_window != nil) {
+        [m_impl->_nativeParentWindow removeChildWindow:m_impl->_window];
+        m_impl->_nativeParentWindow = nil;
+    }
+
     if (m_impl->_chromeless)
         [m_impl->_window close];
     else
@@ -831,7 +872,6 @@ void InfiniFrameWindow::WaitForExit()
     }
 
     [[NSNotificationCenter defaultCenter] removeObserver: observer];
-    InvokeClosed();
 }
 
 void InfiniFrameWindow::CloseWebView()

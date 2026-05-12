@@ -17,6 +17,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     IInfiniFrameOptions Configuration { get; }
     
     IntPtr InstanceHandle { get; }
+    bool IsClosed { get; }
     IntPtr WindowHandle { get; }
     IntPtr NativeType { get; }
     ImmutableArray<InfiniMonitor> Monitors { get; }

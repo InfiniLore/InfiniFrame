@@ -98,4 +98,19 @@ public class WindowTests {
         bool windowClosing = await windowClosingTcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
         await Assert.That(windowClosing).IsTrue();
     }
+
+    [Test]
+    [SkipUtility.SkipOnMacOs]
+    [NotInParallel(ParallelControl.InfiniFrame)]
+    public async Task IsClosed_TracksWindowState(CancellationToken ct = default) {
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        await Assert.That(window.IsClosed).IsFalse();
+
+        window.Close();
+        await Task.Delay(250, ct);
+
+        await Assert.That(window.IsClosed).IsTrue();
+    }
 }

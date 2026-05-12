@@ -547,8 +547,21 @@ public static class InfiniFrameWindowBuilderExtensions {
     }
     
     public static T SetParentWindow<T>(this T builder, IInfiniFrameWindow parentWindow) where T : IInfiniFrameWindowBuilder {
+        if (parentWindow.InstanceHandle == IntPtr.Zero)
+            throw new InvalidOperationException("Parent window must be initialized and not closed before assigning it.");
+
         builder.Configuration.ParentWindow = parentWindow;
-        builder.EventsStore.WindowCreated.Add(window => parentWindow.Configuration.ChildWindows.Add(window));
+        builder.EventsStore.WindowCreated.Add(window => {
+            lock (parentWindow.Configuration.ChildWindows) {
+                parentWindow.Configuration.ChildWindows.Add(window);
+            }
+
+            window.EventsStore.WindowClosed.Add(closedWindow => {
+                lock (parentWindow.Configuration.ChildWindows) {
+                    parentWindow.Configuration.ChildWindows.Remove(closedWindow);
+                }
+            });
+        });
         return builder;
     }
 }

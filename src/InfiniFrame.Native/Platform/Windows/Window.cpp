@@ -137,6 +137,17 @@ namespace {
     InfiniFrameWindow* LookupWindowInstance(const HWND hwnd) {
         return reinterpret_cast<InfiniFrameWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     }
+
+    HWND ResolveParentWindowHandle(InfiniFrameWindow* parent) {
+        if (parent == nullptr)
+            return nullptr;
+
+        HWND parentHwnd = parent->getHwnd();
+        if (parentHwnd == nullptr || !IsWindow(parentHwnd))
+            return nullptr;
+
+        return parentHwnd;
+    }
 }
 
 
@@ -358,7 +369,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         // Size and position
         normalizedLeft, normalizedTop, normalizedWidth, normalizedHeight,
 
-        m_impl->_parent ? m_impl->_parent->getHwnd() : nullptr, //Parent window handle
+        ResolveParentWindowHandle(m_impl->_parent), //Parent window handle
         nullptr, //Menu
         _hInstance, //Instance handle
         this //Additional application data

@@ -31,6 +31,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     
     public IntPtr NativeType => WindowType.Value;
     public IntPtr InstanceHandle { get; private set; }
+    public bool IsClosed => Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero;
 
     public Rectangle CachedPreFullScreenBounds { get; set; } = Rectangle.Empty;
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;

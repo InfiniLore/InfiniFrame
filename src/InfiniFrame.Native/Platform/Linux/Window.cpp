@@ -398,6 +398,14 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
     m_impl->_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
 
+    if (m_impl->_parent != nullptr && m_impl->_parent->m_impl != nullptr) {
+        auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(m_impl->_parent->m_impl.get());
+        if (parentImpl->_window != nullptr) {
+            gtk_window_set_transient_for(GTK_WINDOW(m_impl->_window), GTK_WINDOW(parentImpl->_window));
+            gtk_window_set_destroy_with_parent(GTK_WINDOW(m_impl->_window), TRUE);
+        }
+    }
+
     if (initParams->FullScreen)
         SetFullScreen(true);
     else {

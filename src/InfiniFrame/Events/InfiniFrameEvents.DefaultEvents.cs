@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace InfiniFrame;
 
@@ -16,13 +17,17 @@ public partial class InfiniFrameEvents {
     
     private static void CloseChildWindows(IInfiniFrameWindow window) {
         if (window.InstanceHandle == IntPtr.Zero) return; // Window already closed
-        if (window.Configuration.ChildWindows.Count <= 0) return; // No child windows to close
+
+        IInfiniFrameWindow[] childWindows;
+        lock (window.Configuration.ChildWindows) {
+            if (window.Configuration.ChildWindows.Count <= 0) return; // No child windows to close
+            childWindows = window.Configuration.ChildWindows.ToArray();
+            window.Configuration.ChildWindows.Clear();
+        }
 
         window.Logger.LogDebug("Closing child windows");
-        foreach (IInfiniFrameWindow childWindow in window.Configuration.ChildWindows) {
+        foreach (IInfiniFrameWindow childWindow in childWindows) {
             childWindow.Close();
         }
-        window.Configuration.ChildWindows.Clear();
-        
     }
 }
