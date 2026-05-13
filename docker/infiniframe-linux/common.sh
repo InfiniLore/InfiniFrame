@@ -49,7 +49,7 @@ start_dbus_session() {
 
 start_virtual_display() {
   local xvfb_log="${1:-/tmp/xvfb.log}"
-  local mutter_log="${2:-/tmp/mutter.log}"
+  local openbox_log="${2:-/tmp/openbox.log}"
 
   echo "Launching Xvfb..."
   Xvfb :99 \
@@ -60,15 +60,15 @@ start_virtual_display() {
     +extension RENDER \
     -nolisten tcp \
     -noreset > "${xvfb_log}" 2>&1 &
+
   XVFB_PID=$!
 
   export DISPLAY=:99
   export XDG_RUNTIME_DIR="/tmp/runtime-$(id -un)"
   export XDG_SESSION_TYPE=x11
   export XDG_SESSION_CLASS=user
-  export XDG_SESSION_DESKTOP=ubuntu
-  export XDG_CURRENT_DESKTOP=ubuntu:GNOME
-  export DESKTOP_SESSION=ubuntu
+  export XDG_CURRENT_DESKTOP=Openbox
+  export DESKTOP_SESSION=openbox
 
   mkdir -p "${XDG_RUNTIME_DIR}"
   chmod 700 "${XDG_RUNTIME_DIR}"
@@ -79,14 +79,18 @@ start_virtual_display() {
     exit 1
   }
 
-  echo "Starting Mutter..."
-  mutter --x11 --replace --sm-disable > "${mutter_log}" 2>&1 &
-  MUTTER_PID=$!
+  echo "Starting Openbox..."
+  openbox > "${openbox_log}" 2>&1 &
 
-  timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
-    echo "Mutter failed to start"
+  OPENBOX_PID=$!
+
+  timeout 20 bash -c 'until pgrep -x openbox >/dev/null; do sleep 1; done' || {
+    echo "Openbox failed to start"
+    cat "${openbox_log}" || true
     exit 1
   }
+
+  echo "Openbox is running"
 }
 
 setup_display_mode() {
@@ -95,13 +99,22 @@ setup_display_mode() {
   export NO_AT_BRIDGE="${NO_AT_BRIDGE:-1}"
   start_dbus_session
 
+  export LIBGL_ALWAYS_SOFTWARE=1
+  export GALLIUM_DRIVER=llvmpipe
+  export MESA_GL_VERSION_OVERRIDE=3.3
+  export NO_AT_BRIDGE=1
+
   if [[ "${USE_HOST_DISPLAY}" == "1" ]]; then
     echo "Using host DISPLAY mode"
     : "${DISPLAY:?DISPLAY must be set when USE_HOST_DISPLAY=1}"
+    export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-0}"
   else
     echo "Using internal virtual display mode (Xvfb + Mutter)"
+    export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-1}"
     start_virtual_display "${xvfb_log}" "${mutter_log}"
   fi
+
+  echo "Display env: XDG_SESSION_TYPE=${XDG_SESSION_TYPE:-<unset>}, DISPLAY=${DISPLAY:-<unset>}, WEBKIT_DISABLE_COMPOSITING_MODE=${WEBKIT_DISABLE_COMPOSITING_MODE}"
 }
 
 restore_solution_filter() {

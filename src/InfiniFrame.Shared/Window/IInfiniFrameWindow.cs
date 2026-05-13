@@ -17,6 +17,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     IInfiniFrameOptions Configuration { get; }
     
     IntPtr InstanceHandle { get; }
+    bool IsClosed { get; }
     IntPtr WindowHandle { get; }
     IntPtr NativeType { get; }
     ImmutableArray<InfiniMonitor> Monitors { get; }
@@ -27,7 +28,6 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     Size MaxSize { get; }
     Size MinSize { get; }
     Size Size { get; }
-    IInfiniFrameWindow? Parent { get; }
     int ManagedThreadId { get; }
     Rectangle CachedPreFullScreenBounds { get; internal set; }
     Rectangle CachedPreMaximizedBounds { get; internal set; }

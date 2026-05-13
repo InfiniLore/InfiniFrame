@@ -10,7 +10,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [SuppressMessage("ReSharper", "ConvertToExtensionBlock")]
-public static class InfiniWindowBuilderExtensions {
+public static class InfiniFrameWindowBuilderExtensions {
     /// <summary>
     ///     Sets the media autoplay functionality on the browser control at initialization.
     /// </summary>
@@ -543,6 +543,25 @@ public static class InfiniWindowBuilderExtensions {
     /// </return>
     public static T SetZoomEnabled<T>(this T builder, bool zoomEnabled) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.ZoomEnabled = zoomEnabled;
+        return builder;
+    }
+    
+    public static T SetParentWindow<T>(this T builder, IInfiniFrameWindow parentWindow) where T : IInfiniFrameWindowBuilder {
+        if (parentWindow.InstanceHandle == IntPtr.Zero)
+            throw new InvalidOperationException("Parent window must be initialized and not closed before assigning it.");
+
+        builder.Configuration.ParentWindow = parentWindow;
+        builder.EventsStore.WindowCreated.Add(window => {
+            lock (parentWindow.Configuration.ChildWindows) {
+                parentWindow.Configuration.ChildWindows.Add(window);
+            }
+
+            window.EventsStore.WindowClosed.Add(closedWindow => {
+                lock (parentWindow.Configuration.ChildWindows) {
+                    parentWindow.Configuration.ChildWindows.Remove(closedWindow);
+                }
+            });
+        });
         return builder;
     }
 }

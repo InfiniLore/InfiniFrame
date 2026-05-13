@@ -17,7 +17,7 @@ public class CenterTests {
     [DisplayName($"{nameof(CenterTests)}.{nameof(Builder)}")]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task Builder(bool state) {
+    public async Task Builder(bool state, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -36,8 +36,7 @@ public class CenterTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task Window(CancellationToken ct) {
+    public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -63,10 +62,9 @@ public class CenterTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task FullIntegration(bool state, CancellationToken ct) {
+    public async Task FullIntegration(bool state, CancellationToken ct = default) {
         // Arrange
 
         // Act

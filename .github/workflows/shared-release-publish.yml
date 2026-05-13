@@ -37,20 +37,17 @@ jobs:
                         8.x
                         9.x
                         10.x
+                    cache: true
+                    cache-dependency-path: |
+                        **/*.csproj
+                        **/*.props
+                        **/Directory.Packages.props
 
             -   name: Validate PackageId Prefix
                 run: |
                     python .github/scripts/validate_package_id_prefix.py \
                       --slnf InfiniFrame.GitHubActions.Release.slnf \
                       --prefix InfiniLore
-
-            -   name: Cache NuGet
-                uses: actions/cache@v5
-                with:
-                    path: ~/.nuget/packages
-                    key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ runner.os }}-nuget-
 
             -   name: Setup Native dependencies
                 # noinspection UndefinedAction

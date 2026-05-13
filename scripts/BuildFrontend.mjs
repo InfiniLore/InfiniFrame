@@ -10,20 +10,20 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 
-const [, , appDirectoryArg, stampFileArg, outputFileArg] = process.argv;
+const [, , appDirectoryArg, stampFileArg, ...outputFileArgs] = process.argv;
 
-if (!appDirectoryArg || !stampFileArg || !outputFileArg) {
-    console.error('Usage: node BuildFrontend.mjs <app-directory> <stamp-file> <output-file>');
+if (!appDirectoryArg || !stampFileArg || outputFileArgs.length === 0) {
+    console.error('Usage: node BuildFrontend.mjs <app-directory> <stamp-file> <output-file> [output-file...]');
     process.exit(1);
 }
 
 const appDirectory = path.resolve(appDirectoryArg);
 const stampFile = path.resolve(stampFileArg);
-const outputFile = path.resolve(outputFileArg);
+const outputFiles = outputFileArgs.map(outputFileArg => path.resolve(outputFileArg));
 const lockDirectory = `${stampFile}.lock`;
 const nodeModulesDirectory = path.join(appDirectory, 'node_modules');
 const packageLockFile = path.join(appDirectory, 'package-lock.json');
-const sourceExclusions = new Set(['node_modules', '.git']);
+const sourceExclusions = new Set(['node_modules', '.git', 'obj', 'bin', 'wwwroot']);
 
 function sleep(milliseconds) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
@@ -124,7 +124,17 @@ function getLatestSourceWriteTime(directory) {
 }
 
 function isBuildCurrent() {
-    if (!existsSync(stampFile) || !existsSync(outputFile)) {
+    if (!existsSync(stampFile)) {
+        return false;
+    }
+
+    for (const outputFile of outputFiles) {
+        if (!existsSync(outputFile)) {
+            return false;
+        }
+    }
+
+    if (!existsSync(packageLockFile) || !existsSync(nodeModulesDirectory)) {
         return false;
     }
 

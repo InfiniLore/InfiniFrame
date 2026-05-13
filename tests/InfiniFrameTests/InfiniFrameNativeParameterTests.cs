@@ -13,7 +13,7 @@ public class InfiniFrameNativeParameterTests {
     // This test should onl fails if the InfiniFrameNativeParameterTests C# struct is wrongly defined
     // and has parameters in the wrong order, compared to the struct on the c++ side.
     [Test]
-    public async Task ReturnAsIsIsValid() {
+    public async Task ReturnAsIsIsValid(CancellationToken ct = default) {
         // Arrange
         IntPtr[] customSchemeNames = new IntPtr[16];
         IntPtr namePtr = IntPtr.Zero;

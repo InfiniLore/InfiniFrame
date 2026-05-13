@@ -4,54 +4,114 @@ slug: /guides/scripts
 title: Scripts Reference
 ---
 
-This page documents the repository scripts in `scripts/` and what each command does.
+This page documents the repository scripts and what each command does.
 
-## Linux Docker Test Scripts
+## Docker Wrapper Scripts
 
-### `docker-compose-linux.sh`
+Docker wrapper scripts now live in `docker/scripts/`.
 
-Builds the Linux testing image from `docker/compose/infiniframe-linux.yml` with a no-cache build.
+### Linux (x64)
+
+- Build images:
 
 ```bash
-bash ./scripts/docker-compose-linux.sh
+bash ./docker/scripts/docker-linux-compose.sh
 ```
 
-### `docker-run-linux-tests.sh`
-
-Runs the Linux test suite container (`linux-tests`) with internal virtual display mode.
+- Run tests:
 
 ```bash
-bash ./scripts/docker-run-linux-tests.sh
+bash ./docker/scripts/docker-linux-run-tests.sh
 ```
 
-### `docker-run-linux-tests-display.sh`
-
-Runs the Linux test suite container (`linux-tests`) with host `DISPLAY` passthrough.
+- Run Playwright tests:
 
 ```bash
-bash ./scripts/docker-run-linux-tests-display.sh
+bash ./docker/scripts/docker-linux-run-playwrighttests.sh
 ```
 
-### `docker-run-linux-playwright.sh`
-
-Runs the Linux Playwright test container (`linux-playwright-tests`) for `net8.0`, `net9.0`, and `net10.0`.
+- Run BlazorWebView example:
 
 ```bash
-bash ./scripts/docker-run-linux-playwright.sh
+bash ./docker/scripts/docker-linux-run-blazorwebview.sh
 ```
 
-Optional visible debug mode:
+### Linux (arm64)
+
+- Build images:
 
 ```bash
-PLAYWRIGHT_VISIBLE_DEBUG=1 PLAYWRIGHT_VISIBLE_DEBUG_SECONDS=10 bash ./scripts/docker-run-linux-playwright.sh
+bash ./docker/scripts/docker-linux-arm64-compose.sh
 ```
 
-### `docker-run-linux-playwright-display.sh`
-
-Runs the Linux Playwright test container with host `DISPLAY` passthrough.
+- Run tests:
 
 ```bash
-bash ./scripts/docker-run-linux-playwright-display.sh
+bash ./docker/scripts/docker-linux-arm64-run-tests.sh
+```
+
+- Run Playwright tests:
+
+```bash
+bash ./docker/scripts/docker-linux-arm64-run-playwrighttests.sh
+```
+
+- Run BlazorWebView example:
+
+```bash
+bash ./docker/scripts/docker-linux-arm64-run-blazorwebview.sh
+```
+
+### Linux (Wayland)
+
+- Build images:
+
+```bash
+bash ./docker/scripts/docker-linux-wayland-compose.sh
+```
+
+- Run tests:
+
+```bash
+bash ./docker/scripts/docker-linux-wayland-run-tests.sh
+```
+
+- Run Playwright tests:
+
+```bash
+bash ./docker/scripts/docker-linux-wayland-run-playwrighttests.sh
+```
+
+- Run BlazorWebView example:
+
+```bash
+bash ./docker/scripts/docker-linux-wayland-run-blazorwebview.sh
+```
+
+### Windows
+
+- Build images:
+
+```powershell
+.\docker\scripts\docker-windows-compose.ps1
+```
+
+- Run tests:
+
+```powershell
+.\docker\scripts\docker-windows-run-tests.ps1
+```
+
+- Run Playwright tests:
+
+```powershell
+.\docker\scripts\docker-windows-run-playwrighttests.ps1
+```
+
+- Run BlazorWebView example:
+
+```powershell
+.\docker\scripts\docker-windows-run-blazorwebview.ps1
 ```
 
 ## NuGet Setup Script

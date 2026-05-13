@@ -12,7 +12,7 @@ namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameUriSecurityPolicyTests {
     [Test]
-    public async Task IsTrustedOrigin_MatchesBySchemeHostAndPortOnly() {
+    public async Task IsTrustedOrigin_MatchesBySchemeHostAndPortOnly(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
             allowedNavigationSchemes: [Uri.UriSchemeHttps],
@@ -30,7 +30,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task IsTrustedOrigin_RequiresAllowedNavigationScheme() {
+    public async Task IsTrustedOrigin_RequiresAllowedNavigationScheme(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
             allowedNavigationSchemes: ["app"],
@@ -46,7 +46,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task IsTrustedOrigin_WithTrustAllOrigins_TrustsAnyOriginWithAllowedScheme() {
+    public async Task IsTrustedOrigin_WithTrustAllOrigins_TrustsAnyOriginWithAllowedScheme(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
             allowedNavigationSchemes: [Uri.UriSchemeHttps],
@@ -65,7 +65,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task IsTrustedOrigin_WithNullCandidate_ThrowsArgumentNullException() {
+    public async Task IsTrustedOrigin_WithNullCandidate_ThrowsArgumentNullException(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
             allowedNavigationSchemes: [Uri.UriSchemeHttps],
@@ -84,7 +84,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task PolicyBuilder_SetAllowedSchemes_TrimsAndIgnoresWhitespace() {
+    public async Task PolicyBuilder_SetAllowedSchemes_TrimsAndIgnoresWhitespace(CancellationToken ct = default) {
         // Arrange
         var policyBuilder = new InfiniFrameUriSecurityPolicyBuilder();
 
@@ -102,7 +102,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task PolicyBuilder_AddTrustedOrigin_IgnoresRelativeUri() {
+    public async Task PolicyBuilder_AddTrustedOrigin_IgnoresRelativeUri(CancellationToken ct = default) {
         // Arrange
         var policyBuilder = new InfiniFrameUriSecurityPolicyBuilder();
 
@@ -119,7 +119,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task Registry_GetForWindow_UsesBoundPolicyWhenAvailable() {
+    public async Task Registry_GetForWindow_UsesBoundPolicyWhenAvailable(CancellationToken ct = default) {
         // Arrange
         var window = new RecordingInfiniFrameWindowSubstitute();
         var policy = new InfiniFrameUriSecurityPolicy(
@@ -139,7 +139,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task Registry_ConfigureForBuilder_UpdatesBuilderPolicy() {
+    public async Task Registry_ConfigureForBuilder_UpdatesBuilderPolicy(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -158,7 +158,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task BuilderExtensions_SetTrustedOriginsWithStrings_UpdatesBuilderPolicy() {
+    public async Task BuilderExtensions_SetTrustedOriginsWithStrings_UpdatesBuilderPolicy(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -173,7 +173,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task BuilderExtensions_SetTrustedOriginsWithInvalidString_ThrowsArgumentException() {
+    public async Task BuilderExtensions_SetTrustedOriginsWithInvalidString_ThrowsArgumentException(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -188,7 +188,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task Registry_ConfigureForBuilder_CanAppendTrustedOriginsAcrossCalls() {
+    public async Task Registry_ConfigureForBuilder_CanAppendTrustedOriginsAcrossCalls(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -206,7 +206,7 @@ public class InfiniFrameUriSecurityPolicyTests {
     }
 
     [Test]
-    public async Task BuilderExtensions_SetTrustAllOrigins_UpdatesBuilderPolicy() {
+    public async Task BuilderExtensions_SetTrustAllOrigins_UpdatesBuilderPolicy(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 

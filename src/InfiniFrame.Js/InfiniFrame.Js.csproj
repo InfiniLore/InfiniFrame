@@ -5,13 +5,12 @@
         <OutputType>Library</OutputType>
 
         <IsPackable>true</IsPackable>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../..'))</RepositoryRoot>
 
         <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
 
-        <!-- FIX: use forward slashes for Linux compatibility -->
         <FrontendProdFile>$(MSBuildProjectDirectory)/wwwroot/InfiniFrame.js</FrontendProdFile>
         <FrontendDevFile>$(MSBuildProjectDirectory)/wwwroot/InfiniFrame.dev.js</FrontendDevFile>
-
         <FrontendStampFile>$(MSBuildProjectDirectory)/obj/frontend-build.stamp</FrontendStampFile>
     </PropertyGroup>
 
@@ -57,15 +56,14 @@
     </ItemGroup>
 
     <Target Name="BuildFrontend"
-            BeforeTargets="ResolveStaticWebAssets"
+            BeforeTargets="DispatchToInnerBuilds;ResolveProjectStaticWebAssets;ResolveStaticWebAssets"
             Condition="'$(DesignTimeBuild)'!='true'
                      and '$(RunFrontendBuild)'=='true'
                      and '$(SkipTypeScriptBuild)'!='true'">
 
         <Message Text="Running frontend build..." Importance="high" />
 
-        <!-- FIX: ensure correct working directory + cross-platform npm execution -->
-        <Exec Command="npm run build"
+        <Exec Command="node &quot;$(RepositoryRoot)/scripts/BuildFrontend.mjs&quot; &quot;$(MSBuildProjectDirectory)&quot; &quot;$(FrontendStampFile)&quot; &quot;$(FrontendProdFile)&quot; &quot;$(FrontendDevFile)&quot;"
               WorkingDirectory="$(MSBuildProjectDirectory)" />
 
         <Error Condition="!Exists('$(FrontendProdFile)')"
@@ -75,10 +73,6 @@
                Text="Missing: $(FrontendDevFile)" />
 
         <Message Text="Frontend build completed successfully." Importance="high" />
-
-        <PropertyGroup>
-            <RunFrontendBuild>false</RunFrontendBuild>
-        </PropertyGroup>
 
     </Target>
 

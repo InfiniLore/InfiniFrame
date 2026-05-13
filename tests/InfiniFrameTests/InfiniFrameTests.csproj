@@ -23,7 +23,7 @@
 
     <ItemGroup>
         <Content Include="../../src/InfiniFrame.Js/TypeScript/Interop/EnvelopeProtocol/interop-envelope-golden-vectors.json">
-            <Link>TypeScript/Interop/interop-envelope-golden-vectors.json</Link>
+            <Link>Interop/interop-envelope-golden-vectors.json</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

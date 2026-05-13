@@ -30,9 +30,14 @@
     infiniFrame->InvokeRestored();
 }
 
-- (void)windowWillClose: (NSWindow *)sender
+- (BOOL)windowShouldClose:(id)sender
 {
-    infiniFrame->InvokeClose();
+    return !infiniFrame->InvokeClose();
+}
+
+- (void)windowWillClose:(NSNotification*)notification
+{
+    infiniFrame->InvokeClosed();
 }
 @end
 

@@ -2,116 +2,116 @@ name: Run InfiniFrame Pack Tool E2E
 description: Sets up pack tool, runs publish, and validates packed output.
 
 inputs:
-  tool-project:
-    description: Path to InfiniFrame.Tools.Pack.csproj
-    required: false
-    default: src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj
-  package-output:
-    description: Directory where tool package artifacts are emitted
-    required: false
-    default: artifacts/dotnet-tools
-  project:
-    description: Path to target app csproj
-    required: true
-  rid:
-    description: Runtime identifier (RID)
-    required: true
-  configuration:
-    description: Build configuration
-    required: false
-    default: Release
-  framework:
-    description: Target framework
-    required: false
-    default: net10.0
-  self-contained:
-    description: Self-contained mode
-    required: false
-    default: "true"
-  output:
-    description: Output directory for packed publish
-    required: true
-  main-output-name:
-    description: Main output filename expected in output directory
-    required: true
-  forbidden-entries:
-    description: Newline-delimited entry names that must not exist in output directory
-    required: true
+    tool-project:
+        description: Path to InfiniFrame.Tools.Pack.csproj
+        required: false
+        default: src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj
+    package-output:
+        description: Directory where tool package artifacts are emitted
+        required: false
+        default: artifacts/dotnet-tools
+    project:
+        description: Path to target app csproj
+        required: true
+    rid:
+        description: Runtime identifier (RID)
+        required: true
+    configuration:
+        description: Build configuration
+        required: false
+        default: Release
+    framework:
+        description: Target framework
+        required: false
+        default: net10.0
+    self-contained:
+        description: Self-contained mode
+        required: false
+        default: "true"
+    output:
+        description: Output directory for packed publish
+        required: true
+    main-output-name:
+        description: Main output filename expected in output directory
+        required: true
+    forbidden-entries:
+        description: Newline-delimited entry names that must not exist in output directory
+        required: true
 
 runs:
-  using: composite
-  steps:
-    - name: Build tool project
-      shell: bash
-      run: |
-        dotnet build "${{ inputs['tool-project'] }}" -c Release --no-restore
+    using: composite
+    steps:
+        -   name: Build tool project
+            shell: bash
+            run: |
+                dotnet build "${{ inputs['tool-project'] }}" -c Release --no-restore
 
-    - name: Pack tool project
-      shell: bash
-      run: |
-        dotnet pack "${{ inputs['tool-project'] }}" -c Release --no-build --no-restore -o "${{ inputs['package-output'] }}"
+        -   name: Pack tool project
+            shell: bash
+            run: |
+                dotnet pack "${{ inputs['tool-project'] }}" -c Release --no-build --no-restore -o "${{ inputs['package-output'] }}"
 
-    - name: Install or update global tool
-      shell: bash
-      run: |
-        if dotnet tool list --global | grep -q "InfiniLore.InfiniFrame.Tools.Pack"; then
-          dotnet tool update --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
-        else
-          dotnet tool install --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
-        fi
+        -   name: Install or update global tool
+            shell: bash
+            run: |
+                if dotnet tool list --global | grep -q "InfiniLore.InfiniFrame.Tools.Pack"; then
+                  dotnet tool update --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
+                else
+                  dotnet tool install --global InfiniLore.InfiniFrame.Tools.Pack --add-source "${{ inputs['package-output'] }}" --ignore-failed-sources
+                fi
 
-    - name: Add global tools path
-      shell: bash
-      run: |
-        echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
-        if [ -n "${USERPROFILE:-}" ]; then
-          echo "$USERPROFILE/.dotnet/tools" >> "$GITHUB_PATH"
-        fi
+        -   name: Add global tools path
+            shell: bash
+            run: |
+                echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+                if [ -n "${USERPROFILE:-}" ]; then
+                  echo "$USERPROFILE/.dotnet/tools" >> "$GITHUB_PATH"
+                fi
 
-    - name: Verify tool command
-      shell: bash
-      run: |
-        infiniframe-pack --help
+        -   name: Verify tool command
+            shell: bash
+            run: |
+                infiniframe-pack --help
 
-    - name: Run pack publish
-      shell: bash
-      run: |
-        set -euo pipefail
-        infiniframe-pack publish "${{ inputs.project }}" \
-          --rid "${{ inputs.rid }}" \
-          --configuration "${{ inputs.configuration }}" \
-          --framework "${{ inputs.framework }}" \
-          --self-contained "${{ inputs['self-contained'] }}" \
-          --output "${{ inputs.output }}"
+        -   name: Run pack publish
+            shell: bash
+            run: |
+                set -euo pipefail
+                infiniframe-pack publish "${{ inputs.project }}" \
+                  --rid "${{ inputs.rid }}" \
+                  --configuration "${{ inputs.configuration }}" \
+                  --framework "${{ inputs.framework }}" \
+                  --self-contained "${{ inputs['self-contained'] }}" \
+                  --output "${{ inputs.output }}"
 
-    - name: Validate output shape
-      shell: bash
-      run: |
-        set -euo pipefail
-
-        output_dir="${{ inputs.output }}"
-        main_output_name="${{ inputs['main-output-name'] }}"
-        main_output="${output_dir}/${main_output_name}"
-
-        if [ ! -f "$main_output" ]; then
-          echo "Expected single-file output is missing: $main_output"
-          exit 1
-        fi
-
-        unexpected="$(find "$output_dir" -mindepth 1 -maxdepth 1 ! -name "$main_output_name" | sed 's|.*/||')"
-        if [ -n "$unexpected" ]; then
-          echo "Publish output shape invalid. Unexpected entries:"
-          echo "$unexpected"
-          exit 1
-        fi
-
-        while IFS= read -r forbidden; do
-          forbidden="$(echo "$forbidden" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
-          [ -z "$forbidden" ] && continue
-          if [ -e "${output_dir}/${forbidden}" ]; then
-            echo "Found unpacked payload in publish output: $forbidden"
-            exit 1
-          fi
-        done <<< "${{ inputs['forbidden-entries'] }}"
-
-        echo "Pack output validated successfully."
+        -   name: Validate output shape
+            shell: bash
+            run: |
+                set -euo pipefail
+                
+                output_dir="${{ inputs.output }}"
+                main_output_name="${{ inputs['main-output-name'] }}"
+                main_output="${output_dir}/${main_output_name}"
+                
+                if [ ! -f "$main_output" ]; then
+                  echo "Expected single-file output is missing: $main_output"
+                  exit 1
+                fi
+                
+                unexpected="$(find "$output_dir" -mindepth 1 -maxdepth 1 ! -name "$main_output_name" | sed 's|.*/||')"
+                if [ -n "$unexpected" ]; then
+                  echo "Publish output shape invalid. Unexpected entries:"
+                  echo "$unexpected"
+                  exit 1
+                fi
+                
+                while IFS= read -r forbidden; do
+                  forbidden="$(echo "$forbidden" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+                  [ -z "$forbidden" ] && continue
+                  if [ -e "${output_dir}/${forbidden}" ]; then
+                    echo "Found unpacked payload in publish output: $forbidden"
+                    exit 1
+                  fi
+                done <<< "${{ inputs['forbidden-entries'] }}"
+                
+                echo "Pack output validated successfully."

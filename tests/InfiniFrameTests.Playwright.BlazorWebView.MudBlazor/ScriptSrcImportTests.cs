@@ -17,7 +17,7 @@ public sealed class ScriptSrcImportTests : InfiniFramePlaywrightTestBase {
 
     [Test]
     [NotInParallel(ParallelControl.Playwright)]
-    public async Task ClassicScriptSrc_IsLoaded_AndExecutesCode() {
+    public async Task ClassicScriptSrc_IsLoaded_AndExecutesCode(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
         var state = await EvaluateWhenPageReadyAsync<JsonElement>(

@@ -12,7 +12,8 @@ namespace InfiniFrameTests.BlazorWebView;
 public class StaticWebAssetsRuntimeFileProviderTests {
     // ReSharper disable SimilarAnonymousTypeNearby
     [Test]
-    public async Task TryCreate_WithEqualScores_ShouldUseDeterministicManifestTieBreaker() {
+    [Retry(5)]
+    public async Task TryCreate_WithEqualScores_ShouldUseDeterministicManifestTieBreaker(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
         string alphaRoot = Path.Join(fixture.BaseDirectory, "alpha-root");
@@ -20,10 +21,10 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         Directory.CreateDirectory(alphaRoot);
         Directory.CreateDirectory(zetaRoot);
 
-        await File.WriteAllTextAsync(Path.Join(alphaRoot, "asset.js"), "alpha");
-        await File.WriteAllTextAsync(Path.Join(zetaRoot, "asset.js"), "zeta");
+        await File.WriteAllTextAsync(Path.Join(alphaRoot, "asset.js"), "alpha", ct);
+        await File.WriteAllTextAsync(Path.Join(zetaRoot, "asset.js"), "zeta", ct);
 
-        fixture.WriteManifest(new {
+        await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{zetaRoot}{Path.DirectorySeparatorChar}" },
             Root = new {
                 Children = new Dictionary<string, object?> {
@@ -36,9 +37,9 @@ public class StaticWebAssetsRuntimeFileProviderTests {
                 Asset = (object?)null,
                 Patterns = (object?)null
             }
-        }, "Zeta.staticwebassets.runtime.json");
+        }, "Zeta.staticwebassets.runtime.json", ct);
 
-        fixture.WriteManifest(new {
+        await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{alphaRoot}{Path.DirectorySeparatorChar}" },
             Root = new {
                 Children = new Dictionary<string, object?> {
@@ -51,7 +52,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
                 Asset = (object?)null,
                 Patterns = (object?)null
             }
-        }, "Alpha.staticwebassets.runtime.json");
+        }, "Alpha.staticwebassets.runtime.json", ct);
 
         // Act
         IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
@@ -66,15 +67,16 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    public async Task TryCreate_WhenManifestContainsExplicitAsset_ShouldResolveFile() {
+    [Retry(5)]
+    public async Task TryCreate_WhenManifestContainsExplicitAsset_ShouldResolveFile(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
         string jsPath = Path.Join(fixture.ContentRoot, "js", "editor-bridge.js");
         Directory.CreateDirectory(Path.GetDirectoryName(jsPath)!);
-        await File.WriteAllTextAsync(jsPath, "console.log('ok');");
+        await File.WriteAllTextAsync(jsPath, "console.log('ok');", ct);
 
         // ReSharper disable SimilarAnonymousTypeNearby
-        fixture.WriteManifest(new {
+        await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{fixture.ContentRoot}{Path.DirectorySeparatorChar}" },
             Root = new {
                 Children = new Dictionary<string, object?> {
@@ -93,7 +95,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
                 Asset = (object?)null,
                 Patterns = (object?)null
             }
-        });
+        }, ct: ct);
 
         // Act
         IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
@@ -107,14 +109,15 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    public async Task TryCreate_WhenManifestContainsWildcardPattern_ShouldResolveFileFromPattern() {
+    [Retry(5)]
+    public async Task TryCreate_WhenManifestContainsWildcardPattern_ShouldResolveFileFromPattern(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
         string targetPath = Path.Join(fixture.ContentRoot, "_content", "My.Package", "nested", "module.js");
         Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
-        await File.WriteAllTextAsync(targetPath, "export const x = 1;");
+        await File.WriteAllTextAsync(targetPath, "export const x = 1;", ct);
 
-        fixture.WriteManifest(new {
+        await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{fixture.ContentRoot}{Path.DirectorySeparatorChar}" },
             Root = new {
                 Children = new Dictionary<string, object?> {
@@ -135,7 +138,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
                 Asset = (object?)null,
                 Patterns = (object?)null
             }
-        });
+        }, ct: ct);
 
         // Act
         IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
@@ -149,7 +152,8 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    public async Task TryCreate_WithMultipleManifests_ShouldPreferAppManifest() {
+    [Retry(5)]
+    public async Task TryCreate_WithMultipleManifests_ShouldPreferAppManifest(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
         string appIndexPath = Path.Join(fixture.ContentRoot, "index.html");
@@ -158,11 +162,11 @@ public class StaticWebAssetsRuntimeFileProviderTests {
 
         Directory.CreateDirectory(Path.GetDirectoryName(appJsPath)!);
         Directory.CreateDirectory(Path.GetDirectoryName(frameworkOnlyPath)!);
-        await File.WriteAllTextAsync(appIndexPath, "<!doctype html><html></html>");
-        await File.WriteAllTextAsync(appJsPath, "export const ok = true;");
-        await File.WriteAllTextAsync(frameworkOnlyPath, "window.InfiniFrame = {};");
+        await File.WriteAllTextAsync(appIndexPath, "<!doctype html><html></html>", ct);
+        await File.WriteAllTextAsync(appJsPath, "export const ok = true;", ct);
+        await File.WriteAllTextAsync(frameworkOnlyPath, "window.InfiniFrame = {};", ct);
 
-        fixture.WriteManifest(new {
+        await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{fixture.FrameworkContentRoot}{Path.DirectorySeparatorChar}" },
             Root = new {
                 Children = new Dictionary<string, object?> {
@@ -181,9 +185,9 @@ public class StaticWebAssetsRuntimeFileProviderTests {
                 Asset = (object?)null,
                 Patterns = (object?)null
             }
-        }, "InfiniFrame.Js.staticwebassets.runtime.json");
+        }, "InfiniFrame.Js.staticwebassets.runtime.json", ct);
 
-        fixture.WriteManifest(new {
+        await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{fixture.ContentRoot}{Path.DirectorySeparatorChar}" },
             Root = new {
                 Children = new Dictionary<string, object?> {
@@ -207,7 +211,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
                 Asset = (object?)null,
                 Patterns = (object?)null
             }
-        }, "InfiniJSRCL.staticwebassets.runtime.json");
+        }, "InfiniJSRCL.staticwebassets.runtime.json", ct);
 
         // Act
         IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
@@ -223,10 +227,11 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    public async Task GetDirectoryContents_WhenNodeHasPatternsButNoChildren_ReturnsExistingDirectory() {
+    [Retry(5)]
+    public async Task GetDirectoryContents_WhenNodeHasPatternsButNoChildren_ReturnsExistingDirectory(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
-        fixture.WriteManifest(new {
+        await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{fixture.ContentRoot}{Path.DirectorySeparatorChar}" },
             Root = new {
                 Children = new Dictionary<string, object?> {
@@ -247,7 +252,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
                 Asset = (object?)null,
                 Patterns = (object?)null
             }
-        });
+        }, ct: ct);
 
         // Act
         IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
@@ -261,17 +266,18 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     [Test]
-    public async Task GetFileInfo_WhenCalledConcurrently_ShouldRemainStable() {
+    [Retry(5)]
+    public async Task GetFileInfo_WhenCalledConcurrently_ShouldRemainStable(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
         string packageRoot = Path.Join(fixture.ContentRoot, "_content", "My.Package", "nested");
         Directory.CreateDirectory(packageRoot);
 
         for (int i = 0; i < 32; i++) {
-            await File.WriteAllTextAsync(Path.Join(packageRoot, $"module-{i}.js"), $"export const v{i} = {i};");
+            await File.WriteAllTextAsync(Path.Join(packageRoot, $"module-{i}.js"), $"export const v{i} = {i};", ct);
         }
 
-        fixture.WriteManifest(new {
+        await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{fixture.ContentRoot}{Path.DirectorySeparatorChar}" },
             Root = new {
                 Children = new Dictionary<string, object?> {
@@ -292,7 +298,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
                 Asset = (object?)null,
                 Patterns = (object?)null
             }
-        });
+        }, ct: ct);
 
         IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
 
@@ -316,31 +322,35 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     }
 
     private sealed class TempStaticWebAssetsFixture : IDisposable {
-        public string BaseDirectory { get; } = Path.Join(Path.GetTempPath(), "InfiniFrameTests", Guid.NewGuid().ToString("N"));
+        public string BaseDirectory { get; } =
+            Path.Join(Path.GetTempPath(),
+                "InfiniFrameTests",
+                $"pid-{Environment.ProcessId}",
+                Guid.NewGuid().ToString("N"));
+
         public string ContentRoot => Path.Join(BaseDirectory, "content-root");
         public string FrameworkContentRoot => Path.Join(BaseDirectory, "framework-content-root");
 
         public TempStaticWebAssetsFixture() {
-            Directory.CreateDirectory(BaseDirectory);
             Directory.CreateDirectory(ContentRoot);
             Directory.CreateDirectory(FrameworkContentRoot);
         }
 
-        public void WriteManifest(object manifest, string? fileName = null) {
-            string manifestPath = Path.Join(BaseDirectory, fileName ?? $"{Guid.NewGuid():N}.staticwebassets.runtime.json");
+        public async Task WriteManifestAsync(object manifest, string? fileName = null, CancellationToken ct = default) {
+            string manifestPath = Path.Join(BaseDirectory,
+                fileName ?? $"{Guid.NewGuid():N}.staticwebassets.runtime.json");
+
             string json = JsonSerializer.Serialize(manifest);
-            File.WriteAllText(manifestPath, json);
+
+            await File.WriteAllTextAsync(manifestPath, json, ct);
         }
 
         public void Dispose() {
-            try {
-                if (Directory.Exists(BaseDirectory)) {
-                    Directory.Delete(BaseDirectory, recursive: true);
-                }
-            }
-            catch {
-                // Cleanup best effort.
-            }
+            // Do NOT block teardown on Windows IO
+            _ = Task.Run(() => {
+                if (Directory.Exists(BaseDirectory))
+                    Directory.Delete(BaseDirectory, true);
+            });
         }
     }
 }

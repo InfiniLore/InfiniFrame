@@ -61,6 +61,13 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
 
     #region C# Options
     public bool LimitLinuxWindowTitleLength { get; set; } = false;
+    public IInfiniFrameWindow? ParentWindow { get; set; } = null;
+    
+    private List<IInfiniFrameWindow> _childWindows = [];
+    public IEnumerable<IInfiniFrameWindow> ChildWindows {
+        get => _childWindows;
+        set => _childWindows = value.ToList();
+    }
     #endregion
     
     // -----------------------------------------------------------------------------------------------------------------
@@ -96,6 +103,7 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
             MinHeight = MinHeight,
             MinWidth = MinWidth,
             Minimized = Minimized,
+            NativeParent = ParentWindow?.InstanceHandle ?? IntPtr.Zero,
             NotificationRegistrationId = NotificationRegistrationId,
             NotificationsEnabled = NotificationsEnabled,
             Resizable = Resizable,

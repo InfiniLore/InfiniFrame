@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Utilities;
 using JetBrains.Annotations;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 namespace InfiniFrameTests.Shared;
@@ -46,7 +47,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder.SetStartString(StartString);
-        windowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "InfiniFrameTests", Guid.NewGuid().ToString()));
+        windowBuilder.SetTemporaryFilesPath(CreateUniqueTemporaryFilesPath());
         builder?.Invoke(windowBuilder);
 
         // Windows: WebView2 requires STA thread for COM initialization
@@ -78,7 +79,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         return utility;
     }
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows"), MustDisposeResource]
     private static InfiniFrameWindowTestUtility CreateOnStaThread(
         InfiniFrameWindowBuilder windowBuilder
     ) {
@@ -86,7 +87,12 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var thread = new Thread(() => {
             try {
+                Console.Error.WriteLine(
+                    $"[InfiniFrameWindowTestUtility] STA thread started managedThreadId={Environment.CurrentManagedThreadId} apt={Thread.CurrentThread.GetApartmentState()} pid={Environment.ProcessId}");
+
                 IInfiniFrameWindow window = windowBuilder.Build();
+                Console.Error.WriteLine(
+                    $"[InfiniFrameWindowTestUtility] window initialized instance=0x{window.InstanceHandle.ToInt64():X} hwnd=0x{window.WindowHandle.ToInt64():X} thread={Environment.CurrentManagedThreadId}");
                 windowSource.SetResult(window);
                 window.WaitForClose();
             }
@@ -109,6 +115,11 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         return utility;
     }
 
+    private static string CreateUniqueTemporaryFilesPath() {
+        string uniqueSuffix = $"{Environment.ProcessId}-{Environment.CurrentManagedThreadId}-{Guid.NewGuid():N}";
+        return Path.Combine(Path.GetTempPath(), "InfiniFrameTests", uniqueSuffix);
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // ----------------------------------------------------------------------------------------------------------------
@@ -129,8 +140,25 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         if (_windowThread is not null) {
             try {
-                if (!_windowThread.Join(TimeSpan.FromSeconds(5)))
-                    _windowThread.Interrupt();
+                // Keep test disposal bounded so per-test timeout policies remain reliable.
+                TimeSpan firstJoinTimeout = OperatingSystem.IsWindows()
+                    && RuntimeInformation.ProcessArchitecture == Architecture.Arm64
+                    ? TimeSpan.FromSeconds(2)
+                    : TimeSpan.FromSeconds(3);
+
+                if (!_windowThread.Join(firstJoinTimeout)) {
+                    try {
+                        Window.Close();
+                    }
+                    catch (ApplicationException) {
+                        // ignored
+                    }
+                    catch (ObjectDisposedException) {
+                        // ignored
+                    }
+
+                    _windowThread.Join(TimeSpan.FromSeconds(2));
+                }
             }
             catch (ThreadInterruptedException) {
                 // ignored

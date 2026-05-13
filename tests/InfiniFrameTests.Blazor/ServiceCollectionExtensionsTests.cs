@@ -10,7 +10,7 @@ namespace InfiniFrameTests.Blazor;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ServiceCollectionExtensionsTests {
     [Test]
-    public async Task AddInfiniFrameJs_RegistersScopedService() {
+    public async Task AddInfiniFrameJs_RegistersScopedService(CancellationToken ct = default) {
         // Arrange
         var services = new ServiceCollection();
 

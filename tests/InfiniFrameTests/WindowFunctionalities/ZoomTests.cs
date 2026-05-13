@@ -13,7 +13,7 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Builder)}")]
     [MatrixDataSource]
-    public async Task Builder([MatrixRange<int>(10, 200, 10)] int zoom) {
+    public async Task Builder([MatrixRange<int>(10, 200, 10)] int zoom, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -30,10 +30,9 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
-    public async Task Window(CancellationToken ct) {
+    public async Task Window(CancellationToken ct = default) {
         // Arrange
         const int zoom = 120;
         using var windowUtility = InfiniFrameWindowTestUtility.Create(
@@ -55,11 +54,10 @@ public class ZoomTests {
     [Test]
     [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [SkipUtility.SkipOnLinux]
     [SkipUtility.SkipOnMacOs]
     [MatrixDataSource]
-    public async Task FullIntegration([MatrixRange<int>(26, 250, 10)] int zoom, CancellationToken ct) {
+    public async Task FullIntegration([MatrixRange<int>(26, 250, 10)] int zoom, CancellationToken ct = default) {
         // Arrange
 
         // Act

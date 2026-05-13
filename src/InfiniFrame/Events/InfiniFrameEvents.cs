@@ -2,15 +2,49 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Native;
+using InfiniFrame.Native.Delegates;
 using System.Drawing;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class InfiniFrameEvents(IInfiniFrameEventsStore store) : IInfiniFrameEvents {
-    public IInfiniFrameEventsStore EventsStore { get; } = store;
+public partial class InfiniFrameEvents : IInfiniFrameEvents {
+    public IInfiniFrameEventsStore EventsStore { get; }
     private IInfiniFrameWindow? Sender { get; set; }
+    
+    private CppClosedDelegate ClosedHandler  { get; }
+    private CppClosingDelegate ClosingHandler { get; }
+    private CppFocusInDelegate FocusInHandler  { get; }
+    private CppFocusOutDelegate FocusOutHandler  { get; }
+    private CppMaximizedDelegate MaximizedHandler  { get; }
+    private CppMinimizedDelegate MinimizedHandler  { get; }
+    private CppMovedDelegate MovedHandler  { get; }
+    private CppResizedDelegate ResizedHandler  { get; }
+    private CppRestoredDelegate RestoredHandler  { get; }
+    private CppWebMessageReceivedDelegate WebMessageReceivedHandler  { get; }
+    private CppWebResourceRequestedDelegate CustomSchemeHandler  { get; }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    public InfiniFrameEvents(IInfiniFrameEventsStore store) {
+        EventsStore = store;
+
+        // Root stable delegate instances for native callback lifetime.
+        //      This has to be done to ensure GC lifetime management on Windows ARM64
+        ClosedHandler = OnWindowClosed;
+        ClosingHandler = OnWindowClosing;
+        CustomSchemeHandler = OnCustomScheme;
+        FocusInHandler = OnFocusIn;
+        FocusOutHandler = OnFocusOut;
+        MaximizedHandler = OnMaximized;
+        MinimizedHandler = OnMinimized;
+        MovedHandler = OnLocationChanged;
+        ResizedHandler = OnSizeChanged;
+        RestoredHandler = OnRestored;
+        WebMessageReceivedHandler = OnWebMessageReceived;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -22,18 +56,17 @@ public partial class InfiniFrameEvents(IInfiniFrameEventsStore store) : IInfiniF
     
     public void AssignEventCallbacks(ref InfiniFrameNativeParameters parameters) {
         // Rebind callbacks to the per-window event instance that has Sender set via CompleteSetup.
-        parameters.ClosingHandler = OnWindowClosing;
-        parameters.CustomSchemeHandler = OnCustomScheme;
-        
-        parameters.ClosedHandler = OnWindowClosed;
-        parameters.ResizedHandler = OnSizeChanged;
-        parameters.MaximizedHandler = OnMaximized;
-        parameters.RestoredHandler = OnRestored;
-        parameters.MinimizedHandler = OnMinimized;
-        parameters.MovedHandler = OnLocationChanged;
-        parameters.FocusInHandler = OnFocusIn;
-        parameters.FocusOutHandler = OnFocusOut;
-        parameters.WebMessageReceivedHandler = OnWebMessageReceived;
+        parameters.ClosedHandler = ClosedHandler;
+        parameters.ClosingHandler = ClosingHandler;
+        parameters.CustomSchemeHandler = CustomSchemeHandler;
+        parameters.FocusInHandler = FocusInHandler;
+        parameters.FocusOutHandler = FocusOutHandler;
+        parameters.MaximizedHandler = MaximizedHandler;
+        parameters.MinimizedHandler = MinimizedHandler;
+        parameters.MovedHandler = MovedHandler;
+        parameters.ResizedHandler = ResizedHandler;
+        parameters.RestoredHandler = RestoredHandler;
+        parameters.WebMessageReceivedHandler = WebMessageReceivedHandler;
         
         ApplyCustomSchemeNames(ref parameters);
     }

@@ -9,14 +9,14 @@ namespace InfiniFrameTests.MessageHandlers;
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowRegistrationStateMachineTests {
     [Test]
-    public async Task InitialState_IsReadyPending_AndTimeoutEligible() {
+    public async Task InitialState_IsReadyPending_AndTimeoutEligible(CancellationToken ct = default) {
         var sut = new WindowRegistrationStateMachine();
 
         await Assert.That(sut.IsReadyPending()).IsTrue();
     }
 
     [Test]
-    public async Task TryBeginRegistrationSendOnReady_ReturnsFalse_WhenSendAlreadyInProgress() {
+    public async Task TryBeginRegistrationSendOnReady_ReturnsFalse_WhenSendAlreadyInProgress(CancellationToken ct = default) {
         var sut = new WindowRegistrationStateMachine();
 
         bool firstStart = sut.TryBeginRegistrationSendOnReady();
@@ -28,7 +28,7 @@ public class WindowRegistrationStateMachineTests {
     }
 
     [Test]
-    public async Task CompleteRegistrationSend_SuccessfulAck_BlocksFurtherSends() {
+    public async Task CompleteRegistrationSend_SuccessfulAck_BlocksFurtherSends(CancellationToken ct = default) {
         var sut = new WindowRegistrationStateMachine();
         sut.TryBeginRegistrationSendOnReady();
 
@@ -40,7 +40,7 @@ public class WindowRegistrationStateMachineTests {
     }
 
     [Test]
-    public async Task CompleteRegistrationSend_Failure_AllowsRetry() {
+    public async Task CompleteRegistrationSend_Failure_AllowsRetry(CancellationToken ct = default) {
         var sut = new WindowRegistrationStateMachine();
         sut.TryBeginRegistrationSendOnReady();
         sut.CompleteRegistrationSend(success: false);
@@ -52,7 +52,7 @@ public class WindowRegistrationStateMachineTests {
     }
 
     [Test]
-    public async Task CompleteRegistrationSend_Failure_WithoutReady_DoesNotEnableTimeoutLogging() {
+    public async Task CompleteRegistrationSend_Failure_WithoutReady_DoesNotEnableTimeoutLogging(CancellationToken ct = default) {
         var sut = new WindowRegistrationStateMachine();
 
         sut.CompleteRegistrationSend(success: false);

@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
-using InfiniFrameTests.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,9 +27,11 @@ public class InfiniFrameWebViewManagerTests {
         public void SendMessageForTest(string message) => SendMessage(message);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Test Methods
+    // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
-    public async Task SendMessage_AfterDispose_ShouldReturnPromptly(CancellationToken ct) {
+    public async Task SendMessage_AfterDispose_ShouldReturnPromptly(CancellationToken ct = default) {
         // Arrange
         IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
         window.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())

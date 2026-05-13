@@ -28,10 +28,10 @@ public class WebMessageReceivedHandlerTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // Tests
+    // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task Handler_ResolvesServiceFromProvider() {
+    public async Task Handler_ResolvesServiceFromProvider(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameEvents(eventsStore);
@@ -40,7 +40,6 @@ public class WebMessageReceivedHandlerTests {
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider =  new TestServiceProvider(service),
-            Parent = null,
             Events = events,
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null,
@@ -65,14 +64,13 @@ public class WebMessageReceivedHandlerTests {
     }
 
     [Test]
-    public async Task Handler_WithOrigin_ReceivesOriginFromEventPayload() {
+    public async Task Handler_WithOrigin_ReceivesOriginFromEventPayload(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
         var builder = InfiniFrameWindowBuilder.Create(eventsStore);
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
-            Parent = null,
             Events = new InfiniFrameEvents(eventsStore),
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null,

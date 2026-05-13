@@ -2,8 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-COMPOSE_FILE="${REPO_ROOT}/docker/compose/linux-tests.yml"
+COMPOSE_FILE="${SCRIPT_DIR}/../compose/infiniframe-linux.yml"
 
 DISPLAY_VALUE="${DISPLAY:-:0}"
 PLAYWRIGHT_VISIBLE_DEBUG_VALUE="${PLAYWRIGHT_VISIBLE_DEBUG:-0}"

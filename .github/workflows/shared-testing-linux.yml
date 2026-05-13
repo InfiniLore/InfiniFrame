@@ -67,14 +67,11 @@ jobs:
                         8.x
                         9.x
                         10.x
-
-            -   name: Cache NuGet
-                uses: actions/cache@v5
-                with:
-                    path: ~/.nuget/packages
-                    key: ${{ matrix.os }}-${{ matrix.arch }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/Directory.Packages.props') }}
-                    restore-keys: |
-                        ${{ matrix.os }}-${{ matrix.arch }}-nuget-
+                    cache: true
+                    cache-dependency-path: |
+                        **/*.csproj
+                        **/*.props
+                        **/Directory.Packages.props
 
             -   name: Setup Native dependencies
                 # noinspection UndefinedAction
@@ -117,9 +114,9 @@ jobs:
             -   name: Run Tests
                 run: |
                     echo "Starting desktop environment..."
-
+                    
                     eval "$(dbus-launch --sh-syntax)"
-
+                    
                     echo "Launching Xvfb..."
                     Xvfb :99 \
                       -screen 0 1920x1080x24 \
@@ -129,52 +126,60 @@ jobs:
                       +extension RENDER \
                       -nolisten tcp \
                       -noreset &> xvfb.log &
-
+                    
                     export DISPLAY=:99
+                    
                     export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
                     export XDG_SESSION_TYPE=x11
-                    export XDG_SESSION_CLASS=user
-                    export XDG_SESSION_DESKTOP=ubuntu
-                    export XDG_CURRENT_DESKTOP=ubuntu:GNOME
-                    export DESKTOP_SESSION=ubuntu
-
+                    export DESKTOP_SESSION=openbox
+                    export XDG_CURRENT_DESKTOP=Openbox
+                    
                     mkdir -p "$XDG_RUNTIME_DIR"
                     chmod 700 "$XDG_RUNTIME_DIR"
-
+                    
                     echo "Waiting for X server..."
                     timeout 30 bash -c 'until xdpyinfo >/dev/null 2>&1; do sleep 1; done' || {
                       echo "X server failed to start."
+                      cat xvfb.log || true
                       exit 1
                     }
-
-                    echo "Starting Mutter window manager..."
-                    mutter --x11 --replace --sm-disable &> mutter.log &
-
-                    timeout 20 bash -c 'until pgrep -x mutter >/dev/null; do sleep 1; done' || {
-                      echo "Mutter failed to start or crashed."
-                      echo "=== Diagnostic: X11 info ==="
-                      xdpyinfo | head -3 || echo "xdpyinfo failed"
-                      echo "=== Diagnostic: D-Bus ==="
-                      echo "$DBUS_SESSION_BUS_ADDRESS"
+                    
+                    echo "Starting Openbox..."
+                    openbox &> openbox.log &
+                    
+                    timeout 20 bash -c 'until pgrep -x openbox >/dev/null; do sleep 1; done' || {
+                      echo "Openbox failed to start."
+                      cat openbox.log || true
                       exit 1
                     }
-
-                    echo "Mutter is running:"
-                    ps aux | grep "[m]utter" || echo "Mutter missing unexpectedly"
-
+                    
+                    echo "Openbox is running:"
+                    ps aux | grep "[o]penbox" || echo "Openbox missing unexpectedly"
+                    
                     timeout 5 xwininfo -root >/dev/null 2>&1 && echo "Window manager responding" || {
                       echo "Window manager not responding"
                       exit 1
                     }
-
+                    
                     echo "=== Environment Status ==="
                     echo "Display: $DISPLAY"
                     echo "Desktop: $XDG_CURRENT_DESKTOP"
-                    echo "Session: $XDG_SESSION_DESKTOP"
                     echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
+                    
                     xdpyinfo | head -3 || true
-
+                    
+                    echo "=== OpenGL Info ==="
+                    glxinfo | grep -E "OpenGL renderer|OpenGL vendor|OpenGL version" || true
+                    
                     echo "=== Running Tests ==="
+                    
+                    export LIBGL_ALWAYS_SOFTWARE=1
+                    export GALLIUM_DRIVER=llvmpipe
+                    export MESA_GL_VERSION_OVERRIDE=3.3
+                    export WEBKIT_DISABLE_COMPOSITING_MODE=1
+                    
+                    ulimit -c unlimited
+                    
                     dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
                       --no-build \

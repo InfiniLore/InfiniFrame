@@ -15,7 +15,7 @@ public class BrowserControlInitParametersTests {
     [DisplayName($"{nameof(BrowserControlInitParametersTests)}.{nameof(Builder)}")]
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux]
-    public async Task Builder() {
+    public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
         const string parameter = "--remote-debugging-port=9222";

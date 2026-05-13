@@ -23,7 +23,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
-    public required IInfiniFrameWindow? Parent { get; init; }
     public required IInfiniFrameEvents Events { get; init; }
     public required IInfiniFrameOptions Configuration { get; init; }
     public IInfiniFrameStaticAssets? StaticAssets { get; init; }
@@ -32,6 +31,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     
     public IntPtr NativeType => WindowType.Value;
     public IntPtr InstanceHandle { get; private set; }
+    public bool IsClosed => Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero;
 
     public Rectangle CachedPreFullScreenBounds { get; set; } = Rectangle.Empty;
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
@@ -66,7 +66,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             Logger.LogDebug("Starting message loop for window.");
             Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
         }
-        catch (Exception ex) when (IsNonFatalException(ex)) {
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             int lastError = 0;
             if (OperatingSystem.IsWindows())
                 lastError = Marshal.GetLastWin32Error();
@@ -334,7 +334,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             out uri);
     }
 
-    private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct) {
+    private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) {
         return ct.IsCancellationRequested 
             ? Task.FromCanceled<TResult>(ct)
             // Dialog calls are intentionally offloaded for Blazor flows where synchronous dialog invocation is unsafe.
@@ -361,7 +361,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
                 Invoke(() => InstanceHandle = InfiniFrameNative.Constructor(in startupParameters));
             }
-            catch (Exception ex) when (IsNonFatalException(ex)) {
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 int lastError = 0;
                 if (OperatingSystem.IsWindows())
                     lastError = Marshal.GetLastWin32Error();
@@ -776,8 +776,5 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ZoomEnabled => InvokeUtility.InvokeAndReturn<bool>(this, InfiniFrameNative.GetZoomEnabled);
-
-    private static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
     #endregion
 }

@@ -13,7 +13,7 @@ namespace InfiniFrameTests.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class MonitorsUtilityTests {
     [Test]
-    public async Task TryGetCurrentMonitor_ReturnsFalse_WhenMonitorsIsDefault() {
+    public async Task TryGetCurrentMonitor_ReturnsFalse_WhenMonitorsIsDefault(CancellationToken ct = default) {
         // Arrange
         ImmutableArray<InfiniMonitor> monitors = default;
         Rectangle windowBounds = new(10, 10, 100, 100);
@@ -27,7 +27,7 @@ public class MonitorsUtilityTests {
     }
 
     [Test]
-    public async Task TryGetCurrentMonitor_ReturnsFalse_WhenMonitorsIsEmpty() {
+    public async Task TryGetCurrentMonitor_ReturnsFalse_WhenMonitorsIsEmpty(CancellationToken ct = default) {
         // Arrange
         ImmutableArray<InfiniMonitor> monitors = [];
         Rectangle windowBounds = new(10, 10, 100, 100);
@@ -37,11 +37,11 @@ public class MonitorsUtilityTests {
 
         // Assert
         await Assert.That(result).IsFalse();
-        await Assert.That(monitor).IsEqualTo(default(InfiniMonitor));
+        await Assert.That(monitor).IsEqualTo(default);
     }
 
     [Test]
-    public async Task TryGetCurrentMonitor_ReturnsOverlappingMonitor_WhenWindowOverlapsSingleMonitor() {
+    public async Task TryGetCurrentMonitor_ReturnsOverlappingMonitor_WhenWindowOverlapsSingleMonitor(CancellationToken ct = default) {
         // Arrange
         InfiniMonitor expected = new(
             MonitorArea: new Rectangle(0, 0, 500, 500),
@@ -60,7 +60,7 @@ public class MonitorsUtilityTests {
     }
 
     [Test]
-    public async Task TryGetCurrentMonitor_ReturnsMonitorWithLargestWindowFraction_WhenWindowSpansMultipleMonitors() {
+    public async Task TryGetCurrentMonitor_ReturnsMonitorWithLargestWindowFraction_WhenWindowSpansMultipleMonitors(CancellationToken ct = default) {
         // Arrange
         InfiniMonitor leftMonitor = new(
             MonitorArea: new Rectangle(0, 0, 100, 100),
@@ -84,7 +84,7 @@ public class MonitorsUtilityTests {
     }
 
     [Test]
-    public async Task TryGetCurrentMonitor_ReturnsNearestMonitor_WhenWindowHasNoOverlap() {
+    public async Task TryGetCurrentMonitor_ReturnsNearestMonitor_WhenWindowHasNoOverlap(CancellationToken ct = default) {
         // Arrange
         InfiniMonitor leftMonitor = new(
             MonitorArea: new Rectangle(0, 0, 100, 100),
@@ -108,7 +108,7 @@ public class MonitorsUtilityTests {
     }
 
     [Test]
-    public async Task TryGetCurrentMonitor_ReturnsFirstMonitor_WhenDistancesAreEqualAndNoOverlap() {
+    public async Task TryGetCurrentMonitor_ReturnsFirstMonitor_WhenDistancesAreEqualAndNoOverlap(CancellationToken ct = default) {
         // Arrange
         InfiniMonitor leftMonitor = new(
             MonitorArea: new Rectangle(0, 0, 100, 100),
@@ -132,7 +132,7 @@ public class MonitorsUtilityTests {
     }
 
     [Test]
-    public async Task TryGetCurrentMonitor_ReturnsNearestMonitor_WhenWindowHasZeroArea() {
+    public async Task TryGetCurrentMonitor_ReturnsNearestMonitor_WhenWindowHasZeroArea(CancellationToken ct = default) {
         // Arrange
         InfiniMonitor topMonitor = new(
             MonitorArea: new Rectangle(0, 0, 100, 100),
@@ -156,7 +156,7 @@ public class MonitorsUtilityTests {
     }
 
     [Test]
-    public async Task TryGetCurrentMonitor_ReturnsNearestMonitor_WhenWindowHasNegativeDimensions() {
+    public async Task TryGetCurrentMonitor_ReturnsNearestMonitor_WhenWindowHasNegativeDimensions(CancellationToken ct = default) {
         // Arrange
         InfiniMonitor topMonitor = new(
             MonitorArea: new Rectangle(0, 0, 100, 100),

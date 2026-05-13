@@ -41,6 +41,20 @@ gboolean on_webview_context_menu(
     gpointer user_data
     );
 gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, gpointer user_data);
+void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data);
+gboolean on_webview_load_failed(
+    WebKitWebView* web_view,
+    WebKitLoadEvent load_event,
+    gchar* failing_uri,
+    GError* error,
+    gpointer user_data
+    );
+void on_webview_process_terminated(
+    WebKitWebView* web_view,
+    WebKitWebProcessTerminationReason reason,
+    gpointer user_data
+    );
+void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Platform Impl
@@ -185,6 +199,39 @@ static std::string escapeJsonString(std::string_view input) {
     }
 
     return result;
+}
+
+static bool linux_webview_diagnostics_enabled() {
+    const char* value = g_getenv("INFINIFRAME_LINUX_WEBVIEW_DIAGNOSTICS");
+    return value != nullptr && value[0] != '\0' && g_strcmp0(value, "0") != 0;
+}
+
+static const char* webkit_load_event_to_string(WebKitLoadEvent event) {
+    switch (event) {
+        case WEBKIT_LOAD_STARTED:
+            return "started";
+        case WEBKIT_LOAD_REDIRECTED:
+            return "redirected";
+        case WEBKIT_LOAD_COMMITTED:
+            return "committed";
+        case WEBKIT_LOAD_FINISHED:
+            return "finished";
+        default:
+            return "unknown";
+    }
+}
+
+static const char* webkit_termination_reason_to_string(WebKitWebProcessTerminationReason reason) {
+    switch (reason) {
+        case WEBKIT_WEB_PROCESS_CRASHED:
+            return "crashed";
+        case WEBKIT_WEB_PROCESS_EXCEEDED_MEMORY_LIMIT:
+            return "exceeded-memory-limit";
+        case WEBKIT_WEB_PROCESS_TERMINATED_BY_API:
+            return "terminated-by-api";
+        default:
+            return "unknown";
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -469,6 +516,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
         G_CALLBACK(on_widget_destroyed), this
     );
 
+    // Register custom schemes before first navigation to avoid first-load races.
+    m_impl->AddCustomSchemeHandlers();
+
     Show(false);
 
     g_signal_connect(
@@ -490,8 +540,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
         G_OBJECT(m_impl->_webview), "permission-request",
         G_CALLBACK(on_permission_request), this
         );
-
-    m_impl->AddCustomSchemeHandlers();
 
     if (initParams->Transparent)
         SetTransparentEnabled(true);
@@ -1023,6 +1071,8 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         m_impl->set_webkit_settings();
 
         gtk_container_add(GTK_CONTAINER(m_impl->_window), m_impl->_webview);
+        gtk_widget_set_hexpand(m_impl->_webview, TRUE);
+        gtk_widget_set_vexpand(m_impl->_webview, TRUE);
 
         auto js = Embedded::InfiniFrameJsUtf8();
 
@@ -1043,6 +1093,23 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
             reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
             );
         webkit_user_content_manager_register_script_message_handler(contentManager, "infiniFrameInterop");
+
+        g_signal_connect(
+            G_OBJECT(m_impl->_webview), "load-changed",
+            G_CALLBACK(on_webview_load_changed), this
+            );
+        g_signal_connect(
+            G_OBJECT(m_impl->_webview), "load-failed",
+            G_CALLBACK(on_webview_load_failed), this
+            );
+        g_signal_connect(
+            G_OBJECT(m_impl->_webview), "web-process-terminated",
+            G_CALLBACK(on_webview_process_terminated), this
+            );
+        g_signal_connect(
+            G_OBJECT(m_impl->_webview), "size-allocate",
+            G_CALLBACK(on_webview_size_allocate), this
+            );
 
         if (!m_impl->_startUrl.empty())
             NavigateToUrl(const_cast<AutoString>(m_impl->_startUrl.c_str()));
@@ -1159,6 +1226,59 @@ gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest*
     else
         webkit_permission_request_deny(request);
     return TRUE;
+}
+
+void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
+    if (!linux_webview_diagnostics_enabled())
+        return;
+
+    const char* uri = webkit_web_view_get_uri(web_view);
+    g_message(
+        "[InfiniFrame/Linux] WebKit load-changed: event=%s uri=%s",
+        webkit_load_event_to_string(load_event),
+        uri ? uri : "<null>"
+        );
+}
+
+gboolean on_webview_load_failed(
+    WebKitWebView* web_view,
+    WebKitLoadEvent load_event,
+    gchar* failing_uri,
+    GError* error,
+    gpointer user_data
+    ) {
+    if (!linux_webview_diagnostics_enabled())
+        return FALSE;
+
+    g_warning(
+        "[InfiniFrame/Linux] WebKit load-failed: event=%s uri=%s error=%s",
+        webkit_load_event_to_string(load_event),
+        failing_uri ? failing_uri : "<null>",
+        error ? error->message : "<null>"
+        );
+    return FALSE;
+}
+
+void on_webview_process_terminated(
+    WebKitWebView* web_view,
+    WebKitWebProcessTerminationReason reason,
+    gpointer user_data
+    ) {
+    g_warning(
+        "[InfiniFrame/Linux] WebKit web process terminated: reason=%s",
+        webkit_termination_reason_to_string(reason)
+        );
+}
+
+void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data) {
+    if (!linux_webview_diagnostics_enabled())
+        return;
+
+    g_message(
+        "[InfiniFrame/Linux] WebView size-allocate: %dx%d",
+        allocation ? allocation->width : -1,
+        allocation ? allocation->height : -1
+        );
 }
 
 #endif

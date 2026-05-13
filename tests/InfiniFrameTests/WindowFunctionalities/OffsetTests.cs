@@ -16,11 +16,10 @@ public class OffsetTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window(int x, int y, CancellationToken ct) {
+    public async Task Window(int x, int y, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -40,11 +39,10 @@ public class OffsetTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window_AsPoint(int x, int y, CancellationToken ct) {
+    public async Task Window_AsPoint(int x, int y, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
@@ -64,11 +62,10 @@ public class OffsetTests {
     [SkipUtility.SkipOnMacOs]
     [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    [Timeout(TimeoutUtility.DefaultTimeout)]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
-    public async Task Window_AsDouble(double x, double y, CancellationToken ct) {
+    public async Task Window_AsDouble(double x, double y, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
