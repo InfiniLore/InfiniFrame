@@ -96,7 +96,7 @@ public class ParentChildWindowTests {
     }
 
     [Test]
-    [SkipUtility.OnlyRunOnWindows]
+    [SkipUtility.OnlyRunOnWindowsX64]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task ChildWindow_ShouldHaveNativeOwnerWindow_OnWindows(CancellationToken ct = default) {
         WriteDiagnostics(nameof(ChildWindow_ShouldHaveNativeOwnerWindow_OnWindows));
