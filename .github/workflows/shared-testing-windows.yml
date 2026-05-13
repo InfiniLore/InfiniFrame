@@ -234,7 +234,6 @@ jobs:
 #                        artifacts/testresults/**
 
             -   name: Pack Tool E2E
-                if: always()
                 # noinspection UndefinedAction
                 uses: ./.github/actions/packtool-e2e
                 # noinspection UndefinedParamsPresent
