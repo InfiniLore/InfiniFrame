@@ -35,7 +35,7 @@
         <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">false</GeneratePackageOnBuild>
 
         
-        <Version>0.12.0</Version>
+        <Version>0.13.0</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -43,25 +43,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniFrame"/>
-        <InternalsVisibleTo Include="InfiniFrame.Blazor"/>
-        <InternalsVisibleTo Include="InfiniFrame.BlazorWebView"/>
-        <InternalsVisibleTo Include="InfiniFrame.Js"/>
-        <InternalsVisibleTo Include="InfiniFrame.Native"/>
-        <InternalsVisibleTo Include="InfiniFrame.Shared"/>
-        <InternalsVisibleTo Include="InfiniFrame.WebServer"/>
-        <InternalsVisibleTo Include="InfiniFrameTests"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Blazor"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.BlazorWebView"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.BlazorWebView.MudBlazor"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.WebApp.React"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.WebApp.Vue"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Shared"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack"/>
-        <InternalsVisibleTo Include="InfiniFrameTests.WebServer"/>
+        <InternalsVisibleTo Include="InfiniFrame" />
+        <InternalsVisibleTo Include="InfiniFrame.Blazor" />
+        <InternalsVisibleTo Include="InfiniFrame.BlazorWebView" />
+        <InternalsVisibleTo Include="InfiniFrame.Js" />
+        <InternalsVisibleTo Include="InfiniFrame.Native" />
+        <InternalsVisibleTo Include="InfiniFrame.Shared" />
+        <InternalsVisibleTo Include="InfiniFrame.WebServer" />
+        <InternalsVisibleTo Include="InfiniFrameTests" />
+        <InternalsVisibleTo Include="InfiniFrameTests.Blazor" />
+        <InternalsVisibleTo Include="InfiniFrameTests.BlazorWebView" />
+        <InternalsVisibleTo Include="InfiniFrameTests.Playwright" />
+        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.BlazorWebView.MudBlazor" />
+        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.WebApp.React" />
+        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.WebApp.Vue" />
+        <InternalsVisibleTo Include="InfiniFrameTests.Shared" />
+        <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack" />
+        <InternalsVisibleTo Include="InfiniFrameTests.WebServer" />
         
-        <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
 
     <Import Project="AnalyzerBaseline.props" Condition="Exists('AnalyzerBaseline.props')" />
