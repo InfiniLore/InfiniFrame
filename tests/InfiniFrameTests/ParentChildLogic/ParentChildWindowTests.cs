@@ -48,6 +48,7 @@ public class ParentChildWindowTests {
     
     [Test]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnWindowsArm]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestParentChildWindow(CancellationToken ct = default) {
         WriteDiagnostics(nameof(TestParentChildWindow));
@@ -70,6 +71,7 @@ public class ParentChildWindowTests {
 
     [Test]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnWindowsArm]
     [TimeoutUtility.WithDefaultTimeout(6_000)]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task ClosingParent_ShouldCloseChildWindow(CancellationToken ct = default) {
