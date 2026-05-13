@@ -5,6 +5,7 @@
         <OutputType>Library</OutputType>
 
         <IsPackable>true</IsPackable>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../..'))</RepositoryRoot>
 
         <RunFrontendBuild Condition="'$(RunFrontendBuild)'==''">true</RunFrontendBuild>
 
@@ -58,21 +59,11 @@
             BeforeTargets="DispatchToInnerBuilds;ResolveProjectStaticWebAssets;ResolveStaticWebAssets"
             Condition="'$(DesignTimeBuild)'!='true'
                      and '$(RunFrontendBuild)'=='true'
-                     and '$(SkipTypeScriptBuild)'!='true'
-                     and (
-                         '$(IsCrossTargetingBuild)'=='true'
-                         or (
-                             '$(IsCrossTargetingBuild)'!='true'
-                             and (
-                                 !Exists('$(FrontendProdFile)')
-                                 or !Exists('$(FrontendDevFile)')
-                             )
-                         )
-                     )">
+                     and '$(SkipTypeScriptBuild)'!='true'">
 
         <Message Text="Running frontend build..." Importance="high" />
 
-        <Exec Command="npm run build"
+        <Exec Command="node &quot;$(RepositoryRoot)/scripts/BuildFrontend.mjs&quot; &quot;$(MSBuildProjectDirectory)&quot; &quot;$(FrontendStampFile)&quot; &quot;$(FrontendProdFile)&quot; &quot;$(FrontendDevFile)&quot;"
               WorkingDirectory="$(MSBuildProjectDirectory)" />
 
         <Error Condition="!Exists('$(FrontendProdFile)')"
