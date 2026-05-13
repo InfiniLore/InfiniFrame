@@ -55,11 +55,6 @@ jobs:
                         8.x
                         9.x
                         10.x
-                    cache: true
-                    cache-dependency-path: |
-                        **/*.csproj
-                        **/*.props
-                        **/Directory.Packages.props
             
             -   name: Setup Native dependencies
                 # noinspection UndefinedAction
