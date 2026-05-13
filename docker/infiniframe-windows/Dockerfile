@@ -1,5 +1,5 @@
 # escape=`
-FROM mcr.microsoft.com/dotnet/sdk:10.0-windowsservercore-ltsc2022
+FROM mcr.microsoft.com/dotnet/sdk:10.0.300-windowsservercore-ltsc2022
 
 SHELL ["powershell", "-NoLogo", "-NoProfile", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 

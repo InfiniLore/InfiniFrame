@@ -55,10 +55,20 @@
     </ItemGroup>
 
     <Target Name="BuildFrontend"
-            BeforeTargets="ResolveProjectStaticWebAssets;ResolveStaticWebAssets"
+            BeforeTargets="DispatchToInnerBuilds;ResolveProjectStaticWebAssets;ResolveStaticWebAssets"
             Condition="'$(DesignTimeBuild)'!='true'
                      and '$(RunFrontendBuild)'=='true'
-                     and '$(SkipTypeScriptBuild)'!='true'">
+                     and '$(SkipTypeScriptBuild)'!='true'
+                     and (
+                         '$(IsCrossTargetingBuild)'=='true'
+                         or (
+                             '$(IsCrossTargetingBuild)'!='true'
+                             and (
+                                 !Exists('$(FrontendProdFile)')
+                                 or !Exists('$(FrontendDevFile)')
+                             )
+                         )
+                     )">
 
         <Message Text="Running frontend build..." Importance="high" />
 
