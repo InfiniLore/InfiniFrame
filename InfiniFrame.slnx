@@ -118,6 +118,7 @@
     <File Path=".github/workflows/shared-testing-linux.yml" />
     <File Path=".github/workflows/shared-testing-macos.yml" />
     <File Path=".github/workflows/shared-testing-windows.yml" />
+    <File Path=".github/workflows/shared-testing-dotnetpack.yml" />
     <File Path=".github/workflows/shared-testing-js.yml" />
     <File Path=".github/workflows/shared-testing-windows-playwright.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
