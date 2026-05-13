@@ -184,13 +184,11 @@ jobs:
                     echo "run=$should_run" >> "$GITHUB_OUTPUT"
 
             -   name: Checkout
-                if: steps.should_analyze.outputs.run == 'true'
                 uses: actions/checkout@v6
                 with:
                     fetch-depth: 1
 
             -   name: Setup .NET
-                if: steps.should_analyze.outputs.run == 'true'
                 uses: actions/setup-dotnet@v5
                 with:
                     dotnet-version: |
