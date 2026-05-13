@@ -55,7 +55,7 @@
     </ItemGroup>
 
     <Target Name="BuildFrontend"
-            BeforeTargets="ResolveStaticWebAssets"
+            BeforeTargets="ResolveProjectStaticWebAssets;ResolveStaticWebAssets"
             Condition="'$(DesignTimeBuild)'!='true'
                      and '$(RunFrontendBuild)'=='true'
                      and '$(SkipTypeScriptBuild)'!='true'">
@@ -72,10 +72,6 @@
                Text="Missing: $(FrontendDevFile)" />
 
         <Message Text="Frontend build completed successfully." Importance="high" />
-
-        <PropertyGroup>
-            <RunFrontendBuild>false</RunFrontendBuild>
-        </PropertyGroup>
 
     </Target>
 

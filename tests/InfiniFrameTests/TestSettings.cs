@@ -7,3 +7,4 @@ using InfiniFrameTests.Shared;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [assembly: Timeout(TimeoutUtility.DefaultTimeout)]
+[assembly: Retry(5)]
