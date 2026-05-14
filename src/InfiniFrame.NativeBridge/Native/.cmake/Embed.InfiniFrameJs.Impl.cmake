@@ -4,7 +4,6 @@ string(LENGTH "${JS_CONTENT}" LEN)
 math(EXPR LAST "${LEN} - 2")
 
 set(BYTES "")
-set(COUNT 0)
 
 foreach(i RANGE 0 ${LAST} 2)
     string(SUBSTRING "${JS_CONTENT}" ${i} 2 BYTE)
@@ -13,13 +12,6 @@ foreach(i RANGE 0 ${LAST} 2)
         string(APPEND BYTES "0x${BYTE}")
     else()
         string(APPEND BYTES "0x${BYTE},")
-    endif()
-
-    math(EXPR COUNT "${COUNT} + 1")
-
-    if(COUNT EQUAL 16)
-        string(APPEND BYTES "\n")
-        set(COUNT 0)
     endif()
 endforeach()
 
@@ -43,9 +35,7 @@ file(WRITE "${OUTPUT_SOURCE}" "#include \"InfiniFrameJs.h\"
 // Generated at: ${GENERATED_AT}
 // -----------------------------------------------------------------------------
 
-alignas(16) const unsigned char g_infiniframe_js_data[] = {
-${BYTES}
-};
+alignas(16) const unsigned char g_infiniframe_js_data[] = {${BYTES}};
 
 const size_t g_infiniframe_js_size = sizeof(g_infiniframe_js_data);
 ")
