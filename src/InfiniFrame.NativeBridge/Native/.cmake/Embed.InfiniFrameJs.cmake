@@ -1,6 +1,20 @@
 ﻿function(infiniframe_setup_embed_js target_name)
-    set(INFINIFRAME_JS_PROJECT_DIR "${CMAKE_SOURCE_DIR}/../../../InfiniFrame.Js" CACHE PATH "Path to InfiniFrame JS project")
+    get_filename_component(native_dir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/.." ABSOLUTE)
+    get_filename_component(native_bridge_dir "${native_dir}/.." ABSOLUTE)
+    get_filename_component(src_dir "${native_bridge_dir}/.." ABSOLUTE)
+
+    set(default_js_project_dir "${src_dir}/InfiniFrame.Js")
+    set(INFINIFRAME_JS_PROJECT_DIR "${default_js_project_dir}" CACHE PATH "Path to InfiniFrame JS project")
     set(js_project_dir "${INFINIFRAME_JS_PROJECT_DIR}")
+
+    if(NOT EXISTS "${js_project_dir}/package.json" OR NOT EXISTS "${js_project_dir}/package-lock.json")
+        message(FATAL_ERROR
+                "INFINIFRAME_JS_PROJECT_DIR must point to the InfiniFrame.Js project directory "
+                "containing package.json and package-lock.json. Current value: ${js_project_dir}. "
+                "Default value: ${default_js_project_dir}. If this was cached incorrectly, clear the "
+                "CMake build directory or reconfigure with -DINFINIFRAME_JS_PROJECT_DIR=${default_js_project_dir}."
+        )
+    endif()
 
     set(js_input "${js_project_dir}/wwwroot/InfiniFrame.js")
 

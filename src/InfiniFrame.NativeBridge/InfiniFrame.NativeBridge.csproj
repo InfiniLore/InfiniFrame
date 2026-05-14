@@ -1,0 +1,187 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.NativeLib</PackageId>
+        <OutputType>Library</OutputType>
+
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+        <NativeArch Condition="'$(Platform)'=='AnyCPU'">x64</NativeArch>
+        <NativeArch Condition="'$(Platform)'!='AnyCPU'">$(Platform)</NativeArch>
+        
+        <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</NativePlatform>
+        <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</NativePlatform>
+        <NativePlatform Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</NativePlatform>
+
+        <NativeStamp>
+            $(MSBuildThisFileDirectory)artifacts\native\$(NativePlatform)\$(NativeArch)\$(Configuration)\.build.stamp
+        </NativeStamp>
+        <NativeOutputRoot>$(MSBuildThisFileDirectory)artifacts\native</NativeOutputRoot>
+
+        <WindowsX64>$(NativeOutputRoot)\windows\x64\$(Configuration)</WindowsX64>
+        <WindowsArm64>$(NativeOutputRoot)\windows\arm64\$(Configuration)</WindowsArm64>
+        <LinuxX64>$(NativeOutputRoot)\linux\x64\$(Configuration)</LinuxX64>
+        <LinuxArm64>$(NativeOutputRoot)\linux\arm64\$(Configuration)</LinuxArm64>
+        <MacOsX64>$(NativeOutputRoot)\osx\x64\$(Configuration)</MacOsX64>
+        <MacOsArm64>$(NativeOutputRoot)\osx\arm64\$(Configuration)</MacOsArm64>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="Native\**\*" />
+        <EmbeddedResource Remove="Native\**\*" />
+        <Content Remove="Native\**\*" />
+        <None Remove="Native\**\*" />
+        <None Include="Native\**\*.*"
+              Exclude="Native\build\**\*;Native\packages\**\*;Native\cmake-build-*\**\*;"
+              Pack="false" />
+
+        <Compile Remove="build\**\*" />
+        <EmbeddedResource Remove="build\**\*" />
+        <Content Remove="build\**\*" />
+        <None Remove="build\**\*" />
+
+        <NativeSource Include="Native\**\*.cpp" />
+        <NativeSource Include="Native\**\*.h" />
+        <NativeSource Include="Native\**\*.mm" />
+
+    </ItemGroup>
+
+    <!-- WINDOWS x64 -->
+    <ItemGroup Condition="Exists('$(WindowsX64)\InfiniFrame.Native.dll')">
+        <None Include="$(WindowsX64)\InfiniFrame.Native.dll"
+              Pack="true"
+              PackagePath="runtimes/win-x64/native/" />
+    </ItemGroup>
+
+    <ItemGroup Condition="Exists('$(WindowsX64)\WebView2Loader.dll')">
+        <None Include="$(WindowsX64)\WebView2Loader.dll"
+              Pack="true"
+              PackagePath="runtimes/win-x64/native/" />
+    </ItemGroup>
+
+    <!-- WINDOWS arm64 -->
+    <ItemGroup Condition="Exists('$(WindowsArm64)\InfiniFrame.Native.dll')">
+        <None Include="$(WindowsArm64)\InfiniFrame.Native.dll"
+              Pack="true"
+              PackagePath="runtimes/win-arm64/native/" />
+    </ItemGroup>
+
+    <ItemGroup Condition="Exists('$(WindowsArm64)\WebView2Loader.dll')">
+        <None Include="$(WindowsArm64)\WebView2Loader.dll"
+              Pack="true"
+              PackagePath="runtimes/win-arm64/native/" />
+    </ItemGroup>
+
+    <!-- LINUX x64 -->
+    <ItemGroup Condition="Exists('$(LinuxX64)\libInfiniFrame.Native.so')">
+        <None Include="$(LinuxX64)\libInfiniFrame.Native.so"
+              Pack="true"
+              PackagePath="runtimes/linux-x64/native/" />
+    </ItemGroup>
+
+    <!-- LINUX arm64 -->
+    <ItemGroup Condition="Exists('$(LinuxArm64)\libInfiniFrame.Native.so')">
+        <None Include="$(LinuxArm64)\libInfiniFrame.Native.so"
+              Pack="true"
+              PackagePath="runtimes/linux-arm64/native/" />
+    </ItemGroup>
+
+    <!-- macOS x64 -->
+    <ItemGroup Condition="Exists('$(MacOsX64)\libInfiniFrame.Native.dylib')">
+        <None Include="$(MacOsX64)\libInfiniFrame.Native.dylib"
+              Pack="true"
+              PackagePath="runtimes/osx-x64/native/" />
+    </ItemGroup>
+
+    <!-- macOS arm64 -->
+    <ItemGroup Condition="Exists('$(MacOsArm64)\libInfiniFrame.Native.dylib')">
+        <None Include="$(MacOsArm64)\libInfiniFrame.Native.dylib"
+              Pack="true"
+              PackagePath="runtimes/osx-arm64/native/" />
+    </ItemGroup>
+
+    <!-- ========================================================= -->
+    <!-- BUILD NATIVE                                              -->
+    <!-- ========================================================= -->
+
+    <Target Name="BuildNative"
+            BeforeTargets="CoreBuild"
+            Inputs="@(NativeSource)"
+            Outputs="$(NativeStamp)">
+
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch)" />
+
+        <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
+    </Target>
+
+    <Target Name="CleanNative" AfterTargets="Clean">
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-clean.ps1&quot;" />
+    </Target>
+
+    <Target Name="CheckNativeDlls" AfterTargets="Build">
+        <Message Text="=== x64 ===" Importance="High"/>
+
+        <Message Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')"
+                 Text="✅ Found InfiniFrame.Native.dll in $(WindowsX64)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(WindowsX64)/InfiniFrame.Native.dll')"
+                 Text="❌ InfiniFrame.Native.dll not found at $(WindowsX64)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(WindowsX64)/WebView2Loader.dll')"
+                 Text="✅ Found WebView2Loader.dll in $(WindowsX64)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(WindowsX64)/WebView2Loader.dll')"
+                 Text="❌ WebView2Loader.dll not found at $(WindowsX64)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(LinuxX64)/libInfiniFrame.Native.so')"
+                 Text="✅ Found libInfiniFrame.Native.so in $(LinuxX64)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(LinuxX64)/libInfiniFrame.Native.so')"
+                 Text="❌ libInfiniFrame.Native.so not found at $(LinuxX64)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(MacOsX64)/libInfiniFrame.Native.dylib')"
+                 Text="✅ Found libInfiniFrame.Native.dylib in $(MacOsX64)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(MacOsX64)/libInfiniFrame.Native.dylib')"
+                 Text="❌ libInfiniFrame.Native.dylib not found at $(MacOsX64)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Text="=== arm64 ===" Importance="High"/>
+
+        <Message Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')"
+                 Text="✅ Found InfiniFrame.Native.dll in $(WindowsArm64)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(WindowsArm64)/InfiniFrame.Native.dll')"
+                 Text="❌ InfiniFrame.Native.dll not found at $(WindowsArm64)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')"
+                 Text="✅ Found WebView2Loader.dll in $(WindowsArm64)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(WindowsArm64)/WebView2Loader.dll')"
+                 Text="❌ WebView2Loader.dll not found at $(WindowsArm64)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(LinuxArm64)/libInfiniFrame.Native.so')"
+                 Text="✅ Found libInfiniFrame.Native.so in $(LinuxArm64)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(LinuxArm64)/libInfiniFrame.Native.so')"
+                 Text="❌ libInfiniFrame.Native.so not found at $(LinuxArm64)! Tests may fail."
+                 Importance="High"/>
+
+        <Message Condition="Exists('$(MacOsArm64)/libInfiniFrame.Native.dylib')"
+                 Text="✅ Found libInfiniFrame.Native.dylib in $(MacOsArm64)"
+                 Importance="High"/>
+        <Message Condition="!Exists('$(MacOsArm64)/libInfiniFrame.Native.dylib')"
+                 Text="❌ libInfiniFrame.Native.dylib not found at $(MacOsArm64)! Tests may fail."
+                 Importance="High"/>
+    </Target>
+
+</Project>

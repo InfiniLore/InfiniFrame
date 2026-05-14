@@ -54,7 +54,7 @@ try {
     # INFO
     # -----------------------------------------------------------------------------------------------------------------
     Write-Host "========================================="
-    Write-Host "Building InfiniFrame.nativeLib"
+    Write-Host "Building InfiniFrame.Native"
     Write-Host "Configuration: $Configuration"
     Write-Host "Architecture : $Arch"
     Write-Host "Platform     : $Platform"
