@@ -348,7 +348,7 @@ healthchecksdb
 /src/InfiniFrame.Native/cmake-build-debug/
 /src/InfiniFrame.Native/cmake-build-debug-linux/
 /src/InfiniFrame.Native/cmake-build-debug-windows/
-/src/InfiniFrame.Native/Embedded/InfiniFrameJs/InfiniFrameJs.cpp
+/src/InfiniFrame.NativeLib/Native/Embedded/InfiniFrameJs/InfiniFrameJs.cpp
 
 # wwwroot folders from js web based projects
 /examples/InfiniFrameExample.WebApp.React/wwwroot/
