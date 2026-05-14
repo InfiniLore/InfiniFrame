@@ -146,7 +146,7 @@ public class PublishServiceTests {
             Configuration = Configuration,
             Framework = "net10.0",
             SelfContained = true,
-            Output = outputPath
+            Output = outputPath,
         };
 
         // Act

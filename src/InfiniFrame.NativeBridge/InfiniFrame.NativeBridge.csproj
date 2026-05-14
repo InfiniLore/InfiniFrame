@@ -54,12 +54,16 @@
     <ItemGroup Condition="Exists('$(WindowsX64)\InfiniFrame.Native.dll')">
         <None Include="$(WindowsX64)\InfiniFrame.Native.dll"
               Pack="true"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
               PackagePath="runtimes/win-x64/native/" />
     </ItemGroup>
 
     <ItemGroup Condition="Exists('$(WindowsX64)\WebView2Loader.dll')">
         <None Include="$(WindowsX64)\WebView2Loader.dll"
               Pack="true"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
               PackagePath="runtimes/win-x64/native/" />
     </ItemGroup>
 
@@ -67,12 +71,16 @@
     <ItemGroup Condition="Exists('$(WindowsArm64)\InfiniFrame.Native.dll')">
         <None Include="$(WindowsArm64)\InfiniFrame.Native.dll"
               Pack="true"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
               PackagePath="runtimes/win-arm64/native/" />
     </ItemGroup>
 
     <ItemGroup Condition="Exists('$(WindowsArm64)\WebView2Loader.dll')">
         <None Include="$(WindowsArm64)\WebView2Loader.dll"
               Pack="true"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
               PackagePath="runtimes/win-arm64/native/" />
     </ItemGroup>
 
@@ -80,6 +88,8 @@
     <ItemGroup Condition="Exists('$(LinuxX64)\libInfiniFrame.Native.so')">
         <None Include="$(LinuxX64)\libInfiniFrame.Native.so"
               Pack="true"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
               PackagePath="runtimes/linux-x64/native/" />
     </ItemGroup>
 
@@ -87,6 +97,8 @@
     <ItemGroup Condition="Exists('$(LinuxArm64)\libInfiniFrame.Native.so')">
         <None Include="$(LinuxArm64)\libInfiniFrame.Native.so"
               Pack="true"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
               PackagePath="runtimes/linux-arm64/native/" />
     </ItemGroup>
 
@@ -94,6 +106,8 @@
     <ItemGroup Condition="Exists('$(MacOsX64)\libInfiniFrame.Native.dylib')">
         <None Include="$(MacOsX64)\libInfiniFrame.Native.dylib"
               Pack="true"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
               PackagePath="runtimes/osx-x64/native/" />
     </ItemGroup>
 
@@ -101,6 +115,8 @@
     <ItemGroup Condition="Exists('$(MacOsArm64)\libInfiniFrame.Native.dylib')">
         <None Include="$(MacOsArm64)\libInfiniFrame.Native.dylib"
               Pack="true"
+              CopyToOutputDirectory="PreserveNewest"
+              CopyToPublishDirectory="PreserveNewest"
               PackagePath="runtimes/osx-arm64/native/" />
     </ItemGroup>
 
