@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>InfiniLore.InfiniFrame.NativeLib</PackageId>
+        <OutputType>Library</OutputType>
+
+        <NativeArch Condition="'$(Platform)'=='AnyCPU'">x64</NativeArch>
+        <NativeArch Condition="'$(Platform)'!='AnyCPU'">$(Platform)</NativeArch>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Folder Include="Managed\" />
+
+        <Compile Remove="Native\**\*" />
+        <EmbeddedResource Remove="Native\**\*" />
+        <Content Remove="Native\**\*" />
+        <None Remove="Native\**\*" />
+
+        <None Include="Native\**\*.*"
+              Exclude="Native\build\**\*;Native\packages\**\*;Native\cmake-build-*\**\*"
+              Pack="false" />
+    </ItemGroup>
+
+    <Target Name="BuildNative" BeforeTargets="CoreBuild">
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)build/native-build.ps1&quot; $(Configuration) $(NativeArch)" />
+    </Target>
+
+    <Target Name="CleanNative" AfterTargets="Clean">
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)build/native-clean.ps1&quot;" />
+    </Target>
+
+</Project>

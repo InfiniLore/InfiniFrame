@@ -1,6 +1,6 @@
 ﻿function(infiniframe_setup_embed_js target_name)
-    # Allow override from parent projects
-    set(js_project_dir "${CMAKE_SOURCE_DIR}/../InfiniFrame.Js" CACHE PATH "Path to InfiniFrame JS project")
+    set(INFINIFRAME_JS_PROJECT_DIR "${CMAKE_SOURCE_DIR}/../../InfiniFrame.Js" CACHE PATH "Path to InfiniFrame JS project")
+    set(js_project_dir "${INFINIFRAME_JS_PROJECT_DIR}")
 
     set(js_input "${js_project_dir}/wwwroot/InfiniFrame.js")
 
@@ -26,7 +26,7 @@
             "-DNPM_EXECUTABLE=${NPM_EXECUTABLE}"
             "-DJS_PROJECT_DIR=${js_project_dir}"
             "-DJS_OUTPUT=${js_input}"
-            -P "${CMAKE_SOURCE_DIR}/cmake/Build.InfiniFrameJs.Impl.cmake"
+            -P "${CMAKE_SOURCE_DIR}/Cmake/Build.InfiniFrameJs.Impl.cmake"
             DEPENDS
             ${js_sources}
             "${js_project_dir}/package.json"
@@ -34,7 +34,7 @@
             "${js_project_dir}/tsconfig.json"
             "${js_project_dir}/vite.config.dev.ts"
             "${js_project_dir}/vite.config.prod.ts"
-            "${CMAKE_SOURCE_DIR}/cmake/Build.InfiniFrameJs.Impl.cmake"
+            "${CMAKE_SOURCE_DIR}/Cmake/Build.InfiniFrameJs.Impl.cmake"
             COMMENT "Building JS: ${js_input}"
             VERBATIM
     )
@@ -52,10 +52,10 @@
             -DINPUT=${js_input}
             -DOUTPUT_HEADER=${header_output}
             -DOUTPUT_SOURCE=${source_output}
-            -P ${CMAKE_SOURCE_DIR}/cmake/Embed.InfiniFrameJs.Impl.cmake
+            -P ${CMAKE_SOURCE_DIR}/Cmake/Embed.InfiniFrameJs.Impl.cmake
             DEPENDS
             ${js_input}
-            ${CMAKE_SOURCE_DIR}/cmake/Embed.InfiniFrameJs.Impl.cmake
+            ${CMAKE_SOURCE_DIR}/Cmake/Embed.InfiniFrameJs.Impl.cmake
             COMMENT "Embedding JS: ${js_input}"
             VERBATIM
     )

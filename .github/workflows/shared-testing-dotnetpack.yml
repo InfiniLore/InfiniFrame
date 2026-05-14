@@ -79,7 +79,7 @@ jobs:
 
             -   name: Build Release
                 run: |
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+                    dotnet build src/InfiniFrame.NativeLib/InfiniFrame.NativeLib.csproj \
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir="${{ github.workspace }}/" \

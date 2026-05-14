@@ -34,7 +34,6 @@
 
     <ItemGroup>
         <!-- Include all project files for VS Solution Explorer -->
-        <None Include="CMakeLists.txt"/>
         <None Include="**/*.*" Exclude="CMakeLists.txt;"/>
 
         <None Remove="artifacts\**\*"/>

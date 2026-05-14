@@ -9,7 +9,7 @@
             "src\\InfiniFrame.Shared\\InfiniFrame.Shared.csproj",
             "src\\InfiniFrame.Tools.Pack\\InfiniFrame.Tools.Pack.csproj",
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
-            "src\\InfiniFrame.Native\\InfiniFrame.Native.proj",
+            "src\\InfiniFrame.NativeLib\\InfiniFrame.NativeLib.csproj",
             "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
             "tests\\InfiniFrameTests.Playwright.WebApp.React\\InfiniFrameTests.Playwright.WebApp.React.csproj",
             "tests\\InfiniFrameTests.Playwright.WebApp.Vue\\InfiniFrameTests.Playwright.WebApp.Vue.csproj",

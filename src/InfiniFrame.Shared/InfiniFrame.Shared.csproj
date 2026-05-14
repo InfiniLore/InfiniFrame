@@ -34,6 +34,7 @@
         <WindowsX64>$(SolutionDir)artifacts/native/windows/x64/$(Configuration)/</WindowsX64>
         <WindowsArm64>$(SolutionDir)artifacts/native/windows/arm64/$(Configuration)/</WindowsArm64>
 
+        <NativeLibProject>$(MSBuildThisFileDirectory)../InfiniFrame.NativeLib/InfiniFrame.NativeLib.csproj</NativeLibProject>
         <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
 
@@ -46,9 +47,23 @@
         <PackageReference Include="Microsoft.Extensions.Options"/>
     </ItemGroup>
 
-    <ItemGroup Condition="'$(DocfxBuild)'!='true' and '$(InfiniFramePackInvoked)'!='true'">
-        <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Native/InfiniFrame.Native.proj"/>
-    </ItemGroup>
+    <Target Name="BuildNativeLibProject"
+            BeforeTargets="DispatchToInnerBuilds"
+            Condition="'$(DocfxBuild)'!='true' and '$(InfiniFramePackInvoked)'!='true' and '$(IsCrossTargetingBuild)'=='true'">
+        <MSBuild Projects="$(NativeLibProject)"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform);SolutionDir=$(SolutionDir);TargetFramework=net10.0"
+                 BuildInParallel="false" />
+    </Target>
+
+    <Target Name="BuildNativeLibProjectForSingleTarget"
+            BeforeTargets="PrepareForBuild"
+            Condition="'$(DocfxBuild)'!='true' and '$(InfiniFramePackInvoked)'!='true' and '$(IsCrossTargetingBuild)'!='true'">
+        <MSBuild Projects="$(NativeLibProject)"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform);SolutionDir=$(SolutionDir);TargetFramework=net10.0"
+                 BuildInParallel="false" />
+    </Target>
 
     <!-- Windows -->
     <ItemGroup Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')">

@@ -63,7 +63,7 @@ public class PublishServiceTests {
         // Arrange
         string repoRoot = TemporaryDirectory.Path;
 
-        string nativeProjectPath = Path.Join(repoRoot, "src", "InfiniFrame.Native", "InfiniFrame.Native.proj");
+        string nativeProjectPath = Path.Join(repoRoot, "src", "InfiniFrame.NativeLib", "InfiniFrame.NativeLib.csproj");
         Directory.CreateDirectory(Path.GetDirectoryName(nativeProjectPath)!);
         await File.WriteAllTextAsync(nativeProjectPath, "<Project></Project>");
 
