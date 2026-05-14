@@ -15,6 +15,8 @@ namespace InfiniFrameTests.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 public class PublishServiceTests {
     private static readonly SemaphoreSlim PublishTestLock = new(1, 1);
+    private static readonly TimeSpan PublishTimeout = TimeSpan.FromMinutes(3);
+    private static readonly TimeSpan ProcessTimeout = TimeSpan.FromSeconds(45);
     private TemporaryDirectory TemporaryDirectory { get; set; } = null!;
 
     
@@ -95,7 +97,10 @@ public class PublishServiceTests {
         NativeDependencyNotFoundException? exception;
         try {
             exception = await Assert.ThrowsAsync<NativeDependencyNotFoundException>(async () => {
-                await PublishService.PublishAsync(options);
+                await ExecuteWithTimeout(
+                    PublishService.PublishAsync(options),
+                    PublishTimeout,
+                    "PublishAsync_ThrowsKnownFailure_WhenNativeDependencyIsMissingFromPublishOutput");
             });
         }
         finally {
@@ -153,7 +158,10 @@ public class PublishServiceTests {
         await PublishTestLock.WaitAsync();
         int exitCode;
         try {
-            exitCode = await PublishService.PublishAsync(options);
+            exitCode = await ExecuteWithTimeout(
+                PublishService.PublishAsync(options),
+                PublishTimeout,
+                "PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame");
         }
         finally {
             PublishTestLock.Release();
@@ -216,12 +224,15 @@ public class PublishServiceTests {
         await PublishTestLock.WaitAsync();
         int publishExitCode;
         try {
-            publishExitCode = await PublishService.PublishAsync(options);
+            publishExitCode = await ExecuteWithTimeout(
+                PublishService.PublishAsync(options),
+                PublishTimeout,
+                "PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully");
         }
         finally {
             PublishTestLock.Release();
         }
-        ProcessResult runResult = await RunProcessAndCaptureAsync(publishedExecutable, appDirectory);
+        ProcessResult runResult = await RunProcessAndCaptureAsync(publishedExecutable, appDirectory, ProcessTimeout);
 
         // Assert
         await Assert.That(publishExitCode).IsEqualTo(ExitCodes.Success);
@@ -279,7 +290,7 @@ public class PublishServiceTests {
         throw new DirectoryNotFoundException("Could not locate repository root containing InfiniFrame.slnx.");
     }
 
-    private static async Task<ProcessResult> RunProcessAndCaptureAsync(string fileName, string workingDirectory) {
+    private static async Task<ProcessResult> RunProcessAndCaptureAsync(string fileName, string workingDirectory, TimeSpan timeout) {
         var startInfo = new ProcessStartInfo(fileName) {
             WorkingDirectory = workingDirectory,
             UseShellExecute = false,
@@ -294,11 +305,33 @@ public class PublishServiceTests {
 
         Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
         Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
-        await process.WaitForExitAsync();
+        using var timeoutCts = new CancellationTokenSource(timeout);
+        try {
+            await process.WaitForExitAsync(timeoutCts.Token);
+        }
+        catch (OperationCanceledException) {
+            try {
+                if (!process.HasExited) process.Kill(entireProcessTree: true);
+            }
+            catch (InvalidOperationException) {
+                // best effort
+            }
+            throw new TimeoutException($"Timed out after {timeout} while running '{fileName}'.");
+        }
+
         string standardOutput = await standardOutputTask;
         string standardError = await standardErrorTask;
 
         return new ProcessResult(process.ExitCode, standardOutput, standardError);
+    }
+
+    private static async Task<T> ExecuteWithTimeout<T>(Task<T> task, TimeSpan timeout, string operationName) {
+        Task completed = await Task.WhenAny(task, Task.Delay(timeout));
+        if (!ReferenceEquals(completed, task)) {
+            throw new TimeoutException($"Timed out after {timeout} while executing '{operationName}'.");
+        }
+
+        return await task;
     }
 
     // ReSharper disable once NotAccessedPositionalProperty.Local
