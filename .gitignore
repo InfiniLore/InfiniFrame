@@ -343,11 +343,12 @@ healthchecksdb
 .DS_Store
 
 # InfiniFrame.Native
-/src/InfiniFrame.Native/build/
-/src/InfiniFrame.Native/packages/
-/src/InfiniFrame.Native/cmake-build-debug/
-/src/InfiniFrame.Native/cmake-build-debug-linux/
-/src/InfiniFrame.Native/cmake-build-debug-windows/
+/src/InfiniFrame.NativeLib/build/
+/src/InfiniFrame.NativeLib/Native/build/
+/src/InfiniFrame.NativeLib/Native/packages/
+/src/InfiniFrame.NativeLib/Native/cmake-build-debug/
+/src/InfiniFrame.NativeLib/Native/cmake-build-debug-linux/
+/src/InfiniFrame.NativeLib/Native/cmake-build-debug-windows/
 /src/InfiniFrame.NativeLib/Native/Embedded/InfiniFrameJs/InfiniFrameJs.cpp
 
 # wwwroot folders from js web based projects
