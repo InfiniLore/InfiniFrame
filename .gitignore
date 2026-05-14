@@ -343,6 +343,7 @@ healthchecksdb
 .DS_Store
 
 # InfiniFrame.Native
+/src/InfiniFrame.NativeLib/artifacts/
 /src/InfiniFrame.NativeLib/build/
 /src/InfiniFrame.NativeLib/Native/build/
 /src/InfiniFrame.NativeLib/Native/packages/

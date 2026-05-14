@@ -18,12 +18,12 @@ endif ()
 # ----------------------------------------------------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------------------------------------------------
-include("${CMAKE_SOURCE_DIR}/Cmake/NativeDependencies.cmake")
-include("${CMAKE_SOURCE_DIR}/Cmake/Embed.InfiniFrameJs.cmake")
+include("${CMAKE_SOURCE_DIR}/.cmake/NativeDependencies.cmake")
+include("${CMAKE_SOURCE_DIR}/.cmake/Embed.InfiniFrameJs.cmake")
 
-include("${CMAKE_SOURCE_DIR}/Cmake/Platform.Windows.cmake")
-include("${CMAKE_SOURCE_DIR}/Cmake/Platform.MacOS.cmake")
-include("${CMAKE_SOURCE_DIR}/Cmake/Platform.Linux.cmake")
+include("${CMAKE_SOURCE_DIR}/.cmake/Platform.Windows.cmake")
+include("${CMAKE_SOURCE_DIR}/.cmake/Platform.MacOS.cmake")
+include("${CMAKE_SOURCE_DIR}/.cmake/Platform.Linux.cmake")
 
 infiniframe_setup_dependencies()
 

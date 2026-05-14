@@ -140,6 +140,14 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Native\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\InfiniFrame.NativeLib\InfiniFrame.NativeLib.csproj" />
+    </ItemGroup>
+
     <Target Name="CheckNativeDlls" AfterTargets="Build">
         <Message Text="=== x64 ===" Importance="High"/>
 

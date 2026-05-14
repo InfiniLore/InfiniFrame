@@ -3,56 +3,89 @@ param(
     [string]$Arch = "x64"
 )
 
+# -----------------------------------------------------------------------------------------------------------------
+# PATH SETUP
+# -----------------------------------------------------------------------------------------------------------------
 $RootDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$RootDir = Resolve-Path "$RootDir/.."
 
-$NativeDir = Join-Path $RootDir "native"
-$BuildDir = Join-Path $RootDir "build/$Arch/$Configuration"
+$NativeDir    = Join-Path $RootDir "native"
+$BuildDir     = Join-Path $RootDir "build/$Arch/$Configuration"
 $ArtifactsDir = Join-Path $RootDir "artifacts/native"
 
-$LockFile = Join-Path $ArtifactsDir ".build.lock"
-
-$LockStream = New-Object System.IO.FileStream(
-    $LockFile,
-    [System.IO.FileMode]::OpenOrCreate,
-    [System.IO.FileAccess]::ReadWrite,
-    [System.IO.FileShare]::None
-)
-
-$OS = $PSVersionTable.OS
-if ($IsWindows) {
-    $Platform = "windows"
-} elseif ($IsLinux) {
-    $Platform = "linux"
-} else {
-    $Platform = "osx"
-}
-
+# -----------------------------------------------------------------------------------------------------------------
+# ENSURE DIRECTORIES EXIST
+# -----------------------------------------------------------------------------------------------------------------
+New-Item -ItemType Directory -Force -Path $NativeDir | Out-Null
 New-Item -ItemType Directory -Force -Path $BuildDir | Out-Null
+New-Item -ItemType Directory -Force -Path $ArtifactsDir | Out-Null
+
+$Platform = if ($IsWindows) { "windows" }
+elseif ($IsLinux) { "linux" }
+else { "osx" }
+
 New-Item -ItemType Directory -Force -Path "$ArtifactsDir/$Platform/$Arch/$Configuration" | Out-Null
 
-Write-Host "========================================="
-Write-Host "Building InfiniFrame.nativeLib"
-Write-Host "Configuration: $Configuration"
-Write-Host "Architecture : $Arch"
-Write-Host "Platform     : $Platform"
-Write-Host "========================================="
+# -----------------------------------------------------------------------------------------------------------------
+# LOCK (blocking, CI-safe, race-free)
+# -----------------------------------------------------------------------------------------------------------------
+$LockFile = Join-Path $ArtifactsDir ".build.lock"
 
-$CMakeArgs = @()
+$LockStream = $null
 
-if ($Platform -eq "osx") {
-    if ($Arch -eq "arm64") {
-        $CMakeArgs += "-DCMAKE_OSX_ARCHITECTURES=arm64"
-    } else {
-        $CMakeArgs += "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+try {
+
+    # Wait until lock becomes available (prevents crash)
+    while ($true) {
+        try {
+            $LockStream = New-Object System.IO.FileStream(
+            $LockFile,
+            [System.IO.FileMode]::OpenOrCreate,
+            [System.IO.FileAccess]::ReadWrite,
+            [System.IO.FileShare]::None
+            )
+            break
+        }
+        catch {
+            Start-Sleep -Milliseconds 200
+        }
+    }
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # INFO
+    # -----------------------------------------------------------------------------------------------------------------
+    Write-Host "========================================="
+    Write-Host "Building InfiniFrame.nativeLib"
+    Write-Host "Configuration: $Configuration"
+    Write-Host "Architecture : $Arch"
+    Write-Host "Platform     : $Platform"
+    Write-Host "========================================="
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # CMAKE CONFIG
+    # -----------------------------------------------------------------------------------------------------------------
+    $CMakeArgs = @()
+
+    if ($Platform -eq "osx") {
+        if ($Arch -eq "arm64") {
+            $CMakeArgs += "-DCMAKE_OSX_ARCHITECTURES=arm64"
+        } else {
+            $CMakeArgs += "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+        }
+    }
+
+    cmake -B $BuildDir -S $NativeDir @CMakeArgs
+    cmake --build $BuildDir --config $Configuration --parallel
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # COPY OUTPUTS
+    # -----------------------------------------------------------------------------------------------------------------
+    Get-ChildItem $BuildDir -Recurse -Include *.dll,*.so,*.dylib -ErrorAction SilentlyContinue |
+        Copy-Item -Destination "$ArtifactsDir/$Platform/$Arch/$Configuration" -Force
+
+    Write-Host "Native build complete."
+}
+finally {
+    if ($LockStream) {
+        $LockStream.Dispose()
     }
 }
-
-cmake -B $BuildDir -S $NativeDir @CMakeArgs
-cmake --build $BuildDir --config $Configuration --parallel
-
-Get-ChildItem $BuildDir -Recurse -Include *.dll,*.so,*.dylib |
-    Copy-Item -Destination "$ArtifactsDir/$Platform/$Arch/$Configuration" -Force
-
-Write-Host "Native build complete."
-$LockStream.Dispose()
