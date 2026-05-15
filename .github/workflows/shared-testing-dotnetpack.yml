@@ -76,6 +76,43 @@ jobs:
                       /p:InfiniFrameSkipNativeBuild=true \
                       -o ./release
 
+            -   name: Verify NativeBridge Package Natives
+                run: |
+                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg 2>/dev/null | grep -v '\.symbols\.nupkg$' | head -n 1 || true)
+
+                    if [ -z "$PACKAGE" ]; then
+                        echo "❌ No InfiniFrame.NativeBridge package found in ./release"
+                        exit 1
+                    fi
+
+                    echo "Inspecting package: $PACKAGE"
+
+                    EXPECTED=(
+                      "runtimes/win-x64/native/InfiniFrame.Native.dll"
+                      "runtimes/win-x64/native/WebView2Loader.dll"
+                      "runtimes/win-arm64/native/InfiniFrame.Native.dll"
+                      "runtimes/win-arm64/native/WebView2Loader.dll"
+                      "runtimes/linux-x64/native/InfiniFrame.Native.so"
+                      "runtimes/linux-arm64/native/InfiniFrame.Native.so"
+                      "runtimes/osx-x64/native/InfiniFrame.Native.dylib"
+                      "runtimes/osx-arm64/native/InfiniFrame.Native.dylib"
+                    )
+
+                    MISSING=0
+                    for f in "${EXPECTED[@]}"; do
+                      if ! unzip -l "$PACKAGE" | grep -q "$f"; then
+                        echo "❌ Missing $f in $PACKAGE"
+                        MISSING=$((MISSING+1))
+                      else
+                        echo "✅ Found $f"
+                      fi
+                    done
+
+                    if [ $MISSING -gt 0 ]; then
+                      echo "❌ $MISSING native file(s) missing in NativeBridge package"
+                      exit 1
+                    fi
+
             -   name: Complete Dotnet Pack Check
                 if: always()
                 env:
