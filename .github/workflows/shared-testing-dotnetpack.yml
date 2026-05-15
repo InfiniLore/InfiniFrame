@@ -31,11 +31,11 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
                     fetch-depth: 1
-                    
-            -   name: Setup Node
-                uses: actions/setup-node@v6
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
                 with:
-                    node-version: 24
+                    cache-dotnet: false
 
             -   name: Set Dotnet Pack Check Pending
                 env:
@@ -52,27 +52,8 @@ jobs:
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     allow-status-422: 'true'
 
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-                    cache: true
-                    cache-dependency-path: |
-                        **/*.csproj
-                        **/*.props
-                        **/Directory.Packages.props
-
-            -   name: Setup Native dependencies
-                # noinspection UndefinedAction
-                uses: ./.github/actions/setup-dependencies-native
-                # noinspection UndefinedParamsPresent
-                with:
-                    apt-cache-version: 1.0
-                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-dotnetpack.yml') }}
-                    brew-restore-key: ${{ runner.os }}-x64-brew-native-
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/native-binaries-testing-download-from-cache
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
@@ -82,12 +63,15 @@ jobs:
                     dotnet build InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
                       --no-restore \
-                      /p:SolutionDir=${{ github.workspace }}/
+                      /p:SolutionDir=${{ github.workspace }}/ \
+                      /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Pack
                 run: |
                     dotnet pack InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
+                      --no-build \
+                      /p:InfiniFrameSkipNativeBuild=true \
                       -o ./release
             
             -   name: Complete Dotnet Pack Check

@@ -17,6 +17,7 @@
             $(MSBuildThisFileDirectory)artifacts\native\$(NativePlatform)\$(NativeArch)\$(Configuration)\.build.stamp
         </NativeStamp>
         <NativeOutputRoot>$(MSBuildThisFileDirectory)artifacts\native</NativeOutputRoot>
+        <InfiniFrameSkipNativeBuild Condition="'$(InfiniFrameSkipNativeBuild)'==''">false</InfiniFrameSkipNativeBuild>
 
         <WindowsX64>$(NativeOutputRoot)\windows\x64\$(Configuration)</WindowsX64>
         <WindowsArm64>$(NativeOutputRoot)\windows\arm64\$(Configuration)</WindowsArm64>
@@ -126,6 +127,7 @@
 
     <Target Name="BuildNative"
             BeforeTargets="CoreBuild"
+            Condition="'$(InfiniFrameSkipNativeBuild)' != 'true'"
             Inputs="@(NativeSource)"
             Outputs="$(NativeStamp)">
 

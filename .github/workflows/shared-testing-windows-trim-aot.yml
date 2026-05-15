@@ -31,19 +31,11 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
 
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
                 with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-                    cache: true
-                    cache-dependency-path: |
-                        **/*.csproj
-                        **/*.props
-                        **/Directory.Packages.props
-
+                    cache-dotnet: false
+                    
             -   name: Set Trim/AOT Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -65,14 +57,20 @@ jobs:
                 # noinspection UndefinedParamsPresent
                 with:
                     apt-cache-version: 1.0
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
-                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
+                    brew-restore-key: ${{ runner.os }}-x64-brew-native-
+
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/native-binaries-testing-download-from-cache
 
             -   name: Trim Analyzer Builds
                 run: |
                     dotnet build src/InfiniFrame.Shared/InfiniFrame.Shared.csproj `
                       --configuration Release `
                       --framework net10.0 `
+                      -p:SolutionDir=$GITHUB_WORKSPACE/ `
+                      -p:Platform=x64 `
+                      -p:InfiniFrameSkipNativeBuild=true `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false
@@ -80,6 +78,9 @@ jobs:
                     dotnet build src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj `
                       --configuration Release `
                       --framework net10.0 `
+                      -p:SolutionDir=$GITHUB_WORKSPACE/ `
+                      -p:Platform=x64 `
+                      -p:InfiniFrameSkipNativeBuild=true `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false `
@@ -88,6 +89,9 @@ jobs:
                     dotnet build src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj `
                       --configuration Release `
                       --framework net10.0 `
+                      -p:SolutionDir=$GITHUB_WORKSPACE/ `
+                      -p:Platform=x64 `
+                      -p:InfiniFrameSkipNativeBuild=true `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false `
@@ -99,6 +103,9 @@ jobs:
                       --configuration Release `
                       --framework net10.0 `
                       --runtime win-x64 `
+                      -p:SolutionDir=$GITHUB_WORKSPACE/ `
+                      -p:Platform=x64 `
+                      -p:InfiniFrameSkipNativeBuild=true `
                       -p:GeneratePackageOnBuild=false `
                       -p:SkipTypeScriptBuild=true
 

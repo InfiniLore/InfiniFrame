@@ -70,6 +70,16 @@ jobs:
                     fi
 
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    native-build:
+        name: Build Native Artifacts
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-build.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
     
     # noinspection UndefinedAction, UndefinedParamsPresent
     docs-validation:
@@ -94,7 +104,7 @@ jobs:
     # noinspection UndefinedAction, UndefinedParamsPresent
     dotnetpack-validation:
         name: Validate Dotnet Pack
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-dotnetpack.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -104,7 +114,7 @@ jobs:
     windows-trim-aot:
         name: Validate Trim/AOT
         if: ${{ inputs.run_trim_aot == true }}
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-windows-trim-aot.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -114,7 +124,7 @@ jobs:
     linux:
         name: Linux Tests
         if: ${{ inputs.run_linux == true }}
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-linux.yml
         with:
             pr_number: ${{ inputs.pr_number }}
@@ -127,7 +137,7 @@ jobs:
     windows:
         name: Windows Tests
         if: ${{ inputs.run_windows == true }}
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-windows.yml
         with:
             pr_number: ${{ inputs.pr_number }}
@@ -140,7 +150,7 @@ jobs:
     windows-playwright:
         name: Windows Playwright Tests
         if: ${{ inputs.run_windows_playwright == true }}
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-windows-playwright.yml
         with:
             pr_number: ${{ inputs.pr_number }}
@@ -153,7 +163,7 @@ jobs:
     macos:
         name: macOS Tests
         if: ${{ inputs.run_macos == true }}
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-macos.yml
         with:
             pr_number: ${{ inputs.pr_number }}

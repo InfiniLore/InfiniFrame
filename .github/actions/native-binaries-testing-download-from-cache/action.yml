@@ -1,0 +1,37 @@
+name: Download Testing Native Binaries from Cache
+author: sasan
+description: Download and normalize testing native build artifacts
+runs:
+    using: composite
+    steps:
+        -   name: Download Testing Native Build Artifacts
+            uses: actions/download-artifact@v8
+            with:
+                path: artifacts/native
+                pattern: native-testing-*
+
+        -   name: Normalize Testing Native Artifacts
+            shell: bash
+            run: |
+                set -euo pipefail
+
+                ROOT="src/InfiniFrame.NativeBridge/artifacts/native"
+                mkdir -p "$ROOT/windows/x64/Release" "$ROOT/windows/arm64/Release"
+                mkdir -p "$ROOT/linux/x64/Release" "$ROOT/linux/arm64/Release"
+                mkdir -p "$ROOT/osx/x64/Release" "$ROOT/osx/arm64/Release"
+
+                declare -A MAP
+                MAP["native-testing-windows-x64"]="$ROOT/windows/x64/Release"
+                MAP["native-testing-windows-arm64"]="$ROOT/windows/arm64/Release"
+                MAP["native-testing-linux-x64"]="$ROOT/linux/x64/Release"
+                MAP["native-testing-linux-arm64"]="$ROOT/linux/arm64/Release"
+                MAP["native-testing-osx-x64"]="$ROOT/osx/x64/Release"
+                MAP["native-testing-osx-arm64"]="$ROOT/osx/arm64/Release"
+
+                for key in "${!MAP[@]}"; do
+                    src="artifacts/native/$key"
+                    dest="${MAP[$key]}"
+                    if [ -d "$src" ]; then
+                        cp -R "$src"/. "$dest"/
+                    fi
+                done

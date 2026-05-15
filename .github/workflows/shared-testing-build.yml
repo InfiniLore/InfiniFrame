@@ -1,0 +1,78 @@
+name: "Shared: Testing Build"
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                description: 'PR number to test. Leave empty to test the current trigger commit (github.sha).'
+                type: string
+                required: true
+            checkout_ref:
+                description: 'Explicit git ref to checkout.'
+                type: string
+                required: false
+                default: ''
+            target_sha:
+                description: 'Resolved commit SHA used by testing workflows.'
+                type: string
+                required: true
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+        name: Build Testing Native (${{ matrix.os }}/${{ matrix.arch }})
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        arch: x64
+                        libName: linux
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        libName: linux
+                    -   os: windows-latest
+                        arch: x64
+                        libName: windows
+                    -   os: windows-11-arm
+                        arch: arm64
+                        libName: windows
+                    -   os: macos-26-intel
+                        arch: x64
+                        libName: osx
+                    -   os: macos-latest
+                        arch: arm64
+                        libName: osx
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || inputs.target_sha) }}
+                    fetch-depth: 1
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+
+            -   name: Setup Native dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                with:
+                    apt-cache-version: 1.0
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-build.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+
+            -   name: Build Native
+                shell: pwsh
+                run: |
+                    ./src/InfiniFrame.NativeBridge/native-build.ps1 `
+                      "Release" `
+                      "${{ matrix.arch }}"
+
+            -   name: Upload Build Artifact
+                uses: actions/upload-artifact@v7
+                with:
+                    name: native-testing-${{ matrix.libName }}-${{ matrix.arch }}
+                    path: ${{ github.workspace }}/src/InfiniFrame.NativeBridge/artifacts/native/${{ matrix.libName }}/${{ matrix.arch }}/Release/**
