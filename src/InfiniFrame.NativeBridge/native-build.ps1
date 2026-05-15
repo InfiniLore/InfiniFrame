@@ -8,7 +8,7 @@ param(
 # -----------------------------------------------------------------------------------------------------------------
 $RootDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-$NativeDir    = Join-Path $RootDir "native"
+$NativeDir    = Join-Path $RootDir "Native"
 $BuildDir     = Join-Path $RootDir "build/$Arch/$Configuration"
 $ArtifactsDir = Join-Path $RootDir "artifacts/native"
 
