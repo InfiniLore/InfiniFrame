@@ -127,6 +127,7 @@
   </Folder>
   <Folder Name="/.dev-tools/scripts/">
     <File Path="scripts/BuildFrontend.mjs" />
+    <File Path="scripts/clean.ps1" />
     <File Path="scripts/clion-linux-environment.sh" />
     <File Path="scripts/nuget-install.sh" />
   </Folder>
