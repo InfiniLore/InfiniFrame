@@ -75,6 +75,20 @@ try {
         }
     }
 
+    if ($Platform -eq "windows") {
+        if ($Arch -eq "arm64") {
+            $CMakeArgs += "-A"
+            $CMakeArgs += "ARM64"
+        }
+        elseif ($Arch -eq "x64") {
+            $CMakeArgs += "-A"
+            $CMakeArgs += "x64"
+        }
+        else {
+            throw "Unsupported Windows architecture '$Arch'. Expected 'x64' or 'arm64'."
+        }
+    }
+
     cmake -B $BuildDir -S $NativeDir @CMakeArgs
     if ($LASTEXITCODE -ne 0) {
         throw "CMake configure failed with exit code $LASTEXITCODE."
