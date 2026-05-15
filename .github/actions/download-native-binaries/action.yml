@@ -65,30 +65,30 @@ runs:
                 mkdir -p "$ROOT/linux/x64/Release" "$ROOT/linux/arm64/Release"
                 mkdir -p "$ROOT/osx/x64/Release" "$ROOT/osx/arm64/Release"
 
-                declare -A MAP
-                if [ "$artifact_type" = "testing" ]; then
-                  MAP["native-testing-windows-x64"]="$ROOT/windows/x64/Release"
-                  MAP["native-testing-windows-arm64"]="$ROOT/windows/arm64/Release"
-                  MAP["native-testing-linux-x64"]="$ROOT/linux/x64/Release"
-                  MAP["native-testing-linux-arm64"]="$ROOT/linux/arm64/Release"
-                  MAP["native-testing-osx-x64"]="$ROOT/osx/x64/Release"
-                  MAP["native-testing-osx-arm64"]="$ROOT/osx/arm64/Release"
-                else
-                  MAP["native-windows-x64"]="$ROOT/windows/x64/Release"
-                  MAP["native-windows-arm64"]="$ROOT/windows/arm64/Release"
-                  MAP["native-linux-x64"]="$ROOT/linux/x64/Release"
-                  MAP["native-linux-arm64"]="$ROOT/linux/arm64/Release"
-                  MAP["native-osx-x64"]="$ROOT/osx/x64/Release"
-                  MAP["native-osx-arm64"]="$ROOT/osx/arm64/Release"
-                fi
-
-                for key in "${!MAP[@]}"; do
-                    src="artifacts/native/$key"
-                    dest="${MAP[$key]}"
+                copy_artifact() {
+                    src_name="$1"
+                    dest_dir="$2"
+                    src="artifacts/native/$src_name"
                     if [ -d "$src" ]; then
-                        cp -R "$src"/. "$dest"/
+                        cp -R "$src"/. "$dest_dir"/
                     fi
-                done
+                }
+
+                if [ "$artifact_type" = "testing" ]; then
+                    copy_artifact "native-testing-windows-x64" "$ROOT/windows/x64/Release"
+                    copy_artifact "native-testing-windows-arm64" "$ROOT/windows/arm64/Release"
+                    copy_artifact "native-testing-linux-x64" "$ROOT/linux/x64/Release"
+                    copy_artifact "native-testing-linux-arm64" "$ROOT/linux/arm64/Release"
+                    copy_artifact "native-testing-osx-x64" "$ROOT/osx/x64/Release"
+                    copy_artifact "native-testing-osx-arm64" "$ROOT/osx/arm64/Release"
+                else
+                    copy_artifact "native-windows-x64" "$ROOT/windows/x64/Release"
+                    copy_artifact "native-windows-arm64" "$ROOT/windows/arm64/Release"
+                    copy_artifact "native-linux-x64" "$ROOT/linux/x64/Release"
+                    copy_artifact "native-linux-arm64" "$ROOT/linux/arm64/Release"
+                    copy_artifact "native-osx-x64" "$ROOT/osx/x64/Release"
+                    copy_artifact "native-osx-arm64" "$ROOT/osx/arm64/Release"
+                fi
 
         -   name: Verify Native Artifacts
             shell: bash
