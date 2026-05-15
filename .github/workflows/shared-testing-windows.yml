@@ -79,12 +79,13 @@ jobs:
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
 
             -   name: Build Release
+                shell: pwsh
                 run: |
-                    dotnet build InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir=$GITHUB_WORKSPACE/ \
-                      /p:CMakePlatform=${{ matrix.arch }} \
+                    dotnet build InfiniFrame.GitHubActions.Testing.slnf `
+                      --configuration Release `
+                      --no-restore `
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      /p:CMakePlatform=${{ matrix.arch }} `
                       /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Prepare ARM64 Crash Diagnostics
