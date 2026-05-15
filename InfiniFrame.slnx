@@ -84,20 +84,23 @@
     <File Path=".github/codeql-config.yml" />
     <File Path=".github/dependabot.yml" />
   </Folder>
+  <Folder Name="/.dev-tools/github/actions/download-native-binaries/">
+    <File Path=".github/actions/download-native-binaries/action.yml" />
+  </Folder>
   <Folder Name="/.dev-tools/github/actions/packtool-e2e/">
     <File Path=".github/actions/packtool-e2e/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/setup-dependencies-native/">
     <File Path=".github/actions/setup-dependencies-native/action.yml" />
   </Folder>
+  <Folder Name="/.dev-tools/github/actions/setup-dependencies/">
+    <File Path=".github/actions/setup-dependencies/action.yml" />
+  </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check-finalize/">
     <File Path=".github/actions/sync-check-finalize/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check/">
     <File Path=".github/actions/sync-check/action.yml" />
-  </Folder>
-  <Folder Name="/.dev-tools/github/actions/validate-native-test-binaries/">
-    <File Path=".github/actions/validate-native-test-binaries/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/scripts/">
     <File Path=".github/scripts/bump_version.py" />
@@ -126,6 +129,7 @@
     <File Path=".github/workflows/shared-release-bump-version.yml" />
     <File Path=".github/workflows/shared-release-publish-docs.yml" />
     <File Path=".github/workflows/shared-release-publish.yml" />
+    <File Path=".github/workflows/shared-testing-build.yml" />
     <File Path=".github/workflows/shared-testing-docs.yml" />
     <File Path=".github/workflows/shared-testing-linux.yml" />
     <File Path=".github/workflows/shared-testing-macos.yml" />
