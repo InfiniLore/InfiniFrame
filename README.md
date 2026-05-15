@@ -224,6 +224,46 @@ Additional compose targets and wrappers are available for local matrix validatio
 - `docker/compose/infiniframe-linux-wayland.yml` + `docker/scripts/docker-linux-wayland-*.sh`
 - `docker/compose/infiniframe-windows.yml` + `docker/scripts/docker-windows-*.ps1`
 
+## Local GitHub Actions Harness
+
+You can run a local CI harness with a dedicated `act` runner image:
+
+- `docker/compose/infiniframe-gha-local.yml`
+- `docker/gha-local/Dockerfile`
+- `docker/scripts/docker-gha-local-*.sh`
+
+Build the local runner image:
+
+```bash
+bash docker/scripts/docker-gha-local-compose.sh
+```
+
+```powershell
+.\docker\scripts\docker-gha-local-compose.ps1
+```
+
+Run Linux GitHub Actions test workflow locally with `act`:
+
+```bash
+bash docker/scripts/docker-gha-local-run-linux-actions.sh
+```
+
+```powershell
+.\docker\scripts\docker-gha-local-run-linux-actions.ps1
+```
+
+Run Windows workflow-equivalent validations in local Windows containers:
+
+```powershell
+.\docker\scripts\docker-windows-compose.ps1
+.\docker\scripts\docker-gha-local-run-windows-actions.ps1
+```
+
+Notes:
+
+- `act` cannot run native `runs-on: windows-*` jobs directly. Use the Windows Docker wrappers for local Windows parity.
+- By default local runs set `LOCAL_GHA_SKIP_STATUS=1` to skip GitHub status/check API updates.
+
 ## Repo History
 
 This repo was originally forked from [Photino.NET](https://github.com/tryphotino/photino.NET) and then the history of

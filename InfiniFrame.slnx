@@ -14,10 +14,17 @@
   </Folder>
   <Folder Name="/.dev-tools/docker/" />
   <Folder Name="/.dev-tools/docker/compose/">
+    <File Path="docker/compose/infiniframe-gha-local.yml" />
     <File Path="docker/compose/infiniframe-linux-arm64.yml" />
     <File Path="docker/compose/infiniframe-linux-wayland.yml" />
     <File Path="docker/compose/infiniframe-linux.yml" />
     <File Path="docker/compose/infiniframe-windows.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/docker/gha-local/">
+    <File Path="docker/gha-local/Dockerfile" />
+  </Folder>
+  <Folder Name="/.dev-tools/docker/gha-local/events/">
+    <File Path="docker/gha-local/events/ci-testing-linux.json" />
   </Folder>
   <Folder Name="/.dev-tools/docker/infiniframe-linux-arm64/">
     <File Path="docker/infiniframe-linux-arm64/.dockerignore" />
@@ -49,8 +56,14 @@
     <File Path="docker/infiniframe-windows/NuGet.Config" />
     <File Path="docker/infiniframe-windows/playwright.ps1" />
     <File Path="docker/infiniframe-windows/tests.ps1" />
+    <File Path="docker/infiniframe-windows/trim-aot.ps1" />
   </Folder>
   <Folder Name="/.dev-tools/docker/scripts/">
+    <File Path="docker/scripts/docker-gha-local-compose.ps1" />
+    <File Path="docker/scripts/docker-gha-local-compose.sh" />
+    <File Path="docker/scripts/docker-gha-local-run-linux-actions.ps1" />
+    <File Path="docker/scripts/docker-gha-local-run-linux-actions.sh" />
+    <File Path="docker/scripts/docker-gha-local-run-windows-actions.ps1" />
     <File Path="docker/scripts/docker-linux-arm64-compose.sh" />
     <File Path="docker/scripts/docker-linux-arm64-run-blazorwebview.sh" />
     <File Path="docker/scripts/docker-linux-arm64-run-playwrighttests.sh" />
@@ -67,6 +80,7 @@
     <File Path="docker/scripts/docker-windows-run-blazorwebview.ps1" />
     <File Path="docker/scripts/docker-windows-run-playwrighttests.ps1" />
     <File Path="docker/scripts/docker-windows-run-tests.ps1" />
+    <File Path="docker/scripts/docker-windows-run-trim-aot.ps1" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />
