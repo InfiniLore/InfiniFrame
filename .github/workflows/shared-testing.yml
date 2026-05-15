@@ -81,15 +81,15 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
         secrets: inherit
-  
+    
     # noinspection UndefinedAction, UndefinedParamsPresent
     js-validation:
         name: Validate JS
         needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-js.yml
         with:
-          checkout_ref: ${{ inputs.checkout_ref }}
-          target_sha: ${{ needs.prepare.outputs.sha }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
     native-build:

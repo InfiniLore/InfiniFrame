@@ -75,7 +75,7 @@ jobs:
                       --no-build \
                       /p:InfiniFrameSkipNativeBuild=true \
                       -o ./release
-            
+
             -   name: Complete Dotnet Pack Check
                 if: always()
                 env:

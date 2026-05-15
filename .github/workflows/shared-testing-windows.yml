@@ -150,45 +150,45 @@ jobs:
                     script: |
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
-
-#            -   name: Run InfiniFrameTests Project (ARM64 Diagnostics)
-#                if: matrix.arch == 'arm64'
-#                env:
-#                    INFINIFRAME_TRACE_TEARDOWN: 1
-#                run: |
-#                    echo "Running ParentChildWindowTests diagnostics on Windows ARM64..."
-#                    dotnet test --project tests/InfiniFrameTests/InfiniFrameTests.csproj `
-#                      --configuration Release `
-#                      --no-build `
-#                      --no-restore `
-#                      --results-directory artifacts/testresults/arm64-infiniframetests `
-#                      --output Detailed `
-#                      --show-stderr All `
-#                      --show-stdout All `
-#                      --diagnostic `
-#                      --diagnostic-output-directory artifacts/testdiag/arm64-infiniframetests `
-#                      --treenode-filter "/*/*/ParentChildWindowTests/*" `
-#                      --minimum-expected-tests 1
-#
-#            -   name: Run Tests (ARM64)
-#                if: matrix.arch == 'arm64'
-#                env:
-#                    INFINIFRAME_TRACE_TEARDOWN: 1
-#                run: |
-#                    echo "Running full tests on Windows ARM64..."
-#                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-#                      --configuration Release `
-#                      --no-build `
-#                      --no-restore `
-#                      --results-directory artifacts/testresults/arm64-full `
-#                      --output Normal `
-#                      --show-stderr All `
-#                      --show-stdout Failed `
-#                      --diagnostic `
-#                      --diagnostic-output-directory artifacts/testdiag/arm64-full
+            
+            #            -   name: Run InfiniFrameTests Project (ARM64 Diagnostics)
+            #                if: matrix.arch == 'arm64'
+            #                env:
+            #                    INFINIFRAME_TRACE_TEARDOWN: 1
+            #                run: |
+            #                    echo "Running ParentChildWindowTests diagnostics on Windows ARM64..."
+            #                    dotnet test --project tests/InfiniFrameTests/InfiniFrameTests.csproj `
+            #                      --configuration Release `
+            #                      --no-build `
+            #                      --no-restore `
+            #                      --results-directory artifacts/testresults/arm64-infiniframetests `
+            #                      --output Detailed `
+            #                      --show-stderr All `
+            #                      --show-stdout All `
+            #                      --diagnostic `
+            #                      --diagnostic-output-directory artifacts/testdiag/arm64-infiniframetests `
+            #                      --treenode-filter "/*/*/ParentChildWindowTests/*" `
+            #                      --minimum-expected-tests 1
+            #
+            #            -   name: Run Tests (ARM64)
+            #                if: matrix.arch == 'arm64'
+            #                env:
+            #                    INFINIFRAME_TRACE_TEARDOWN: 1
+            #                run: |
+            #                    echo "Running full tests on Windows ARM64..."
+            #                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
+            #                      --configuration Release `
+            #                      --no-build `
+            #                      --no-restore `
+            #                      --results-directory artifacts/testresults/arm64-full `
+            #                      --output Normal `
+            #                      --show-stderr All `
+            #                      --show-stdout Failed `
+            #                      --diagnostic `
+            #                      --diagnostic-output-directory artifacts/testdiag/arm64-full
 
             -   name: Run Tests (x64)
-#                if: matrix.arch != 'arm64'
+                #                if: matrix.arch != 'arm64'
                 run: |
                     echo "Running tests on Windows..."
                     dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
@@ -197,18 +197,18 @@ jobs:
                       --no-restore `
                       /p:CMakePlatform=${{ matrix.arch }} `
                       /p:InfiniFrameSkipNativeBuild=true
-
-#            -   name: Upload ARM64 Crash Diagnostics
-#                if: always() && matrix.arch == 'arm64'
-#                uses: actions/upload-artifact@v7
-#                with:
-#                    name: windows-arm64-crash-diagnostics
-#                    if-no-files-found: warn
-#                    retention-days: 14
-#                    path: |
-#                        artifacts/crashdumps/**
-#                        artifacts/testdiag/**
-#                        artifacts/testresults/**
+            
+            #            -   name: Upload ARM64 Crash Diagnostics
+            #                if: always() && matrix.arch == 'arm64'
+            #                uses: actions/upload-artifact@v7
+            #                with:
+            #                    name: windows-arm64-crash-diagnostics
+            #                    if-no-files-found: warn
+            #                    retention-days: 14
+            #                    path: |
+            #                        artifacts/crashdumps/**
+            #                        artifacts/testdiag/**
+            #                        artifacts/testresults/**
 
             -   name: Pack Tool E2E
                 # noinspection UndefinedAction

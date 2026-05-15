@@ -25,9 +25,9 @@ jobs:
 
             -   name: Run Pytest
                 run: python -m pytest .github/scripts -q
-            
-            -  name: Run Validations
-               run: |
-                   python .github/scripts/validate_package_id_prefix.py \
-                     --slnf InfiniFrame.GitHubActions.Release.slnf \
-                     --prefix InfiniLore
+
+            -   name: Run Validations
+                run: |
+                    python .github/scripts/validate_package_id_prefix.py \
+                      --slnf InfiniFrame.GitHubActions.Release.slnf \
+                      --prefix InfiniLore

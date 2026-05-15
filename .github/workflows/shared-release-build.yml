@@ -55,7 +55,7 @@ jobs:
                         8.x
                         9.x
                         10.x
-            
+
             -   name: Setup Native dependencies
                 # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native

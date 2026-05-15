@@ -1,56 +1,56 @@
 name: "CI: Update Native Vendor Deps"
 
 on:
-  schedule:
-    - cron: "0 5 * * 1"
-  workflow_dispatch:
+    schedule:
+        -   cron: "0 5 * * 1"
+    workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
+    contents: write
+    pull-requests: write
 
 jobs:
-  update-native-vendor-deps:
-    runs-on: ubuntu-latest
+    update-native-vendor-deps:
+        runs-on: ubuntu-latest
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+            -   name: Setup Python
+                uses: actions/setup-python@v6
+                with:
+                    python-version: '3.x'
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.x'
+            -   name: Update vendored native dependencies
+                env:
+                    GITHUB_TOKEN: ${{ github.token }}
+                run: python .github/scripts/update_native_vendor_deps.py
 
-      - name: Update vendored native dependencies
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: python .github/scripts/update_native_vendor_deps.py
+            -   name: Detect changes
+                id: detect_changes
+                shell: bash
+                run: |
+                    if git diff --quiet; then
+                      echo "has_changes=false" >> "$GITHUB_OUTPUT"
+                    else
+                      echo "has_changes=true" >> "$GITHUB_OUTPUT"
+                    fi
 
-      - name: Detect changes
-        id: detect_changes
-        shell: bash
-        run: |
-          if git diff --quiet; then
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Create pull request
-        if: steps.detect_changes.outputs.has_changes == 'true'
-        uses: peter-evans/create-pull-request@v8
-        with:
-          # Prefer a PAT/App token if org policy blocks PR creation by GITHUB_TOKEN.
-          token: ${{ secrets.INFINI_BOT_TOKEN || github.token }}
-          commit-message: "chore(native): update simdjson/simdutf vendor deps"
-          title: "chore(native): update simdjson/simdutf vendor deps"
-          body: |
-            Automated weekly refresh of vendored native dependencies in `InfiniFrame.Native`.
-
-            Updated by `.github/scripts/update_native_vendor_deps.py` from latest GitHub releases.
-          branch: "chore/update-native-vendor-deps"
-          delete-branch: true
-          labels: |
-            dependencies
-            InfiniFrame.Native
+            -   name: Create pull request
+                if: steps.detect_changes.outputs.has_changes == 'true'
+                uses: peter-evans/create-pull-request@v8
+                with:
+                    # Prefer a PAT/App token if org policy blocks PR creation by GITHUB_TOKEN.
+                    token: ${{ secrets.INFINI_BOT_TOKEN || github.token }}
+                    commit-message: "chore(native): update simdjson/simdutf vendor deps"
+                    title: "chore(native): update simdjson/simdutf vendor deps"
+                    body: |
+                        Automated weekly refresh of vendored native dependencies in `InfiniFrame.Native`.
+                        
+                        Updated by `.github/scripts/update_native_vendor_deps.py` from latest GitHub releases.
+                    branch: "chore/update-native-vendor-deps"
+                    delete-branch: true
+                    labels: |
+                        dependencies
+                        InfiniFrame.Native

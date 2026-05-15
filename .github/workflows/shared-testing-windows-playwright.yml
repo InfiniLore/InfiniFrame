@@ -34,7 +34,7 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
-                
+
             -   name: Set Playwright Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,7 +59,7 @@ jobs:
         
         strategy:
             fail-fast: false
-            matrix:                
+            matrix:
                 project:
                     -   name: WebApp Vue
                         path: InfiniFrameTests.Playwright.WebApp.Vue
@@ -130,7 +130,7 @@ jobs:
                       Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
                     }
                     Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
-                    
+
             -   name: NPM Install
                 if: ${{ matrix.project.sourceFolder != '' }}
                 shell: pwsh
@@ -278,7 +278,7 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
-              
+
             -   name: Set Playwright Check Final Status
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

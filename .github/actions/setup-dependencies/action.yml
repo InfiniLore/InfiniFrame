@@ -10,24 +10,29 @@ inputs:
 runs:
     using: composite
     steps:
-        - name: Setup Node
-          uses: actions/setup-node@v6
-          with:
-              node-version: 24
-              cache: npm
-              cache-dependency-path: |
-                  package-lock.json
-                  **/package-lock.json
+        -   name: Setup Node
+            uses: actions/setup-node@v6
+            with:
+                node-version: 24
+                cache: npm
+                cache-dependency-path: |
+                    package-lock.json
+                    **/package-lock.json
 
-        - name: Setup .NET
-          uses: actions/setup-dotnet@v5
-          with:
-              dotnet-version: |
-                  8.x
-                  9.x
-                  10.x
-              cache: ${{ inputs['cache-dotnet'] }}
-              cache-dependency-path: |
-                  **/*.csproj
-                  **/*.props
-                  **/Directory.Packages.props
+        -   name: Setup Python
+            uses: actions/setup-python@v6
+            with:
+                python-version: '3.x'
+
+        -   name: Setup .NET
+            uses: actions/setup-dotnet@v5
+            with:
+                dotnet-version: |
+                    8.x
+                    9.x
+                    10.x
+                cache: ${{ inputs['cache-dotnet'] }}
+                cache-dependency-path: |
+                    **/*.csproj
+                    **/*.props
+                    **/Directory.Packages.props
