@@ -166,7 +166,6 @@ jobs:
                       --no-restore `
                       --framework net8.0 `
                       /p:SolutionDir=$GITHUB_WORKSPACE/ `
-                      /p:Platform=x64 `
                       /p:InfiniFrameSkipNativeBuild=true
                     
                     dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
@@ -174,7 +173,6 @@ jobs:
                       --no-restore `
                       --framework net9.0 `
                       /p:SolutionDir=$GITHUB_WORKSPACE/ `
-                      /p:Platform=x64 `
                       /p:InfiniFrameSkipNativeBuild=true
                     
                     dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
@@ -182,13 +180,12 @@ jobs:
                       --no-restore `
                       --framework net10.0 `
                       /p:SolutionDir=$GITHUB_WORKSPACE/ `
-                      /p:Platform=x64 `
                       /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Install Playwright Browsers
                 shell: pwsh
                 run: |
-                    $script = "tests/${{ matrix.project.path }}/bin/x64/Release/net10.0/playwright.ps1"
+                    $script = "tests/${{ matrix.project.path }}/bin/Release/net10.0/playwright.ps1"
                     
                     if (-not (Test-Path $script)) {
                       throw "Playwright script not found: $script"
@@ -199,7 +196,7 @@ jobs:
             -   name: Verify Native Binaries
                 shell: pwsh
                 run: |
-                    $binPath = "tests/${{ matrix.project.path }}/bin/x64/Release/net10.0"
+                    $binPath = "tests/${{ matrix.project.path }}/bin/Release/net10.0"
                     
                     foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
                       $fullPath = Join-Path $binPath $dll
@@ -224,7 +221,6 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net8.0 `
-                      /p:Platform=x64 `
                       /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Run Playwright tests NET 9.0
@@ -236,7 +232,6 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net9.0 `
-                      /p:Platform=x64 `
                       /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Run Playwright tests NET 10.0
@@ -248,7 +243,6 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net10.0 `
-                      /p:Platform=x64 `
                       /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Update Playwright Check
