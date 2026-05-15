@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <PackageId>InfiniLore.InfiniFrame.NativeLib</PackageId>
+        <PackageId>InfiniLore.InfiniFrame.NativeBridge</PackageId>
         <OutputType>Library</OutputType>
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

@@ -177,7 +177,7 @@ jobs:
 
             -   name: Build Native
                 run: |
-                    dotnet build src/InfiniFrame.NativeLib/InfiniFrame.NativeLib.csproj `
+                    dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj `
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$GITHUB_WORKSPACE/
