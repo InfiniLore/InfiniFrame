@@ -36,6 +36,9 @@ jobs:
                 with:
                     cache-dotnet: false
 
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
+
             -   name: Set Trim/AOT Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

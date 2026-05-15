@@ -52,6 +52,12 @@ jobs:
                 with:
                     cache-dotnet: false
 
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                with:
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+
             -   name: Set macOS Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
