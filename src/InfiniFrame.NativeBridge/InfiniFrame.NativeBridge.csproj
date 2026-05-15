@@ -126,8 +126,8 @@
     <!-- ========================================================= -->
 
     <Target Name="BuildNative"
-            BeforeTargets="CoreBuild"
-            Condition="'$(InfiniFrameSkipNativeBuild)' != 'true'"
+            BeforeTargets="DispatchToInnerBuilds;PrepareForBuild"
+            Condition="'$(InfiniFrameSkipNativeBuild)' != 'true' and ('$(TargetFramework)' == '' or '$(TargetFrameworks)' == '')"
             Inputs="@(NativeSource)"
             Outputs="$(NativeStamp)">
 
@@ -136,11 +136,11 @@
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
     </Target>
 
-    <Target Name="CleanNative" AfterTargets="Clean">
+    <Target Name="CleanNative" AfterTargets="Clean" Condition="'$(TargetFramework)' == '' or '$(TargetFrameworks)' == ''">
         <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-clean.ps1&quot;" />
     </Target>
 
-    <Target Name="CheckNativeDlls" AfterTargets="Build">
+    <Target Name="CheckNativeDlls" AfterTargets="Build" Condition="'$(TargetFramework)' == '' or '$(TargetFrameworks)' == ''">
         <Message Text="=== x64 ===" Importance="High"/>
 
         <Message Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')"
