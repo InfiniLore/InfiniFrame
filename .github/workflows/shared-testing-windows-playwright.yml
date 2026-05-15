@@ -185,23 +185,41 @@ jobs:
             -   name: Install Playwright Browsers
                 shell: pwsh
                 run: |
-                    $script = "tests/${{ matrix.project.path }}/bin/Release/net10.0/playwright.ps1"
-                    
-                    if (-not (Test-Path $script)) {
-                      throw "Playwright script not found: $script"
+                    $projectPath = "tests/${{ matrix.project.path }}"
+                    $candidates = @(
+                      "$projectPath/bin/x64/Release/net10.0/playwright.ps1",
+                      "$projectPath/bin/Release/net10.0/playwright.ps1"
+                    )
+
+                    $script = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+                    if ([string]::IsNullOrWhiteSpace($script)) {
+                      throw "Playwright script not found. Checked: $($candidates -join ', ')"
                     }
-                    
+
+                    Write-Host "Using Playwright script: $script"
                     pwsh $script install
 
             -   name: Verify Native Binaries
                 shell: pwsh
                 run: |
-                    $binPath = "tests/${{ matrix.project.path }}/bin/Release/net10.0"
-                    
+                    $projectPath = "tests/${{ matrix.project.path }}"
+                    $candidateBinPaths = @(
+                      "$projectPath/bin/x64/Release/net10.0",
+                      "$projectPath/bin/Release/net10.0"
+                    )
+
+                    $binPath = $candidateBinPaths | Where-Object { Test-Path $_ } | Select-Object -First 1
+                    if ([string]::IsNullOrWhiteSpace($binPath)) {
+                      throw "No build output folder found. Checked: $($candidateBinPaths -join ', ')"
+                    }
+
+                    Write-Host "Using output folder: $binPath"
+
                     foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
-                      $fullPath = Join-Path $binPath $dll
-                      if (-Not (Test-Path $fullPath)) {
-                        throw "$dll missing in $binPath"
+                      $rootPath = Join-Path $binPath $dll
+                      $ridPath = Join-Path $binPath "runtimes/win-x64/native/$dll"
+                      if (-Not (Test-Path $rootPath) -and -Not (Test-Path $ridPath)) {
+                        throw "$dll missing in $binPath (checked $rootPath and $ridPath)"
                       }
                     }
 
