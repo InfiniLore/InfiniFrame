@@ -68,7 +68,9 @@ jobs:
                     allow-status-422: 'true'
 
             -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/native-binaries-testing-download-from-cache
+                uses: ./.github/actions/download-native-binaries
+                with:
+                    artifact-type: testing
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
@@ -81,10 +83,6 @@ jobs:
                       /p:SolutionDir=$GITHUB_WORKSPACE/ \
                       /p:CMakePlatform=${{ matrix.arch }} \
                       /p:InfiniFrameSkipNativeBuild=true
-
-            -   name: Verify Native Binaries
-                # noinspection UndefinedAction
-                uses: ./.github/actions/validate-native-test-binaries
 
             -   name: Prepare ARM64 Crash Diagnostics
                 if: matrix.arch == 'arm64'

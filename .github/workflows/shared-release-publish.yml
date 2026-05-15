@@ -58,37 +58,10 @@ jobs:
                     brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-publish.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
-            -   name: Download Build Artifacts
-                uses: actions/download-artifact@v8
+            -   name: Download Release Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
                 with:
-                    path: artifacts/native
-
-            -   name: Normalize Artifacts
-                run: |
-                    set -e
-
-                    mkdir -p artifacts/native/windows/x64/Release
-                    mkdir -p artifacts/native/windows/arm64/Release
-                    mkdir -p artifacts/native/linux/x64/Release
-                    mkdir -p artifacts/native/linux/arm64/Release
-                    mkdir -p artifacts/native/osx/x64/Release
-                    mkdir -p artifacts/native/osx/arm64/Release
-
-                    declare -A MAP
-                    MAP["native-windows-x64"]="artifacts/native/windows/x64/Release"
-                    MAP["native-windows-arm64"]="artifacts/native/windows/arm64/Release"
-                    MAP["native-linux-x64"]="artifacts/native/linux/x64/Release"
-                    MAP["native-linux-arm64"]="artifacts/native/linux/arm64/Release"
-                    MAP["native-osx-x64"]="artifacts/native/osx/x64/Release"
-                    MAP["native-osx-arm64"]="artifacts/native/osx/arm64/Release"
-
-                    for key in "${!MAP[@]}"; do
-                        src="artifacts/native/$key"
-                        dest="${MAP[$key]}"
-                        if [ -d "$src" ]; then
-                            mv "$src"/* "$dest"/ 2>/dev/null || true
-                        fi
-                    done
+                    artifact-type: release
 
             -   name: Verify Artifacts
                 run: |

@@ -66,7 +66,9 @@ jobs:
                     allow-status-422: 'true'
 
             -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/native-binaries-testing-download-from-cache
+                uses: ./.github/actions/download-native-binaries
+                with:
+                    artifact-type: testing
 
             -   name: Compile GSettings schemas
                 run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
@@ -82,10 +84,6 @@ jobs:
                       -p:SolutionDir=${{ github.workspace }}/ \
                       -p:CMakePlatform=${{ matrix.arch }} \
                       -p:InfiniFrameSkipNativeBuild=true
-
-            -   name: Verify Native Binaries
-                # noinspection UndefinedAction
-                uses: ./.github/actions/validate-native-test-binaries
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v9

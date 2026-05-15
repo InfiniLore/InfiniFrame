@@ -61,7 +61,9 @@ jobs:
                     brew-restore-key: ${{ runner.os }}-x64-brew-native-
 
             -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/native-binaries-testing-download-from-cache
+                uses: ./.github/actions/download-native-binaries
+                with:
+                    artifact-type: testing
 
             -   name: Trim Analyzer Builds
                 run: |

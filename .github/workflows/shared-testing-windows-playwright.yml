@@ -108,7 +108,9 @@ jobs:
                     allow-status-422: 'true'
 
             -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/native-binaries-testing-download-from-cache
+                uses: ./.github/actions/download-native-binaries
+                with:
+                    artifact-type: testing
 
             -   name: Prepare WebView2 Cache Directory
                 shell: pwsh

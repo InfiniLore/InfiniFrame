@@ -1,0 +1,123 @@
+name: Download Native Binaries
+description: Download, normalize, and verify native build artifacts for testing or release workflows
+
+inputs:
+    artifact-type:
+        description: Artifact naming mode
+        required: true
+        default: testing
+    target-root:
+        description: Root path where normalized native artifacts should be written
+        required: false
+        default: ""
+
+runs:
+    using: composite
+    steps:
+        -   name: Resolve Native Artifact Settings
+            id: resolve-native-artifact-settings
+            shell: bash
+            run: |
+                set -euo pipefail
+
+                artifact_type="${{ inputs.artifact-type }}"
+                input_root="${{ inputs.target-root }}"
+
+                case "$artifact_type" in
+                  testing)
+                    pattern="native-testing-*"
+                    ;;
+                  release)
+                    pattern="native-*"
+                    ;;
+                  *)
+                    echo "Unsupported artifact-type: $artifact_type"
+                    exit 1
+                    ;;
+                esac
+
+                if [ -n "$input_root" ]; then
+                  root="$input_root"
+                elif [ "$artifact_type" = "testing" ]; then
+                  root="src/InfiniFrame.NativeBridge/artifacts/native"
+                else
+                  root="artifacts/native"
+                fi
+
+                echo "pattern=$pattern" >> "$GITHUB_OUTPUT"
+                echo "root=$root" >> "$GITHUB_OUTPUT"
+
+        -   name: Download Native Build Artifacts
+            uses: actions/download-artifact@v8
+            with:
+                path: artifacts/native
+                pattern: ${{ steps.resolve-native-artifact-settings.outputs.pattern }}
+
+        -   name: Normalize Native Artifacts
+            shell: bash
+            run: |
+                set -euo pipefail
+
+                ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
+                artifact_type="${{ inputs.artifact-type }}"
+
+                mkdir -p "$ROOT/windows/x64/Release" "$ROOT/windows/arm64/Release"
+                mkdir -p "$ROOT/linux/x64/Release" "$ROOT/linux/arm64/Release"
+                mkdir -p "$ROOT/osx/x64/Release" "$ROOT/osx/arm64/Release"
+
+                declare -A MAP
+                if [ "$artifact_type" = "testing" ]; then
+                  MAP["native-testing-windows-x64"]="$ROOT/windows/x64/Release"
+                  MAP["native-testing-windows-arm64"]="$ROOT/windows/arm64/Release"
+                  MAP["native-testing-linux-x64"]="$ROOT/linux/x64/Release"
+                  MAP["native-testing-linux-arm64"]="$ROOT/linux/arm64/Release"
+                  MAP["native-testing-osx-x64"]="$ROOT/osx/x64/Release"
+                  MAP["native-testing-osx-arm64"]="$ROOT/osx/arm64/Release"
+                else
+                  MAP["native-windows-x64"]="$ROOT/windows/x64/Release"
+                  MAP["native-windows-arm64"]="$ROOT/windows/arm64/Release"
+                  MAP["native-linux-x64"]="$ROOT/linux/x64/Release"
+                  MAP["native-linux-arm64"]="$ROOT/linux/arm64/Release"
+                  MAP["native-osx-x64"]="$ROOT/osx/x64/Release"
+                  MAP["native-osx-arm64"]="$ROOT/osx/arm64/Release"
+                fi
+
+                for key in "${!MAP[@]}"; do
+                    src="artifacts/native/$key"
+                    dest="${MAP[$key]}"
+                    if [ -d "$src" ]; then
+                        cp -R "$src"/. "$dest"/
+                    fi
+                done
+
+        -   name: Verify Native Artifacts
+            shell: bash
+            run: |
+                set -euo pipefail
+
+                ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
+                EXPECTED=(
+                  "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
+                  "$ROOT/windows/x64/Release/WebView2Loader.dll"
+                  "$ROOT/windows/arm64/Release/InfiniFrame.Native.dll"
+                  "$ROOT/windows/arm64/Release/WebView2Loader.dll"
+                  "$ROOT/linux/x64/Release/InfiniFrame.Native.so"
+                  "$ROOT/linux/arm64/Release/InfiniFrame.Native.so"
+                  "$ROOT/osx/x64/Release/InfiniFrame.Native.dylib"
+                  "$ROOT/osx/arm64/Release/InfiniFrame.Native.dylib"
+                )
+
+                missing=0
+                for file in "${EXPECTED[@]}"; do
+                  if [ ! -f "$file" ]; then
+                    echo "Missing native artifact: $file"
+                    missing=$((missing+1))
+                  fi
+                done
+
+                if [ "$missing" -gt 0 ]; then
+                  echo "Missing $missing native artifact(s)."
+                  exit 1
+                fi
+
+                echo "All native artifacts downloaded and verified."

@@ -53,7 +53,9 @@ jobs:
                     allow-status-422: 'true'
 
             -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/native-binaries-testing-download-from-cache
+                uses: ./.github/actions/download-native-binaries
+                with:
+                    artifact-type: testing
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
