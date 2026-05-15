@@ -79,12 +79,6 @@ jobs:
 
             -   name: Build Release
                 run: |
-                    dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=x64
-                    
                     dotnet build InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
                       --no-restore \

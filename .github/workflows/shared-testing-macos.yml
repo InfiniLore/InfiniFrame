@@ -87,16 +87,11 @@ jobs:
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
 
-            -   name: Build Native
-                run: |
-                    dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=${{ matrix.arch }}
-
             -   name: Build Release
-                run: dotnet build InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-restore
+                run: |
+                    dotnet build InfiniFrame.GitHubActions.Testing.slnf \
+                      --configuration Release \
+                      --no-restore
 
             -   name: Verify Native Binaries
                 # noinspection UndefinedAction

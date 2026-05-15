@@ -90,12 +90,6 @@ jobs:
 
             -   name: Build Release
                 run: |
-                    dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=${{ matrix.arch }}
-
                     dotnet build InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
                       --no-restore
