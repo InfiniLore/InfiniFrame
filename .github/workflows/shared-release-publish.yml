@@ -54,7 +54,6 @@ jobs:
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
-                    apt-cache-version: 1.0
                     brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-publish.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 

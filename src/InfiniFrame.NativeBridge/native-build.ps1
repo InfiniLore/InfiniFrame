@@ -3,6 +3,8 @@ param(
     [string]$Arch = "x64"
 )
 
+$ErrorActionPreference = "Stop"
+
 # -----------------------------------------------------------------------------------------------------------------
 # PATH SETUP
 # -----------------------------------------------------------------------------------------------------------------
@@ -74,7 +76,14 @@ try {
     }
 
     cmake -B $BuildDir -S $NativeDir @CMakeArgs
+    if ($LASTEXITCODE -ne 0) {
+        throw "CMake configure failed with exit code $LASTEXITCODE."
+    }
+
     cmake --build $BuildDir --config $Configuration --parallel
+    if ($LASTEXITCODE -ne 0) {
+        throw "CMake build failed with exit code $LASTEXITCODE."
+    }
 
     # -----------------------------------------------------------------------------------------------------------------
     # COPY OUTPUTS

@@ -211,7 +211,6 @@ jobs:
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
-                    apt-cache-version: 1.0
                     brew-cache-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/codeql.yml') }}
                     brew-restore-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-
 

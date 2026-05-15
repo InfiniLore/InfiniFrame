@@ -60,7 +60,6 @@ jobs:
             -   name: Setup Native dependencies
                 uses: ./.github/actions/setup-dependencies-native
                 with:
-                    apt-cache-version: 1.0
                     brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-build.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 

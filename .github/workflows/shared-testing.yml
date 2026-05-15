@@ -70,16 +70,6 @@ jobs:
                     fi
 
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
-
-    # noinspection UndefinedAction, UndefinedParamsPresent
-    native-build:
-        name: Build Native Artifacts
-        needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-build.yml
-        with:
-            pr_number: ${{ inputs.pr_number }}
-            checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
     
     # noinspection UndefinedAction, UndefinedParamsPresent
     docs-validation:
@@ -100,6 +90,16 @@ jobs:
         with:
           checkout_ref: ${{ inputs.checkout_ref }}
           target_sha: ${{ needs.prepare.outputs.sha }}
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    native-build:
+        name: Build Native Artifacts
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-build.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
     
     # noinspection UndefinedAction, UndefinedParamsPresent
     dotnetpack-validation:
@@ -111,21 +111,24 @@ jobs:
             target_sha: ${{ needs.prepare.outputs.sha }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    windows-trim-aot:
-        name: Validate Trim/AOT
-        if: ${{ inputs.run_trim_aot == true }}
-        needs: [ prepare, native-build ]
-        uses: ./.github/workflows/shared-testing-windows-trim-aot.yml
-        with:
-            checkout_ref: ${{ inputs.checkout_ref }}
-            target_sha: ${{ needs.prepare.outputs.sha }}
-
-    # noinspection UndefinedAction, UndefinedParamsPresent
     linux:
         name: Linux Tests
         if: ${{ inputs.run_linux == true }}
         needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-linux.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+        secrets: inherit
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    macos:
+        name: macOS Tests
+        if: ${{ inputs.run_macos == true }}
+        needs: [ prepare, native-build ]
+        uses: ./.github/workflows/shared-testing-macos.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -160,14 +163,11 @@ jobs:
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    macos:
-        name: macOS Tests
-        if: ${{ inputs.run_macos == true }}
+    windows-trim-aot:
+        name: Validate Trim/AOT
+        if: ${{ inputs.run_trim_aot == true }}
         needs: [ prepare, native-build ]
-        uses: ./.github/workflows/shared-testing-macos.yml
+        uses: ./.github/workflows/shared-testing-windows-trim-aot.yml
         with:
-            pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
-        secrets: inherit
