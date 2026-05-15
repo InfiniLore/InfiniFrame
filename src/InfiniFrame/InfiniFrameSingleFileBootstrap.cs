@@ -1,9 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
+using InfiniFrame.NativeBridge;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using InfiniFrameNative = InfiniFrame.NativeBridge.InfiniFrameNative;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;

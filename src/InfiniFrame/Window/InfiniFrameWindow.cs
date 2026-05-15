@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
+using InfiniFrame.NativeBridge;
 using InfiniFrame.StaticAssets;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
@@ -9,6 +9,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using InfiniFrameNative = InfiniFrame.NativeBridge.InfiniFrameNative;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------

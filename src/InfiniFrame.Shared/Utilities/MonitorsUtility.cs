@@ -1,9 +1,10 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
+using InfiniFrame.NativeBridge;
 using System.Collections.Immutable;
 using System.Drawing;
+using InfiniFrameNative = InfiniFrame.NativeBridge.InfiniFrameNative;
 
 namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------

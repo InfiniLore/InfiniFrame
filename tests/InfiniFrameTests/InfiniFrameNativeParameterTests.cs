@@ -1,8 +1,9 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
+using InfiniFrame.NativeBridge;
 using System.Runtime.InteropServices;
+using InfiniWindowNative = InfiniFrame.NativeBridge.InfiniWindowNative;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------

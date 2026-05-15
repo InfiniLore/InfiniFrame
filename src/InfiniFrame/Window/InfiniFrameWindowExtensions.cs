@@ -1,13 +1,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
 using InfiniFrame.Security;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using InfiniFrameNative = InfiniFrame.NativeBridge.InfiniFrameNative;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------

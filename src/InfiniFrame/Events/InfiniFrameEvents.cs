@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Native;
-using InfiniFrame.Native.Delegates;
+using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Delegates;
 using System.Drawing;
 
 namespace InfiniFrame;

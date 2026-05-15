@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Native;
+using InfiniFrame.NativeBridge;
 using InfiniFrameTests.Shared;
 using System.Drawing;
 

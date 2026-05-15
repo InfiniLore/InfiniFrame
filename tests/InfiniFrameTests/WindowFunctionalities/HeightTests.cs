@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Native;
+using InfiniFrame.NativeBridge;
 using InfiniFrameTests.Shared;
 
 namespace InfiniFrameTests.WindowFunctionalities;

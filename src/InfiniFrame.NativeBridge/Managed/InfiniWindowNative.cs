@@ -4,9 +4,9 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using static InfiniFrame.Native.NativeDll;
+using static InfiniFrame.NativeBridge.NativeDll;
 
-namespace InfiniFrame.Native;
+namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Interop;
-using InfiniFrame.Native;
+using InfiniFrame.NativeBridge;
 using InfiniFrameTests.Shared.TestDoubles;
 using NSubstitute;
 using System.Text.Json;
