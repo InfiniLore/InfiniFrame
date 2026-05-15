@@ -86,8 +86,8 @@
     </ItemGroup>
 
     <!-- LINUX x64 -->
-    <ItemGroup Condition="Exists('$(LinuxX64)\libInfiniFrame.Native.so')">
-        <None Include="$(LinuxX64)\libInfiniFrame.Native.so"
+    <ItemGroup Condition="Exists('$(LinuxX64)\InfiniFrame.Native.so')">
+        <None Include="$(LinuxX64)\InfiniFrame.Native.so"
               Pack="true"
               CopyToOutputDirectory="PreserveNewest"
               CopyToPublishDirectory="PreserveNewest"
@@ -95,8 +95,8 @@
     </ItemGroup>
 
     <!-- LINUX arm64 -->
-    <ItemGroup Condition="Exists('$(LinuxArm64)\libInfiniFrame.Native.so')">
-        <None Include="$(LinuxArm64)\libInfiniFrame.Native.so"
+    <ItemGroup Condition="Exists('$(LinuxArm64)\InfiniFrame.Native.so')">
+        <None Include="$(LinuxArm64)\InfiniFrame.Native.so"
               Pack="true"
               CopyToOutputDirectory="PreserveNewest"
               CopyToPublishDirectory="PreserveNewest"
@@ -104,8 +104,8 @@
     </ItemGroup>
 
     <!-- macOS x64 -->
-    <ItemGroup Condition="Exists('$(MacOsX64)\libInfiniFrame.Native.dylib')">
-        <None Include="$(MacOsX64)\libInfiniFrame.Native.dylib"
+    <ItemGroup Condition="Exists('$(MacOsX64)\InfiniFrame.Native.dylib')">
+        <None Include="$(MacOsX64)\InfiniFrame.Native.dylib"
               Pack="true"
               CopyToOutputDirectory="PreserveNewest"
               CopyToPublishDirectory="PreserveNewest"
@@ -113,8 +113,8 @@
     </ItemGroup>
 
     <!-- macOS arm64 -->
-    <ItemGroup Condition="Exists('$(MacOsArm64)\libInfiniFrame.Native.dylib')">
-        <None Include="$(MacOsArm64)\libInfiniFrame.Native.dylib"
+    <ItemGroup Condition="Exists('$(MacOsArm64)\InfiniFrame.Native.dylib')">
+        <None Include="$(MacOsArm64)\InfiniFrame.Native.dylib"
               Pack="true"
               CopyToOutputDirectory="PreserveNewest"
               CopyToPublishDirectory="PreserveNewest"
@@ -157,18 +157,18 @@
                  Text="❌ WebView2Loader.dll not found at $(WindowsX64)! Tests may fail."
                  Importance="High"/>
 
-        <Message Condition="Exists('$(LinuxX64)/libInfiniFrame.Native.so')"
-                 Text="✅ Found libInfiniFrame.Native.so in $(LinuxX64)"
+        <Message Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')"
+                 Text="✅ Found InfiniFrame.Native.so in $(LinuxX64)"
                  Importance="High"/>
-        <Message Condition="!Exists('$(LinuxX64)/libInfiniFrame.Native.so')"
-                 Text="❌ libInfiniFrame.Native.so not found at $(LinuxX64)! Tests may fail."
+        <Message Condition="!Exists('$(LinuxX64)/InfiniFrame.Native.so')"
+                 Text="❌ InfiniFrame.Native.so not found at $(LinuxX64)! Tests may fail."
                  Importance="High"/>
 
-        <Message Condition="Exists('$(MacOsX64)/libInfiniFrame.Native.dylib')"
-                 Text="✅ Found libInfiniFrame.Native.dylib in $(MacOsX64)"
+        <Message Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')"
+                 Text="✅ Found InfiniFrame.Native.dylib in $(MacOsX64)"
                  Importance="High"/>
-        <Message Condition="!Exists('$(MacOsX64)/libInfiniFrame.Native.dylib')"
-                 Text="❌ libInfiniFrame.Native.dylib not found at $(MacOsX64)! Tests may fail."
+        <Message Condition="!Exists('$(MacOsX64)/InfiniFrame.Native.dylib')"
+                 Text="❌ InfiniFrame.Native.dylib not found at $(MacOsX64)! Tests may fail."
                  Importance="High"/>
 
         <Message Text="=== arm64 ===" Importance="High"/>
@@ -187,18 +187,18 @@
                  Text="❌ WebView2Loader.dll not found at $(WindowsArm64)! Tests may fail."
                  Importance="High"/>
 
-        <Message Condition="Exists('$(LinuxArm64)/libInfiniFrame.Native.so')"
-                 Text="✅ Found libInfiniFrame.Native.so in $(LinuxArm64)"
+        <Message Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')"
+                 Text="✅ Found InfiniFrame.Native.so in $(LinuxArm64)"
                  Importance="High"/>
-        <Message Condition="!Exists('$(LinuxArm64)/libInfiniFrame.Native.so')"
-                 Text="❌ libInfiniFrame.Native.so not found at $(LinuxArm64)! Tests may fail."
+        <Message Condition="!Exists('$(LinuxArm64)/InfiniFrame.Native.so')"
+                 Text="❌ InfiniFrame.Native.so not found at $(LinuxArm64)! Tests may fail."
                  Importance="High"/>
 
-        <Message Condition="Exists('$(MacOsArm64)/libInfiniFrame.Native.dylib')"
-                 Text="✅ Found libInfiniFrame.Native.dylib in $(MacOsArm64)"
+        <Message Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')"
+                 Text="✅ Found InfiniFrame.Native.dylib in $(MacOsArm64)"
                  Importance="High"/>
-        <Message Condition="!Exists('$(MacOsArm64)/libInfiniFrame.Native.dylib')"
-                 Text="❌ libInfiniFrame.Native.dylib not found at $(MacOsArm64)! Tests may fail."
+        <Message Condition="!Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')"
+                 Text="❌ InfiniFrame.Native.dylib not found at $(MacOsArm64)! Tests may fail."
                  Importance="High"/>
     </Target>
 

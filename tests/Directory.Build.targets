@@ -4,8 +4,8 @@
         <ItemGroup>
             <NativeDlls Include="$(NativeOutputDir)/InfiniFrame.Native.dll" Condition="Exists('$(NativeOutputDir)/InfiniFrame.Native.dll')"/>
             <NativeDlls Include="$(NativeOutputDir)/WebView2Loader.dll" Condition="Exists('$(NativeOutputDir)/WebView2Loader.dll')"/>
-            <NativeDlls Include="$(NativeOutputDir)/libInfiniFrame.Native.so" Condition="Exists('$(NativeOutputDir)/libInfiniFrame.Native.so')"/>
-            <NativeDlls Include="$(NativeOutputDir)/libInfiniFrame.Native.dylib" Condition="Exists('$(NativeOutputDir)/libInfiniFrame.Native.dylib')"/>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniFrame.Native.so" Condition="Exists('$(NativeOutputDir)/InfiniFrame.Native.so')"/>
+            <NativeDlls Include="$(NativeOutputDir)/InfiniFrame.Native.dylib" Condition="Exists('$(NativeOutputDir)/InfiniFrame.Native.dylib')"/>
         </ItemGroup>
 
         <Copy Condition="@(NativeDlls->Count()) > 0"
@@ -15,7 +15,7 @@
 
         <Message Condition="Exists('$(TargetDir)InfiniFrame.Native.dll')" Text="✅ Copied InfiniFrame.Native.dll into test output" Importance="High"/>
         <Message Condition="Exists('$(TargetDir)WebView2Loader.dll')" Text="✅ Copied WebView2Loader.dll into test output" Importance="High"/>
-        <Message Condition="Exists('$(TargetDir)libInfiniFrame.Native.so')" Text="✅ Copied libInfiniFrame.Native.so into test output" Importance="High"/>
-        <Message Condition="Exists('$(TargetDir)libInfiniFrame.Native.dylib')" Text="✅ Copied libInfiniFrame.Native.dylib into test output" Importance="High"/>
+        <Message Condition="Exists('$(TargetDir)InfiniFrame.Native.so')" Text="✅ Copied InfiniFrame.Native.so into test output" Importance="High"/>
+        <Message Condition="Exists('$(TargetDir)InfiniFrame.Native.dylib')" Text="✅ Copied InfiniFrame.Native.dylib into test output" Importance="High"/>
     </Target>
 </Project>
