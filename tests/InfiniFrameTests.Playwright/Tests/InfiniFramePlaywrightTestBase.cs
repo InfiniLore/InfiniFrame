@@ -14,6 +14,8 @@ public abstract class InfiniFramePlaywrightTestBase {
     private const int NavigationRetryCount = 5;
     private const int NavigationRetryDelayMs = 150;
     private const int InfiniFrameReadyTimeoutMs = 20_000;
+    private const int BrowserContextReadyTimeoutMs = 20_000;
+    private const int BrowserContextReadyPollDelayMs = 100;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -32,7 +34,7 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     protected async Task<IPage> GetPageAsync(string relativeUrl) {
         IBrowserContext context = await GetContextAsync(relativeUrl);
-        IPage page = context.Pages[0];
+        IPage page = await WaitForPageAsync(context);
         await WaitForInfiniFrameReadyAsync(page);
         return page;
     }
@@ -42,7 +44,7 @@ public abstract class InfiniFramePlaywrightTestBase {
 
     protected async Task<IBrowserContext> GetContextAsync(string relativeUrl) {
         IBrowser browser = await GetBrowserAsync(relativeUrl);
-        return browser.Contexts[0];
+        return await WaitForContextAsync(browser);
     }
 
     protected Task<IBrowserContext> GetRootContextAsync()
@@ -157,6 +159,38 @@ public abstract class InfiniFramePlaywrightTestBase {
         }
 
         Fail.Test("InfiniFrame JavaScript interop readiness was not acknowledged.");
+    }
+
+    private static async Task<IBrowserContext> WaitForContextAsync(IBrowser browser) {
+        DateTime timeoutAt = DateTime.UtcNow.AddMilliseconds(BrowserContextReadyTimeoutMs);
+
+        while (DateTime.UtcNow < timeoutAt) {
+            IBrowserContext? context = browser.Contexts.FirstOrDefault();
+            if (context is not null) {
+                return context;
+            }
+
+            await Task.Delay(BrowserContextReadyPollDelayMs);
+        }
+
+        Fail.Test("Timed out waiting for browser context.");
+        return null!;
+    }
+
+    private static async Task<IPage> WaitForPageAsync(IBrowserContext context) {
+        DateTime timeoutAt = DateTime.UtcNow.AddMilliseconds(BrowserContextReadyTimeoutMs);
+
+        while (DateTime.UtcNow < timeoutAt) {
+            IPage? page = context.Pages.FirstOrDefault();
+            if (page is not null) {
+                return page;
+            }
+
+            await Task.Delay(BrowserContextReadyPollDelayMs);
+        }
+
+        Fail.Test("Timed out waiting for browser page.");
+        return null!;
     }
     
     private static bool IsExecutionContextDestroyedByNavigation(PlaywrightException exception)
