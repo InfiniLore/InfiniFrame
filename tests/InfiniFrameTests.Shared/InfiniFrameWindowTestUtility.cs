@@ -47,7 +47,6 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder.SetStartString(StartString);
-        windowBuilder.SetTemporaryFilesPath(CreateUniqueTemporaryFilesPath());
         builder?.Invoke(windowBuilder);
 
         // Windows: WebView2 requires STA thread for COM initialization
@@ -113,11 +112,6 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         };
 
         return utility;
-    }
-
-    private static string CreateUniqueTemporaryFilesPath() {
-        string uniqueSuffix = $"{Environment.ProcessId}-{Environment.CurrentManagedThreadId}-{Guid.NewGuid():N}";
-        return Path.Combine(Path.GetTempPath(), "InfiniFrameTests", uniqueSuffix);
     }
 
     // -----------------------------------------------------------------------------------------------------------------

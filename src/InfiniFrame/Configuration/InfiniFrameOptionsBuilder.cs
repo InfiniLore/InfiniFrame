@@ -39,7 +39,10 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     public bool SmoothScrollingEnabled { get; set; } = true;
     public string? StartString { get; set; }
     public string? StartUrl { get; set; }
-    public string? TemporaryFilesPath { get; set; } = Path.Join(Path.GetTempPath(), "infiniframe");
+    public string? TemporaryFilesPath { get; set; } = Path.Join(
+        Path.GetTempPath(),
+        "infiniframe",
+        Environment.ProcessId.ToString());
     
     private string? _title = TitleStringHelper.DefaultTitle;
     public string? Title {

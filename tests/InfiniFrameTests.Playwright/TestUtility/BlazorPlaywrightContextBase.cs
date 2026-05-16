@@ -20,7 +20,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     private IInfiniFrameWindow? _window;
     private Thread? _appThread;
     private readonly int _playwrightDevtoolsPort = PlaywrightConnectionUtility.GetAvailablePort();
-    private readonly string _webViewUserDataPath = PlaywrightConnectionUtility.CreateUniqueWebViewUserDataPath(typeof(TRootComponent).FullName ?? typeof(TRootComponent).Name);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -45,8 +44,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
         _app = null;
         _window = null;
         _appThread = null;
-
-        PlaywrightConnectionUtility.DeleteDirectorySafely(_webViewUserDataPath);
         if (tempFolder is not null) FileUtility.SafeDeleteDirectory(tempFolder);
     }
 
@@ -60,7 +57,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     protected virtual void ConfigureWindowBuilder(IInfiniFrameWindowBuilder windowBuilder, int playwrightDevtoolsPort) {
         windowBuilder
             .SetTitle(DefaultDocumentTitle)
-            .SetTemporaryFilesPath(_webViewUserDataPath)
             .SetBrowserControlInitParameters($"--remote-debugging-port={playwrightDevtoolsPort}")
                 .RegisterWindowManagementWebMessageHandler()
                 .RegisterFullScreenWebMessageHandler()

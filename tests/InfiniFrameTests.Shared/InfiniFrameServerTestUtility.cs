@@ -32,11 +32,6 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null,
         CancellationToken cancellationToken = default
     ) {
-        string defaultTemporaryFilesPath = Path.Combine(
-            Path.GetTempPath(),
-            "InfiniFrameServerTests",
-            $"{Environment.ProcessId}-{Environment.CurrentManagedThreadId}-{Guid.NewGuid():N}");
-
         var ready = new TaskCompletionSource<InfiniFrameServerTestUtility>(
             TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() => {
@@ -45,8 +40,6 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
                 builder.WebApp.WebHost.UseStaticWebAssets();
 
                 appBuilder?.Invoke(builder.WebApp);
-                
-                builder.WindowBuilder.SetTemporaryFilesPath(defaultTemporaryFilesPath);
                 windowBuilder?.Invoke(builder.WindowBuilder);
 
                 InfiniFrameWebApplication app = builder.Build();
