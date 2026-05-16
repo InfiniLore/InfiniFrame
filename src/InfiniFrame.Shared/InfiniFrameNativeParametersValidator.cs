@@ -17,6 +17,7 @@ internal static class InfiniFrameNativeParametersValidator {
         string? startUrl = parameters.StartUrl;
         string? startString = parameters.StartString;
         string? windowIconFile = parameters.WindowIconFile;
+        string? temporaryFilesPath = parameters.TemporaryFilesPath;
 
         bool result = true;
         if (string.IsNullOrWhiteSpace(startUrl) && string.IsNullOrWhiteSpace(startString)) {
@@ -50,6 +51,25 @@ internal static class InfiniFrameNativeParametersValidator {
             // Not a breaking validation because it will run, just not as expected
         }
 
+        if (!string.IsNullOrWhiteSpace(temporaryFilesPath) && !CanAccessTemporaryFilesPath(temporaryFilesPath, logger)) {
+            result = false;
+        }
+
         return result;
+    }
+
+    private static bool CanAccessTemporaryFilesPath(string path, ILogger logger) {
+        try {
+            Directory.CreateDirectory(path);
+
+            string probeFile = Path.Combine(path, $".infiniframe-write-check-{Guid.NewGuid():N}.tmp");
+            File.WriteAllText(probeFile, "ok");
+            File.Delete(probeFile);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or PathTooLongException) {
+            logger.LogError(ex, "TemporaryFilesPath '{TemporaryFilesPath}' is not writable.", path);
+            return false;
+        }
     }
 }

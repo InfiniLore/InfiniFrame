@@ -45,4 +45,41 @@ public class InfiniFrameNativeParametersValidatorTests {
         // Assert
         await Assert.That(valid).IsTrue();
     }
+
+    [Test]
+    public async Task Validate_CreatesAndAcceptsWritableTemporaryFilesPath(CancellationToken ct = default) {
+        // Arrange
+        string path = Path.Join(Path.GetTempPath(), "InfiniFrameTests", $"validator-{Guid.NewGuid():N}");
+        if (Directory.Exists(path))
+            Directory.Delete(path, recursive: true);
+
+        var parameters = new InfiniFrameNativeParameters {
+            StartUrl = "https://example.com",
+            TemporaryFilesPath = path
+        };
+
+        // Act
+        bool valid = InfiniFrameNativeParametersValidator.Validate(parameters, NullLogger.Instance);
+
+        // Assert
+        await Assert.That(valid).IsTrue();
+        await Assert.That(Directory.Exists(path)).IsTrue();
+
+        Directory.Delete(path, recursive: true);
+    }
+
+    [Test]
+    public async Task Validate_RejectsInvalidTemporaryFilesPath(CancellationToken ct = default) {
+        // Arrange
+        var parameters = new InfiniFrameNativeParameters {
+            StartUrl = "https://example.com",
+            TemporaryFilesPath = $"invalid-{Guid.NewGuid():N}\0path"
+        };
+
+        // Act
+        bool valid = InfiniFrameNativeParametersValidator.Validate(parameters, NullLogger.Instance);
+
+        // Assert
+        await Assert.That(valid).IsFalse();
+    }
 }
