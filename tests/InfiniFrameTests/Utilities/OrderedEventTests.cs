@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using System.Collections.Immutable;

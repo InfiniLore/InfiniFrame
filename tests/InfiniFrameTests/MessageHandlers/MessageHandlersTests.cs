@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Interop;
-using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Security;
 using InfiniFrameTests.Shared.TestDoubles;
 using Microsoft.Extensions.Logging;

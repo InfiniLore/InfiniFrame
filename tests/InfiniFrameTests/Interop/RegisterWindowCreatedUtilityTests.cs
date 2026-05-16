@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Interop;
-using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrameTests.Shared.TestDoubles;
 
 namespace InfiniFrameTests.Interop;

@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Security;
 
 namespace InfiniFrame;

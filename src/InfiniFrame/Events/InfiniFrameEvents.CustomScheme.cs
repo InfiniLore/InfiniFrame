@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 

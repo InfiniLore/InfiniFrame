@@ -2,8 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Parameters;
 using System.Runtime.InteropServices;
-using InfiniWindowNative = InfiniFrame.NativeBridge.InfiniWindowNative;
 
 namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ public class InfiniFrameNativeParameterTests {
             };
 
             // Act
-            newParametersPtr = InfiniWindowNative.NativeParametersReturnAsIsPtr(ref parameters);
+            newParametersPtr = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters);
             var newParameters = Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
 
             // Assert
@@ -150,7 +150,7 @@ public class InfiniFrameNativeParameterTests {
             if (namePtr != IntPtr.Zero) Marshal.FreeHGlobal(namePtr);
 
             // Native allocates returned init params; managed side must free.
-            InfiniWindowNative.FreeInitParams(newParametersPtr);
+            InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
         }
     }
 }

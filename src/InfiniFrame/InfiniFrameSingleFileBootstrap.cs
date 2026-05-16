@@ -4,7 +4,6 @@
 using InfiniFrame.NativeBridge;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using InfiniFrameNative = InfiniFrame.NativeBridge.InfiniFrameNative;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
@@ -20,7 +19,7 @@ namespace InfiniFrame;
 ///     single-file/native outputs that embed <c>InfiniFrame.Native</c> and platform loader dependencies.
 /// </remarks>
 public static class InfiniFrameSingleFileBootstrap {
-    private const string WebView2LoaderLibraryName = InfiniFrameNativeArtifactManifest.WindowsLoaderLibraryName;
+    private const string WebView2LoaderLibraryName = ArtifactManifest.WindowsLoaderLibraryName;
 
     #if NET9_0_OR_GREATER
     private static readonly Lock InitLock = new();
@@ -54,7 +53,7 @@ public static class InfiniFrameSingleFileBootstrap {
             try {
                 Directory.CreateDirectory(_nativeDir);
                 ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
-                NativeLibrary.SetDllImportResolver(typeof(InfiniFrameNative).Assembly, ResolveNativeLibrary);
+                NativeLibrary.SetDllImportResolver(typeof(InfiniFrameNativeTesting).Assembly, ResolveNativeLibrary);
 
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => TryCleanupNativeDirectory();
                 _initialized = 1;
@@ -67,11 +66,11 @@ public static class InfiniFrameSingleFileBootstrap {
     }
 
     private static IntPtr ResolveNativeLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath) {
-        if (_nativeDir is null || libraryName is not NativeDll.DllName and not WebView2LoaderLibraryName) return IntPtr.Zero;
+        if (_nativeDir is null || libraryName is not ArtifactManifest.NativeLibraryName and not WebView2LoaderLibraryName) return IntPtr.Zero;
 
         string fileName = libraryName switch {
-            NativeDll.DllName => InfiniFrameNativeArtifactManifest.ResolveNativeLibraryFileNameForCurrentPlatform(),
-            WebView2LoaderLibraryName => InfiniFrameNativeArtifactManifest.WindowsLoaderFileName,
+            ArtifactManifest.NativeLibraryName => ArtifactManifest.ResolveNativeLibraryFileNameForCurrentPlatform(),
+            WebView2LoaderLibraryName => ArtifactManifest.WindowsLoaderFileName,
             _ => string.Empty
         };
 
@@ -80,8 +79,8 @@ public static class InfiniFrameSingleFileBootstrap {
         string fullPath = Path.Join(_nativeDir, fileName);
         if (!File.Exists(fullPath)) return IntPtr.Zero;
 
-        if (libraryName == NativeDll.DllName && OperatingSystem.IsWindows()) {
-            TryPreloadDependency(InfiniFrameNativeArtifactManifest.WindowsLoaderFileName);
+        if (libraryName == ArtifactManifest.NativeLibraryName && OperatingSystem.IsWindows()) {
+            TryPreloadDependency(ArtifactManifest.WindowsLoaderFileName);
         }
 
         return NativeLibrary.Load(fullPath);
@@ -145,7 +144,7 @@ public static class InfiniFrameSingleFileBootstrap {
         throw new PlatformNotSupportedException("Unsupported OS for native bootstrap.");
     }
 
-    private static string[] GetNativeFileNamesForCurrentPlatform() => InfiniFrameNativeArtifactManifest.RequiredFileNamesForCurrentPlatform();
+    private static string[] GetNativeFileNamesForCurrentPlatform() => ArtifactManifest.RequiredFileNamesForCurrentPlatform();
 
     private static void TryCleanupNativeDirectory() {
         if (string.IsNullOrWhiteSpace(_nativeDir)) return;
