@@ -165,21 +165,21 @@ jobs:
                       --configuration Release `
                       --no-restore `
                       --framework net8.0 `
-                      /p:SolutionDir=$GITHUB_WORKSPACE/ `
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       /p:InfiniFrameSkipNativeBuild=true
                     
                     dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
                       --configuration Release `
                       --no-restore `
                       --framework net9.0 `
-                      /p:SolutionDir=$GITHUB_WORKSPACE/ `
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       /p:InfiniFrameSkipNativeBuild=true
                     
                     dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
                       --configuration Release `
                       --no-restore `
                       --framework net10.0 `
-                      /p:SolutionDir=$GITHUB_WORKSPACE/ `
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Install Playwright Browsers
