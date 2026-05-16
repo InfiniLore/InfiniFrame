@@ -115,25 +115,6 @@ jobs:
                 with:
                     artifact-type: testing
 
-            -   name: Prepare WebView2 Cache Directory
-                shell: pwsh
-                run: New-Item -ItemType Directory -Path ".cache\webview2" -Force | Out-Null
-
-            -   name: Cache WebView2
-                uses: actions/cache@v5
-                with:
-                    path: .cache\webview2
-                    key: webview2-installer-${{ runner.os }}-v1
-
-            -   name: Install WebView2 Runtime
-                shell: pwsh
-                run: |
-                    $installer = "$PWD\.cache\webview2\MicrosoftEdgeWebview2Setup.exe"
-                    if (-Not (Test-Path $installer)) {
-                      Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
-                    }
-                    Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
-
             -   name: NPM Install
                 if: ${{ matrix.project.sourceFolder != '' }}
                 shell: pwsh
@@ -164,21 +145,6 @@ jobs:
                     dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
                       --configuration Release `
                       --no-restore `
-                      --framework net8.0 `
-                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      /p:InfiniFrameSkipNativeBuild=true
-                    
-                    dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-restore `
-                      --framework net9.0 `
-                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      /p:InfiniFrameSkipNativeBuild=true
-                    
-                    dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-restore `
-                      --framework net10.0 `
                       /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       /p:InfiniFrameSkipNativeBuild=true
 
