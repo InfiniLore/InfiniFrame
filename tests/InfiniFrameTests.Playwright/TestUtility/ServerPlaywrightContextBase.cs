@@ -29,15 +29,12 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
         => StartUtilityWithFreshPorts();
 
     protected async ValueTask AfterAllAsync() {
-        string? tempFolder = _utility?.Window.TemporaryFilesPath;
         BeforeAssemblyTeardown();
 
         if (_utility is not null) {
             await _utility.DisposeAsync();
         }
         _utility = null;
-
-        if (tempFolder is not null) FileUtility.SafeDeleteDirectory(tempFolder);
     }
 
     protected override Uri CreatePlaywrightConnectionUri(string relativeUrl)

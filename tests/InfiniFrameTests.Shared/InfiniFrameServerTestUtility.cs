@@ -86,8 +86,6 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     public async ValueTask DisposeAsync() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-        
-        string? tempFolder = Window.TemporaryFilesPath;
 
         try {
             await Window.CloseAsync();
@@ -115,24 +113,6 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
                 $"[InfiniFrameServerTestUtility] Warning: server thread did not stop within 5s. " +
                 $"ThreadId={_thread.ManagedThreadId}, State={_thread.ThreadState}. Interrupting thread.");
             _thread.Interrupt();
-        }
-
-        if (tempFolder is not null) {
-            try {
-                if (_thread.IsAlive) {
-                    Console.WriteLine(
-                        $"[InfiniFrameServerTestUtility] Skipping temp folder cleanup because server thread is still alive. Path={tempFolder}");
-                }
-                else {
-                    FileUtility.SafeDeleteDirectory(tempFolder);
-                }
-            }
-            catch (ApplicationException) {
-                // ignored
-            }
-            catch (OperationCanceledException) {
-                // ignored
-            }
         }
 
     }

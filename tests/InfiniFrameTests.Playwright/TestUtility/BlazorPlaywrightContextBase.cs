@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
-using InfiniFrameTests.Shared;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +34,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     }
 
     protected void AfterAll() {
-        string? tempFolder = _window?.TemporaryFilesPath;
         BeforeAssemblyTeardown();
         CloseWindowSafely();
 
@@ -44,7 +42,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
         _app = null;
         _window = null;
         _appThread = null;
-        if (tempFolder is not null) FileUtility.SafeDeleteDirectory(tempFolder);
     }
 
     protected override Uri CreatePlaywrightConnectionUri(string relativeUrl)

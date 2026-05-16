@@ -120,8 +120,6 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
     public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
-        string? tempFolder = Window.TemporaryFilesPath;
-
         try {
             Window.Close();
         }
@@ -132,56 +130,38 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
             // ignored
         }
 
-        if (_windowThread is not null) {
-            try {
-                // Keep test disposal bounded so per-test timeout policies remain reliable.
-                TimeSpan firstJoinTimeout = OperatingSystem.IsWindows()
-                    && RuntimeInformation.ProcessArchitecture == Architecture.Arm64
+        if (_windowThread is null) return;
+
+        try {
+            // Keep test disposal bounded so per-test timeout policies remain reliable.
+            TimeSpan firstJoinTimeout = OperatingSystem.IsWindows()
+                && RuntimeInformation.ProcessArchitecture == Architecture.Arm64
                     ? TimeSpan.FromSeconds(2)
                     : TimeSpan.FromSeconds(3);
 
-                if (!_windowThread.Join(firstJoinTimeout)) {
-                    try {
-                        Window.Close();
-                    }
-                    catch (ApplicationException) {
-                        // ignored
-                    }
-                    catch (ObjectDisposedException) {
-                        // ignored
-                    }
-
-                    _windowThread.Join(TimeSpan.FromSeconds(2));
+            if (!_windowThread.Join(firstJoinTimeout)) {
+                try {
+                    Window.Close();
                 }
-            }
-            catch (ThreadInterruptedException) {
-                // ignored
-            }
-            catch (ThreadStateException) {
-                // ignored
-            }
-            catch (ObjectDisposedException) {
-                // ignored
+                catch (ApplicationException) {
+                    // ignored
+                }
+                catch (ObjectDisposedException) {
+                    // ignored
+                }
+
+                _windowThread.Join(TimeSpan.FromSeconds(2));
             }
         }
-
-        // ReSharper disable once InvertIf
-        if (tempFolder is not null) {
-            try {
-                if (_windowThread is not null && _windowThread.IsAlive) {
-                    Console.WriteLine(
-                        $"[InfiniFrameWindowTestUtility] Skipping temp folder cleanup because window thread is still alive. Path={tempFolder}");
-                }
-                else {
-                    FileUtility.SafeDeleteDirectory(tempFolder);
-                }
-            }
-            catch (ApplicationException) {
-                // ignored
-            }
-            catch (OperationCanceledException) {
-                // ignored
-            }
+        catch (ThreadInterruptedException) {
+            // ignored
         }
+        catch (ThreadStateException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
+            // ignored
+        }
+
     }
 }
