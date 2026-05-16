@@ -32,6 +32,11 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null,
         CancellationToken cancellationToken = default
     ) {
+        string defaultTemporaryFilesPath = Path.Combine(
+            Path.GetTempPath(),
+            "InfiniFrameServerTests",
+            $"{Environment.ProcessId}-{Environment.CurrentManagedThreadId}-{Guid.NewGuid():N}");
+
         var ready = new TaskCompletionSource<InfiniFrameServerTestUtility>(
             TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() => {
@@ -41,7 +46,7 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
 
                 appBuilder?.Invoke(builder.WebApp);
                 
-                builder.WindowBuilder.SetTemporaryFilesPath(Path.Combine(Path.GetTempPath(), "InfiniFrameServerTests"));
+                builder.WindowBuilder.SetTemporaryFilesPath(defaultTemporaryFilesPath);
                 windowBuilder?.Invoke(builder.WindowBuilder);
 
                 InfiniFrameWebApplication app = builder.Build();
@@ -111,9 +116,23 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
             // ignored
         }
 
+        bool stoppedInTime = _thread.Join(TimeSpan.FromSeconds(5));
+        if (!stoppedInTime) {
+            Console.WriteLine(
+                $"[InfiniFrameServerTestUtility] Warning: server thread did not stop within 5s. " +
+                $"ThreadId={_thread.ManagedThreadId}, State={_thread.ThreadState}. Interrupting thread.");
+            _thread.Interrupt();
+        }
+
         if (tempFolder is not null) {
             try {
-                FileUtility.SafeDeleteDirectory(tempFolder);
+                if (_thread.IsAlive) {
+                    Console.WriteLine(
+                        $"[InfiniFrameServerTestUtility] Skipping temp folder cleanup because server thread is still alive. Path={tempFolder}");
+                }
+                else {
+                    FileUtility.SafeDeleteDirectory(tempFolder);
+                }
             }
             catch (ApplicationException) {
                 // ignored
@@ -123,14 +142,5 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
             }
         }
 
-        bool stoppedInTime = _thread.Join(TimeSpan.FromSeconds(5));
-        if (!stoppedInTime) {
-            Console.WriteLine(
-                $"[InfiniFrameServerTestUtility] Warning: server thread did not stop within 5s. " +
-                $"ThreadId={_thread.ManagedThreadId}, State={_thread.ThreadState}. Interrupting thread.");
-            _thread.Interrupt();
-        }
-        
-        
     }
 }

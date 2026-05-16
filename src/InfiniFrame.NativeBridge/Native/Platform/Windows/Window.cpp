@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cwchar>
+#include <filesystem>
 #include <mutex>
 #include <Shellscalingapi.h>
 #include <Shlwapi.h>
@@ -181,6 +182,39 @@ namespace {
         utf8.resize(written);
 
         return utf8;
+    }
+
+    bool EnsureDirectoryWritable(const std::wstring& directoryPath) {
+        if (directoryPath.empty())
+            return false;
+
+        std::error_code createError;
+        std::filesystem::create_directories(directoryPath, createError);
+        if (createError)
+            return false;
+
+        const std::wstring probePath = std::format(
+            L"{}\\{}.tmp",
+            directoryPath,
+            std::format(L".infiniframe-wv2-write-check-{}-{}-{}", GetCurrentProcessId(), GetCurrentThreadId(), GetTickCount64())
+            );
+
+        HANDLE probeHandle = CreateFileW(
+            probePath.c_str(),
+            GENERIC_WRITE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            nullptr,
+            CREATE_ALWAYS,
+            FILE_ATTRIBUTE_TEMPORARY,
+            nullptr
+            );
+
+        if (probeHandle == INVALID_HANDLE_VALUE)
+            return false;
+
+        CloseHandle(probeHandle);
+        DeleteFileW(probePath.c_str());
+        return true;
     }
 
     InfiniFrameWindow* LookupWindowInstance(const HWND hwnd) {
@@ -1452,11 +1486,20 @@ void InfiniFrameWindow::AttachWebView() {
         return;
     }
 
+    PCWSTR userDataPath = nullptr;
+    if (!m_impl->_temporaryFilesPath.empty()) {
+        if (EnsureDirectoryWritable(m_impl->_temporaryFilesPath))
+            userDataPath = m_impl->_temporaryFilesPath.c_str();
+        else
+            TraceTeardown(
+                L"AttachWebView: temporary user-data path is not writable. Falling back to default path. path=%ls",
+                m_impl->_temporaryFilesPath.c_str()
+                );
+    }
+
     HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(
         runtimePath,
-        m_impl->_temporaryFilesPath.empty()
-        ? nullptr
-        : m_impl->_temporaryFilesPath.c_str(),
+        userDataPath,
         options.Get(),
         Callback<
             ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(

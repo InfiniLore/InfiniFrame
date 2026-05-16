@@ -174,7 +174,13 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         // ReSharper disable once InvertIf
         if (tempFolder is not null) {
             try {
-                FileUtility.SafeDeleteDirectory(tempFolder);
+                if (_windowThread is not null && _windowThread.IsAlive) {
+                    Console.WriteLine(
+                        $"[InfiniFrameWindowTestUtility] Skipping temp folder cleanup because window thread is still alive. Path={tempFolder}");
+                }
+                else {
+                    FileUtility.SafeDeleteDirectory(tempFolder);
+                }
             }
             catch (ApplicationException) {
                 // ignored
