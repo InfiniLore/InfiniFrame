@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Dialogs;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Drawing;

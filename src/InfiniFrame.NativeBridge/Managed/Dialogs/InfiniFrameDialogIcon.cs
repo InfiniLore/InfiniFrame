@@ -1,32 +1,31 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.NativeBridge;
+namespace InfiniFrame.NativeBridge.Dialogs;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /// <summary>
-///     Defines options for a dialog
+///     Represents the icons that can be used in a InfiniFrame dialog.
 /// </summary>
-[Flags]
-public enum InfiniFrameDialogOptions : byte {
+public enum InfiniFrameDialogIcon {
     /// <summary>
-    ///     Represents no options for the dialog.
+    ///     An information icon.
     /// </summary>
-    None = 0,
+    Info,
 
     /// <summary>
-    ///     Enables multi-selection in the dialog.
+    ///     A warning icon.
     /// </summary>
-    MultiSelect = 0x1,
+    Warning,
 
     /// <summary>
-    ///     Forces an overwrite of existing files without prompting the user in the dialog.
+    ///     An error icon.
     /// </summary>
-    ForceOverwrite = 0x2,
+    Error,
 
     /// <summary>
-    ///     Disables the capability of creating folders via the dialog.
+    ///     A question icon.
     /// </summary>
-    DisableCreateFolder = 0x4
+    Question
 }
