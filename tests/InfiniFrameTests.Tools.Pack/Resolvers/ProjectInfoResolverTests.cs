@@ -41,7 +41,7 @@ public class ProjectInfoResolverTests {
         """);
 
         // Act
-        string framework = ProjectInfoResolver.ResolveFramework(projectPath);
+        string framework = await ProjectInfoResolver.ResolveFrameworkAsync(projectPath);
 
         // Assert
         await Assert.That(framework).IsEqualTo("net10.0");
@@ -60,7 +60,7 @@ public class ProjectInfoResolverTests {
         """);
 
         // Act
-        string framework = ProjectInfoResolver.ResolveFramework(projectPath);
+        string framework = await ProjectInfoResolver.ResolveFrameworkAsync(projectPath);
 
         // Assert
         await Assert.That(framework).IsEqualTo("net8.0");
@@ -79,9 +79,8 @@ public class ProjectInfoResolverTests {
         """);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => {
-                ProjectInfoResolver.ResolveFramework(projectPath);
-                return Task.CompletedTask;
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => {
+                _ = await ProjectInfoResolver.ResolveFrameworkAsync(projectPath);
             })
             .WithMessage("Could not resolve target framework from project evaluation. Use --framework.");
     }
@@ -99,7 +98,7 @@ public class ProjectInfoResolverTests {
         """);
 
         // Act
-        string assemblyName = ProjectInfoResolver.ResolveAssemblyName(projectPath);
+        string assemblyName = await ProjectInfoResolver.ResolveAssemblyNameAsync(projectPath);
 
         // Assert
         await Assert.That(assemblyName).IsEqualTo("CustomName");
@@ -118,7 +117,7 @@ public class ProjectInfoResolverTests {
         """);
 
         // Act
-        string assemblyName = ProjectInfoResolver.ResolveAssemblyName(projectPath);
+        string assemblyName = await ProjectInfoResolver.ResolveAssemblyNameAsync(projectPath);
 
         // Assert
         await Assert.That(assemblyName).IsEqualTo("MyApp");

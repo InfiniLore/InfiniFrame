@@ -15,8 +15,12 @@ namespace InfiniFrameTests.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 public class PublishServiceTests {
     private static readonly SemaphoreSlim PublishTestLock = new(1, 1);
-    private static readonly TimeSpan PublishTimeout = TimeSpan.FromMinutes(3);
+    private static readonly TimeSpan PublishTimeout = IsCiEnvironment()
+        ? TimeSpan.FromMinutes(8)
+        : TimeSpan.FromMinutes(3);
     private static readonly TimeSpan ProcessTimeout = TimeSpan.FromSeconds(45);
+    private static readonly Lock SharedFixtureLock = new();
+    private static Task<SharedPublishFixture>? _sharedPublishFixtureTask;
     private TemporaryDirectory TemporaryDirectory { get; set; } = null!;
 
     
@@ -115,129 +119,30 @@ public class PublishServiceTests {
     [Test]
     [SkipUtility.SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
     public async Task PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame() {
-        // Arrange
-        string repoRoot = FindRepoRoot();
-        string appDirectory = Path.Join(TemporaryDirectory.Path, "minimal-app");
-        Directory.CreateDirectory(appDirectory);
-
-        string appProjectPath = Path.Join(appDirectory, "MinimalPublishApp.csproj");
-        string infiniFrameProjectPath = Path.Join(repoRoot, "src", "InfiniFrame", "InfiniFrame.csproj");
-
-        await File.WriteAllTextAsync(appProjectPath, $$"""
-        <Project Sdk="Microsoft.NET.Sdk">
-          <PropertyGroup>
-            <OutputType>Exe</OutputType>
-            <TargetFramework>net10.0</TargetFramework>
-            <ImplicitUsings>enable</ImplicitUsings>
-            <Nullable>enable</Nullable>
-          </PropertyGroup>
-          <ItemGroup>
-            <ProjectReference Include="{{infiniFrameProjectPath}}" />
-          </ItemGroup>
-        </Project>
-        """);
-
-        await File.WriteAllTextAsync(Path.Join(appDirectory, "Program.cs"), """
-        Console.WriteLine("InfiniFrame pack integration test");
-        """);
-
-        string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
-        string rid = RuntimeResolver.ResolveRid("auto");
-        string expectedMainOutput = Path.Join(outputPath, rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? "MinimalPublishApp.exe" : "MinimalPublishApp");
-
-        var options = new PublishOptions {
-            ProjectPath = appProjectPath,
-            Rid = rid,
-            Configuration = Configuration,
-            Framework = "net10.0",
-            SelfContained = true,
-            Output = outputPath,
-        };
-
-        // Act
-        await PublishTestLock.WaitAsync();
-        int exitCode;
-        try {
-            exitCode = await ExecuteWithTimeout(
-                PublishService.PublishAsync(options),
-                PublishTimeout,
-                "PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame");
-        }
-        finally {
-            PublishTestLock.Release();
-        }
+        SharedPublishFixture fixture = await ExecuteWithTimeout(
+            GetOrCreateSharedPublishFixtureAsync(),
+            PublishTimeout,
+            "PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame");
 
         // Assert
-        await Assert.That(exitCode).IsEqualTo(ExitCodes.Success);
-        await Assert.That(File.Exists(expectedMainOutput)).IsTrue();
-        await Assert.That(Directory.GetFileSystemEntries(outputPath, "*", SearchOption.TopDirectoryOnly).Length).IsEqualTo(1);
+        await Assert.That(fixture.PublishExitCode).IsEqualTo(ExitCodes.Success);
+        await Assert.That(File.Exists(fixture.PublishedExecutable)).IsTrue();
+        await Assert.That(Directory.GetFileSystemEntries(fixture.OutputPath, "*", SearchOption.TopDirectoryOnly).Length).IsEqualTo(1);
     }
 
     [Test]
     [SkipUtility.SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
     public async Task PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully() {
-        // Arrange
-        string repoRoot = FindRepoRoot();
-        string appDirectory = Path.Join(TemporaryDirectory.Path, "launch-smoke-app");
-        Directory.CreateDirectory(appDirectory);
-
-        string appProjectPath = Path.Join(appDirectory, "LaunchSmokeApp.csproj");
-        string infiniFrameProjectPath = Path.Join(repoRoot, "src", "InfiniFrame", "InfiniFrame.csproj");
-        const string startupMarker = "BOOTSTRAP_SMOKE_OK";
-
-        await File.WriteAllTextAsync(appProjectPath, $$"""
-        <Project Sdk="Microsoft.NET.Sdk">
-          <PropertyGroup>
-            <OutputType>Exe</OutputType>
-            <TargetFramework>net10.0</TargetFramework>
-            <ImplicitUsings>enable</ImplicitUsings>
-            <Nullable>enable</Nullable>
-          </PropertyGroup>
-          <ItemGroup>
-            <ProjectReference Include="{{infiniFrameProjectPath}}" />
-          </ItemGroup>
-        </Project>
-        """);
-
-        await File.WriteAllTextAsync(Path.Join(appDirectory, "Program.cs"), $$"""
-        using InfiniFrame;
-
-        InfiniFrameSingleFileBootstrap.Initialize();
-        Console.WriteLine("{{startupMarker}}");
-        return 0;
-        """);
-
-        string outputPath = Path.Join(TemporaryDirectory.Path, "launch-smoke-publish-output");
-        string rid = RuntimeResolver.ResolveRid("auto");
-        string publishedExecutable = Path.Join(outputPath, rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? "LaunchSmokeApp.exe" : "LaunchSmokeApp");
-
-        var options = new PublishOptions {
-            ProjectPath = appProjectPath,
-            Rid = rid,
-            Configuration = Configuration,
-            Framework = "net10.0",
-            SelfContained = true,
-            Output = outputPath
-        };
-
-        // Act
-        await PublishTestLock.WaitAsync();
-        int publishExitCode;
-        try {
-            publishExitCode = await ExecuteWithTimeout(
-                PublishService.PublishAsync(options),
-                PublishTimeout,
-                "PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully");
-        }
-        finally {
-            PublishTestLock.Release();
-        }
-        ProcessResult runResult = await RunProcessAndCaptureAsync(publishedExecutable, appDirectory, ProcessTimeout);
+        SharedPublishFixture fixture = await ExecuteWithTimeout(
+            GetOrCreateSharedPublishFixtureAsync(),
+            PublishTimeout,
+            "PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully");
+        ProcessResult runResult = await RunProcessAndCaptureAsync(fixture.PublishedExecutable, fixture.AppDirectory, ProcessTimeout);
 
         // Assert
-        await Assert.That(publishExitCode).IsEqualTo(ExitCodes.Success);
+        await Assert.That(fixture.PublishExitCode).IsEqualTo(ExitCodes.Success);
         await Assert.That(runResult.ExitCode).IsEqualTo(0);
-        await Assert.That(runResult.StandardOutput.Contains(startupMarker, StringComparison.Ordinal)).IsTrue();
+        await Assert.That(runResult.StandardOutput.Contains(fixture.StartupMarker, StringComparison.Ordinal)).IsTrue();
     }
 
     [Test]
@@ -333,6 +238,85 @@ public class PublishServiceTests {
 
         return await task;
     }
+
+    private static bool IsCiEnvironment() =>
+        string.Equals(Environment.GetEnvironmentVariable("CI"), "true", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(Environment.GetEnvironmentVariable("GITHUB_ACTIONS"), "true", StringComparison.OrdinalIgnoreCase);
+
+    private static Task<SharedPublishFixture> GetOrCreateSharedPublishFixtureAsync() {
+        lock (SharedFixtureLock) {
+            _sharedPublishFixtureTask ??= CreateSharedPublishFixtureAsync();
+            return _sharedPublishFixtureTask;
+        }
+    }
+
+    private static async Task<SharedPublishFixture> CreateSharedPublishFixtureAsync() {
+        string repoRoot = FindRepoRoot();
+        string root = Path.Join(Path.GetTempPath(), $"infiniframe-pack-shared-{Guid.NewGuid():N}");
+        string appDirectory = Path.Join(root, "app");
+        Directory.CreateDirectory(appDirectory);
+
+        string appProjectPath = Path.Join(appDirectory, "SharedSmokeApp.csproj");
+        string infiniFrameProjectPath = Path.Join(repoRoot, "src", "InfiniFrame", "InfiniFrame.csproj");
+        const string startupMarker = "BOOTSTRAP_SMOKE_OK";
+
+        await File.WriteAllTextAsync(appProjectPath, $$"""
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <OutputType>Exe</OutputType>
+            <TargetFramework>net10.0</TargetFramework>
+            <ImplicitUsings>enable</ImplicitUsings>
+            <Nullable>enable</Nullable>
+          </PropertyGroup>
+          <ItemGroup>
+            <ProjectReference Include="{{infiniFrameProjectPath}}" />
+          </ItemGroup>
+        </Project>
+        """);
+
+        await File.WriteAllTextAsync(Path.Join(appDirectory, "Program.cs"), $$"""
+        using InfiniFrame;
+
+        InfiniFrameSingleFileBootstrap.Initialize();
+        Console.WriteLine("{{startupMarker}}");
+        return 0;
+        """);
+
+        string outputPath = Path.Join(root, "publish-output");
+        string rid = RuntimeResolver.ResolveRid("auto");
+        string publishedExecutable = Path.Join(outputPath, rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? "SharedSmokeApp.exe" : "SharedSmokeApp");
+
+        var options = new PublishOptions {
+            ProjectPath = appProjectPath,
+            Rid = rid,
+            Configuration = Configuration,
+            Framework = "net10.0",
+            SelfContained = true,
+            Output = outputPath
+        };
+
+        await PublishTestLock.WaitAsync();
+        int publishExitCode;
+        try {
+            publishExitCode = await ExecuteWithTimeout(
+                PublishService.PublishAsync(options),
+                PublishTimeout,
+                "CreateSharedPublishFixtureAsync");
+        }
+        finally {
+            PublishTestLock.Release();
+        }
+
+        return new SharedPublishFixture(publishExitCode, appDirectory, outputPath, publishedExecutable, startupMarker);
+    }
+
+    private sealed record SharedPublishFixture(
+        int PublishExitCode,
+        string AppDirectory,
+        string OutputPath,
+        string PublishedExecutable,
+        string StartupMarker
+    );
 
     // ReSharper disable once NotAccessedPositionalProperty.Local
     private sealed record ProcessResult(int ExitCode, string StandardOutput, string StandardError);

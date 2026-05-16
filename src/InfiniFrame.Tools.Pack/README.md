@@ -44,6 +44,7 @@ Options:
 - `--output <path>`
 - `--no-restore`
 - `--verbose`
+- `--timeout <value>` (per-process timeout; examples: `600`, `90s`, `5m`, `00:10:00`; default `10m`, max `30m`)
 - `--force-clean-output` (warning: allows recursive deletion of non-default output directories)
 
 Preflight behavior:

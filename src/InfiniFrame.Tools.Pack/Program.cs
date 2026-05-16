@@ -19,6 +19,14 @@ internal static class Program {
     ///     <c>0</c> when usage is shown successfully or publish completes successfully; otherwise, a non-zero exit code.
     /// </returns>
     public static async Task<int> Main(string[] args) {
+        using var cts = new CancellationTokenSource();
+        ConsoleCancelEventHandler cancelHandler = (_, e) => {
+            e.Cancel = true;
+            // ReSharper disable once AccessToDisposedClosure
+            cts.Cancel();
+        };
+        Console.CancelKeyPress += cancelHandler;
+
         bool verbose = args.Any(arg => string.Equals(arg, "--verbose", StringComparison.OrdinalIgnoreCase));
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Is(verbose ? LogEventLevel.Debug : LogEventLevel.Information)
@@ -35,8 +43,12 @@ internal static class Program {
                 return parse.ExitCode;
             }
 
-            return await PublishService.PublishAsync(parse.Options);
+            return await PublishService.PublishAsync(parse.Options, cts.Token);
 
+        }
+        catch (OperationCanceledException) {
+            Log.Warning("Operation canceled.");
+            return ExitCodes.GenericFailure;
         }
         catch (NativeDependencyNotFoundException ex) {
             Log.Error(ex, "ERROR: {Message}", ex.Message);
@@ -47,6 +59,7 @@ internal static class Program {
             return ExitCodes.GenericFailure;
         }
         finally {
+            Console.CancelKeyPress -= cancelHandler;
             await Log.CloseAndFlushAsync();
         }
     }

@@ -41,7 +41,7 @@ public class MsBuildPropertyResolverTests {
         """);
 
         // Act
-        string? value = MsBuildPropertyResolver.TryGetProperty(projectPath, "TargetFramework");
+        string? value = await MsBuildPropertyResolver.TryGetPropertyAsync(projectPath, "TargetFramework");
 
         // Assert
         await Assert.That(value).IsEqualTo("net10.0");
@@ -60,7 +60,7 @@ public class MsBuildPropertyResolverTests {
         """);
 
         // Act
-        string? value = MsBuildPropertyResolver.TryGetProperty(projectPath, "PropertyThatDoesNotExist");
+        string? value = await MsBuildPropertyResolver.TryGetPropertyAsync(projectPath, "PropertyThatDoesNotExist");
 
         // Assert
         await Assert.That(value).IsNull();
@@ -72,7 +72,7 @@ public class MsBuildPropertyResolverTests {
         string missingProjectPath = Path.Join(TemporaryDirectory.Path, "missing.csproj");
 
         // Act
-        string? value = MsBuildPropertyResolver.TryGetProperty(missingProjectPath, "TargetFramework");
+        string? value = await MsBuildPropertyResolver.TryGetPropertyAsync(missingProjectPath, "TargetFramework");
 
         // Assert
         await Assert.That(value).IsNull();
