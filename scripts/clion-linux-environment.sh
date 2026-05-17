@@ -13,7 +13,8 @@ sudo apt install -y \
     wget \
     build-essential \
     pkg-config \
-    lsb-release
+    lsb-release \
+    nodejs
 
 # ----------------------------------------------------------------------------------------------------------------------
 # CMake (latest via Kitware)
