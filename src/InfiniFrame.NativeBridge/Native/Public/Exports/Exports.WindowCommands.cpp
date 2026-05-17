@@ -11,14 +11,14 @@ EXPORTED InteropStatus InfiniFrame_ClearBrowserAutoFill(InfiniFrameWindow* insta
 
 EXPORTED InteropStatus InfiniFrame_NavigateToString(InfiniFrameWindow* instance, const AutoString content) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(content, "content")) throw std::invalid_argument("Argument 'content' is null.");
+        if (!EnsureNotNull(content, "content")) return;
         window->NavigateToString(content);
     });
 }
 
 EXPORTED InteropStatus InfiniFrame_NavigateToUrl(InfiniFrameWindow* instance, const AutoString url) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(url, "url")) throw std::invalid_argument("Argument 'url' is null.");
+        if (!EnsureNotNull(url, "url")) return;
         window->NavigateToUrl(url);
     });
 }

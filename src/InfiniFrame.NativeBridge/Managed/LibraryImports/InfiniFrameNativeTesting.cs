@@ -14,14 +14,14 @@ namespace InfiniFrame.NativeBridge;
 public static partial class InfiniFrameNativeTesting {
 #if InfiniFrameNativeTestExports
     [LibraryImport(NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_NativeParametersReturnAsIs", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial InfiniFrameNativeStatus NativeParametersReturnAsIsNative(
+    private static partial InfiniFrameNativeInteropStatus NativeParametersReturnAsIsNative(
         [MarshalUsing(typeof(InfiniFrameNativeParametersMarshaller))]
         in InfiniFrameNativeParameters parameters,
         out IntPtr newParameters
     );
 
     [LibraryImport(NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_FreeInitParams", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial InfiniFrameNativeStatus FreeInitParamsNative(IntPtr parameters);
+    private static partial InfiniFrameNativeInteropStatus FreeInitParamsNative(IntPtr parameters);
 
     /// <summary>
     ///     Returns a native pointer to a newly allocated InfiniFrameInitParams clone.

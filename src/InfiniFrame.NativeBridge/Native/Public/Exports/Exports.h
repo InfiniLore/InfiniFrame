@@ -25,6 +25,11 @@ using infiniframe::exports::RunReturnExport;
 using infiniframe::exports::RunWindowExportStatus;
 using infiniframe::exports::RunWindowReturnExport;
 
+template <typename T>
+inline bool EnsureOutNotNull(T* value, const char* argumentName) noexcept {
+    return infiniframe::exports::EnsureNotNull(value, argumentName, InteropStatus::OutParameterSetToInvalidNull);
+}
+
 inline AutoString NullToEmpty(const AutoString value) noexcept {
 #ifdef _WIN32
     static const wchar_t empty[] = L"";

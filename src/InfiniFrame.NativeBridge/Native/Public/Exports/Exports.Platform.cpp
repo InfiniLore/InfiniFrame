@@ -12,14 +12,14 @@ EXPORTED InteropStatus InfiniFrame_register_win32(const HINSTANCE hInstance) {
 EXPORTED InteropStatus InfiniFrame_getHwnd_win32(InfiniFrameWindow* instance, HWND* value) {
     ResetOut(value, static_cast<HWND>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+        if (!EnsureOutNotNull(value, "value")) return;
         *value = window->getHwnd();
     });
 }
 
 EXPORTED InteropStatus InfiniFrame_setWebView2RuntimePath_win32(InfiniFrameWindow*, const AutoString webView2RuntimePath) {
     return RunExportStatus([&] {
-        if (!EnsureNotNull(webView2RuntimePath, "webView2RuntimePath")) throw std::invalid_argument("Argument 'webView2RuntimePath' is null.");
+        if (!EnsureNotNull(webView2RuntimePath, "webView2RuntimePath")) return;
         InfiniFrameWindow::SetWebView2RuntimePath(webView2RuntimePath);
     });
 }
@@ -27,7 +27,7 @@ EXPORTED InteropStatus InfiniFrame_setWebView2RuntimePath_win32(InfiniFrameWindo
 EXPORTED InteropStatus InfiniFrame_GetNotificationsEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+        if (!EnsureOutNotNull(enabled, "enabled")) return;
         window->GetNotificationsEnabled(enabled);
     });
 }

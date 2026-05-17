@@ -18,12 +18,14 @@
 enum class InteropStatus : int {
     Success = 0,
     InvalidArgument = 22,
+    OutParameterSetToInvalidNull = 2001,
     OperationFailed = 14
 };
 
 namespace infiniframe::exports {
     namespace detail {
         inline thread_local std::string g_lastErrorMessage;
+        inline thread_local InteropStatus g_lastStatus = InteropStatus::Success;
 
         inline void SetLastErrorCode(const InteropStatus status) noexcept {
 #ifdef _WIN32
@@ -43,11 +45,13 @@ namespace infiniframe::exports {
 
         inline void SetFailure(const InteropStatus status, std::string message) noexcept {
             g_lastErrorMessage = std::move(message);
+            g_lastStatus = status;
             SetLastErrorCode(status);
         }
 
         inline void SetSuccess() noexcept {
             g_lastErrorMessage.clear();
+            g_lastStatus = InteropStatus::Success;
             ClearLastErrorCode();
         }
 
@@ -125,19 +129,23 @@ namespace infiniframe::exports {
     }
 
     template <typename T>
-    inline bool EnsureNotNull(T* value, const char* argumentName) noexcept {
+    inline bool EnsureNotNull(T* value, const char* argumentName, const InteropStatus status = InteropStatus::InvalidArgument) noexcept {
         if (value != nullptr) {
             return true;
         }
 
-        detail::SetFailure(InteropStatus::InvalidArgument, std::string("Argument '") + argumentName + "' is null.");
+        detail::SetFailure(status, std::string("Argument '") + argumentName + "' is null.");
         return false;
     }
 
     template <typename Fn>
     inline InteropStatus RunExportStatus(Fn&& fn) noexcept {
         try {
+            detail::SetSuccess();
             std::forward<Fn>(fn)();
+            if (detail::g_lastStatus != InteropStatus::Success) {
+                return detail::g_lastStatus;
+            }
             detail::SetSuccess();
             return InteropStatus::Success;
         }
@@ -154,7 +162,7 @@ namespace infiniframe::exports {
     inline InteropStatus RunWindowExportStatus(InfiniFrameWindow* instance, Fn&& fn) noexcept {
         return RunExportStatus([&] {
             if (!EnsureNotNull(instance, "instance")) {
-                throw std::invalid_argument("Argument 'instance' is null.");
+                return;
             }
 
             std::forward<Fn>(fn)(instance);

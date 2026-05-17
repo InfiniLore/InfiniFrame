@@ -4,7 +4,7 @@ extern "C" {
 EXPORTED InteropStatus InfiniFrame_ctor(InfiniFrameInitParams* initParams, InfiniFrameWindow** value) {
     ResetOut(value, static_cast<InfiniFrameWindow*>(nullptr));
     return RunExportStatus([&] {
-        if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+        if (!EnsureOutNotNull(value, "value")) return;
         if (initParams == nullptr) throw std::invalid_argument("Argument 'initParams' is null.");
         if (initParams->Size != static_cast<int>(sizeof(InfiniFrameInitParams))) {
             throw std::invalid_argument("InfiniFrameInitParams.Size does not match native struct size.");
@@ -16,7 +16,7 @@ EXPORTED InteropStatus InfiniFrame_ctor(InfiniFrameInitParams* initParams, Infin
 
 EXPORTED InteropStatus InfiniFrame_dtor(InfiniFrameWindow* instance) {
     return RunExportStatus([&] {
-        if (!EnsureNotNull(instance, "instance")) throw std::invalid_argument("Argument 'instance' is null.");
+        if (!EnsureNotNull(instance, "instance")) return;
         std::unique_ptr<InfiniFrameWindow> guard{instance};
     });
 }

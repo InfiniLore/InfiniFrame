@@ -46,8 +46,9 @@ extern "C" {
         }
 
         return RunExportStatus([&] {
-            if (!EnsureNotNull(params, "params") || !EnsureNotNull(new_params, "new_params")) {
-                throw std::invalid_argument("Test export argument is null.");
+            if (!EnsureNotNull(params, "params")
+                || !EnsureNotNull(new_params, "new_params", ::InteropStatus::OutParameterSetToInvalidNull)) {
+                return;
             }
 
             *new_params = new InfiniFrameInitParams();
@@ -113,7 +114,7 @@ extern "C" {
     EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitParams* params) {
         return RunExportStatus([&] {
             if (!EnsureNotNull(params, "params")) {
-                throw std::invalid_argument("Argument 'params' is null.");
+                return;
             }
 
             delete[] params->StartString;

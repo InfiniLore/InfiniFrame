@@ -5,8 +5,8 @@ EXPORTED InteropStatus InfiniFrame_ShowOpenFile(InfiniFrameWindow* inst, const A
     ResetOut(resultCount, 0);
     ResetOut(values, static_cast<AutoString*>(nullptr));
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(resultCount, "resultCount")) throw std::invalid_argument("Argument 'resultCount' is null.");
-        if (!EnsureNotNull(values, "values")) throw std::invalid_argument("Argument 'values' is null.");
+        if (!EnsureOutNotNull(resultCount, "resultCount")) return;
+        if (!EnsureOutNotNull(values, "values")) return;
         if (filterCount < 0) throw std::invalid_argument("Argument 'filterCount' must be >= 0.");
         *values = window->GetDialog()->ShowOpenFile(
             NullToEmpty(title),
@@ -23,8 +23,8 @@ EXPORTED InteropStatus InfiniFrame_ShowOpenFolder(InfiniFrameWindow* inst, const
     ResetOut(resultCount, 0);
     ResetOut(values, static_cast<AutoString*>(nullptr));
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(resultCount, "resultCount")) throw std::invalid_argument("Argument 'resultCount' is null.");
-        if (!EnsureNotNull(values, "values")) throw std::invalid_argument("Argument 'values' is null.");
+        if (!EnsureOutNotNull(resultCount, "resultCount")) return;
+        if (!EnsureOutNotNull(values, "values")) return;
         *values = window->GetDialog()->ShowOpenFolder(
             NullToEmpty(title),
             NullToEmpty(defaultPath),
@@ -37,7 +37,7 @@ EXPORTED InteropStatus InfiniFrame_ShowOpenFolder(InfiniFrameWindow* inst, const
 EXPORTED InteropStatus InfiniFrame_ShowSaveFile(InfiniFrameWindow* inst, const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName, AutoString* value) {
     ResetOut(value, static_cast<AutoString>(nullptr));
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+        if (!EnsureOutNotNull(value, "value")) return;
         if (filterCount < 0) throw std::invalid_argument("Argument 'filterCount' must be >= 0.");
         *value = window->GetDialog()->ShowSaveFile(
             NullToEmpty(title),
@@ -52,7 +52,7 @@ EXPORTED InteropStatus InfiniFrame_ShowSaveFile(InfiniFrameWindow* inst, const A
 EXPORTED InteropStatus InfiniFrame_ShowMessage(InfiniFrameWindow* inst, const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon, DialogResult* value) {
     ResetOut(value, DialogResult::Cancel);
     return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+        if (!EnsureOutNotNull(value, "value")) return;
         *value = window->GetDialog()->ShowMessage(
             NullToEmpty(title),
             NullToEmpty(text),

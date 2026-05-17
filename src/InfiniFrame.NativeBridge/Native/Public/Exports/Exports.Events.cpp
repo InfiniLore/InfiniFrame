@@ -3,7 +3,7 @@
 extern "C" {
 EXPORTED InteropStatus InfiniFrame_AddCustomSchemeName(InfiniFrameWindow* instance, const AutoString scheme) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(scheme, "scheme")) throw std::invalid_argument("Argument 'scheme' is null.");
+        if (!EnsureNotNull(scheme, "scheme")) return;
         window->AddCustomSchemeName(scheme);
     });
 }
