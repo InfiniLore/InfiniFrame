@@ -17,7 +17,7 @@ gboolean on_webview_context_menu(
     WebKitHitTestResult* hit_test_result,
     gboolean triggered_with_keyboard,
     gpointer user_data
-    );
+);
 gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, gpointer user_data);
 
 void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* initParams) {
@@ -110,9 +110,8 @@ void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, 
 }
 
 void InfiniFrameWindow::Impl::ApplyInitialWindowState(
-    InfiniFrameWindow* window,
-    const InfiniFrameInitParams* initParams
-    ) {
+    InfiniFrameWindow* window, const InfiniFrameInitParams* initParams
+) {
     window->SetTitle(const_cast<AutoString>(_windowTitle.c_str()));
 
     if (initParams->Chromeless)
@@ -134,47 +133,23 @@ void InfiniFrameWindow::Impl::ApplyInitialWindowState(
 }
 
 void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {
-    g_signal_connect(
-        G_OBJECT(_window), "configure-event",
-        G_CALLBACK(on_configure_event), window
-        );
+    g_signal_connect(G_OBJECT(_window), "configure-event", G_CALLBACK(on_configure_event), window);
 
-    g_signal_connect(
-        G_OBJECT(_window), "window-state-event",
-        G_CALLBACK(on_window_state_event), window
-        );
+    g_signal_connect(G_OBJECT(_window), "window-state-event", G_CALLBACK(on_window_state_event), window);
 
-    g_signal_connect(
-        G_OBJECT(_window), "delete-event",
-        G_CALLBACK(on_widget_deleted), window
-        );
+    g_signal_connect(G_OBJECT(_window), "delete-event", G_CALLBACK(on_widget_deleted), window);
 
-    g_signal_connect(
-        G_OBJECT(_window), "destroy",
-        G_CALLBACK(on_widget_destroyed), window
-        );
+    g_signal_connect(G_OBJECT(_window), "destroy", G_CALLBACK(on_widget_destroyed), window);
 
-    g_signal_connect(
-        G_OBJECT(_window), "focus-in-event",
-        G_CALLBACK(on_focus_in_event), window
-        );
+    g_signal_connect(G_OBJECT(_window), "focus-in-event", G_CALLBACK(on_focus_in_event), window);
 
-    g_signal_connect(
-        G_OBJECT(_window), "focus-out-event",
-        G_CALLBACK(on_focus_out_event), window
-        );
+    g_signal_connect(G_OBJECT(_window), "focus-out-event", G_CALLBACK(on_focus_out_event), window);
 }
 
 void InfiniFrameWindow::Impl::ConnectWebViewSignals(InfiniFrameWindow* window) {
-    g_signal_connect(
-        G_OBJECT(_webview), "context-menu",
-        G_CALLBACK(on_webview_context_menu), window
-        );
+    g_signal_connect(G_OBJECT(_webview), "context-menu", G_CALLBACK(on_webview_context_menu), window);
 
-    g_signal_connect(
-        G_OBJECT(_webview), "permission-request",
-        G_CALLBACK(on_permission_request), window
-        );
+    g_signal_connect(G_OBJECT(_webview), "permission-request", G_CALLBACK(on_permission_request), window);
 }
 
 #endif

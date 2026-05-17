@@ -67,12 +67,9 @@ void InfiniFrameWindow::AttachWebView() {
         options->put_AdditionalBrowserArguments(startupString.c_str());
 
     bool requiresAppSchemeRegistration = std::any_of(
-        m_impl->_customSchemeNames.begin(),
-        m_impl->_customSchemeNames.end(),
-        [](const std::wstring& schemeName) {
-            return _wcsicmp(schemeName.c_str(), L"app") == 0;
-        }
-        );
+        m_impl->_customSchemeNames.begin(), m_impl->_customSchemeNames.end(),
+        [](const std::wstring& schemeName) { return _wcsicmp(schemeName.c_str(), L"app") == 0; }
+    );
     bool appSchemeRegistrationSupported = false;
 
     // Register custom schemes with WebView2 so top-level navigations like app://... are allowed.
@@ -104,9 +101,8 @@ void InfiniFrameWindow::AttachWebView() {
                     rawRegistrations.emplace_back(registration.get());
 
                 options4->SetCustomSchemeRegistrations(
-                    static_cast<UINT32>(rawRegistrations.size()),
-                    rawRegistrations.data()
-                    );
+                    static_cast<UINT32>(rawRegistrations.size()), rawRegistrations.data()
+                );
             }
         }
     }
@@ -114,10 +110,10 @@ void InfiniFrameWindow::AttachWebView() {
     if (requiresAppSchemeRegistration && !appSchemeRegistrationSupported) {
         MessageBox(
             m_impl->_hWnd,
-            L"This app requires WebView2 custom scheme registration for app://localhost/. Please update WebView2 Runtime to a version that supports ICoreWebView2EnvironmentOptions4.",
-            L"WebView2 Runtime Too Old",
-            MB_OK | MB_ICONERROR
-            );
+            L"This app requires WebView2 custom scheme registration for app://localhost/. Please update "
+            L"WebView2 Runtime to a version that supports ICoreWebView2EnvironmentOptions4.",
+            L"WebView2 Runtime Too Old", MB_OK | MB_ICONERROR
+        );
         m_impl->_isWebView2Initializing = false;
         return;
     }
@@ -130,19 +126,13 @@ void InfiniFrameWindow::AttachWebView() {
             TraceTeardown(
                 L"AttachWebView: temporary user-data path is not writable. Falling back to default path. path=%ls",
                 m_impl->_temporaryFilesPath.c_str()
-                );
+            );
     }
 
     HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(
-        runtimePath,
-        userDataPath,
-        options.Get(),
-        Callback<
-            ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-            [this](
-            const HRESULT result,
-            ICoreWebView2Environment* env
-            ) -> HRESULT {
+        runtimePath, userDataPath, options.Get(),
+        Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
+            [this](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
                 if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
                     m_impl->_isWebView2Initializing = false;
                     m_impl->_webviewEnvironment = nullptr;
@@ -158,9 +148,7 @@ void InfiniFrameWindow::AttachWebView() {
                     m_impl->_isWebView2Initializing = false;
                     return E_POINTER;
                 }
-                HRESULT envResult = env->QueryInterface(
-                    &m_impl->_webviewEnvironment
-                    );
+                HRESULT envResult = env->QueryInterface(&m_impl->_webviewEnvironment);
                 if (envResult != S_OK) {
                     m_impl->_isWebView2Initializing = false;
                     return envResult;
@@ -168,13 +156,8 @@ void InfiniFrameWindow::AttachWebView() {
 
                 const HRESULT createControllerHr = env->CreateCoreWebView2Controller(
                     m_impl->_hWnd,
-                    Callback<
-                        ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                        [this](
-                        const HRESULT result,
-                        ICoreWebView2Controller* controller
-                        ) ->
-                        HRESULT {
+                    Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
+                        [this](const HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
                             if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
                                 if (controller != nullptr)
                                     controller->Close();
@@ -188,9 +171,8 @@ void InfiniFrameWindow::AttachWebView() {
                             if (result != S_OK) {
                                 m_impl->_isWebView2Initializing = false;
                                 TraceTeardown(
-                                    L"CreateController callback failed hr=0x%08X",
-                                    static_cast<unsigned>(result)
-                                    );
+                                    L"CreateController callback failed hr=0x%08X", static_cast<unsigned>(result)
+                                );
                                 return result;
                             }
                             if (controller == nullptr) {
@@ -211,9 +193,8 @@ void InfiniFrameWindow::AttachWebView() {
 
                             const auto js_wide = Embedded::InfiniFrameJsUtf16();
                             OutputDebugStringW(
-                                std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js_wide.size()).
-                                c_str()
-                                );
+                                std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js_wide.size()).c_str()
+                            );
 
                             struct NavigateOnce {
                                 InfiniFrameWindow* self;
@@ -227,14 +208,12 @@ void InfiniFrameWindow::AttachWebView() {
                                     else if (!self->m_impl->_startString.empty())
                                         self->m_impl->_webviewWindow->NavigateToString(
                                             self->m_impl->_startString.c_str()
-                                            );
+                                        );
                                     else {
                                         MessageBox(
-                                            nullptr,
-                                            L"Neither StartUrl nor StartString was specified",
-                                            L"Native Initialization Failed",
-                                            MB_OK
-                                            );
+                                            nullptr, L"Neither StartUrl nor StartString was specified",
+                                            L"Native Initialization Failed", MB_OK
+                                        );
                                         exit(0);
                                     }
                                 }
@@ -244,9 +223,7 @@ void InfiniFrameWindow::AttachWebView() {
                             wil::com_ptr<ICoreWebView2Settings> settings;
                             HRESULT settingsResult = m_impl->_webviewWindow->get_Settings(&settings);
                             if (FAILED(settingsResult) || !settings) {
-                                return FAILED(settingsResult)
-                                           ? settingsResult
-                                           : E_FAIL;
+                                return FAILED(settingsResult) ? settingsResult : E_FAIL;
                             }
                             settings->put_AreHostObjectsAllowed(TRUE);
                             settings->put_IsScriptEnabled(TRUE);
@@ -255,13 +232,8 @@ void InfiniFrameWindow::AttachWebView() {
 
                             EventRegistrationToken webMessageToken;
                             m_impl->_webviewWindow->add_WebMessageReceived(
-                                Callback<
-                                    ICoreWebView2WebMessageReceivedEventHandler>(
-                                    [this](
-                                    ICoreWebView2*,
-                                    ICoreWebView2WebMessageReceivedEventArgs
-                                    * args
-                                    ) -> HRESULT {
+                                Callback<ICoreWebView2WebMessageReceivedEventHandler>(
+                                    [this](ICoreWebView2*, ICoreWebView2WebMessageReceivedEventArgs* args) -> HRESULT {
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
                                             return S_OK;
 
@@ -269,21 +241,16 @@ void InfiniFrameWindow::AttachWebView() {
                                         wil::unique_cotaskmem_string source;
                                         args->TryGetWebMessageAsString(&message);
                                         args->get_Source(&source);
-                                        if (
-                                            (source.get() == nullptr || source.get()[0] == L'\0')
-                                            && m_impl->_webviewWindow != nullptr
-                                        ) {
+                                        if ((source.get() == nullptr || source.get()[0] == L'\0') &&
+                                            m_impl->_webviewWindow != nullptr) {
                                             m_impl->_webviewWindow->get_Source(&source);
                                         }
-                                        m_impl->_webMessageReceivedCallback(
-                                            message.get(),
-                                            source.get()
-                                            );
+                                        m_impl->_webMessageReceivedCallback(message.get(), source.get());
                                         return S_OK;
                                     }
-                            ).Get(),
+                                ).Get(),
                                 &webMessageToken
-                                );
+                            );
                             m_impl->_webMessageReceivedToken = webMessageToken;
                             m_impl->_hasWebMessageReceivedToken = true;
 
@@ -291,30 +258,21 @@ void InfiniFrameWindow::AttachWebView() {
                             auto webview23 = m_impl->_webviewWindow.try_query<ICoreWebView2_23>();
                             if (webview23) {
                                 webview23->AddWebResourceRequestedFilterWithRequestSourceKinds(
-                                    L"*",
-                                    COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
+                                    L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
                                     COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
-                                    );
-                            }
-                            else {
+                                );
+                            } else {
                                 m_impl->_webviewWindow->AddWebResourceRequestedFilter(
-                                    L"*",
-                                    COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
-                                    );
+                                    L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
+                                );
                             }
                             m_impl->_webviewWindow->add_WebResourceRequested(
-                                Callback<
-                                    ICoreWebView2WebResourceRequestedEventHandler>(
-                                    [this](
-                                    ICoreWebView2*,
-                                    ICoreWebView2WebResourceRequestedEventArgs
-                                    * args
-                                    ) {
+                                Callback<ICoreWebView2WebResourceRequestedEventHandler>(
+                                    [this](ICoreWebView2*, ICoreWebView2WebResourceRequestedEventArgs* args) {
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
                                             return S_OK;
 
-                                        wil::com_ptr<
-                                            ICoreWebView2WebResourceRequest> req;
+                                        wil::com_ptr<ICoreWebView2WebResourceRequest> req;
                                         if (FAILED(args->get_Request(&req)) || !req)
                                             return S_OK;
 
@@ -325,48 +283,37 @@ void InfiniFrameWindow::AttachWebView() {
                                         std::wstring requestOrigin;
                                         if (SUCCEEDED(req->get_Headers(&requestHeaders)) && requestHeaders) {
                                             wil::unique_cotaskmem_string originHeaderValue;
-                                            if (SUCCEEDED(
-                                                    requestHeaders->GetHeader(L"Origin", &originHeaderValue)
-                                                    )
-                                                && originHeaderValue.get() != nullptr
-                                                && originHeaderValue.get()[0] != L'\0') {
+                                            if (SUCCEEDED(requestHeaders->GetHeader(L"Origin", &originHeaderValue)) &&
+                                                originHeaderValue.get() != nullptr &&
+                                                originHeaderValue.get()[0] != L'\0') {
                                                 requestOrigin = originHeaderValue.get();
                                             }
                                         }
 
-                                        if (uriString.find(L"/_framework/blazor.modules.json") !=
-                                            std::wstring::npos) {
+                                        if (uriString.find(L"/_framework/blazor.modules.json") != std::wstring::npos) {
                                             static constexpr BYTE emptyModuleArray[] = {'[', ']'};
                                             wil::com_ptr<IStream> dataStream;
                                             dataStream.attach(
                                                 SHCreateMemStream(emptyModuleArray, sizeof(emptyModuleArray))
-                                                );
+                                            );
                                             if (!dataStream)
                                                 return S_OK;
 
                                             std::wstring responseHeaders = L"Content-Type: application/json";
-                                            responseHeaders +=
-                                                L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
+                                            responseHeaders += L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
                                             responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
                                             if (!requestOrigin.empty()) {
-                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: " +
-                                                    requestOrigin;
-                                                responseHeaders +=
-                                                    L"\r\nAccess-Control-Allow-Credentials: true";
+                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: " + requestOrigin;
+                                                responseHeaders += L"\r\nAccess-Control-Allow-Credentials: true";
                                                 responseHeaders += L"\r\nVary: Origin";
-                                            }
-                                            else {
+                                            } else {
                                                 responseHeaders += L"\r\nAccess-Control-Allow-Origin: *";
                                             }
 
                                             wil::com_ptr<ICoreWebView2WebResourceResponse> response;
                                             m_impl->_webviewEnvironment->CreateWebResourceResponse(
-                                                dataStream.get(),
-                                                200,
-                                                L"OK",
-                                                responseHeaders.c_str(),
-                                                &response
-                                                );
+                                                dataStream.get(), 200, L"OK", responseHeaders.c_str(), &response
+                                            );
                                             args->put_Response(response.get());
                                             return S_OK;
                                         }
@@ -374,145 +321,73 @@ void InfiniFrameWindow::AttachWebView() {
                                         if (colonPos > 0) {
                                             std::wstring scheme = uriString.substr(0, colonPos);
                                             auto it = std::find(
-                                                m_impl
-                                                ->
-                                                _customSchemeNames
-                                                .begin(),
-                                                m_impl
-                                                ->
-                                                _customSchemeNames
-                                                .end(),
+                                                m_impl->_customSchemeNames.begin(), m_impl->_customSchemeNames.end(),
                                                 scheme
-                                                );
+                                            );
 
-                                            if (it !=
-                                                m_impl->
-                                                _customSchemeNames
-                                                .end() &&
-                                                m_impl->
-                                                _customSchemeCallback
-                                                !=
-                                                nullptr) {
+                                            if (it != m_impl->_customSchemeNames.end() &&
+                                                m_impl->_customSchemeCallback != nullptr) {
                                                 int numBytes;
                                                 AutoString contentType = nullptr;
-                                                wil::unique_cotaskmem dotNetResponse(
-                                                    m_impl
-                                                    ->
-                                                    _customSchemeCallback(
-                                                        const_cast
-                                                        <AutoString>
-                                                        (uriString
-                                                            .c_str()),
-                                                        &numBytes,
-                                                        &contentType
-                                                        )
-                                                    );
-                                                auto freeContentType = wil::scope_exit(
-                                                    [&
-                                                        contentType
-                                                    ] {
-                                                        CoTaskMemFree(
-                                                            contentType
-                                                            );
-                                                    }
-                                                    );
+                                                wil::unique_cotaskmem dotNetResponse(m_impl->_customSchemeCallback(
+                                                    const_cast<AutoString>(uriString.c_str()), &numBytes, &contentType
+                                                ));
+                                                auto freeContentType =
+                                                    wil::scope_exit([&contentType] { CoTaskMemFree(contentType); });
 
-                                                if (
-                                                    dotNetResponse
-                                                    !=
-                                                    nullptr
-                                                    &&
-                                                    contentType
-                                                    !=
-                                                    nullptr) {
+                                                if (dotNetResponse != nullptr && contentType != nullptr) {
                                                     std::wstring contentTypeWS = contentType;
 
                                                     wil::com_ptr<IStream> dataStream;
-                                                    dataStream.attach(
-                                                        SHCreateMemStream(
-                                                            reinterpret_cast
-                                                            <const
-                                                                BYTE
-                                                                *>
-                                                            (dotNetResponse
-                                                                .get()),
-                                                            numBytes
-                                                            )
-                                                        );
-                                                    if (!
-                                                        dataStream)
-                                                        return
-                                                            S_OK;
-                                                    wil::com_ptr
-                                                        <ICoreWebView2WebResourceResponse>
-                                                        response;
-                                                    std::wstring responseHeaders = L"Content-Type: " +
-                                                        contentTypeWS;
+                                                    dataStream.attach(SHCreateMemStream(
+                                                        reinterpret_cast<const BYTE*>(dotNetResponse.get()), numBytes
+                                                    ));
+                                                    if (!dataStream)
+                                                        return S_OK;
+                                                    wil::com_ptr<ICoreWebView2WebResourceResponse> response;
+                                                    std::wstring responseHeaders = L"Content-Type: " + contentTypeWS;
                                                     responseHeaders +=
                                                         L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
                                                     responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
                                                     if (!requestOrigin.empty()) {
-                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: "
-                                                            + requestOrigin;
+                                                        responseHeaders +=
+                                                            L"\r\nAccess-Control-Allow-Origin: " + requestOrigin;
                                                         responseHeaders +=
                                                             L"\r\nAccess-Control-Allow-Credentials: true";
                                                         responseHeaders += L"\r\nVary: Origin";
+                                                    } else {
+                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: *";
                                                     }
-                                                    else {
-                                                        responseHeaders +=
-                                                            L"\r\nAccess-Control-Allow-Origin: *";
-                                                    }
-                                                    m_impl
-                                                        ->
-                                                        _webviewEnvironment
-                                                        ->
-                                                        CreateWebResourceResponse(
-                                                            dataStream
-                                                            .get(),
-                                                            200,
-                                                            L"OK",
-                                                            responseHeaders.c_str(),
-                                                            &response
-                                                            );
-                                                    args->
-                                                        put_Response(
-                                                            response
-                                                            .get()
-                                                            );
+                                                    m_impl->_webviewEnvironment->CreateWebResourceResponse(
+                                                        dataStream.get(), 200, L"OK", responseHeaders.c_str(), &response
+                                                    );
+                                                    args->put_Response(response.get());
                                                 }
                                             }
                                         }
 
                                         return S_OK;
                                     }
-                                    ).Get(),
+                                ).Get(),
                                 &webResourceRequestedToken
-                                );
+                            );
                             m_impl->_webResourceRequestedTokenForCustomScheme = webResourceRequestedToken;
                             m_impl->_hasWebResourceRequestedToken = true;
 
                             EventRegistrationToken permissionRequestedToken;
                             m_impl->_webviewWindow->add_PermissionRequested(
-                                Callback<
-                                    ICoreWebView2PermissionRequestedEventHandler>(
-                                    [this](
-                                    ICoreWebView2*,
-                                    ICoreWebView2PermissionRequestedEventArgs
-                                    * args
-                                    ) -> HRESULT {
+                                Callback<ICoreWebView2PermissionRequestedEventHandler>(
+                                    [this](ICoreWebView2*, ICoreWebView2PermissionRequestedEventArgs* args) -> HRESULT {
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
                                             return S_OK;
 
                                         if (m_impl->_grantBrowserPermissions)
-                                            args->put_State(
-                                                COREWEBVIEW2_PERMISSION_STATE_ALLOW
-                                                );
+                                            args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
                                         return S_OK;
                                     }
-                                    )
-                                .Get(),
+                                ).Get(),
                                 &permissionRequestedToken
-                                );
+                            );
                             m_impl->_permissionRequestedToken = permissionRequestedToken;
                             m_impl->_hasPermissionRequestedToken = true;
 
@@ -533,11 +408,12 @@ void InfiniFrameWindow::AttachWebView() {
                                     [nav, this](HRESULT errorCode, LPCWSTR id) -> HRESULT {
                                         OutputDebugStringW(
                                             std::format(
-                                                L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: hr=0x{:08X} id={}\n",
-                                                (unsigned)errorCode,
-                                                id ? id : L"(null)"
-                                                ).c_str()
-                                            );
+                                                L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: "
+                                                L"hr=0x{:08X} id={}\n",
+                                                (unsigned)errorCode, id ? id : L"(null)"
+                                            )
+                                                .c_str()
+                                        );
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
                                             return S_OK;
                                         nav->navigate();
@@ -559,15 +435,15 @@ void InfiniFrameWindow::AttachWebView() {
                             m_impl->_isWebView2Initializing = false;
                             return S_OK;
                         }
-                        ).Get()
-                    );
+                    ).Get()
+                );
                 if (FAILED(createControllerHr))
                     m_impl->_isWebView2Initializing = false;
 
                 return createControllerHr;
             }
-            ).Get()
-        );
+        ).Get()
+    );
 
     if (envResult != S_OK) {
         m_impl->_isWebView2Initializing = false;

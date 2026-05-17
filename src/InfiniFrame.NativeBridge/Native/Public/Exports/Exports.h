@@ -25,8 +25,7 @@ using infiniframe::exports::RunReturnExport;
 using infiniframe::exports::RunWindowExportStatus;
 using infiniframe::exports::RunWindowReturnExport;
 
-template <typename T>
-inline bool EnsureOutNotNull(T* value, const char* argumentName) noexcept {
+template <typename T> inline bool EnsureOutNotNull(T* value, const char* argumentName) noexcept {
     return infiniframe::exports::EnsureNotNull(value, argumentName, InteropStatus::OutParameterSetToInvalidNull);
 }
 

@@ -293,14 +293,12 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
         if (GetMonitorInfoW(monitor, &monitorInfo)) {
             RECT rc = monitorInfo.rcMonitor;
             SetWindowPos(
-                m_impl->_hWnd, HWND_TOP,
-                rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
+                m_impl->_hWnd, HWND_TOP, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top,
                 SWP_FRAMECHANGED | SWP_NOOWNERZORDER
             );
         } else {
             SetWindowPos(
-                m_impl->_hWnd, HWND_TOP,
-                0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
+                m_impl->_hWnd, HWND_TOP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
                 SWP_FRAMECHANGED | SWP_NOOWNERZORDER
             );
         }
@@ -312,8 +310,7 @@ void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {
         if (m_impl->_hasSavedRect) {
             RECT& r = m_impl->_savedRect;
             SetWindowPos(
-                m_impl->_hWnd, HWND_TOP,
-                r.left, r.top, r.right - r.left, r.bottom - r.top,
+                m_impl->_hWnd, HWND_TOP, r.left, r.top, r.right - r.left, r.bottom - r.top,
                 SWP_FRAMECHANGED | SWP_NOOWNERZORDER
             );
             m_impl->_hasSavedRect = false;
@@ -327,16 +324,12 @@ void InfiniFrameWindow::SetIconFile(const AutoString filename) {
     if (wideFilename.empty())
         return;
 
-    HICON iconSmall = static_cast<HICON>(LoadImageW(
-        nullptr, wideFilename.c_str(),
-        IMAGE_ICON, 16, 16,
-        LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED
-    ));
-    HICON iconBig = static_cast<HICON>(LoadImageW(
-        nullptr, wideFilename.c_str(),
-        IMAGE_ICON, 32, 32,
-        LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED
-    ));
+    HICON iconSmall = static_cast<HICON>(
+        LoadImageW(nullptr, wideFilename.c_str(), IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED)
+    );
+    HICON iconBig = static_cast<HICON>(
+        LoadImageW(nullptr, wideFilename.c_str(), IMAGE_ICON, 32, 32, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED)
+    );
 
     if (iconSmall && iconBig) {
         SendMessageW(m_impl->_hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(iconSmall));

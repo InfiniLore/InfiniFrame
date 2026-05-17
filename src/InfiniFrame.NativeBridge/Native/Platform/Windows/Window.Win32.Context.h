@@ -38,8 +38,7 @@ HWND ResolveParentWindowHandle(InfiniFrameWindow* parent);
 HBRUSH GetDarkBrush();
 HBRUSH GetLightBrush();
 
-template <typename TImpl>
-inline void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
+template <typename TImpl> inline void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
     if (impl == nullptr)
         return;
     if (impl->_ownerAssigned)
@@ -55,21 +54,15 @@ inline void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
         return;
 
     SetLastError(0);
-    const LONG_PTR previousOwner = SetWindowLongPtr(
-        impl->_hWnd,
-        GWLP_HWNDPARENT,
-        reinterpret_cast<LONG_PTR>(impl->_pendingOwnerHwnd)
-        );
+    const LONG_PTR previousOwner =
+        SetWindowLongPtr(impl->_hWnd, GWLP_HWNDPARENT, reinterpret_cast<LONG_PTR>(impl->_pendingOwnerHwnd));
     const DWORD lastError = GetLastError();
 
     if (previousOwner == 0 && lastError != 0) {
         TraceTeardown(
-            L"ApplyPendingOwnerWindow failed phase=%ls child=%p owner=%p err=%lu",
-            phase,
-            impl->_hWnd,
-            impl->_pendingOwnerHwnd,
-            lastError
-            );
+            L"ApplyPendingOwnerWindow failed phase=%ls child=%p owner=%p err=%lu", phase, impl->_hWnd,
+            impl->_pendingOwnerHwnd, lastError
+        );
         return;
     }
 
@@ -78,14 +71,9 @@ inline void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
     const DWORD childThreadId = GetWindowThreadProcessId(impl->_hWnd, nullptr);
     const DWORD ownerThreadId = GetWindowThreadProcessId(impl->_pendingOwnerHwnd, nullptr);
     TraceTeardown(
-        L"ApplyPendingOwnerWindow success phase=%ls child=%p owner=%p childTid=%lu ownerTid=%lu prev=%p",
-        phase,
-        impl->_hWnd,
-        impl->_pendingOwnerHwnd,
-        childThreadId,
-        ownerThreadId,
-        reinterpret_cast<void*>(previousOwner)
-        );
+        L"ApplyPendingOwnerWindow success phase=%ls child=%p owner=%p childTid=%lu ownerTid=%lu prev=%p", phase,
+        impl->_hWnd, impl->_pendingOwnerHwnd, childThreadId, ownerThreadId, reinterpret_cast<void*>(previousOwner)
+    );
 }
 
 #endif // INFINIFRAME_PLATFORM_WINDOWS_WINDOW_WIN32_CONTEXT_H

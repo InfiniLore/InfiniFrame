@@ -32,7 +32,7 @@ using WebMessageReceivedCallback = void (*)(AutoString message, AutoString origi
  * @param outContentType Output: MIME type string (e.g. "text/html")
  * @return Heap-allocated response body; ownership is transferred to the caller
  */
-using WebResourceRequestedCallback = void *(*)(AutoString url, int* outNumBytes, AutoString* outContentType);
+using WebResourceRequestedCallback = void* (*)(AutoString url, int* outNumBytes, AutoString* outContentType);
 
 /**
  * @brief Called once per monitor during a GetAllMonitors enumeration.

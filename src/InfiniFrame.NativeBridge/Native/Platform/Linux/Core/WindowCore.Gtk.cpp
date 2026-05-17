@@ -5,8 +5,8 @@
 
 #include "../Window.Gtk.Internal.h"
 
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
-    m_impl(std::make_unique<Impl>()) {
+InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
+    : m_impl(std::make_unique<Impl>()) {
     XInitThreads();
     gtk_init(nullptr, nullptr);
     notify_init(initParams->Title);
@@ -14,9 +14,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) :
     if (initParams->Size != sizeof(InfiniFrameInitParams)) {
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-            "Initial parameters passed are %i bytes, but expected %lu bytes.",
-            initParams->Size, sizeof(InfiniFrameInitParams)
-            );
+            "Initial parameters passed are %i bytes, but expected %lu bytes.", initParams->Size,
+            sizeof(InfiniFrameInitParams)
+        );
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
         exit(0);

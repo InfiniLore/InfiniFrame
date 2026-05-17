@@ -205,14 +205,7 @@ void InfiniFrameWindow::SendWebMessage(const AutoString message) {
     js.append("\")");
 
     webkit_web_view_evaluate_javascript(
-        WEBKIT_WEB_VIEW(m_impl->_webview),
-        js.c_str(),
-        -1,
-        nullptr,
-        nullptr,
-        nullptr,
-        webview_eval_finished,
-        nullptr
+        WEBKIT_WEB_VIEW(m_impl->_webview), js.c_str(), -1, nullptr, nullptr, nullptr, webview_eval_finished, nullptr
     );
 }
 
@@ -273,9 +266,7 @@ void InfiniFrameWindow::SetMinSize(const int width, const int height) {
     m_impl->_hints.min_height = height;
 
     gtk_window_set_geometry_hints(
-        GTK_WINDOW(m_impl->_window),
-        nullptr,
-        &m_impl->_hints,
+        GTK_WINDOW(m_impl->_window), nullptr, &m_impl->_hints,
         static_cast<GdkWindowHints>(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE)
     );
 }
@@ -287,9 +278,7 @@ void InfiniFrameWindow::SetMaxSize(const int width, const int height) {
     m_impl->_hints.max_height = height;
 
     gtk_window_set_geometry_hints(
-        GTK_WINDOW(m_impl->_window),
-        nullptr,
-        &m_impl->_hints,
+        GTK_WINDOW(m_impl->_window), nullptr, &m_impl->_hints,
         static_cast<GdkWindowHints>(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE)
     );
 }

@@ -37,11 +37,7 @@ void InfiniFrameWindow::Center() {
 
     gdk_monitor_get_geometry(m, &screen);
 
-    gtk_window_move(
-        GTK_WINDOW(m_impl->_window),
-        (screen.width - windowWidth) / 2,
-        (screen.height - windowHeight) / 2
-    );
+    gtk_window_move(GTK_WINDOW(m_impl->_window), (screen.width - windowWidth) / 2, (screen.height - windowHeight) / 2);
 }
 
 void InfiniFrameWindow::ClearBrowserAutoFill() {
@@ -61,13 +57,7 @@ void InfiniFrameWindow::ShowNotification(const AutoString title, const AutoStrin
 
 void InfiniFrameWindow::WaitForExit() {
     g_signal_connect(
-        G_OBJECT(m_impl->_window), "destroy",
-        G_CALLBACK(
-            +[](GtkWidget*, gpointer) {
-                gtk_main_quit();
-            }
-        ),
-        nullptr
+        G_OBJECT(m_impl->_window), "destroy", G_CALLBACK(+[](GtkWidget*, gpointer) { gtk_main_quit(); }), nullptr
     );
     gtk_main();
 }

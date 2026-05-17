@@ -69,7 +69,7 @@ AutoString* ShowDialog(
     const int filterCount,
     int* resultCount,
     const AutoString defaultFileName = nullptr
-    ) {
+) {
     GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
     const char* buttonText = "_Open";
     switch (type) {
@@ -88,11 +88,8 @@ AutoString* ShowDialog(
     }
 
     GtkWidget* dialog = gtk_file_chooser_dialog_new(
-        title, nullptr, action,
-        "_Cancel", GTK_RESPONSE_CANCEL,
-        buttonText, GTK_RESPONSE_ACCEPT,
-        nullptr
-        );
+        title, nullptr, action, "_Cancel", GTK_RESPONSE_CANCEL, buttonText, GTK_RESPONSE_ACCEPT, nullptr
+    );
 
     if (defaultPath != nullptr) {
         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), defaultPath);
@@ -130,19 +127,16 @@ AutoString* ShowDialog(
         *resultCount = count;
         gtk_widget_destroy(dialog);
         return results;
-    }
-    else {
+    } else {
         char* result = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
         gtk_widget_destroy(dialog);
         return new char*[1]{result};
     }
 }
 
-InfiniFrameDialog::InfiniFrameDialog() {
-}
+InfiniFrameDialog::InfiniFrameDialog() {}
 
-InfiniFrameDialog::~InfiniFrameDialog() {
-}
+InfiniFrameDialog::~InfiniFrameDialog() {}
 
 AutoString* InfiniFrameDialog::ShowOpenFile(
     const AutoString title,
@@ -151,16 +145,13 @@ AutoString* InfiniFrameDialog::ShowOpenFile(
     AutoString* filters,
     const int filterCount,
     int* resultCount
-    ) {
+) {
     return ShowDialog(OpenFile, title, defaultPath, multiSelect, filters, filterCount, resultCount);
 }
 
 AutoString* InfiniFrameDialog::ShowOpenFolder(
-    const AutoString title,
-    const AutoString defaultPath,
-    const bool multiSelect,
-    int* resultCount
-    ) {
+    const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount
+) {
     return ShowDialog(OpenFolder, title, defaultPath, multiSelect, nullptr, 0, resultCount);
 }
 
@@ -170,7 +161,7 @@ AutoString InfiniFrameDialog::ShowSaveFile(
     AutoString* filters,
     const int filterCount,
     const AutoString defaultFileName
-    ) {
+) {
     char** result = ShowDialog(SaveFile, title, defaultPath, false, filters, filterCount, nullptr, defaultFileName);
     if (result != nullptr) {
         char* value = result[0];
@@ -181,11 +172,8 @@ AutoString InfiniFrameDialog::ShowSaveFile(
 }
 
 DialogResult InfiniFrameDialog::ShowMessage(
-    const AutoString title,
-    const AutoString text,
-    const DialogButtons buttons,
-    const DialogIcon icon
-    ) {
+    const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon
+) {
     GtkWidget* dialog;
     GtkMessageType type;
 
@@ -207,14 +195,7 @@ DialogResult InfiniFrameDialog::ShowMessage(
             break;
     }
 
-    dialog = gtk_message_dialog_new(
-        nullptr,
-        GTK_DIALOG_MODAL,
-        type,
-        GTK_BUTTONS_NONE,
-        "%s",
-        title
-        );
+    dialog = gtk_message_dialog_new(nullptr, GTK_DIALOG_MODAL, type, GTK_BUTTONS_NONE, "%s", title);
     gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dialog), text);
 
     switch (buttons) {

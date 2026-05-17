@@ -19,14 +19,9 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             RECT* newWindowRect = reinterpret_cast<RECT*>(lParam);
 
             SetWindowPos(
-                hwnd,
-                nullptr,
-                newWindowRect->left,
-                newWindowRect->top,
-                newWindowRect->right - newWindowRect->left,
-                newWindowRect->bottom - newWindowRect->top,
-                SWP_NOZORDER | SWP_NOACTIVATE
-                );
+                hwnd, nullptr, newWindowRect->left, newWindowRect->top, newWindowRect->right - newWindowRect->left,
+                newWindowRect->bottom - newWindowRect->top, SWP_NOZORDER | SWP_NOACTIVATE
+            );
 
             return 0;
         }
@@ -48,8 +43,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
 
             if (IsDarkModeEnabled()) {
                 FillRect(hdc, &ps.rcPaint, GetDarkBrush());
-            }
-            else {
+            } else {
                 FillRect(hdc, &ps.rcPaint, GetLightBrush());
             }
 
@@ -57,12 +51,11 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_ACTIVATE: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
+            InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
             if (instance) {
                 if (LOWORD(wParam) == WA_INACTIVE) {
                     instance->InvokeFocusOut();
-                }
-                else {
+                } else {
                     instance->FocusWebView2();
                     instance->InvokeFocusIn();
 
@@ -72,7 +65,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_CLOSE: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
+            InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
             if (instance) {
                 TraceTeardown(L"WM_CLOSE hwnd=%p instance=%p", hwnd, instance);
                 bool doNotClose = instance->InvokeClose();
@@ -83,11 +76,9 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                     const DWORD ownerDetachError = GetLastError();
                     if (previousOwner != 0 || ownerDetachError == 0) {
                         TraceTeardown(
-                            L"WM_CLOSE detached owner hwnd=%p prevOwner=%p err=%lu",
-                            hwnd,
-                            reinterpret_cast<void*>(previousOwner),
-                            ownerDetachError
-                            );
+                            L"WM_CLOSE detached owner hwnd=%p prevOwner=%p err=%lu", hwnd,
+                            reinterpret_cast<void*>(previousOwner), ownerDetachError
+                        );
                     }
 
                     DestroyWindow(hwnd);
@@ -97,7 +88,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_DESTROY: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
+            InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
             if (instance) {
                 instance->m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
                 TraceTeardown(L"WM_DESTROY begin hwnd=%p instance=%p", hwnd, instance);
@@ -111,7 +102,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_NCDESTROY: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
+            InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
             if (instance) {
                 instance->m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
                 instance->m_impl->_hWnd = nullptr;

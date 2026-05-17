@@ -8,40 +8,40 @@ using namespace WinToastLib;
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 namespace {
-    class BrushManager {
-        public:
-            static BrushManager& instance() noexcept {
-                static BrushManager inst;
-                return inst;
-            }
+class BrushManager {
+public:
+    static BrushManager& instance() noexcept {
+        static BrushManager inst;
+        return inst;
+    }
 
-            HBRUSH dark() const noexcept {
-                return static_cast<HBRUSH>(m_darkBrush.get());
-            }
+    HBRUSH dark() const noexcept {
+        return static_cast<HBRUSH>(m_darkBrush.get());
+    }
 
-            HBRUSH light() const noexcept {
-                return static_cast<HBRUSH>(m_lightBrush.get());
-            }
+    HBRUSH light() const noexcept {
+        return static_cast<HBRUSH>(m_lightBrush.get());
+    }
 
-        private:
-            BrushManager() noexcept {
-                m_darkBrush.reset(CreateSolidBrush(RGB(0, 0, 0)));
-                m_lightBrush.reset(CreateSolidBrush(RGB(255, 255, 255)));
-            }
+private:
+    BrushManager() noexcept {
+        m_darkBrush.reset(CreateSolidBrush(RGB(0, 0, 0)));
+        m_lightBrush.reset(CreateSolidBrush(RGB(255, 255, 255)));
+    }
 
-            ~BrushManager() noexcept = default;
+    ~BrushManager() noexcept = default;
 
-            struct HBRUSHDeleter {
-                void operator()(void* h) const noexcept {
-                    if (h)
-                        DeleteObject(static_cast<HBRUSH>(h));
-                }
-            };
-
-            std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
-            std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
+    struct HBRUSHDeleter {
+        void operator()(void* h) const noexcept {
+            if (h)
+                DeleteObject(static_cast<HBRUSH>(h));
+        }
     };
-}
+
+    std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
+    std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
+};
+} // namespace
 
 HBRUSH GetDarkBrush() {
     return BrushManager::instance().dark();
@@ -79,9 +79,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl = std::make_unique<Impl>();
     if (initParams->Size != sizeof(InfiniFrameInitParams)) {
         auto msg = std::format(
-            L"Initial parameters passed are {} bytes, but expected {} bytes.",
-            initParams->Size, sizeof(InfiniFrameInitParams)
-            );
+            L"Initial parameters passed are {} bytes, but expected {} bytes.", initParams->Size,
+            sizeof(InfiniFrameInitParams)
+        );
         MessageBox(nullptr, msg.c_str(), L"Native Initialization Failed", MB_OK);
         exit(0);
     }
@@ -112,7 +112,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
     if (initParams->NotificationRegistrationId != nullptr)
         m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
-
 
     m_impl->_transparentEnabled = initParams->Transparent;
     m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
@@ -162,8 +161,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     if (initParams->UseOsDefaultSize) {
         normalizedWidth = CW_USEDEFAULT;
         normalizedHeight = CW_USEDEFAULT;
-    }
-    else {
+    } else {
         if (normalizedWidth < 0)
             normalizedWidth = CW_USEDEFAULT;
         if (normalizedHeight < 0)
@@ -204,29 +202,21 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     if (normalizedWidth < initParams->MinWidth && initParams->MinWidth > 0)
         normalizedWidth = initParams->MinWidth;
 
-
     const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->_parent);
     m_impl->_pendingOwnerHwnd = parentWindowHandle;
 
     const HINSTANCE windowInstance = _hInstance.load(std::memory_order_acquire);
     m_impl->_hWnd = CreateWindowEx(
-        initParams->Transparent ? WS_EX_LAYERED : 0,
-        CLASS_NAME,
-        m_impl->_windowTitle.c_str(),
-        initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW,
-        normalizedLeft, normalizedTop, normalizedWidth, normalizedHeight,
-        nullptr,
-        nullptr,
-        windowInstance,
-        this
-        );
+        initParams->Transparent ? WS_EX_LAYERED : 0, CLASS_NAME, m_impl->_windowTitle.c_str(),
+        initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
+        normalizedTop, normalizedWidth, normalizedHeight, nullptr, nullptr, windowInstance, this
+    );
 
     ApplyPendingOwnerWindow(m_impl.get(), L"ctor");
 
     if (initParams->WindowIconFile != nullptr) {
         SetIconFile(initParams->WindowIconFile);
     }
-
 
     if (centerOnInitialize)
         Center();
@@ -256,8 +246,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     Show(isAlreadyShown);
 }
 
-InfiniFrameWindow::~InfiniFrameWindow() {
-}
+InfiniFrameWindow::~InfiniFrameWindow() {}
 
 HWND InfiniFrameWindow::getHwnd() {
     return m_impl->_hWnd;

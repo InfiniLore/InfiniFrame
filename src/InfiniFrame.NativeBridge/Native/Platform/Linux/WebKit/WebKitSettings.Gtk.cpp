@@ -6,27 +6,19 @@
 
 void InfiniFrameWindow::Impl::set_webkit_settings() {
     WebKitSettings* settings = webkit_settings_new_with_settings(
-        "allow_modal_dialogs", TRUE,
-        "allow_top_navigation_to_data_urls", TRUE,
-        "allow_universal_access_from_file_urls", TRUE,
-        "enable_back_forward_navigation_gestures", TRUE,
-        "enable_media_capabilities", TRUE,
-        "enable_mock_capture_devices", TRUE,
-        "enable_page_cache", TRUE,
-        "enable_webrtc", TRUE,
+        "allow_modal_dialogs", TRUE, "allow_top_navigation_to_data_urls", TRUE, "allow_universal_access_from_file_urls",
+        TRUE, "enable_back_forward_navigation_gestures", TRUE, "enable_media_capabilities", TRUE,
+        "enable_mock_capture_devices", TRUE, "enable_page_cache", TRUE, "enable_webrtc", TRUE,
         "javascript_can_open_windows_automatically", TRUE,
 
-        "allow_file_access_from_file_urls", _fileSystemAccessEnabled,
-        "disable_web_security", !_webSecurityEnabled,
-        "enable_developer_extras", _devToolsEnabled,
-        "enable_media_stream", _mediaStreamEnabled,
-        "enable_smooth_scrolling", _smoothScrollingEnabled,
-        "javascript_can_access_clipboard", _javascriptClipboardAccessEnabled,
-        "media_playback_requires_user_gesture", !_mediaAutoplayEnabled,
-        "user_agent", _userAgent.c_str(),
+        "allow_file_access_from_file_urls", _fileSystemAccessEnabled, "disable_web_security", !_webSecurityEnabled,
+        "enable_developer_extras", _devToolsEnabled, "enable_media_stream", _mediaStreamEnabled,
+        "enable_smooth_scrolling", _smoothScrollingEnabled, "javascript_can_access_clipboard",
+        _javascriptClipboardAccessEnabled, "media_playback_requires_user_gesture", !_mediaAutoplayEnabled, "user_agent",
+        _userAgent.c_str(),
 
         NULL
-        );
+    );
 
     if (!_browserControlInitParameters.empty())
         set_webkit_customsettings(settings);
@@ -79,8 +71,7 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings
                         g_value_init(&propertyValue, G_TYPE_INT);
                         g_value_set_int(&propertyValue, static_cast<int>(intVal));
                         hasValidValue = true;
-                    }
-                    else {
+                    } else {
                         double doubleVal;
                         if (value.get(doubleVal) == simdjson::SUCCESS) {
                             g_value_init(&propertyValue, G_TYPE_DOUBLE);
@@ -101,9 +92,7 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings
 
             g_free(propertyName);
         }
-    }
-    catch (const simdjson::simdjson_error&) {
-    }
+    } catch (const simdjson::simdjson_error&) {}
 }
 
 #endif

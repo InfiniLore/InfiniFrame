@@ -3,14 +3,16 @@
 extern "C" {
 EXPORTED InteropStatus InfiniFrame_AddCustomSchemeName(InfiniFrameWindow* instance, const AutoString scheme) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(scheme, "scheme")) return;
+        if (!EnsureNotNull(scheme, "scheme"))
+            return;
         window->AddCustomSchemeName(scheme);
     });
 }
 
 EXPORTED InteropStatus InfiniFrame_GetAllMonitors(InfiniFrameWindow* instance, const GetAllMonitorsCallback callback) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (callback == nullptr) throw std::invalid_argument("Argument 'callback' is null.");
+        if (callback == nullptr)
+            throw std::invalid_argument("Argument 'callback' is null.");
         window->GetAllMonitors(callback);
     });
 }
@@ -41,7 +43,8 @@ EXPORTED InteropStatus InfiniFrame_SetResizedCallback(InfiniFrameWindow* instanc
 
 EXPORTED InteropStatus InfiniFrame_Invoke(InfiniFrameWindow* instance, const ACTION callback) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (callback == nullptr) throw std::invalid_argument("Argument 'callback' is null.");
+        if (callback == nullptr)
+            throw std::invalid_argument("Argument 'callback' is null.");
         window->Invoke(callback);
     });
 }

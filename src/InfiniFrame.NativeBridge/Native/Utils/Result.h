@@ -7,7 +7,6 @@
 
 #include "ErrorCode.h"
 
-template <typename T>
-using Result = std::expected<T, ErrorCode>;
+template <typename T> using Result = std::expected<T, ErrorCode>;
 
 #endif // INFINIFRAME_UTILS_RESULT_H

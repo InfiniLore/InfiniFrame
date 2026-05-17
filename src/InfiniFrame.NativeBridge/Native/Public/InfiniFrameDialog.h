@@ -20,26 +20,26 @@ class InfiniFrameWindow; // forward declaration
  * @brief Dialog handler for file/folder operations and message boxes
  */
 class InfiniFrameDialog {
-    public:
+public:
 #ifdef _WIN32
-        /**
+    /**
          * @brief Construct dialog handler with parent window (Windows)
          * @param window Parent InfiniFrame window
          */
-        InfiniFrameDialog(InfiniFrameWindow* window);
+    InfiniFrameDialog(InfiniFrameWindow* window);
 #else
-        /**
+    /**
          * @brief Construct dialog handler (Linux/macOS)
          */
-        InfiniFrameDialog();
+    InfiniFrameDialog();
 #endif
 
-        /**
+    /**
          * @brief Destroy dialog handler
          */
-        ~InfiniFrameDialog();
+    ~InfiniFrameDialog();
 
-        /**
+    /**
          * @brief Show open file dialog
          * @param title Dialog title
          * @param defaultPath Default path
@@ -49,16 +49,16 @@ class InfiniFrameDialog {
          * @param resultCount Output: number of selected files
          * @return Array of selected file paths
          */
-        AutoString* ShowOpenFile(
-            AutoString title,
-            AutoString defaultPath,
-            bool multiSelect,
-            AutoString* filters,
-            int filterCount,
-            int* resultCount
-            );
+    AutoString* ShowOpenFile(
+        AutoString title,
+        AutoString defaultPath,
+        bool multiSelect,
+        AutoString* filters,
+        int filterCount,
+        int* resultCount
+    );
 
-        /**
+    /**
          * @brief Show open folder dialog
          * @param title Dialog title
          * @param defaultPath Default path
@@ -66,9 +66,9 @@ class InfiniFrameDialog {
          * @param resultCount Output: number of selected folders
          * @return Array of selected folder paths
          */
-        AutoString* ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount);
+    AutoString* ShowOpenFolder(AutoString title, AutoString defaultPath, bool multiSelect, int* resultCount);
 
-        /**
+    /**
          * @brief Show save file dialog
          * @param title Dialog title
          * @param defaultPath Default path
@@ -77,15 +77,15 @@ class InfiniFrameDialog {
          * @param defaultFileName Default file name
          * @return Selected file path
          */
-        AutoString ShowSaveFile(
-            AutoString title,
-            AutoString defaultPath,
-            AutoString* filters,
-            int filterCount,
-            AutoString defaultFileName = nullptr
-            );
+    AutoString ShowSaveFile(
+        AutoString title,
+        AutoString defaultPath,
+        AutoString* filters,
+        int filterCount,
+        AutoString defaultFileName = nullptr
+    );
 
-        /**
+    /**
          * @brief Show message dialog
          * @param title Dialog title
          * @param text Message text
@@ -93,16 +93,16 @@ class InfiniFrameDialog {
          * @param icon Icon type
          * @return User's response
          */
-        DialogResult ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon);
+    DialogResult ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon);
 
-    protected:
+protected:
 #ifdef __APPLE__
-        NSImage* _errorIcon;
-        NSImage* _infoIcon;
-        NSImage* _questionIcon;
-        NSImage* _warningIcon;
+    NSImage* _errorIcon;
+    NSImage* _infoIcon;
+    NSImage* _questionIcon;
+    NSImage* _warningIcon;
 #elif _WIN32
-        InfiniFrameWindow* _window;
+    InfiniFrameWindow* _window;
 #endif
 };
 

@@ -30,18 +30,7 @@ bool InfiniFrameWindow::InstallWebView2() {
         si.cb = sizeof(si);
         ZeroMemory(&pi, sizeof(pi));
 
-        bool success = CreateProcess(
-            nullptr,
-            command.data(),
-            nullptr,
-            nullptr,
-            FALSE,
-            0,
-            nullptr,
-            nullptr,
-            &si,
-            &pi
-            );
+        bool success = CreateProcess(nullptr, command.data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi);
 
         if (success) {
             WaitForSingleObject(pi.hProcess, INFINITE);

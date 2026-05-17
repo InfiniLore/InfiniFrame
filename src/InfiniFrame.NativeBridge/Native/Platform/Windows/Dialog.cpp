@@ -17,49 +17,46 @@
  * Used to ensure comdlg32 is available before activating the common-controls activation context
  */
 class Dll {
-    public:
-        /** @brief Load the named DLL; handle is null if loading fails */
-        explicit Dll(const std::string& name);
-        /** @brief Unload the DLL if it was loaded successfully */
-        ~Dll();
+public:
+    /** @brief Load the named DLL; handle is null if loading fails */
+    explicit Dll(const std::string& name);
+    /** @brief Unload the DLL if it was loaded successfully */
+    ~Dll();
 
-        /**
+    /**
          * @brief Type-safe wrapper around a single exported function retrieved via GetProcAddress
          * @tparam T Function signature (e.g. BOOL(HWND, LPCWSTR))
          */
-        template <typename T>
-        class Proc {
-            public:
-                /**
+    template <typename T> class Proc {
+    public:
+        /**
                  * @brief Resolve a symbol from a loaded DLL
                  * @param lib DLL to search
                  * @param sym Exported symbol name
                  */
-                Proc(const Dll& lib, const std::string& sym) :
-                    _mProc(static_cast<T*>(reinterpret_cast<void*>(GetProcAddress(lib._handle, sym.c_str())))) {
-                }
+        Proc(const Dll& lib, const std::string& sym)
+            : _mProc(static_cast<T*>(reinterpret_cast<void*>(GetProcAddress(lib._handle, sym.c_str())))) {}
 
-                /** @brief Returns true if the symbol was resolved successfully */
-                explicit operator bool() const {
-                    return _mProc != nullptr;
-                }
+        /** @brief Returns true if the symbol was resolved successfully */
+        explicit operator bool() const {
+            return _mProc != nullptr;
+        }
 
-                /** @brief Returns the raw function pointer */
-                explicit operator T*() const {
-                    return _mProc;
-                }
-
-            private:
-                T* _mProc;
-        };
+        /** @brief Returns the raw function pointer */
+        explicit operator T*() const {
+            return _mProc;
+        }
 
     private:
-        HMODULE _handle;
+        T* _mProc;
+    };
+
+private:
+    HMODULE _handle;
 };
 
-inline Dll::Dll(const std::string& name) :
-    _handle(LoadLibraryA(name.c_str())) {
-}
+inline Dll::Dll(const std::string& name)
+    : _handle(LoadLibraryA(name.c_str())) {}
 
 inline Dll::~Dll() {
     if (_handle)
@@ -74,26 +71,26 @@ inline Dll::~Dll() {
  * embedded manifest resource (ID 124)
  */
 class NewStyleContext {
-    public:
-        /** @brief Activate the Common Controls v6 context */
-        NewStyleContext();
-        /** @brief Deactivate the context */
-        ~NewStyleContext();
+public:
+    /** @brief Activate the Common Controls v6 context */
+    NewStyleContext();
+    /** @brief Deactivate the context */
+    ~NewStyleContext();
 
-    private:
-        /** @brief Create the activation context from shell32.dll's manifest; called once */
-        static HANDLE Create();
+private:
+    /** @brief Create the activation context from shell32.dll's manifest; called once */
+    static HANDLE Create();
 
-        struct ActivationContextHolder {
-            HANDLE handle = INVALID_HANDLE_VALUE;
+    struct ActivationContextHolder {
+        HANDLE handle = INVALID_HANDLE_VALUE;
 
-            ~ActivationContextHolder() {
-                if (handle != INVALID_HANDLE_VALUE)
-                    ReleaseActCtx(handle);
-            }
-        };
+        ~ActivationContextHolder() {
+            if (handle != INVALID_HANDLE_VALUE)
+                ReleaseActCtx(handle);
+        }
+    };
 
-        ULONG_PTR _cookie = 0; /// Activation cookie returned by ActivateActCtx; used to deactivate
+    ULONG_PTR _cookie = 0; /// Activation cookie returned by ActivateActCtx; used to deactivate
 };
 
 inline NewStyleContext::NewStyleContext() {
@@ -115,8 +112,7 @@ inline HANDLE NewStyleContext::Create() {
     std::string sysDir(len, '\0');
     GetSystemDirectoryA(const_cast<LPSTR>(sysDir.data()), len);
 
-    const ACTCTXA actCtx =
-    {
+    const ACTCTXA actCtx = {
         sizeof(actCtx),
         ACTCTX_FLAG_RESOURCE_NAME_VALID | ACTCTX_FLAG_ASSEMBLY_DIRECTORY_VALID,
         "shell32.dll",
@@ -148,15 +144,12 @@ InfiniFrameDialog::~InfiniFrameDialog() {
  * @param defaultPath UTF-16 path to pre-select as the starting folder; may be null
  * @return Pointer to the created dialog; caller owns the COM reference. Returns null on failure.
  */
-template <typename T>
-T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst defaultPath) {
+template <typename T> T* Create(HRESULT* hResult, AutoStringConst title, const AutoStringConst defaultPath) {
     static_assert(std::is_base_of<IFileDialog, T>::value, "T must inherit from IFileDialog");
     T* pfd = nullptr;
-    const CLSID clsid = typeid(T) == typeid(IFileOpenDialog)
-        ? CLSID_FileOpenDialog
-        : typeid(T) == typeid(IFileSaveDialog)
-        ? CLSID_FileSaveDialog
-        : CLSID_FileOpenDialog;
+    const CLSID clsid = typeid(T) == typeid(IFileOpenDialog) ? CLSID_FileOpenDialog
+        : typeid(T) == typeid(IFileSaveDialog)               ? CLSID_FileSaveDialog
+                                                             : CLSID_FileOpenDialog;
     HRESULT hr = CoCreateInstance(clsid, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
     if (SUCCEEDED(hr)) {
         pfd->SetTitle(title);
@@ -195,7 +188,7 @@ void AddFilters(
     const int filterCount,
     InfiniFrameWindow* wndInstance,
     std::vector<std::wstring>& filterStorage
-    ) {
+) {
     std::vector<COMDLG_FILTERSPEC> specs;
     for (int i = 0; i < filterCount; i++) {
         filterStorage.push_back(wndInstance->ToUTF16String(filters[i]));
@@ -270,7 +263,7 @@ AutoString* InfiniFrameDialog::ShowOpenFile(
     AutoString* filters,
     const int filterCount,
     int* resultCount
-    ) {
+) {
     HRESULT hr;
     std::wstring wideTitle = _window->ToUTF16String(title);
     std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
@@ -286,8 +279,7 @@ AutoString* InfiniFrameDialog::ShowOpenFile(
         dwOptions |= FOS_FILEMUSTEXIST | FOS_NOCHANGEDIR;
         if (multiSelect) {
             dwOptions |= FOS_ALLOWMULTISELECT;
-        }
-        else {
+        } else {
             dwOptions &= ~FOS_ALLOWMULTISELECT;
         }
         pfd->SetOptions(dwOptions);
@@ -302,11 +294,8 @@ AutoString* InfiniFrameDialog::ShowOpenFile(
 }
 
 AutoString* InfiniFrameDialog::ShowOpenFolder(
-    AutoString title,
-    AutoString defaultPath,
-    const bool multiSelect,
-    int* resultCount
-    ) {
+    AutoString title, AutoString defaultPath, const bool multiSelect, int* resultCount
+) {
     HRESULT hr;
     std::wstring wideTitle = _window->ToUTF16String(title);
     std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
@@ -319,8 +308,7 @@ AutoString* InfiniFrameDialog::ShowOpenFolder(
         dwOptions |= FOS_PICKFOLDERS | FOS_NOCHANGEDIR;
         if (multiSelect) {
             dwOptions |= FOS_ALLOWMULTISELECT;
-        }
-        else {
+        } else {
             dwOptions &= ~FOS_ALLOWMULTISELECT;
         }
         pfd->SetOptions(dwOptions);
@@ -335,12 +323,8 @@ AutoString* InfiniFrameDialog::ShowOpenFolder(
 }
 
 AutoString InfiniFrameDialog::ShowSaveFile(
-    AutoString title,
-    AutoString defaultPath,
-    AutoString* filters,
-    const int filterCount,
-    AutoString defaultFileName
-    ) {
+    AutoString title, AutoString defaultPath, AutoString* filters, const int filterCount, AutoString defaultFileName
+) {
     HRESULT hr;
     std::wstring wideTitle = _window->ToUTF16String(title);
     std::wstring wideDefaultPath = _window->ToUTF16String(defaultPath);
@@ -384,11 +368,8 @@ AutoString InfiniFrameDialog::ShowSaveFile(
 }
 
 DialogResult InfiniFrameDialog::ShowMessage(
-    AutoString title,
-    AutoString text,
-    const DialogButtons buttons,
-    const DialogIcon icon
-    ) {
+    AutoString title, AutoString text, const DialogButtons buttons, const DialogIcon icon
+) {
     std::wstring wideTitle = _window->ToUTF16String(title);
     std::wstring wideText = _window->ToUTF16String(text);
     NewStyleContext ctx;

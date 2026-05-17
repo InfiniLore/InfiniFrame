@@ -54,7 +54,6 @@
         <NativeSource Include="Native\**\*.cpp" />
         <NativeSource Include="Native\**\*.h" />
         <NativeSource Include="Native\**\*.mm" />
-
     </ItemGroup>
 
     <!-- WINDOWS x64 -->

@@ -26,7 +26,8 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
     std::wstring wideTitle = ToUTF16String(title);
     std::wstring wideBody = ToUTF16String(body);
     if (m_impl->_notificationsEnabled && WinToastLib::WinToast::isCompatible()) {
-        WinToastLib::WinToastTemplate toast = WinToastLib::WinToastTemplate(WinToastLib::WinToastTemplate::ImageAndText02);
+        WinToastLib::WinToastTemplate toast =
+            WinToastLib::WinToastTemplate(WinToastLib::WinToastTemplate::ImageAndText02);
         toast.setTextField(wideTitle.c_str(), WinToastLib::WinToastTemplate::FirstLine);
         toast.setTextField(wideBody.c_str(), WinToastLib::WinToastTemplate::SecondLine);
         if (!m_impl->_iconFileName.empty())
@@ -38,8 +39,7 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body) {
 void InfiniFrameWindow::GetAllMonitors(GetAllMonitorsCallback callback) const {
     if (callback) {
         EnumDisplayMonitors(
-            nullptr, nullptr, reinterpret_cast<MONITORENUMPROC>(MonitorEnum),
-            reinterpret_cast<LPARAM>(callback)
+            nullptr, nullptr, reinterpret_cast<MONITORENUMPROC>(MonitorEnum), reinterpret_cast<LPARAM>(callback)
         );
     }
 }

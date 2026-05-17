@@ -19,17 +19,11 @@ std::wstring Utf8ToWide(const AutoString source) {
         return {};
 
     std::u16string utf16(simdutf::utf16_length_from_utf8(utf8, utf8Length), u'\0');
-    const size_t written = simdutf::convert_valid_utf8_to_utf16(
-        utf8,
-        utf8Length,
-        reinterpret_cast<char16_t*>(utf16.data())
-        );
+    const size_t written =
+        simdutf::convert_valid_utf8_to_utf16(utf8, utf8Length, reinterpret_cast<char16_t*>(utf16.data()));
     utf16.resize(written);
 
-    return {
-        reinterpret_cast<const wchar_t*>(utf16.data()),
-        utf16.size()
-    };
+    return {reinterpret_cast<const wchar_t*>(utf16.data()), utf16.size()};
 }
 
 std::string WideToUtf8(const AutoString source) {
@@ -45,11 +39,7 @@ std::string WideToUtf8(const AutoString source) {
         return {};
 
     std::string utf8(simdutf::utf8_length_from_utf16(utf16, utf16Length), '\0');
-    const size_t written = simdutf::convert_valid_utf16_to_utf8(
-        utf16,
-        utf16Length,
-        utf8.data()
-        );
+    const size_t written = simdutf::convert_valid_utf16_to_utf8(utf16, utf16Length, utf8.data());
     utf8.resize(written);
 
     return utf8;

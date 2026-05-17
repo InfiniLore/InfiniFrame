@@ -9,17 +9,11 @@
 
 extern void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data);
 extern gboolean on_webview_load_failed(
-    WebKitWebView* web_view,
-    WebKitLoadEvent load_event,
-    gchar* failing_uri,
-    GError* error,
-    gpointer user_data
-    );
+    WebKitWebView* web_view, WebKitLoadEvent load_event, gchar* failing_uri, GError* error, gpointer user_data
+);
 extern void on_webview_process_terminated(
-    WebKitWebView* web_view,
-    WebKitWebProcessTerminationReason reason,
-    gpointer user_data
-    );
+    WebKitWebView* web_view, WebKitWebProcessTerminationReason reason, gpointer user_data
+);
 extern void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data);
 
 void InfiniFrameWindow::Show(bool isAlreadyShown) {
@@ -38,39 +32,25 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         auto js = Embedded::InfiniFrameJsUtf8();
 
         WebKitUserScript* script = webkit_user_script_new(
-            js.c_str(),
-            WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES,
-            WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START,
-            nullptr,
+            js.c_str(), WEBKIT_USER_CONTENT_INJECT_ALL_FRAMES, WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, nullptr,
             nullptr
         );
-        
+
         webkit_user_content_manager_add_script(contentManager, script);
         webkit_user_script_unref(script);
 
         g_signal_connect(
-            contentManager, "script-message-received::infiniFrameInterop",
-            G_CALLBACK(gtk_webkit::HandleWebMessage),
+            contentManager, "script-message-received::infiniFrameInterop", G_CALLBACK(gtk_webkit::HandleWebMessage),
             reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
-            );
+        );
         webkit_user_content_manager_register_script_message_handler(contentManager, "infiniFrameInterop");
 
+        g_signal_connect(G_OBJECT(m_impl->_webview), "load-changed", G_CALLBACK(on_webview_load_changed), this);
+        g_signal_connect(G_OBJECT(m_impl->_webview), "load-failed", G_CALLBACK(on_webview_load_failed), this);
         g_signal_connect(
-            G_OBJECT(m_impl->_webview), "load-changed",
-            G_CALLBACK(on_webview_load_changed), this
-            );
-        g_signal_connect(
-            G_OBJECT(m_impl->_webview), "load-failed",
-            G_CALLBACK(on_webview_load_failed), this
-            );
-        g_signal_connect(
-            G_OBJECT(m_impl->_webview), "web-process-terminated",
-            G_CALLBACK(on_webview_process_terminated), this
-            );
-        g_signal_connect(
-            G_OBJECT(m_impl->_webview), "size-allocate",
-            G_CALLBACK(on_webview_size_allocate), this
-            );
+            G_OBJECT(m_impl->_webview), "web-process-terminated", G_CALLBACK(on_webview_process_terminated), this
+        );
+        g_signal_connect(G_OBJECT(m_impl->_webview), "size-allocate", G_CALLBACK(on_webview_size_allocate), this);
 
         if (!m_impl->_startUrl.empty())
             NavigateToUrl(const_cast<AutoString>(m_impl->_startUrl.c_str()));
@@ -80,7 +60,7 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
             GtkWidget* dialog = gtk_message_dialog_new(
                 nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
                 "Neither StartUrl nor StartString was specified"
-                );
+            );
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);
             sigaction(SIGCHLD, &old_action, nullptr);

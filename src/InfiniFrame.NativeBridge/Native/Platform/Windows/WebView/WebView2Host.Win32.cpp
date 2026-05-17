@@ -2,16 +2,11 @@
 
 void InfiniFrameWindow::CloseWebView() {
     m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
-    const bool deferEnvironmentRelease =
-        m_impl->_isWebView2Initializing && m_impl->_webviewController == nullptr;
+    const bool deferEnvironmentRelease = m_impl->_isWebView2Initializing && m_impl->_webviewController == nullptr;
     TraceTeardown(
-        L"CloseWebView begin instance=%p hwnd=%p controller=%p webview=%p env=%p",
-        this,
-        m_impl->_hWnd,
-        m_impl->_webviewController.get(),
-        m_impl->_webviewWindow.get(),
-        m_impl->_webviewEnvironment.get()
-        );
+        L"CloseWebView begin instance=%p hwnd=%p controller=%p webview=%p env=%p", this, m_impl->_hWnd,
+        m_impl->_webviewController.get(), m_impl->_webviewWindow.get(), m_impl->_webviewEnvironment.get()
+    );
 
     if (m_impl->_webviewController != nullptr) {
         m_impl->_webviewController->Close();
@@ -37,10 +32,8 @@ void InfiniFrameWindow::CloseWebView() {
 
     if (deferEnvironmentRelease) {
         TraceTeardown(
-            L"CloseWebView deferring environment release instance=%p env=%p",
-            this,
-            m_impl->_webviewEnvironment.get()
-            );
+            L"CloseWebView deferring environment release instance=%p env=%p", this, m_impl->_webviewEnvironment.get()
+        );
     }
 
     TraceTeardown(L"CloseWebView end instance=%p", this);

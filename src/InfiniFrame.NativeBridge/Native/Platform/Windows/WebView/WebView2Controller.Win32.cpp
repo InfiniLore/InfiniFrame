@@ -34,24 +34,14 @@ void InfiniFrameWindow::ClearBrowserAutoFill() {
 
         if (profile2) {
             COREWEBVIEW2_BROWSING_DATA_KINDS dataKinds =
-                (COREWEBVIEW2_BROWSING_DATA_KINDS)
-                (
-                    COREWEBVIEW2_BROWSING_DATA_KINDS_GENERAL_AUTOFILL |
-                    COREWEBVIEW2_BROWSING_DATA_KINDS_PASSWORD_AUTOSAVE
-                    );
+                (COREWEBVIEW2_BROWSING_DATA_KINDS)(COREWEBVIEW2_BROWSING_DATA_KINDS_GENERAL_AUTOFILL |
+                                                   COREWEBVIEW2_BROWSING_DATA_KINDS_PASSWORD_AUTOSAVE);
 
             profile2->ClearBrowsingData(
-                dataKinds,
-                Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>(
-                    [this](
-                    HRESULT
-                    )
-                    -> HRESULT {
-                        return S_OK;
-                    }
-                    )
-                .Get()
-                );
+                dataKinds, Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>([this](HRESULT) -> HRESULT {
+                               return S_OK;
+                           }).Get()
+            );
         }
     }
 }

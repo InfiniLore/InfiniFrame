@@ -11,14 +11,16 @@ EXPORTED InteropStatus InfiniFrame_ClearBrowserAutoFill(InfiniFrameWindow* insta
 
 EXPORTED InteropStatus InfiniFrame_NavigateToString(InfiniFrameWindow* instance, const AutoString content) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(content, "content")) return;
+        if (!EnsureNotNull(content, "content"))
+            return;
         window->NavigateToString(content);
     });
 }
 
 EXPORTED InteropStatus InfiniFrame_NavigateToUrl(InfiniFrameWindow* instance, const AutoString url) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(url, "url")) return;
+        if (!EnsureNotNull(url, "url"))
+            return;
         window->NavigateToUrl(url);
     });
 }
@@ -88,9 +90,7 @@ EXPORTED InteropStatus InfiniFrame_SetSize(InfiniFrameWindow* instance, const in
 }
 
 EXPORTED InteropStatus InfiniFrame_SetTitle(InfiniFrameWindow* instance, const AutoString title) {
-    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        window->SetTitle(NullToEmpty(title));
-    });
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetTitle(NullToEmpty(title)); });
 }
 
 EXPORTED InteropStatus InfiniFrame_SetTopmost(InfiniFrameWindow* instance, const bool topmost) {
@@ -101,12 +101,10 @@ EXPORTED InteropStatus InfiniFrame_SetZoom(InfiniFrameWindow* instance, const in
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetZoom(zoom); });
 }
 
-EXPORTED InteropStatus InfiniFrame_ShowNotification(InfiniFrameWindow* instance, const AutoString title, const AutoString body) {
+EXPORTED InteropStatus
+InfiniFrame_ShowNotification(InfiniFrameWindow* instance, const AutoString title, const AutoString body) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        window->ShowNotification(
-            NullToEmpty(title),
-            NullToEmpty(body)
-        );
+        window->ShowNotification(NullToEmpty(title), NullToEmpty(body));
     });
 }
 
