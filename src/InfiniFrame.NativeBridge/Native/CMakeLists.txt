@@ -91,9 +91,9 @@ set(MAC_SOURCES
         Platform/Mac/Core/WindowState.Cocoa.mm
         Platform/Mac/Core/WindowEvents.Cocoa.mm
         Platform/Mac/Core/UiDispatcher.Cocoa.mm
-        Platform/Mac/WK/WKWebViewBridge.Cocoa.mm
-        Platform/Mac/WK/WKCustomSchemes.Cocoa.mm
-        Platform/Mac/WK/WKWebViewHost.Cocoa.mm
+        Platform/Mac/WebKit/WebKitBridge.Cocoa.mm
+        Platform/Mac/WebKit/WebKitCustomSchemes.Cocoa.mm
+        Platform/Mac/WebKit/WebKitHost.Cocoa.mm
 )
 
 set(HEADER_FILES
@@ -108,7 +108,8 @@ set(HEADER_FILES
         Types/Callbacks.h
         Utils/Common.h
         Utils/Event.h
-        Exports/Exports.Shared.h
+        Utils/Exports.Shared.h
+        Utils/ExportGuards.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/Window.Win32.Internal.h
         Platform/Windows/Window.Win32.Context.h

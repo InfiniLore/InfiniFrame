@@ -1,4 +1,4 @@
-#include "Exports/Exports.Shared.h"
+#include "Utils/Exports.Shared.h"
 
 extern "C" {
 EXPORTED InteropStatus InfiniFrame_GetTransparentEnabled(InfiniFrameWindow* instance, bool* enabled) {
