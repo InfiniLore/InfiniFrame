@@ -45,19 +45,27 @@ set(TEST_SOURCES
 )
 
 set(WINDOWS_SOURCES
-        Platform/Windows/Window.cpp
+        Platform/Windows/WindowCore.Win32.cpp
+        Platform/Windows/WindowTracing.Win32.cpp
+        Platform/Windows/WindowEncoding.Win32.cpp
+        Platform/Windows/WindowStorage.Win32.cpp
+        Platform/Windows/WindowOwnership.Win32.cpp
         Platform/Windows/WindowLifecycle.Win32.cpp
         Platform/Windows/WindowProc.Win32.cpp
         Platform/Windows/WindowState.Win32.cpp
         Platform/Windows/WindowEvents.Win32.cpp
         Platform/Windows/WebView2Host.Win32.cpp
+        Platform/Windows/WebView2Runtime.Win32.cpp
+        Platform/Windows/WebView2Controller.Win32.cpp
+        Platform/Windows/WebView2Attach.Win32.cpp
         Platform/Windows/UiDispatcher.Win32.cpp
         Platform/Windows/DarkMode.cpp
         Platform/Windows/Dialog.cpp
 )
 
 set(LINUX_SOURCES
-        Platform/Linux/Window.cpp
+        Platform/Linux/WindowCore.Gtk.cpp
+        Platform/Linux/WindowInitialization.Gtk.cpp
         Platform/Linux/WindowLifecycle.Gtk.cpp
         Platform/Linux/WindowState.Gtk.cpp
         Platform/Linux/WindowEvents.Gtk.cpp

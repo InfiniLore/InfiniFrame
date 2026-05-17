@@ -35,6 +35,11 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     void set_webkit_settings();
     void set_webkit_customsettings(WebKitSettings* settings);
     void AddCustomSchemeHandlers();
+    void InitializeFromParams(const InfiniFrameInitParams* initParams);
+    void ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameInitParams* initParams);
+    void ApplyInitialWindowState(InfiniFrameWindow* window, const InfiniFrameInitParams* initParams);
+    void ConnectWindowSignals(InfiniFrameWindow* window);
+    void ConnectWebViewSignals(InfiniFrameWindow* window);
 };
 
 #endif // INFINIFRAME_PLATFORM_LINUX_WINDOW_GTK_INTERNAL_H

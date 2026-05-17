@@ -2,6 +2,30 @@
 
 #include "Window.Win32.Context.h"
 
+void InfiniFrameWindow::WaitForExit() {
+    ApplyPendingOwnerWindow(m_impl.get(), L"wait_for_exit");
+
+    messageLoopRootWindowHandle = m_impl->_hWnd;
+    TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, m_impl->_hWnd);
+
+    MSG msg = {};
+    while (true) {
+        const int getMessageResult = GetMessage(&msg, nullptr, 0, 0);
+        if (getMessageResult == -1) {
+            TraceTeardown(L"WaitForExit GetMessage failed err=%lu", GetLastError());
+            break;
+        }
+        if (getMessageResult == 0)
+            break;
+
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    messageLoopRootWindowHandle = nullptr;
+    TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, m_impl->_hWnd);
+}
+
 void InfiniFrameWindow::Invoke(ACTION callback) {
     if (!callback)
         return;
