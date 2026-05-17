@@ -1,5 +1,4 @@
-﻿---
-BasedOnStyle: Microsoft
+﻿BasedOnStyle: Microsoft
 Language: Cpp
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -116,4 +115,3 @@ Cpp11BracedListStyle: true
 IndentCaseLabels: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 ReflowComments: false
-...
