@@ -10,7 +10,7 @@
 
 #include <windows.h>
 
-#include "Core/InfiniFrameWindow.h"
+#include "Public/InfiniFrameWindow.h"
 #include "Window.Win32.Internal.h"
 
 inline constexpr UINT WM_USER_INVOKE = WM_USER + 0x0002;

@@ -10,8 +10,8 @@
 #include <wil/com.h>
 #include <WebView2.h>
 
-#include "Core/InfiniFrameWindow.h"
-#include "Core/InfiniFrameWindowImpl.h"
+#include "Public/InfiniFrameWindow.h"
+#include "Public/InfiniFrameWindowImpl.h"
 #include "ToastHandler.h"
 #include "Utils/Common.h"
 

@@ -4,7 +4,7 @@
  * @brief Linux implementation of InfiniFrameDialog using GTK3 file-chooser and message dialogs
  */
 
-#include "Core/InfiniFrameDialog.h"
+#include "Public/InfiniFrameDialog.h"
 #include <gtk/gtk.h>
 
 /** @brief Distinguishes which GtkFileChooserAction to configure in ShowDialog */

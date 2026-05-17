@@ -9,7 +9,7 @@
 #include <string>
 #include <utility>
 
-#include "../Core/InfiniFrame.h"
+#include "../Public/InfiniFrame.h"
 
 #ifdef _WIN32
 #include <Windows.h>

@@ -1,4 +1,4 @@
-#include "Core/Exports.h"
+#include "Public/Exports/Exports.h"
 
 extern "C" {
 #ifdef _WIN32

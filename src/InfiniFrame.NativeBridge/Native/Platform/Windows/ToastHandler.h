@@ -5,7 +5,7 @@
  */
 
 #include <WinUser.h>
-#include "Core/InfiniFrameWindow.h"
+#include "Public/InfiniFrameWindow.h"
 #include "Dependencies/wintoastlib/wintoastlib.h"
 
 using namespace WinToastLib;

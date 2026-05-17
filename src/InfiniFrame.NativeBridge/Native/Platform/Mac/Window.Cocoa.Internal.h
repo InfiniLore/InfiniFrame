@@ -9,8 +9,8 @@
 #include <WebKit/WKWebView.h>
 #include <WebKit/WKWebViewConfiguration.h>
 
-#include "Core/InfiniFrameWindow.h"
-#include "Core/InfiniFrameWindowImpl.h"
+#include "Public/InfiniFrameWindow.h"
+#include "Public/InfiniFrameWindowImpl.h"
 
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     NSWindow* _window = nil;

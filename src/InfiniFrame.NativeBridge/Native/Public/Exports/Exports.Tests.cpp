@@ -1,4 +1,4 @@
-#include "Core/InfiniFrame.h"
+#include "Public/InfiniFrame.h"
 #include "Utils/ExportGuards.h"
 
 #ifdef _WIN32

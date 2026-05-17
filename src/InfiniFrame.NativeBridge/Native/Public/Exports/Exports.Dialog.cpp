@@ -1,4 +1,4 @@
-#include "Core/Exports.h"
+#include "Public/Exports/Exports.h"
 
 extern "C" {
 EXPORTED InteropStatus InfiniFrame_ShowOpenFile(InfiniFrameWindow* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount, AutoString** values) {

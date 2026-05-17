@@ -3,8 +3,8 @@
 #include <simdjson.h>
 
 #include "../AppDelegate.h"
-#include "../../../Core/InfiniFrameDialog.h"
-#include "../../../Core/InfiniFrameWindow.h"
+#include "../../../Public/InfiniFrameDialog.h"
+#include "../../../Public/InfiniFrameWindow.h"
 #include "../NSWindowBorderless.h"
 #include "../Window.Cocoa.Internal.h"
 #include "../WindowDelegate.h"

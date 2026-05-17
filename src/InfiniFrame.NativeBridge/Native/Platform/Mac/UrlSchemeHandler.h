@@ -4,7 +4,7 @@
  * @file UrlSchemeHandler.h
  * @brief WKURLSchemeHandler that intercepts custom-scheme requests and serves responses from the .NET layer
  */
-#include "Core/InfiniFrame.h"
+#include "Public/InfiniFrame.h"
 
 /**
  * @brief URL scheme handler conforming to WKURLSchemeHandler.

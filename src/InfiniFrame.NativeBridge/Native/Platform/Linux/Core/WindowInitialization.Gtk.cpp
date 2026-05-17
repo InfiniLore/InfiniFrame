@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-#include "../../../Core/InfiniFrameDialog.h"
+#include "../../../Public/InfiniFrameDialog.h"
 #include "../Window.Gtk.Internal.h"
 
 gboolean on_configure_event(GtkWidget* widget, GdkEvent* event, gpointer self);

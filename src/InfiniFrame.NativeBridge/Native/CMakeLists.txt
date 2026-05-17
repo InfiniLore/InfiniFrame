@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 4.0)
 project(InfiniFrame.Native
         VERSION 1.1.1
         LANGUAGES CXX
@@ -31,17 +31,17 @@ infiniframe_setup_dependencies()
 # Source Files
 # ----------------------------------------------------------------------------------------------------------------------
 set(COMMON_SOURCES
-        Exports/Exports.Platform.cpp
-        Exports/Exports.Lifecycle.cpp
-        Exports/Exports.WindowState.cpp
-        Exports/Exports.WindowCommands.cpp
-        Exports/Exports.Dialog.cpp
-        Exports/Exports.Events.cpp
-        Exports/Exports.Memory.cpp
+        Public/Exports/Exports.Platform.cpp
+        Public/Exports/Exports.Lifecycle.cpp
+        Public/Exports/Exports.WindowState.cpp
+        Public/Exports/Exports.WindowCommands.cpp
+        Public/Exports/Exports.Dialog.cpp
+        Public/Exports/Exports.Events.cpp
+        Public/Exports/Exports.Memory.cpp
 )
 
 set(TEST_SOURCES
-        Exports/Exports.Tests.cpp
+        Public/Exports/Exports.Tests.cpp
 )
 
 set(WINDOWS_SOURCES
@@ -97,18 +97,27 @@ set(MAC_SOURCES
 )
 
 set(HEADER_FILES
-        Core/InfiniFrame.h
-        Core/InfiniFrameWindow.h
-        Core/InfiniFrameDialog.h
+        Public/InfiniFrame.h
+        Public/InfiniFrameWindow.h
+        Public/InfiniFrameDialog.h
         Embedded/Embedded.h
         Embedded/InfiniFrameJs/InfiniFrameJs.h
         Types/Basic.h
         Types/Dialog.h
-        Core/InfiniFrameInitParams.h
+        Types/DialogResult.h
+        Types/DialogButtons.h
+        Types/DialogIcon.h
+        Types/Monitor.h
+        Public/InfiniFrameInitParams.h
         Types/Callbacks.h
         Utils/Common.h
+        Utils/Dimensions.h
+        Utils/ErrorCode.h
+        Utils/Result.h
+        Utils/StringCopy.h
+        Utils/WindowsHandles.h
         Utils/Event.h
-        Core/Exports.h
+        Public/Exports/Exports.h
         Utils/ExportGuards.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/Window.Win32.Internal.h

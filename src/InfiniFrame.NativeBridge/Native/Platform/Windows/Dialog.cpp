@@ -3,7 +3,7 @@
  * @brief Windows implementation of InfiniFrameDialog using IFileDialog (Vista+) and MessageBoxW
  */
 
-#include "Core/InfiniFrame.h"
+#include "Public/InfiniFrame.h"
 
 #include <cwchar>
 #include <iostream>

@@ -1,4 +1,4 @@
-#include "Core/Exports.h"
+#include "Public/Exports/Exports.h"
 
 extern "C" {
 EXPORTED InteropStatus InfiniFrame_FreeString(AutoString value) {

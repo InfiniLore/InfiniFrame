@@ -9,8 +9,8 @@
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
 
-#include "Core/InfiniFrameWindow.h"
-#include "Core/InfiniFrameWindowImpl.h"
+#include "Public/InfiniFrameWindow.h"
+#include "Public/InfiniFrameWindowImpl.h"
 
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     GtkWidget* _window = nullptr;
