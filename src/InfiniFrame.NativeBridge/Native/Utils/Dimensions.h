@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_UTILS_DIMENSIONS_H
-#define INFINIFRAME_UTILS_DIMENSIONS_H
-
 #include <algorithm>
 
 inline constexpr int MaxWindowDimension = 10000;
@@ -14,5 +11,3 @@ template <typename T>
 [[nodiscard]] constexpr T clampDimension(T value, T minVal = MinWindowDimension, T maxVal = MaxWindowDimension) {
     return std::clamp(value, minVal, maxVal);
 }
-
-#endif // INFINIFRAME_UTILS_DIMENSIONS_H

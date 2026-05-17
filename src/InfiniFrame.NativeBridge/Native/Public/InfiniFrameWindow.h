@@ -4,9 +4,6 @@
  * @brief Main window class for InfiniFrame
  */
 
-#ifndef INFINIFRAME_CORE_WINDOW_H
-#define INFINIFRAME_CORE_WINDOW_H
-
 #ifdef _WIN32
 #include <Windows.h>
 #include <wil/com.h>
@@ -599,5 +596,3 @@ class InfiniFrameWindow {
 };
 
 #include "InfiniFrameInitParams.h"
-
-#endif // INFINIFRAME_CORE_WINDOW_H

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_PUBLIC_EXPORTS_H
-#define INFINIFRAME_PUBLIC_EXPORTS_H
-
 #include "../InfiniFrame.h"
 #include "../../Utils/ExportGuards.h"
 
@@ -37,5 +34,3 @@ inline AutoString NullToEmpty(const AutoString value) noexcept {
 #endif
     return value != nullptr ? value : const_cast<AutoString>(empty);
 }
-
-#endif // INFINIFRAME_PUBLIC_EXPORTS_H

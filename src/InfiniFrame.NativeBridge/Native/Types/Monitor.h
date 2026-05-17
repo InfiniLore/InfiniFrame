@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_TYPES_MONITOR_H
-#define INFINIFRAME_TYPES_MONITOR_H
-
 struct Monitor {
     struct MonitorRect {
         int x, y;
@@ -10,5 +7,3 @@ struct Monitor {
     } monitor, work;
     double scale;
 };
-
-#endif // INFINIFRAME_TYPES_MONITOR_H

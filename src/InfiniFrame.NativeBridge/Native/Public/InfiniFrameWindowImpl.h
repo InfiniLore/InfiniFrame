@@ -12,9 +12,6 @@
  *   struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl { ... platform handles ... };
  */
 
-#ifndef INFINIFRAME_CORE_WINDOWIMPL_H
-#define INFINIFRAME_CORE_WINDOWIMPL_H
-
 #include "../Types/Basic.h"
 #include "../Types/Callbacks.h"
 #include "InfiniFrameDialog.h"
@@ -79,5 +76,3 @@ struct InfiniFrameWindowImpl {
     InfiniFrameWindow* _parent = nullptr;
     std::unique_ptr<InfiniFrameDialog> _dialog;
 };
-
-#endif // INFINIFRAME_CORE_WINDOWIMPL_H

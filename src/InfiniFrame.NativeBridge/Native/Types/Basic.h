@@ -4,9 +4,6 @@
  * @brief Basic type definitions for cross-platform interop
  */
 
-#ifndef INFINIFRAME_TYPES_BASIC_H
-#define INFINIFRAME_TYPES_BASIC_H
-
 #include <string>
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -30,5 +27,3 @@ using AutoStringConst = const wchar_t*;
 using AutoString = char*;
 using AutoStringConst = const char*;
 #endif
-
-#endif // INFINIFRAME_TYPES_BASIC_H

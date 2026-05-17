@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_EXPORT_GUARDS_H
-#define INFINIFRAME_EXPORT_GUARDS_H
-
 #include <cerrno>
 #include <exception>
 #include <stdexcept>
@@ -185,6 +182,4 @@ namespace infiniframe::exports {
             return fallback;
         }
     }
-} // namespace infiniframe::exports
-
-#endif // INFINIFRAME_EXPORT_GUARDS_H
+}

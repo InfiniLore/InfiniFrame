@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_PLATFORM_WINDOWS_WINDOW_WIN32_INTERNAL_H
-#define INFINIFRAME_PLATFORM_WINDOWS_WINDOW_WIN32_INTERNAL_H
-
 #include <atomic>
 #include <string>
 
@@ -62,5 +59,3 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
     std::unique_ptr<WinToastHandler> _toastHandler;
 };
-
-#endif // INFINIFRAME_PLATFORM_WINDOWS_WINDOW_WIN32_INTERNAL_H

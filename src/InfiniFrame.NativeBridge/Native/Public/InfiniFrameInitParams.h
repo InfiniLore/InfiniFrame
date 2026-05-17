@@ -4,9 +4,6 @@
  * @brief Window initialization parameters
  */
 
-#ifndef INFINIFRAME_CORE_INITPARAMS_H
-#define INFINIFRAME_CORE_INITPARAMS_H
-
 #include "../Types/Basic.h"
 #include "../Types/Callbacks.h"
 
@@ -16,6 +13,8 @@ class InfiniFrameWindow; // Forward declaration
  * @brief Initialization parameters for InfiniFrame window
  */
 struct InfiniFrameInitParams {
+    static constexpr std::size_t MaxCustomSchemeNames = 16;
+    
     // Content
     AutoString StartString;
     AutoString StartUrl;
@@ -42,7 +41,7 @@ struct InfiniFrameInitParams {
     MinimizedCallback MinimizedHandler;
     MovedCallback MovedHandler;
     WebMessageReceivedCallback WebMessageReceivedHandler;
-    AutoString CustomSchemeNames[16];
+    AutoString CustomSchemeNames[MaxCustomSchemeNames]; // NOLINT(*-avoid-c-arrays)
     WebResourceRequestedCallback CustomSchemeHandler;
 
     // Position and size
@@ -81,7 +80,5 @@ struct InfiniFrameInitParams {
     bool NotificationsEnabled;
 
     // Struct size (for version checking)
-    int Size;
+    int StructSize;
 };
-
-#endif // INFINIFRAME_CORE_INITPARAMS_H

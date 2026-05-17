@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_PLATFORM_LINUX_WINDOW_GTK_INTERNAL_H
-#define INFINIFRAME_PLATFORM_LINUX_WINDOW_GTK_INTERNAL_H
-
 #include <climits>
 #include <string>
 
@@ -41,5 +38,3 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     void ConnectWindowSignals(InfiniFrameWindow* window);
     void ConnectWebViewSignals(InfiniFrameWindow* window);
 };
-
-#endif // INFINIFRAME_PLATFORM_LINUX_WINDOW_GTK_INTERNAL_H

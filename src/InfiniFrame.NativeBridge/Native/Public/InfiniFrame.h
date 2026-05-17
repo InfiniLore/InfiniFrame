@@ -7,9 +7,6 @@
  * It is the primary include file for C API consumers.
  */
 
-#ifndef INFINIFRAME_H
-#define INFINIFRAME_H
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Core Types
 // ---------------------------------------------------------------------------------------------------------------------
@@ -32,5 +29,3 @@
 
 #include "../Utils/Common.h"
 #include "../Utils/Event.h"
-
-#endif // INFINIFRAME_H

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_PLATFORM_WINDOWS_WINDOW_WIN32_CONTEXT_H
-#define INFINIFRAME_PLATFORM_WINDOWS_WINDOW_WIN32_CONTEXT_H
-
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
@@ -75,5 +72,3 @@ template <typename TImpl> inline void ApplyPendingOwnerWindow(TImpl* impl, const
         impl->_hWnd, impl->_pendingOwnerHwnd, childThreadId, ownerThreadId, reinterpret_cast<void*>(previousOwner)
     );
 }
-
-#endif // INFINIFRAME_PLATFORM_WINDOWS_WINDOW_WIN32_CONTEXT_H

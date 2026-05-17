@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_UTILS_STRING_COPY_H
-#define INFINIFRAME_UTILS_STRING_COPY_H
-
 #include <cstring>
 #include <cstdlib>
 #include <string>
@@ -40,5 +37,3 @@ inline char* AllocateStringCopy(const std::string& str) {
     return copy;
 }
 #endif
-
-#endif // INFINIFRAME_UTILS_STRING_COPY_H

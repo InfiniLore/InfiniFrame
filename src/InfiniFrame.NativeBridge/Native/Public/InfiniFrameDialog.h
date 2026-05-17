@@ -4,9 +4,6 @@
  * @brief Dialog handlers for file/folder operations and messages
  */
 
-#ifndef INFINIFRAME_CORE_DIALOG_H
-#define INFINIFRAME_CORE_DIALOG_H
-
 #include "../Types/Basic.h"
 #include "../Types/Dialog.h"
 
@@ -105,5 +102,3 @@ class InfiniFrameDialog {
     InfiniFrameWindow* _window;
 #endif
 };
-
-#endif // INFINIFRAME_CORE_DIALOG_H

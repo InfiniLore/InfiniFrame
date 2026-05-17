@@ -4,9 +4,6 @@
  * @brief Modern event handling system with thread safety
  */
 
-#ifndef INFINIFRAME_EVENT_H
-#define INFINIFRAME_EVENT_H
-
 #include <functional>
 #include <map>
 #include <mutex>
@@ -150,5 +147,3 @@ template <typename... Args> class EventSubscription {
     EventType* m_event = nullptr;
     Token m_token = 0;
 };
-
-#endif // INFINIFRAME_EVENT_H

@@ -4,9 +4,6 @@
  * @brief C-style callback type definitions for interop
  */
 
-#ifndef INFINIFRAME_TYPES_CALLBACKS_H
-#define INFINIFRAME_TYPES_CALLBACKS_H
-
 #include "Basic.h"
 #include "Dialog.h"
 
@@ -78,5 +75,3 @@ using FocusInCallback = void (*)();
 
 /** @brief Called when the window loses keyboard focus */
 using FocusOutCallback = void (*)();
-
-#endif // INFINIFRAME_TYPES_CALLBACKS_H

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef INFINIFRAME_PLATFORM_MAC_WINDOW_COCOA_INTERNAL_H
-#define INFINIFRAME_PLATFORM_MAC_WINDOW_COCOA_INTERNAL_H
-
 #include <vector>
 
 #include <Cocoa/Cocoa.h>
@@ -34,5 +31,3 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     void SetPreference(NSString* key, NSString* value);
     void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
 };
-
-#endif // INFINIFRAME_PLATFORM_MAC_WINDOW_COCOA_INTERNAL_H
