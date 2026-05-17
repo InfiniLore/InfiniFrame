@@ -29,8 +29,7 @@ EXPORTED InteropStatus InfiniFrame_Restore(InfiniFrameWindow* instance) {
 
 EXPORTED InteropStatus InfiniFrame_SendWebMessage(InfiniFrameWindow* instance, const AutoString message) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(message, "message")) throw std::invalid_argument("Argument 'message' is null.");
-        window->SendWebMessage(message);
+        window->SendWebMessage(NullToEmpty(message));
     });
 }
 
@@ -56,8 +55,7 @@ EXPORTED InteropStatus InfiniFrame_SetFullScreen(InfiniFrameWindow* instance, co
 
 EXPORTED InteropStatus InfiniFrame_SetIconFile(InfiniFrameWindow* instance, const AutoString filename) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(filename, "filename")) throw std::invalid_argument("Argument 'filename' is null.");
-        window->SetIconFile(filename);
+        window->SetIconFile(NullToEmpty(filename));
     });
 }
 
@@ -91,8 +89,7 @@ EXPORTED InteropStatus InfiniFrame_SetSize(InfiniFrameWindow* instance, const in
 
 EXPORTED InteropStatus InfiniFrame_SetTitle(InfiniFrameWindow* instance, const AutoString title) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(title, "title")) throw std::invalid_argument("Argument 'title' is null.");
-        window->SetTitle(title);
+        window->SetTitle(NullToEmpty(title));
     });
 }
 
@@ -106,8 +103,10 @@ EXPORTED InteropStatus InfiniFrame_SetZoom(InfiniFrameWindow* instance, const in
 
 EXPORTED InteropStatus InfiniFrame_ShowNotification(InfiniFrameWindow* instance, const AutoString title, const AutoString body) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
-        if (!EnsureNotNull(title, "title") || !EnsureNotNull(body, "body")) throw std::invalid_argument("ShowNotification argument is null.");
-        window->ShowNotification(title, body);
+        window->ShowNotification(
+            NullToEmpty(title),
+            NullToEmpty(body)
+        );
     });
 }
 

@@ -25,4 +25,13 @@ using infiniframe::exports::RunReturnExport;
 using infiniframe::exports::RunWindowExportStatus;
 using infiniframe::exports::RunWindowReturnExport;
 
+inline AutoString NullToEmpty(const AutoString value) noexcept {
+#ifdef _WIN32
+    static const wchar_t empty[] = L"";
+#else
+    static const char empty[] = "";
+#endif
+    return value != nullptr ? value : const_cast<AutoString>(empty);
+}
+
 #endif // INFINIFRAME_PUBLIC_EXPORTS_H
