@@ -1,90 +1,13 @@
 #ifdef __APPLE__
-#include "Core/InfiniFrameWindow.h"
-#include "Core/InfiniFrameDialog.h"
-#include "Embedded/Embedded.h"
-#include "Utils/Common.h"
-#include "Window.Cocoa.Internal.h"
-#include "AppDelegate.h"
-#include "UiDelegate.h"
-#include "WindowDelegate.h"
-#include "UrlSchemeHandler.h"
-#include "NSWindowBorderless.h"
-#include "NavigationDelegate.h"
-#include <vector>
+
 #include <simdjson.h>
 
-using namespace std;
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Impl method definitions
-// ---------------------------------------------------------------------------------------------------------------------
-
-std::vector<Monitor> InfiniFrameWindow::Impl::GetMonitors() const
-{
-    std::vector<Monitor> monitors;
-
-    for (NSScreen *screen : [NSScreen screens])
-    {
-        NSRect monitorFrame = [screen frame];
-        Monitor::MonitorRect monitorArea;
-        monitorArea.x = static_cast<int>(roundf(monitorFrame.origin.x));
-        monitorArea.y = static_cast<int>(roundf(monitorFrame.origin.y));
-        monitorArea.width = static_cast<int>(roundf(monitorFrame.size.width));
-        monitorArea.height = static_cast<int>(roundf(monitorFrame.size.height));
-
-        NSRect workFrame = [screen visibleFrame];
-        Monitor::MonitorRect workArea;
-        workArea.x = static_cast<int>(roundf(workFrame.origin.x));
-        workArea.y = static_cast<int>(roundf(workFrame.origin.y));
-        workArea.width = static_cast<int>(roundf(workFrame.size.width));
-        workArea.height = static_cast<int>(roundf(workFrame.size.height));
-
-        CGFloat scaleFactor = [screen backingScaleFactor];
-        monitors.push_back({monitorArea, workArea, static_cast<double>(scaleFactor)});
-    }
-
-    return monitors;
-}
-
-void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
-{
-    if (userAgent != nullptr)
-    {
-        _userAgent = userAgent;
-        [_webview setCustomUserAgent: [NSString stringWithUTF8String: userAgent]];
-    }
-    else
-    {
-        _userAgent.clear();
-    }
-}
-
-void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSNumber *value)
-{
-    [_webviewConfiguration.preferences setValue: value forKey: key];
-}
-
-void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSString *value)
-{
-    [_webviewConfiguration.preferences setValue: value forKey: key];
-}
-
-void InfiniFrameWindow::Impl::AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler)
-{
-    if (requestHandler == nullptr)
-        return;
-
-    UrlSchemeHandler* schemeHandler = [[[UrlSchemeHandler alloc] init] autorelease];
-    schemeHandler->requestHandler = requestHandler;
-
-    [_webviewConfiguration
-        setURLSchemeHandler: schemeHandler
-        forURLScheme: [NSString stringWithUTF8String: scheme]];
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Register (static — called once)
-// ---------------------------------------------------------------------------------------------------------------------
+#include "AppDelegate.h"
+#include "Core/InfiniFrameDialog.h"
+#include "Core/InfiniFrameWindow.h"
+#include "NSWindowBorderless.h"
+#include "Window.Cocoa.Internal.h"
+#include "WindowDelegate.h"
 
 void InfiniFrameWindow::Register()
 {
@@ -147,10 +70,6 @@ void InfiniFrameWindow::Register()
 
     [NSApp setMainMenu: mainMenu];
 }
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Constructor / Destructor
-// ---------------------------------------------------------------------------------------------------------------------
 
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>())
 {
@@ -284,11 +203,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
     for (const auto & scheme : m_impl->_customSchemeNames)
     {
-        // Note:
-        // Unlike WebView2 (Windows) and WebKitGTK (Linux security manager),
-        // WKURLSchemeHandler does not expose per-scheme "secure"/authority flags.
-        // We still register all custom schemes here for routing, but "app" trust
-        // semantics cannot be configured at the same granularity on macOS.
         m_impl->AddCustomScheme(scheme.c_str(), m_impl->_customSchemeCallback);
     }
 
@@ -381,75 +295,6 @@ InfiniFrameWindow::~InfiniFrameWindow()
     [m_impl->_webviewConfiguration release];
     [m_impl->_webview release];
     [m_impl->_window performClose: m_impl->_window];
-}
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Window Operations
-// ---------------------------------------------------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Private methods
-// ---------------------------------------------------------------------------------------------------------------------
-
-void InfiniFrameWindow::AttachWebView()
-{
-    auto js = Embedded::InfiniFrameJsUtf8();
-
-    WKUserScript *script =
-        [[WKUserScript alloc]
-            initWithSource:[NSString stringWithUTF8String:js.c_str()]
-            injectionTime:WKUserScriptInjectionTimeAtDocumentStart
-            forMainFrameOnly:NO];
-
-    WKUserContentController *userContentController =
-        [[WKUserContentController alloc] init];
-
-    [userContentController addUserScript:script];
-
-    m_impl->_webviewConfiguration.userContentController = userContentController;
-
-    m_impl->_webview = [
-        [WKWebView alloc]
-        initWithFrame: m_impl->_window.contentView.frame
-        configuration: m_impl->_webviewConfiguration];
-
-    [m_impl->_webview setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-    [m_impl->_window.contentView addSubview: m_impl->_webview];
-    [m_impl->_window.contentView setAutoresizesSubviews: true];
-
-    UiDelegate *uiDelegate = [[[UiDelegate alloc] init] autorelease];
-    uiDelegate->infiniFrame = this;
-    uiDelegate->window = m_impl->_window;
-    uiDelegate->webMessageReceivedCallback = m_impl->_webMessageReceivedCallback;
-
-    NavigationDelegate *navDelegate = [[[NavigationDelegate alloc] init] autorelease];
-    navDelegate->infiniFrame = this;
-    navDelegate->window = m_impl->_window;
-
-    [userContentController addScriptMessageHandler: uiDelegate name: @"infiniFrameInterop"];
-
-    m_impl->_webview.UIDelegate = uiDelegate;
-    m_impl->_webview.navigationDelegate = navDelegate;
-
-    if (!m_impl->_startUrl.empty())
-        NavigateToUrl(const_cast<AutoString>(m_impl->_startUrl.c_str()));
-    else if (!m_impl->_startString.empty())
-        NavigateToString(const_cast<AutoString>(m_impl->_startString.c_str()));
-    else
-    {
-        NSAlert *alert = [[[NSAlert alloc] init] autorelease];
-        [alert setMessageText: @"Neither StartUrl nor StartString was specified"];
-        [alert runModal];
-    }
-}
-
-void InfiniFrameWindow::Show(bool isAlreadyShown)
-{
-    if (m_impl->_webview == nil)
-        AttachWebView();
-
-    [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
-    [m_impl->_window orderFrontRegardless];
 }
 
 #endif

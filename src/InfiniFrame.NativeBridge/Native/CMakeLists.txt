@@ -70,7 +70,10 @@ set(LINUX_SOURCES
         Platform/Linux/WindowState.Gtk.cpp
         Platform/Linux/WindowEvents.Gtk.cpp
         Platform/Linux/UiDispatcher.Gtk.cpp
-        Platform/Linux/WebKitBridge.Gtk.cpp
+        Platform/Linux/WebKitHost.Gtk.cpp
+        Platform/Linux/WebKitSettings.Gtk.cpp
+        Platform/Linux/WebKitMessaging.Gtk.cpp
+        Platform/Linux/WebKitCustomSchemes.Gtk.cpp
         Platform/Linux/WindowSignals.Gtk.cpp
         Platform/Linux/Dialog.cpp
 )
@@ -83,10 +86,14 @@ set(MAC_SOURCES
         Platform/Mac/UrlSchemeHandler.mm
         Platform/Mac/NSWindowBorderless.mm
         Platform/Mac/Dialog.mm
-        Platform/Mac/Window.mm
+        Platform/Mac/WindowCore.Cocoa.mm
         Platform/Mac/WindowLifecycle.Cocoa.mm
         Platform/Mac/WindowState.Cocoa.mm
         Platform/Mac/WindowEvents.Cocoa.mm
+        Platform/Mac/UiDispatcher.Cocoa.mm
+        Platform/Mac/WKWebViewBridge.Cocoa.mm
+        Platform/Mac/WKCustomSchemes.Cocoa.mm
+        Platform/Mac/WKWebViewHost.Cocoa.mm
 )
 
 set(HEADER_FILES
@@ -113,6 +120,7 @@ set(HEADER_FILES
         Platform/Mac/WindowDelegate.h
         Platform/Mac/UrlSchemeHandler.h
         Platform/Linux/Window.Gtk.Internal.h
+        Platform/Linux/WebKit.Gtk.Internal.h
         Platform/Mac/Window.Cocoa.Internal.h
 )
 

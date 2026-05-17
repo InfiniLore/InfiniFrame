@@ -85,14 +85,6 @@ void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback)
     m_impl->_minimizedCallback = callback;
 }
 
-void InfiniFrameWindow::Invoke(ACTION callback)
-{
-    if ([NSThread isMainThread])
-        callback();
-    else
-        dispatch_sync(dispatch_get_main_queue(), ^(void){ callback(); });
-}
-
 [[nodiscard]] bool InfiniFrameWindow::InvokeClose() const noexcept
 {
     if (m_impl->_closingCallback)
