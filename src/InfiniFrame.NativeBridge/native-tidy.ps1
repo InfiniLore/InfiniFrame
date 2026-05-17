@@ -54,6 +54,7 @@ function Import-VsDevEnvironment {
 
 $NativeRoot = Join-Path $PSScriptRoot "Native"
 $BuildDirectory = Join-Path $NativeRoot $BuildDirectoryName
+$DependenciesRoot = Join-Path $NativeRoot "Dependencies"
 
 Push-Location $NativeRoot
 
@@ -116,7 +117,10 @@ try {
         $tidyArgs = @(
             $sourceFile.FullName,
             "-p", $BuildDirectory,
-            "--header-filter=^$"
+            "--header-filter=^$",
+            "--extra-arg=/external:I$DependenciesRoot",
+            "--extra-arg=/external:W0",
+            "--extra-arg=-Wno-c++11-narrowing"
         )
 
         if ($ApplyFixes) {
