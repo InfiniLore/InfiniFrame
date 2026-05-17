@@ -127,6 +127,26 @@ public class PublishValidatorTests {
     }
 
     [Test]
+    public async Task ValidateNativeArtifacts_Throws_WhenSecondWindowsArtifactArchitectureMismatchesRid() {
+        // Arrange
+        string artifactsDirectory = TemporaryDirectory.Path;
+        string nativeDll = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName);
+        string loaderDll = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
+        WriteMinimalPeBinary(nativeDll, ImageFileMachineAmd64);
+        WriteMinimalPeBinary(loaderDll, ImageFileMachineArm64);
+
+        // Act & Assert
+        InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
+            PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "win-x64");
+            return Task.CompletedTask;
+        }) ?? throw new InvalidOperationException("Expected exception was not thrown.");
+
+        await Assert.That(ex.Message).Contains(InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
+        await Assert.That(ex.Message).Contains("Expected x64");
+        await Assert.That(ex.Message).Contains("found arm64");
+    }
+
+    [Test]
     public async Task ValidateNativeArtifacts_DoesNotThrow_ForLinuxWhenRequiredArtifactExists() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;

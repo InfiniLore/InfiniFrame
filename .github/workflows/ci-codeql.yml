@@ -7,7 +7,7 @@ concurrency:
 on:
     push:
         branches: [ "core" ]
-
+    
     pull_request:
         branches: [ "core" ]
         types: [ opened, synchronize, reopened, ready_for_review ]
@@ -16,7 +16,7 @@ on:
             - 'docs/**'
             - '.github/ISSUE_TEMPLATE/**'
             - '.github/*.md'
-
+    
     workflow_dispatch:
         inputs:
             full_scan:
@@ -32,15 +32,17 @@ jobs:
     changes:
         name: Detect Changed Areas
         runs-on: ubuntu-latest
-        if: github.event_name != 'workflow_dispatch' || github.event.inputs.full_scan != 'true'
+        
         permissions:
             contents: read
+        
         outputs:
             actions: ${{ steps.filter.outputs.actions }}
             csharp: ${{ steps.filter.outputs.csharp }}
             cpp: ${{ steps.filter.outputs.cpp }}
             javascript_typescript: ${{ steps.filter.outputs.javascript_typescript }}
             python: ${{ steps.filter.outputs.python }}
+        
         steps:
             -   name: Checkout
                 uses: actions/checkout@v6
@@ -57,6 +59,7 @@ jobs:
                           - '.github/actions/**'
                           - '.github/dependabot.yml'
                           - '.github/codeql-config.yml'
+                        
                         csharp:
                           - 'src/**/*.cs'
                           - 'src/**/*.csproj'
@@ -66,6 +69,9 @@ jobs:
                           - 'src/**/*.razor.css'
                           - 'Directory.Packages.props'
                           - 'global.json'
+                          - '.github/workflows/ci-codeql.yml'
+                          - '.github/codeql-config.yml'
+                        
                         cpp:
                           - 'src/InfiniFrame.Native/**'
                           - 'native-vendor-deps.json'
@@ -73,6 +79,7 @@ jobs:
                           - '.github/actions/setup-dependencies-native/**'
                           - '.github/workflows/ci-codeql.yml'
                           - '.github/codeql-config.yml'
+                        
                         javascript_typescript:
                           - 'src/**/*.js'
                           - 'src/**/*.jsx'
@@ -88,10 +95,9 @@ jobs:
                           - 'src/**/vite.config.*'
                           - 'src/**/webpack.config.*'
                           - 'src/**/eslint.config.*'
-                          - '.github/actions/**/*.js'
-                          - '.github/actions/**/*.ts'
                           - '.github/workflows/ci-codeql.yml'
                           - '.github/codeql-config.yml'
+                        
                         python:
                           - '.github/scripts/**/*.py'
                           - '.github/scripts/**/*.pyi'
@@ -111,22 +117,21 @@ jobs:
                           - 'scripts/**/setup.cfg'
                           - '.github/workflows/ci-codeql.yml'
                           - '.github/codeql-config.yml'
-
-    analyze:
-        name: Analyze (${{ matrix.language }} on ${{ matrix.os }})
+    
+    analyze-actions:
+        name: Analyze Actions
         needs: changes
-        runs-on: ${{ matrix.os }}
-        timeout-minutes: 90
-
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        
         if: >
-            always() && (
-                needs.changes.result == 'success' ||
-                (github.event_name == 'workflow_dispatch' && github.event.inputs.full_scan == 'true')
-            ) && (
-                github.event_name != 'pull_request' ||
-                github.event.pull_request.draft == false
+            (
+              github.event_name == 'workflow_dispatch' &&
+              github.event.inputs.full_scan == 'true'
+            ) || (
+              needs.changes.outputs.actions == 'true'
             )
-
+        
         permissions:
             contents: read
             security-events: write
@@ -134,114 +139,231 @@ jobs:
             packages: read
             pull-requests: write
             checks: write
-
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                    -   language: actions
-                        os: ubuntu-latest
-                        build-mode: none
-                    -   language: c-cpp
-                        os: ubuntu-latest
-                        build-mode: manual
-                    -   language: c-cpp
-                        os: windows-latest
-                        build-mode: manual
-                    -   language: csharp
-                        os: ubuntu-latest
-                        build-mode: none
-                    -   language: javascript-typescript
-                        os: ubuntu-latest
-                        build-mode: none
-                    -   language: python
-                        os: ubuntu-latest
-                        build-mode: none
-
+        
         steps:
-            -   name: Decide Whether to Analyze
-                id: should_analyze
-                shell: bash
-                env:
-                    FULL_SCAN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.full_scan == 'true' }}
-                    LANGUAGE: ${{ matrix.language }}
-                    ACTIONS_CHANGED: ${{ needs.changes.outputs.actions }}
-                    CSHARP_CHANGED: ${{ needs.changes.outputs.csharp }}
-                    CPP_CHANGED: ${{ needs.changes.outputs.cpp }}
-                    JAVASCRIPT_TYPESCRIPT_CHANGED: ${{ needs.changes.outputs.javascript_typescript }}
-                    PYTHON_CHANGED: ${{ needs.changes.outputs.python }}
-                run: |
-                    should_run=false
-                    
-                    if [[ "$FULL_SCAN" == "true" ]]; then should_run=true
-                    elif [[ "$LANGUAGE" == "actions" && "$ACTIONS_CHANGED" == "true" ]]; then should_run=true
-                    elif [[ "$LANGUAGE" == "csharp" && "$CSHARP_CHANGED" == "true" ]]; then should_run=true
-                    elif [[ "$LANGUAGE" == "c-cpp" && "$CPP_CHANGED" == "true" ]]; then should_run=true
-                    elif [[ "$LANGUAGE" == "javascript-typescript" && "$JAVASCRIPT_TYPESCRIPT_CHANGED" == "true" ]]; then should_run=true
-                    elif [[ "$LANGUAGE" == "python" && "$PYTHON_CHANGED" == "true" ]]; then should_run=true
-                    fi
-                    
-                    echo "run=$should_run" >> "$GITHUB_OUTPUT"
-
             -   name: Checkout
                 uses: actions/checkout@v6
-                with:
-                    fetch-depth: 1
-
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
-                with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-                    cache: true
-                    cache-dependency-path: |
-                        **/*.csproj
-                        **/*.props
-                        **/Directory.Packages.props
-
-            -   name: Setup CMake
-                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'c-cpp'
-                uses: lukka/get-cmake@latest
-
-            -   name: Setup Native dependencies
-                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'c-cpp'
-                # noinspection UndefinedAction
-                uses: ./.github/actions/setup-dependencies-native
-                # noinspection UndefinedParamsPresent
-                with:
-                    apt-cache-version: 1.0
-                    brew-cache-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/codeql.yml') }}
-                    brew-restore-key: ${{ runner.os }}-${{ matrix.language }}-brew-native-
 
             -   name: Initialize CodeQL
-                if: steps.should_analyze.outputs.run == 'true'
                 uses: github/codeql-action/init@v4
                 with:
-                    languages: ${{ matrix.language }}
-                    build-mode: ${{ matrix.build-mode }}
+                    languages: actions
+                    build-mode: none
                     queries: security-extended,security-and-quality
                     config-file: ./.github/codeql-config.yml
 
-            -   name: Restore C# (.slnx)
-                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'csharp' && matrix.build-mode == 'manual'
-                run: |
-                    dotnet restore InfiniFrame.slnx /p:NoWarn=NU1503
-
-            -   name: Build Native (CodeQL)
-                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'c-cpp'
-                shell: pwsh
-                run: |
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj --configuration Release --no-restore -p:SolutionDir="${{ github.workspace }}/" -p:Platform=x64
-
-            -   name: Build C# (.slnx)
-                if: steps.should_analyze.outputs.run == 'true' && matrix.language == 'csharp' && matrix.build-mode == 'manual'
-                run: |
-                    dotnet build InfiniFrame.slnx --no-restore --configuration Release -p:InfiniFramePackAfterBuild=false
-
             -   name: Perform CodeQL Analysis
-                if: steps.should_analyze.outputs.run == 'true'
                 uses: github/codeql-action/analyze@v4
                 with:
-                    category: "/language:${{ matrix.language }}"
+                    category: "/language:actions"
+    
+    analyze-csharp:
+        name: Analyze C#
+        needs: changes
+        runs-on: ubuntu-latest
+        timeout-minutes: 60
+        
+        if: >
+            (
+              github.event_name == 'workflow_dispatch' &&
+              github.event.inputs.full_scan == 'true'
+            ) || (
+              needs.changes.outputs.csharp == 'true'
+            )
+        
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+            packages: read
+            pull-requests: write
+            checks: write
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+            
+            -   name: Setup Native Dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                with:
+                    brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: ${{ runner.os }}-brew-codeql-
+
+            -   name: Initialize CodeQL
+                uses: github/codeql-action/init@v4
+                with:
+                    languages: csharp
+                    build-mode: manual
+                    queries: security-extended,security-and-quality
+                    config-file: ./.github/codeql-config.yml
+                    
+            -   name: Restore Dotnet
+                run: |
+                    dotnet restore
+
+            -   name: Build Dotnet
+                shell: pwsh
+                run: |
+                    dotnet build InfiniFrame.GitHubActions.Release.slnf  `
+                      --configuration Release `
+                      --no-restore `
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ 
+
+            -   name: Perform CodeQL Analysis
+                uses: github/codeql-action/analyze@v4
+                with:
+                    category: "/language:csharp"
+    
+    analyze-cpp:
+        name: Analyze C/C++ (${{ matrix.os }})
+        needs: changes
+        runs-on: ${{ matrix.os }}
+        timeout-minutes: 90
+        
+        if: >
+            (
+              github.event_name == 'workflow_dispatch' &&
+              github.event.inputs.full_scan == 'true'
+            ) || (
+              needs.changes.outputs.cpp == 'true'
+            )
+        
+        strategy:
+            fail-fast: false
+            matrix:
+                os:
+                    - ubuntu-latest
+                    - windows-latest
+                  # - macos-latest # support is currently experimental and requires additional setup
+        
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+            packages: read
+            pull-requests: write
+            checks: write
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+
+            -   name: Setup Native Dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                with:
+                    brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: ${{ runner.os }}-brew-codeql-
+
+            -   name: Initialize CodeQL
+                uses: github/codeql-action/init@v4
+                with:
+                    languages: c-cpp
+                    build-mode: manual
+                    queries: security-extended,security-and-quality
+                    config-file: ./.github/codeql-config.yml
+
+            -   name: Restore NativeBridge
+                run: |
+                    dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj /p:NoWarn=NU1503
+
+            -   name: Build NativeBridge
+                shell: pwsh
+                run: |
+                    dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj `
+                      --configuration Release `
+                      --no-restore `
+                      -p:SolutionDir="${{ github.workspace }}/" `
+                      -p:Platform=x64
+
+            -   name: Perform CodeQL Analysis
+                uses: github/codeql-action/analyze@v4
+                with:
+                    category: "/language:c-cpp"
+    
+    analyze-javascript-typescript:
+        name: Analyze JavaScript / TypeScript
+        needs: changes
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        
+        if: >
+            (
+              github.event_name == 'workflow_dispatch' &&
+              github.event.inputs.full_scan == 'true'
+            ) || (
+              needs.changes.outputs.javascript_typescript == 'true'
+            )
+        
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+            packages: read
+            pull-requests: write
+            checks: write
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+
+            -   name: Initialize CodeQL
+                uses: github/codeql-action/init@v4
+                with:
+                    languages: javascript-typescript
+                    build-mode: none
+                    queries: security-extended,security-and-quality
+                    config-file: ./.github/codeql-config.yml
+
+            -   name: Perform CodeQL Analysis
+                uses: github/codeql-action/analyze@v4
+                with:
+                    category: "/language:javascript-typescript"
+    
+    analyze-python:
+        name: Analyze Python
+        needs: changes
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        
+        if: >
+            (
+              github.event_name == 'workflow_dispatch' &&
+              github.event.inputs.full_scan == 'true'
+            ) || (
+              needs.changes.outputs.python == 'true'
+            )
+        
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+            packages: read
+            pull-requests: write
+            checks: write
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+
+            -   name: Initialize CodeQL
+                uses: github/codeql-action/init@v4
+                with:
+                    languages: python
+                    build-mode: none
+                    queries: security-extended,security-and-quality
+                    config-file: ./.github/codeql-config.yml
+
+            -   name: Perform CodeQL Analysis
+                uses: github/codeql-action/analyze@v4
+                with:
+                    category: "/language:python"

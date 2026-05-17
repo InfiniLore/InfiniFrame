@@ -31,18 +31,13 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
 
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
                 with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-                    cache: true
-                    cache-dependency-path: |
-                        **/*.csproj
-                        **/*.props
-                        **/Directory.Packages.props
+                    cache-dotnet: false
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
 
             -   name: Set Trim/AOT Check Pending
                 env:
@@ -64,15 +59,22 @@ jobs:
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
-                    apt-cache-version: 1.0
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
-                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
+                    brew-restore-key: ${{ runner.os }}-x64-brew-native-
+
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
+                with:
+                    artifact-type: testing
 
             -   name: Trim Analyzer Builds
                 run: |
                     dotnet build src/InfiniFrame.Shared/InfiniFrame.Shared.csproj `
                       --configuration Release `
                       --framework net10.0 `
+                      -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      -p:Platform=x64 `
+                      -p:InfiniFrameSkipNativeBuild=true `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false
@@ -80,6 +82,9 @@ jobs:
                     dotnet build src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj `
                       --configuration Release `
                       --framework net10.0 `
+                      -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      -p:Platform=x64 `
+                      -p:InfiniFrameSkipNativeBuild=true `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false `
@@ -88,6 +93,9 @@ jobs:
                     dotnet build src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj `
                       --configuration Release `
                       --framework net10.0 `
+                      -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      -p:Platform=x64 `
+                      -p:InfiniFrameSkipNativeBuild=true `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false `
@@ -99,22 +107,38 @@ jobs:
                       --configuration Release `
                       --framework net10.0 `
                       --runtime win-x64 `
+                      -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      -p:Platform=x64 `
+                      -p:InfiniFrameSkipNativeBuild=true `
                       -p:GeneratePackageOnBuild=false `
                       -p:SkipTypeScriptBuild=true
 
             -   name: Validate NativeAOT Output
                 run: |
-                    $publishDir = "examples/InfiniFrameExample.TrimAotSmoke/bin/Release/net10.0/win-x64/publish"
-                    $output = Join-Path $publishDir "InfiniFrameExample.TrimAotSmoke.exe"
+                    $publishDirs = @(
+                      "examples/InfiniFrameExample.TrimAotSmoke/bin/x64/Release/net10.0/win-x64/publish",
+                      "examples/InfiniFrameExample.TrimAotSmoke/bin/Release/net10.0/win-x64/publish"
+                    )
+                    $outputName = "InfiniFrameExample.TrimAotSmoke.exe"
 
-                    if (Test-Path $output) {
-                      Write-Host "✅ NativeAOT smoke output validated: $output"
-                      Exit 0
+                    foreach ($publishDir in $publishDirs) {
+                      $output = Join-Path $publishDir $outputName
+                      if (Test-Path $output) {
+                        Write-Host "✅ NativeAOT smoke output validated: $output"
+                        Exit 0
+                      }
                     }
 
-                    $availableExeNames = Get-ChildItem -Path $publishDir -Filter *.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
-                    Write-Host "❌ Expected NativeAOT output not found: $output"
-                    Write-Host "Available *.exe in publish dir: $($availableExeNames -join ', ')"
+                    Write-Host "❌ Expected NativeAOT output not found. Checked:"
+                    foreach ($publishDir in $publishDirs) {
+                      Write-Host "  - $publishDir"
+                      if (Test-Path $publishDir) {
+                        $availableExeNames = Get-ChildItem -Path $publishDir -Filter *.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+                        Write-Host "    Available *.exe: $($availableExeNames -join ', ')"
+                      } else {
+                        Write-Host "    Directory does not exist."
+                      }
+                    }
                     Exit 1
 
             -   name: Complete Trim/AOT Check

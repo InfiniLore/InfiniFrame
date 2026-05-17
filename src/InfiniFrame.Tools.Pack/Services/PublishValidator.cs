@@ -91,12 +91,12 @@ internal static class PublishValidator {
             throw new InvalidOperationException($"Required native artifact was not found: {missingPath}");
         }
 
-        foreach (string path in requiredPaths) {
-            if (!rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return;
+        if (!rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase)) return;
 
-            ushort expectedMachine = ExpectedPeMachineForRid(rid);
+        ushort expectedMachine = ExpectedPeMachineForRid(rid);
+        foreach (string path in requiredPaths) {
             ushort actualMachine = ReadPeMachine(path);
-            if (actualMachine == expectedMachine) return;
+            if (actualMachine == expectedMachine) continue;
 
             throw new InvalidOperationException(
                 $"Native artifact architecture mismatch for '{path}'. " +

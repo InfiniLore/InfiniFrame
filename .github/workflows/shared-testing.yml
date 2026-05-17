@@ -81,31 +81,31 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
         secrets: inherit
-  
+    
     # noinspection UndefinedAction, UndefinedParamsPresent
     js-validation:
         name: Validate JS
         needs: [ prepare ]
         uses: ./.github/workflows/shared-testing-js.yml
         with:
-          checkout_ref: ${{ inputs.checkout_ref }}
-          target_sha: ${{ needs.prepare.outputs.sha }}
-    
-    # noinspection UndefinedAction, UndefinedParamsPresent
-    dotnetpack-validation:
-        name: Validate Dotnet Pack
-        needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-dotnetpack.yml
-        with:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    windows-trim-aot:
-        name: Validate Trim/AOT
-        if: ${{ inputs.run_trim_aot == true }}
+    native-build:
+        name: Build Native Artifacts
         needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-windows-trim-aot.yml
+        uses: ./.github/workflows/shared-testing-build.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+    
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    dotnetpack-validation:
+        name: Validate Dotnet Pack
+        needs: [ prepare, native-build ]
+        uses: ./.github/workflows/shared-testing-dotnetpack.yml
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
@@ -114,8 +114,21 @@ jobs:
     linux:
         name: Linux Tests
         if: ${{ inputs.run_linux == true }}
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-linux.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+        secrets: inherit
+
+    # noinspection UndefinedAction, UndefinedParamsPresent
+    macos:
+        name: macOS Tests
+        if: ${{ inputs.run_macos == true }}
+        needs: [ prepare, native-build ]
+        uses: ./.github/workflows/shared-testing-macos.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
@@ -127,7 +140,7 @@ jobs:
     windows:
         name: Windows Tests
         if: ${{ inputs.run_windows == true }}
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-windows.yml
         with:
             pr_number: ${{ inputs.pr_number }}
@@ -140,7 +153,7 @@ jobs:
     windows-playwright:
         name: Windows Playwright Tests
         if: ${{ inputs.run_windows_playwright == true }}
-        needs: [ prepare ]
+        needs: [ prepare, native-build ]
         uses: ./.github/workflows/shared-testing-windows-playwright.yml
         with:
             pr_number: ${{ inputs.pr_number }}
@@ -150,14 +163,11 @@ jobs:
         secrets: inherit
 
     # noinspection UndefinedAction, UndefinedParamsPresent
-    macos:
-        name: macOS Tests
-        if: ${{ inputs.run_macos == true }}
-        needs: [ prepare ]
-        uses: ./.github/workflows/shared-testing-macos.yml
+    windows-trim-aot:
+        name: Validate Trim/AOT
+        if: ${{ inputs.run_trim_aot == true }}
+        needs: [ prepare, native-build ]
+        uses: ./.github/workflows/shared-testing-windows-trim-aot.yml
         with:
-            pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
-            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
-        secrets: inherit

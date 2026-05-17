@@ -5,7 +5,7 @@ using InfiniFrame;
 using InfiniFrameTests.Shared;
 using InfiniFrameTests.Shared.TestDoubles;
 using System.Runtime.InteropServices;
-using InfiniFrame.Native;
+using InfiniFrame.NativeBridge.Parameters;
 
 namespace InfiniFrameTests.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------

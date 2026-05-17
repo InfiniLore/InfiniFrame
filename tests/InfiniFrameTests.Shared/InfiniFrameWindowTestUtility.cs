@@ -47,7 +47,6 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
         windowBuilder.SetStartString(StartString);
-        windowBuilder.SetTemporaryFilesPath(CreateUniqueTemporaryFilesPath());
         builder?.Invoke(windowBuilder);
 
         // Windows: WebView2 requires STA thread for COM initialization
@@ -115,18 +114,11 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         return utility;
     }
 
-    private static string CreateUniqueTemporaryFilesPath() {
-        string uniqueSuffix = $"{Environment.ProcessId}-{Environment.CurrentManagedThreadId}-{Guid.NewGuid():N}";
-        return Path.Combine(Path.GetTempPath(), "InfiniFrameTests", uniqueSuffix);
-    }
-
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // ----------------------------------------------------------------------------------------------------------------
     public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-
-        string? tempFolder = Window.TemporaryFilesPath;
 
         try {
             Window.Close();
@@ -138,50 +130,38 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
             // ignored
         }
 
-        if (_windowThread is not null) {
-            try {
-                // Keep test disposal bounded so per-test timeout policies remain reliable.
-                TimeSpan firstJoinTimeout = OperatingSystem.IsWindows()
-                    && RuntimeInformation.ProcessArchitecture == Architecture.Arm64
+        if (_windowThread is null) return;
+
+        try {
+            // Keep test disposal bounded so per-test timeout policies remain reliable.
+            TimeSpan firstJoinTimeout = OperatingSystem.IsWindows()
+                && RuntimeInformation.ProcessArchitecture == Architecture.Arm64
                     ? TimeSpan.FromSeconds(2)
                     : TimeSpan.FromSeconds(3);
 
-                if (!_windowThread.Join(firstJoinTimeout)) {
-                    try {
-                        Window.Close();
-                    }
-                    catch (ApplicationException) {
-                        // ignored
-                    }
-                    catch (ObjectDisposedException) {
-                        // ignored
-                    }
-
-                    _windowThread.Join(TimeSpan.FromSeconds(2));
+            if (!_windowThread.Join(firstJoinTimeout)) {
+                try {
+                    Window.Close();
                 }
+                catch (ApplicationException) {
+                    // ignored
+                }
+                catch (ObjectDisposedException) {
+                    // ignored
+                }
+
+                _windowThread.Join(TimeSpan.FromSeconds(2));
             }
-            catch (ThreadInterruptedException) {
-                // ignored
-            }
-            catch (ThreadStateException) {
-                // ignored
-            }
-            catch (ObjectDisposedException) {
-                // ignored
-            }
+        }
+        catch (ThreadInterruptedException) {
+            // ignored
+        }
+        catch (ThreadStateException) {
+            // ignored
+        }
+        catch (ObjectDisposedException) {
+            // ignored
         }
 
-        // ReSharper disable once InvertIf
-        if (tempFolder is not null) {
-            try {
-                FileUtility.SafeDeleteDirectory(tempFolder);
-            }
-            catch (ApplicationException) {
-                // ignored
-            }
-            catch (OperationCanceledException) {
-                // ignored
-            }
-        }
     }
 }

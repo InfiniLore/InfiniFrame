@@ -59,4 +59,26 @@ public class ProcessRunnerTests {
         await Assert.That(result.ExitCode).IsNotEqualTo(0);
         await Assert.That(string.IsNullOrWhiteSpace(result.StandardOutput) && string.IsNullOrWhiteSpace(result.StandardError)).IsFalse();
     }
+
+    [Test]
+    public async Task RunAsync_ThrowsTimeoutException_WhenProcessExceedsTimeout() {
+        // Arrange
+        (string fileName, string[] arguments) = BuildLongRunningCommand();
+
+        // Act & Assert
+        TimeoutException? ex = await Assert.ThrowsAsync<TimeoutException>(async () => {
+            await ProcessRunner.RunAsync(fileName, arguments, timeout: TimeSpan.FromMilliseconds(250));
+        });
+
+        await Assert.That(ex).IsNotNull();
+        await Assert.That(ex!.Message).Contains("Timed out after");
+    }
+
+    private static (string FileName, string[] Arguments) BuildLongRunningCommand() {
+        if (OperatingSystem.IsWindows()) {
+            return ("powershell", ["-NoProfile", "-Command", "Start-Sleep -Seconds 5"]);
+        }
+
+        return ("sh", ["-c", "sleep 5"]);
+    }
 }

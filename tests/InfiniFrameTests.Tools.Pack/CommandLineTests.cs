@@ -83,6 +83,7 @@ public class CommandLineTests {
         await Assert.That(result.Options.Output).IsNull();
         await Assert.That(result.Options.NoRestore).IsFalse();
         await Assert.That(result.Options.Verbose).IsFalse();
+        await Assert.That(result.Options.ProcessTimeout).IsEqualTo(TimeSpan.FromMinutes(10));
         await Assert.That(result.Options.ForceCleanOutput).IsFalse();
     }
 
@@ -99,6 +100,7 @@ public class CommandLineTests {
             "--output", "out",
             "--no-restore",
             "--verbose",
+            "--timeout", "7m",
             "--force-clean-output"
         ];
 
@@ -116,6 +118,7 @@ public class CommandLineTests {
         await Assert.That(result.Options.Output).IsEqualTo("out");
         await Assert.That(result.Options.NoRestore).IsTrue();
         await Assert.That(result.Options.Verbose).IsTrue();
+        await Assert.That(result.Options.ProcessTimeout).IsEqualTo(TimeSpan.FromMinutes(7));
         await Assert.That(result.Options.ForceCleanOutput).IsTrue();
     }
 
@@ -177,6 +180,30 @@ public class CommandLineTests {
             CommandLine.Parse(args);
             return Task.CompletedTask;
         });
+    }
+
+    [Test]
+    public async Task Parse_Throws_WhenTimeoutValueIsInvalid() {
+        // Arrange
+        string[] args = ["publish", "MyApp.csproj", "--timeout", "0"];
+
+        // Act & Assert
+        await Assert.ThrowsAsync<FormatException>(() => {
+            CommandLine.Parse(args);
+            return Task.CompletedTask;
+        }).WithMessage("Invalid timeout value '0'. Use a positive value like '600', '90s', '5m', or '00:10:00'.");
+    }
+
+    [Test]
+    public async Task Parse_Throws_WhenTimeoutValueExceedsMaximum() {
+        // Arrange
+        string[] args = ["publish", "MyApp.csproj", "--timeout", "31m"];
+
+        // Act & Assert
+        await Assert.ThrowsAsync<FormatException>(() => {
+            CommandLine.Parse(args);
+            return Task.CompletedTask;
+        }).WithMessage("Timeout '00:31:00' exceeds the maximum supported value of '00:30:00'.");
     }
 
     [Test]

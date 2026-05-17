@@ -9,6 +9,9 @@ namespace InfiniFrame.Tools.Pack;
 ///     Represents publish options accepted by the <c>publish</c> command.
 /// </summary>
 internal sealed class PublishOptions {
+    public static readonly TimeSpan DefaultProcessTimeout = TimeSpan.FromMinutes(10);
+    public static readonly TimeSpan MaxProcessTimeout = TimeSpan.FromMinutes(30);
+
     /// <summary>
     ///     Gets or sets the path to the project file to publish.
     /// </summary>
@@ -50,18 +53,13 @@ internal sealed class PublishOptions {
     public bool Verbose { get; set; }
 
     /// <summary>
+    ///     Gets or sets the timeout applied to each external dotnet invocation.
+    /// </summary>
+    public TimeSpan ProcessTimeout { get; set; } = DefaultProcessTimeout;
+
+    /// <summary>
     ///     Gets or sets whether the tool may recursively delete a non-default output directory before publish.
     /// </summary>
     public bool ForceCleanOutput { get; set; }
 
-    /// <summary>
-    ///     Gets or sets an explicit native artifacts directory to use as fallback when preflight publish cannot provide valid
-    ///     artifacts.
-    /// </summary>
-    public string? NativeArtifactsFallbackPath { get; set; }
-
-    /// <summary>
-    ///     Gets or sets whether potentially stale fallback native artifacts may be used.
-    /// </summary>
-    public bool AllowStaleNativeArtifactsFallback { get; set; }
 }

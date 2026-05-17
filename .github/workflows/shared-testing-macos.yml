@@ -47,6 +47,17 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                with:
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+
             -   name: Set macOS Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,45 +73,22 @@ jobs:
                     target-url: ${{ inputs.workflow_url }}
                     allow-status-422: 'true'
 
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
                 with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-                    cache: true
-                    cache-dependency-path: |
-                        **/*.csproj
-                        **/*.props
-                        **/Directory.Packages.props
-
-            -   name: Setup Native dependencies
-                # noinspection UndefinedAction
-                uses: ./.github/actions/setup-dependencies-native
-                # noinspection UndefinedParamsPresent
-                with:
-                    apt-cache-version: 1.0
-                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+                    artifact-type: testing
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
 
-            -   name: Build Native
+            -   name: Build Release
                 run: |
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+                    dotnet build InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
                       --no-restore \
-                      /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=${{ matrix.arch }}
-
-            -   name: Build Release
-                run: dotnet build InfiniFrame.GitHubActions.Testing.slnf --configuration Release --no-restore
-
-            -   name: Verify Native Binaries
-                # noinspection UndefinedAction
-                uses: ./.github/actions/validate-native-test-binaries
+                      -p:SolutionDir=${{ github.workspace }}/ \
+                      -p:CMakePlatform=${{ matrix.arch }} \
+                      -p:InfiniFrameSkipNativeBuild=true
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v9
@@ -126,10 +114,11 @@ jobs:
                     dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
                       --no-build \
-                      --no-restore
+                      --no-restore \
+                      -p:CMakePlatform=${{ matrix.arch }} \
+                      -p:InfiniFrameSkipNativeBuild=true
 
             -   name: Pack Tool E2E
-                if: always()
                 # noinspection UndefinedAction
                 uses: ./.github/actions/packtool-e2e
                 # noinspection UndefinedParamsPresent

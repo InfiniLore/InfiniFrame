@@ -14,10 +14,17 @@
   </Folder>
   <Folder Name="/.dev-tools/docker/" />
   <Folder Name="/.dev-tools/docker/compose/">
+    <File Path="docker/compose/infiniframe-gha-local.yml" />
     <File Path="docker/compose/infiniframe-linux-arm64.yml" />
     <File Path="docker/compose/infiniframe-linux-wayland.yml" />
     <File Path="docker/compose/infiniframe-linux.yml" />
     <File Path="docker/compose/infiniframe-windows.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/docker/gha-local/">
+    <File Path="docker/gha-local/Dockerfile" />
+  </Folder>
+  <Folder Name="/.dev-tools/docker/gha-local/events/">
+    <File Path="docker/gha-local/events/ci-testing-linux.json" />
   </Folder>
   <Folder Name="/.dev-tools/docker/infiniframe-linux-arm64/">
     <File Path="docker/infiniframe-linux-arm64/.dockerignore" />
@@ -49,28 +56,36 @@
     <File Path="docker/infiniframe-windows/NuGet.Config" />
     <File Path="docker/infiniframe-windows/playwright.ps1" />
     <File Path="docker/infiniframe-windows/tests.ps1" />
+    <File Path="docker/infiniframe-windows/trim-aot.ps1" />
   </Folder>
   <Folder Name="/.dev-tools/docker/scripts/">
-    <File Path="docker/scripts/docker-linux-arm64-compose.sh" />
-    <File Path="docker/scripts/docker-linux-arm64-run-blazorwebview.sh" />
-    <File Path="docker/scripts/docker-linux-arm64-run-playwrighttests.sh" />
-    <File Path="docker/scripts/docker-linux-arm64-run-tests.sh" />
-    <File Path="docker/scripts/docker-linux-compose.sh" />
-    <File Path="docker/scripts/docker-linux-run-blazorwebview.sh" />
-    <File Path="docker/scripts/docker-linux-run-playwrighttests.sh" />
-    <File Path="docker/scripts/docker-linux-run-tests.sh" />
-    <File Path="docker/scripts/docker-linux-wayland-compose.sh" />
-    <File Path="docker/scripts/docker-linux-wayland-run-blazorwebview.sh" />
-    <File Path="docker/scripts/docker-linux-wayland-run-playwrighttests.sh" />
-    <File Path="docker/scripts/docker-linux-wayland-run-tests.sh" />
+    <File Path="docker/scripts/docker-gha-local-compose.ps1" />
+    <File Path="docker/scripts/docker-gha-local-run-linux-actions.ps1" />
+    <File Path="docker/scripts/docker-gha-local-run-windows-actions.ps1" />
+    <File Path="docker/scripts/docker-linux-arm64-compose.ps1" />
+    <File Path="docker/scripts/docker-linux-arm64-run-blazorwebview.ps1" />
+    <File Path="docker/scripts/docker-linux-arm64-run-playwrighttests.ps1" />
+    <File Path="docker/scripts/docker-linux-arm64-run-tests.ps1" />
+    <File Path="docker/scripts/docker-linux-compose.ps1" />
+    <File Path="docker/scripts/docker-linux-run-blazorwebview.ps1" />
+    <File Path="docker/scripts/docker-linux-run-playwrighttests.ps1" />
+    <File Path="docker/scripts/docker-linux-run-tests.ps1" />
+    <File Path="docker/scripts/docker-linux-wayland-compose.ps1" />
+    <File Path="docker/scripts/docker-linux-wayland-run-blazorwebview.ps1" />
+    <File Path="docker/scripts/docker-linux-wayland-run-playwrighttests.ps1" />
+    <File Path="docker/scripts/docker-linux-wayland-run-tests.ps1" />
     <File Path="docker/scripts/docker-windows-compose.ps1" />
     <File Path="docker/scripts/docker-windows-run-blazorwebview.ps1" />
     <File Path="docker/scripts/docker-windows-run-playwrighttests.ps1" />
     <File Path="docker/scripts/docker-windows-run-tests.ps1" />
+    <File Path="docker/scripts/docker-windows-run-trim-aot.ps1" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />
     <File Path=".github/dependabot.yml" />
+  </Folder>
+  <Folder Name="/.dev-tools/github/actions/download-native-binaries/">
+    <File Path=".github/actions/download-native-binaries/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/packtool-e2e/">
     <File Path=".github/actions/packtool-e2e/action.yml" />
@@ -78,14 +93,14 @@
   <Folder Name="/.dev-tools/github/actions/setup-dependencies-native/">
     <File Path=".github/actions/setup-dependencies-native/action.yml" />
   </Folder>
+  <Folder Name="/.dev-tools/github/actions/setup-dependencies/">
+    <File Path=".github/actions/setup-dependencies/action.yml" />
+  </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check-finalize/">
     <File Path=".github/actions/sync-check-finalize/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/actions/sync-check/">
     <File Path=".github/actions/sync-check/action.yml" />
-  </Folder>
-  <Folder Name="/.dev-tools/github/actions/validate-native-test-binaries/">
-    <File Path=".github/actions/validate-native-test-binaries/action.yml" />
   </Folder>
   <Folder Name="/.dev-tools/github/scripts/">
     <File Path=".github/scripts/bump_version.py" />
@@ -114,6 +129,7 @@
     <File Path=".github/workflows/shared-release-bump-version.yml" />
     <File Path=".github/workflows/shared-release-publish-docs.yml" />
     <File Path=".github/workflows/shared-release-publish.yml" />
+    <File Path=".github/workflows/shared-testing-build.yml" />
     <File Path=".github/workflows/shared-testing-docs.yml" />
     <File Path=".github/workflows/shared-testing-linux.yml" />
     <File Path=".github/workflows/shared-testing-macos.yml" />
@@ -127,6 +143,7 @@
   </Folder>
   <Folder Name="/.dev-tools/scripts/">
     <File Path="scripts/BuildFrontend.mjs" />
+    <File Path="scripts/clean.ps1" />
     <File Path="scripts/clion-linux-environment.sh" />
     <File Path="scripts/nuget-install.sh" />
   </Folder>
@@ -147,7 +164,7 @@
     <Project Path="src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
     <Project Path="src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj" />
     <Project Path="src/InfiniFrame.Js/InfiniFrame.Js.csproj" />
-    <Project Path="src/InfiniFrame.Native/InfiniFrame.Native.proj" Type="845b7716-6f03-4d02-8e86-79f95485b5d7" />
+    <Project Path="src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" />
     <Project Path="src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
     <Project Path="src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
     <Project Path="src/InfiniFrame/InfiniFrame.csproj" />

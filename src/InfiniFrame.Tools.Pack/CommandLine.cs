@@ -3,15 +3,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Tools.Pack.Services;
 using Serilog;
+using System.Globalization;
 
 namespace InfiniFrame.Tools.Pack;
 // -----------------------------------------------------------------------------------------------------------------
 // Methods
 // -----------------------------------------------------------------------------------------------------------------
 internal static class CommandLine {
-    private const string NativeArtifactsFallbackPathEnvVar = "INFINIFRAME_PACK_NATIVE_ARTIFACTS_FALLBACK";
-    private const string AllowStaleNativeFallbackEnvVar = "INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK";
-    
     private static readonly ILogger Logger = Log.ForContext(typeof(CommandLine));
 
     /// <summary>
@@ -58,15 +56,8 @@ internal static class CommandLine {
         Logger.Information("  --output <path>               Publish output directory");
         Logger.Information("  --no-restore                  Skip restore");
         Logger.Information("  --verbose                     Verbose publish output");
+        Logger.Information("  --timeout <value>             Per-process timeout (e.g. 600, 90s, 5m, 00:10:00). Default: 10m, max: 30m");
         Logger.Information("  --force-clean-output          Allow deleting non-default output directories");
-        Logger.Information("  --native-artifacts-fallback <path>");
-        Logger.Information("                                Explicit fallback directory for native artifacts");
-        Logger.Information("  --allow-stale-native-fallback");
-        Logger.Information("                                Allow using fallback artifacts when preflight fails validation");
-        Logger.Information("");
-        Logger.Information("Environment overrides:");
-        Logger.Information("  {FallbackEnvVar}=<path>", NativeArtifactsFallbackPathEnvVar);
-        Logger.Information("  {AllowStaleEnvVar}=true|false", AllowStaleNativeFallbackEnvVar);
     }
 
     private static bool IsHelp(string value) => value is "-h" or "--help" or "help";
@@ -76,9 +67,7 @@ internal static class CommandLine {
             ProjectPath = string.Empty,
             Rid = "auto",
             Configuration = "Release",
-            SelfContained = true,
-            NativeArtifactsFallbackPath = Environment.GetEnvironmentVariable(NativeArtifactsFallbackPathEnvVar),
-            AllowStaleNativeArtifactsFallback = ParseBooleanEnvironmentVariable(AllowStaleNativeFallbackEnvVar)
+            SelfContained = true
         };
 
         int index = 0;
@@ -117,15 +106,11 @@ internal static class CommandLine {
                     options.Verbose = true;
                     index++;
                     break;
+                case "--timeout":
+                    options.ProcessTimeout = ParseTimeout(ReadValue(args, ref index, token));
+                    break;
                 case "--force-clean-output":
                     options.ForceCleanOutput = true;
-                    index++;
-                    break;
-                case "--native-artifacts-fallback":
-                    options.NativeArtifactsFallbackPath = ReadValue(args, ref index, token);
-                    break;
-                case "--allow-stale-native-fallback":
-                    options.AllowStaleNativeArtifactsFallback = true;
                     index++;
                     break;
                 default:
@@ -133,9 +118,9 @@ internal static class CommandLine {
             }
         }
 
-        return !string.IsNullOrWhiteSpace(options.ProjectPath)
-            ? options
-            : throw new InvalidOperationException("Missing project path.");
+        if (string.IsNullOrWhiteSpace(options.ProjectPath)) throw new InvalidOperationException("Missing project path.");
+        ValidateProcessTimeout(options.ProcessTimeout);
+        return options;
     }
 
     private static string ReadValue(string[] args, ref int index, string option) {
@@ -147,12 +132,47 @@ internal static class CommandLine {
         return value;
     }
 
-    private static bool ParseBooleanEnvironmentVariable(string variableName) {
-        string? value = Environment.GetEnvironmentVariable(variableName);
-        if (string.IsNullOrWhiteSpace(value)) return false;
+    private static TimeSpan ParseTimeout(string value) {
+        if (string.IsNullOrWhiteSpace(value)) throw new FormatException("Timeout value cannot be empty.");
 
-        return bool.TryParse(value, out bool parsedValue)
-            ? parsedValue
-            : throw new FormatException($"Environment variable '{variableName}' must be 'true' or 'false'.");
+        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int seconds) && seconds > 0) {
+            return TimeSpan.FromSeconds(seconds);
+        }
+
+        if (TryParseUnitTimeout(value, out TimeSpan unitTimeout)) return unitTimeout;
+        if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out TimeSpan timeSpan) && timeSpan > TimeSpan.Zero) return timeSpan;
+
+        throw new FormatException($"Invalid timeout value '{value}'. Use a positive value like '600', '90s', '5m', or '00:10:00'.");
+    }
+
+    private static bool TryParseUnitTimeout(string value, out TimeSpan timeout) {
+        timeout = default;
+        if (value.Length < 2) return false;
+
+        char unit = char.ToLowerInvariant(value[^1]);
+        string numberPart = value[..^1];
+        if (!double.TryParse(numberPart, NumberStyles.Float, CultureInfo.InvariantCulture, out double quantity) || quantity <= 0) {
+            return false;
+        }
+
+        timeout = unit switch {
+            's' => TimeSpan.FromSeconds(quantity),
+            'm' => TimeSpan.FromMinutes(quantity),
+            'h' => TimeSpan.FromHours(quantity),
+            _ => default
+        };
+
+        return timeout > TimeSpan.Zero;
+    }
+
+    private static void ValidateProcessTimeout(TimeSpan timeout) {
+        if (timeout <= TimeSpan.Zero) {
+            throw new FormatException($"Timeout must be greater than zero. Received '{timeout}'.");
+        }
+
+        if (timeout > PublishOptions.MaxProcessTimeout) {
+            throw new FormatException(
+                $"Timeout '{timeout}' exceeds the maximum supported value of '{PublishOptions.MaxProcessTimeout}'.");
+        }
     }
 }

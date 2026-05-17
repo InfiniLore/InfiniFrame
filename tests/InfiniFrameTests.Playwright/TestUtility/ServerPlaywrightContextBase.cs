@@ -18,7 +18,6 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
     private InfiniFrameServerTestUtility? _utility;
     private int _serverPort;
     private int _playwrightDevtoolsPort;
-    private string? _webViewUserDataPath;
     
     private string ServerUrl => $"http://127.0.0.1:{_serverPort}";
     private string PlaywrightConnectionString => $"http://127.0.0.1:{_playwrightDevtoolsPort}";
@@ -30,18 +29,12 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
         => StartUtilityWithFreshPorts();
 
     protected async ValueTask AfterAllAsync() {
-        string? tempFolder = _utility?.Window.TemporaryFilesPath;
         BeforeAssemblyTeardown();
 
         if (_utility is not null) {
             await _utility.DisposeAsync();
         }
         _utility = null;
-
-        PlaywrightConnectionUtility.DeleteDirectorySafely(_webViewUserDataPath);
-        _webViewUserDataPath = null;
-
-        if (tempFolder is not null) FileUtility.SafeDeleteDirectory(tempFolder);
     }
 
     protected override Uri CreatePlaywrightConnectionUri(string relativeUrl)
@@ -50,7 +43,6 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
     private void StartUtilityWithFreshPorts() {
         _serverPort = PlaywrightConnectionUtility.GetAvailablePort();
         _playwrightDevtoolsPort = PlaywrightConnectionUtility.GetAvailablePort();
-        _webViewUserDataPath = PlaywrightConnectionUtility.CreateUniqueWebViewUserDataPath(GetType().FullName ?? GetType().Name);
         
         using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
 
@@ -60,7 +52,6 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
             windowBuilder: windowBuilder => windowBuilder
                 .SetStartUrl(ServerUrl)
                 .SetTitle(DefaultDocumentTitle)
-                .SetTemporaryFilesPath(_webViewUserDataPath)
                 .SetBrowserControlInitParameters($"--remote-debugging-port={_playwrightDevtoolsPort}")
                 .RegisterWindowManagementWebMessageHandler()
                 .RegisterFullScreenWebMessageHandler()

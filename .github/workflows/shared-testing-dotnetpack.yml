@@ -31,11 +31,11 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || env.TARGET_SHA }}
                     fetch-depth: 1
-                    
-            -   name: Setup Node
-                uses: actions/setup-node@v6
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
                 with:
-                    node-version: 24
+                    cache-dotnet: false
 
             -   name: Set Dotnet Pack Check Pending
                 env:
@@ -52,50 +52,67 @@ jobs:
                     target-url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
                     allow-status-422: 'true'
 
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
                 with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-                    cache: true
-                    cache-dependency-path: |
-                        **/*.csproj
-                        **/*.props
-                        **/Directory.Packages.props
-
-            -   name: Setup Native dependencies
-                # noinspection UndefinedAction
-                uses: ./.github/actions/setup-dependencies-native
-                # noinspection UndefinedParamsPresent
-                with:
-                    apt-cache-version: 1.0
-                    brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-dotnetpack.yml') }}
-                    brew-restore-key: ${{ runner.os }}-x64-brew-native-
+                    artifact-type: testing
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
 
             -   name: Build Release
                 run: |
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
-                      --configuration Release \
-                      --no-restore \
-                      /p:SolutionDir="${{ github.workspace }}/" \
-                      /p:Platform=x64
-                    
                     dotnet build InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
                       --no-restore \
-                      /p:SolutionDir=${{ github.workspace }}/
+                      /p:SolutionDir=${{ github.workspace }}/ \
+                      /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Pack
                 run: |
                     dotnet pack InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
+                      --no-build \
+                      /p:InfiniFrameSkipNativeBuild=true \
                       -o ./release
-            
+
+            -   name: Verify NativeBridge Package Natives
+                run: |
+                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg 2>/dev/null | grep -v '\.symbols\.nupkg$' | head -n 1 || true)
+
+                    if [ -z "$PACKAGE" ]; then
+                        echo "❌ No InfiniFrame.NativeBridge package found in ./release"
+                        exit 1
+                    fi
+
+                    echo "Inspecting package: $PACKAGE"
+
+                    EXPECTED=(
+                      "runtimes/win-x64/native/InfiniFrame.Native.dll"
+                      "runtimes/win-x64/native/WebView2Loader.dll"
+                      "runtimes/win-arm64/native/InfiniFrame.Native.dll"
+                      "runtimes/win-arm64/native/WebView2Loader.dll"
+                      "runtimes/linux-x64/native/InfiniFrame.Native.so"
+                      "runtimes/linux-arm64/native/InfiniFrame.Native.so"
+                      "runtimes/osx-x64/native/InfiniFrame.Native.dylib"
+                      "runtimes/osx-arm64/native/InfiniFrame.Native.dylib"
+                    )
+
+                    MISSING=0
+                    for f in "${EXPECTED[@]}"; do
+                      if ! unzip -l "$PACKAGE" | grep -q "$f"; then
+                        echo "❌ Missing $f in $PACKAGE"
+                        MISSING=$((MISSING+1))
+                      else
+                        echo "✅ Found $f"
+                      fi
+                    done
+
+                    if [ $MISSING -gt 0 ]; then
+                      echo "❌ $MISSING native file(s) missing in NativeBridge package"
+                      exit 1
+                    fi
+
             -   name: Complete Dotnet Pack Check
                 if: always()
                 env:

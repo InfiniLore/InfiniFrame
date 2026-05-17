@@ -58,8 +58,27 @@ services:
         entrypoint: ["powershell", "-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
         command:
             - "& C:/src/docker/infiniframe-windows/bootstrap-workspace.ps1 -Source C:/src -Destination C:/work; & C:/work/docker/infiniframe-windows/example-blazorwebview.ps1"
+    
+    windows-trim-aot:
+        image: infiniframe/windows:latest
+        build:
+            context: ../..
+            dockerfile: docker/infiniframe-windows/Dockerfile
+        working_dir: C:\work
+        volumes:
+            - ../../:C:\src:ro
+            - infiniframe_windows_trim_aot_work:C:\work
+        environment:
+            - CONFIGURATION=Release
+            - NATIVE_PLATFORM=x64
+            - SKIP_NATIVE_BUILD=1
+            - NUGET_PACKAGES=C:\.nuget\packages
+        entrypoint: ["powershell", "-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
+        command:
+            - "& C:/src/docker/infiniframe-windows/bootstrap-workspace.ps1 -Source C:/src -Destination C:/work; & C:/work/docker/infiniframe-windows/trim-aot.ps1"
 
 volumes:
     infiniframe_windows_tests_work:
     infiniframe_windows_playwright_work:
     infiniframe_windows_examples_work:
+    infiniframe_windows_trim_aot_work:

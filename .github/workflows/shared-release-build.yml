@@ -55,20 +55,19 @@ jobs:
                         8.x
                         9.x
                         10.x
-            
+
             -   name: Setup Native dependencies
                 # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
                 # noinspection UndefinedParamsPresent
                 with:
-                    apt-cache-version: 1.0
                     brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-build.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Build Native
                 shell: bash
                 run: |
-                    dotnet build "src/InfiniFrame.Native/InfiniFrame.Native.proj" \
+                    dotnet build "src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj" \
                         --configuration Release \
                         --no-restore \
                         -p:SolutionDir="${{ github.workspace }}/" \

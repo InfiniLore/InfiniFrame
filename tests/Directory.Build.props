@@ -30,7 +30,11 @@
         <RepoRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))</RepoRootDir>
         <ResolvedSolutionDir Condition="'$(SolutionDir)'!=''">$(SolutionDir)</ResolvedSolutionDir>
         <ResolvedSolutionDir Condition="'$(ResolvedSolutionDir)'==''">$(RepoRootDir)</ResolvedSolutionDir>
-        <NativeOutputDir>$(ResolvedSolutionDir)artifacts/native/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
+        <NativeBridgeArtifactsRoot>$(ResolvedSolutionDir)src/InfiniFrame.NativeBridge/artifacts/native</NativeBridgeArtifactsRoot>
+        <LegacyNativeArtifactsRoot>$(ResolvedSolutionDir)artifacts/native</LegacyNativeArtifactsRoot>
+        <NativeArtifactsRoot Condition="Exists('$(NativeBridgeArtifactsRoot)')">$(NativeBridgeArtifactsRoot)</NativeArtifactsRoot>
+        <NativeArtifactsRoot Condition="'$(NativeArtifactsRoot)'==''">$(LegacyNativeArtifactsRoot)</NativeArtifactsRoot>
+        <NativeOutputDir>$(NativeArtifactsRoot)/$(CMakeOSDir)/$(CMakeArch)/$(Configuration)</NativeOutputDir>
 
         <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>

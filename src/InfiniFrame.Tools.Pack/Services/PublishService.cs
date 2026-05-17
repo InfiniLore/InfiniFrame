@@ -4,6 +4,7 @@
 using InfiniFrame.Tools.Pack.Exceptions;
 using InfiniFrame.Tools.Pack.Resolvers;
 using Serilog;
+using System.Diagnostics;
 
 namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -11,7 +12,6 @@ namespace InfiniFrame.Tools.Pack.Services;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class PublishService {
     private const string DotNet = "dotnet";
-    private const string AllowStaleNativeFallbackEnvVar = "INFINIFRAME_PACK_ALLOW_STALE_NATIVE_FALLBACK";
     private static readonly StringComparison PathComparison =
         OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
     private static readonly ILogger Logger = Log.ForContext(typeof(PublishService));
@@ -21,25 +21,30 @@ internal static class PublishService {
     // -----------------------------------------------------------------------------------------------------------------
 
     /// <summary>
-    ///     Executes the full InfiniFrame publish pipeline for a project.
+    /// Executes the full InfiniFrame publish pipeline for a project.
     /// </summary>
-    /// <param name="options">Publish options parsed from the command line.</param>
+    /// <param name="options">The publish options parsed from the command line.</param>
+    /// <param name="cancellationToken">A token to observe for cooperative cancellation of the publish operation.</param>
     /// <returns>The process exit code of the publish operation.</returns>
     /// <exception cref="FileNotFoundException">Thrown when the target project file does not exist.</exception>
     /// <exception cref="InvalidOperationException">
-    ///     Thrown when native build fails, fallback policy is violated, or required artifacts are missing.
+    /// Thrown when native build fails or required artifacts are missing.
     /// </exception>
-    public static async Task<int> PublishAsync(PublishOptions options) {
+    public static async Task<int> PublishAsync(PublishOptions options, CancellationToken cancellationToken = default) {
+        var totalPublishStopwatch = Stopwatch.StartNew();
+        ValidateProcessTimeout(options.ProcessTimeout);
         string projectPath = Path.GetFullPath(options.ProjectPath);
         if (!File.Exists(projectPath)) throw new FileNotFoundException("Project file not found", projectPath);
 
         string projectDirectory = Path.GetDirectoryName(projectPath) ?? throw new InvalidOperationException("Unable to resolve project directory.");
-        string framework = string.IsNullOrWhiteSpace(options.Framework) ? ProjectInfoResolver.ResolveFramework(projectPath) : options.Framework!;
+        string framework = string.IsNullOrWhiteSpace(options.Framework)
+            ? await ProjectInfoResolver.ResolveFrameworkAsync(projectPath, options.ProcessTimeout, cancellationToken)
+            : options.Framework!;
         string rid = RuntimeResolver.ResolveRid(options.Rid);
         string output = ResolveOutputPath(options, projectDirectory, framework, rid);
-        string assemblyName = ProjectInfoResolver.ResolveAssemblyName(projectPath);
+        string assemblyName = await ProjectInfoResolver.ResolveAssemblyNameAsync(projectPath, options.ProcessTimeout, cancellationToken);
 
-        ResolvedNativeArtifacts nativeArtifacts = await ResolveNativeArtifactsAsync(options, projectPath, framework, rid);
+        ResolvedNativeArtifacts nativeArtifacts = await ResolveNativeArtifactsAsync(options, projectPath, framework, rid, cancellationToken);
 
         PublishValidator.PreflightValidate(
             projectDirectory,
@@ -65,10 +70,14 @@ internal static class PublishService {
                 rid,
                 output,
                 nativeArtifacts.Directory,
-                tempTargets.Path
+                tempTargets.Path,
+                noRestore: true
             );
 
-            int exitCode = await ProcessRunner.RunAsync(DotNet, publishArgs);
+            var publishStopwatch = Stopwatch.StartNew();
+            int exitCode = await ProcessRunner.RunAsync(DotNet, publishArgs, timeout: options.ProcessTimeout, cancellationToken: cancellationToken);
+            publishStopwatch.Stop();
+            Logger.Information("Final publish finished in {ElapsedSeconds}s.", Math.Round(publishStopwatch.Elapsed.TotalSeconds, 2));
             if (exitCode != 0) return exitCode;
 
             string[] cleanupWarnings = PublishOutputCleaner.Cleanup(output);
@@ -85,6 +94,9 @@ internal static class PublishService {
             return validation.UnexpectedEntries.Length == 0 ? ExitCodes.Success : ExitCodes.UnexpectedOutputShape;
         }
         finally {
+            totalPublishStopwatch.Stop();
+            Logger.Information("Pack pipeline completed in {ElapsedSeconds}s.", Math.Round(totalPublishStopwatch.Elapsed.TotalSeconds, 2));
+
             if (nativeArtifacts.DeleteWhenDone && Directory.Exists(nativeArtifacts.Directory)) {
                 Directory.Delete(nativeArtifacts.Directory, true);
             }
@@ -159,24 +171,26 @@ internal static class PublishService {
         PublishOptions options,
         string projectPath,
         string framework,
-        string rid
+        string rid,
+        CancellationToken cancellationToken
     ) {
         string preflightDirectory = Path.Join(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
         Directory.CreateDirectory(preflightDirectory);
 
         bool preflightValidated = false;
         try {
-            List<string> preflightArgs = BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, isPreflight: true);
-            ProcessRunner.ProcessRunResult preflightResult = await ProcessRunner.RunWithOutputAsync(DotNet, preflightArgs);
+            List<string> preflightArgs = BuildPublishArguments(options, projectPath, framework, rid, preflightDirectory, noRestore: options.NoRestore, isPreflight: true);
+            var preflightStopwatch = Stopwatch.StartNew();
+            ProcessRunner.ProcessRunResult preflightResult = await ProcessRunner.RunWithOutputAsync(
+                DotNet,
+                preflightArgs,
+                timeout: options.ProcessTimeout,
+                cancellationToken: cancellationToken);
+            preflightStopwatch.Stop();
+            Logger.Information("Preflight publish finished in {ElapsedSeconds}s.", Math.Round(preflightStopwatch.Elapsed.TotalSeconds, 2));
             int preflightExitCode = preflightResult.ExitCode;
 
             if (preflightExitCode != 0) {
-                string preflightFailureReason =
-                    $"Preflight publish failed with exit code {preflightExitCode}.";
-                ResolvedNativeArtifacts? fallbackArtifacts =
-                    TryResolveConfiguredFallbackNativeArtifacts(options, rid, preflightFailureReason);
-                if (fallbackArtifacts is not null) return fallbackArtifacts;
-
                 throw new InvalidOperationException(
                     $"Preflight publish failed with exit code {preflightExitCode}. Command: {DotNet} {string.Join(' ', preflightArgs)}" +
                     $"{FormatPreflightOutputForException(preflightResult)}");
@@ -188,10 +202,12 @@ internal static class PublishService {
                 return new ResolvedNativeArtifacts(preflightDirectory, true);
             }
             catch (InvalidOperationException preflightValidationError) {
-                const string validationFailureReason = "Preflight publish did not contain valid native artifacts.";
-                ResolvedNativeArtifacts? fallbackArtifacts =
-                    TryResolveConfiguredFallbackNativeArtifacts(options, rid, validationFailureReason, preflightValidationError);
-                if (fallbackArtifacts is not null) return fallbackArtifacts;
+                string? nativeArtifactsDirectory = TryResolveNativeArtifactsFromPublishLayout(preflightDirectory, rid, options.Configuration);
+                if (!string.IsNullOrWhiteSpace(nativeArtifactsDirectory)) {
+                    PublishValidator.ValidateNativeArtifacts(nativeArtifactsDirectory, rid);
+                    preflightValidated = true;
+                    return new ResolvedNativeArtifacts(nativeArtifactsDirectory, true);
+                }
 
                 throw new NativeDependencyNotFoundException(
                     "Could not resolve required InfiniFrame native artifacts from project publish output. " +
@@ -206,45 +222,25 @@ internal static class PublishService {
         }
     }
 
-    private static ResolvedNativeArtifacts? TryResolveConfiguredFallbackNativeArtifacts(
-        PublishOptions options,
-        string rid,
-        string failureReason,
-        Exception? validationError = null
-    ) {
-        if (string.IsNullOrWhiteSpace(options.NativeArtifactsFallbackPath)) return null;
+    private static string? TryResolveNativeArtifactsFromPublishLayout(string publishDirectory, string rid, string configuration) {
+        string[] ridParts = rid.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (ridParts.Length != 2) return null;
 
-        string fallbackArtifactsDirectory = Path.GetFullPath(options.NativeArtifactsFallbackPath);
-        PublishValidator.ValidateNativeArtifacts(fallbackArtifactsDirectory, rid);
+        string platform = ridParts[0].ToLowerInvariant() switch {
+            "win" => "windows",
+            "linux" => "linux",
+            "osx" => "osx",
+            _ => string.Empty
+        };
+        string architecture = ridParts[1].ToLowerInvariant() switch {
+            "x64" => "x64",
+            "arm64" => "arm64",
+            _ => string.Empty
+        };
+        if (string.IsNullOrWhiteSpace(platform) || string.IsNullOrWhiteSpace(architecture)) return null;
 
-        if (!options.AllowStaleNativeArtifactsFallback) {
-            throw new InvalidOperationException(
-                $"{failureReason} Native artifacts fallback was configured at '{fallbackArtifactsDirectory}', " +
-                "but fallback artifacts are treated as potentially stale by default. " +
-                "Re-run with '--allow-stale-native-fallback' (or set " +
-                $"{AllowStaleNativeFallbackEnvVar}=true) to opt in."
-            );
-        }
-
-        if (validationError is null) {
-            Logger.Warning(
-                "[InfiniFrame.Pack] {FailureReason} Using explicitly configured native fallback artifacts at: {NativeArtifactsDirectory}. " +
-                "This bypasses preflight freshness checks and was explicitly allowed.",
-                failureReason,
-                fallbackArtifactsDirectory
-            );
-        }
-        else {
-            Logger.Warning(
-                validationError,
-                "[InfiniFrame.Pack] {FailureReason} Using explicitly configured native fallback artifacts at: {NativeArtifactsDirectory}. " +
-                "This bypasses preflight freshness checks and was explicitly allowed.",
-                failureReason,
-                fallbackArtifactsDirectory
-            );
-        }
-
-        return new ResolvedNativeArtifacts(fallbackArtifactsDirectory, false);
+        string candidateDirectory = Path.Join(publishDirectory, "artifacts", "native", platform, architecture, configuration);
+        return Directory.Exists(candidateDirectory) ? candidateDirectory : null;
     }
 
     private static string FormatPreflightOutputForException(ProcessRunner.ProcessRunResult preflightResult) {
@@ -293,6 +289,7 @@ internal static class PublishService {
         string output,
         string? nativeArtifactsDir = null,
         string? customTargetsPath = null,
+        bool noRestore = false,
         bool isPreflight = false
     ) {
         bool selfContained = !isPreflight && options.SelfContained;
@@ -326,9 +323,20 @@ internal static class PublishService {
             ]);
         }
 
-        if (options.NoRestore) args.Add("--no-restore");
+        if (noRestore) args.Add("--no-restore");
 
         return args;
+    }
+
+    private static void ValidateProcessTimeout(TimeSpan timeout) {
+        if (timeout <= TimeSpan.Zero) {
+            throw new InvalidOperationException($"Process timeout must be greater than zero. Received '{timeout}'.");
+        }
+
+        if (timeout > PublishOptions.MaxProcessTimeout) {
+            throw new InvalidOperationException(
+                $"Process timeout '{timeout}' exceeds the maximum supported value of '{PublishOptions.MaxProcessTimeout}'.");
+        }
     }
 
     internal readonly record struct OutputShapeValidation(bool FoundMainOutput, string[] UnexpectedEntries);

@@ -190,6 +190,7 @@ def complete_matching_check_runs(args: Args, token: str) -> bool:
         for run in check_runs
         if run.get("name") == args.context
            and run.get("status") in ("queued", "in_progress")
+           and run.get("details_url") == args.target_url
            and isinstance(run.get("id"), int)
     ]
 

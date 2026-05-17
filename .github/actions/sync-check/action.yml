@@ -52,7 +52,13 @@ inputs:
 runs:
     using: composite
     steps:
+        -   name: Skip status/check sync in local mode
+            if: ${{ env.LOCAL_GHA_SKIP_STATUS == '1' }}
+            shell: bash
+            run: echo "LOCAL_GHA_SKIP_STATUS=1, skipping GitHub status/check sync."
+
         -   name: Sync status/check
+            if: ${{ env.LOCAL_GHA_SKIP_STATUS != '1' }}
             shell: pwsh
             run: |
                 $argsList = @(

@@ -37,24 +37,29 @@ function isProcessRunning(processId) {
     try {
         process.kill(processId, 0);
         return true;
-    } catch {
-        return false;
+    } catch (error) {
+        return error?.code === 'EPERM';
     }
 }
 
 function shouldRemoveExistingLock() {
     const ownerFile = path.join(lockDirectory, 'owner.txt');
+    const staleLockThresholdMilliseconds = 10 * 60 * 1000;
 
     if (existsSync(ownerFile)) {
         const ownerProcessId = Number.parseInt(readFileSync(ownerFile, 'utf8'), 10);
-        if (!isProcessRunning(ownerProcessId)) {
+        if (Number.isInteger(ownerProcessId) && !isProcessRunning(ownerProcessId)) {
             return true;
+        }
+
+        if (Number.isInteger(ownerProcessId)) {
+            return false;
         }
     }
 
     try {
         const lockAgeMilliseconds = Date.now() - statSync(lockDirectory).mtimeMs;
-        return lockAgeMilliseconds > 60 * 1000;
+        return lockAgeMilliseconds > staleLockThresholdMilliseconds;
     } catch (error) {
         if (error?.code === 'ENOENT') {
             return false;

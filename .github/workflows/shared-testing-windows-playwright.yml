@@ -34,7 +34,7 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
-                
+
             -   name: Set Playwright Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,7 +59,7 @@ jobs:
         
         strategy:
             fail-fast: false
-            matrix:                
+            matrix:
                 project:
                     -   name: WebApp Vue
                         path: InfiniFrameTests.Playwright.WebApp.Vue
@@ -87,6 +87,14 @@ jobs:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
 
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
+
             -   name: Set Playwright Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -102,54 +110,11 @@ jobs:
                     target-url: ${{ inputs.workflow_url }}
                     allow-status-422: 'true'
 
-            -   name: Setup .NET
-                uses: actions/setup-dotnet@v5
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
                 with:
-                    dotnet-version: |
-                        8.x
-                        9.x
-                        10.x
-                    cache: true
-                    cache-dependency-path: |
-                        **/*.csproj
-                        **/*.props
-                        **/Directory.Packages.props
+                    artifact-type: testing
 
-            -   name: Setup Native dependencies
-                # noinspection UndefinedAction
-                uses: ./.github/actions/setup-dependencies-native
-                # noinspection UndefinedParamsPresent
-                with:
-                    apt-cache-version: 1.0
-                    brew-cache-key: ${{ runner.os }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml') }}
-                    brew-restore-key: ${{ runner.os }}-brew-native-
-
-            -   name: Setup Node
-                uses: actions/setup-node@v6
-                with:
-                    node-version: 20
-                    cache: 'npm'
-                    cache-dependency-path: '**/package-lock.json'
-
-            -   name: Prepare WebView2 Cache Directory
-                shell: pwsh
-                run: New-Item -ItemType Directory -Path ".cache\webview2" -Force | Out-Null
-
-            -   name: Cache WebView2
-                uses: actions/cache@v5
-                with:
-                    path: .cache\webview2
-                    key: webview2-installer-${{ runner.os }}-v1
-
-            -   name: Install WebView2 Runtime
-                shell: pwsh
-                run: |
-                    $installer = "$PWD\.cache\webview2\MicrosoftEdgeWebview2Setup.exe"
-                    if (-Not (Test-Path $installer)) {
-                      Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile $installer
-                    }
-                    Start-Process -FilePath $installer -ArgumentList "/silent", "/install" -Wait
-                    
             -   name: NPM Install
                 if: ${{ matrix.project.sourceFolder != '' }}
                 shell: pwsh
@@ -175,32 +140,13 @@ jobs:
                     dotnet restore InfiniFrame.GitHubActions.Testing.Playwright.slnf `
                       /p:NoWarn=NU1503
 
-            -   name: Build Native
-                run: |
-                    dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj `
-                      --configuration Release `
-                      --no-restore `
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
-
             -   name: Build Tests
                 run: |
                     dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
                       --configuration Release `
                       --no-restore `
-                      --framework net8.0 `
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
-                    
-                    dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-restore `
-                      --framework net9.0 `
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
-                    
-                    dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-restore `
-                      --framework net10.0 `
-                      /p:SolutionDir=$GITHUB_WORKSPACE/
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Install Playwright Browsers
                 shell: pwsh
@@ -210,19 +156,19 @@ jobs:
                     if (-not (Test-Path $script)) {
                       throw "Playwright script not found: $script"
                     }
-                    
                     pwsh $script install
 
             -   name: Verify Native Binaries
                 shell: pwsh
                 run: |
                     $binPath = "tests/${{ matrix.project.path }}/bin/Release/net10.0"
-                    
-                    foreach ($dll in @("InfiniFrame.Native.dll", "WebView2Loader.dll")) {
-                      $fullPath = Join-Path $binPath $dll
-                      if (-Not (Test-Path $fullPath)) {
-                        throw "$dll missing in $binPath"
-                      }
+                    $dlls = @("InfiniFrame.Native.dll", "WebView2Loader.dll")
+
+                    foreach ($dll in $dlls) {
+                        $fullPath = Join-Path $binPath $dll
+                        if (-Not (Test-Path $fullPath)) {
+                            throw "$dll missing in $binPath"
+                        }
                     }
 
             -   name: Export Actions Runtime
@@ -240,7 +186,8 @@ jobs:
                       --configuration Release `
                       --no-build `
                       --no-restore `
-                      --framework net8.0
+                      --framework net8.0 `
+                      /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Run Playwright tests NET 9.0
                 shell: pwsh
@@ -250,7 +197,8 @@ jobs:
                       --configuration Release `
                       --no-build `
                       --no-restore `
-                      --framework net9.0
+                      --framework net9.0 `
+                      /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Run Playwright tests NET 10.0
                 shell: pwsh
@@ -260,7 +208,8 @@ jobs:
                       --configuration Release `
                       --no-build `
                       --no-restore `
-                      --framework net10.0
+                      --framework net10.0 `
+                      /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Update Playwright Check
                 if: always()
@@ -292,7 +241,7 @@ jobs:
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
-              
+
             -   name: Set Playwright Check Final Status
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -343,12 +343,14 @@ healthchecksdb
 .DS_Store
 
 # InfiniFrame.Native
-/src/InfiniFrame.Native/build/
-/src/InfiniFrame.Native/packages/
-/src/InfiniFrame.Native/cmake-build-debug/
-/src/InfiniFrame.Native/cmake-build-debug-linux/
-/src/InfiniFrame.Native/cmake-build-debug-windows/
-/src/InfiniFrame.Native/Embedded/InfiniFrameJs/InfiniFrameJs.cpp
+/src/InfiniFrame.NativeBridge/artifacts/
+/src/InfiniFrame.NativeBridge/build/
+/src/InfiniFrame.NativeBridge/Native/build/
+/src/InfiniFrame.NativeBridge/Native/packages/
+/src/InfiniFrame.NativeBridge/Native/cmake-build-debug/
+/src/InfiniFrame.NativeBridge/Native/cmake-build-debug-linux/
+/src/InfiniFrame.NativeBridge/Native/cmake-build-debug-windows/
+/src/InfiniFrame.NativeBridge/Native/Embedded/InfiniFrameJs/InfiniFrameJs.cpp
 
 # wwwroot folders from js web based projects
 /examples/InfiniFrameExample.WebApp.React/wwwroot/
@@ -364,7 +366,7 @@ healthchecksdb
 # Local test/runner virtualenv
 /.run/.venv/
 
-
 src/InfiniFrame.Js/wwwroot/InfiniFrame.js
 src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js
 src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js.map
+
