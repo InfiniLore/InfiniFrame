@@ -35,7 +35,7 @@ HWND ResolveParentWindowHandle(InfiniFrameWindow* parent);
 HBRUSH GetDarkBrush();
 HBRUSH GetLightBrush();
 
-template <typename TImpl> inline void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
+template <typename TImpl> void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
     if (impl == nullptr)
         return;
     if (impl->_ownerAssigned)

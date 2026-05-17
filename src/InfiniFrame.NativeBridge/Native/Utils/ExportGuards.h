@@ -100,19 +100,19 @@ namespace infiniframe::exports {
         return detail::AllocateErrorMessageString(detail::g_lastErrorMessage);
     }
 
-    template <typename T> inline void ResetOut(T* outValue, const T fallback = {}) noexcept {
+    template <typename T> void ResetOut(T* outValue, const T fallback = {}) noexcept {
         if (outValue != nullptr) {
             *outValue = fallback;
         }
     }
 
-    template <typename T> inline void ResetOut2(T* first, T* second, const T fallback = {}) noexcept {
+    template <typename T> void ResetOut2(T* first, T* second, const T fallback = {}) noexcept {
         ResetOut(first, fallback);
         ResetOut(second, fallback);
     }
 
     template <typename T>
-    inline bool EnsureNotNull(
+    bool EnsureNotNull(
         T* value, const char* argumentName, const InteropStatus status = InteropStatus::InvalidArgument
     ) noexcept {
         if (value != nullptr) {
@@ -123,7 +123,7 @@ namespace infiniframe::exports {
         return false;
     }
 
-    template <typename Fn> inline InteropStatus RunExportStatus(Fn&& fn) noexcept {
+    template <typename Fn> InteropStatus RunExportStatus(Fn&& fn) noexcept {
         try {
             detail::SetSuccess();
             std::forward<Fn>(fn)();
@@ -140,7 +140,7 @@ namespace infiniframe::exports {
         }
     }
 
-    template <typename Fn> inline InteropStatus RunWindowExportStatus(InfiniFrameWindow* instance, Fn&& fn) noexcept {
+    template <typename Fn> InteropStatus RunWindowExportStatus(InfiniFrameWindow* instance, Fn&& fn) noexcept {
         return RunExportStatus([&] {
             if (!EnsureNotNull(instance, "instance")) {
                 return;
@@ -151,7 +151,7 @@ namespace infiniframe::exports {
     }
 
     template <typename T, typename Fn>
-    inline T RunWindowReturnExport(InfiniFrameWindow* instance, T fallback, Fn&& fn) noexcept {
+    T RunWindowReturnExport(InfiniFrameWindow* instance, T fallback, Fn&& fn) noexcept {
         try {
             if (!EnsureNotNull(instance, "instance")) {
                 return fallback;
@@ -169,7 +169,7 @@ namespace infiniframe::exports {
         }
     }
 
-    template <typename T, typename Fn> inline T RunReturnExport(T fallback, Fn&& fn) noexcept {
+    template <typename T, typename Fn> T RunReturnExport(T fallback, Fn&& fn) noexcept {
         try {
             T value = std::forward<Fn>(fn)();
             detail::SetSuccess();
