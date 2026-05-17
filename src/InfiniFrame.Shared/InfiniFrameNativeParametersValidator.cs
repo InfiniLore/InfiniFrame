@@ -62,7 +62,7 @@ internal static class InfiniFrameNativeParametersValidator {
         try {
             Directory.CreateDirectory(path);
 
-            string probeFile = Path.Combine(path, $".infiniframe-write-check-{Guid.NewGuid():N}.tmp");
+            string probeFile = Path.Join(path, $".infiniframe-write-check-{Guid.NewGuid():N}.tmp");
             File.WriteAllText(probeFile, "ok");
             File.Delete(probeFile);
             return true;
