@@ -212,8 +212,7 @@ jobs:
                     dotnet build `
                       --configuration Release `
                       --no-restore `
-                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ 
 
             -   name: Perform CodeQL Analysis
                 uses: github/codeql-action/analyze@v4
