@@ -1,12 +1,12 @@
-#include <chrono>
-
+#include "chrono"
 #include "../Window.Win32.Context.h"
 
 void InfiniFrameWindow::WaitForExit() {
-    ApplyPendingOwnerWindow(m_impl.get(), L"wait_for_exit");
+    auto* impl = m_impl.get();
+    ApplyPendingOwnerWindow(impl, L"wait_for_exit");
 
-    messageLoopRootWindowHandle = m_impl->_hWnd;
-    TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, m_impl->_hWnd);
+    messageLoopRootWindowHandle = impl->_hWnd;
+    TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, impl->_hWnd);
 
     MSG msg = {};
     while (true) {
@@ -23,19 +23,22 @@ void InfiniFrameWindow::WaitForExit() {
     }
 
     messageLoopRootWindowHandle = nullptr;
-    TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, m_impl->_hWnd);
+    TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, impl->_hWnd);
 }
 
 void InfiniFrameWindow::Invoke(ACTION callback) {
-    if (!callback)
+    if (!callback) {
         return;
+    }
 
-    if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd))
+    auto* impl = m_impl.get();
+    if (impl->_hWnd == nullptr || IsWindow(impl->_hWnd) == 0) {
         return;
+    }
 
     auto* waitInfo = new InvokeWaitInfo();
     if (!PostMessage(
-            m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(waitInfo)
+            impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(waitInfo)
         )) {
         delete waitInfo;
         return;
