@@ -97,6 +97,8 @@ IncludeBlocks: Preserve
 # Line Breaking
 # ----------------------------------------------------------------------------------------------------------------------
 
+AlignAfterOpenBracket: BlockIndent
+BinPackParameters: false
 BreakConstructorInitializers: BeforeComma
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
