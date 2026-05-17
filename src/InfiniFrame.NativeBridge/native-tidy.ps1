@@ -1,5 +1,6 @@
 param(
     [string]$BuildDirectoryName = "build-clang-tidy",
+    [switch]$ApplyFixes,
     [switch]$FixErrors
 )
 
@@ -57,6 +58,10 @@ $BuildDirectory = Join-Path $NativeRoot $BuildDirectoryName
 Push-Location $NativeRoot
 
 try {
+    if ($FixErrors -and -not $ApplyFixes) {
+        $ApplyFixes = $true
+    }
+
     $clangTidy = Get-Command clang-tidy -ErrorAction SilentlyContinue
     if (-not $clangTidy) {
         throw "clang-tidy was not found on PATH."
@@ -111,10 +116,14 @@ try {
         $tidyArgs = @(
             $sourceFile.FullName,
             "-p", $BuildDirectory,
-            "--fix"
+            "--header-filter=^$"
         )
 
-        if ($FixErrors) {
+        if ($ApplyFixes) {
+            $tidyArgs += "--fix"
+        }
+
+        if ($ApplyFixes -and $FixErrors) {
             $tidyArgs += "--fix-errors"
         }
 

@@ -346,6 +346,7 @@ healthchecksdb
 /src/InfiniFrame.NativeBridge/artifacts/
 /src/InfiniFrame.NativeBridge/build/
 /src/InfiniFrame.NativeBridge/Native/build/
+/src/InfiniFrame.NativeBridge/Native/build-clang-tidy/
 /src/InfiniFrame.NativeBridge/Native/packages/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-debug/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-debug-linux/
