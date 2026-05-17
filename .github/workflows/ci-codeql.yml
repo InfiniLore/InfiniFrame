@@ -239,7 +239,7 @@ jobs:
                 os:
                     - ubuntu-latest
                     - windows-latest
-                    - macos-latest
+                  # - macos-latest # support is currently experimental and requires additional setup
         
         permissions:
             contents: read
@@ -271,6 +271,10 @@ jobs:
                     build-mode: manual
                     queries: security-extended,security-and-quality
                     config-file: ./.github/codeql-config.yml
+
+            -   name: Restore NativeBridge
+                run: |
+                    dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj /p:NoWarn=NU1503
 
             -   name: Build NativeBridge
                 shell: pwsh
