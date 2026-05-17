@@ -217,6 +217,7 @@ jobs:
                 os:
                     - ubuntu-latest
                     - windows-latest
+                    - macos-latest
         
         permissions:
             contents: read
@@ -237,6 +238,9 @@ jobs:
 
             -   name: Setup Native Dependencies
                 uses: ./.github/actions/setup-dependencies-native
+                with:
+                    brew-cache-key: ${{ matrix.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-brew-codeql-
 
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
