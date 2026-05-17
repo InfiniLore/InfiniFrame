@@ -69,13 +69,15 @@ jobs:
                           - 'src/**/*.razor.css'
                           - 'Directory.Packages.props'
                           - 'global.json'
+                          - '.github/workflows/ci-codeql.yml'
+                          - '.github/codeql-config.yml'
                         
                         cpp:
                           - 'src/InfiniFrame.Native/**'
                           - 'native-vendor-deps.json'
                           - 'global.json'
                           - '.github/actions/setup-dependencies-native/**'
-                          - '.github/workflows/codeql.yml'
+                          - '.github/workflows/ci-codeql.yml'
                           - '.github/codeql-config.yml'
                         
                         javascript_typescript:
@@ -93,6 +95,8 @@ jobs:
                           - 'src/**/vite.config.*'
                           - 'src/**/webpack.config.*'
                           - 'src/**/eslint.config.*'
+                          - '.github/workflows/ci-codeql.yml'
+                          - '.github/codeql-config.yml'
                         
                         python:
                           - '.github/scripts/**/*.py'
@@ -111,7 +115,7 @@ jobs:
                           - 'scripts/**/Pipfile.lock'
                           - 'scripts/**/tox.ini'
                           - 'scripts/**/setup.cfg'
-                          - '.github/workflows/codeql.yml'
+                          - '.github/workflows/ci-codeql.yml'
                           - '.github/codeql-config.yml'
     
     analyze-actions:
