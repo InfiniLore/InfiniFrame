@@ -183,14 +183,33 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
+            
+            -   name: Setup Native Dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                with:
+                    brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: ${{ runner.os }}-brew-codeql-
 
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
                 with:
                     languages: csharp
-                    build-mode: none
+                    build-mode: manual
                     queries: security-extended,security-and-quality
                     config-file: ./.github/codeql-config.yml
+                    
+            -   name: Restore Dotnet
+                run: |
+                    dotnet restore
+
+            -   name: Build Dotnet
+                shell: pwsh
+                run: |
+                    dotnet build `
+                      --configuration Release `
+                      --no-restore `
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      /p:InfiniFrameSkipNativeBuild=true
 
             -   name: Perform CodeQL Analysis
                 uses: github/codeql-action/analyze@v4
@@ -239,8 +258,8 @@ jobs:
             -   name: Setup Native Dependencies
                 uses: ./.github/actions/setup-dependencies-native
                 with:
-                    brew-cache-key: ${{ matrix.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: ${{ matrix.os }}-brew-codeql-
+                    brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: ${{ runner.os }}-brew-codeql-
 
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
@@ -250,7 +269,11 @@ jobs:
                     queries: security-extended,security-and-quality
                     config-file: ./.github/codeql-config.yml
 
-            -   name: Build Native
+            -   name: Restore NativeBridge
+                run: |
+                    dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj
+
+            -   name: Build NativeBridge
                 shell: pwsh
                 run: |
                     dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj `
