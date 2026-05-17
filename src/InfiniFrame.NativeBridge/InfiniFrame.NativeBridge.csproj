@@ -18,6 +18,8 @@
         </NativeStamp>
         <NativeOutputRoot>$(MSBuildThisFileDirectory)artifacts\native</NativeOutputRoot>
         <InfiniFrameSkipNativeBuild Condition="'$(InfiniFrameSkipNativeBuild)'==''">false</InfiniFrameSkipNativeBuild>
+        <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'=='' and '$(Configuration)'=='Debug'">true</InfiniFrameEnableTestExports>
+        <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'==''">false</InfiniFrameEnableTestExports>
 
         <WindowsX64>$(NativeOutputRoot)\windows\x64\$(Configuration)</WindowsX64>
         <WindowsArm64>$(NativeOutputRoot)\windows\arm64\$(Configuration)</WindowsArm64>
@@ -27,7 +29,7 @@
         <MacOsArm64>$(NativeOutputRoot)\osx\arm64\$(Configuration)</MacOsArm64>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <PropertyGroup Condition="'$(InfiniFrameEnableTestExports)' == 'true'">
         <DefineConstants>$(DefineConstants);InfiniFrameNativeTestExports</DefineConstants>
     </PropertyGroup>
 
@@ -131,11 +133,11 @@
 
     <Target Name="BuildNative"
             BeforeTargets="DispatchToInnerBuilds;PrepareForBuild"
-            Condition="'$(InfiniFrameSkipNativeBuild)' != 'true' and ('$(TargetFramework)' == '' or '$(TargetFrameworks)' == '')"
+            Condition="'$(InfiniFrameSkipNativeBuild)' != 'true' and ('$(IsCrossTargetingBuild)' == 'true' or '$(TargetFramework)' != '')"
             Inputs="@(NativeSource)"
             Outputs="$(NativeStamp)">
 
-        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch)" />
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)" />
 
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
     </Target>

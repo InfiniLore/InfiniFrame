@@ -12,6 +12,11 @@ on:
                 description: 'Commit SHA used for status/check updates'
                 type: string
                 required: true
+            enable_test_exports:
+                description: 'Enable native/managed test exports when validating pack.'
+                type: boolean
+                required: false
+                default: false
 
 permissions:
     contents: read
@@ -66,7 +71,8 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{ github.workspace }}/ \
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true \
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Pack
                 run: |
@@ -74,6 +80,7 @@ jobs:
                       --configuration Release \
                       --no-build \
                       /p:InfiniFrameSkipNativeBuild=true \
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
                       -o ./release
 
             -   name: Verify NativeBridge Package Natives

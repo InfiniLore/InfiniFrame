@@ -12,6 +12,11 @@ on:
                 description: 'Commit SHA used for status/check updates'
                 type: string
                 required: true
+            enable_test_exports:
+                description: 'Enable native/managed test exports in trim/AOT validation builds.'
+                type: boolean
+                required: false
+                default: false
 
 permissions:
     contents: read
@@ -75,6 +80,7 @@ jobs:
                       -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       -p:Platform=x64 `
                       -p:InfiniFrameSkipNativeBuild=true `
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false
@@ -85,6 +91,7 @@ jobs:
                       -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       -p:Platform=x64 `
                       -p:InfiniFrameSkipNativeBuild=true `
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false `
@@ -96,6 +103,7 @@ jobs:
                       -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       -p:Platform=x64 `
                       -p:InfiniFrameSkipNativeBuild=true `
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
                       -p:EnableTrimAnalyzer=true `
                       -p:EnableAotAnalyzer=true `
                       -p:GeneratePackageOnBuild=false `
@@ -110,6 +118,7 @@ jobs:
                       -p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       -p:Platform=x64 `
                       -p:InfiniFrameSkipNativeBuild=true `
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} `
                       -p:GeneratePackageOnBuild=false `
                       -p:SkipTypeScriptBuild=true
 

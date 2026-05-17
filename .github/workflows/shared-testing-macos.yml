@@ -15,6 +15,10 @@ on:
             workflow_url:
                 type: string
                 required: true
+            enable_test_exports:
+                type: boolean
+                required: false
+                default: false
 
 jobs:
     macos:
@@ -88,7 +92,8 @@ jobs:
                       --no-restore \
                       -p:SolutionDir=${{ github.workspace }}/ \
                       -p:CMakePlatform=${{ matrix.arch }} \
-                      -p:InfiniFrameSkipNativeBuild=true
+                      -p:InfiniFrameSkipNativeBuild=true \
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Export Actions Runtime
                 uses: actions/github-script@v9
@@ -116,7 +121,8 @@ jobs:
                       --no-build \
                       --no-restore \
                       -p:CMakePlatform=${{ matrix.arch }} \
-                      -p:InfiniFrameSkipNativeBuild=true
+                      -p:InfiniFrameSkipNativeBuild=true \
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Pack Tool E2E
                 # noinspection UndefinedAction

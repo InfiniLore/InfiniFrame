@@ -15,6 +15,11 @@ on:
                 description: 'Resolved commit SHA used by testing workflows.'
                 type: string
                 required: true
+            enable_test_exports:
+                description: 'Enable native test exports in testing native artifacts.'
+                type: boolean
+                required: false
+                default: false
 
 permissions:
     contents: read
@@ -68,7 +73,8 @@ jobs:
                 run: |
                     ./src/InfiniFrame.NativeBridge/native-build.ps1 `
                       "Release" `
-                      "${{ matrix.arch }}"
+                      "${{ matrix.arch }}" `
+                      "${{ inputs.enable_test_exports }}"
 
             -   name: Upload Build Artifact
                 uses: actions/upload-artifact@v7

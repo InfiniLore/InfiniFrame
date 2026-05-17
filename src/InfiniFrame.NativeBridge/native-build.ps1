@@ -1,6 +1,7 @@
 param(
     [string]$Configuration = "Debug",
-    [string]$Arch = "x64"
+    [string]$Arch = "x64",
+    [string]$EnableTestExports = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,6 +27,12 @@ elseif ($IsLinux) { "linux" }
 else { "osx" }
 
 New-Item -ItemType Directory -Force -Path "$ArtifactsDir/$Platform/$Arch/$Configuration" | Out-Null
+
+if ([string]::IsNullOrWhiteSpace($EnableTestExports)) {
+    $EnableTestExports = if ($Configuration -ieq "Debug") { "true" } else { "false" }
+}
+
+$EnableTestExportsCMakeValue = if ($EnableTestExports -ieq "true") { "ON" } else { "OFF" }
 
 # -----------------------------------------------------------------------------------------------------------------
 # LOCK (blocking, CI-safe, race-free)
@@ -60,6 +67,7 @@ try {
     Write-Host "Configuration: $Configuration"
     Write-Host "Architecture : $Arch"
     Write-Host "Platform     : $Platform"
+    Write-Host "Test Exports : $EnableTestExports"
     Write-Host "========================================="
 
     # -----------------------------------------------------------------------------------------------------------------
@@ -88,6 +96,8 @@ try {
             throw "Unsupported Windows architecture '$Arch'. Expected 'x64' or 'arm64'."
         }
     }
+
+    $CMakeArgs += "-DINFINIFRAME_BUILD_TEST_EXPORTS=$EnableTestExportsCMakeValue"
 
     cmake -B $BuildDir -S $NativeDir @CMakeArgs
     if ($LASTEXITCODE -ne 0) {

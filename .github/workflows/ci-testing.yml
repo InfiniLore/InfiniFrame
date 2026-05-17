@@ -56,4 +56,5 @@ jobs:
             run_macos: ${{ inputs.run_macos }}
             run_docs: ${{ inputs.run_docs }}
             run_trim_aot: ${{ inputs.run_trim_aot }}
+            enable_test_exports: true
         secrets: inherit

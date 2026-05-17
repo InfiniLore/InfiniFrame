@@ -16,6 +16,10 @@ on:
             workflow_url:
                 type: string
                 required: true
+            enable_test_exports:
+                type: boolean
+                required: false
+                default: false
 
 permissions:
     contents: read
@@ -146,7 +150,8 @@ jobs:
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Install Playwright Browsers
                 shell: pwsh
@@ -187,7 +192,8 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net8.0 `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Run Playwright tests NET 9.0
                 shell: pwsh
@@ -198,7 +204,8 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net9.0 `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Run Playwright tests NET 10.0
                 shell: pwsh
@@ -209,7 +216,8 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net10.0 `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Update Playwright Check
                 if: always()
