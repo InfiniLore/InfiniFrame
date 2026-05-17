@@ -11,6 +11,41 @@ namespace InfiniFrameTests;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameNativeParameterTests {
 
+    [Test]
+    public async Task NativeExport_InvalidArgument_SetsDeterministicLastErrorAndMessage(CancellationToken ct = default) {
+        // Act
+        InfiniFrameNative.FreeString(IntPtr.Zero);
+        int lastError = Marshal.GetLastPInvokeError();
+        string? message = InfiniFrameNative.GetLastErrorMessage();
+
+        // Assert
+        await Assert.That(lastError).IsEqualTo(22);
+        await Assert.That(message).IsNotNull();
+        await Assert.That(message!).Contains("value");
+    }
+
+    [Test]
+    public async Task NativeExport_Success_ClearsLastError(CancellationToken ct = default) {
+        IntPtr[] customSchemeNames = new IntPtr[16];
+        IntPtr newParametersPtr = IntPtr.Zero;
+
+        try {
+            var parameters = new InfiniFrameNativeParameters {
+                StartUrl = "https://example.org",
+                CustomSchemeNames = customSchemeNames,
+                Size = Marshal.SizeOf<InfiniFrameNativeParameters>()
+            };
+
+            newParametersPtr = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters);
+
+            int lastError = Marshal.GetLastPInvokeError();
+            await Assert.That(lastError).IsEqualTo(0);
+        }
+        finally {
+            InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
+        }
+    }
+
     // This test should onl fails if the InfiniFrameNativeParameterTests C# struct is wrongly defined
     // and has parameters in the wrong order, compared to the struct on the c++ side.
     [Test]

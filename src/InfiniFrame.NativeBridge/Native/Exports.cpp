@@ -1,4 +1,6 @@
 #include "Core/InfiniFrame.h"
+#include "Exports/ExportGuards.h"
+
 #ifdef __linux__
 #include <glib.h>
 #endif
@@ -9,766 +11,460 @@
 #define EXPORTED
 #endif
 
-/**
- * @file Exports.cpp
- * @brief C API for InfiniFrame native interop
- *
- * Memory management:
- * - InfiniFrame_ctor returns ownership to caller (.NET side)
- * - InfiniFrame_dtor transfers ownership back and destroys instance
- * - All string returns (AutoString) must be freed with InfiniFrame_FreeString
- *
- * Thread safety:
- * - All methods except Invoke must be called from UI thread
- * - Invoke marshals calls to UI thread safely
- */
+using infiniframe::exports::EnsureNotNull;
+using infiniframe::exports::GetLastErrorMessageCopy;
+using infiniframe::exports::ResetOut;
+using infiniframe::exports::ResetOut2;
+using infiniframe::exports::RunExportStatus;
+using infiniframe::exports::RunReturnExport;
+using infiniframe::exports::RunWindowExportStatus;
+using infiniframe::exports::RunWindowReturnExport;
 
 extern "C" {
 #ifdef _WIN32
-    /**
-     * @brief Register InfiniFrame window class (Windows)
-     * @param hInstance Application instance handle
-     */
-    EXPORTED void InfiniFrame_register_win32(const HINSTANCE hInstance) {
-        InfiniFrameWindow::Register(hInstance);
+    EXPORTED InteropStatus InfiniFrame_register_win32(const HINSTANCE hInstance) {
+        return RunExportStatus([&] {
+            if (hInstance == nullptr) throw std::invalid_argument("Argument 'hInstance' is null.");
+            InfiniFrameWindow::Register(hInstance);
+        });
     }
 
-    /**
-     * @brief Get native window handle (Windows)
-     * @param instance InfiniFrame instance
-     * @return HWND window handle
-     */
-    EXPORTED HWND InfiniFrame_getHwnd_win32(InfiniFrameWindow* instance) {
-        return instance->getHwnd();
+    EXPORTED InteropStatus InfiniFrame_getHwnd_win32(InfiniFrameWindow* instance, HWND* value) {
+        ResetOut(value, static_cast<HWND>(nullptr));
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            *value = window->getHwnd();
+        });
     }
 
-    /**
-     * @brief Set WebView2 runtime path (Windows)
-     * @param instance InfiniFrame instance
-     * @param webView2RuntimePath Path to WebView2 runtime
-     */
-    EXPORTED void InfiniFrame_setWebView2RuntimePath_win32(InfiniFrameWindow*, const AutoString webView2RuntimePath) {
-        InfiniFrameWindow::SetWebView2RuntimePath(webView2RuntimePath);
+    EXPORTED InteropStatus InfiniFrame_setWebView2RuntimePath_win32(InfiniFrameWindow*, const AutoString webView2RuntimePath) {
+        return RunExportStatus([&] {
+            if (!EnsureNotNull(webView2RuntimePath, "webView2RuntimePath")) throw std::invalid_argument("Argument 'webView2RuntimePath' is null.");
+            InfiniFrameWindow::SetWebView2RuntimePath(webView2RuntimePath);
+        });
     }
 
-    /**
-     * @brief Get notifications enabled status (Windows)
-     * @param instance InfiniFrame instance
-     * @param disabled Output: notifications disabled status
-     */
-    EXPORTED void InfiniFrame_GetNotificationsEnabled(InfiniFrameWindow* instance, bool* disabled) {
-        instance->GetNotificationsEnabled(disabled);
+    EXPORTED InteropStatus InfiniFrame_GetNotificationsEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetNotificationsEnabled(enabled);
+        });
     }
 #elif __APPLE__
-    /**
-     * @brief Register InfiniFrame application (macOS)
-     */
-    EXPORTED void InfiniFrame_register_mac() {
-        InfiniFrameWindow::Register();
+    EXPORTED InteropStatus InfiniFrame_register_mac() {
+        return RunExportStatus([] { InfiniFrameWindow::Register(); });
     }
 #endif
 
-    /**
-     * @brief Create new InfiniFrame window instance
-     * @param initParams Initialization parameters
-     * @return Raw pointer - ownership transferred to caller (.NET)
-     */
-    EXPORTED InfiniFrameWindow* InfiniFrame_ctor(InfiniFrameInitParams* initParams) {
-        auto instance = std::make_unique<InfiniFrameWindow>(initParams);
-        return instance.release();
+    EXPORTED InteropStatus InfiniFrame_ctor(InfiniFrameInitParams* initParams, InfiniFrameWindow** value) {
+        ResetOut(value, static_cast<InfiniFrameWindow*>(nullptr));
+        return RunExportStatus([&] {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            if (initParams == nullptr) throw std::invalid_argument("Argument 'initParams' is null.");
+            if (initParams->Size != static_cast<int>(sizeof(InfiniFrameInitParams))) {
+                throw std::invalid_argument("InfiniFrameInitParams.Size does not match native struct size.");
+            }
+            auto instance = std::make_unique<InfiniFrameWindow>(initParams);
+            *value = instance.release();
+        });
     }
 
-    /**
-     * @brief Destroy InfiniFrame window instance
-     * @param instance Raw pointer from InfiniFrame_ctor
-     */
-    EXPORTED void InfiniFrame_dtor(InfiniFrameWindow* instance) {
-        if (instance != nullptr) {
+    EXPORTED InteropStatus InfiniFrame_dtor(InfiniFrameWindow* instance) {
+        return RunExportStatus([&] {
+            if (!EnsureNotNull(instance, "instance")) throw std::invalid_argument("Argument 'instance' is null.");
             std::unique_ptr<InfiniFrameWindow> guard{instance};
-        }
+        });
     }
 
-    /**
-     * @brief Center window on screen
-     * @param instance InfiniFrame instance
-     */
-    EXPORTED void InfiniFrame_Center(InfiniFrameWindow* instance) {
-        instance->Center();
+    EXPORTED InteropStatus InfiniFrame_Center(InfiniFrameWindow* instance) { return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->Center(); }); }
+    EXPORTED InteropStatus InfiniFrame_ClearBrowserAutoFill(InfiniFrameWindow* instance) { return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->ClearBrowserAutoFill(); }); }
+    EXPORTED InteropStatus InfiniFrame_Close(InfiniFrameWindow* instance) { return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->Close(); }); }
+
+    EXPORTED InteropStatus InfiniFrame_GetTransparentEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetTransparentEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Clear browser auto-fill data
-     * @param instance InfiniFrame instance
-     */
-    EXPORTED void InfiniFrame_ClearBrowserAutoFill(InfiniFrameWindow* instance) {
-        instance->ClearBrowserAutoFill();
+    EXPORTED InteropStatus InfiniFrame_GetContextMenuEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetContextMenuEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Close window
-     * @param instance InfiniFrame instance
-     */
-    EXPORTED void InfiniFrame_Close(InfiniFrameWindow* instance) {
-        instance->Close();
+    EXPORTED InteropStatus InfiniFrame_GetZoomEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetZoomEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get transparent enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: transparent enabled status
-     */
-    EXPORTED void InfiniFrame_GetTransparentEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetTransparentEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetDevToolsEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetDevToolsEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get context menu enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: context menu enabled status
-     */
-    EXPORTED void InfiniFrame_GetContextMenuEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetContextMenuEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetFullScreen(InfiniFrameWindow* instance, bool* fullScreen) {
+        ResetOut(fullScreen, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(fullScreen, "fullScreen")) throw std::invalid_argument("Argument 'fullScreen' is null.");
+            window->GetFullScreen(fullScreen);
+        });
     }
 
-    /**
-     * @brief Get zoom enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: zoom enabled status
-     */
-    EXPORTED void InfiniFrame_GetZoomEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetZoomEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetGrantBrowserPermissions(InfiniFrameWindow* instance, bool* grant) {
+        ResetOut(grant, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(grant, "grant")) throw std::invalid_argument("Argument 'grant' is null.");
+            window->GetGrantBrowserPermissions(grant);
+        });
     }
 
-    /**
-     * @brief Get dev tools enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: dev tools enabled status
-     */
-    EXPORTED void InfiniFrame_GetDevToolsEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetDevToolsEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetUserAgent(InfiniFrameWindow* instance, AutoString* value) {
+        ResetOut(value, static_cast<AutoString>(nullptr));
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            *value = window->GetUserAgent();
+        });
     }
 
-    /**
-     * @brief Get full screen status
-     * @param instance InfiniFrame instance
-     * @param fullScreen Output: full screen status
-     */
-    EXPORTED void InfiniFrame_GetFullScreen(InfiniFrameWindow* instance, bool* fullScreen) {
-        instance->GetFullScreen(fullScreen);
+    EXPORTED InteropStatus InfiniFrame_GetMediaAutoplayEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetMediaAutoplayEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get grant browser permissions status
-     * @param instance InfiniFrame instance
-     * @param grant Output: grant browser permissions status
-     */
-    EXPORTED void InfiniFrame_GetGrantBrowserPermissions(InfiniFrameWindow* instance, bool* grant) {
-        instance->GetGrantBrowserPermissions(grant);
+    EXPORTED InteropStatus InfiniFrame_GetFileSystemAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetFileSystemAccessEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get user agent string
-     * @param instance InfiniFrame instance
-     * @return User agent string
-     */
-    EXPORTED AutoString InfiniFrame_GetUserAgent(InfiniFrameWindow* instance) {
-        return instance->GetUserAgent();
+    EXPORTED InteropStatus InfiniFrame_GetWebSecurityEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetWebSecurityEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get media autoplay enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: media autoplay enabled status
-     */
-    EXPORTED void InfiniFrame_GetMediaAutoplayEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetMediaAutoplayEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetJavascriptClipboardAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetJavascriptClipboardAccessEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get file system access enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: file system access enabled status
-     */
-    EXPORTED void InfiniFrame_GetFileSystemAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetFileSystemAccessEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetMediaStreamEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetMediaStreamEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get web security enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: web security enabled status
-     */
-    EXPORTED void InfiniFrame_GetWebSecurityEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetWebSecurityEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetSmoothScrollingEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetSmoothScrollingEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get JavaScript clipboard access enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: JavaScript clipboard access enabled status
-     */
-    EXPORTED void InfiniFrame_GetJavascriptClipboardAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetJavascriptClipboardAccessEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetMaximized(InfiniFrameWindow* instance, bool* isMaximized) {
+        ResetOut(isMaximized, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(isMaximized, "isMaximized")) throw std::invalid_argument("Argument 'isMaximized' is null.");
+            window->GetMaximized(isMaximized);
+        });
     }
 
-    /**
-     * @brief Get media stream enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: media stream enabled status
-     */
-    EXPORTED void InfiniFrame_GetMediaStreamEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetMediaStreamEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetMinimized(InfiniFrameWindow* instance, bool* isMinimized) {
+        ResetOut(isMinimized, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(isMinimized, "isMinimized")) throw std::invalid_argument("Argument 'isMinimized' is null.");
+            window->GetMinimized(isMinimized);
+        });
     }
 
-    /**
-     * @brief Get smooth scrolling enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Output: smooth scrolling enabled status
-     */
-    EXPORTED void InfiniFrame_GetSmoothScrollingEnabled(InfiniFrameWindow* instance, bool* enabled) {
-        instance->GetSmoothScrollingEnabled(enabled);
+    EXPORTED InteropStatus InfiniFrame_GetIgnoreCertificateErrorsEnabled(InfiniFrameWindow* instance, bool* enabled) {
+        ResetOut(enabled, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(enabled, "enabled")) throw std::invalid_argument("Argument 'enabled' is null.");
+            window->GetIgnoreCertificateErrorsEnabled(enabled);
+        });
     }
 
-    /**
-     * @brief Get maximized status
-     * @param instance InfiniFrame instance
-     * @param isMaximized Output: maximized status
-     */
-    EXPORTED void InfiniFrame_GetMaximized(InfiniFrameWindow* instance, bool* isMaximized) {
-        instance->GetMaximized(isMaximized);
+    EXPORTED InteropStatus InfiniFrame_GetPosition(InfiniFrameWindow* instance, int* x, int* y) {
+        ResetOut2(x, y, 0);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(x, "x") || !EnsureNotNull(y, "y")) throw std::invalid_argument("GetPosition out argument is null.");
+            window->GetPosition(x, y);
+        });
     }
 
-    /**
-     * @brief Get minimized status
-     * @param instance InfiniFrame instance
-     * @param isMinimized Output: minimized status
-     */
-    EXPORTED void InfiniFrame_GetMinimized(InfiniFrameWindow* instance, bool* isMinimized) {
-        instance->GetMinimized(isMinimized);
+    EXPORTED InteropStatus InfiniFrame_GetResizable(InfiniFrameWindow* instance, bool* resizable) {
+        ResetOut(resizable, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(resizable, "resizable")) throw std::invalid_argument("Argument 'resizable' is null.");
+            window->GetResizable(resizable);
+        });
     }
 
-    /**
-     * @brief Get ignore certificate errors enabled status
-     * @param instance InfiniFrame instance
-     * @param disabled Output: ignore certificate errors enabled status
-     */
-    EXPORTED void InfiniFrame_GetIgnoreCertificateErrorsEnabled(InfiniFrameWindow* instance, bool* disabled) {
-        instance->GetIgnoreCertificateErrorsEnabled(disabled);
+    EXPORTED InteropStatus InfiniFrame_GetScreenDpi(InfiniFrameWindow* instance, unsigned int* value) {
+        ResetOut(value, static_cast<unsigned int>(0));
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            *value = window->GetScreenDpi();
+        });
     }
 
-    /**
-     * @brief Get window position
-     * @param instance InfiniFrame instance
-     * @param x Output: X coordinate
-     * @param y Output: Y coordinate
-     */
-    EXPORTED void InfiniFrame_GetPosition(InfiniFrameWindow* instance, int* x, int* y) {
-        instance->GetPosition(x, y);
+    EXPORTED InteropStatus InfiniFrame_GetSize(InfiniFrameWindow* instance, int* width, int* height) {
+        ResetOut2(width, height, 0);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(width, "width") || !EnsureNotNull(height, "height")) throw std::invalid_argument("GetSize out argument is null.");
+            window->GetSize(width, height);
+        });
     }
 
-    /**
-     * @brief Get resizable status
-     * @param instance InfiniFrame instance
-     * @param resizable Output: resizable status
-     */
-    EXPORTED void InfiniFrame_GetResizable(InfiniFrameWindow* instance, bool* resizable) {
-        instance->GetResizable(resizable);
+    EXPORTED InteropStatus InfiniFrame_GetMaxSize(InfiniFrameWindow* instance, int* width, int* height) {
+        ResetOut2(width, height, 0);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(width, "width") || !EnsureNotNull(height, "height")) throw std::invalid_argument("GetMaxSize out argument is null.");
+            window->GetMaxSize(width, height);
+        });
     }
 
-    /**
-     * @brief Get screen DPI
-     * @param instance InfiniFrame instance
-     * @return Screen DPI value
-     */
-    EXPORTED unsigned int InfiniFrame_GetScreenDpi(InfiniFrameWindow* instance) {
-        return instance->GetScreenDpi();
+    EXPORTED InteropStatus InfiniFrame_GetMinSize(InfiniFrameWindow* instance, int* width, int* height) {
+        ResetOut2(width, height, 0);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(width, "width") || !EnsureNotNull(height, "height")) throw std::invalid_argument("GetMinSize out argument is null.");
+            window->GetMinSize(width, height);
+        });
     }
 
-    /**
-     * @brief Get window size
-     * @param instance InfiniFrame instance
-     * @param width Output: window width
-     * @param height Output: window height
-     */
-    EXPORTED void InfiniFrame_GetSize(InfiniFrameWindow* instance, int* width, int* height) {
-        instance->GetSize(width, height);
+    EXPORTED InteropStatus InfiniFrame_GetTitle(InfiniFrameWindow* instance, AutoString* value) {
+        ResetOut(value, static_cast<AutoString>(nullptr));
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            *value = window->GetTitle();
+        });
     }
 
-    /**
-     * @brief Get the window maximum size constraints
-     * @param instance InfiniFrame instance
-     * @param width Output: maximum window width
-     * @param height Output: maximum window height
-     */
-    EXPORTED void InfiniFrame_GetMaxSize(InfiniFrameWindow* instance, int* width, int* height) {
-        instance->GetMaxSize(width, height);
+    EXPORTED InteropStatus InfiniFrame_GetTopmost(InfiniFrameWindow* instance, bool* topmost) {
+        ResetOut(topmost, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(topmost, "topmost")) throw std::invalid_argument("Argument 'topmost' is null.");
+            window->GetTopmost(topmost);
+        });
     }
 
-    /**
-     * @brief Get the window minimum size constraints
-     * @param instance InfiniFrame instance
-     * @param width Output: minimum window width
-     * @param height Output: minimum window height
-     */
-    EXPORTED void InfiniFrame_GetMinSize(InfiniFrameWindow* instance, int* width, int* height) {
-        instance->GetMinSize(width, height);
+    EXPORTED InteropStatus InfiniFrame_GetZoom(InfiniFrameWindow* instance, int* zoom) {
+        ResetOut(zoom, 0);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(zoom, "zoom")) throw std::invalid_argument("Argument 'zoom' is null.");
+            window->GetZoom(zoom);
+        });
     }
 
-    /**
-     * @brief Get window title
-     * @param instance InfiniFrame instance
-     * @return Window title string
-     */
-    EXPORTED AutoString InfiniFrame_GetTitle(InfiniFrameWindow* instance) {
-        return instance->GetTitle();
+    EXPORTED InteropStatus InfiniFrame_GetFocused(InfiniFrameWindow* instance, bool* isFocused) {
+        ResetOut(isFocused, false);
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(isFocused, "isFocused")) throw std::invalid_argument("Argument 'isFocused' is null.");
+            window->GetFocused(isFocused);
+        });
     }
 
-    /**
-     * @brief Get topmost status
-     * @param instance InfiniFrame instance
-     * @param topmost Output: topmost status
-     */
-    EXPORTED void InfiniFrame_GetTopmost(InfiniFrameWindow* instance, bool* topmost) {
-        instance->GetTopmost(topmost);
+    EXPORTED InteropStatus InfiniFrame_GetIconFileName(InfiniFrameWindow* instance, AutoString* value) {
+        ResetOut(value, static_cast<AutoString>(nullptr));
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            *value = window->GetIconFileName();
+        });
     }
 
-    /**
-     * @brief Get zoom level
-     * @param instance InfiniFrame instance
-     * @param zoom Output: zoom level percentage
-     */
-    EXPORTED void InfiniFrame_GetZoom(InfiniFrameWindow* instance, int* zoom) {
-        instance->GetZoom(zoom);
+    EXPORTED InteropStatus InfiniFrame_NavigateToString(InfiniFrameWindow* instance, const AutoString content) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(content, "content")) throw std::invalid_argument("Argument 'content' is null.");
+            window->NavigateToString(content);
+        });
     }
 
-    /**
-     * @brief Get focused status
-     * @param instance InfiniFrame instance
-     * @param isFocused Output: focused status
-     */
-    EXPORTED void InfiniFrame_GetFocused(InfiniFrameWindow* instance, bool* isFocused) {
-        instance->GetFocused(isFocused);
+    EXPORTED InteropStatus InfiniFrame_NavigateToUrl(InfiniFrameWindow* instance, const AutoString url) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(url, "url")) throw std::invalid_argument("Argument 'url' is null.");
+            window->NavigateToUrl(url);
+        });
     }
 
-    /**
-     * @brief Get icon file name
-     * @param instance InfiniFrame instance
-     * @return Icon file name string
-     */
-    EXPORTED AutoString InfiniFrame_GetIconFileName(InfiniFrameWindow* instance) {
-        return instance->GetIconFileName();
+    EXPORTED InteropStatus InfiniFrame_Restore(InfiniFrameWindow* instance) { return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->Restore(); }); }
+
+    EXPORTED InteropStatus InfiniFrame_SendWebMessage(InfiniFrameWindow* instance, const AutoString message) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(message, "message")) throw std::invalid_argument("Argument 'message' is null.");
+            window->SendWebMessage(message);
+        });
     }
 
-    /**
-     * @brief Navigate to HTML string
-     * @param instance InfiniFrame instance
-     * @param content HTML content string
-     */
-    EXPORTED void InfiniFrame_NavigateToString(InfiniFrameWindow* instance, const AutoString content) {
-        instance->NavigateToString(content);
+    EXPORTED InteropStatus InfiniFrame_SetTransparentEnabled(InfiniFrameWindow* instance, const bool enabled) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetTransparentEnabled(enabled); }); }
+    EXPORTED InteropStatus InfiniFrame_SetContextMenuEnabled(InfiniFrameWindow* instance, const bool enabled) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetContextMenuEnabled(enabled); }); }
+    EXPORTED InteropStatus InfiniFrame_SetZoomEnabled(InfiniFrameWindow* instance, const bool enabled) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetZoomEnabled(enabled); }); }
+    EXPORTED InteropStatus InfiniFrame_SetDevToolsEnabled(InfiniFrameWindow* instance, const bool enabled) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetDevToolsEnabled(enabled); }); }
+    EXPORTED InteropStatus InfiniFrame_SetFullScreen(InfiniFrameWindow* instance, const bool fullScreen) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetFullScreen(fullScreen); }); }
+
+    EXPORTED InteropStatus InfiniFrame_SetIconFile(InfiniFrameWindow* instance, const AutoString filename) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(filename, "filename")) throw std::invalid_argument("Argument 'filename' is null.");
+            window->SetIconFile(filename);
+        });
     }
 
-    /**
-     * @brief Navigate to URL
-     * @param instance InfiniFrame instance
-     * @param url URL to navigate to
-     */
-    EXPORTED void InfiniFrame_NavigateToUrl(InfiniFrameWindow* instance, const AutoString url) {
-        instance->NavigateToUrl(url);
+    EXPORTED InteropStatus InfiniFrame_SetMaximized(InfiniFrameWindow* instance, const bool maximized) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetMaximized(maximized); }); }
+    EXPORTED InteropStatus InfiniFrame_SetMaxSize(InfiniFrameWindow* instance, const int width, const int height) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetMaxSize(width, height); }); }
+    EXPORTED InteropStatus InfiniFrame_SetMinimized(InfiniFrameWindow* instance, const bool minimized) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetMinimized(minimized); }); }
+    EXPORTED InteropStatus InfiniFrame_SetMinSize(InfiniFrameWindow* instance, const int width, const int height) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetMinSize(width, height); }); }
+    EXPORTED InteropStatus InfiniFrame_SetPosition(InfiniFrameWindow* instance, const int x, const int y) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetPosition(x, y); }); }
+    EXPORTED InteropStatus InfiniFrame_SetResizable(InfiniFrameWindow* instance, const bool resizable) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetResizable(resizable); }); }
+    EXPORTED InteropStatus InfiniFrame_SetSize(InfiniFrameWindow* instance, const int width, const int height) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetSize(width, height); }); }
+
+    EXPORTED InteropStatus InfiniFrame_SetTitle(InfiniFrameWindow* instance, const AutoString title) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(title, "title")) throw std::invalid_argument("Argument 'title' is null.");
+            window->SetTitle(title);
+        });
     }
 
-    /**
-     * @brief Restore window from minimized/maximized state
-     * @param instance InfiniFrame instance
-     */
-    EXPORTED void InfiniFrame_Restore(InfiniFrameWindow* instance) {
-        instance->Restore();
+    EXPORTED InteropStatus InfiniFrame_SetTopmost(InfiniFrameWindow* instance, const bool topmost) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetTopmost(topmost); }); }
+    EXPORTED InteropStatus InfiniFrame_SetZoom(InfiniFrameWindow* instance, const int zoom) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetZoom(zoom); }); }
+
+    EXPORTED InteropStatus InfiniFrame_ShowNotification(InfiniFrameWindow* instance, const AutoString title, const AutoString body) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(title, "title") || !EnsureNotNull(body, "body")) throw std::invalid_argument("ShowNotification argument is null.");
+            window->ShowNotification(title, body);
+        });
     }
 
-    /**
-     * @brief Send message to WebView JavaScript
-     * @param instance InfiniFrame instance
-     * @param message Message string to send
-     */
-    EXPORTED void InfiniFrame_SendWebMessage(InfiniFrameWindow* instance, const AutoString message) {
-        instance->SendWebMessage(message);
-    }
+    EXPORTED InteropStatus InfiniFrame_WaitForExit(InfiniFrameWindow* instance) { return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->WaitForExit(); }); }
 
-    /**
-     * @brief Set transparent enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Transparent enabled status
-     */
-    EXPORTED void InfiniFrame_SetTransparentEnabled(InfiniFrameWindow* instance, const bool enabled) {
-        instance->SetTransparentEnabled(enabled);
-    }
-
-    /**
-     * @brief Set context menu enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Context menu enabled status
-     */
-    EXPORTED void InfiniFrame_SetContextMenuEnabled(InfiniFrameWindow* instance, const bool enabled) {
-        instance->SetContextMenuEnabled(enabled);
-    }
-
-    /**
-     * @brief Set zoom enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Zoom enabled status
-     */
-    EXPORTED void InfiniFrame_SetZoomEnabled(InfiniFrameWindow* instance, const bool enabled) {
-        instance->SetZoomEnabled(enabled);
-    }
-
-    /**
-     * @brief Set dev tools enabled status
-     * @param instance InfiniFrame instance
-     * @param enabled Dev tools enabled status
-     */
-    EXPORTED void InfiniFrame_SetDevToolsEnabled(InfiniFrameWindow* instance, const bool enabled) {
-        instance->SetDevToolsEnabled(enabled);
-    }
-
-    /**
-     * @brief Set full screen status
-     * @param instance InfiniFrame instance
-     * @param fullScreen Full screen status
-     */
-    EXPORTED void InfiniFrame_SetFullScreen(InfiniFrameWindow* instance, const bool fullScreen) {
-        instance->SetFullScreen(fullScreen);
-    }
-
-    /**
-     * @brief Set window icon from file
-     * @param instance InfiniFrame instance
-     * @param filename Icon file path
-     */
-    EXPORTED void InfiniFrame_SetIconFile(InfiniFrameWindow* instance, const AutoString filename) {
-        instance->SetIconFile(filename);
-    }
-
-    /**
-     * @brief Set maximized status
-     * @param instance InfiniFrame instance
-     * @param maximized Maximized status
-     */
-    EXPORTED void InfiniFrame_SetMaximized(InfiniFrameWindow* instance, const bool maximized) {
-        instance->SetMaximized(maximized);
-    }
-
-    /**
-     * @brief Set maximum window size
-     * @param instance InfiniFrame instance
-     * @param width Maximum width
-     * @param height Maximum height
-     */
-    EXPORTED void InfiniFrame_SetMaxSize(InfiniFrameWindow* instance, const int width, const int height) {
-        instance->SetMaxSize(width, height);
-    }
-
-    /**
-     * @brief Set minimized status
-     * @param instance InfiniFrame instance
-     * @param minimized Minimized status
-     */
-    EXPORTED void InfiniFrame_SetMinimized(InfiniFrameWindow* instance, const bool minimized) {
-        instance->SetMinimized(minimized);
-    }
-
-    /**
-     * @brief Set minimum window size
-     * @param instance InfiniFrame instance
-     * @param width Minimum width
-     * @param height Minimum height
-     */
-    EXPORTED void InfiniFrame_SetMinSize(InfiniFrameWindow* instance, const int width, const int height) {
-        instance->SetMinSize(width, height);
-    }
-
-    /**
-     * @brief Set window position
-     * @param instance InfiniFrame instance
-     * @param x X coordinate
-     * @param y Y coordinate
-     */
-    EXPORTED void InfiniFrame_SetPosition(InfiniFrameWindow* instance, const int x, const int y) {
-        instance->SetPosition(x, y);
-    }
-
-    /**
-     * @brief Set resizable status
-     * @param instance InfiniFrame instance
-     * @param resizable Resizable status
-     */
-    EXPORTED void InfiniFrame_SetResizable(InfiniFrameWindow* instance, const bool resizable) {
-        instance->SetResizable(resizable);
-    }
-
-    /**
-     * @brief Set window size
-     * @param instance InfiniFrame instance
-     * @param width Window width
-     * @param height Window height
-     */
-    EXPORTED void InfiniFrame_SetSize(InfiniFrameWindow* instance, const int width, const int height) {
-        instance->SetSize(width, height);
-    }
-
-    /**
-     * @brief Set window title
-     * @param instance InfiniFrame instance
-     * @param title Window title string
-     */
-    EXPORTED void InfiniFrame_SetTitle(InfiniFrameWindow* instance, const AutoString title) {
-        instance->SetTitle(title);
-    }
-
-    /**
-     * @brief Set topmost status
-     * @param instance InfiniFrame instance
-     * @param topmost Topmost status
-     */
-    EXPORTED void InfiniFrame_SetTopmost(InfiniFrameWindow* instance, const bool topmost) {
-        instance->SetTopmost(topmost);
-    }
-
-    /**
-     * @brief Set zoom level
-     * @param instance InfiniFrame instance
-     * @param zoom Zoom level percentage
-     */
-    EXPORTED void InfiniFrame_SetZoom(InfiniFrameWindow* instance, const int zoom) {
-        instance->SetZoom(zoom);
-    }
-
-    /**
-     * @brief Show notification
-     * @param instance InfiniFrame instance
-     * @param title Notification title
-     * @param body Notification body
-     */
-    EXPORTED void InfiniFrame_ShowNotification(
-        InfiniFrameWindow* instance,
-        const AutoString title,
-        const AutoString body
-        ) {
-        instance->ShowNotification(title, body);
-    }
-
-    /**
-     * @brief Wait for window exit
-     * @param instance InfiniFrame instance
-     */
-    EXPORTED void InfiniFrame_WaitForExit(InfiniFrameWindow* instance) {
-        instance->WaitForExit();
-    }
-
-    /**
-     * @brief Free string allocated by native code
-     * @param value String to free
-     */
-    EXPORTED void InfiniFrame_FreeString(AutoString value) {
-        if (value == nullptr)
-            return;
+    EXPORTED InteropStatus InfiniFrame_FreeString(AutoString value) {
+        return RunExportStatus([&] {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
 #ifdef _WIN32
-        delete[] value;
+            delete[] value;
 #elif __linux__
-        g_free(value);
-#elif __APPLE__
-        free(value);
+            g_free(value);
 #else
-        free(value);
+            free(value);
 #endif
+        });
     }
 
-    /**
-     * @brief Free string array allocated by native code
-     * @param values String array to free
-     * @param count Number of strings in array
-     */
-    EXPORTED void InfiniFrame_FreeStringArray(AutoString* values, const int count) {
-        if (values == nullptr)
-            return;
-
-        for (int i = 0; i < count; ++i) {
-            InfiniFrame_FreeString(values[i]);
-        }
-
+    EXPORTED InteropStatus InfiniFrame_FreeStringArray(AutoString* values, const int count) {
+        return RunExportStatus([&] {
+            if (!EnsureNotNull(values, "values")) throw std::invalid_argument("Argument 'values' is null.");
+            if (count < 0) throw std::invalid_argument("Argument 'count' must be >= 0.");
+            for (int i = 0; i < count; ++i) {
+                if (values[i] != nullptr) {
+                    InfiniFrame_FreeString(values[i]);
+                }
+            }
 #ifdef _WIN32
-        delete[] values;
+            delete[] values;
 #elif __linux__
-        delete[] values;
-#elif __APPLE__
-        free(values);
+            delete[] values;
 #else
-        free(values);
+            free(values);
 #endif
+        });
     }
 
-    /**
-     * @brief Show open file dialog
-     * @param inst InfiniFrame instance
-     * @param title Dialog title
-     * @param defaultPath Default path
-     * @param multiSelect Allow multiple selection
-     * @param filters File filters
-     * @param filterCount Number of filters
-     * @param resultCount Output: number of selected files
-     * @return Array of selected file paths
-     */
-    EXPORTED AutoString* InfiniFrame_ShowOpenFile(
-        InfiniFrameWindow* inst,
-        const AutoString title,
-        const AutoString defaultPath,
-        const bool multiSelect,
-        AutoString* filters,
-        const int filterCount,
-        int* resultCount
-        ) {
-        return inst->GetDialog()->ShowOpenFile(title, defaultPath, multiSelect, filters, filterCount, resultCount);
+    EXPORTED InteropStatus InfiniFrame_ShowOpenFile(InfiniFrameWindow* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, AutoString* filters, const int filterCount, int* resultCount, AutoString** values) {
+        ResetOut(resultCount, 0);
+        ResetOut(values, static_cast<AutoString*>(nullptr));
+        return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(resultCount, "resultCount")) throw std::invalid_argument("Argument 'resultCount' is null.");
+            if (!EnsureNotNull(values, "values")) throw std::invalid_argument("Argument 'values' is null.");
+            if (filterCount < 0) throw std::invalid_argument("Argument 'filterCount' must be >= 0.");
+            *values = window->GetDialog()->ShowOpenFile(title, defaultPath, multiSelect, filters, filterCount, resultCount);
+        });
     }
 
-    /**
-     * @brief Show open folder dialog
-     * @param inst InfiniFrame instance
-     * @param title Dialog title
-     * @param defaultPath Default path
-     * @param multiSelect Allow multiple selection
-     * @param resultCount Output: number of selected folders
-     * @return Array of selected folder paths
-     */
-    EXPORTED AutoString* InfiniFrame_ShowOpenFolder(
-        InfiniFrameWindow* inst,
-        const AutoString title,
-        const AutoString defaultPath,
-        const bool multiSelect,
-        int* resultCount
-        ) {
-        return inst->GetDialog()->ShowOpenFolder(title, defaultPath, multiSelect, resultCount);
+    EXPORTED InteropStatus InfiniFrame_ShowOpenFolder(InfiniFrameWindow* inst, const AutoString title, const AutoString defaultPath, const bool multiSelect, int* resultCount, AutoString** values) {
+        ResetOut(resultCount, 0);
+        ResetOut(values, static_cast<AutoString*>(nullptr));
+        return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(resultCount, "resultCount")) throw std::invalid_argument("Argument 'resultCount' is null.");
+            if (!EnsureNotNull(values, "values")) throw std::invalid_argument("Argument 'values' is null.");
+            *values = window->GetDialog()->ShowOpenFolder(title, defaultPath, multiSelect, resultCount);
+        });
     }
 
-    /**
-     * @brief Show save file dialog
-     * @param inst InfiniFrame instance
-     * @param title Dialog title
-     * @param defaultPath Default path
-     * @param filters File filters
-     * @param filterCount Number of filters
-     * @param defaultFileName Default file name
-     * @return Selected file path
-     */
-    EXPORTED AutoString InfiniFrame_ShowSaveFile(
-        InfiniFrameWindow* inst,
-        const AutoString title,
-        const AutoString defaultPath,
-        AutoString* filters,
-        const int filterCount,
-        const AutoString defaultFileName
-        ) {
-        return inst->GetDialog()->ShowSaveFile(title, defaultPath, filters, filterCount, defaultFileName);
+    EXPORTED InteropStatus InfiniFrame_ShowSaveFile(InfiniFrameWindow* inst, const AutoString title, const AutoString defaultPath, AutoString* filters, const int filterCount, const AutoString defaultFileName, AutoString* value) {
+        ResetOut(value, static_cast<AutoString>(nullptr));
+        return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            if (filterCount < 0) throw std::invalid_argument("Argument 'filterCount' must be >= 0.");
+            *value = window->GetDialog()->ShowSaveFile(title, defaultPath, filters, filterCount, defaultFileName);
+        });
     }
 
-    /**
-     * @brief Show message dialog
-     * @param inst InfiniFrame instance
-     * @param title Dialog title
-     * @param text Message text
-     * @param buttons Button configuration
-     * @param icon Icon type
-     * @return User response
-     */
-    EXPORTED DialogResult InfiniFrame_ShowMessage(
-        InfiniFrameWindow* inst,
-        const AutoString title,
-        const AutoString text,
-        const DialogButtons buttons,
-        const DialogIcon icon
-        ) {
-        return inst->GetDialog()->ShowMessage(title, text, buttons, icon);
+    EXPORTED InteropStatus InfiniFrame_ShowMessage(InfiniFrameWindow* inst, const AutoString title, const AutoString text, const DialogButtons buttons, const DialogIcon icon, DialogResult* value) {
+        ResetOut(value, DialogResult::Cancel);
+        return RunWindowExportStatus(inst, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            *value = window->GetDialog()->ShowMessage(title, text, buttons, icon);
+        });
     }
 
-    /**
-     * @brief Add custom scheme name
-     * @param instance InfiniFrame instance
-     * @param scheme Scheme name to add
-     */
-    EXPORTED void InfiniFrame_AddCustomSchemeName(InfiniFrameWindow* instance, const AutoString scheme) {
-        instance->AddCustomSchemeName(scheme);
+    EXPORTED InteropStatus InfiniFrame_AddCustomSchemeName(InfiniFrameWindow* instance, const AutoString scheme) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (!EnsureNotNull(scheme, "scheme")) throw std::invalid_argument("Argument 'scheme' is null.");
+            window->AddCustomSchemeName(scheme);
+        });
     }
 
-    /**
-     * @brief Get all monitors
-     * @param instance InfiniFrame instance
-     * @param callback Callback function to receive monitor info
-     */
-    EXPORTED void InfiniFrame_GetAllMonitors(InfiniFrameWindow* instance, const GetAllMonitorsCallback callback) {
-        instance->GetAllMonitors(callback);
+    EXPORTED InteropStatus InfiniFrame_GetAllMonitors(InfiniFrameWindow* instance, const GetAllMonitorsCallback callback) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (callback == nullptr) throw std::invalid_argument("Argument 'callback' is null.");
+            window->GetAllMonitors(callback);
+        });
     }
 
-    /**
-     * @brief Set closing callback
-     * @param instance InfiniFrame instance
-     * @param callback Closing callback
-     */
-    EXPORTED void InfiniFrame_SetClosingCallback(InfiniFrameWindow* instance, const ClosingCallback callback) {
-        instance->SetClosingCallback(callback);
+    EXPORTED InteropStatus InfiniFrame_SetClosingCallback(InfiniFrameWindow* instance, const ClosingCallback callback) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetClosingCallback(callback); }); }
+    EXPORTED InteropStatus InfiniFrame_setClosedClosedCallback(InfiniFrameWindow* instance, const ClosedCallback callback) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetClosedCallback(callback); }); }
+    EXPORTED InteropStatus InfiniFrame_SetFocusInCallback(InfiniFrameWindow* instance, const FocusInCallback callback) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetFocusInCallback(callback); }); }
+    EXPORTED InteropStatus InfiniFrame_SetFocusOutCallback(InfiniFrameWindow* instance, const FocusOutCallback callback) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetFocusOutCallback(callback); }); }
+    EXPORTED InteropStatus InfiniFrame_SetMovedCallback(InfiniFrameWindow* instance, const MovedCallback callback) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetMovedCallback(callback); }); }
+    EXPORTED InteropStatus InfiniFrame_SetResizedCallback(InfiniFrameWindow* instance, const ResizedCallback callback) { return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetResizedCallback(callback); }); }
+
+    EXPORTED InteropStatus InfiniFrame_Invoke(InfiniFrameWindow* instance, const ACTION callback) {
+        return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
+            if (callback == nullptr) throw std::invalid_argument("Argument 'callback' is null.");
+            window->Invoke(callback);
+        });
     }
 
-    EXPORTED void InfiniFrame_setClosedClosedCallback(InfiniFrameWindow* instance, const ClosedCallback callback)
-    {   instance->SetClosedCallback(callback);
-    }
+    EXPORTED InteropStatus InfiniFrame_SetFocused(InfiniFrameWindow* instance) { return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->SetFocused(); }); }
 
-    /**
-     * @brief Set focus-in callback
-     * @param instance InfiniFrame instance
-     * @param callback Focus-in callback
-     */
-    EXPORTED void InfiniFrame_SetFocusInCallback(InfiniFrameWindow* instance, const FocusInCallback callback) {
-        instance->SetFocusInCallback(callback);
-    }
-
-    /**
-     * @brief Set focus-out callback
-     * @param instance InfiniFrame instance
-     * @param callback Focus-out callback
-     */
-    EXPORTED void InfiniFrame_SetFocusOutCallback(InfiniFrameWindow* instance, const FocusOutCallback callback) {
-        instance->SetFocusOutCallback(callback);
-    }
-
-    /**
-     * @brief Set moved callback
-     * @param instance InfiniFrame instance
-     * @param callback Moved callback
-     */
-    EXPORTED void InfiniFrame_SetMovedCallback(InfiniFrameWindow* instance, const MovedCallback callback) {
-        instance->SetMovedCallback(callback);
-    }
-
-    /**
-     * @brief Set resized callback
-     * @param instance InfiniFrame instance
-     * @param callback Resized callback
-     */
-    EXPORTED void InfiniFrame_SetResizedCallback(InfiniFrameWindow* instance, const ResizedCallback callback) {
-        instance->SetResizedCallback(callback);
-    }
-
-    /**
-     * @brief Invoke callback on UI thread
-     * @param instance InfiniFrame instance
-     * @param callback Callback to invoke
-     */
-    EXPORTED void InfiniFrame_Invoke(InfiniFrameWindow* instance, const ACTION callback) {
-        instance->Invoke(callback);
-    }
-
-    /**
-     * @brief Set window focused
-     * @param instance InfiniFrame instance
-     */
-    EXPORTED void InfiniFrame_SetFocused(InfiniFrameWindow* instance) {
-        instance->SetFocused();
+    EXPORTED InteropStatus InfiniFrame_GetLastErrorMessage(AutoString* value) {
+        ResetOut(value, static_cast<AutoString>(nullptr));
+        return RunExportStatus([&] {
+            if (!EnsureNotNull(value, "value")) throw std::invalid_argument("Argument 'value' is null.");
+            *value = GetLastErrorMessageCopy();
+        });
     }
 }

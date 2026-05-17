@@ -113,6 +113,10 @@ elseif (UNIX)
     infiniframe_setup_embed_js(${PROJECT_NAME})
 endif ()
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Debug>:INFINIFRAME_BUILD_TEST_EXPORTS=1>
+)
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Sanitizers (Debug only)
 # ----------------------------------------------------------------------------------------------------------------------

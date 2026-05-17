@@ -12,22 +12,25 @@ namespace InfiniFrame.NativeBridge;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static partial class InfiniFrameNativeTesting {
-    [LibraryImport(NativeLibraryName, EntryPoint = "InfiniWindowTests_NativeParametersReturnAsIs", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial void NativeParametersReturnAsIsNative(
+#if InfiniFrameNativeTestExports
+    [LibraryImport(NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_NativeParametersReturnAsIs", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeStatus NativeParametersReturnAsIsNative(
         [MarshalUsing(typeof(InfiniFrameNativeParametersMarshaller))]
         in InfiniFrameNativeParameters parameters,
         out IntPtr newParameters
     );
 
-    [LibraryImport(NativeLibraryName, EntryPoint = "InfiniWindowTests_FreeInitParams", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    private static partial void FreeInitParamsNative(IntPtr parameters);
+    [LibraryImport(NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_FreeInitParams", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeStatus FreeInitParamsNative(IntPtr parameters);
 
     /// <summary>
     ///     Returns a native pointer to a newly allocated InfiniFrameInitParams clone.
     ///     Ownership is transferred to managed caller, which must call <see cref="FreeInitParams" /> exactly once.
     /// </summary>
     internal static IntPtr NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters) {
-        NativeParametersReturnAsIsNative(in parameters, out IntPtr newParametersPtr);
+        InfiniFrameNative.EnsureSucceeded(
+            NativeParametersReturnAsIsNative(in parameters, out IntPtr newParametersPtr),
+            nameof(NativeParametersReturnAsIsNative));
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
@@ -38,6 +41,19 @@ public static partial class InfiniFrameNativeTesting {
     internal static void FreeInitParams(IntPtr newParametersPtr) {
         if (newParametersPtr == IntPtr.Zero) return;
 
-        FreeInitParamsNative(newParametersPtr);
+        InfiniFrameNative.EnsureSucceeded(
+            FreeInitParamsNative(newParametersPtr),
+            nameof(FreeInitParamsNative));
     }
+#else
+    internal static IntPtr NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters) {
+        throw new PlatformNotSupportedException("InfiniFrame native test exports are not enabled for this build.");
+    }
+
+    internal static void FreeInitParams(IntPtr newParametersPtr) {
+        if (newParametersPtr != IntPtr.Zero) {
+            throw new PlatformNotSupportedException("InfiniFrame native test exports are not enabled for this build.");
+        }
+    }
+#endif
 }
