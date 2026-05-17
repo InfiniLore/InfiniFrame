@@ -1,10 +1,10 @@
 #pragma once
 
-#ifndef INFINIFRAME_EXPORTS_SHARED_H
-#define INFINIFRAME_EXPORTS_SHARED_H
+#ifndef INFINIFRAME_CORE_EXPORTS_H
+#define INFINIFRAME_CORE_EXPORTS_H
 
-#include "../Core/InfiniFrame.h"
-#include "ExportGuards.h"
+#include "InfiniFrame.h"
+#include "../Utils/ExportGuards.h"
 
 #ifdef __linux__
 #include <glib.h>
@@ -25,4 +25,4 @@ using infiniframe::exports::RunReturnExport;
 using infiniframe::exports::RunWindowExportStatus;
 using infiniframe::exports::RunWindowReturnExport;
 
-#endif // INFINIFRAME_EXPORTS_SHARED_H
+#endif // INFINIFRAME_CORE_EXPORTS_H

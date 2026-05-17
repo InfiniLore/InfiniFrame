@@ -1,4 +1,4 @@
-#include "Utils/Exports.Shared.h"
+#include "Core/Exports.h"
 
 extern "C" {
 EXPORTED InteropStatus InfiniFrame_Center(InfiniFrameWindow* instance) {

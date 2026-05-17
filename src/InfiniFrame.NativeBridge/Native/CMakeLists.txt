@@ -41,7 +41,7 @@ set(COMMON_SOURCES
 )
 
 set(TEST_SOURCES
-        Exports.Tests.cpp
+        Exports/Exports.Tests.cpp
 )
 
 set(WINDOWS_SOURCES
@@ -108,7 +108,7 @@ set(HEADER_FILES
         Types/Callbacks.h
         Utils/Common.h
         Utils/Event.h
-        Utils/Exports.Shared.h
+        Core/Exports.h
         Utils/ExportGuards.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/Window.Win32.Internal.h
