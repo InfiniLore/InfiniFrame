@@ -471,7 +471,7 @@ class InfiniFrameWindow {
          * @brief Marshal a callback onto the UI thread and execute it synchronously
          * @param callback Action to invoke on the UI thread
          */
-    void Invoke(ACTION callback);
+    static void Invoke(ACTION callback);
 
     /**
          * @brief Fire the closing callback

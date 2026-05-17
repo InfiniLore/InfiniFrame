@@ -7,23 +7,33 @@ InfiniFrameDialog* InfiniFrameWindow::GetDialog() const {
 }
 
 void InfiniFrameWindow::AddCustomSchemeName(const AutoStringConst scheme) {
-    if (scheme)
-        m_impl->_customSchemeNames.emplace_back(scheme);
+    if (scheme == nullptr) {
+        return;
+    }
+
+    m_impl->_customSchemeNames.emplace_back(scheme);
 }
 
 void InfiniFrameWindow::GetAllMonitors(const GetAllMonitorsCallback callback) const {
-    if (callback) {
-        GdkScreen* screen = gtk_window_get_screen(GTK_WINDOW(m_impl->_window));
-        GdkDisplay* display = gdk_screen_get_display(screen);
-        int n = gdk_display_get_n_monitors(display);
-        for (int i = 0; i < n; i++) {
-            GdkMonitor* monitor = gdk_display_get_monitor(display, i);
-            Monitor props = {};
-            gdk_monitor_get_geometry(monitor, reinterpret_cast<GdkRectangle*>(&props.monitor));
-            gdk_monitor_get_workarea(monitor, reinterpret_cast<GdkRectangle*>(&props.work));
-            props.scale = gdk_monitor_get_scale_factor(monitor);
-            if (!callback(&props))
-                break;
+    if (callback == nullptr) {
+        return;
+    }
+
+    GdkScreen* screen = gtk_window_get_screen(GTK_WINDOW(m_impl->_window));
+    GdkDisplay* display = gdk_screen_get_display(screen);
+
+    const int MonitorCount = gdk_display_get_n_monitors(display);
+
+    for (int i = 0; i < MonitorCount; i++) {
+        GdkMonitor* monitor = gdk_display_get_monitor(display, i);
+
+        Monitor props = {};
+        gdk_monitor_get_geometry(monitor, reinterpret_cast<GdkRectangle*>(&props.monitor));
+        gdk_monitor_get_workarea(monitor, reinterpret_cast<GdkRectangle*>(&props.work));
+        props.scale = gdk_monitor_get_scale_factor(monitor);
+
+        if (callback(&props) == 0) {
+            break;
         }
     }
 }
@@ -65,49 +75,75 @@ void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback) {
 }
 
 [[nodiscard]] bool InfiniFrameWindow::InvokeClose() const noexcept {
-    if (m_impl->_closingCallback)
-        return m_impl->_closingCallback();
-    return false;
+    if (m_impl->_closingCallback == nullptr) {
+        return false;
+    }
+
+    return m_impl->_closingCallback();
 }
 
 void InfiniFrameWindow::InvokeClosed() const noexcept {
-    if (m_impl->_closedCallback)
-        m_impl->_closedCallback();
+    if (m_impl->_closedCallback == nullptr) {
+        return;
+    }
+
+    m_impl->_closedCallback();
 }
 
 void InfiniFrameWindow::InvokeFocusIn() const noexcept {
-    if (m_impl->_focusInCallback)
-        m_impl->_focusInCallback();
+    if (m_impl->_focusInCallback == nullptr) {
+        return;
+    }
+
+    m_impl->_focusInCallback();
 }
 
 void InfiniFrameWindow::InvokeFocusOut() const noexcept {
-    if (m_impl->_focusOutCallback)
-        m_impl->_focusOutCallback();
+    if (m_impl->_focusOutCallback == nullptr) {
+        return;
+    }
+
+    m_impl->_focusOutCallback();
 }
 
 void InfiniFrameWindow::InvokeMove(int x, int y) const noexcept {
-    if (m_impl->_movedCallback)
-        m_impl->_movedCallback(x, y);
+    if (m_impl->_movedCallback == nullptr) {
+        return;
+    }
+
+    m_impl->_movedCallback(x, y);
 }
 
 void InfiniFrameWindow::InvokeResize(int width, int height) const noexcept {
-    if (m_impl->_resizedCallback)
-        m_impl->_resizedCallback(width, height);
+    if (m_impl->_resizedCallback == nullptr) {
+        return;
+    }
+
+    m_impl->_resizedCallback(width, height);
 }
 
 void InfiniFrameWindow::InvokeMaximized() const noexcept {
-    if (m_impl->_maximizedCallback)
-        m_impl->_maximizedCallback();
+    if (m_impl->_maximizedCallback == nullptr) {
+        return;
+    }
+
+    m_impl->_maximizedCallback();
 }
 
 void InfiniFrameWindow::InvokeRestored() const noexcept {
-    if (m_impl->_restoredCallback)
-        m_impl->_restoredCallback();
+    if (m_impl->_restoredCallback == nullptr) {
+        return;
+    }
+
+    m_impl->_restoredCallback();
 }
 
 void InfiniFrameWindow::InvokeMinimized() const noexcept {
-    if (m_impl->_minimizedCallback)
-        m_impl->_minimizedCallback();
+    if (m_impl->_minimizedCallback == nullptr) {
+        return;
+    }
+
+    m_impl->_minimizedCallback();
 }
 
 #endif

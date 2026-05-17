@@ -106,7 +106,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->SmoothScrollingEnabled = params->SmoothScrollingEnabled;
         (*new_params)->IgnoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
         (*new_params)->NotificationsEnabled = params->NotificationsEnabled;
-        (*new_params)->Size = params->Size;
+        (*new_params)->StructSize = params->StructSize;
     });
 }
 

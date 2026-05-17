@@ -1,5 +1,6 @@
 #ifdef __linux__
 
+#include <algorithm>
 #include <cstring>
 
 #include "../../../Public/InfiniFrameDialog.h"
@@ -21,18 +22,27 @@ gboolean on_webview_context_menu(
 gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, gpointer user_data);
 
 void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* initParams) {
-    _windowTitle = initParams->Title ? initParams->Title : "";
+    if (initParams->Title != nullptr) {
+        _windowTitle = initParams->Title;
+    } else {
+        _windowTitle = "";
+    }
 
-    if (initParams->StartUrl != nullptr)
+    if (initParams->StartUrl != nullptr) {
         _startUrl = initParams->StartUrl;
-    if (initParams->StartString != nullptr)
+    }
+    if (initParams->StartString != nullptr) {
         _startString = initParams->StartString;
-    if (initParams->TemporaryFilesPath != nullptr)
+    }
+    if (initParams->TemporaryFilesPath != nullptr) {
         _temporaryFilesPath = initParams->TemporaryFilesPath;
-    if (initParams->UserAgent != nullptr)
+    }
+    if (initParams->UserAgent != nullptr) {
         _userAgent = initParams->UserAgent;
-    if (initParams->BrowserControlInitParameters != nullptr)
+    }
+    if (initParams->BrowserControlInitParameters != nullptr) {
         _browserControlInitParameters = initParams->BrowserControlInitParameters;
+    }
 
     _transparentEnabled = initParams->Transparent;
     _contextMenuEnabled = initParams->ContextMenuEnabled;
@@ -67,9 +77,11 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _customSchemeCallback = initParams->CustomSchemeHandler;
 
     _customSchemeNames.clear();
-    for (int i = 0; i < 16; ++i) {
-        if (initParams->CustomSchemeNames[i] != nullptr)
-            _customSchemeNames.emplace_back(initParams->CustomSchemeNames[i]);
+    for (auto* customSchemeName : initParams->CustomSchemeNames) {
+        if (customSchemeName == nullptr) {
+            continue;
+        }
+        _customSchemeNames.emplace_back(customSchemeName);
     }
 
     _parent = initParams->ParentInstance;
@@ -84,29 +96,27 @@ void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, 
         return;
     }
 
-    if (initParams->Width > initParams->MaxWidth)
-        initParams->Width = initParams->MaxWidth;
-    if (initParams->Height > initParams->MaxHeight)
-        initParams->Height = initParams->MaxHeight;
-    if (initParams->Width < initParams->MinWidth)
-        initParams->Width = initParams->MinWidth;
-    if (initParams->Height < initParams->MinHeight)
-        initParams->Height = initParams->MinHeight;
+    initParams->Width = std::min(initParams->Width, initParams->MaxWidth);
+    initParams->Height = std::min(initParams->Height, initParams->MaxHeight);
+    initParams->Width = std::max(initParams->Width, initParams->MinWidth);
+    initParams->Height = std::max(initParams->Height, initParams->MinHeight);
 
-    if (initParams->UseOsDefaultSize)
+    if (initParams->UseOsDefaultSize) {
         gtk_window_set_default_size(GTK_WINDOW(_window), -1, -1);
-    else
+    } else {
         gtk_window_set_default_size(GTK_WINDOW(_window), initParams->Width, initParams->Height);
+    }
 
     window->SetMinSize(initParams->MinWidth, initParams->MinHeight);
     window->SetMaxSize(initParams->MaxWidth, initParams->MaxHeight);
 
-    if (initParams->UseOsDefaultLocation)
+    if (initParams->UseOsDefaultLocation) {
         gtk_window_set_position(GTK_WINDOW(_window), GTK_WIN_POS_NONE);
-    else if (initParams->CenterOnInitialize)
+    } else if (initParams->CenterOnInitialize) {
         gtk_window_set_position(GTK_WINDOW(_window), GTK_WIN_POS_CENTER);
-    else
+    } else {
         gtk_window_move(GTK_WINDOW(_window), initParams->Left, initParams->Top);
+    }
 }
 
 void InfiniFrameWindow::Impl::ApplyInitialWindowState(
@@ -114,22 +124,29 @@ void InfiniFrameWindow::Impl::ApplyInitialWindowState(
 ) {
     window->SetTitle(const_cast<AutoString>(_windowTitle.c_str()));
 
-    if (initParams->Chromeless)
+    if (initParams->Chromeless) {
         gtk_window_set_decorated(GTK_WINDOW(_window), false);
+    }
 
-    if (initParams->WindowIconFile != nullptr && std::strlen(initParams->WindowIconFile) > 0)
+    if (initParams->WindowIconFile != nullptr && std::strlen(initParams->WindowIconFile) > 0) {
         window->SetIconFile(initParams->WindowIconFile);
+    }
 
-    if (initParams->CenterOnInitialize)
+    if (initParams->CenterOnInitialize) {
         window->Center();
-    if (initParams->Minimized)
+    }
+    if (initParams->Minimized) {
         window->SetMinimized(true);
-    if (initParams->Maximized)
+    }
+    if (initParams->Maximized) {
         window->SetMaximized(true);
-    if (!initParams->Resizable)
+    }
+    if (!initParams->Resizable) {
         window->SetResizable(false);
-    if (initParams->Topmost)
+    }
+    if (initParams->Topmost) {
         window->SetTopmost(true);
+    }
 }
 
 void InfiniFrameWindow::Impl::ConnectWindowSignals(InfiniFrameWindow* window) {

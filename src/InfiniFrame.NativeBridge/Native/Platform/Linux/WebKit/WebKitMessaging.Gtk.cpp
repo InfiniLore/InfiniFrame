@@ -3,7 +3,8 @@
 #include <JavaScriptCore/JavaScript.h>
 #include <webkit2/webkit2.h>
 
-#include "../../../Utils/Common.h"
+#include "Types/Basic.h"
+#include "Types/Callbacks.h"
 #include "WebKit.Gtk.Internal.h"
 
 namespace gtk_webkit {
@@ -13,7 +14,7 @@ namespace gtk_webkit {
         JSCValue* jsValue = webkit_javascript_result_get_js_value(jsResult);
         if (jsc_value_is_string(jsValue)) {
             AutoString str_value = jsc_value_to_string(jsValue);
-            WebMessageReceivedCallback callback = reinterpret_cast<WebMessageReceivedCallback>(userData);
+            auto callback = reinterpret_cast<WebMessageReceivedCallback>(userData);
             AutoString originValue = nullptr;
 
             JSGlobalContextRef context = webkit_javascript_result_get_global_context(jsResult);

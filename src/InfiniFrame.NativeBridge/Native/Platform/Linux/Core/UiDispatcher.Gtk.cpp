@@ -18,7 +18,7 @@ namespace {
         auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(data);
         waitInfo->callback();
         {
-            std::lock_guard<std::mutex> guard(invokeLockMutex);
+            std::lock_guard guard(invokeLockMutex);
             waitInfo->isCompleted = true;
         }
         waitInfo->completionNotifier.notify_one();
@@ -31,7 +31,7 @@ void InfiniFrameWindow::Invoke(const ACTION callback) {
     waitInfo.callback = callback;
     gdk_threads_add_idle(invokeCallback, &waitInfo);
 
-    std::unique_lock<std::mutex> uLock(invokeLockMutex);
+    std::unique_lock uLock(invokeLockMutex);
     waitInfo.completionNotifier.wait(uLock, [&] { return waitInfo.isCompleted; });
 }
 

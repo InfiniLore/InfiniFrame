@@ -77,9 +77,9 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
 
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl = std::make_unique<Impl>();
-    if (initParams->Size != sizeof(InfiniFrameInitParams)) {
+    if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
         auto msg = std::format(
-            L"Initial parameters passed are {} bytes, but expected {} bytes.", initParams->Size,
+            L"Initial parameters passed are {} bytes, but expected {} bytes.", initParams->StructSize,
             sizeof(InfiniFrameInitParams)
         );
         MessageBox(nullptr, msg.c_str(), L"Native Initialization Failed", MB_OK);

@@ -11,10 +11,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
     gtk_init(nullptr, nullptr);
     notify_init(initParams->Title);
 
-    if (initParams->Size != sizeof(InfiniFrameInitParams)) {
+    if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-            "Initial parameters passed are %i bytes, but expected %lu bytes.", initParams->Size,
+            "Initial parameters passed are %i bytes, but expected %lu bytes.", initParams->StructSize,
             sizeof(InfiniFrameInitParams)
         );
         gtk_dialog_run(GTK_DIALOG(dialog));

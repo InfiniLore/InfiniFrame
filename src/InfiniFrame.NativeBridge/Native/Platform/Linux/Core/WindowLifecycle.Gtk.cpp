@@ -8,10 +8,10 @@ void InfiniFrameWindow::Center() {
     gint windowWidth, windowHeight;
     gtk_window_get_size(GTK_WINDOW(m_impl->_window), &windowWidth, &windowHeight);
 
-    GdkRectangle screen = {0};
+    GdkRectangle screen = {};
 
-    GdkDisplay* d = gdk_display_get_default();
-    if (d == nullptr) {
+    GdkDisplay* display = gdk_display_get_default();
+    if (display == nullptr) {
         GtkWidget* dialog = gtk_message_dialog_new(
             nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
             "gdk_display_get_default() returned NULL"
@@ -21,10 +21,10 @@ void InfiniFrameWindow::Center() {
         return;
     }
 
-    GdkMonitor* m = gdk_display_get_primary_monitor(d);
-    if (m == nullptr) {
-        m = gdk_display_get_monitor(d, 0);
-        if (m == nullptr) {
+    GdkMonitor* monitor = gdk_display_get_primary_monitor(display);
+    if (monitor == nullptr) {
+        monitor = gdk_display_get_monitor(display, 0);
+        if (monitor == nullptr) {
             GtkWidget* dialog = gtk_message_dialog_new(
                 nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
                 "gdk_display_get_primary_monitor() returned NULL"
@@ -35,7 +35,7 @@ void InfiniFrameWindow::Center() {
         }
     }
 
-    gdk_monitor_get_geometry(m, &screen);
+    gdk_monitor_get_geometry(monitor, &screen);
 
     gtk_window_move(GTK_WINDOW(m_impl->_window), (screen.width - windowWidth) / 2, (screen.height - windowHeight) / 2);
 }

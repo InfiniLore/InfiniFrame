@@ -8,7 +8,7 @@ EXPORTED InteropStatus InfiniFrame_ctor(InfiniFrameInitParams* initParams, Infin
             return;
         if (initParams == nullptr)
             throw std::invalid_argument("Argument 'initParams' is null.");
-        if (initParams->Size != static_cast<int>(sizeof(InfiniFrameInitParams))) {
+        if (initParams->StructSize != static_cast<int>(sizeof(InfiniFrameInitParams))) {
             throw std::invalid_argument("InfiniFrameInitParams.Size does not match native struct size.");
         }
         auto instance = std::make_unique<InfiniFrameWindow>(initParams);
