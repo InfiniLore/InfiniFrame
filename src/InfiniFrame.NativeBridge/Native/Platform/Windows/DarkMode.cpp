@@ -31,30 +31,30 @@ static constexpr DWORD wiN10MinimumBuildDarkMode = 18362;
 static std::once_flag flagInitDarkModeSupport;
 
 namespace {
-class ModuleHandle {
-public:
-    ~ModuleHandle() {
-        if (_handle != nullptr) {
-            FreeLibrary(_handle);
+    class ModuleHandle {
+        public:
+        ~ModuleHandle() {
+            if (_handle != nullptr) {
+                FreeLibrary(_handle);
+            }
         }
-    }
 
-    void reset(HMODULE handle) {
-        if (_handle != nullptr) {
-            FreeLibrary(_handle);
+        void reset(HMODULE handle) {
+            if (_handle != nullptr) {
+                FreeLibrary(_handle);
+            }
+            _handle = handle;
         }
-        _handle = handle;
-    }
 
-    auto get() const -> HMODULE {
-        return _handle;
-    }
+        auto get() const -> HMODULE {
+            return _handle;
+        }
 
-private:
-    HMODULE _handle = nullptr;
-};
+        private:
+        HMODULE _handle = nullptr;
+    };
 
-ModuleHandle gUxtheme;
+    ModuleHandle gUxtheme;
 } // namespace
 
 static void EnableDarkModeForApp() noexcept {

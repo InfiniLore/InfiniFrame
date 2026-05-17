@@ -47,7 +47,7 @@ struct InfiniFrameInitParams;
  * Supports Windows (Win32 + WebView2), Linux (GTK3 + WebKit2GTK), macOS (Cocoa + WKWebView)
  */
 class InfiniFrameWindow {
-public:
+    public:
     /**
          * @brief Construct new InfiniFrame window
          * @param initParams Initialization parameters
@@ -581,7 +581,7 @@ public:
     // Private Implementation (Pimpl)
     // -----------------------------------------------------------------------------------------------------------------
 
-private:
+    private:
     void Show(bool isAlreadyShown);
     void AttachWebView();
 

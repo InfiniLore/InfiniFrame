@@ -20,7 +20,7 @@ class InfiniFrameWindow; // forward declaration
  * @brief Dialog handler for file/folder operations and message boxes
  */
 class InfiniFrameDialog {
-public:
+    public:
 #ifdef _WIN32
     /**
          * @brief Construct dialog handler with parent window (Windows)
@@ -95,7 +95,7 @@ public:
          */
     DialogResult ShowMessage(AutoString title, AutoString text, DialogButtons buttons, DialogIcon icon);
 
-protected:
+    protected:
 #ifdef __APPLE__
     NSImage* _errorIcon;
     NSImage* _infoIcon;

@@ -67,7 +67,7 @@ inline std::error_code make_error_code(const ErrorCode e) noexcept {
 }
 
 namespace std {
-template <> struct is_error_code_enum<ErrorCode> : true_type {};
+    template <> struct is_error_code_enum<ErrorCode> : true_type {};
 } // namespace std
 
 #endif // INFINIFRAME_UTILS_ERROR_CODE_H

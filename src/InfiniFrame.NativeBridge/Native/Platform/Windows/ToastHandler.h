@@ -20,7 +20,7 @@ using namespace WinToastLib;
 class WinToastHandler final : public IWinToastHandler {
     InfiniFrameWindow* _window;
 
-public:
+    public:
     /**
          * @brief Construct a handler bound to a specific window
          * @param window The window to bring to the foreground on notification activation

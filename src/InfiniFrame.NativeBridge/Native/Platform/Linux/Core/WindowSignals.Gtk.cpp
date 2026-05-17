@@ -5,38 +5,38 @@
 #include "../Window.Gtk.Internal.h"
 
 namespace {
-bool linux_webview_diagnostics_enabled() {
-    const char* value = g_getenv("INFINIFRAME_LINUX_WEBVIEW_DIAGNOSTICS");
-    return value != nullptr && value[0] != '\0' && g_strcmp0(value, "0") != 0;
-}
-
-const char* webkit_load_event_to_string(WebKitLoadEvent event) {
-    switch (event) {
-        case WEBKIT_LOAD_STARTED:
-            return "started";
-        case WEBKIT_LOAD_REDIRECTED:
-            return "redirected";
-        case WEBKIT_LOAD_COMMITTED:
-            return "committed";
-        case WEBKIT_LOAD_FINISHED:
-            return "finished";
-        default:
-            return "unknown";
+    bool linux_webview_diagnostics_enabled() {
+        const char* value = g_getenv("INFINIFRAME_LINUX_WEBVIEW_DIAGNOSTICS");
+        return value != nullptr && value[0] != '\0' && g_strcmp0(value, "0") != 0;
     }
-}
 
-const char* webkit_termination_reason_to_string(WebKitWebProcessTerminationReason reason) {
-    switch (reason) {
-        case WEBKIT_WEB_PROCESS_CRASHED:
-            return "crashed";
-        case WEBKIT_WEB_PROCESS_EXCEEDED_MEMORY_LIMIT:
-            return "exceeded-memory-limit";
-        case WEBKIT_WEB_PROCESS_TERMINATED_BY_API:
-            return "terminated-by-api";
-        default:
-            return "unknown";
+    const char* webkit_load_event_to_string(WebKitLoadEvent event) {
+        switch (event) {
+            case WEBKIT_LOAD_STARTED:
+                return "started";
+            case WEBKIT_LOAD_REDIRECTED:
+                return "redirected";
+            case WEBKIT_LOAD_COMMITTED:
+                return "committed";
+            case WEBKIT_LOAD_FINISHED:
+                return "finished";
+            default:
+                return "unknown";
+        }
     }
-}
+
+    const char* webkit_termination_reason_to_string(WebKitWebProcessTerminationReason reason) {
+        switch (reason) {
+            case WEBKIT_WEB_PROCESS_CRASHED:
+                return "crashed";
+            case WEBKIT_WEB_PROCESS_EXCEEDED_MEMORY_LIMIT:
+                return "exceeded-memory-limit";
+            case WEBKIT_WEB_PROCESS_TERMINATED_BY_API:
+                return "terminated-by-api";
+            default:
+                return "unknown";
+        }
+    }
 } // namespace
 
 void InfiniFrameWindow::OnConfigureEvent(int x, int y, int width, int height) {

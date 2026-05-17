@@ -8,39 +8,39 @@ using namespace WinToastLib;
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 namespace {
-class BrushManager {
-public:
-    static BrushManager& instance() noexcept {
-        static BrushManager inst;
-        return inst;
-    }
-
-    HBRUSH dark() const noexcept {
-        return static_cast<HBRUSH>(m_darkBrush.get());
-    }
-
-    HBRUSH light() const noexcept {
-        return static_cast<HBRUSH>(m_lightBrush.get());
-    }
-
-private:
-    BrushManager() noexcept {
-        m_darkBrush.reset(CreateSolidBrush(RGB(0, 0, 0)));
-        m_lightBrush.reset(CreateSolidBrush(RGB(255, 255, 255)));
-    }
-
-    ~BrushManager() noexcept = default;
-
-    struct HBRUSHDeleter {
-        void operator()(void* h) const noexcept {
-            if (h)
-                DeleteObject(static_cast<HBRUSH>(h));
+    class BrushManager {
+        public:
+        static BrushManager& instance() noexcept {
+            static BrushManager inst;
+            return inst;
         }
-    };
 
-    std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
-    std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
-};
+        HBRUSH dark() const noexcept {
+            return static_cast<HBRUSH>(m_darkBrush.get());
+        }
+
+        HBRUSH light() const noexcept {
+            return static_cast<HBRUSH>(m_lightBrush.get());
+        }
+
+        private:
+        BrushManager() noexcept {
+            m_darkBrush.reset(CreateSolidBrush(RGB(0, 0, 0)));
+            m_lightBrush.reset(CreateSolidBrush(RGB(255, 255, 255)));
+        }
+
+        ~BrushManager() noexcept = default;
+
+        struct HBRUSHDeleter {
+            void operator()(void* h) const noexcept {
+                if (h)
+                    DeleteObject(static_cast<HBRUSH>(h));
+            }
+        };
+
+        std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
+        std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
+    };
 } // namespace
 
 HBRUSH GetDarkBrush() {

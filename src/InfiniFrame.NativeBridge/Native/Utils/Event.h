@@ -18,7 +18,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 template <typename... Args> class Event {
-public:
+    public:
     using Handler = std::function<void(Args...)>;
     using Token = size_t;
 
@@ -81,7 +81,7 @@ public:
         m_handlers.clear();
     }
 
-private:
+    private:
     mutable std::shared_mutex m_mutex;
     std::map<Token, Handler> m_handlers;
     Token m_nextToken = 1;
@@ -92,7 +92,7 @@ private:
 // ---------------------------------------------------------------------------------------------------------------------
 
 template <typename... Args> class EventSubscription {
-public:
+    public:
     using EventType = Event<Args...>;
     using Token = EventType::Token;
 
@@ -146,7 +146,7 @@ public:
         return m_event != nullptr && m_token != 0;
     }
 
-private:
+    private:
     EventType* m_event = nullptr;
     Token m_token = 0;
 };

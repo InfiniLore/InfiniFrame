@@ -17,7 +17,7 @@
  * Used to ensure comdlg32 is available before activating the common-controls activation context
  */
 class Dll {
-public:
+    public:
     /** @brief Load the named DLL; handle is null if loading fails */
     explicit Dll(const std::string& name);
     /** @brief Unload the DLL if it was loaded successfully */
@@ -28,7 +28,7 @@ public:
          * @tparam T Function signature (e.g. BOOL(HWND, LPCWSTR))
          */
     template <typename T> class Proc {
-    public:
+        public:
         /**
                  * @brief Resolve a symbol from a loaded DLL
                  * @param lib DLL to search
@@ -47,11 +47,11 @@ public:
             return _mProc;
         }
 
-    private:
+        private:
         T* _mProc;
     };
 
-private:
+    private:
     HMODULE _handle;
 };
 
@@ -71,13 +71,13 @@ inline Dll::~Dll() {
  * embedded manifest resource (ID 124)
  */
 class NewStyleContext {
-public:
+    public:
     /** @brief Activate the Common Controls v6 context */
     NewStyleContext();
     /** @brief Deactivate the context */
     ~NewStyleContext();
 
-private:
+    private:
     /** @brief Create the activation context from shell32.dll's manifest; called once */
     static HANDLE Create();
 
