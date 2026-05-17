@@ -46,8 +46,12 @@ set(TEST_SOURCES
 
 set(WINDOWS_SOURCES
         Platform/Windows/Window.cpp
+        Platform/Windows/WindowLifecycle.Win32.cpp
+        Platform/Windows/WindowProc.Win32.cpp
         Platform/Windows/WindowState.Win32.cpp
         Platform/Windows/WindowEvents.Win32.cpp
+        Platform/Windows/WebView2Host.Win32.cpp
+        Platform/Windows/UiDispatcher.Win32.cpp
         Platform/Windows/DarkMode.cpp
         Platform/Windows/Dialog.cpp
 )
@@ -57,6 +61,9 @@ set(LINUX_SOURCES
         Platform/Linux/WindowLifecycle.Gtk.cpp
         Platform/Linux/WindowState.Gtk.cpp
         Platform/Linux/WindowEvents.Gtk.cpp
+        Platform/Linux/UiDispatcher.Gtk.cpp
+        Platform/Linux/WebKitBridge.Gtk.cpp
+        Platform/Linux/WindowSignals.Gtk.cpp
         Platform/Linux/Dialog.cpp
 )
 
@@ -89,6 +96,7 @@ set(HEADER_FILES
         Exports/Exports.Shared.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/Window.Win32.Internal.h
+        Platform/Windows/Window.Win32.Context.h
         Platform/Windows/DarkMode.h
         Platform/Mac/AppDelegate.h
         Platform/Mac/NavigationDelegate.h

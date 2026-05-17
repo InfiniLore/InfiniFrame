@@ -1,15 +1,12 @@
 #include <algorithm>
-#include <atomic>
 #include <chrono>
 #include <comdef.h>
-#include <condition_variable>
 #include <cstdlib>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
 #include <cwchar>
 #include <filesystem>
-#include <mutex>
 #include <Shellscalingapi.h>
 #include <Shlwapi.h>
 #include <WebView2EnvironmentOptions.h>
@@ -25,6 +22,7 @@
 #include "DarkMode.h"
 #include "ToastHandler.h"
 #include "Utils/Common.h"
+#include "Window.Win32.Context.h"
 #include "Window.Win32.Internal.h"
 
 #include "Embedded/Embedded.h"
@@ -32,724 +30,150 @@
 #pragma comment(lib, "Shcore.lib")
 #pragma comment(lib, "Urlmon.lib")
 
-#define WM_USER_INVOKE (WM_USER + 0x0002)
-
 using namespace WinToastLib;
 using namespace Microsoft::WRL;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-auto CLASS_NAME = L"InfiniFrame";
+const wchar_t* CLASS_NAME = L"InfiniFrame";
 std::atomic<HINSTANCE> _hInstance{nullptr};
 thread_local HWND messageLoopRootWindowHandle = nullptr;
 wchar_t _webview2RuntimePath[MAX_PATH];
 std::mutex webview2RuntimePathMutex;
 
-namespace {
-    static_assert(sizeof(wchar_t) == sizeof(char16_t));
+static_assert(sizeof(wchar_t) == sizeof(char16_t));
 
-    bool IsTeardownTraceEnabled() {
-        static const bool enabled = [] {
-            wchar_t value[32] = {};
-            const DWORD len = GetEnvironmentVariableW(L"INFINIFRAME_TRACE_TEARDOWN", value, _countof(value));
-            if (len == 0 || len >= _countof(value))
-                return false;
-
-            return _wcsicmp(value, L"1") == 0
-                || _wcsicmp(value, L"true") == 0
-                || _wcsicmp(value, L"yes") == 0
-                || _wcsicmp(value, L"on") == 0;
-        }();
-
-        return enabled;
-    }
-
-    void TraceTeardown(const wchar_t* format, ...) {
-        if (!IsTeardownTraceEnabled())
-            return;
-
-        wchar_t message[1024] = {};
-        va_list args;
-        va_start(args, format);
-        _vsnwprintf_s(message, _countof(message), _TRUNCATE, format, args);
-        va_end(args);
-
-        const std::wstring line = std::format(
-            L"[InfiniFrame][teardown][tid={}] {}\n",
-            GetCurrentThreadId(),
-            message
-            );
-        OutputDebugStringW(line.c_str());
-        std::fwprintf(stderr, L"%ls", line.c_str());
-        std::fflush(stderr);
-    }
-
-    std::wstring Utf8ToWide(const AutoString source) {
-        if (source == nullptr)
-            return {};
-
-        const auto* utf8 = reinterpret_cast<const char*>(source);
-        const size_t utf8Length = strlen(utf8);
-        if (utf8Length == 0)
-            return {};
-
-        if (const auto validation = simdutf::validate_utf8_with_errors(utf8, utf8Length); validation.is_err())
-            return {};
-
-        std::u16string utf16(simdutf::utf16_length_from_utf8(utf8, utf8Length), u'\0');
-        const size_t written = simdutf::convert_valid_utf8_to_utf16(
-            utf8,
-            utf8Length,
-            reinterpret_cast<char16_t*>(utf16.data())
-            );
-        utf16.resize(written);
-
-        return {
-            reinterpret_cast<const wchar_t*>(utf16.data()),
-            utf16.size()
-        };
-    }
-
-    std::string WideToUtf8(const AutoString source) {
-        if (source == nullptr)
-            return {};
-
-        const size_t utf16Length = wcslen(source);
-        if (utf16Length == 0)
-            return {};
-
-        const auto* utf16 = reinterpret_cast<const char16_t*>(source);
-        if (const auto validation = simdutf::validate_utf16_with_errors(utf16, utf16Length); validation.is_err())
-            return {};
-
-        std::string utf8(simdutf::utf8_length_from_utf16(utf16, utf16Length), '\0');
-        const size_t written = simdutf::convert_valid_utf16_to_utf8(
-            utf16,
-            utf16Length,
-            utf8.data()
-            );
-        utf8.resize(written);
-
-        return utf8;
-    }
-
-    bool EnsureDirectoryWritable(const std::wstring& directoryPath) {
-        if (directoryPath.empty())
+bool IsTeardownTraceEnabled() {
+    static const bool enabled = [] {
+        wchar_t value[32] = {};
+        const DWORD len = GetEnvironmentVariableW(L"INFINIFRAME_TRACE_TEARDOWN", value, _countof(value));
+        if (len == 0 || len >= _countof(value))
             return false;
 
-        std::error_code createError;
-        std::filesystem::create_directories(directoryPath, createError);
-        if (createError)
-            return false;
+        return _wcsicmp(value, L"1") == 0
+            || _wcsicmp(value, L"true") == 0
+            || _wcsicmp(value, L"yes") == 0
+            || _wcsicmp(value, L"on") == 0;
+    }();
 
-        const std::wstring probePath = std::format(
-            L"{}\\{}.tmp",
-            directoryPath,
-            std::format(L".infiniframe-wv2-write-check-{}-{}-{}", GetCurrentProcessId(), GetCurrentThreadId(), GetTickCount64())
-            );
-
-        HANDLE probeHandle = CreateFileW(
-            probePath.c_str(),
-            GENERIC_WRITE,
-            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-            nullptr,
-            CREATE_ALWAYS,
-            FILE_ATTRIBUTE_TEMPORARY,
-            nullptr
-            );
-
-        if (probeHandle == INVALID_HANDLE_VALUE)
-            return false;
-
-        CloseHandle(probeHandle);
-        DeleteFileW(probePath.c_str());
-        return true;
-    }
-
-    InfiniFrameWindow* LookupWindowInstance(const HWND hwnd) {
-        return reinterpret_cast<InfiniFrameWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-    }
-
-    HWND ResolveParentWindowHandle(InfiniFrameWindow* parent) {
-        if (parent == nullptr)
-            return nullptr;
-
-        HWND parentHwnd = parent->getHwnd();
-        if (parentHwnd == nullptr || !IsWindow(parentHwnd))
-            return nullptr;
-
-        return parentHwnd;
-    }
-
-    template <typename TImpl>
-    void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
-        if (impl == nullptr)
-            return;
-        if (impl->_ownerAssigned)
-            return;
-
-        if (impl->_pendingOwnerHwnd == nullptr || impl->_hWnd == nullptr)
-            return;
-
-        if (impl->_pendingOwnerHwnd == impl->_hWnd)
-            return;
-
-        if (!IsWindow(impl->_pendingOwnerHwnd) || !IsWindow(impl->_hWnd))
-            return;
-
-        SetLastError(0);
-        const LONG_PTR previousOwner = SetWindowLongPtr(
-            impl->_hWnd,
-            GWLP_HWNDPARENT,
-            reinterpret_cast<LONG_PTR>(impl->_pendingOwnerHwnd)
-            );
-        const DWORD lastError = GetLastError();
-
-        if (previousOwner == 0 && lastError != 0) {
-            TraceTeardown(
-                L"ApplyPendingOwnerWindow failed phase=%ls child=%p owner=%p err=%lu",
-                phase,
-                impl->_hWnd,
-                impl->_pendingOwnerHwnd,
-                lastError
-                );
-            return;
-        }
-
-        impl->_ownerAssigned = true;
-
-        const DWORD childThreadId = GetWindowThreadProcessId(impl->_hWnd, nullptr);
-        const DWORD ownerThreadId = GetWindowThreadProcessId(impl->_pendingOwnerHwnd, nullptr);
-        TraceTeardown(
-            L"ApplyPendingOwnerWindow success phase=%ls child=%p owner=%p childTid=%lu ownerTid=%lu prev=%p",
-            phase,
-            impl->_hWnd,
-            impl->_pendingOwnerHwnd,
-            childThreadId,
-            ownerThreadId,
-            reinterpret_cast<void*>(previousOwner)
-            );
-    }
+    return enabled;
 }
 
+void TraceTeardown(const wchar_t* format, ...) {
+    if (!IsTeardownTraceEnabled())
+        return;
 
-struct InvokeWaitInfo {
-    std::mutex mutex;
-    std::condition_variable completionNotifier;
-    bool isCompleted = false;
-    bool isAbandoned = false;
-};
+    wchar_t message[1024] = {};
+    va_list args;
+    va_start(args, format);
+    _vsnwprintf_s(message, _countof(message), _TRUNCATE, format, args);
+    va_end(args);
 
-struct ShowMessageParams {
-    std::wstring title;
-    std::wstring body;
-    UINT type = 0;
-};
+    const std::wstring line = std::format(
+        L"[InfiniFrame][teardown][tid={}] {}\n",
+        GetCurrentThreadId(),
+        message
+        );
+    OutputDebugStringW(line.c_str());
+    std::fwprintf(stderr, L"%ls", line.c_str());
+    std::fflush(stderr);
+}
 
-namespace detail {
-    class BrushManager {
-        public:
-            static BrushManager& instance() noexcept {
-                static BrushManager inst;
-                return inst;
-            }
+std::wstring Utf8ToWide(const AutoString source) {
+    if (source == nullptr)
+        return {};
 
-            HBRUSH dark() const noexcept {
-                return static_cast<HBRUSH>(m_darkBrush.get());
-            }
+    const auto* utf8 = reinterpret_cast<const char*>(source);
+    const size_t utf8Length = strlen(utf8);
+    if (utf8Length == 0)
+        return {};
 
-            HBRUSH light() const noexcept {
-                return static_cast<HBRUSH>(m_lightBrush.get());
-            }
+    if (const auto validation = simdutf::validate_utf8_with_errors(utf8, utf8Length); validation.is_err())
+        return {};
 
-        private:
-            BrushManager() noexcept {
-                m_darkBrush.reset(CreateSolidBrush(RGB(0, 0, 0)));
-                m_lightBrush.reset(CreateSolidBrush(RGB(255, 255, 255)));
-            }
+    std::u16string utf16(simdutf::utf16_length_from_utf8(utf8, utf8Length), u'\0');
+    const size_t written = simdutf::convert_valid_utf8_to_utf16(
+        utf8,
+        utf8Length,
+        reinterpret_cast<char16_t*>(utf16.data())
+        );
+    utf16.resize(written);
 
-            ~BrushManager() noexcept = default;
-
-            struct HBRUSHDeleter {
-                void operator()(void* h) const noexcept {
-                    if (h)
-                        DeleteObject(static_cast<HBRUSH>(h));
-                }
-            };
-
-            std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
-            std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
+    return {
+        reinterpret_cast<const wchar_t*>(utf16.data()),
+        utf16.size()
     };
-} // namespace detail
-
-void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
-    InitDarkModeSupport();
-
-    _hInstance.store(hInstance, std::memory_order_release);
-
-    // Register the window class
-    WNDCLASSEX wcx;
-    wcx.cbSize = sizeof(WNDCLASSEX);
-    wcx.style = CS_HREDRAW | CS_VREDRAW;
-    wcx.lpfnWndProc = WindowProc;
-    wcx.cbClsExtra = 0;
-    wcx.cbWndExtra = 0;
-    wcx.hInstance = hInstance;
-    wcx.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
-    wcx.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wcx.hbrBackground = IsDarkModeEnabled()
-        ? detail::BrushManager::instance().dark()
-        : detail::BrushManager::instance().light();
-    wcx.lpszMenuName = nullptr;
-    wcx.lpszClassName = CLASS_NAME;
-    wcx.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
-
-    RegisterClassEx(&wcx);
-
-    SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }
 
-InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
-    m_impl = std::make_unique<Impl>();
-    if (initParams->Size != sizeof(InfiniFrameInitParams)) {
-        auto msg = std::format(
-            L"Initial parameters passed are {} bytes, but expected {} bytes.",
-            initParams->Size, sizeof(InfiniFrameInitParams)
-            );
-        MessageBox(nullptr, msg.c_str(), L"Native Initialization Failed", MB_OK);
-        exit(0);
-    }
+std::string WideToUtf8(const AutoString source) {
+    if (source == nullptr)
+        return {};
 
-    if (initParams->Title != nullptr) {
-        m_impl->_windowTitle = ToUTF16String(initParams->Title);
-        if (initParams->NotificationsEnabled) {
-            WinToast::instance()->setAppName(m_impl->_windowTitle.c_str());
-            if (m_impl->_notificationRegistrationId.empty())
-                WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
-        }
-    }
+    const size_t utf16Length = wcslen(source);
+    if (utf16Length == 0)
+        return {};
 
-    if (initParams->StartUrl != nullptr)
-        m_impl->_startUrl = ToUTF16String(initParams->StartUrl);
+    const auto* utf16 = reinterpret_cast<const char16_t*>(source);
+    if (const auto validation = simdutf::validate_utf16_with_errors(utf16, utf16Length); validation.is_err())
+        return {};
 
-    if (initParams->StartString != nullptr)
-        m_impl->_startString = ToUTF16String(initParams->StartString);
+    std::string utf8(simdutf::utf8_length_from_utf16(utf16, utf16Length), '\0');
+    const size_t written = simdutf::convert_valid_utf16_to_utf8(
+        utf16,
+        utf16Length,
+        utf8.data()
+        );
+    utf8.resize(written);
 
-    if (initParams->TemporaryFilesPath != nullptr)
-        m_impl->_temporaryFilesPath = ToUTF16String(initParams->TemporaryFilesPath);
+    return utf8;
+}
 
-    if (initParams->UserAgent != nullptr)
-        m_impl->_userAgent = ToUTF16String(initParams->UserAgent);
+bool EnsureDirectoryWritable(const std::wstring& directoryPath) {
+    if (directoryPath.empty())
+        return false;
 
-    if (initParams->BrowserControlInitParameters != nullptr)
-        m_impl->_browserControlInitParameters = ToUTF16String(initParams->BrowserControlInitParameters);
+    std::error_code createError;
+    std::filesystem::create_directories(directoryPath, createError);
+    if (createError)
+        return false;
 
-    if (initParams->NotificationRegistrationId != nullptr)
-        m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
-
-
-    m_impl->_transparentEnabled = initParams->Transparent;
-    m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
-    m_impl->_zoomEnabled = initParams->ZoomEnabled;
-    m_impl->_devToolsEnabled = initParams->DevToolsEnabled;
-    m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
-    m_impl->_mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
-    m_impl->_fileSystemAccessEnabled = initParams->FileSystemAccessEnabled;
-    m_impl->_webSecurityEnabled = initParams->WebSecurityEnabled;
-    m_impl->_javascriptClipboardAccessEnabled = initParams->JavascriptClipboardAccessEnabled;
-    m_impl->_mediaStreamEnabled = initParams->MediaStreamEnabled;
-    m_impl->_smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
-    m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
-    m_impl->_notificationsEnabled = initParams->NotificationsEnabled;
-
-    m_impl->_zoom = initParams->Zoom;
-    m_impl->_minWidth = initParams->MinWidth;
-    m_impl->_minHeight = initParams->MinHeight;
-    m_impl->_maxWidth = initParams->MaxWidth;
-    m_impl->_maxHeight = initParams->MaxHeight;
-
-    //these handlers are ALWAYS hooked up
-    m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
-    m_impl->_resizedCallback = initParams->ResizedHandler;
-    m_impl->_maximizedCallback = initParams->MaximizedHandler;
-    m_impl->_restoredCallback = initParams->RestoredHandler;
-    m_impl->_minimizedCallback = initParams->MinimizedHandler;
-    m_impl->_movedCallback = initParams->MovedHandler;
-    m_impl->_closingCallback = initParams->ClosingHandler;
-    m_impl->_closedCallback  = initParams->ClosedHandler;
-    m_impl->_focusInCallback = initParams->FocusInHandler;
-    m_impl->_focusOutCallback = initParams->FocusOutHandler;
-    m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
-
-    //copy strings from the fixed size array passed, but only if they have a value.
-    for (int i = 0; i < 16; ++i) {
-        if (initParams->CustomSchemeNames[i] != nullptr)
-            m_impl->_customSchemeNames.emplace_back(ToUTF16String(initParams->CustomSchemeNames[i]));
-    }
-
-    m_impl->_parent = initParams->ParentInstance;
-
-    int normalizedWidth = initParams->Width;
-    int normalizedHeight = initParams->Height;
-    int normalizedLeft = initParams->Left;
-    int normalizedTop = initParams->Top;
-    bool centerOnInitialize = initParams->CenterOnInitialize;
-
-    if (initParams->UseOsDefaultSize) {
-        normalizedWidth = CW_USEDEFAULT;
-        normalizedHeight = CW_USEDEFAULT;
-    }
-    else {
-        if (normalizedWidth < 0)
-            normalizedWidth = CW_USEDEFAULT;
-        if (normalizedHeight < 0)
-            normalizedHeight = CW_USEDEFAULT;
-    }
-
-    if (initParams->UseOsDefaultLocation) {
-        normalizedLeft = CW_USEDEFAULT;
-        normalizedTop = CW_USEDEFAULT;
-    }
-
-    if (initParams->FullScreen) {
-        normalizedLeft = 0;
-        normalizedTop = 0;
-        normalizedWidth = GetSystemMetrics(SM_CXSCREEN);
-        normalizedHeight = GetSystemMetrics(SM_CYSCREEN);
-    }
-
-    if (initParams->Chromeless) {
-        if (normalizedLeft == CW_USEDEFAULT && normalizedTop == CW_USEDEFAULT)
-            centerOnInitialize = true;
-        if (normalizedLeft == CW_USEDEFAULT)
-            normalizedLeft = 0;
-        if (normalizedTop == CW_USEDEFAULT)
-            normalizedTop = 0;
-        if (normalizedHeight == CW_USEDEFAULT)
-            normalizedHeight = 600;
-        if (normalizedWidth == CW_USEDEFAULT)
-            normalizedWidth = 800;
-    }
-
-    if (normalizedHeight > initParams->MaxHeight)
-        normalizedHeight = initParams->MaxHeight;
-    if (normalizedHeight < initParams->MinHeight && initParams->MinHeight > 0)
-        normalizedHeight = initParams->MinHeight;
-    if (normalizedWidth > initParams->MaxWidth)
-        normalizedWidth = initParams->MaxWidth;
-    if (normalizedWidth < initParams->MinWidth && initParams->MinWidth > 0)
-        normalizedWidth = initParams->MinWidth;
-
-
-    const HWND parentWindowHandle = ResolveParentWindowHandle(m_impl->_parent);
-    m_impl->_pendingOwnerHwnd = parentWindowHandle;
-
-    //Create the window
-    const HINSTANCE windowInstance = _hInstance.load(std::memory_order_acquire);
-    m_impl->_hWnd = CreateWindowEx(
-        initParams->Transparent ? WS_EX_LAYERED : 0, //WS_EX_OVERLAPPEDWINDOW, //An optional extended window style.
-        CLASS_NAME, //Window class
-        m_impl->_windowTitle.c_str(), //Window text
-        initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, //Window style
-
-        // Size and position
-        normalizedLeft, normalizedTop, normalizedWidth, normalizedHeight,
-
-        nullptr, //Parent window handle is set after creation via GWLP_HWNDPARENT to avoid cross-thread create-time interactions.
-        nullptr, //Menu
-        windowInstance, //Instance handle
-        this //Additional application data
+    const std::wstring probePath = std::format(
+        L"{}\\{}.tmp",
+        directoryPath,
+        std::format(L".infiniframe-wv2-write-check-{}-{}-{}", GetCurrentProcessId(), GetCurrentThreadId(), GetTickCount64())
         );
 
-    ApplyPendingOwnerWindow(m_impl.get(), L"ctor");
-
-    if (initParams->WindowIconFile != nullptr) {
-        SetIconFile(initParams->WindowIconFile);
-    }
-
-
-    if (centerOnInitialize)
-        Center();
-
-    if (initParams->Minimized)
-        SetMinimized(true);
-
-    if (initParams->Maximized)
-        SetMaximized(true);
-
-    SetResizable(initParams->Resizable);
-
-    if (initParams->Topmost)
-        SetTopmost(true);
-
-    if (initParams->NotificationsEnabled) {
-        if (!m_impl->_notificationRegistrationId.empty())
-            WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
-
-        m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
-        WinToast::instance()->initialize();
-    }
-
-    m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);
-
-    bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
-    Show(isAlreadyShown);
-}
-
-InfiniFrameWindow::~InfiniFrameWindow() {
-}
-
-HWND InfiniFrameWindow::getHwnd() {
-    return m_impl->_hWnd;
-}
-
-
-LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {
-    switch (uMsg) {
-        case WM_NCCREATE: {
-            const auto* createParams = reinterpret_cast<const CREATESTRUCT*>(lParam);
-            auto* instance = reinterpret_cast<InfiniFrameWindow*>(createParams->lpCreateParams);
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(instance));
-            return TRUE;
-        }
-        case WM_CREATE: {
-            EnableDarkMode(hwnd, true);
-            if (IsDarkModeEnabled())
-                RefreshNonClientArea(hwnd);
-            break;
-        }
-        case WM_DPICHANGED: {
-            RECT* newWindowRect = reinterpret_cast<RECT*>(lParam);
-
-            SetWindowPos(
-                hwnd,
-                nullptr,
-                newWindowRect->left,
-                newWindowRect->top,
-                newWindowRect->right - newWindowRect->left,
-                newWindowRect->bottom - newWindowRect->top,
-                SWP_NOZORDER | SWP_NOACTIVATE
-                );
-
-            return 0;
-        }
-        case WM_SETTINGCHANGE: {
-            if (IsColorSchemeChange(lParam))
-                SendMessageW(hwnd, WM_THEMECHANGED, 0, 0);
-
-            break;
-        }
-        case WM_THEMECHANGED: {
-            EnableDarkMode(hwnd, IsDarkModeEnabled());
-            RefreshNonClientArea(hwnd);
-            InvalidateRect(hwnd, nullptr, TRUE);
-            break;
-        }
-        case WM_PAINT: {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps);
-
-            // Fill the background with the current theme color
-            if (IsDarkModeEnabled()) {
-                FillRect(hdc, &ps.rcPaint, detail::BrushManager::instance().dark());
-            }
-            else {
-                FillRect(hdc, &ps.rcPaint, detail::BrushManager::instance().light());
-            }
-
-            EndPaint(hwnd, &ps);
-            break;
-        }
-        case WM_ACTIVATE: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
-            if (instance) {
-                if (LOWORD(wParam) == WA_INACTIVE) {
-                    instance->InvokeFocusOut();
-                }
-                else {
-                    instance->FocusWebView2();
-                    instance->InvokeFocusIn();
-
-                    return 0;
-                }
-            }
-            break;
-        }
-        case WM_CLOSE: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
-            if (instance) {
-                TraceTeardown(L"WM_CLOSE hwnd=%p instance=%p", hwnd, instance);
-                bool doNotClose = instance->InvokeClose();
-
-                if (!doNotClose) {
-                    // On Windows ARM64 we observed occasional access violations during teardown when
-                    // owner/owned windows live on different UI threads. Detach owner linkage before
-                    // destruction to avoid cross-thread owner-chain teardown races.
-                    SetLastError(0);
-                    const LONG_PTR previousOwner = SetWindowLongPtr(hwnd, GWLP_HWNDPARENT, 0);
-                    const DWORD ownerDetachError = GetLastError();
-                    if (previousOwner != 0 || ownerDetachError == 0) {
-                        TraceTeardown(
-                            L"WM_CLOSE detached owner hwnd=%p prevOwner=%p err=%lu",
-                            hwnd,
-                            reinterpret_cast<void*>(previousOwner),
-                            ownerDetachError
-                            );
-                    }
-
-                    DestroyWindow(hwnd);
-                }
-            }
-
-            return 0;
-        }
-        case WM_DESTROY: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
-            if (instance) {
-                instance->m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
-                TraceTeardown(L"WM_DESTROY begin hwnd=%p instance=%p", hwnd, instance);
-                instance->CloseWebView();
-                instance->InvokeClosed();
-                TraceTeardown(L"WM_DESTROY end hwnd=%p instance=%p", hwnd, instance);
-            }
-            // Terminate the message loop of the thread that owns this window
-            if (hwnd == messageLoopRootWindowHandle)
-                PostQuitMessage(0);
-
-            return 0;
-        }
-        case WM_NCDESTROY: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
-            if (instance) {
-                instance->m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
-                instance->m_impl->_hWnd = nullptr;
-            }
-            TraceTeardown(L"WM_NCDESTROY hwnd=%p instance=%p", hwnd, instance);
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
-            break;
-        }
-        case WM_USER_INVOKE: {
-            auto callback = reinterpret_cast<ACTION>(wParam);
-            auto* waitInfo = reinterpret_cast<InvokeWaitInfo*>(lParam);
-
-            if (waitInfo == nullptr) {
-                if (callback)
-                    callback();
-                return 0;
-            }
-
-            bool deleteWaitInfo = false;
-            {
-                std::lock_guard<std::mutex> guard(waitInfo->mutex);
-                if (!waitInfo->isAbandoned && callback)
-                    callback();
-                waitInfo->isCompleted = true;
-                deleteWaitInfo = waitInfo->isAbandoned;
-            }
-
-            waitInfo->completionNotifier.notify_one();
-
-            if (deleteWaitInfo)
-                delete waitInfo;
-            return 0;
-        }
-        case WM_GETMINMAXINFO: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
-            if (instance == nullptr)
-                return 0;
-
-            MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
-            if (instance->m_impl->_minWidth > 0)
-                mmi->ptMinTrackSize.x = instance->m_impl->_minWidth;
-            if (instance->m_impl->_minHeight > 0)
-                mmi->ptMinTrackSize.y = instance->m_impl->_minHeight;
-            if (instance->m_impl->_maxWidth < INT_MAX)
-                mmi->ptMaxTrackSize.x = instance->m_impl->_maxWidth;
-            if (instance->m_impl->_maxHeight < INT_MAX)
-                mmi->ptMaxTrackSize.y = instance->m_impl->_maxHeight;
-            return 0;
-        }
-        case WM_SIZE: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
-            if (instance) {
-                instance->RefitContent();
-                int width, height;
-                instance->GetSize(&width, &height);
-                instance->InvokeResize(width, height);
-
-                if (LOWORD(wParam) == SIZE_MAXIMIZED) {
-                    instance->InvokeMaximized();
-                }
-                else if (LOWORD(wParam) == SIZE_RESTORED) {
-                    instance->InvokeRestored();
-                }
-                else if (LOWORD(wParam) == SIZE_MINIMIZED) {
-                    instance->InvokeMinimized();
-                }
-            }
-            return 0;
-        }
-        case WM_MOVE: {
-            InfiniFrameWindow * instance = LookupWindowInstance(hwnd);
-            if (instance) {
-                int x, y;
-                instance->GetPosition(&x, &y);
-                instance->InvokeMove(x, y);
-            }
-            return 0;
-        }
-    }
-
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
-
-void InfiniFrameWindow::CloseWebView() {
-    m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
-    const bool deferEnvironmentRelease =
-        m_impl->_isWebView2Initializing && m_impl->_webviewController == nullptr;
-    TraceTeardown(
-        L"CloseWebView begin instance=%p hwnd=%p controller=%p webview=%p env=%p",
-        this,
-        m_impl->_hWnd,
-        m_impl->_webviewController.get(),
-        m_impl->_webviewWindow.get(),
-        m_impl->_webviewEnvironment.get()
+    HANDLE probeHandle = CreateFileW(
+        probePath.c_str(),
+        GENERIC_WRITE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        nullptr,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_TEMPORARY,
+        nullptr
         );
 
-    // Keep teardown non-blocking in WM_DESTROY path: Close() the controller first and
-    // avoid synchronous event unsubscription / Stop() calls that can stall shutdown.
-    if (m_impl->_webviewController != nullptr) {
-        m_impl->_webviewController->Close();
-        m_impl->_webviewController = nullptr;
-    }
+    if (probeHandle == INVALID_HANDLE_VALUE)
+        return false;
 
-    m_impl->_webviewWindow = nullptr;
-
-    m_impl->_hasWebMessageReceivedToken = false;
-    m_impl->_hasWebResourceRequestedToken = false;
-    m_impl->_hasPermissionRequestedToken = false;
-    m_impl->_webMessageReceivedToken = {};
-    m_impl->_webResourceRequestedTokenForCustomScheme = {};
-    m_impl->_permissionRequestedToken = {};
-
-    if (m_impl->_webviewEnvironment != nullptr && !deferEnvironmentRelease) {
-        m_impl->_webviewEnvironment = nullptr;
-    }
-
-    m_impl->_isInitialized = false;
-    if (!deferEnvironmentRelease)
-        m_impl->_isWebView2Initializing = false;
-
-    if (deferEnvironmentRelease) {
-        TraceTeardown(
-            L"CloseWebView deferring environment release instance=%p env=%p",
-            this,
-            m_impl->_webviewEnvironment.get()
-            );
-    }
-
-    TraceTeardown(L"CloseWebView end instance=%p", this);
+    CloseHandle(probeHandle);
+    DeleteFileW(probePath.c_str());
+    return true;
 }
 
+InfiniFrameWindow* LookupWindowInstance(const HWND hwnd) {
+    return reinterpret_cast<InfiniFrameWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+}
+
+HWND ResolveParentWindowHandle(InfiniFrameWindow* parent) {
+    if (parent == nullptr)
+        return nullptr;
+
+    HWND parentHwnd = parent->getHwnd();
+    if (parentHwnd == nullptr || !IsWindow(parentHwnd))
+        return nullptr;
+
+    return parentHwnd;
+}
 
 void InfiniFrameWindow::WaitForExit() {
     ApplyPendingOwnerWindow(m_impl.get(), L"wait_for_exit");
@@ -757,7 +181,6 @@ void InfiniFrameWindow::WaitForExit() {
     messageLoopRootWindowHandle = m_impl->_hWnd;
     TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, m_impl->_hWnd);
 
-    // Run the message loop
     MSG msg = {};
     while (true) {
         const int getMessageResult = GetMessage(&msg, nullptr, 0, 0);
@@ -775,824 +198,3 @@ void InfiniFrameWindow::WaitForExit() {
     messageLoopRootWindowHandle = nullptr;
     TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, m_impl->_hWnd);
 }
-
-
-void InfiniFrameWindow::Invoke(ACTION callback) {
-    if (!callback)
-        return;
-
-    if (m_impl->_hWnd == nullptr || !IsWindow(m_impl->_hWnd))
-        return;
-
-    auto* waitInfo = new InvokeWaitInfo();
-    if (!PostMessage(
-        m_impl->_hWnd, WM_USER_INVOKE, reinterpret_cast<WPARAM>(callback), reinterpret_cast<LPARAM>(waitInfo)
-        )) {
-        delete waitInfo;
-        return;
-    }
-
-    std::unique_lock<std::mutex> uLock(waitInfo->mutex);
-    const bool completed = waitInfo->completionNotifier.wait_for(
-        uLock,
-        std::chrono::seconds(15),
-        [&] {
-            return waitInfo->isCompleted;
-        }
-        );
-
-    if (!completed) {
-        bool deleteWaitInfo = false;
-        if (waitInfo->isCompleted)
-            deleteWaitInfo = true;
-        else
-            waitInfo->isAbandoned = true;
-
-        uLock.unlock();
-
-        if (deleteWaitInfo)
-            delete waitInfo;
-
-        OutputDebugStringW(L"InfiniFrameWindow::Invoke timed out waiting for UI thread callback.\n");
-        return;
-    }
-
-    uLock.unlock();
-    delete waitInfo;
-}
-
-std::string InfiniFrameWindow::ToUTF8String(const AutoString source) const {
-    return WideToUtf8(source);
-}
-
-std::wstring InfiniFrameWindow::ToUTF16String(const AutoString source) const {
-    return Utf8ToWide(source);
-}
-
-void InfiniFrameWindow::AttachWebView() {
-    if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
-        return;
-
-    if (m_impl->_isWebView2Initializing || m_impl->_isInitialized)
-        return;
-    m_impl->_isWebView2Initializing = true;
-
-    std::wstring configuredRuntimePath;
-    {
-        std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
-        configuredRuntimePath = _webview2RuntimePath;
-    }
-    PCWSTR runtimePath = configuredRuntimePath.empty() ? nullptr : configuredRuntimePath.c_str();
-
-    std::wstring startupString;
-    if (!m_impl->_userAgent.empty())
-        startupString += L"--user-agent=\"" + m_impl->_userAgent + L"\" ";
-    if (m_impl->_mediaAutoplayEnabled)
-        startupString += L"--autoplay-policy=no-user-gesture-required ";
-    if (m_impl->_fileSystemAccessEnabled)
-        startupString += L"--allow-file-access-from-files ";
-    if (!m_impl->_webSecurityEnabled)
-        startupString += L"--disable-web-security ";
-    if (m_impl->_javascriptClipboardAccessEnabled)
-        startupString += L"--enable-javascript-clipboard-access ";
-    if (m_impl->_mediaStreamEnabled)
-        startupString += L"--enable-usermedia-screen-capturing ";
-    if (!m_impl->_smoothScrollingEnabled)
-        startupString += L"--disable-smooth-scrolling ";
-    if (m_impl->_ignoreCertificateErrorsEnabled)
-        startupString += L"--ignore-certificate-errors ";
-    if (!m_impl->_browserControlInitParameters.empty())
-        startupString += m_impl->_browserControlInitParameters; //e.g.--hide-scrollbars
-
-    auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
-    if (startupString.length() > 0)
-        options->put_AdditionalBrowserArguments(startupString.c_str());
-
-    bool requiresAppSchemeRegistration = std::any_of(
-        m_impl->_customSchemeNames.begin(),
-        m_impl->_customSchemeNames.end(),
-        [](const std::wstring& schemeName) {
-            return _wcsicmp(schemeName.c_str(), L"app") == 0;
-        }
-        );
-    bool appSchemeRegistrationSupported = false;
-
-    // Register custom schemes with WebView2 so top-level navigations like app://... are allowed.
-    if (!m_impl->_customSchemeNames.empty()) {
-        wil::com_ptr<ICoreWebView2EnvironmentOptions4> options4;
-        if (SUCCEEDED(options->QueryInterface(IID_PPV_ARGS(&options4))) && options4) {
-            appSchemeRegistrationSupported = true;
-            std::vector<wil::com_ptr<ICoreWebView2CustomSchemeRegistration>> registrations;
-            registrations.reserve(m_impl->_customSchemeNames.size());
-
-            for (const auto& schemeName : m_impl->_customSchemeNames) {
-                auto registration = Microsoft::WRL::Make<CoreWebView2CustomSchemeRegistration>(schemeName.c_str());
-                if (!registration)
-                    continue;
-
-                // Only the embedded-assets scheme uses app://localhost/... and should be
-                // treated as secure with an authority component.
-                if (_wcsicmp(schemeName.c_str(), L"app") == 0) {
-                    registration->put_HasAuthorityComponent(TRUE);
-                    registration->put_TreatAsSecure(TRUE);
-                }
-                registrations.emplace_back(registration);
-            }
-
-            if (!registrations.empty()) {
-                std::vector<ICoreWebView2CustomSchemeRegistration*> rawRegistrations;
-                rawRegistrations.reserve(registrations.size());
-                for (auto& registration : registrations)
-                    rawRegistrations.emplace_back(registration.get());
-
-                options4->SetCustomSchemeRegistrations(
-                    static_cast<UINT32>(rawRegistrations.size()),
-                    rawRegistrations.data()
-                    );
-            }
-        }
-    }
-
-    if (requiresAppSchemeRegistration && !appSchemeRegistrationSupported) {
-        MessageBox(
-            m_impl->_hWnd,
-            L"This app requires WebView2 custom scheme registration for app://localhost/. Please update WebView2 Runtime to a version that supports ICoreWebView2EnvironmentOptions4.",
-            L"WebView2 Runtime Too Old",
-            MB_OK | MB_ICONERROR
-            );
-        m_impl->_isWebView2Initializing = false;
-        return;
-    }
-
-    PCWSTR userDataPath = nullptr;
-    if (!m_impl->_temporaryFilesPath.empty()) {
-        if (EnsureDirectoryWritable(m_impl->_temporaryFilesPath))
-            userDataPath = m_impl->_temporaryFilesPath.c_str();
-        else
-            TraceTeardown(
-                L"AttachWebView: temporary user-data path is not writable. Falling back to default path. path=%ls",
-                m_impl->_temporaryFilesPath.c_str()
-                );
-    }
-
-    HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(
-        runtimePath,
-        userDataPath,
-        options.Get(),
-        Callback<
-            ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-            [this](
-            const HRESULT result,
-            ICoreWebView2Environment* env
-            ) -> HRESULT {
-                if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
-                    m_impl->_isWebView2Initializing = false;
-                    m_impl->_webviewEnvironment = nullptr;
-                    TraceTeardown(L"CreateEnvironment callback while closing; ignoring");
-                    return S_OK;
-                }
-                if (result != S_OK) {
-                    m_impl->_isWebView2Initializing = false;
-                    TraceTeardown(L"CreateEnvironment callback failed hr=0x%08X", static_cast<unsigned>(result));
-                    return result;
-                }
-                if (env == nullptr) {
-                    m_impl->_isWebView2Initializing = false;
-                    return E_POINTER;
-                }
-                HRESULT envResult = env->QueryInterface(
-                    &m_impl->_webviewEnvironment
-                    );
-                if (envResult != S_OK) {
-                    m_impl->_isWebView2Initializing = false;
-                    return envResult;
-                }
-
-                const HRESULT createControllerHr = env->CreateCoreWebView2Controller(
-                    m_impl->_hWnd,
-                    Callback<
-                        ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                        [this](
-                        const HRESULT result,
-                        ICoreWebView2Controller* controller
-                        ) ->
-                        HRESULT {
-                            if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
-                                if (controller != nullptr)
-                                    controller->Close();
-                                m_impl->_webviewController = nullptr;
-                                m_impl->_webviewWindow = nullptr;
-                                m_impl->_webviewEnvironment = nullptr;
-                                m_impl->_isWebView2Initializing = false;
-                                TraceTeardown(L"CreateController callback while closing; ignoring");
-                                return S_OK;
-                            }
-                            if (result != S_OK) {
-                                m_impl->_isWebView2Initializing = false;
-                                TraceTeardown(L"CreateController callback failed hr=0x%08X", static_cast<unsigned>(result));
-                                return result;
-                            }
-                            if (controller == nullptr) {
-                                m_impl->_isWebView2Initializing = false;
-                                return E_POINTER;
-                            }
-
-                            HRESULT envResult = controller->
-                                QueryInterface(
-                                    &m_impl->
-                                    _webviewController
-                                    );
-                            if (envResult != S_OK) {
-                                m_impl->_isWebView2Initializing = false;
-                                return envResult;
-                            }
-                            m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
-                            if (!m_impl->_webviewWindow) {
-                                m_impl->_isWebView2Initializing = false;
-                                return E_FAIL;
-                            }
-
-                            const auto js_wide = Embedded::InfiniFrameJsUtf16();
-                            OutputDebugStringW(std::format(L"[InfiniFrame] Bridge script length: {} chars\n", js_wide.size()).c_str());
-
-                            // AddScriptToExecuteOnDocumentCreated is async: the script is not
-                            // registered in the browser process until the completion callback fires.
-                            // We must not navigate until then, otherwise fast local navigations
-                            // (e.g., app://localhost/) reach ContentLoading before the bridge script
-                            // exists, and Blazor's Boot.WebView.ts throws because
-                            // window.external.receiveMessage is undefined.
-                            //
-                            // If script registration fails for any reason (e.g., empty resource),
-                            // we fall through and navigate anyway so the page still loads.
-                            struct NavigateOnce {
-                                InfiniFrameWindow* self;
-                                bool fired = false;
-                                void navigate() {
-                                    if (fired) return;
-                                    fired = true;
-                                    if (!self->m_impl->_startUrl.empty())
-                                        self->m_impl->_webviewWindow->Navigate(self->m_impl->_startUrl.c_str());
-                                    else if (!self->m_impl->_startString.empty())
-                                        self->m_impl->_webviewWindow->NavigateToString(self->m_impl->_startString.c_str());
-                                    else {
-                                        MessageBox(nullptr,
-                                            L"Neither StartUrl nor StartString was specified",
-                                            L"Native Initialization Failed", MB_OK);
-                                        exit(0);
-                                    }
-                                }
-                            };
-                            auto nav = std::make_shared<NavigateOnce>(NavigateOnce{this});
-
-                            wil::com_ptr<ICoreWebView2Settings>
-                                settings;
-                            HRESULT settingsResult = m_impl->
-                                                     _webviewWindow->get_Settings(
-                                                         &settings
-                                                         );
-                            if (FAILED(settingsResult) || !
-                                settings) {
-                                return FAILED(settingsResult)
-                                    ? settingsResult
-                                    : E_FAIL;
-                            }
-                            settings->
-                                put_AreHostObjectsAllowed(
-                                    TRUE
-                                    );
-                            settings->put_IsScriptEnabled(
-                                TRUE
-                                );
-                            settings->
-                                put_AreDefaultScriptDialogsEnabled(
-                                    TRUE
-                                    );
-                            settings->put_IsWebMessageEnabled(
-                                TRUE
-                                );
-
-                            EventRegistrationToken
-                                webMessageToken;
-                            
-                            m_impl->_webviewWindow->
-                                    add_WebMessageReceived(
-                                        Callback<
-                                            ICoreWebView2WebMessageReceivedEventHandler>(
-                                            [this](
-                                            ICoreWebView2*,
-                                            ICoreWebView2WebMessageReceivedEventArgs
-                                            * args
-                                            ) -> HRESULT {
-                                                if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
-                                                    return S_OK;
-
-                                                wil::unique_cotaskmem_string
-                                                    message;
-                                                wil::unique_cotaskmem_string
-                                                    source;
-                                                args->
-                                                    TryGetWebMessageAsString(
-                                                        &message
-                                                        );
-                                                args->
-                                                    get_Source(
-                                                        &source
-                                                        );
-                                                if (
-                                                    (source.get() == nullptr
-                                                        || source.get()[0] == L'\0')
-                                                    && m_impl->_webviewWindow != nullptr
-                                                ) {
-                                                    m_impl->
-                                                        _webviewWindow->
-                                                        get_Source(
-                                                            &source
-                                                            );
-                                                }
-                                                m_impl->
-                                                    _webMessageReceivedCallback(
-                                                        message.
-                                                        get(),
-                                                        source.
-                                                        get()
-                                                        );
-                                                return S_OK;
-                                            }
-                                    ).Get(),
-                                        &webMessageToken
-                                        );
-                            m_impl->_webMessageReceivedToken = webMessageToken;
-                            m_impl->_hasWebMessageReceivedToken = true;
-
-                            EventRegistrationToken
-                                webResourceRequestedToken;
-                            auto webview23 = m_impl->_webviewWindow.try_query<ICoreWebView2_23>();
-                            if (webview23) {
-                                webview23->AddWebResourceRequestedFilterWithRequestSourceKinds(
-                                    L"*",
-                                    COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
-                                    COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
-                                    );
-                            }
-                            else {
-                                m_impl->_webviewWindow->
-                                        AddWebResourceRequestedFilter(
-                                            L"*",
-                                            COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
-                                            );
-                            }
-                            m_impl->_webviewWindow->
-                                    add_WebResourceRequested(
-                                        Callback<
-                                            ICoreWebView2WebResourceRequestedEventHandler>(
-                                            [this](
-                                            ICoreWebView2*,
-                                            ICoreWebView2WebResourceRequestedEventArgs
-                                            * args
-                                            ) {
-                                                if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
-                                                    return S_OK;
-
-                                                wil::com_ptr<
-                                                        ICoreWebView2WebResourceRequest>
-                                                    req;
-                                                if (FAILED(
-                                                        args->
-                                                        get_Request(
-                                                            &req
-                                                            )
-                                                        )
-                                                    || !
-                                                    req)
-                                                    return S_OK;
-
-                                                wil::unique_cotaskmem_string
-                                                    uri;
-                                                req->get_Uri(&uri);
-                                                std::wstring
-                                                    uriString = uri
-                                                        .get();
-                                                wil::com_ptr<ICoreWebView2HttpRequestHeaders>
-                                                    requestHeaders;
-                                                std::wstring requestOrigin;
-                                                if (SUCCEEDED(req->get_Headers(&requestHeaders)) && requestHeaders) {
-                                                    wil::unique_cotaskmem_string originHeaderValue;
-                                                    if (SUCCEEDED(
-                                                            requestHeaders->GetHeader(L"Origin", &originHeaderValue)
-                                                            )
-                                                        && originHeaderValue.get() != nullptr
-                                                        && originHeaderValue.get()[0] != L'\0') {
-                                                        requestOrigin = originHeaderValue.get();
-                                                    }
-                                                }
-
-                                                if (uriString.find(L"/_framework/blazor.modules.json") !=
-                                                    std::wstring::npos) {
-                                                    static constexpr BYTE emptyModuleArray[] = {'[', ']'};
-                                                    wil::com_ptr<IStream> dataStream;
-                                                    dataStream.attach(
-                                                        SHCreateMemStream(emptyModuleArray, sizeof(emptyModuleArray))
-                                                        );
-                                                    if (!dataStream)
-                                                        return S_OK;
-
-                                                    std::wstring responseHeaders = L"Content-Type: application/json";
-                                                    responseHeaders +=
-                                                        L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
-                                                    responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
-                                                    if (!requestOrigin.empty()) {
-                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: " +
-                                                            requestOrigin;
-                                                        responseHeaders +=
-                                                            L"\r\nAccess-Control-Allow-Credentials: true";
-                                                        responseHeaders += L"\r\nVary: Origin";
-                                                    }
-                                                    else {
-                                                        responseHeaders += L"\r\nAccess-Control-Allow-Origin: *";
-                                                    }
-
-                                                    wil::com_ptr<ICoreWebView2WebResourceResponse> response;
-                                                    m_impl->_webviewEnvironment->CreateWebResourceResponse(
-                                                        dataStream.get(),
-                                                        200,
-                                                        L"OK",
-                                                        responseHeaders.c_str(),
-                                                        &response
-                                                        );
-                                                    args->put_Response(response.get());
-                                                    return S_OK;
-                                                }
-                                                size_t colonPos =
-                                                    uriString.find(
-                                                        L':', 0
-                                                        );
-                                                if (colonPos > 0) {
-                                                    std::wstring
-                                                        scheme =
-                                                            uriString
-                                                            .substr(
-                                                                0,
-                                                                colonPos
-                                                                );
-                                                    auto it =
-                                                        std::find(
-                                                            m_impl
-                                                            ->
-                                                            _customSchemeNames
-                                                            .begin(),
-                                                            m_impl
-                                                            ->
-                                                            _customSchemeNames
-                                                            .end(),
-                                                            scheme
-                                                            );
-
-                                                    if (it !=
-                                                        m_impl->
-                                                        _customSchemeNames
-                                                        .end() &&
-                                                        m_impl->
-                                                        _customSchemeCallback
-                                                        !=
-                                                        nullptr) {
-                                                        int
-                                                            numBytes;
-                                                        AutoString
-                                                            contentType
-                                                                = nullptr;
-                                                        wil::unique_cotaskmem
-                                                            dotNetResponse(
-                                                                m_impl
-                                                                ->
-                                                                _customSchemeCallback(
-                                                                    const_cast
-                                                                    <AutoString>
-                                                                    (uriString
-                                                                        .c_str()),
-                                                                    &numBytes,
-                                                                    &contentType
-                                                                    )
-                                                                );
-                                                        auto
-                                                            freeContentType
-                                                                = wil::scope_exit(
-                                                                    [&
-                                                                        contentType
-                                                                    ] {
-                                                                        CoTaskMemFree(
-                                                                            contentType
-                                                                            );
-                                                                    }
-                                                                    );
-
-                                                        if (
-                                                            dotNetResponse
-                                                            !=
-                                                            nullptr
-                                                            &&
-                                                            contentType
-                                                            !=
-                                                            nullptr) {
-                                                            std::wstring
-                                                                contentTypeWS
-                                                                    = contentType;
-
-                                                            wil::com_ptr
-                                                                <IStream>
-                                                                dataStream;
-                                                            dataStream
-                                                                .attach(
-                                                                    SHCreateMemStream(
-                                                                        reinterpret_cast
-                                                                        <const
-                                                                            BYTE
-                                                                            *>
-                                                                        (dotNetResponse
-                                                                            .get()),
-                                                                        numBytes
-                                                                        )
-                                                                    );
-                                                            if (!
-                                                                dataStream)
-                                                                return
-                                                                    S_OK;
-                                                            wil::com_ptr
-                                                                <ICoreWebView2WebResourceResponse>
-                                                                response;
-                                                            std::wstring responseHeaders = L"Content-Type: " +
-                                                                contentTypeWS;
-                                                            responseHeaders +=
-                                                                L"\r\nAccess-Control-Allow-Methods: GET, HEAD, OPTIONS";
-                                                            responseHeaders += L"\r\nAccess-Control-Allow-Headers: *";
-                                                            if (!requestOrigin.empty()) {
-                                                                responseHeaders += L"\r\nAccess-Control-Allow-Origin: "
-                                                                    + requestOrigin;
-                                                                responseHeaders +=
-                                                                    L"\r\nAccess-Control-Allow-Credentials: true";
-                                                                responseHeaders += L"\r\nVary: Origin";
-                                                            }
-                                                            else {
-                                                                responseHeaders +=
-                                                                    L"\r\nAccess-Control-Allow-Origin: *";
-                                                            }
-                                                            m_impl
-                                                                ->
-                                                                _webviewEnvironment
-                                                                ->
-                                                                CreateWebResourceResponse(
-                                                                    dataStream
-                                                                    .get(),
-                                                                    200,
-                                                                    L"OK",
-                                                                    responseHeaders.c_str(),
-                                                                    &response
-                                                                    );
-                                                            args->
-                                                                put_Response(
-                                                                    response
-                                                                    .get()
-                                                                    );
-                                                        }
-                                                    }
-                                                }
-
-                                                return S_OK;
-                                            }
-                                            ).Get(),
-                                        &webResourceRequestedToken
-                                        );
-                            m_impl->_webResourceRequestedTokenForCustomScheme = webResourceRequestedToken;
-                            m_impl->_hasWebResourceRequestedToken = true;
-
-                            EventRegistrationToken
-                                permissionRequestedToken;
-                            m_impl->_webviewWindow->
-                                    add_PermissionRequested(
-                                        Callback<
-                                            ICoreWebView2PermissionRequestedEventHandler>(
-                                            [this](
-                                            ICoreWebView2*,
-                                            ICoreWebView2PermissionRequestedEventArgs
-                                            * args
-                                            ) -> HRESULT {
-                                                if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
-                                                    return S_OK;
-
-                                                if (m_impl->
-                                                    _grantBrowserPermissions)
-                                                    args->
-                                                        put_State(
-                                                            COREWEBVIEW2_PERMISSION_STATE_ALLOW
-                                                            );
-                                                return S_OK;
-                                            }
-                                            )
-                                        .Get(),
-                                        &permissionRequestedToken
-                                        );
-                            m_impl->_permissionRequestedToken = permissionRequestedToken;
-                            m_impl->_hasPermissionRequestedToken = true;
-
-                            if (m_impl->_contextMenuEnabled ==
-                                false)
-                                SetContextMenuEnabled(false);
-
-                            if (m_impl->_zoomEnabled == false)
-                                SetZoomEnabled(false);
-
-                            if (m_impl->_devToolsEnabled ==
-                                false)
-                                SetDevToolsEnabled(false);
-
-                            if (m_impl->_transparentEnabled ==
-                                true)
-                                SetTransparentEnabled(true);
-
-                            if (m_impl->_zoom != 100)
-                                SetZoom(m_impl->_zoom);
-
-                            HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
-                                js_wide.c_str(),
-                                Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
-                                    [nav, this](HRESULT errorCode, LPCWSTR id) -> HRESULT {
-                                        OutputDebugStringW(std::format(L"[InfiniFrame] AddScriptToExecuteOnDocumentCreated callback: hr=0x{:08X} id={}\n", (unsigned)errorCode, id ? id : L"(null)").c_str());
-                                        if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
-                                            return S_OK;
-                                        nav->navigate();
-                                        return S_OK;
-                                    }
-                                ).Get()
-                            );
-
-                            // If AddScriptToExecuteOnDocumentCreated itself failed synchronously
-                            // (e.g., empty script string on some WebView2 versions), navigate now
-                            // so the page is not left blank.
-                            if (FAILED(addScriptHr))
-                                nav->navigate();
-
-                            RefitContent();
-
-                            FocusWebView2();
-
-                            // Re-apply if topmost was requested
-                            if (m_impl->_topmost)
-                                SetTopmost(true);
-
-                            m_impl->_isInitialized = true;
-                            m_impl->_isWebView2Initializing = false;
-                            return S_OK;
-                        }
-                        ).Get()
-                    );
-                if (FAILED(createControllerHr))
-                    m_impl->_isWebView2Initializing = false;
-
-                return createControllerHr;
-            }
-            ).Get()
-        );
-
-    if (envResult != S_OK) {
-        m_impl->_isWebView2Initializing = false;
-        _com_error err(envResult);
-        LPCTSTR errMsg = err.ErrorMessage();
-        MessageBox(m_impl->_hWnd, errMsg, L"Error instantiating webview", MB_OK);
-    }
-}
-
-
-bool InfiniFrameWindow::EnsureWebViewIsInstalled() {
-    LPWSTR versionInfo = nullptr;
-    HRESULT ensureInstalledResult = GetAvailableCoreWebView2BrowserVersionString(nullptr, &versionInfo);
-    if (versionInfo != nullptr)
-        CoTaskMemFree(versionInfo);
-
-    if (ensureInstalledResult != S_OK)
-        return InstallWebView2();
-
-    return true;
-}
-
-bool InfiniFrameWindow::InstallWebView2() {
-    auto srcURL = L"https://go.microsoft.com/fwlink/p/?LinkId=2124703";
-    auto destFile = L"MicrosoftEdgeWebview2Setup.exe";
-
-    if (S_OK == URLDownloadToFile(nullptr, srcURL, destFile, 0, nullptr)) {
-        std::wstring command = L"MicrosoftEdgeWebview2Setup.exe";
-
-        STARTUPINFO si;
-        PROCESS_INFORMATION pi;
-
-        ZeroMemory(&si, sizeof(si));
-        si.cb = sizeof(si);
-        ZeroMemory(&pi, sizeof(pi));
-
-        bool success = CreateProcess(
-            nullptr, // No module name (use command line)
-            command.data(), // Command line
-            nullptr, // Process handle not inheritable
-            nullptr, // Thread handle not inheritable
-            FALSE, // Set handle inheritance to FALSE
-            0, // No creation flags
-            nullptr, // Use parent's environment block
-            nullptr, // Use parent's starting directory
-            &si, // Pointer to STARTUPINFO structure
-            &pi
-            ); // Pointer to PROCESS_INFORMATION structure
-
-        if (success) {
-            // wait for the installation to complete
-            WaitForSingleObject(pi.hProcess, INFINITE);
-            CloseHandle(pi.hProcess);
-            CloseHandle(pi.hThread);
-        }
-
-        return success;
-    }
-
-    return false;
-}
-
-void InfiniFrameWindow::RefitContent() {
-    if (m_impl->_webviewController) {
-        RECT bounds;
-        GetClientRect(m_impl->_hWnd, &bounds);
-        m_impl->_webviewController->put_Bounds(bounds);
-    }
-}
-
-void InfiniFrameWindow::FocusWebView2() {
-    if (m_impl->_webviewController) {
-        m_impl->_webviewController->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
-    }
-}
-
-void InfiniFrameWindow::NotifyWebView2WindowMove() {
-    if (m_impl->_webviewController) {
-        m_impl->_webviewController->NotifyParentWindowPositionChanged();
-    }
-}
-
-void InfiniFrameWindow::ClearBrowserAutoFill() {
-    if (!m_impl->_webviewWindow)
-        return;
-
-    auto webview15 = m_impl->_webviewWindow.try_query<ICoreWebView2_15>();
-    if (webview15) {
-        wil::com_ptr<ICoreWebView2Profile> profile;
-        webview15->get_Profile(&profile);
-        auto profile2 = profile.try_query<ICoreWebView2Profile2>();
-
-        if (profile2) {
-            COREWEBVIEW2_BROWSING_DATA_KINDS dataKinds =
-                (COREWEBVIEW2_BROWSING_DATA_KINDS)
-                (
-                    COREWEBVIEW2_BROWSING_DATA_KINDS_GENERAL_AUTOFILL |
-                    COREWEBVIEW2_BROWSING_DATA_KINDS_PASSWORD_AUTOSAVE
-                    );
-
-            profile2->ClearBrowsingData(
-                dataKinds,
-                Callback<ICoreWebView2ClearBrowsingDataCompletedHandler>(
-                    [this](
-                    HRESULT
-                    )
-                    -> HRESULT {
-                        return S_OK;
-                    }
-                    )
-                .Get()
-                );
-        }
-    }
-}
-
-void InfiniFrameWindow::SetWebView2RuntimePath(const AutoString pathToWebView2) {
-    if (pathToWebView2 == nullptr)
-        return;
-
-    std::wstring widePath = Utf8ToWide(pathToWebView2);
-    std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
-    wcsncpy_s(_webview2RuntimePath, widePath.c_str(), _countof(_webview2RuntimePath));
-}
-
-void InfiniFrameWindow::Show(const bool isAlreadyShown) {
-    if (!isAlreadyShown)
-        ShowWindow(m_impl->_hWnd, SW_SHOWDEFAULT);
-
-    UpdateWindow(m_impl->_hWnd);
-
-    // WebView2 must be created after the window is visible.
-    if (!m_impl->_webviewController) {
-        bool hasConfiguredRuntimePath = false;
-        {
-            std::lock_guard<std::mutex> lock(webview2RuntimePathMutex);
-            hasConfiguredRuntimePath = wcsnlen(_webview2RuntimePath, _countof(_webview2RuntimePath)) > 0;
-        }
-        if (hasConfiguredRuntimePath || EnsureWebViewIsInstalled())
-            AttachWebView();
-        else
-            exit(0);
-    }
-}
-
