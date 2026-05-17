@@ -272,10 +272,6 @@ jobs:
                     queries: security-extended,security-and-quality
                     config-file: ./.github/codeql-config.yml
 
-            -   name: Restore NativeBridge
-                run: |
-                    dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj
-
             -   name: Build NativeBridge
                 shell: pwsh
                 run: |
