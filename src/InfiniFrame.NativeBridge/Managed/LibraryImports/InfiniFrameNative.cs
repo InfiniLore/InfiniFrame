@@ -372,14 +372,27 @@ public static partial class InfiniFrameNative {
     }
 
     internal static InfiniFrameNativeStatus EnsureSucceeded(InfiniFrameNativeStatus status, string operationName) {
-
+        
         int fallbackLastError = Marshal.GetLastPInvokeError();
 
         if (status is InfiniFrameNativeStatus.Success && fallbackLastError is 0) return status;
+        
+        InfiniFrameNativeStatus fallbackStatus = GetLastErrorMessagePtr(out IntPtr ptr);
 
-
-        string fallbackMessage = GetLastErrorMessage() ?? "No native error message provided.";
-        throw new ApplicationException($"Native interop call '{operationName}' failed with unknown status state. Fallback last error {fallbackLastError}. {fallbackMessage}");
+        string? fallbackMessage;
+        if (fallbackStatus != InfiniFrameNativeStatus.Success || ptr == IntPtr.Zero) {
+            fallbackMessage = "No native error message provided.";
+        }
+        else {
+            try {
+                fallbackMessage = PtrToNativeString(ptr);
+            }
+            finally {
+                FreeString(ptr);
+            }
+        }
+        
+        throw new ApplicationException($"Native interop call '{operationName}' failed with unknown status state. Fallback last error {fallbackLastError}. {fallbackMessage} {fallbackStatus}");
     }
     #endregion
 }

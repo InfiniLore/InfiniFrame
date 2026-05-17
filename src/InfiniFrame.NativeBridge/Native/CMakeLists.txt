@@ -31,7 +31,13 @@ infiniframe_setup_dependencies()
 # Source Files
 # ----------------------------------------------------------------------------------------------------------------------
 set(COMMON_SOURCES
-        Exports.cpp
+        Exports/Exports.Platform.cpp
+        Exports/Exports.Lifecycle.cpp
+        Exports/Exports.WindowState.cpp
+        Exports/Exports.WindowCommands.cpp
+        Exports/Exports.Dialog.cpp
+        Exports/Exports.Events.cpp
+        Exports/Exports.Memory.cpp
 )
 
 set(TEST_SOURCES
@@ -40,12 +46,17 @@ set(TEST_SOURCES
 
 set(WINDOWS_SOURCES
         Platform/Windows/Window.cpp
+        Platform/Windows/WindowState.Win32.cpp
+        Platform/Windows/WindowEvents.Win32.cpp
         Platform/Windows/DarkMode.cpp
         Platform/Windows/Dialog.cpp
 )
 
 set(LINUX_SOURCES
         Platform/Linux/Window.cpp
+        Platform/Linux/WindowLifecycle.Gtk.cpp
+        Platform/Linux/WindowState.Gtk.cpp
+        Platform/Linux/WindowEvents.Gtk.cpp
         Platform/Linux/Dialog.cpp
 )
 
@@ -58,6 +69,9 @@ set(MAC_SOURCES
         Platform/Mac/NSWindowBorderless.mm
         Platform/Mac/Dialog.mm
         Platform/Mac/Window.mm
+        Platform/Mac/WindowLifecycle.Cocoa.mm
+        Platform/Mac/WindowState.Cocoa.mm
+        Platform/Mac/WindowEvents.Cocoa.mm
 )
 
 set(HEADER_FILES
@@ -72,7 +86,9 @@ set(HEADER_FILES
         Types/Callbacks.h
         Utils/Common.h
         Utils/Event.h
+        Exports/Exports.Shared.h
         Platform/Windows/ToastHandler.h
+        Platform/Windows/Window.Win32.Internal.h
         Platform/Windows/DarkMode.h
         Platform/Mac/AppDelegate.h
         Platform/Mac/NavigationDelegate.h
@@ -80,6 +96,8 @@ set(HEADER_FILES
         Platform/Mac/UiDelegate.h
         Platform/Mac/WindowDelegate.h
         Platform/Mac/UrlSchemeHandler.h
+        Platform/Linux/Window.Gtk.Internal.h
+        Platform/Mac/Window.Cocoa.Internal.h
 )
 
 if (WIN32)
