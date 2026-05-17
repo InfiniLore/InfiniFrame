@@ -25,8 +25,12 @@
     # Ensure output directory exists
     file(MAKE_DIRECTORY "${embed_dir}")
 
-    # Locate npm (works on Windows/Linux/macOS)
-    find_program(NPM_EXECUTABLE NAMES npm npm.cmd REQUIRED)
+    # Locate node (used by scripts/BuildFrontend.mjs)
+    find_program(NODE_EXECUTABLE NAMES node REQUIRED)
+
+    get_filename_component(repository_root "${src_dir}/.." ABSOLUTE)
+    set(frontend_build_script "${repository_root}/scripts/BuildFrontend.mjs")
+    set(js_stamp_file "${js_project_dir}/obj/frontend-build.stamp")
 
     # Track TS sources
     file(GLOB_RECURSE js_sources CONFIGURE_DEPENDS
@@ -37,8 +41,10 @@
     add_custom_command(
             OUTPUT "${js_input}"
             COMMAND "${CMAKE_COMMAND}"
-            "-DNPM_EXECUTABLE=${NPM_EXECUTABLE}"
+            "-DNODE_EXECUTABLE=${NODE_EXECUTABLE}"
+            "-DFRONTEND_BUILD_SCRIPT=${frontend_build_script}"
             "-DJS_PROJECT_DIR=${js_project_dir}"
+            "-DJS_STAMP_FILE=${js_stamp_file}"
             "-DJS_OUTPUT=${js_input}"
             -P "${CMAKE_SOURCE_DIR}/.cmake/Build.InfiniFrameJs.Impl.cmake"
             DEPENDS
@@ -48,6 +54,7 @@
             "${js_project_dir}/tsconfig.json"
             "${js_project_dir}/vite.config.dev.ts"
             "${js_project_dir}/vite.config.prod.ts"
+            "${frontend_build_script}"
             "${CMAKE_SOURCE_DIR}/.cmake/Build.InfiniFrameJs.Impl.cmake"
             COMMENT "Building JS: ${js_input}"
             VERBATIM

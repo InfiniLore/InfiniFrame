@@ -209,7 +209,7 @@ jobs:
             -   name: Build Dotnet
                 shell: pwsh
                 run: |
-                    dotnet build `
+                    dotnet build InfiniFrame.GitHubActions.Release.slnf  `
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$env:GITHUB_WORKSPACE/ 
