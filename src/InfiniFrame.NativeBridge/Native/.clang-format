@@ -84,7 +84,7 @@ AlignTrailingComments: false
 # Access Modifiers
 # ----------------------------------------------------------------------------------------------------------------------
 
-IndentAccessModifiers: true
+IndentAccessModifiers: false
 AccessModifierOffset: 0
 
 # ----------------------------------------------------------------------------------------------------------------------
