@@ -1,32 +1,15 @@
-﻿Checks: >
+Checks: >
   -*,
-
-  # --------------------------------------------------------------------------------------------------------------------
-  # Core Modern C++
-  # --------------------------------------------------------------------------------------------------------------------
   bugprone-*,
   cppcoreguidelines-*,
   modernize-*,
   performance-*,
   readability-*,
-
-  # --------------------------------------------------------------------------------------------------------------------
-  # Removed / Disabled
-  # --------------------------------------------------------------------------------------------------------------------
-
-  # Prefer classic C#-style signatures
   -modernize-use-trailing-return-type,
-
-  # Often noisy or undesirable in engine code
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -cppcoreguidelines-pro-type-union-access,
   -cppcoreguidelines-owning-memory,
-
-  # Readability rules that conflict with PascalCase APIs
-  -readability-identifier-naming,
-
-  # Too aggressive for ECS / low-level engine work
   -hicpp-*,
 
 WarningsAsErrors: ''
@@ -42,25 +25,25 @@ CheckOptions:
   # --------------------------------------------------------------------------------------------------------------------
 
   - key: readability-identifier-naming.ClassCase
-    value: PascalCase
+    value: CamelCase
 
   - key: readability-identifier-naming.StructCase
-    value: PascalCase
+    value: CamelCase
 
   - key: readability-identifier-naming.EnumCase
-    value: PascalCase
+    value: CamelCase
 
   - key: readability-identifier-naming.EnumConstantCase
-    value: PascalCase
+    value: CamelCase
 
   - key: readability-identifier-naming.FunctionCase
-    value: PascalCase
+    value: CamelCase
 
   - key: readability-identifier-naming.MethodCase
-    value: PascalCase
+    value: CamelCase
 
   - key: readability-identifier-naming.NamespaceCase
-    value: PascalCase
+    value: CamelCase
 
   - key: readability-identifier-naming.VariableCase
     value: camelBack
@@ -69,7 +52,7 @@ CheckOptions:
     value: camelBack
 
   - key: readability-identifier-naming.MemberCase
-    value: camelBack
+    value: CamelCase
 
   - key: readability-identifier-naming.PrivateMemberPrefix
     value: _
@@ -84,10 +67,10 @@ CheckOptions:
     value: camelBack
 
   - key: readability-identifier-naming.ConstantCase
-    value: PascalCase
+    value: CamelCase
 
   - key: readability-identifier-naming.StaticConstantCase
-    value: PascalCase
+    value: CamelCase
 
   # --------------------------------------------------------------------------------------------------------------------
   # Modernization

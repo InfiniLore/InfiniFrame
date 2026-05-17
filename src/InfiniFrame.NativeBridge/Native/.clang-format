@@ -16,7 +16,7 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 ReferenceAlignment: Left
 
-NamespaceIndentation: None
+NamespaceIndentation: All
 
 SortIncludes: false
 SortUsingDeclarations: false
@@ -84,8 +84,8 @@ AlignTrailingComments: false
 # Access Modifiers
 # ----------------------------------------------------------------------------------------------------------------------
 
-IndentAccessModifiers: false
-AccessModifierOffset: -4
+IndentAccessModifiers: true
+AccessModifierOffset: 0
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Includes
