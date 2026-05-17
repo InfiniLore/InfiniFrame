@@ -58,6 +58,27 @@ def test_complete_matching_check_runs_returns_false_when_no_matches(monkeypatch:
     assert sgc.complete_matching_check_runs(make_args(), "token") is False
 
 
+def test_complete_matching_check_runs_ignores_other_target_urls(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        sgc,
+        "request_json",
+        lambda method, url, token, payload=None: (
+            200,
+            {
+                "check_runs": [
+                    {
+                        "id": 99,
+                        "name": "CI Testing - Linux/x64",
+                        "status": "queued",
+                        "details_url": "https://example.invalid/run/other",
+                    }
+                ]
+            },
+        ),
+    )
+    assert sgc.complete_matching_check_runs(make_args(), "token") is False
+
+
 def test_complete_matching_check_runs_creates_when_no_matches_and_enabled(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -102,8 +123,24 @@ def test_complete_matching_check_runs_patches_matching_sorted(monkeypatch: pytes
                 {
                     "check_runs": [
                         {"id": 3, "name": "Other", "status": "queued"},
-                        {"id": 2, "name": "CI Testing - Linux/x64", "status": "in_progress"},
-                        {"id": 1, "name": "CI Testing - Linux/x64", "status": "queued"},
+                        {
+                            "id": 2,
+                            "name": "CI Testing - Linux/x64",
+                            "status": "in_progress",
+                            "details_url": "https://example.invalid/run/1",
+                        },
+                        {
+                            "id": 1,
+                            "name": "CI Testing - Linux/x64",
+                            "status": "queued",
+                            "details_url": "https://example.invalid/run/1",
+                        },
+                        {
+                            "id": 6,
+                            "name": "CI Testing - Linux/x64",
+                            "status": "queued",
+                            "details_url": "https://example.invalid/run/2",
+                        },
                         {"id": 4, "name": "CI Testing - Linux/x64", "status": "completed"},
                     ]
                 },
