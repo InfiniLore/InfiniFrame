@@ -45,36 +45,36 @@ set(TEST_SOURCES
 )
 
 set(WINDOWS_SOURCES
-        Platform/Windows/WindowCore.Win32.cpp
-        Platform/Windows/WindowTracing.Win32.cpp
-        Platform/Windows/WindowEncoding.Win32.cpp
-        Platform/Windows/WindowStorage.Win32.cpp
-        Platform/Windows/WindowOwnership.Win32.cpp
-        Platform/Windows/WindowLifecycle.Win32.cpp
-        Platform/Windows/WindowProc.Win32.cpp
-        Platform/Windows/WindowState.Win32.cpp
-        Platform/Windows/WindowEvents.Win32.cpp
-        Platform/Windows/WebView2Host.Win32.cpp
-        Platform/Windows/WebView2Runtime.Win32.cpp
-        Platform/Windows/WebView2Controller.Win32.cpp
-        Platform/Windows/WebView2Attach.Win32.cpp
-        Platform/Windows/UiDispatcher.Win32.cpp
+        Platform/Windows/Core/WindowCore.Win32.cpp
+        Platform/Windows/Core/WindowTracing.Win32.cpp
+        Platform/Windows/Core/WindowEncoding.Win32.cpp
+        Platform/Windows/Core/WindowStorage.Win32.cpp
+        Platform/Windows/Core/WindowOwnership.Win32.cpp
+        Platform/Windows/Core/WindowLifecycle.Win32.cpp
+        Platform/Windows/Core/WindowProc.Win32.cpp
+        Platform/Windows/Core/WindowState.Win32.cpp
+        Platform/Windows/Core/WindowEvents.Win32.cpp
+        Platform/Windows/WebView/WebView2Host.Win32.cpp
+        Platform/Windows/WebView/WebView2Runtime.Win32.cpp
+        Platform/Windows/WebView/WebView2Controller.Win32.cpp
+        Platform/Windows/WebView/WebView2Attach.Win32.cpp
+        Platform/Windows/Core/UiDispatcher.Win32.cpp
         Platform/Windows/DarkMode.cpp
         Platform/Windows/Dialog.cpp
 )
 
 set(LINUX_SOURCES
-        Platform/Linux/WindowCore.Gtk.cpp
-        Platform/Linux/WindowInitialization.Gtk.cpp
-        Platform/Linux/WindowLifecycle.Gtk.cpp
-        Platform/Linux/WindowState.Gtk.cpp
-        Platform/Linux/WindowEvents.Gtk.cpp
-        Platform/Linux/UiDispatcher.Gtk.cpp
-        Platform/Linux/WebKitHost.Gtk.cpp
-        Platform/Linux/WebKitSettings.Gtk.cpp
-        Platform/Linux/WebKitMessaging.Gtk.cpp
-        Platform/Linux/WebKitCustomSchemes.Gtk.cpp
-        Platform/Linux/WindowSignals.Gtk.cpp
+        Platform/Linux/Core/WindowCore.Gtk.cpp
+        Platform/Linux/Core/WindowInitialization.Gtk.cpp
+        Platform/Linux/Core/WindowLifecycle.Gtk.cpp
+        Platform/Linux/Core/WindowState.Gtk.cpp
+        Platform/Linux/Core/WindowEvents.Gtk.cpp
+        Platform/Linux/Core/UiDispatcher.Gtk.cpp
+        Platform/Linux/WebKit/WebKitHost.Gtk.cpp
+        Platform/Linux/WebKit/WebKitSettings.Gtk.cpp
+        Platform/Linux/WebKit/WebKitMessaging.Gtk.cpp
+        Platform/Linux/WebKit/WebKitCustomSchemes.Gtk.cpp
+        Platform/Linux/Core/WindowSignals.Gtk.cpp
         Platform/Linux/Dialog.cpp
 )
 
@@ -86,14 +86,14 @@ set(MAC_SOURCES
         Platform/Mac/UrlSchemeHandler.mm
         Platform/Mac/NSWindowBorderless.mm
         Platform/Mac/Dialog.mm
-        Platform/Mac/WindowCore.Cocoa.mm
-        Platform/Mac/WindowLifecycle.Cocoa.mm
-        Platform/Mac/WindowState.Cocoa.mm
-        Platform/Mac/WindowEvents.Cocoa.mm
-        Platform/Mac/UiDispatcher.Cocoa.mm
-        Platform/Mac/WKWebViewBridge.Cocoa.mm
-        Platform/Mac/WKCustomSchemes.Cocoa.mm
-        Platform/Mac/WKWebViewHost.Cocoa.mm
+        Platform/Mac/Core/WindowCore.Cocoa.mm
+        Platform/Mac/Core/WindowLifecycle.Cocoa.mm
+        Platform/Mac/Core/WindowState.Cocoa.mm
+        Platform/Mac/Core/WindowEvents.Cocoa.mm
+        Platform/Mac/Core/UiDispatcher.Cocoa.mm
+        Platform/Mac/WK/WKWebViewBridge.Cocoa.mm
+        Platform/Mac/WK/WKCustomSchemes.Cocoa.mm
+        Platform/Mac/WK/WKWebViewHost.Cocoa.mm
 )
 
 set(HEADER_FILES
@@ -120,7 +120,7 @@ set(HEADER_FILES
         Platform/Mac/WindowDelegate.h
         Platform/Mac/UrlSchemeHandler.h
         Platform/Linux/Window.Gtk.Internal.h
-        Platform/Linux/WebKit.Gtk.Internal.h
+        Platform/Linux/WebKit/WebKit.Gtk.Internal.h
         Platform/Mac/Window.Cocoa.Internal.h
 )
 
