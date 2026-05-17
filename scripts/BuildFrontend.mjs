@@ -45,6 +45,22 @@ function isProcessRunning(processId) {
 function shouldRemoveExistingLock() {
     const ownerFile = path.join(lockDirectory, 'owner.txt');
     const staleLockThresholdMilliseconds = 10 * 60 * 1000;
+    const lockAgeMilliseconds = (() => {
+        try {
+            return Date.now() - statSync(lockDirectory).mtimeMs;
+        } catch (error) {
+            if (error?.code === 'ENOENT') {
+                return null;
+            }
+
+            throw error;
+        }
+    })();
+
+    // PIDs can be recycled by the OS. If the lock is old, remove it regardless of PID state.
+    if (lockAgeMilliseconds !== null && lockAgeMilliseconds > staleLockThresholdMilliseconds) {
+        return true;
+    }
 
     if (existsSync(ownerFile)) {
         const ownerProcessId = Number.parseInt(readFileSync(ownerFile, 'utf8'), 10);
@@ -56,17 +72,7 @@ function shouldRemoveExistingLock() {
             return false;
         }
     }
-
-    try {
-        const lockAgeMilliseconds = Date.now() - statSync(lockDirectory).mtimeMs;
-        return lockAgeMilliseconds > staleLockThresholdMilliseconds;
-    } catch (error) {
-        if (error?.code === 'ENOENT') {
-            return false;
-        }
-
-        throw error;
-    }
+    return false;
 }
 
 function acquireLock() {
