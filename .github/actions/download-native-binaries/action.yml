@@ -127,46 +127,39 @@ runs:
                 mkdir -p "$ROOT/linux/x64/Release" "$ROOT/linux/arm64/Release"
                 mkdir -p "$ROOT/osx/x64/Release" "$ROOT/osx/arm64/Release"
 
-                copy_artifact() {
-                    src_name="$1"
-                    dest_dir="$2"
-                    src="artifacts/native/$src_name"
-
-                    if [ -d "$src" ]; then
-                        cp -R "$src"/. "$dest_dir"/
-                    fi
+                copy_flat() {
+                    dest_dir="$1"
+                    mkdir -p "$dest_dir"
+                    cp -R artifacts/native/. "$dest_dir/" || true
                 }
+
+                lib="${{ steps.resolve-runner.outputs.lib }}"
+                arch="${{ steps.resolve-runner.outputs.arch }}"
 
                 if [ "$artifact_type" = "testing" ]; then
 
                   if [ "$current_only" = "true" ]; then
-                    lib="${{ steps.resolve-runner.outputs.lib }}"
-                    arch="${{ steps.resolve-runner.outputs.arch }}"
-
-                    copy_artifact "native-testing-${lib}-${arch}" "$ROOT/${lib}/${arch}/Release"
+                    copy_flat "$ROOT/${lib}/${arch}/Release"
                   else
-                    copy_artifact "native-testing-windows-x64" "$ROOT/windows/x64/Release"
-                    copy_artifact "native-testing-windows-arm64" "$ROOT/windows/arm64/Release"
-                    copy_artifact "native-testing-linux-x64" "$ROOT/linux/x64/Release"
-                    copy_artifact "native-testing-linux-arm64" "$ROOT/linux/arm64/Release"
-                    copy_artifact "native-testing-osx-x64" "$ROOT/osx/x64/Release"
-                    copy_artifact "native-testing-osx-arm64" "$ROOT/osx/arm64/Release"
+                    copy_flat "$ROOT/windows/x64/Release"
+                    copy_flat "$ROOT/windows/arm64/Release"
+                    copy_flat "$ROOT/linux/x64/Release"
+                    copy_flat "$ROOT/linux/arm64/Release"
+                    copy_flat "$ROOT/osx/x64/Release"
+                    copy_flat "$ROOT/osx/arm64/Release"
                   fi
 
                 else
 
                   if [ "$current_only" = "true" ]; then
-                    lib="${{ steps.resolve-runner.outputs.lib }}"
-                    arch="${{ steps.resolve-runner.outputs.arch }}"
-
-                    copy_artifact "native-${lib}-${arch}" "$ROOT/${lib}/${arch}/Release"
+                    copy_flat "$ROOT/${lib}/${arch}/Release"
                   else
-                    copy_artifact "native-windows-x64" "$ROOT/windows/x64/Release"
-                    copy_artifact "native-windows-arm64" "$ROOT/windows/arm64/Release"
-                    copy_artifact "native-linux-x64" "$ROOT/linux/x64/Release"
-                    copy_artifact "native-linux-arm64" "$ROOT/linux/arm64/Release"
-                    copy_artifact "native-osx-x64" "$ROOT/osx/x64/Release"
-                    copy_artifact "native-osx-arm64" "$ROOT/osx/arm64/Release"
+                    copy_flat "$ROOT/windows/x64/Release"
+                    copy_flat "$ROOT/windows/arm64/Release"
+                    copy_flat "$ROOT/linux/x64/Release"
+                    copy_flat "$ROOT/linux/arm64/Release"
+                    copy_flat "$ROOT/osx/x64/Release"
+                    copy_flat "$ROOT/osx/arm64/Release"
                   fi
 
                 fi
@@ -180,10 +173,10 @@ runs:
                 ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
                 current_only="${{ inputs.current-runner-only }}"
 
-                if [ "$current_only" = "true" ]; then
+                lib="${{ steps.resolve-runner.outputs.lib }}"
+                arch="${{ steps.resolve-runner.outputs.arch }}"
 
-                  lib="${{ steps.resolve-runner.outputs.lib }}"
-                  arch="${{ steps.resolve-runner.outputs.arch }}"
+                if [ "$current_only" = "true" ]; then
 
                   EXPECTED=(
                     "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dll"
