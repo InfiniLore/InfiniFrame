@@ -15,7 +15,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\InfiniFrame.NativeBridge\InfiniFrame.NativeBridge.csproj" />
+      <ProjectReference Include="..\InfiniFrame.NativeBridge\InfiniFrame.NativeBridge.csproj">
+          <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      </ProjectReference>
     </ItemGroup>
 
 </Project>

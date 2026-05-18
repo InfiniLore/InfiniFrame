@@ -1,0 +1,102 @@
+﻿<Project>
+    <PropertyGroup>
+        <_InfiniFrameNativeOutputRoot>$(MSBuildThisFileDirectory)..\artifacts\native</_InfiniFrameNativeOutputRoot>
+
+        <_WinX64>$(_InfiniFrameNativeOutputRoot)\windows\x64\$(Configuration)</_WinX64>
+        <_WinArm64>$(_InfiniFrameNativeOutputRoot)\windows\arm64\$(Configuration)</_WinArm64>
+
+        <_LinuxX64>$(_InfiniFrameNativeOutputRoot)\linux\x64\$(Configuration)</_LinuxX64>
+        <_LinuxArm64>$(_InfiniFrameNativeOutputRoot)\linux\arm64\$(Configuration)</_LinuxArm64>
+
+        <_OsxX64>$(_InfiniFrameNativeOutputRoot)\osx\x64\$(Configuration)</_OsxX64>
+        <_OsxArm64>$(_InfiniFrameNativeOutputRoot)\osx\arm64\$(Configuration)</_OsxArm64>
+    </PropertyGroup>
+
+    <!-- Windows x64 -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) and Exists('$(_WinX64)\InfiniFrame.Native.dll')">
+
+        <Content Include="$(_WinX64)\InfiniFrame.Native.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <TargetPath>InfiniFrame.Native.dll</TargetPath>
+            <Link>InfiniFrame.Native.dll</Link>
+        </Content>
+
+        <Content Include="$(_WinX64)\WebView2Loader.dll"
+                 Condition="Exists('$(_WinX64)\WebView2Loader.dll')">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <TargetPath>WebView2Loader.dll</TargetPath>
+            <Link>WebView2Loader.dll</Link>
+        </Content>
+
+    </ItemGroup>
+
+    <!-- Windows arm64 -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) and Exists('$(_WinArm64)\InfiniFrame.Native.dll')">
+
+        <Content Include="$(_WinArm64)\InfiniFrame.Native.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <TargetPath>InfiniFrame.Native.dll</TargetPath>
+            <Link>InfiniFrame.Native.dll</Link>
+        </Content>
+
+        <Content Include="$(_WinArm64)\WebView2Loader.dll"
+                 Condition="Exists('$(_WinArm64)\WebView2Loader.dll')">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <TargetPath>WebView2Loader.dll</TargetPath>
+            <Link>WebView2Loader.dll</Link>
+        </Content>
+
+    </ItemGroup>
+
+    <!-- Linux x64 -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) and Exists('$(_LinuxX64)\InfiniFrame.Native.so')">
+
+        <Content Include="$(_LinuxX64)\InfiniFrame.Native.so">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <TargetPath>InfiniFrame.Native.so</TargetPath>
+            <Link>InfiniFrame.Native.so</Link>
+        </Content>
+
+    </ItemGroup>
+
+    <!-- Linux arm64 -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) and Exists('$(_LinuxArm64)\InfiniFrame.Native.so')">
+
+        <Content Include="$(_LinuxArm64)\InfiniFrame.Native.so">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <TargetPath>InfiniFrame.Native.so</TargetPath>
+            <Link>InfiniFrame.Native.so</Link>
+        </Content>
+
+    </ItemGroup>
+
+    <!-- macOS x64 -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX')) and Exists('$(_OsxX64)\InfiniFrame.Native.dylib')">
+
+        <Content Include="$(_OsxX64)\InfiniFrame.Native.dylib">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <TargetPath>InfiniFrame.Native.dylib</TargetPath>
+            <Link>InfiniFrame.Native.dylib</Link>
+        </Content>
+
+    </ItemGroup>
+
+    <!-- macOS arm64 -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX')) and Exists('$(_OsxArm64)\InfiniFrame.Native.dylib')">
+
+        <Content Include="$(_OsxArm64)\InfiniFrame.Native.dylib">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+            <TargetPath>InfiniFrame.Native.dylib</TargetPath>
+            <Link>InfiniFrame.Native.dylib</Link>
+        </Content>
+
+    </ItemGroup>
+</Project>
