@@ -112,7 +112,6 @@ jobs:
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
-            enable_test_exports: ${{ inputs.enable_test_exports }}
 
     linux:
         name: Linux Tests

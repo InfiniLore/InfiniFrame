@@ -13,11 +13,6 @@ on:
                 description: 'Commit SHA used for status/check updates'
                 type: string
                 required: true
-            enable_test_exports:
-                description: 'Enable native/managed test exports when validating pack.'
-                type: boolean
-                required: false
-                default: false
 
 permissions:
     contents: read
@@ -42,6 +37,9 @@ jobs:
                 uses: ./.github/actions/setup-dependencies
                 with:
                     cache-dotnet: false
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
 
             -   name: Set Dotnet Pack Check Pending
                 env:
@@ -70,16 +68,16 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{ github.workspace }}/ \
-                      /p:InfiniFrameSkipNativeBuild=true \
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                      /p:InfiniFrameSkipNativeBuild=false \
+                      /p:InfiniFrameEnableTestExports=false
 
             -   name: Pack
                 run: |
                     dotnet pack InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
                       --no-build \
-                      /p:InfiniFrameSkipNativeBuild=true \
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
+                      /p:InfiniFrameSkipNativeBuild=false \
+                      /p:InfiniFrameEnableTestExports=false \
                       -o ./release
 
             -   name: Verify NativeBridge Package Natives
@@ -118,6 +116,59 @@ jobs:
                       echo "❌ $MISSING native file(s) missing in NativeBridge package"
                       exit 1
                     fi
+                    
+            -   name: Verify NativeBridge Test Exports
+                shell: bash
+                run: |
+                    set -euo pipefail
+
+                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg 2>/dev/null | grep -v '\.symbols\.nupkg$' | head -n 1 || true)
+
+                    if [ -z "$PACKAGE" ]; then
+                        echo "❌ No InfiniFrame.NativeBridge package found in ./release"
+                        exit 1
+                    fi
+
+                    echo "Inspecting package: $PACKAGE"
+
+                    DLL_PATH="runtimes/win-x64/native/InfiniFrame.Native.dll"
+
+                    if ! unzip -l "$PACKAGE" | grep -q "$DLL_PATH"; then
+                        echo "❌ Missing $DLL_PATH in package"
+                        exit 1
+                    fi
+
+                    mkdir -p ./tmp/native-check
+
+                    unzip -p "$PACKAGE" "$DLL_PATH" > ./tmp/native-check/InfiniFrame.Native.dll
+
+                    sudo apt-get update
+                    sudo apt-get install -y binutils-mingw-w64-x86-64
+
+                    DLL=./tmp/native-check/InfiniFrame.Native.dll
+
+                    REQUIRED_EXPORTS=(
+                      "InfiniFrameNativeTests_NativeParametersReturnAsIs"
+                      "InfiniFrameNativeTests_FreeInitParams"
+                    )
+
+                    MISSING=0
+
+                    for export_name in "${REQUIRED_EXPORTS[@]}"; do
+                      if x86_64-w64-mingw32-nm -g --defined-only "$DLL" | grep -q "$export_name"; then
+                        echo "✅ Found export: $export_name"
+                      else
+                        echo "❌ Missing export: $export_name"
+                        MISSING=$((MISSING+1))
+                      fi
+                    done
+
+                    if [ "$MISSING" -gt 0 ]; then
+                      echo "❌ $MISSING required test export(s) missing from InfiniFrame.Native.dll"
+                      exit 1
+                    fi
+
+                    echo "✅ All required test exports found"
 
             -   name: Complete Dotnet Pack Check
                 if: always()
