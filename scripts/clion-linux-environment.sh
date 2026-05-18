@@ -11,10 +11,23 @@ sudo apt install -y \
     gnupg \
     software-properties-common \
     wget \
+    curl \
     build-essential \
     pkg-config \
-    lsb-release \
-    nodejs
+    lsb-release
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Node.js 24
+# ----------------------------------------------------------------------------------------------------------------------
+echo "Installing Node.js 24..."
+
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+
+sudo apt install -y nodejs
+
+echo "Node version:"
+node --version
+npm --version
 
 # ----------------------------------------------------------------------------------------------------------------------
 # CMake (latest via Kitware)
@@ -106,6 +119,12 @@ echo "Verifying toolchain..."
 
 echo "CMake version:"
 cmake --version
+
+echo "Node version:"
+node --version
+
+echo "NPM version:"
+npm --version
 
 echo "GCC version:"
 gcc --version || true
