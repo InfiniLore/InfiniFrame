@@ -117,7 +117,7 @@ jobs:
                       exit 1
                     fi
                     
-            -   name: Verify NativeBridge Test Exports
+            -   name: Verify Lack of NativeBridge Test Exports
                 shell: bash
                 run: |
                     set -euo pipefail
@@ -147,28 +147,28 @@ jobs:
 
                     DLL=./tmp/native-check/InfiniFrame.Native.dll
 
-                    REQUIRED_EXPORTS=(
+                    FORBIDDEN_EXPORTS=(
                       "InfiniFrameNativeTests_NativeParametersReturnAsIs"
                       "InfiniFrameNativeTests_FreeInitParams"
                     )
 
-                    MISSING=0
+                    FOUND=0
 
-                    for export_name in "${REQUIRED_EXPORTS[@]}"; do
-                      if x86_64-w64-mingw32-nm -g --defined-only "$DLL" | grep -q "$export_name"; then
-                        echo "✅ Found export: $export_name"
+                    for export_name in "${FORBIDDEN_EXPORTS[@]}"; do
+                      if x86_64-w64-mingw32-nm -g --defined-only "$DLL" | awk '{print $3}' | grep -Fxq "$export_name"; then
+                        echo "❌ Forbidden test export found: $export_name"
+                        FOUND=$((FOUND+1))
                       else
-                        echo "❌ Missing export: $export_name"
-                        MISSING=$((MISSING+1))
+                        echo "✅ Export not present: $export_name"
                       fi
                     done
 
-                    if [ "$MISSING" -gt 0 ]; then
-                      echo "❌ $MISSING required test export(s) missing from InfiniFrame.Native.dll"
+                    if [ "$FOUND" -gt 0 ]; then
+                      echo "❌ $FOUND forbidden test export(s) found in InfiniFrame.Native.dll"
                       exit 1
                     fi
 
-                    echo "✅ All required test exports found"
+                    echo "✅ No forbidden test exports found"
 
             -   name: Complete Dotnet Pack Check
                 if: always()
