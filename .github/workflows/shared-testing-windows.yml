@@ -79,7 +79,7 @@ jobs:
                     artifact-type: testing
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
 
             -   name: Build Release
                 shell: pwsh
@@ -88,6 +88,7 @@ jobs:
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      /p:NativeArch=${{ matrix.arch }} `
                       /p:CMakePlatform=${{ matrix.arch }} `
                       /p:InfiniFrameSkipNativeBuild=true `
                       /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
@@ -203,6 +204,7 @@ jobs:
                       --configuration Release `
                       --no-build `
                       --no-restore `
+                      /p:NativeArch=${{ matrix.arch }} `
                       /p:CMakePlatform=${{ matrix.arch }} `
                       /p:InfiniFrameSkipNativeBuild=true `
                       /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}

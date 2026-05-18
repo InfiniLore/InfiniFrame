@@ -7,11 +7,11 @@
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-        <NativeArch Condition="'$(Platform)'=='AnyCPU'">x64</NativeArch>
-        <NativeArch Condition="'$(Platform)'=='X64'">x64</NativeArch>
-        <NativeArch Condition="'$(Platform)'=='x64'">x64</NativeArch>
-        <NativeArch Condition="'$(Platform)'=='ARM64'">arm64</NativeArch>
-        <NativeArch Condition="'$(Platform)'=='arm64'">arm64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU'">x64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='X64'">x64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='x64'">x64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='ARM64'">arm64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='arm64'">arm64</NativeArch>
         
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</NativePlatform>
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</NativePlatform>

@@ -80,7 +80,7 @@ jobs:
                 run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
 
             -   name: Build Release
                 run: |
@@ -88,6 +88,7 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       -p:SolutionDir=${{ github.workspace }}/ \
+                      -p:NativeArch=${{ matrix.arch }} \
                       -p:CMakePlatform=${{ matrix.arch }} \
                       -p:InfiniFrameSkipNativeBuild=true \
                       -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
@@ -172,6 +173,7 @@ jobs:
                       --configuration Release \
                       --no-build \
                       --no-restore \
+                      -p:NativeArch=${{ matrix.arch }} \
                       -p:CMakePlatform=${{ matrix.arch }} \
                       -p:InfiniFrameSkipNativeBuild=true \
                       -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
