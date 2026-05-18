@@ -170,7 +170,7 @@
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
     </Target>
 
-    <Target Name="CleanNative" AfterTargets="Clean" Condition="'$(TargetFramework)' == '' or '$(TargetFrameworks)' == ''">
+    <Target Name="CleanNative" AfterTargets="Clean">
         <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-clean.ps1&quot;" />
     </Target>
 
