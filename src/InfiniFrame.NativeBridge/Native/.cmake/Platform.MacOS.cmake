@@ -24,7 +24,6 @@ function(infiniframe_configure_macos_target target_name common_sources test_sour
             PREFIX ""
             OUTPUT_NAME "InfiniFrame.Native"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-            OSX_ARCHITECTURES "x86_64;arm64"
     )
 
     target_link_libraries(${target_name} PRIVATE
@@ -38,7 +37,10 @@ function(infiniframe_configure_macos_target target_name common_sources test_sour
 
     target_compile_options(${target_name} PRIVATE
             -Wall -Wextra
-            -O2
+            $<$<CONFIG:Debug>:-O0 -g>
+            $<$<CONFIG:Release>:-O2>
+            $<$<CONFIG:RelWithDebInfo>:-O2 -g>
+            $<$<CONFIG:MinSizeRel>:-Os>
             -fPIC
     )
 endfunction()

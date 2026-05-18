@@ -78,8 +78,18 @@ try {
     if ($Platform -eq "osx") {
         if ($Arch -eq "arm64") {
             $CMakeArgs += "-DCMAKE_OSX_ARCHITECTURES=arm64"
-        } else {
+        }
+        elseif ($Arch -eq "x64") {
             $CMakeArgs += "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+        }
+        else {
+            throw "Unsupported macOS architecture '$Arch'. Expected 'x64' or 'arm64'."
+        }
+    }
+
+    if ($Platform -eq "linux") {
+        if ($Arch -ne "x64" -and $Arch -ne "arm64") {
+            throw "Unsupported Linux architecture '$Arch'. Expected 'x64' or 'arm64'."
         }
     }
 

@@ -5,15 +5,18 @@ project(InfiniFrame.Native
         DESCRIPTION "InfiniFrame.Native webview-wrapper library"
 )
 
+if (APPLE)
+    enable_language(OBJCXX)
+endif ()
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_OBJCXX_STANDARD 23)
+set(CMAKE_OBJCXX_STANDARD_REQUIRED ON)
+set(CMAKE_OBJCXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
-if (APPLE)
-    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "" FORCE)
-endif ()
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Dependencies
@@ -180,18 +183,16 @@ endif ()
 # ----------------------------------------------------------------------------------------------------------------------
 # Sanitizers (Debug only)
 # ----------------------------------------------------------------------------------------------------------------------
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-        message(STATUS "Enabling sanitizers for Debug build")
-        target_compile_options(${PROJECT_NAME} PRIVATE
-                -fsanitize=address,undefined,leak
-                -fno-omit-frame-pointer
-                -fno-optimize-sibling-calls
-        )
-        target_link_options(${PROJECT_NAME} PRIVATE
-                -fsanitize=address,undefined,leak
-        )
-    endif ()
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    message(STATUS "Enabling sanitizers for Debug configuration")
+    target_compile_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
+            $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+            $<$<CONFIG:Debug>:-fno-optimize-sibling-calls>
+    )
+    target_link_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
+    )
 endif ()
 
 # ----------------------------------------------------------------------------------------------------------------------
