@@ -1,32 +1,23 @@
 #pragma once
-/**
- * @file InfiniFrameWindowImpl.h
- * @brief Shared state for all platform InfiniFrameWindow::Impl structs.
- *
- * This is an INTERNAL header — included only by platform Window.cpp/.mm files,
- * never by consumers of InfiniFrame. It defines the fields that are identical
- * across Windows, Linux, and macOS implementations.
- *
- * Each platform defines:
- *
- *   struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl { ... platform handles ... };
- */
-
-#include "../Types/Basic.h"
-#include "../Types/Callbacks.h"
-#include "InfiniFrameDialog.h"
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "Types/Basic.h"
+#include "Types/Callbacks.h"
+#include "Public/InfiniFrameDialog.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameWindow;
 
 struct InfiniFrameWindowImpl {
-    // -----------------------------------------------------------------------------------------------------------------=
+    // -----------------------------------------------------------------------------------------------------------------
     // Callbacks
-    // -----------------------------------------------------------------------------------------------------------------=
-
+    // -----------------------------------------------------------------------------------------------------------------
     WebMessageReceivedCallback _webMessageReceivedCallback = nullptr;
     WebResourceRequestedCallback _customSchemeCallback = nullptr;
     ResizedCallback _resizedCallback = nullptr;
@@ -39,10 +30,9 @@ struct InfiniFrameWindowImpl {
     FocusInCallback _focusInCallback = nullptr;
     FocusOutCallback _focusOutCallback = nullptr;
 
-    // -----------------------------------------------------------------------------------------------------------------=
+    // -----------------------------------------------------------------------------------------------------------------
     // Feature flags
-    // -----------------------------------------------------------------------------------------------------------------=
-
+    // -----------------------------------------------------------------------------------------------------------------
     bool _transparentEnabled = false;
     bool _contextMenuEnabled = true;
     bool _zoomEnabled = true;
@@ -56,10 +46,9 @@ struct InfiniFrameWindowImpl {
     bool _smoothScrollingEnabled = true;
     bool _ignoreCertificateErrorsEnabled = false;
 
-    // -----------------------------------------------------------------------------------------------------------------=
-    // String state  (NativeString = std::wstring on Windows, std::string elsewhere)
-    // -----------------------------------------------------------------------------------------------------------------=
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // String state
+    // -----------------------------------------------------------------------------------------------------------------
     NativeString _windowTitle;
     NativeString _startUrl;
     NativeString _startString;
@@ -69,10 +58,9 @@ struct InfiniFrameWindowImpl {
 
     std::vector<NativeString> _customSchemeNames;
 
-    // -----------------------------------------------------------------------------------------------------------------=
+    // -----------------------------------------------------------------------------------------------------------------
     // Ownership
-    // -----------------------------------------------------------------------------------------------------------------=
-
+    // -----------------------------------------------------------------------------------------------------------------
     InfiniFrameWindow* _parent = nullptr;
     std::unique_ptr<InfiniFrameDialog> _dialog;
 };

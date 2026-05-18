@@ -1,19 +1,14 @@
 #pragma once
-/**
- * @file Event.h
- * @brief Modern event handling system with thread safety
- */
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <functional>
 #include <map>
 #include <mutex>
 #include <shared_mutex>
-#include <vector>
-
 // ---------------------------------------------------------------------------------------------------------------------
-// Event System
+// Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 template <typename... Args> class Event {
     public:
     using Handler = std::function<void(Args...)>;
@@ -33,7 +28,7 @@ template <typename... Args> class Event {
          * @return Token for unsubscribing
          */
     [[nodiscard]] Token Subscribe(Handler handler) {
-        std::unique_lock<std::shared_mutex> lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         const auto token = m_nextToken++;
         m_handlers.emplace(token, std::move(handler));
         return token;
@@ -44,7 +39,7 @@ template <typename... Args> class Event {
          * @param token Token returned from Subscribe
          */
     void Unsubscribe(Token token) {
-        std::unique_lock<std::shared_mutex> lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_handlers.erase(token);
     }
 
@@ -53,7 +48,7 @@ template <typename... Args> class Event {
          * @param args Arguments to pass to handlers
          */
     void Raise(Args... args) {
-        std::shared_lock<std::shared_mutex> lock(m_mutex);
+        std::shared_lock lock(m_mutex);
         for (const auto& [_, handler] : m_handlers) {
             if (handler) {
                 handler(args...);
@@ -66,7 +61,7 @@ template <typename... Args> class Event {
          * @return true if at least one handler is subscribed
          */
     [[nodiscard]] bool HasSubscribers() const {
-        std::shared_lock<std::shared_mutex> lock(m_mutex);
+        std::shared_lock lock(m_mutex);
         return !m_handlers.empty();
     }
 
@@ -74,7 +69,7 @@ template <typename... Args> class Event {
          * @brief Clear all subscribers
          */
     void Clear() {
-        std::unique_lock<std::shared_mutex> lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_handlers.clear();
     }
 
@@ -83,10 +78,6 @@ template <typename... Args> class Event {
     std::map<Token, Handler> m_handlers;
     Token m_nextToken = 1;
 };
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Event Subscription Guard
-// ---------------------------------------------------------------------------------------------------------------------
 
 template <typename... Args> class EventSubscription {
     public:

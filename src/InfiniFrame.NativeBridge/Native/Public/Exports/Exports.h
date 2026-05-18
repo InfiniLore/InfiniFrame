@@ -1,8 +1,7 @@
 #pragma once
-
-#include "../InfiniFrame.h"
-#include "../../Utils/ExportGuards.h"
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #ifdef __linux__
 #include <glib.h>
 #endif
@@ -13,6 +12,11 @@
 #define EXPORTED
 #endif
 
+#include "Public/InfiniFrame.h"
+#include "Utils/ExportGuards.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 using infiniframe::exports::EnsureNotNull;
 using infiniframe::exports::GetLastErrorMessageCopy;
 using infiniframe::exports::ResetOut;

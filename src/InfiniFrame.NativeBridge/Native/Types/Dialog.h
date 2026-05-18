@@ -1,11 +1,8 @@
 #pragma once
-/**
- * @file Dialog.h
- * @brief Dialog-related types and enums
- */
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include "DialogButtons.h"
 #include "DialogIcon.h"
 #include "DialogResult.h"
 #include "Monitor.h"
-

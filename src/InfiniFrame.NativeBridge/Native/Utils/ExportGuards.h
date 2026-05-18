@@ -1,17 +1,21 @@
 #pragma once
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <cerrno>
 #include <exception>
 #include <stdexcept>
 #include <string>
 #include <utility>
 
-#include "../Public/InfiniFrame.h"
-
 #ifdef _WIN32
 #include <Windows.h>
 #endif
 
+#include "Public/InfiniFrame.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 enum class InteropStatus : int {
     Success = 0,
     InvalidArgument = 22,
@@ -22,7 +26,7 @@ enum class InteropStatus : int {
 namespace infiniframe::exports {
     namespace detail {
         inline thread_local std::string g_lastErrorMessage;
-        inline thread_local InteropStatus g_lastStatus = InteropStatus::Success;
+        inline thread_local auto g_lastStatus = InteropStatus::Success;
 
         inline void SetLastErrorCode(const InteropStatus status) noexcept {
 #ifdef _WIN32

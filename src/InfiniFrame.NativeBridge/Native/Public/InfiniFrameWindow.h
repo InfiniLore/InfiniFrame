@@ -1,14 +1,11 @@
 #pragma once
-/**
- * @file InfiniFrameWindow.h
- * @brief Main window class for InfiniFrame
- */
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #ifdef _WIN32
 #include <Windows.h>
 #include <wil/com.h>
 #include <WebView2.h>
-class WinToastHandler;
 #endif
 
 #ifdef __APPLE__
@@ -30,10 +27,15 @@ class WinToastHandler;
 #include <memory>
 #include <vector>
 
-#include "../Types/Basic.h"
-#include "../Types/Dialog.h"
-#include "../Types/Callbacks.h"
-
+#include "Types/Basic.h"
+#include "Types/Dialog.h"
+#include "Types/Callbacks.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+#ifdef _WIN32
+class WinToastHandler;
+#endif
 class InfiniFrameDialog;
 struct InfiniFrameInitParams;
 

@@ -1,16 +1,16 @@
 #pragma once
-/**
- * @file InfiniFrameDialog.h
- * @brief Dialog handlers for file/folder operations and messages
- */
-
-#include "../Types/Basic.h"
-#include "../Types/Dialog.h"
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #ifdef __APPLE__
 #include <Cocoa/Cocoa.h>
 #endif
 
+#include "Types/Basic.h"
+#include "Types/Dialog.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 class InfiniFrameWindow; // forward declaration
 
 /**

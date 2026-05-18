@@ -1,8 +1,12 @@
 #pragma once
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <string>
 #include <system_error>
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 enum class ErrorCode {
     Success = 0,
     InvalidArgument,
@@ -63,6 +67,4 @@ inline std::error_code make_error_code(const ErrorCode e) noexcept {
     return {static_cast<int>(e), errorCategory()};
 }
 
-namespace std {
-    template <> struct is_error_code_enum<ErrorCode> : true_type {};
-} // namespace std
+template <> struct std::is_error_code_enum<ErrorCode> : true_type {}; 

@@ -1,31 +1,14 @@
 #pragma once
-/**
- * @file InfiniFrame.h
- * @brief Main header file for InfiniFrame native interop
- *
- * This file provides unified access to all InfiniFrame types and classes.
- * It is the primary include file for C API consumers.
- */
-
 // ---------------------------------------------------------------------------------------------------------------------
-// Core Types
+// Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include "Public/InfiniFrameInitParams.h"
+#include "Public/InfiniFrameWindow.h"
+#include "Public/InfiniFrameDialog.h"
 
-#include "../Types/Basic.h"
-#include "../Types/Dialog.h"
-#include "../Types/Callbacks.h"
-#include "InfiniFrameInitParams.h"
+#include "Types/Basic.h"
+#include "Types/Dialog.h"
+#include "Types/Callbacks.h"
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Core Classes
-// ---------------------------------------------------------------------------------------------------------------------
-
-#include "InfiniFrameWindow.h"
-#include "InfiniFrameDialog.h"
-
-// ---------------------------------------------------------------------------------------------------------------------
-// Utilities
-// ---------------------------------------------------------------------------------------------------------------------
-
-#include "../Utils/Common.h"
-#include "../Utils/Event.h"
+#include "Utils/Common.h"
+#include "Utils/Event.h"
