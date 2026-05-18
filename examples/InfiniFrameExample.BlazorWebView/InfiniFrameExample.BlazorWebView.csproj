@@ -8,10 +8,6 @@
         <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
         <ProjectReference Include="../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj"/>
         <ProjectReference Include="../../src/InfiniFrame.Blazor/InfiniFrame.Blazor.csproj"/>
-
-        <ProjectReference Include="../../src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj">
-            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-        </ProjectReference>
     </ItemGroup>
 
     <ItemGroup>
@@ -20,11 +16,4 @@
         <PackageReference Include="Serilog.Sinks.Async"/>
         <PackageReference Include="Serilog.Sinks.Console"/>
     </ItemGroup>
-
-    <!--    <ItemGroup>-->
-    <!--        <None Include="../../src/InfiniFrame.NativeBridge/Import.targets"-->
-    <!--              Pack="true"-->
-    <!--              PackagePath="build/InfiniFrame.targets"-->
-    <!--              Visible="false" />-->
-    <!--    </ItemGroup>-->
 </Project>
