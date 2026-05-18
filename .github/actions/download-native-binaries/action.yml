@@ -3,14 +3,17 @@ description: Download, normalize, and verify native build artifacts for testing 
 
 inputs:
     artifact-type:
+        description: Artifact naming mode
         required: true
         default: testing
 
     target-root:
+        description: Root path where normalized native artifacts should be written
         required: false
         default: ""
 
     current-runner-only:
+        description: Only download artifacts matching the current OS/arch
         required: false
         default: "false"
 
@@ -18,172 +21,186 @@ runs:
     using: composite
     steps:
 
-        - name: Resolve Runner Platform
-          id: resolve-runner
-          shell: bash
-          run: |
-              set -euo pipefail
-              
-              case "$RUNNER_OS" in
-                Windows) lib="windows" ;;
-                Linux) lib="linux" ;;
-                macOS) lib="osx" ;;
-                *) echo "Unsupported OS"; exit 1 ;;
-              esac
-              
-              case "$RUNNER_ARCH" in
-                X64|x64) arch="x64" ;;
-                ARM64|arm64) arch="arm64" ;;
-                *) echo "Unsupported arch"; exit 1 ;;
-              esac
-              
-              echo "lib=$lib" >> "$GITHUB_OUTPUT"
-              echo "arch=$arch" >> "$GITHUB_OUTPUT"
+        -   name: Resolve Runner Platform
+            id: resolve-runner
+            shell: bash
+            run: |
+                set -euo pipefail
 
+                os="$RUNNER_OS"
+                arch="$RUNNER_ARCH"
 
-        - name: Resolve Settings
-          id: resolve
-          shell: bash
-          run: |
-              set -euo pipefail
-              
-              type="${{ inputs.artifact-type }}"
-              current="${{ inputs.current-runner-only }}"
-              
-              lib="${{ steps.resolve-runner.outputs.lib }}"
-              arch="${{ steps.resolve-runner.outputs.arch }}"
-              
-              if [ "$current" = "true" ]; then
-                echo "mode=single" >> "$GITHUB_OUTPUT"
-                echo "artifact=native-${type}-${lib}-${arch}" >> "$GITHUB_OUTPUT"
-              else
-                echo "mode=all" >> "$GITHUB_OUTPUT"
-                echo "pattern=native-${type}-*" >> "$GITHUB_OUTPUT"
-              fi
-              
-              if [ -n "${{ inputs.target-root }}" ]; then
-                root="${{ inputs.target-root }}"
-              elif [ "$type" = "testing" ]; then
-                root="src/InfiniFrame.NativeBridge/artifacts/native"
-              else
-                root="artifacts/native"
-              fi
-              
-              echo "root=$root" >> "$GITHUB_OUTPUT"
-
-
-        - name: Download (single)
-          if: ${{ steps.resolve.outputs.mode == 'single' }}
-          uses: actions/download-artifact@v8
-          with:
-              name: ${{ steps.resolve.outputs.artifact }}
-              path: artifacts/native
-
-
-        - name: Download (all)
-          if: ${{ steps.resolve.outputs.mode == 'all' }}
-          uses: actions/download-artifact@v8
-          with:
-              pattern: ${{ steps.resolve.outputs.pattern }}
-              merge-multiple: true
-              path: artifacts/native
-
-
-        - name: Normalize
-          shell: bash
-          run: |
-              set -euo pipefail
-              
-              ROOT="${{ steps.resolve.outputs.root }}"
-              MODE="${{ steps.resolve.outputs.mode }}"
-              LIB="${{ steps.resolve-runner.outputs.lib }}"
-              ARCH="${{ steps.resolve-runner.outputs.arch }}"
-              
-              mkdir -p "$ROOT/windows/x64/Release"
-              mkdir -p "$ROOT/windows/arm64/Release"
-              mkdir -p "$ROOT/linux/x64/Release"
-              mkdir -p "$ROOT/linux/arm64/Release"
-              mkdir -p "$ROOT/osx/x64/Release"
-              mkdir -p "$ROOT/osx/arm64/Release"
-              
-              copy() {
-                src="$1"
-                dst="$2"
-              
-                if [ ! -d "$src" ]; then
-                  echo "⚠️ Missing artifact folder: $src"
-                  return
-                fi
-              
-                echo "Copying $src -> $dst"
-                cp -R "$src"/. "$dst"/
-              }
-              
-              if [ "$MODE" = "single" ]; then
-              
-                SRC="artifacts/native/native-testing-${LIB}-${ARCH}"
-                if [ -d "$SRC" ]; then
-                  copy "$SRC" "$ROOT/${LIB}/${ARCH}/Release"
-                else
-                  echo "❌ Expected artifact missing: $SRC"
-                  exit 1
-                fi
-              
-              else
-              
-                for f in \
-                  windows-x64 \
-                  windows-arm64 \
-                  linux-x64 \
-                  linux-arm64 \
-                  osx-x64 \
-                  osx-arm64
-                do
-                  copy "artifacts/native/native-testing-$f" "$ROOT/${f//-//}/Release"
-                done
-              
-              fi
-
-
-        - name: Verify
-          shell: bash
-          run: |
-              set -euo pipefail
-              
-              ROOT="${{ steps.resolve.outputs.root }}"
-              MODE="${{ steps.resolve.outputs.mode }}"
-              LIB="${{ steps.resolve-runner.outputs.lib }}"
-              ARCH="${{ steps.resolve-runner.outputs.arch }}"
-              
-              check() {
-                if [ ! -f "$1" ]; then
-                  echo "Missing: $1"
-                  exit 1
-                fi
-              }
-              
-              if [ "$MODE" = "single" ]; then
-              
-                case "$LIB" in
-                  windows)
-                    check "$ROOT/$LIB/$ARCH/Release/InfiniFrame.Native.dll"
-                    check "$ROOT/$LIB/$ARCH/Release/WebView2Loader.dll"
-                    ;;
-                  linux)
-                    check "$ROOT/$LIB/$ARCH/Release/InfiniFrame.Native.so"
-                    ;;
-                  osx)
-                    check "$ROOT/$LIB/$ARCH/Release/InfiniFrame.Native.dylib"
-                    ;;
+                case "$os" in
+                  Windows) lib="windows" ;;
+                  Linux)   lib="linux" ;;
+                  macOS)   lib="osx" ;;
+                  *) echo "Unsupported OS: $os"; exit 1 ;;
                 esac
-              
-              else
-              
-                check "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
-                check "$ROOT/windows/arm64/Release/WebView2Loader.dll"
-                check "$ROOT/linux/x64/Release/InfiniFrame.Native.so"
-                check "$ROOT/osx/x64/Release/InfiniFrame.Native.dylib"
-              
-              fi
-              
-              echo "OK"
+
+                case "$arch" in
+                  X64|x64) arch="x64" ;;
+                  ARM64|arm64) arch="arm64" ;;
+                  *) echo "Unsupported arch: $arch"; exit 1 ;;
+                esac
+
+                echo "lib=$lib" >> "$GITHUB_OUTPUT"
+                echo "arch=$arch" >> "$GITHUB_OUTPUT"
+
+
+        -   name: Resolve Native Artifact Settings
+            id: resolve-native-artifact-settings
+            shell: bash
+            run: |
+                set -euo pipefail
+
+                artifact_type="${{ inputs.artifact-type }}"
+                input_root="${{ inputs.target-root }}"
+                current_only="${{ inputs.current-runner-only }}"
+
+                lib="${{ steps.resolve-runner.outputs.lib }}"
+                arch="${{ steps.resolve-runner.outputs.arch }}"
+
+                if [ "$current_only" = "true" ]; then
+                  if [ "$artifact_type" = "testing" ]; then
+                    echo "mode=single" >> "$GITHUB_OUTPUT"
+                    echo "artifact_name=native-testing-${lib}-${arch}" >> "$GITHUB_OUTPUT"
+                  elif [ "$artifact_type" = "release" ]; then
+                    echo "mode=single" >> "$GITHUB_OUTPUT"
+                    echo "artifact_name=native-${lib}-${arch}" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "Unsupported artifact-type: $artifact_type"
+                    exit 1
+                  fi
+                else
+                  if [ "$artifact_type" = "testing" ]; then
+                    echo "mode=all" >> "$GITHUB_OUTPUT"
+                    echo "pattern=native-testing-*" >> "$GITHUB_OUTPUT"
+                  elif [ "$artifact_type" = "release" ]; then
+                    echo "mode=all" >> "$GITHUB_OUTPUT"
+                    echo "pattern=native-*" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "Unsupported artifact-type: $artifact_type"
+                    exit 1
+                  fi
+                fi
+
+                if [ -n "$input_root" ]; then
+                  root="$input_root"
+                elif [ "$artifact_type" = "testing" ]; then
+                  root="src/InfiniFrame.NativeBridge/artifacts/native"
+                else
+                  root="artifacts/native"
+                fi
+
+                echo "root=$root" >> "$GITHUB_OUTPUT"
+
+
+        -   name: Download Native Build Artifacts (single runtime only)
+            if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'single' }}
+            uses: actions/download-artifact@v8
+            with:
+                name: ${{ steps.resolve-native-artifact-settings.outputs.artifact_name }}
+                path: artifacts/native
+
+
+        -   name: Download Native Build Artifacts (all runtimes)
+            if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'all' }}
+            uses: actions/download-artifact@v8
+            with:
+                pattern: ${{ steps.resolve-native-artifact-settings.outputs.pattern }}
+                path: artifacts/native
+                merge-multiple: true
+
+
+        -   name: Normalize Native Artifacts
+            shell: bash
+            run: |
+                set -euo pipefail
+
+                ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
+                current_only="${{ inputs.current-runner-only }}"
+
+                lib="${{ steps.resolve-runner.outputs.lib }}"
+                arch="${{ steps.resolve-runner.outputs.arch }}"
+
+                mkdir -p "$ROOT/windows/x64/Release"
+                mkdir -p "$ROOT/windows/arm64/Release"
+                mkdir -p "$ROOT/linux/x64/Release"
+                mkdir -p "$ROOT/linux/arm64/Release"
+                mkdir -p "$ROOT/osx/x64/Release"
+                mkdir -p "$ROOT/osx/arm64/Release"
+
+                if [ "$current_only" = "true" ]; then
+
+                  SRC="artifacts/native"
+                  DST="$ROOT/${lib}/${arch}/Release"
+
+                  if [ -d "$SRC" ]; then
+                    cp -R "$SRC"/. "$DST"/
+                  fi
+
+                else
+
+                  copy() {
+                    src="$1"
+                    dst="$2"
+                    if [ -d "$src" ]; then
+                      cp -R "$src"/. "$dst"/
+                    fi
+                  }
+
+                  copy "artifacts/native/native-testing-windows-x64" "$ROOT/windows/x64/Release"
+                  copy "artifacts/native/native-testing-windows-arm64" "$ROOT/windows/arm64/Release"
+                  copy "artifacts/native/native-testing-linux-x64" "$ROOT/linux/x64/Release"
+                  copy "artifacts/native/native-testing-linux-arm64" "$ROOT/linux/arm64/Release"
+                  copy "artifacts/native/native-testing-osx-x64" "$ROOT/osx/x64/Release"
+                  copy "artifacts/native/native-testing-osx-arm64" "$ROOT/osx/arm64/Release"
+
+                fi
+
+
+        -   name: Verify Native Artifacts
+            shell: bash
+            run: |
+                set -euo pipefail
+
+                ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
+                current_only="${{ inputs.current-runner-only }}"
+
+                lib="${{ steps.resolve-runner.outputs.lib }}"
+                arch="${{ steps.resolve-runner.outputs.arch }}"
+
+                check() {
+                  if [ ! -f "$1" ]; then
+                    echo "Missing native artifact: $1"
+                    return 1
+                  fi
+                }
+
+                if [ "$current_only" = "true" ]; then
+
+                  if [ "$lib" = "windows" ]; then
+                    check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dll"
+                    check "$ROOT/${lib}/${arch}/Release/WebView2Loader.dll"
+                  elif [ "$lib" = "linux" ]; then
+                    check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.so"
+                  elif [ "$lib" = "osx" ]; then
+                    check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dylib"
+                  fi
+
+                else
+
+                  check "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
+                  check "$ROOT/windows/x64/Release/WebView2Loader.dll"
+                  check "$ROOT/windows/arm64/Release/InfiniFrame.Native.dll"
+                  check "$ROOT/windows/arm64/Release/WebView2Loader.dll"
+
+                  check "$ROOT/linux/x64/Release/InfiniFrame.Native.so"
+                  check "$ROOT/linux/arm64/Release/InfiniFrame.Native.so"
+
+                  check "$ROOT/osx/x64/Release/InfiniFrame.Native.dylib"
+                  check "$ROOT/osx/arm64/Release/InfiniFrame.Native.dylib"
+
+                fi
+
+                echo "All native artifacts downloaded and verified."
