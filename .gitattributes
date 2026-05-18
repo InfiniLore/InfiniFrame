@@ -1,4 +1,4 @@
-﻿src/InfiniFrame.Native/Dependencies/* linguist-vendored
-src/InfiniFrame.Native/Dependencies/**/* linguist-vendored
+﻿src/InfiniFrame.NativeBridge/Native/Dependencies/* linguist-vendored
+src/InfiniFrame.NativeBridge/Native/Dependencies/**/* linguist-vendored
 
 *.sh text eol=lf
