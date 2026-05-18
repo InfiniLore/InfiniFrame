@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Linux Tests"
 on:
     workflow_call:
@@ -60,9 +61,7 @@ jobs:
             -   name: Set Linux Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
@@ -178,9 +177,7 @@ jobs:
                       -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Pack Tool E2E
-                # noinspection UndefinedAction
                 uses: ./.github/actions/packtool-e2e
-                # noinspection UndefinedParamsPresent
                 with:
                     project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
                     rid: ${{ matrix.rid }}
@@ -197,9 +194,7 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
                 uses: ./.github/actions/sync-check-finalize
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}

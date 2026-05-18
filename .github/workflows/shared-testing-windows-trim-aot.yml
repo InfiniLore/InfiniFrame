@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Windows Trim/AOT Validation"
 
 on:
@@ -47,9 +48,7 @@ jobs:
             -   name: Set Trim/AOT Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
                 uses: ./.github/actions/sync-check
-                # noinspection UndefinedAction, UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
@@ -60,9 +59,7 @@ jobs:
                     allow-status-422: 'true'
 
             -   name: Setup Native dependencies
-                # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
-                # noinspection UndefinedParamsPresent
                 with:
                     brew-cache-key: ${{ runner.os }}-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-windows-trim-aot.yml') }}
                     brew-restore-key: ${{ runner.os }}-x64-brew-native-
@@ -154,9 +151,7 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
                 uses: ./.github/actions/sync-check-finalize
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}

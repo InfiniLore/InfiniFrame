@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Docs Tests"
 
 on:
@@ -46,9 +47,7 @@ jobs:
             -   name: Set Docs Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
                 uses: ./.github/actions/sync-check
-                # noinspection UndefinedAction, UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}
@@ -66,9 +65,7 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
                 uses: ./.github/actions/sync-check-finalize
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ env.TARGET_SHA }}

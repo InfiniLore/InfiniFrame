@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "CI: Release Docs"
 on:
     workflow_dispatch:
@@ -8,7 +9,6 @@ permissions:
     id-token: write
 
 jobs:
-    # noinspection UndefinedAction, UndefinedParamsPresent
     deploy-docs:
         name: Publish Docs
         uses: ./.github/workflows/shared-release-publish-docs.yml
