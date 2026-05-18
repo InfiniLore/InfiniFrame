@@ -61,29 +61,27 @@ runs:
                 arch="${{ steps.resolve-runner.outputs.arch }}"
 
                 if [ "$current_only" = "true" ]; then
-                  case "$artifact_type" in
-                    testing)
-                      echo "mode=single" >> "$GITHUB_OUTPUT"
-                      echo "artifact_name=native-testing-${lib}-${arch}" >> "$GITHUB_OUTPUT"
-                      ;;
-                    release)
-                      echo "mode=single" >> "$GITHUB_OUTPUT"
-                      echo "artifact_name=native-${lib}-${arch}" >> "$GITHUB_OUTPUT"
-                      ;;
-                    *)
-                      echo "Unsupported artifact-type: $artifact_type"
-                      exit 1
-                      ;;
-                  esac
+                  if [ "$artifact_type" = "testing" ]; then
+                    echo "mode=single" >> "$GITHUB_OUTPUT"
+                    echo "artifact_name=native-testing-${lib}-${arch}" >> "$GITHUB_OUTPUT"
+                  elif [ "$artifact_type" = "release" ]; then
+                    echo "mode=single" >> "$GITHUB_OUTPUT"
+                    echo "artifact_name=native-${lib}-${arch}" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "Unsupported artifact-type: $artifact_type"
+                    exit 1
+                  fi
                 else
-                  case "$artifact_type" in
-                    testing) pattern="native-testing-*" ;;
-                    release) pattern="native-*" ;;
-                    *) echo "Unsupported artifact-type: $artifact_type"; exit 1 ;;
-                  esac
-
-                  echo "mode=pattern" >> "$GITHUB_OUTPUT"
-                  echo "pattern=$pattern" >> "$GITHUB_OUTPUT"
+                  if [ "$artifact_type" = "testing" ]; then
+                    echo "mode=all" >> "$GITHUB_OUTPUT"
+                    echo "pattern=native-testing-*" >> "$GITHUB_OUTPUT"
+                  elif [ "$artifact_type" = "release" ]; then
+                    echo "mode=all" >> "$GITHUB_OUTPUT"
+                    echo "pattern=native-*" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "Unsupported artifact-type: $artifact_type"
+                    exit 1
+                  fi
                 fi
 
                 if [ -n "$input_root" ]; then
@@ -97,7 +95,7 @@ runs:
                 echo "root=$root" >> "$GITHUB_OUTPUT"
 
 
-        -   name: Download Native Build Artifacts (single)
+        -   name: Download Native Build Artifacts (single runtime only)
             if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'single' }}
             uses: actions/download-artifact@v8
             with:
@@ -105,8 +103,8 @@ runs:
                 path: artifacts/native
 
 
-        -   name: Download Native Build Artifacts (all)
-            if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'pattern' }}
+        -   name: Download Native Build Artifacts (all runtimes)
+            if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'all' }}
             uses: actions/download-artifact@v8
             with:
                 pattern: ${{ steps.resolve-native-artifact-settings.outputs.pattern }}
@@ -120,7 +118,6 @@ runs:
                 set -euo pipefail
 
                 ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
-                artifact_type="${{ inputs.artifact-type }}"
                 current_only="${{ inputs.current-runner-only }}"
 
                 lib="${{ steps.resolve-runner.outputs.lib }}"
@@ -133,19 +130,24 @@ runs:
                 mkdir -p "$ROOT/osx/x64/Release"
                 mkdir -p "$ROOT/osx/arm64/Release"
 
-                copy() {
+                if [ "$current_only" = "true" ]; then
+
+                  SRC="artifacts/native"
+                  DST="$ROOT/${lib}/${arch}/Release"
+
+                  if [ -d "$SRC" ]; then
+                    cp -R "$SRC"/. "$DST"/
+                  fi
+
+                else
+
+                  copy() {
                     src="$1"
                     dst="$2"
                     if [ -d "$src" ]; then
-                        cp -R "$src"/. "$dst"/
+                      cp -R "$src"/. "$dst"/
                     fi
-                }
-
-                if [ "$current_only" = "true" ]; then
-
-                  copy "artifacts/native/native-${artifact_type}-${lib}-${arch}" "$ROOT/${lib}/${arch}/Release"
-
-                else
+                  }
 
                   copy "artifacts/native/native-testing-windows-x64" "$ROOT/windows/x64/Release"
                   copy "artifacts/native/native-testing-windows-arm64" "$ROOT/windows/arm64/Release"
@@ -177,18 +179,14 @@ runs:
 
                 if [ "$current_only" = "true" ]; then
 
-                  case "$lib" in
-                    windows)
-                      check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dll"
-                      check "$ROOT/${lib}/${arch}/Release/WebView2Loader.dll"
-                      ;;
-                    linux)
-                      check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.so"
-                      ;;
-                    osx)
-                      check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dylib"
-                      ;;
-                  esac
+                  if [ "$lib" = "windows" ]; then
+                    check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dll"
+                    check "$ROOT/${lib}/${arch}/Release/WebView2Loader.dll"
+                  elif [ "$lib" = "linux" ]; then
+                    check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.so"
+                  elif [ "$lib" = "osx" ]; then
+                    check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dylib"
+                  fi
 
                 else
 
