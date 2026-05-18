@@ -1,12 +1,16 @@
 ﻿#pragma once
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include "InfiniFrameJs.h"
 #include <simdutf.h>
 #include <string>
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 namespace Embedded {
     inline const std::wstring& InfiniFrameJsUtf16() {
-        static const std::wstring cached = [] {
+        static const std::wstring Cached = [] {
             const auto* src = reinterpret_cast<const char*>(GInfiniframeJsData);
 
             std::u16string temp;
@@ -19,14 +23,14 @@ namespace Embedded {
             return std::wstring(temp.begin(), temp.end());
         }();
 
-        return cached;
+        return Cached;
     }
 
     inline const std::string& InfiniFrameJsUtf8() {
-        static const std::string cached = [] {
+        static const std::string Cached = [] {
             const auto* src = reinterpret_cast<const char*>(GInfiniframeJsData);
             return std::string(src, GInfiniframeJsSize);
         }();
-        return cached;
+        return Cached;
     }
-} // namespace Embedded
+}
