@@ -58,6 +58,7 @@ jobs:
                 uses: ./.github/actions/download-native-binaries
                 with:
                     artifact-type: testing
+                    current-runner-only: false # We need to download from all runners
 
             -   name: Restore
                 run: dotnet restore InfiniFrame.GitHubActions.Release.slnf /p:NoWarn=NU1503
