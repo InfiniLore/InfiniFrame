@@ -6,9 +6,11 @@
         <EnableDynamicLoading>true</EnableDynamicLoading>
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-
+        
         <NativeArch Condition="'$(Platform)'=='AnyCPU'">x64</NativeArch>
-        <NativeArch Condition="'$(Platform)'!='AnyCPU'">$(Platform)</NativeArch>
+        <NativeArch Condition="'$(Platform)'=='x64'">x64</NativeArch>
+        <NativeArch Condition="'$(Platform)'=='ARM64'">arm64</NativeArch>
+        <NativeArch Condition="'$(Platform)'=='arm64'">arm64</NativeArch>
         
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</NativePlatform>
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</NativePlatform>
@@ -59,96 +61,97 @@
 
     <!-- WINDOWS x64 -->
     <ItemGroup Condition="Exists('$(WindowsX64)\InfiniFrame.Native.dll')">
-        <Content Include="$(WindowsX64)\InfiniFrame.Native.dll"
-            Pack="true"
-            CopyToOutputDirectory="PreserveNewest"
-            CopyToPublishDirectory="PreserveNewest"
-            PackagePath="runtimes/win-x64/native/"
-            Link="InfiniFrame.Native.dll"
-            Visible="false" 
-        />
+        <Content Include="$(WindowsX64)\InfiniFrame.Native.dll">
+            <Visible>false</Visible>
+            <Link Condition="'$(NativeArch)'=='x64'">InfiniFrame.Native.dll</Link>
+            <PackagePath>runtimes/win-x64/native/</PackagePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+        </Content>
     </ItemGroup>
 
     <ItemGroup Condition="Exists('$(WindowsX64)\WebView2Loader.dll')">
         <Content Include="$(WindowsX64)\WebView2Loader.dll"
-            Pack="true"
-            CopyToOutputDirectory="PreserveNewest"
-            CopyToPublishDirectory="PreserveNewest"
-            PackagePath="runtimes/win-x64/native/"
-            Link="WebView2Loader.dll"
-            Visible="false" 
-        />
+        >
+            <Visible>false</Visible>
+            <Link Condition="'$(NativeArch)'=='x64'">WebView2Loader.dll</Link>
+            <PackagePath>runtimes/win-x64/native/</PackagePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+        </Content>
     </ItemGroup>
 
     <!-- WINDOWS arm64 -->
     <ItemGroup Condition="Exists('$(WindowsArm64)\InfiniFrame.Native.dll')">
-        <Content Include="$(WindowsArm64)\InfiniFrame.Native.dll"
-            Pack="true"
-            CopyToOutputDirectory="PreserveNewest"
-            CopyToPublishDirectory="PreserveNewest"
-            PackagePath="runtimes/win-arm64/native/"
-            Link="InfiniFrame.Native.dll"
-            Visible="false" 
-        />
+        <Content Include="$(WindowsArm64)\InfiniFrame.Native.dll">
+            <Visible>false</Visible>
+            <Link Condition="'$(NativeArch)'=='arm64'">InfiniFrame.Native.dll</Link>
+            <PackagePath>runtimes/win-arm64/native/</PackagePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+        </Content>
     </ItemGroup>
 
     <ItemGroup Condition="Exists('$(WindowsArm64)\WebView2Loader.dll')">
-        <Content Include="$(WindowsArm64)\WebView2Loader.dll"
-            Pack="true"
-            CopyToOutputDirectory="PreserveNewest"
-            CopyToPublishDirectory="PreserveNewest"
-            PackagePath="runtimes/win-arm64/native/"
-            Link="WebView2Loader.dll"
-            Visible="false" 
-        />
+        <Content Include="$(WindowsArm64)\WebView2Loader.dll">
+            <Visible>false</Visible>
+            <Link Condition="'$(NativeArch)'=='arm64'">WebView2Loader.dll</Link>
+            <PackagePath>runtimes/win-arm64/native/</PackagePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+        </Content>
     </ItemGroup>
 
     <!-- LINUX x64 -->
     <ItemGroup Condition="Exists('$(LinuxX64)\InfiniFrame.Native.so')">
-        <Content Include="$(LinuxX64)\InfiniFrame.Native.so"
-            Pack="true"
-            CopyToOutputDirectory="PreserveNewest"
-            CopyToPublishDirectory="PreserveNewest"
-            PackagePath="runtimes/linux-x64/native/"
-            Link="InfiniFrame.Native.so"
-            Visible="false" 
-        />
+        <Content Include="$(LinuxX64)\InfiniFrame.Native.so">
+            <Visible>false</Visible>
+            <Link Condition="'$(NativeArch)'=='x64'">InfiniFrame.Native.so</Link>
+            <PackagePath>runtimes/linux-x64/native/</PackagePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+        </Content>
     </ItemGroup>
 
     <!-- LINUX arm64 -->
     <ItemGroup Condition="Exists('$(LinuxArm64)\InfiniFrame.Native.so')">
-        <Content Include="$(LinuxArm64)\InfiniFrame.Native.so"
-            Pack="true"
-            CopyToOutputDirectory="PreserveNewest"
-            CopyToPublishDirectory="PreserveNewest"
-            PackagePath="runtimes/linux-arm64/native/"
-            Link="InfiniFrame.Native.so"
-            Visible="false" 
-        />
+        <Content Include="$(LinuxArm64)\InfiniFrame.Native.so">
+            <Visible>false</Visible>
+            <Link Condition="'$(NativeArch)'=='arm64'">InfiniFrame.Native.so</Link>
+            <PackagePath>runtimes/linux-arm64/native/</PackagePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+        </Content>
     </ItemGroup>
 
     <!-- macOS x64 -->
     <ItemGroup Condition="Exists('$(MacOsX64)\InfiniFrame.Native.dylib')">
-        <Content Include="$(MacOsX64)\InfiniFrame.Native.dylib"
-            Pack="true"
-            CopyToOutputDirectory="PreserveNewest"
-            CopyToPublishDirectory="PreserveNewest"
-            PackagePath="runtimes/osx-x64/native/"
-            Link="InfiniFrame.Native.dylib"
-            Visible="false" 
-        />
+        <Content Include="$(MacOsX64)\InfiniFrame.Native.dylib">
+            <Visible>false</Visible>
+            <Link Condition="'$(NativeArch)'=='x64'">InfiniFrame.Native.dylib</Link>
+            <PackagePath>runtimes/osx-x64/native/</PackagePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+        </Content>
     </ItemGroup>
 
     <!-- macOS arm64 -->
     <ItemGroup Condition="Exists('$(MacOsArm64)\InfiniFrame.Native.dylib')">
-        <Content Include="$(MacOsArm64)\InfiniFrame.Native.dylib"
-            Pack="true"
-            CopyToOutputDirectory="PreserveNewest"
-            CopyToPublishDirectory="PreserveNewest"
-            PackagePath="runtimes/osx-arm64/native/"
-            Link="InfiniFrame.Native.dylib"
-            Visible="false" 
-        />
+        <Content Include="$(MacOsArm64)\InfiniFrame.Native.dylib">
+            <Visible>false</Visible>
+            <Link Condition="'$(NativeArch)'=='arm64'">InfiniFrame.Native.dylib</Link>
+            <PackagePath>runtimes/osx-arm64/native/</PackagePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Pack>true</Pack>
+        </Content>
     </ItemGroup>
 
     <!-- ========================================================= -->
