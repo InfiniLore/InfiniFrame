@@ -29,15 +29,23 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
 
 // Initializes and attaches the WebView2 instance to this window.
 //
-// High-level flow:
-// 1) Bail out if the window is already closing/closed, or if initialization has already started/completed.
-// 2) Resolve an optional runtime path under lock (if configured by the host).
-// 3) Build browser startup arguments from feature flags and host-provided parameters.
-// 4) Continue with WebView2 environment/controller creation and event wiring (below).
+// Responsibility:
+// - Perform one-shot WebView2 initialization for this native window instance.
+// - Create environment/controller, apply settings, and wire all required callbacks.
+// - Leave the object in a consistent state when initialization fails or is aborted.
 //
-// Notes:
-// - This function is intentionally stateful and order-sensitive; do not reorder guard checks.
-// - The `_isWebView2Initializing` flag prevents duplicate initialization attempts.
+// High-level flow:
+// 1) Bail out if the window is closing/closed, or if initialization already started/completed.
+// 2) Resolve optional runtime path under lock (host-configurable global state).
+// 3) Build browser startup arguments from feature flags/host parameters.
+// 4) Create WebView2 environment and controller asynchronously.
+// 5) Configure WebView and subscribe event handlers (navigation, messaging, permissions, etc.).
+// 6) Finalize initialized flags on success; clear initializing flag on all exit paths.
+//
+// Notes for maintainers:
+// - This function is intentionally stateful and order-sensitive; guard checks must remain first.
+// - `_isWebView2Initializing` prevents duplicate concurrent initialization.
+// - Async callbacks depend on stable captured values; do not convert locked snapshots to borrowed refs.
 void InfiniFrameWindow::AttachWebView() {
     // Guard: no attachment work should run after close has been requested.
     if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
@@ -57,6 +65,7 @@ void InfiniFrameWindow::AttachWebView() {
     PCWSTR runtimePath = configuredRuntimePath.empty() ? nullptr : configuredRuntimePath.c_str();
 
     // Compose WebView2 command-line switches from current window/browser options.
+    // This string is passed to environment creation and controls browser process behavior.
     std::wstring startupString;
     if (!m_impl->_userAgent.empty())
         startupString += L"--user-agent=\"" + m_impl->_userAgent + L"\" ";
