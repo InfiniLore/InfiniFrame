@@ -63,18 +63,19 @@ runs:
                 if [ "$current_only" = "true" ]; then
                   case "$artifact_type" in
                     testing)
-                      echo "mode=single" >> "$GITHUB_OUTPUT"
-                      echo "artifact_name=native-testing-${lib}-${arch}" >> "$GITHUB_OUTPUT"
+                      artifact_name="native-testing-${lib}-${arch}"
                       ;;
                     release)
-                      echo "mode=single" >> "$GITHUB_OUTPUT"
-                      echo "artifact_name=native-${lib}-${arch}" >> "$GITHUB_OUTPUT"
+                      artifact_name="native-${lib}-${arch}"
                       ;;
                     *)
                       echo "Unsupported artifact-type: $artifact_type"
                       exit 1
                       ;;
                   esac
+
+                  echo "mode=name" >> "$GITHUB_OUTPUT"
+                  echo "artifact_name=$artifact_name" >> "$GITHUB_OUTPUT"
                 else
                   case "$artifact_type" in
                     testing) pattern="native-testing-*" ;;
@@ -98,7 +99,7 @@ runs:
 
 
         -   name: Download Native Build Artifacts (single)
-            if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'single' }}
+            if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'name' }}
             uses: actions/download-artifact@v8
             with:
                 name: ${{ steps.resolve-native-artifact-settings.outputs.artifact_name }}
@@ -111,7 +112,6 @@ runs:
             with:
                 pattern: ${{ steps.resolve-native-artifact-settings.outputs.pattern }}
                 path: artifacts/native
-                merge-multiple: true
 
 
         -   name: Normalize Native Artifacts
@@ -126,34 +126,25 @@ runs:
                 lib="${{ steps.resolve-runner.outputs.lib }}"
                 arch="${{ steps.resolve-runner.outputs.arch }}"
 
-                mkdir -p "$ROOT/windows/x64/Release"
-                mkdir -p "$ROOT/windows/arm64/Release"
-                mkdir -p "$ROOT/linux/x64/Release"
-                mkdir -p "$ROOT/linux/arm64/Release"
-                mkdir -p "$ROOT/osx/x64/Release"
-                mkdir -p "$ROOT/osx/arm64/Release"
+                mkdir -p "$ROOT/windows/x64/Release" "$ROOT/windows/arm64/Release"
+                mkdir -p "$ROOT/linux/x64/Release" "$ROOT/linux/arm64/Release"
+                mkdir -p "$ROOT/osx/x64/Release" "$ROOT/osx/arm64/Release"
 
-                copy() {
-                    src="$1"
-                    dst="$2"
-                    if [ -d "$src" ]; then
-                        cp -R "$src"/. "$dst"/
-                    fi
+                copy_flat() {
+                    dest_dir="$1"
+                    mkdir -p "$dest_dir"
+                    cp -R artifacts/native/. "$dest_dir/" || true
                 }
 
                 if [ "$current_only" = "true" ]; then
-
-                  copy "artifacts/native/native-${artifact_type}-${lib}-${arch}" "$ROOT/${lib}/${arch}/Release"
-
+                  copy_flat "$ROOT/${lib}/${arch}/Release"
                 else
-
-                  copy "artifacts/native/native-testing-windows-x64" "$ROOT/windows/x64/Release"
-                  copy "artifacts/native/native-testing-windows-arm64" "$ROOT/windows/arm64/Release"
-                  copy "artifacts/native/native-testing-linux-x64" "$ROOT/linux/x64/Release"
-                  copy "artifacts/native/native-testing-linux-arm64" "$ROOT/linux/arm64/Release"
-                  copy "artifacts/native/native-testing-osx-x64" "$ROOT/osx/x64/Release"
-                  copy "artifacts/native/native-testing-osx-arm64" "$ROOT/osx/arm64/Release"
-
+                  copy_flat "$ROOT/windows/x64/Release"
+                  copy_flat "$ROOT/windows/arm64/Release"
+                  copy_flat "$ROOT/linux/x64/Release"
+                  copy_flat "$ROOT/linux/arm64/Release"
+                  copy_flat "$ROOT/osx/x64/Release"
+                  copy_flat "$ROOT/osx/arm64/Release"
                 fi
 
 
@@ -168,10 +159,12 @@ runs:
                 lib="${{ steps.resolve-runner.outputs.lib }}"
                 arch="${{ steps.resolve-runner.outputs.arch }}"
 
+                missing=0
+
                 check() {
                   if [ ! -f "$1" ]; then
                     echo "Missing native artifact: $1"
-                    return 1
+                    missing=$((missing+1))
                   fi
                 }
 
@@ -188,12 +181,17 @@ runs:
                     osx)
                       check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dylib"
                       ;;
+                    *)
+                      echo "Unsupported platform: $lib"
+                      exit 1
+                      ;;
                   esac
 
                 else
 
                   check "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
                   check "$ROOT/windows/x64/Release/WebView2Loader.dll"
+
                   check "$ROOT/windows/arm64/Release/InfiniFrame.Native.dll"
                   check "$ROOT/windows/arm64/Release/WebView2Loader.dll"
 
@@ -203,6 +201,11 @@ runs:
                   check "$ROOT/osx/x64/Release/InfiniFrame.Native.dylib"
                   check "$ROOT/osx/arm64/Release/InfiniFrame.Native.dylib"
 
+                fi
+
+                if [ "$missing" -gt 0 ]; then
+                  echo "Missing $missing native artifact(s)."
+                  exit 1
                 fi
 
                 echo "All native artifacts downloaded and verified."
