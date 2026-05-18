@@ -7,12 +7,12 @@
 namespace Embedded {
     inline const std::wstring& InfiniFrameJsUtf16() {
         static const std::wstring cached = [] {
-            const auto* src = reinterpret_cast<const char*>(gInfiniframeJsData);
+            const auto* src = reinterpret_cast<const char*>(GInfiniframeJsData);
 
             std::u16string temp;
-            temp.resize(simdutf::utf16_length_from_utf8(src, gInfiniframeJsSize));
+            temp.resize(simdutf::utf16_length_from_utf8(src, GInfiniframeJsSize));
 
-            const size_t written = simdutf::convert_utf8_to_utf16(src, gInfiniframeJsSize, temp.data());
+            const size_t written = simdutf::convert_utf8_to_utf16(src, GInfiniframeJsSize, temp.data());
 
             temp.resize(written);
 
@@ -24,8 +24,8 @@ namespace Embedded {
 
     inline const std::string& InfiniFrameJsUtf8() {
         static const std::string cached = [] {
-            const auto* src = reinterpret_cast<const char*>(gInfiniframeJsData);
-            return std::string(src, gInfiniframeJsSize);
+            const auto* src = reinterpret_cast<const char*>(GInfiniframeJsData);
+            return std::string(src, GInfiniframeJsSize);
         }();
         return cached;
     }

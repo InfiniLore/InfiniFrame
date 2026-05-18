@@ -23,8 +23,8 @@ file(WRITE "${OUTPUT_HEADER}" "#pragma once
 // ReSharper disable once CppUnusedIncludeDirective
 #include <cstddef>
 
-extern const unsigned char gInfiniframeJsData[];
-extern const size_t gInfiniframeJsSize;
+extern const unsigned char GInfiniframeJsData[];
+extern const size_t GInfiniframeJsSize;
 ")
 
 # Source file
@@ -35,7 +35,7 @@ file(WRITE "${OUTPUT_SOURCE}" "#include \"InfiniFrameJs.h\"
 // Generated at: ${GENERATED_AT}
 // -----------------------------------------------------------------------------
 
-alignas(16) const unsigned char gInfiniframeJsData[] = {${BYTES}};
+alignas(16) const unsigned char GInfiniframeJsData[] = {${BYTES}};
 
-const size_t gInfiniframeJsSize = sizeof(gInfiniframeJsData);
+const size_t GInfiniframeJsSize = sizeof(GInfiniframeJsData);
 ")
