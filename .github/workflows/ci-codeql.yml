@@ -73,7 +73,7 @@ jobs:
                           - '.github/codeql-config.yml'
                         
                         cpp:
-                          - 'src/InfiniFrame.Native/**'
+                          - 'src/InfiniFrame.NativeBridge/Native/**'
                           - 'native-vendor-deps.json'
                           - 'global.json'
                           - '.github/actions/setup-dependencies-native/**'
