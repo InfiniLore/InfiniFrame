@@ -279,6 +279,7 @@ jobs:
                     config-file: ./.github/codeql-config.yml
 
             -   name: Restore NativeBridge
+                if: matrix.os != 'macos-latest'
                 run: |
                     dotnet restore src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj /p:NoWarn=NU1503
 
