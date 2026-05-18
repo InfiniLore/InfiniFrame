@@ -148,6 +148,8 @@ if (WIN32)
 elseif (APPLE)
     infiniframe_configure_macos_target(
             ${PROJECT_NAME}
+            "${COMMON_SOURCES}"
+            "${TEST_SOURCES}"
             "${MAC_SOURCES}"
             "${HEADER_FILES}"
     )

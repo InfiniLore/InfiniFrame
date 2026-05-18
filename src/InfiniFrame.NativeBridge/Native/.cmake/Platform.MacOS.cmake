@@ -1,17 +1,21 @@
 # Configure the macOS native target.
 # Params:
 # - target_name: final CMake target name (usually `${PROJECT_NAME}`)
+# - common_sources: list of cross-platform source files
+# - test_sources: list of test/helper source files compiled into the native target
 # - mac_sources: list of macOS-only source files
 # - header_files: list of header files for IDE organization
-function(infiniframe_configure_macos_target target_name mac_sources header_files)
-    configure_file(Exports.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm COPYONLY)
-    configure_file(Exports.Tests.cpp ${CMAKE_CURRENT_BINARY_DIR}/Exports.Tests.mm COPYONLY)
-
+function(infiniframe_configure_macos_target target_name common_sources test_sources mac_sources header_files)
     add_library(${target_name} SHARED
-            ${CMAKE_CURRENT_BINARY_DIR}/Exports.mm
-            ${CMAKE_CURRENT_BINARY_DIR}/Exports.Tests.mm
+            ${common_sources}
+            ${test_sources}
             ${mac_sources}
             ${header_files}
+    )
+
+    # Export units include platform headers that require Objective-C++ on macOS.
+    set_source_files_properties(${common_sources} ${test_sources} PROPERTIES
+            LANGUAGE OBJCXX
     )
 
     target_include_directories(${target_name} PRIVATE "${CMAKE_SOURCE_DIR}")
