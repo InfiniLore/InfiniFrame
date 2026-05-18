@@ -75,8 +75,17 @@ void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 }
 
+// Initializes native window lifecycle state from host-provided startup parameters.
+// Flow:
+//  1) Allocate implementation storage.
+//  2) Validate ABI compatibility of InfiniFrameInitParams via StructSize.
+//  3) Configure window identity/notifications and startup payload values.
+//  4) Continue with remaining platform/window initialization in this constructor.
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
+    // Backing implementation object must exist before any field assignment.
     m_impl = std::make_unique<Impl>();
+
+    // Fail fast if caller and native side disagree on struct layout/version.
     if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
         auto msg = std::format(
             L"Initial parameters passed are {} bytes, but expected {} bytes.", initParams->StructSize,
@@ -86,6 +95,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         exit(0);
     }
 
+    // Initialize window title and optional toast notification identity.
     if (initParams->Title != nullptr) {
         m_impl->_windowTitle = ToUTF16String(initParams->Title);
         if (initParams->NotificationsEnabled) {
@@ -95,9 +105,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         }
     }
 
+    // Capture startup URL (if provided) for initial navigation/bootstrap.
     if (initParams->StartUrl != nullptr)
         m_impl->_startUrl = ToUTF16String(initParams->StartUrl);
 
+    // Capture startup string payload (if provided) for host-defined boot data.
     if (initParams->StartString != nullptr)
         m_impl->_startString = ToUTF16String(initParams->StartString);
 
