@@ -31,16 +31,32 @@ runs:
                 arch="$RUNNER_ARCH"
 
                 case "$os" in
-                  Windows) lib="windows" ;;
-                  Linux)   lib="linux" ;;
-                  macOS)   lib="osx" ;;
-                  *) echo "Unsupported OS: $os"; exit 1 ;;
+                  Windows)
+                    lib="windows"
+                    ;;
+                  Linux)
+                    lib="linux"
+                    ;;
+                  macOS)
+                    lib="osx"
+                    ;;
+                  *)
+                    echo "Unsupported OS: $os"
+                    exit 1
+                    ;;
                 esac
 
                 case "$arch" in
-                  X64|x64) arch="x64" ;;
-                  ARM64|arm64) arch="arm64" ;;
-                  *) echo "Unsupported arch: $arch"; exit 1 ;;
+                  X64|x64)
+                    arch="x64"
+                    ;;
+                  ARM64|arm64)
+                    arch="arm64"
+                    ;;
+                  *)
+                    echo "Unsupported arch: $arch"
+                    exit 1
+                    ;;
                 esac
 
                 echo "lib=$lib" >> "$GITHUB_OUTPUT"
@@ -78,9 +94,16 @@ runs:
                   echo "artifact_name=$artifact_name" >> "$GITHUB_OUTPUT"
                 else
                   case "$artifact_type" in
-                    testing) pattern="native-testing-*" ;;
-                    release) pattern="native-*" ;;
-                    *) echo "Unsupported artifact-type: $artifact_type"; exit 1 ;;
+                    testing)
+                      pattern="native-testing-*"
+                      ;;
+                    release)
+                      pattern="native-*"
+                      ;;
+                    *)
+                      echo "Unsupported artifact-type: $artifact_type"
+                      exit 1
+                      ;;
                   esac
 
                   echo "mode=pattern" >> "$GITHUB_OUTPUT"
@@ -98,7 +121,7 @@ runs:
                 echo "root=$root" >> "$GITHUB_OUTPUT"
 
 
-        -   name: Download Native Build Artifacts (single)
+        -   name: Download Native Build Artifacts (current runner only)
             if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'name' }}
             uses: actions/download-artifact@v8
             with:
@@ -106,7 +129,7 @@ runs:
                 path: artifacts/native
 
 
-        -   name: Download Native Build Artifacts (all)
+        -   name: Download Native Build Artifacts (all platforms)
             if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'pattern' }}
             uses: actions/download-artifact@v8
             with:
@@ -121,7 +144,6 @@ runs:
 
                 ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
                 artifact_type="${{ inputs.artifact-type }}"
-                current_only="${{ inputs.current-runner-only }}"
 
                 mkdir -p "$ROOT/windows/x64/Release" "$ROOT/windows/arm64/Release"
                 mkdir -p "$ROOT/linux/x64/Release" "$ROOT/linux/arm64/Release"
@@ -131,44 +153,25 @@ runs:
                     src_name="$1"
                     dest_dir="$2"
                     src="artifacts/native/$src_name"
-
                     if [ -d "$src" ]; then
                         cp -R "$src"/. "$dest_dir"/
                     fi
                 }
 
                 if [ "$artifact_type" = "testing" ]; then
-
-                  if [ "$current_only" = "true" ]; then
-                    lib="${{ steps.resolve-runner.outputs.lib }}"
-                    arch="${{ steps.resolve-runner.outputs.arch }}"
-
-                    copy_artifact "native-testing-${lib}-${arch}" "$ROOT/${lib}/${arch}/Release"
-                  else
                     copy_artifact "native-testing-windows-x64" "$ROOT/windows/x64/Release"
                     copy_artifact "native-testing-windows-arm64" "$ROOT/windows/arm64/Release"
                     copy_artifact "native-testing-linux-x64" "$ROOT/linux/x64/Release"
                     copy_artifact "native-testing-linux-arm64" "$ROOT/linux/arm64/Release"
                     copy_artifact "native-testing-osx-x64" "$ROOT/osx/x64/Release"
                     copy_artifact "native-testing-osx-arm64" "$ROOT/osx/arm64/Release"
-                  fi
-
                 else
-
-                  if [ "$current_only" = "true" ]; then
-                    lib="${{ steps.resolve-runner.outputs.lib }}"
-                    arch="${{ steps.resolve-runner.outputs.arch }}"
-
-                    copy_artifact "native-${lib}-${arch}" "$ROOT/${lib}/${arch}/Release"
-                  else
                     copy_artifact "native-windows-x64" "$ROOT/windows/x64/Release"
                     copy_artifact "native-windows-arm64" "$ROOT/windows/arm64/Release"
                     copy_artifact "native-linux-x64" "$ROOT/linux/x64/Release"
                     copy_artifact "native-linux-arm64" "$ROOT/linux/arm64/Release"
                     copy_artifact "native-osx-x64" "$ROOT/osx/x64/Release"
                     copy_artifact "native-osx-arm64" "$ROOT/osx/arm64/Release"
-                  fi
-
                 fi
 
 
@@ -178,34 +181,17 @@ runs:
                 set -euo pipefail
 
                 ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
-                current_only="${{ inputs.current-runner-only }}"
 
-                if [ "$current_only" = "true" ]; then
-
-                  lib="${{ steps.resolve-runner.outputs.lib }}"
-                  arch="${{ steps.resolve-runner.outputs.arch }}"
-
-                  EXPECTED=(
-                    "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dll"
-                    "$ROOT/${lib}/${arch}/Release/WebView2Loader.dll"
-                    "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.so"
-                    "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dylib"
-                  )
-
-                else
-
-                  EXPECTED=(
-                    "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
-                    "$ROOT/windows/x64/Release/WebView2Loader.dll"
-                    "$ROOT/windows/arm64/Release/InfiniFrame.Native.dll"
-                    "$ROOT/windows/arm64/Release/WebView2Loader.dll"
-                    "$ROOT/linux/x64/Release/InfiniFrame.Native.so"
-                    "$ROOT/linux/arm64/Release/InfiniFrame.Native.so"
-                    "$ROOT/osx/x64/Release/InfiniFrame.Native.dylib"
-                    "$ROOT/osx/arm64/Release/InfiniFrame.Native.dylib"
-                  )
-
-                fi
+                EXPECTED=(
+                  "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
+                  "$ROOT/windows/x64/Release/WebView2Loader.dll"
+                  "$ROOT/windows/arm64/Release/InfiniFrame.Native.dll"
+                  "$ROOT/windows/arm64/Release/WebView2Loader.dll"
+                  "$ROOT/linux/x64/Release/InfiniFrame.Native.so"
+                  "$ROOT/linux/arm64/Release/InfiniFrame.Native.so"
+                  "$ROOT/osx/x64/Release/InfiniFrame.Native.dylib"
+                  "$ROOT/osx/arm64/Release/InfiniFrame.Native.dylib"
+                )
 
                 missing=0
                 for file in "${EXPECTED[@]}"; do
