@@ -32,8 +32,7 @@
         <IncludeBuildOutput>true</IncludeBuildOutput>
 
         <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == '' and '$(CI)' == 'true'">true</GeneratePackageOnBuild>
-        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">false</GeneratePackageOnBuild>
-
+        <GeneratePackageOnBuild Condition="'$(GeneratePackageOnBuild)' == ''">true</GeneratePackageOnBuild>
         
         <Version>0.13.1</Version>
         <Authors>InfiniFrame, TryPhotino</Authors>
