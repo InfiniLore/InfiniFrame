@@ -221,11 +221,11 @@ jobs:
                     category: "/language:csharp"
     
     analyze-cpp:
-        name: Analyze C/C++ (${{ matrix.os }})
+        name: Analyze C/C++ (${{ matrix.os }} / ${{ matrix.arch }})
         needs: changes
         runs-on: ${{ matrix.os }}
         timeout-minutes: 90
-        
+
         if: >
             (
               github.event_name == 'workflow_dispatch' &&
@@ -233,15 +233,20 @@ jobs:
             ) || (
               needs.changes.outputs.cpp == 'true'
             )
-        
+
         strategy:
             fail-fast: false
             matrix:
-                os:
-                    - ubuntu-latest
-                    - windows-latest
-                  # - macos-latest # support is currently experimental and requires additional setup
-        
+                include:
+                    -   os: ubuntu-latest
+                        arch: x64
+
+                    -   os: windows-latest
+                        arch: x64
+
+                    -   os: macos-latest
+                        arch: arm64
+
         permissions:
             contents: read
             security-events: write
@@ -249,7 +254,7 @@ jobs:
             packages: read
             pull-requests: write
             checks: write
-        
+
         steps:
             -   name: Checkout
                 uses: actions/checkout@v6
@@ -262,8 +267,8 @@ jobs:
             -   name: Setup Native Dependencies
                 uses: ./.github/actions/setup-dependencies-native
                 with:
-                    brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: ${{ runner.os }}-brew-codeql-
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/ci-codeql.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-codeql-
 
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
@@ -284,12 +289,12 @@ jobs:
                       --configuration Release `
                       --no-restore `
                       -p:SolutionDir="${{ github.workspace }}/" `
-                      -p:Platform=x64
+                      -p:CMakePlatform=${{ matrix.arch }}
 
             -   name: Perform CodeQL Analysis
                 uses: github/codeql-action/analyze@v4
                 with:
-                    category: "/language:c-cpp"
+                    category: "/language:c-cpp/${{ matrix.os }}-${{ matrix.arch }}"
     
     analyze-javascript-typescript:
         name: Analyze JavaScript / TypeScript
