@@ -2,6 +2,7 @@
 
 #include "InfiniFrameJs.h"
 #include <simdutf.h>
+#include <string>
 
 namespace Embedded {
     inline const std::wstring& InfiniFrameJsUtf16() {

@@ -59,6 +59,8 @@ void InfiniFrameWindow::AttachWebView()
 
 void InfiniFrameWindow::Show(bool isAlreadyShown)
 {
+    (void)isAlreadyShown;
+
     if (m_impl->_webview == nil)
         AttachWebView();
 

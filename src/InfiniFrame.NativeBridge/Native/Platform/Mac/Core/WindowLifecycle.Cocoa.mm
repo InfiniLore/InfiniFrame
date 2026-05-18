@@ -42,7 +42,9 @@ void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
                                                                           content: objNotificationContent
                                                                           trigger: trigger];
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    [center addNotificationRequest: request withCompletionHandler: ^(NSError * _Nullable error) {}];
+    [center addNotificationRequest: request withCompletionHandler: ^(NSError * _Nullable error) {
+        (void)error;
+    }];
 }
 
 void InfiniFrameWindow::WaitForExit()

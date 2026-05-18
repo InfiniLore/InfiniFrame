@@ -35,6 +35,7 @@
     [alert addButtonWithTitle:@"OK"];
 
     [alert beginSheetModalForWindow:window completionHandler:^void (NSModalResponse response) {
+        (void)response;
         completionHandler();
         [alert release];
     }];
