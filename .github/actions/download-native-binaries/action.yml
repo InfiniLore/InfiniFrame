@@ -123,6 +123,9 @@ runs:
                 artifact_type="${{ inputs.artifact-type }}"
                 current_only="${{ inputs.current-runner-only }}"
 
+                lib="${{ steps.resolve-runner.outputs.lib }}"
+                arch="${{ steps.resolve-runner.outputs.arch }}"
+
                 mkdir -p "$ROOT/windows/x64/Release" "$ROOT/windows/arm64/Release"
                 mkdir -p "$ROOT/linux/x64/Release" "$ROOT/linux/arm64/Release"
                 mkdir -p "$ROOT/osx/x64/Release" "$ROOT/osx/arm64/Release"
@@ -133,35 +136,15 @@ runs:
                     cp -R artifacts/native/. "$dest_dir/" || true
                 }
 
-                lib="${{ steps.resolve-runner.outputs.lib }}"
-                arch="${{ steps.resolve-runner.outputs.arch }}"
-
-                if [ "$artifact_type" = "testing" ]; then
-
-                  if [ "$current_only" = "true" ]; then
-                    copy_flat "$ROOT/${lib}/${arch}/Release"
-                  else
-                    copy_flat "$ROOT/windows/x64/Release"
-                    copy_flat "$ROOT/windows/arm64/Release"
-                    copy_flat "$ROOT/linux/x64/Release"
-                    copy_flat "$ROOT/linux/arm64/Release"
-                    copy_flat "$ROOT/osx/x64/Release"
-                    copy_flat "$ROOT/osx/arm64/Release"
-                  fi
-
+                if [ "$current_only" = "true" ]; then
+                  copy_flat "$ROOT/${lib}/${arch}/Release"
                 else
-
-                  if [ "$current_only" = "true" ]; then
-                    copy_flat "$ROOT/${lib}/${arch}/Release"
-                  else
-                    copy_flat "$ROOT/windows/x64/Release"
-                    copy_flat "$ROOT/windows/arm64/Release"
-                    copy_flat "$ROOT/linux/x64/Release"
-                    copy_flat "$ROOT/linux/arm64/Release"
-                    copy_flat "$ROOT/osx/x64/Release"
-                    copy_flat "$ROOT/osx/arm64/Release"
-                  fi
-
+                  copy_flat "$ROOT/windows/x64/Release"
+                  copy_flat "$ROOT/windows/arm64/Release"
+                  copy_flat "$ROOT/linux/x64/Release"
+                  copy_flat "$ROOT/linux/arm64/Release"
+                  copy_flat "$ROOT/osx/x64/Release"
+                  copy_flat "$ROOT/osx/arm64/Release"
                 fi
 
 
@@ -176,37 +159,49 @@ runs:
                 lib="${{ steps.resolve-runner.outputs.lib }}"
                 arch="${{ steps.resolve-runner.outputs.arch }}"
 
+                missing=0
+
+                check() {
+                  if [ ! -f "$1" ]; then
+                    echo "Missing native artifact: $1"
+                    missing=$((missing+1))
+                  fi
+                }
+
                 if [ "$current_only" = "true" ]; then
 
-                  EXPECTED=(
-                    "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dll"
-                    "$ROOT/${lib}/${arch}/Release/WebView2Loader.dll"
-                    "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.so"
-                    "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dylib"
-                  )
+                  case "$lib" in
+                    windows)
+                      check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dll"
+                      check "$ROOT/${lib}/${arch}/Release/WebView2Loader.dll"
+                      ;;
+                    linux)
+                      check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.so"
+                      ;;
+                    osx)
+                      check "$ROOT/${lib}/${arch}/Release/InfiniFrame.Native.dylib"
+                      ;;
+                    *)
+                      echo "Unsupported platform: $lib"
+                      exit 1
+                      ;;
+                  esac
 
                 else
 
-                  EXPECTED=(
-                    "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
-                    "$ROOT/windows/x64/Release/WebView2Loader.dll"
-                    "$ROOT/windows/arm64/Release/InfiniFrame.Native.dll"
-                    "$ROOT/windows/arm64/Release/WebView2Loader.dll"
-                    "$ROOT/linux/x64/Release/InfiniFrame.Native.so"
-                    "$ROOT/linux/arm64/Release/InfiniFrame.Native.so"
-                    "$ROOT/osx/x64/Release/InfiniFrame.Native.dylib"
-                    "$ROOT/osx/arm64/Release/InfiniFrame.Native.dylib"
-                  )
+                  check "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
+                  check "$ROOT/windows/x64/Release/WebView2Loader.dll"
+
+                  check "$ROOT/windows/arm64/Release/InfiniFrame.Native.dll"
+                  check "$ROOT/windows/arm64/Release/WebView2Loader.dll"
+
+                  check "$ROOT/linux/x64/Release/InfiniFrame.Native.so"
+                  check "$ROOT/linux/arm64/Release/InfiniFrame.Native.so"
+
+                  check "$ROOT/osx/x64/Release/InfiniFrame.Native.dylib"
+                  check "$ROOT/osx/arm64/Release/InfiniFrame.Native.dylib"
 
                 fi
-
-                missing=0
-                for file in "${EXPECTED[@]}"; do
-                  if [ ! -f "$file" ]; then
-                    echo "Missing native artifact: $file"
-                    missing=$((missing+1))
-                  fi
-                done
 
                 if [ "$missing" -gt 0 ]; then
                   echo "Missing $missing native artifact(s)."
