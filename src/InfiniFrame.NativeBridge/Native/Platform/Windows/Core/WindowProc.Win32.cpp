@@ -1,21 +1,33 @@
 #include "../DarkMode.h"
 #include "../Window.Win32.Context.h"
 
+// Central Win32 message dispatcher for an InfiniFrame top-level window.
+// This procedure coordinates native lifecycle events with managed/window context state:
+// - stores and retrieves the InfiniFrameWindow instance
+// - reacts to theme and color-scheme changes (dark/light mode)
+// - applies per-monitor DPI resize recommendations
+// - forwards focus and close events to the owning instance
+// - paints the window background according to current theme
 LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wParam, const LPARAM lParam) {
     switch (uMsg) {
         case WM_NCCREATE: {
+            // Capture the instance pointer at non-client creation so later messages can
+            // resolve window state via GWLP_USERDATA.
             const auto* createParams = reinterpret_cast<const CREATESTRUCT*>(lParam);
             auto* instance = reinterpret_cast<InfiniFrameWindow*>(createParams->lpCreateParams);
             SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(instance));
             return TRUE;
         }
         case WM_CREATE: {
+            // Initialize dark mode support once the window is created.
             EnableDarkMode(hwnd, true);
             if (IsDarkModeEnabled())
                 RefreshNonClientArea(hwnd);
             break;
         }
         case WM_DPICHANGED: {
+            // Use the system-provided suggested rectangle to keep the window properly sized
+            // and positioned when moving between monitors with different DPI.
             RECT* newWindowRect = reinterpret_cast<RECT*>(lParam);
 
             SetWindowPos(
@@ -26,18 +38,21 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             return 0;
         }
         case WM_SETTINGCHANGE: {
+            // Forward color-scheme changes to the same theme-refresh path used by WM_THEMECHANGED.
             if (IsColorSchemeChange(lParam))
                 SendMessageW(hwnd, WM_THEMECHANGED, 0, 0);
 
             break;
         }
         case WM_THEMECHANGED: {
+            // Reapply dark mode and redraw client/non-client regions after a theme transition.
             EnableDarkMode(hwnd, IsDarkModeEnabled());
             RefreshNonClientArea(hwnd);
             InvalidateRect(hwnd, nullptr, TRUE);
             break;
         }
         case WM_PAINT: {
+            // Paint only the invalidated region with the active theme background brush.
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
 
@@ -51,6 +66,7 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_ACTIVATE: {
+            // Keep WebView/focus state synchronized with native activation transitions.
             InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
             if (instance) {
                 if (LOWORD(wParam) == WA_INACTIVE) {
@@ -65,6 +81,8 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             break;
         }
         case WM_CLOSE: {
+            // Give the instance a chance to cancel close. If close proceeds, clear owner
+            // relationship before destruction to avoid shutdown-order and ownership edge cases.
             InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
             if (instance) {
                 TraceTeardown(L"WM_CLOSE hwnd=%p instance=%p", hwnd, instance);
