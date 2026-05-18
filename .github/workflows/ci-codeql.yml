@@ -288,8 +288,8 @@ jobs:
                     dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj `
                       --configuration Release `
                       --no-restore `
-                      -p:SolutionDir="${{ github.workspace }}/" `
-                      -p:CMakePlatform=${{ matrix.arch }}
+                      /p:NativeArch=${{ matrix.arch }} `
+                      /p:SolutionDir="${{ github.workspace }}/"
 
             -   name: Perform CodeQL Analysis
                 uses: github/codeql-action/analyze@v4

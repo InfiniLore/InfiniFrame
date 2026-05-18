@@ -89,7 +89,6 @@ jobs:
                       --no-restore `
                       /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
                       /p:NativeArch=${{ matrix.arch }} `
-                      /p:CMakePlatform=${{ matrix.arch }} `
                       /p:InfiniFrameSkipNativeBuild=true `
                       /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
@@ -205,7 +204,6 @@ jobs:
                       --no-build `
                       --no-restore `
                       /p:NativeArch=${{ matrix.arch }} `
-                      /p:CMakePlatform=${{ matrix.arch }} `
                       /p:InfiniFrameSkipNativeBuild=true `
                       /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
             
