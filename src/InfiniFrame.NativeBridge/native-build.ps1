@@ -38,6 +38,8 @@ $EnableTestExportsCMakeValue = if ($EnableTestExports -ieq "true") { "ON" } else
 # LOCK (blocking, CI-safe, race-free)
 # -----------------------------------------------------------------------------------------------------------------
 $LockFile = Join-Path $ArtifactsDir ".build.lock"
+$LockTimeoutSeconds = 600
+$LockDeadline = (Get-Date).AddSeconds($LockTimeoutSeconds)
 
 $LockStream = $null
 
@@ -45,6 +47,10 @@ try {
 
     # Wait until lock becomes available (prevents crash)
     while ($true) {
+        if ((Get-Date) -ge $LockDeadline) {
+            throw "Timed out after $LockTimeoutSeconds seconds waiting for native build lock at '$LockFile'."
+        }
+
         try {
             $LockStream = New-Object System.IO.FileStream(
             $LockFile,
