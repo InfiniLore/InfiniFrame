@@ -60,7 +60,6 @@ jobs:
                 uses: ./.github/actions/download-native-binaries
                 with:
                     artifact-type: release
-                    current-runner-only: false # We need to download artifacts from all runners
 
             -   name: Verify Artifacts
                 run: |

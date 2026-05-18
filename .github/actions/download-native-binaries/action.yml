@@ -6,63 +6,14 @@ inputs:
         description: Artifact naming mode
         required: true
         default: testing
-
     target-root:
         description: Root path where normalized native artifacts should be written
         required: false
         default: ""
 
-    current-runner-only:
-        description: Only download artifacts matching the current OS/arch
-        required: false
-        default: "false"
-
 runs:
     using: composite
     steps:
-
-        -   name: Resolve Runner Platform
-            id: resolve-runner
-            shell: bash
-            run: |
-                set -euo pipefail
-
-                os="$RUNNER_OS"
-                arch="$RUNNER_ARCH"
-
-                case "$os" in
-                  Windows)
-                    lib="windows"
-                    ;;
-                  Linux)
-                    lib="linux"
-                    ;;
-                  macOS)
-                    lib="osx"
-                    ;;
-                  *)
-                    echo "Unsupported OS: $os"
-                    exit 1
-                    ;;
-                esac
-
-                case "$arch" in
-                  X64|x64)
-                    arch="x64"
-                    ;;
-                  ARM64|arm64)
-                    arch="arm64"
-                    ;;
-                  *)
-                    echo "Unsupported arch: $arch"
-                    exit 1
-                    ;;
-                esac
-
-                echo "lib=$lib" >> "$GITHUB_OUTPUT"
-                echo "arch=$arch" >> "$GITHUB_OUTPUT"
-
-
         -   name: Resolve Native Artifact Settings
             id: resolve-native-artifact-settings
             shell: bash
@@ -71,44 +22,19 @@ runs:
 
                 artifact_type="${{ inputs.artifact-type }}"
                 input_root="${{ inputs.target-root }}"
-                current_only="${{ inputs.current-runner-only }}"
 
-                lib="${{ steps.resolve-runner.outputs.lib }}"
-                arch="${{ steps.resolve-runner.outputs.arch }}"
-
-                if [ "$current_only" = "true" ]; then
-                  case "$artifact_type" in
-                    testing)
-                      artifact_name="native-testing-${lib}-${arch}"
-                      ;;
-                    release)
-                      artifact_name="native-${lib}-${arch}"
-                      ;;
-                    *)
-                      echo "Unsupported artifact-type: $artifact_type"
-                      exit 1
-                      ;;
-                  esac
-
-                  echo "mode=name" >> "$GITHUB_OUTPUT"
-                  echo "artifact_name=$artifact_name" >> "$GITHUB_OUTPUT"
-                else
-                  case "$artifact_type" in
-                    testing)
-                      pattern="native-testing-*"
-                      ;;
-                    release)
-                      pattern="native-*"
-                      ;;
-                    *)
-                      echo "Unsupported artifact-type: $artifact_type"
-                      exit 1
-                      ;;
-                  esac
-
-                  echo "mode=pattern" >> "$GITHUB_OUTPUT"
-                  echo "pattern=$pattern" >> "$GITHUB_OUTPUT"
-                fi
+                case "$artifact_type" in
+                  testing)
+                    pattern="native-testing-*"
+                    ;;
+                  release)
+                    pattern="native-*"
+                    ;;
+                  *)
+                    echo "Unsupported artifact-type: $artifact_type"
+                    exit 1
+                    ;;
+                esac
 
                 if [ -n "$input_root" ]; then
                   root="$input_root"
@@ -118,24 +44,14 @@ runs:
                   root="artifacts/native"
                 fi
 
+                echo "pattern=$pattern" >> "$GITHUB_OUTPUT"
                 echo "root=$root" >> "$GITHUB_OUTPUT"
 
-
-        -   name: Download Native Build Artifacts (current runner only)
-            if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'name' }}
+        -   name: Download Native Build Artifacts
             uses: actions/download-artifact@v8
             with:
-                name: ${{ steps.resolve-native-artifact-settings.outputs.artifact_name }}
                 path: artifacts/native
-
-
-        -   name: Download Native Build Artifacts (all platforms)
-            if: ${{ steps.resolve-native-artifact-settings.outputs.mode == 'pattern' }}
-            uses: actions/download-artifact@v8
-            with:
                 pattern: ${{ steps.resolve-native-artifact-settings.outputs.pattern }}
-                path: artifacts/native
-
 
         -   name: Normalize Native Artifacts
             shell: bash
@@ -174,14 +90,12 @@ runs:
                     copy_artifact "native-osx-arm64" "$ROOT/osx/arm64/Release"
                 fi
 
-
         -   name: Verify Native Artifacts
             shell: bash
             run: |
                 set -euo pipefail
 
                 ROOT="${{ steps.resolve-native-artifact-settings.outputs.root }}"
-
                 EXPECTED=(
                   "$ROOT/windows/x64/Release/InfiniFrame.Native.dll"
                   "$ROOT/windows/x64/Release/WebView2Loader.dll"

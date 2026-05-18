@@ -75,7 +75,6 @@ jobs:
                 uses: ./.github/actions/download-native-binaries
                 with:
                     artifact-type: testing
-                    current-runner-only: true # Only download artifacts from the current runner
 
             -   name: Compile GSettings schemas
                 run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas/

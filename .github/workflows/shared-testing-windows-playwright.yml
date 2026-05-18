@@ -115,7 +115,6 @@ jobs:
                 uses: ./.github/actions/download-native-binaries
                 with:
                     artifact-type: testing
-                    current-runner-only: true
 
             -   name: NPM Install
                 if: ${{ matrix.project.sourceFolder != '' }}

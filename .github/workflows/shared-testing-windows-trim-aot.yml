@@ -68,7 +68,6 @@ jobs:
                 uses: ./.github/actions/download-native-binaries
                 with:
                     artifact-type: testing
-                    current-runner-only: true # Only download artifacts from the current runner
 
             -   name: Trim Analyzer Builds
                 run: |
