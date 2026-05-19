@@ -1,10 +1,26 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <cstdarg>
 #include <cstdio>
 #include <format>
 #include <string>
 
-#include "../Window.Win32.Context.h"
+#include "Platform/Windows/Window.Win32.Context.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Determines whether teardown trace logging is enabled in the system.
+ *
+ * This function typically checks a configuration setting or a runtime
+ * flag that specifies if detailed logging or tracing should be
+ * performed during the teardown phase of a system or application
+ * component.
+ *
+ * @return true if teardown trace logging is enabled, false otherwise.
+ */
 bool IsTeardownTraceEnabled() {
     static const bool enabled = [] {
         wchar_t value[32] = {};

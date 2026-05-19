@@ -1,13 +1,14 @@
 #pragma once
-/**
- * @file ToastHandler.h
- * @brief WinToast event handler that brings the window to the foreground on notification interaction
- */
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <WinUser.h>
+
 #include "Public/InfiniFrameWindow.h"
 #include "Dependencies/wintoastlib/wintoastlib.h"
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 using namespace WinToastLib;
 
 /**

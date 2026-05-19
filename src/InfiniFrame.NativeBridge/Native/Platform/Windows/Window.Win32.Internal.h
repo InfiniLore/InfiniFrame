@@ -1,5 +1,7 @@
 #pragma once
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <atomic>
 #include <string>
 
@@ -9,8 +11,11 @@
 
 #include "Public/InfiniFrameWindow.h"
 #include "Public/InfiniFrameWindowImpl.h"
-#include "ToastHandler.h"
+#include "Platform/Windows/ToastHandler.h"
 #include "Utils/Common.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::wstring _temporaryFilesPath;

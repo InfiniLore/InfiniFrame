@@ -1,5 +1,7 @@
 #pragma once
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
@@ -8,8 +10,10 @@
 #include <windows.h>
 
 #include "Public/InfiniFrameWindow.h"
-#include "Window.Win32.Internal.h"
-
+#include "Platform/Windows/Window.Win32.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 inline constexpr UINT WM_USER_INVOKE = WM_USER + 0x0002;
 
 extern std::atomic<HINSTANCE> _hInstance;

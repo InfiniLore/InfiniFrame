@@ -1,14 +1,11 @@
 #pragma once
-/**
- * @file DarkMode.h
- * @brief Win32 dark-mode helpers using undocumented UxTheme APIs
- *
- * Provides runtime detection and application of Windows dark mode for the
- * non-client area (title bar, borders). All functions are noexcept and safe
- * to call even when the underlying APIs are unavailable
- */
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <Windows.h>
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 /** @brief Detect available dark-mode APIs at runtime and cache the results. Must be called once at startup */
 void InitDarkModeSupport() noexcept;

@@ -1,6 +1,11 @@
-#include "../DarkMode.h"
-#include "../Window.Win32.Context.h"
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+#include "Platform/Windows/DarkMode.h"
+#include "Platform/Windows/Window.Win32.Context.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 // Central Win32 message dispatcher for an InfiniFrame top-level window.
 // This procedure coordinates native lifecycle events with managed/window context state:
 // - stores and retrieves the InfiniFrameWindow instance

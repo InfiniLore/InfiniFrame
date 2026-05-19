@@ -1,11 +1,16 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <WebView2EnvironmentOptions.h>
 #include <comdef.h>
 
 #include <format>
 
-#include "../../../Embedded/Embedded.h"
-#include "../Window.Win32.Context.h"
-
+#include "Embedded/Embedded.h"
+#include "Platform/Windows/Window.Win32.Context.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 using namespace Microsoft::WRL;
 
 void InfiniFrameWindow::Show(const bool isAlreadyShown) {

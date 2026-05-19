@@ -1,9 +1,13 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+#pragma comment(lib, "Urlmon.lib")
 #include <Shlwapi.h>
 
-#include "../Window.Win32.Context.h"
-
-#pragma comment(lib, "Urlmon.lib")
-
+#include "Platform/Windows/Window.Win32.Context.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 bool InfiniFrameWindow::EnsureWebViewIsInstalled() {
     LPWSTR versionInfo = nullptr;
     HRESULT ensureInstalledResult = GetAvailableCoreWebView2BrowserVersionString(nullptr, &versionInfo);

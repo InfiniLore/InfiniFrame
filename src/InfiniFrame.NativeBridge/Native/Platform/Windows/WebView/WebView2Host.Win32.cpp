@@ -1,5 +1,10 @@
-#include "../Window.Win32.Context.h"
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+#include "Platform/Windows/Window.Win32.Context.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::CloseWebView() {
     m_impl->_isClosingOrClosed.store(true, std::memory_order_release);
     const bool deferEnvironmentRelease = m_impl->_isWebView2Initializing && m_impl->_webviewController == nullptr;

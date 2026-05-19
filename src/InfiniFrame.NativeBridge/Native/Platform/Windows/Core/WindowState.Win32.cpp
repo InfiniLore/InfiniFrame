@@ -1,9 +1,13 @@
-#include "../Window.Win32.Internal.h"
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <windows.h>
 
-#include "../../../Utils/Common.h"
-
+#include "Utils/Common.h"
+#include "Platform/Windows/Window.Win32.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::Center() {
     int screenDpi = GetDpiForWindow(m_impl->_hWnd);
     int screenHeight = GetSystemMetricsForDpi(SM_CYSCREEN, screenDpi);

@@ -1,16 +1,16 @@
-/**
- * @file Dialog.cpp (Windows)
- * @brief Windows implementation of InfiniFrameDialog using IFileDialog (Vista+) and MessageBoxW
- */
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include "Public/InfiniFrame.h"
 
-#include <cwchar>
 #include <iostream>
 #include <shobjidl.h>
 #include <shlwapi.h>
 #include <objbase.h>
 #include <vector>
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 
 /**
  * @brief RAII wrapper that loads a DLL on construction and frees it on destruction.
