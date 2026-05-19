@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Windows Playwright Tests"
 
 on:
@@ -16,6 +17,10 @@ on:
             workflow_url:
                 type: string
                 required: true
+            enable_test_exports:
+                type: boolean
+                required: false
+                default: false
 
 permissions:
     contents: read
@@ -38,9 +43,7 @@ jobs:
             -   name: Set Playwright Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
@@ -98,9 +101,7 @@ jobs:
             -   name: Set Playwright Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
@@ -146,7 +147,8 @@ jobs:
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Install Playwright Browsers
                 shell: pwsh
@@ -187,7 +189,8 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net8.0 `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Run Playwright tests NET 9.0
                 shell: pwsh
@@ -198,7 +201,8 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net9.0 `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Run Playwright tests NET 10.0
                 shell: pwsh
@@ -209,15 +213,14 @@ jobs:
                       --no-build `
                       --no-restore `
                       --framework net10.0 `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Update Playwright Check
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check-finalize
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
@@ -245,9 +248,7 @@ jobs:
             -   name: Set Playwright Check Final Status
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check-finalize
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}

@@ -11,9 +11,23 @@ sudo apt install -y \
     gnupg \
     software-properties-common \
     wget \
+    curl \
     build-essential \
     pkg-config \
     lsb-release
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Node.js 24
+# ----------------------------------------------------------------------------------------------------------------------
+echo "Installing Node.js 24..."
+
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+
+sudo apt install -y nodejs
+
+echo "Node version:"
+node --version
+npm --version
 
 # ----------------------------------------------------------------------------------------------------------------------
 # CMake (latest via Kitware)
@@ -78,6 +92,21 @@ echo "Installing Clang toolchain (optional but recommended)..."
 sudo apt install -y clang libc++-dev libc++abi-dev || true
 
 # ----------------------------------------------------------------------------------------------------------------------
+# GDB / WSL Debugging Support
+# ----------------------------------------------------------------------------------------------------------------------
+echo "Installing GDB debugger support..."
+
+sudo apt install -y \
+    gdb \
+    gdbserver
+
+echo "GDB version:"
+gdb --version || true
+
+echo "GDB path:"
+which gdb || true
+
+# ----------------------------------------------------------------------------------------------------------------------
 # GTK / WebKit / Native deps
 # ----------------------------------------------------------------------------------------------------------------------
 echo "Installing GTK/WebKit dependencies..."
@@ -106,6 +135,12 @@ echo "Verifying toolchain..."
 echo "CMake version:"
 cmake --version
 
+echo "Node version:"
+node --version
+
+echo "NPM version:"
+npm --version
+
 echo "GCC version:"
 gcc --version || true
 
@@ -115,5 +150,12 @@ g++ --version || true
 echo "Clang version:"
 clang++ --version || true
 
+echo "GDB version:"
+gdb --version || true
+
 echo ""
 echo "Setup complete!"
+
+echo ""
+echo "Recommended CLion debugger path:"
+echo "/usr/bin/gdb"

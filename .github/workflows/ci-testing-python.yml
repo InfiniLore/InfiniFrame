@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "CI: Python Tests"
 on:
     pull_request:
@@ -20,7 +21,6 @@ permissions:
     contents: read
 
 jobs:
-    # noinspection UndefinedAction
     run:
         name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml

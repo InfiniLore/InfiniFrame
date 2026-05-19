@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Platform Tests"
 permissions:
     contents: read
@@ -39,6 +40,11 @@ on:
                 description: 'Run trim and NativeAOT compatibility validation'
                 type: boolean
                 required: true
+            enable_test_exports:
+                description: 'Enable native/managed test exports for test workflows'
+                type: boolean
+                required: false
+                default: false
 
 jobs:
 
@@ -71,7 +77,6 @@ jobs:
 
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
     
-    # noinspection UndefinedAction, UndefinedParamsPresent
     docs-validation:
         name: Validate Docs
         if: ${{ inputs.run_docs == true }}
@@ -82,7 +87,6 @@ jobs:
             target_sha: ${{ needs.prepare.outputs.sha }}
         secrets: inherit
     
-    # noinspection UndefinedAction, UndefinedParamsPresent
     js-validation:
         name: Validate JS
         needs: [ prepare ]
@@ -91,7 +95,6 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     native-build:
         name: Build Native Artifacts
         needs: [ prepare ]
@@ -100,8 +103,8 @@ jobs:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
+            enable_test_exports: ${{ inputs.enable_test_exports }}
     
-    # noinspection UndefinedAction, UndefinedParamsPresent
     dotnetpack-validation:
         name: Validate Dotnet Pack
         needs: [ prepare, native-build ]
@@ -110,7 +113,6 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     linux:
         name: Linux Tests
         if: ${{ inputs.run_linux == true }}
@@ -121,9 +123,9 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+            enable_test_exports: ${{ inputs.enable_test_exports }}
         secrets: inherit
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     macos:
         name: macOS Tests
         if: ${{ inputs.run_macos == true }}
@@ -134,9 +136,9 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+            enable_test_exports: ${{ inputs.enable_test_exports }}
         secrets: inherit
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     windows:
         name: Windows Tests
         if: ${{ inputs.run_windows == true }}
@@ -147,9 +149,9 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+            enable_test_exports: ${{ inputs.enable_test_exports }}
         secrets: inherit
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     windows-playwright:
         name: Windows Playwright Tests
         if: ${{ inputs.run_windows_playwright == true }}
@@ -160,9 +162,9 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+            enable_test_exports: ${{ inputs.enable_test_exports }}
         secrets: inherit
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     windows-trim-aot:
         name: Validate Trim/AOT
         if: ${{ inputs.run_trim_aot == true }}
@@ -171,3 +173,4 @@ jobs:
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
+            enable_test_exports: ${{ inputs.enable_test_exports }}

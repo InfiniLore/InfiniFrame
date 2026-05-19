@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Windows Tests"
 on:
     workflow_call:
@@ -15,6 +16,10 @@ on:
             workflow_url:
                 type: string
                 required: true
+            enable_test_exports:
+                type: boolean
+                required: false
+                default: false
 
 jobs:
     windows:
@@ -58,9 +63,7 @@ jobs:
             -   name: Set Windows Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
@@ -76,7 +79,7 @@ jobs:
                     artifact-type: testing
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
 
             -   name: Build Release
                 shell: pwsh
@@ -85,8 +88,9 @@ jobs:
                       --configuration Release `
                       --no-restore `
                       /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
-                      /p:CMakePlatform=${{ matrix.arch }} `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:NativeArch=${{ matrix.arch }} `
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Prepare ARM64 Crash Diagnostics
                 if: matrix.arch == 'arm64'
@@ -199,8 +203,9 @@ jobs:
                       --configuration Release `
                       --no-build `
                       --no-restore `
-                      /p:CMakePlatform=${{ matrix.arch }} `
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:NativeArch=${{ matrix.arch }} `
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
             
             #            -   name: Upload ARM64 Crash Diagnostics
             #                if: always() && matrix.arch == 'arm64'
@@ -215,9 +220,7 @@ jobs:
             #                        artifacts/testresults/**
 
             -   name: Pack Tool E2E
-                # noinspection UndefinedAction
                 uses: ./.github/actions/packtool-e2e
-                # noinspection UndefinedParamsPresent
                 with:
                     project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
                     rid: ${{ matrix.rid }}
@@ -234,9 +237,7 @@ jobs:
                 if: always()
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction, UndefinedParamsPresent
                 uses: ./.github/actions/sync-check-finalize
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}

@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Dotnet Pack Tests"
 
 on:
@@ -37,12 +38,13 @@ jobs:
                 with:
                     cache-dotnet: false
 
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
+
             -   name: Set Dotnet Pack Check Pending
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                # noinspection UndefinedAction
                 uses: ./.github/actions/sync-check
-                # noinspection UndefinedParamsPresent
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
@@ -66,14 +68,16 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{ github.workspace }}/ \
-                      /p:InfiniFrameSkipNativeBuild=true
+                      /p:InfiniFrameSkipNativeBuild=false \
+                      /p:InfiniFrameEnableTestExports=false
 
             -   name: Pack
                 run: |
                     dotnet pack InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
                       --no-build \
-                      /p:InfiniFrameSkipNativeBuild=true \
+                      /p:InfiniFrameSkipNativeBuild=false \
+                      /p:InfiniFrameEnableTestExports=false \
                       -o ./release
 
             -   name: Verify NativeBridge Package Natives
@@ -112,6 +116,59 @@ jobs:
                       echo "❌ $MISSING native file(s) missing in NativeBridge package"
                       exit 1
                     fi
+                    
+            -   name: Verify Lack of NativeBridge Test Exports
+                shell: bash
+                run: |
+                    set -euo pipefail
+
+                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg 2>/dev/null | grep -v '\.symbols\.nupkg$' | head -n 1 || true)
+
+                    if [ -z "$PACKAGE" ]; then
+                        echo "❌ No InfiniFrame.NativeBridge package found in ./release"
+                        exit 1
+                    fi
+
+                    echo "Inspecting package: $PACKAGE"
+
+                    DLL_PATH="runtimes/win-x64/native/InfiniFrame.Native.dll"
+
+                    if ! unzip -l "$PACKAGE" | grep -q "$DLL_PATH"; then
+                        echo "❌ Missing $DLL_PATH in package"
+                        exit 1
+                    fi
+
+                    mkdir -p ./tmp/native-check
+
+                    unzip -p "$PACKAGE" "$DLL_PATH" > ./tmp/native-check/InfiniFrame.Native.dll
+
+                    sudo apt-get update
+                    sudo apt-get install -y binutils-mingw-w64-x86-64
+
+                    DLL=./tmp/native-check/InfiniFrame.Native.dll
+
+                    FORBIDDEN_EXPORTS=(
+                      "InfiniFrameNativeTests_NativeParametersReturnAsIs"
+                      "InfiniFrameNativeTests_FreeInitParams"
+                    )
+
+                    FOUND=0
+
+                    for export_name in "${FORBIDDEN_EXPORTS[@]}"; do
+                      if x86_64-w64-mingw32-nm -g --defined-only "$DLL" | awk '{print $3}' | grep -Fxq "$export_name"; then
+                        echo "❌ Forbidden test export found: $export_name"
+                        FOUND=$((FOUND+1))
+                      else
+                        echo "✅ Export not present: $export_name"
+                      fi
+                    done
+
+                    if [ "$FOUND" -gt 0 ]; then
+                      echo "❌ $FOUND forbidden test export(s) found in InfiniFrame.Native.dll"
+                      exit 1
+                    fi
+
+                    echo "✅ No forbidden test exports found"
 
             -   name: Complete Dotnet Pack Check
                 if: always()

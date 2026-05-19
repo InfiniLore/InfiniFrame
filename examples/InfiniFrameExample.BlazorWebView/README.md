@@ -1,6 +1,7 @@
 # Example: BlazorWebView
 
-Demonstrates the minimal setup for hosting a Blazor application inside a native InfiniFrame window using `InfiniLore.InfiniFrame.BlazorWebView`
+Demonstrates the minimal setup for hosting a Blazor application inside a native InfiniFrame window using
+`InfiniLore.InfiniFrame.BlazorWebView`
 
 ## What it shows
 

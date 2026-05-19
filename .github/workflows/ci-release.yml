@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "CI: Release"
 on:
     workflow_dispatch:
@@ -35,12 +36,10 @@ permissions:
     id-token: write
 
 jobs:
-    # noinspection UndefinedAction
     tests-python:
         name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     tests-platform:
         name: Platform Tests
         needs: tests-python
@@ -54,12 +53,12 @@ jobs:
             run_macos: true
             run_docs: true
             run_trim_aot: true
+            enable_test_exports: false
         secrets: inherit
 
     # ------------------------------------------------------------------------------------------------------------------
     # Bump version, commit, and tag
     # ------------------------------------------------------------------------------------------------------------------
-    # noinspection UndefinedAction, UndefinedParamsPresent
     bump-version:
         name: Bump Version
         needs: tests-platform
@@ -70,7 +69,6 @@ jobs:
             custom_version: ${{ inputs.custom_version }}
         secrets: inherit
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     build:
         name: Build Native
         needs: bump-version
@@ -79,7 +77,6 @@ jobs:
             tag_name: ${{ needs.bump-version.outputs.tag_name }}
         secrets: inherit
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     publish:
         name: Publish Release
         needs: [ build, bump-version ]
@@ -90,7 +87,6 @@ jobs:
             publish_to_nuget: ${{ inputs.publish_to_nuget }}
         secrets: inherit
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     publish-docs:
         name: Publish Docs
         needs: [ publish, bump-version ]

@@ -346,11 +346,16 @@ healthchecksdb
 /src/InfiniFrame.NativeBridge/artifacts/
 /src/InfiniFrame.NativeBridge/build/
 /src/InfiniFrame.NativeBridge/Native/build/
+/src/InfiniFrame.NativeBridge/Native/build-clang-tidy/
 /src/InfiniFrame.NativeBridge/Native/packages/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-debug/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-debug-linux/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-debug-windows/
+/src/InfiniFrame.NativeBridge/Native/cmake-build-release/
+/src/InfiniFrame.NativeBridge/Native/cmake-build-release-linux/
+/src/InfiniFrame.NativeBridge/Native/cmake-build-release-windows/
 /src/InfiniFrame.NativeBridge/Native/Embedded/InfiniFrameJs/InfiniFrameJs.cpp
+/src/InfiniFrame.NativeBridge/Native/Embedded/InfiniFrameJs/InfiniFrameJs.h
 
 # wwwroot folders from js web based projects
 /examples/InfiniFrameExample.WebApp.React/wwwroot/

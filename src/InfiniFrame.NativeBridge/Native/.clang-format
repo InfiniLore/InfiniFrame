@@ -1,0 +1,119 @@
+﻿BasedOnStyle: Microsoft
+Language: Cpp
+
+# ----------------------------------------------------------------------------------------------------------------------
+# General Style
+# ----------------------------------------------------------------------------------------------------------------------
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+ColumnLimit: 120
+MaxEmptyLinesToKeep: 1
+
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+NamespaceIndentation: All
+
+SortIncludes: false
+SortUsingDeclarations: false
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Braces / K&R Style
+# ----------------------------------------------------------------------------------------------------------------------
+
+BreakBeforeBraces: Attach
+
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Short Statements
+# ----------------------------------------------------------------------------------------------------------------------
+
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Templates
+# ----------------------------------------------------------------------------------------------------------------------
+
+AlwaysBreakTemplateDeclarations: MultiLine
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Spacing
+# ----------------------------------------------------------------------------------------------------------------------
+
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInParentheses: false
+SpacesInAngles: Never
+SpacesInContainerLiterals: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Alignment
+# ----------------------------------------------------------------------------------------------------------------------
+
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: DontAlign
+AlignTrailingComments: false
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Access Modifiers
+# ----------------------------------------------------------------------------------------------------------------------
+
+IndentAccessModifiers: false
+AccessModifierOffset: 0
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Includes
+# ----------------------------------------------------------------------------------------------------------------------
+
+IncludeBlocks: Preserve
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Line Breaking
+# ----------------------------------------------------------------------------------------------------------------------
+
+AlignAfterOpenBracket: BlockIndent
+BinPackParameters: false
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+
+# ----------------------------------------------------------------------------------------------------------------------
+# C++11/20 Friendly
+# ----------------------------------------------------------------------------------------------------------------------
+
+Standard: Latest
+Cpp11BracedListStyle: true
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Misc
+# ----------------------------------------------------------------------------------------------------------------------
+
+IndentCaseLabels: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+ReflowComments: false

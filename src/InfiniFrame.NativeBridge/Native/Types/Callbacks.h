@@ -1,19 +1,12 @@
 #pragma once
-/**
- * @file Callbacks.h
- * @brief C-style callback type definitions for interop
- */
-
-#ifndef INFINIFRAME_TYPES_CALLBACKS_H
-#define INFINIFRAME_TYPES_CALLBACKS_H
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include "Basic.h"
 #include "Dialog.h"
-
 // ---------------------------------------------------------------------------------------------------------------------
-// C-style Callbacks (for C# interop)
+// Code
 // ---------------------------------------------------------------------------------------------------------------------
-
 /** @brief Generic parameterless action callback */
 using ACTION = void (*)();
 
@@ -32,7 +25,7 @@ using WebMessageReceivedCallback = void (*)(AutoString message, AutoString origi
  * @param outContentType Output: MIME type string (e.g. "text/html")
  * @return Heap-allocated response body; ownership is transferred to the caller
  */
-using WebResourceRequestedCallback = void *(*)(AutoString url, int* outNumBytes, AutoString* outContentType);
+using WebResourceRequestedCallback = void* (*)(AutoString url, int* outNumBytes, AutoString* outContentType);
 
 /**
  * @brief Called once per monitor during a GetAllMonitors enumeration.
@@ -78,5 +71,3 @@ using FocusInCallback = void (*)();
 
 /** @brief Called when the window loses keyboard focus */
 using FocusOutCallback = void (*)();
-
-#endif // INFINIFRAME_TYPES_CALLBACKS_H

@@ -53,5 +53,22 @@ internal static class InvokeUtility {
         return value!;
     }
 
+    public static T InvokeAndReturn<T, TResult>(IInfiniFrameWindow window, FuncWithOutResult<T, TResult> callback, Action<TResult>? validateResult = null) {
+        T? value = default;
+        TResult? result = default;
+        // ReSharper disable once RedundantAssignment
+        bool completed = false;
+        window.Invoke(() => {
+            result = callback(window.InstanceHandle, out value);
+            completed = true;
+        });
+        Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
+        if (validateResult is not null && result is not null) {
+            validateResult(result);
+        }
+        return value!;
+    }
+
     internal delegate void FuncWithOut<T>(IntPtr handle, out T value);
+    internal delegate TResult FuncWithOutResult<T, TResult>(IntPtr handle, out T value);
 }

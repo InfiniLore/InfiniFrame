@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "Shared: Release Publish"
 on:
     workflow_call:
@@ -50,9 +51,7 @@ jobs:
                       --prefix InfiniLore
 
             -   name: Setup Native dependencies
-                # noinspection UndefinedAction
                 uses: ./.github/actions/setup-dependencies-native
-                # noinspection UndefinedParamsPresent
                 with:
                     brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-publish.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-

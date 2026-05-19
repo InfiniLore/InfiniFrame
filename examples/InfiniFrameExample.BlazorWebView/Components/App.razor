@@ -1,6 +1,5 @@
 @using InfiniFrameExample.BlazorWebView.Components.Layouts
 @using InfiniFrameExample.BlazorWebView.Components.Pages
-
 <Router AppAssembly="@typeof(Program).Assembly" NotFoundPage="@typeof(PageNotFound)">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>

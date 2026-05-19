@@ -1,3 +1,4 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
 name: "CI: Full Test Suite"
 
 permissions:
@@ -38,12 +39,10 @@ on:
                 default: true
 
 jobs:
-    # noinspection UndefinedAction
     python-tests:
         name: Python Tests
         uses: ./.github/workflows/shared-testing-python.yml
 
-    # noinspection UndefinedAction, UndefinedParamsPresent
     run:
         name: Full Test Suite
         needs: python-tests
@@ -56,4 +55,5 @@ jobs:
             run_macos: ${{ inputs.run_macos }}
             run_docs: ${{ inputs.run_docs }}
             run_trim_aot: ${{ inputs.run_trim_aot }}
+            enable_test_exports: true
         secrets: inherit

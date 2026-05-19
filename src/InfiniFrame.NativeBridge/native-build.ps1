@@ -1,6 +1,7 @@
 param(
     [string]$Configuration = "Debug",
-    [string]$Arch = "x64"
+    [string]$Arch = "x64",
+    [string]$EnableTestExports = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -27,10 +28,18 @@ else { "osx" }
 
 New-Item -ItemType Directory -Force -Path "$ArtifactsDir/$Platform/$Arch/$Configuration" | Out-Null
 
+if ([string]::IsNullOrWhiteSpace($EnableTestExports)) {
+    $EnableTestExports = if ($Configuration -ieq "Debug") { "true" } else { "false" }
+}
+
+$EnableTestExportsCMakeValue = if ($EnableTestExports -ieq "true") { "ON" } else { "OFF" }
+
 # -----------------------------------------------------------------------------------------------------------------
 # LOCK (blocking, CI-safe, race-free)
 # -----------------------------------------------------------------------------------------------------------------
 $LockFile = Join-Path $ArtifactsDir ".build.lock"
+$LockTimeoutSeconds = 600
+$LockDeadline = (Get-Date).AddSeconds($LockTimeoutSeconds)
 
 $LockStream = $null
 
@@ -38,6 +47,10 @@ try {
 
     # Wait until lock becomes available (prevents crash)
     while ($true) {
+        if ((Get-Date) -ge $LockDeadline) {
+            throw "Timed out after $LockTimeoutSeconds seconds waiting for native build lock at '$LockFile'."
+        }
+
         try {
             $LockStream = New-Object System.IO.FileStream(
             $LockFile,
@@ -60,6 +73,7 @@ try {
     Write-Host "Configuration: $Configuration"
     Write-Host "Architecture : $Arch"
     Write-Host "Platform     : $Platform"
+    Write-Host "Test Exports : $EnableTestExports"
     Write-Host "========================================="
 
     # -----------------------------------------------------------------------------------------------------------------
@@ -70,8 +84,18 @@ try {
     if ($Platform -eq "osx") {
         if ($Arch -eq "arm64") {
             $CMakeArgs += "-DCMAKE_OSX_ARCHITECTURES=arm64"
-        } else {
+        }
+        elseif ($Arch -eq "x64") {
             $CMakeArgs += "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+        }
+        else {
+            throw "Unsupported macOS architecture '$Arch'. Expected 'x64' or 'arm64'."
+        }
+    }
+
+    if ($Platform -eq "linux") {
+        if ($Arch -ne "x64" -and $Arch -ne "arm64") {
+            throw "Unsupported Linux architecture '$Arch'. Expected 'x64' or 'arm64'."
         }
     }
 
@@ -88,6 +112,8 @@ try {
             throw "Unsupported Windows architecture '$Arch'. Expected 'x64' or 'arm64'."
         }
     }
+
+    $CMakeArgs += "-DINFINIFRAME_BUILD_TEST_EXPORTS=$EnableTestExportsCMakeValue"
 
     cmake -B $BuildDir -S $NativeDir @CMakeArgs
     if ($LASTEXITCODE -ne 0) {
