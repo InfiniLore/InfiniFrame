@@ -22,29 +22,14 @@ public class MainThreadOnMacOsTestExecutor : ITestExecutor {
             TaskCreationOptions.RunContinuationsAsynchronously
         );
 
-        // Keep delegate alive until execution completes
         NativeMacOsLibDispatch.MainThreadCallback? callbackRef = null;
 
         callbackRef = () => {
-            _ = ExecuteOnMainThreadAsync();
-        };
-
-        NativeMacOsLibDispatch.DispatchOnMainThread(callbackRef);
-
-        return new ValueTask(tcs.Task);
-
-        async Task ExecuteOnMainThreadAsync() {
-            SynchronizationContext? previousContext = SynchronizationContext.Current;
-
             try {
-                SynchronizationContext.SetSynchronizationContext(
-                    new MainThreadOnMacOsSynchronizationContext()
-                );
-
                 // IMPORTANT:
-                // Execute directly on the main thread.
-                // Do NOT use Task.Run here.
-                await action();
+                // Execute synchronously on the actual macOS main thread.
+                // Do NOT use async continuations or SynchronizationContext here.
+                action().GetAwaiter().GetResult();
 
                 tcs.SetResult();
             }
@@ -52,11 +37,12 @@ public class MainThreadOnMacOsTestExecutor : ITestExecutor {
                 tcs.SetException(ex);
             }
             finally {
-                SynchronizationContext.SetSynchronizationContext(previousContext);
-
-                // Release delegate reference
                 callbackRef = null;
             }
-        }
+        };
+
+        NativeMacOsLibDispatch.DispatchOnMainThread(callbackRef);
+
+        return new ValueTask(tcs.Task);
     }
 }

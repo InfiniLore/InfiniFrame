@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace InfiniFrameTests.Shared.TestExecutors;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -42,8 +43,10 @@ internal static partial class NativeMacOsLibDispatch {
 
     private static IntPtr ResolveMainQueue() {
         IntPtr lib = NativeLibrary.Load(DispatchLib);
-        IntPtr symbol = NativeLibrary.GetExport(lib, "_dispatch_main_q");
-        return symbol;
+
+        // dispatch_get_main_queue is not reliably exported
+        // on modern macOS environments.
+        return NativeLibrary.GetExport(lib, "_dispatch_main_q");
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
