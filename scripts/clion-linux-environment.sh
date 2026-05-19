@@ -92,6 +92,21 @@ echo "Installing Clang toolchain (optional but recommended)..."
 sudo apt install -y clang libc++-dev libc++abi-dev || true
 
 # ----------------------------------------------------------------------------------------------------------------------
+# GDB / WSL Debugging Support
+# ----------------------------------------------------------------------------------------------------------------------
+echo "Installing GDB debugger support..."
+
+sudo apt install -y \
+    gdb \
+    gdbserver
+
+echo "GDB version:"
+gdb --version || true
+
+echo "GDB path:"
+which gdb || true
+
+# ----------------------------------------------------------------------------------------------------------------------
 # GTK / WebKit / Native deps
 # ----------------------------------------------------------------------------------------------------------------------
 echo "Installing GTK/WebKit dependencies..."
@@ -135,5 +150,12 @@ g++ --version || true
 echo "Clang version:"
 clang++ --version || true
 
+echo "GDB version:"
+gdb --version || true
+
 echo ""
 echo "Setup complete!"
+
+echo ""
+echo "Recommended CLion debugger path:"
+echo "/usr/bin/gdb"
