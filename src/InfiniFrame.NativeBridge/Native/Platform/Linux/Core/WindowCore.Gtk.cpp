@@ -1,10 +1,13 @@
-#ifdef __linux__
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <X11/Xlib.h>
 #include <libnotify/notify.h>
 
-#include "../Window.Gtk.Internal.h"
-
+#include "Platform/Linux/Window.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
     : m_impl(std::make_unique<Impl>()) {
     XInitThreads();
@@ -45,5 +48,3 @@ InfiniFrameWindow::~InfiniFrameWindow() {
     notify_uninit();
     gtk_widget_destroy(m_impl->_window);
 }
-
-#endif

@@ -1,9 +1,12 @@
-#ifdef __linux__
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <webkit2/webkit2.h>
 
-#include "../Window.Gtk.Internal.h"
-
+#include "Platform/Linux/Window.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 namespace {
     bool linux_webview_diagnostics_enabled() {
         const char* value = g_getenv("INFINIFRAME_LINUX_WEBVIEW_DIAGNOSTICS");
@@ -166,5 +169,3 @@ void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpoi
         allocation ? allocation->height : -1
     );
 }
-
-#endif

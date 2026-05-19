@@ -1,10 +1,13 @@
-#ifdef __linux__
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <condition_variable>
 #include <mutex>
 
-#include "../Window.Gtk.Internal.h"
-
+#include "Platform/Linux/Window.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 namespace {
     std::mutex invokeLockMutex;
 
@@ -34,5 +37,3 @@ void InfiniFrameWindow::Invoke(const ACTION callback) {
     std::unique_lock uLock(invokeLockMutex);
     waitInfo.completionNotifier.wait(uLock, [&] { return waitInfo.isCompleted; });
 }
-
-#endif

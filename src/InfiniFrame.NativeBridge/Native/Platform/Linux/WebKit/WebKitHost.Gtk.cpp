@@ -1,12 +1,15 @@
-#ifdef __linux__
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <signal.h>
 #include <webkit2/webkit2.h>
 
-#include "../../../Embedded/Embedded.h"
-#include "WebKit.Gtk.Internal.h"
-#include "../Window.Gtk.Internal.h"
-
+#include "Embedded/Embedded.h"
+#include "Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
+#include "Platform/Linux/Window.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 extern void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data);
 extern gboolean on_webview_load_failed(
     WebKitWebView* web_view, WebKitLoadEvent load_event, gchar* failing_uri, GError* error, gpointer user_data
@@ -77,5 +80,3 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
 void InfiniFrameWindow::AttachWebView() {
     // On Linux, WebView is attached in Show()
 }
-
-#endif

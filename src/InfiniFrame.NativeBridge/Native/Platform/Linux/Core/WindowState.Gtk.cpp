@@ -1,13 +1,11 @@
-#ifdef __linux__
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Platform/Linux/Window.Gtk.Internal.h"
-
 #include <format>
 #include <string_view>
 
 #include "Utils/Common.h"
+#include "Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -325,5 +323,3 @@ void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
         webkit_web_view_set_background_color(WEBKIT_WEB_VIEW(m_impl->_webview), &color);
     }
 }
-
-#endif

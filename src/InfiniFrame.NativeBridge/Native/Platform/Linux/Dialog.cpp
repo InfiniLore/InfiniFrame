@@ -1,12 +1,12 @@
-#ifdef __linux__
-/**
- * @file Dialog.cpp (Linux)
- * @brief Linux implementation of InfiniFrameDialog using GTK3 file-chooser and message dialogs
- */
-
-#include "Public/InfiniFrameDialog.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <gtk/gtk.h>
 
+#include "Public/InfiniFrameDialog.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 /** @brief Distinguishes which GtkFileChooserAction to configure in ShowDialog */
 enum DialogType {
     OpenFile, /// GTK_FILE_CHOOSER_ACTION_OPEN — select one or more files
@@ -253,4 +253,3 @@ DialogResult InfiniFrameDialog::ShowMessage(
             return DialogResult::Cancel;
     }
 }
-#endif

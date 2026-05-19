@@ -1,9 +1,12 @@
-#ifdef __linux__
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <simdjson.h>
 
-#include "../Window.Gtk.Internal.h"
-
+#include "Platform/Linux/Window.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::Impl::set_webkit_settings() {
     WebKitSettings* settings = webkit_settings_new_with_settings(
         "allow_modal_dialogs", TRUE, "allow_top_navigation_to_data_urls", TRUE, "allow_universal_access_from_file_urls",
@@ -94,5 +97,3 @@ void InfiniFrameWindow::Impl::set_webkit_customsettings(WebKitSettings* settings
         }
     } catch (const simdjson::simdjson_error&) {}
 }
-
-#endif

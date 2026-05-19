@@ -1,11 +1,14 @@
-#ifdef __linux__
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <gio/gio.h>
 #include <webkit2/webkit2.h>
 
-#include "../Window.Gtk.Internal.h"
-#include "WebKit.Gtk.Internal.h"
-
+#include "Platform/Linux/Window.Gtk.Internal.h"
+#include "Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 namespace gtk_webkit {
     void HandleCustomSchemeRequest(WebKitURISchemeRequest* request, const gpointer user_data) {
         WebResourceRequestedCallback webResourceRequestedCallback =
@@ -47,5 +50,3 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
         );
     }
 }
-
-#endif

@@ -1,9 +1,12 @@
-#ifdef __linux__
-
-#include "../Window.Gtk.Internal.h"
-
+ // ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <libnotify/notify.h>
 
+#include "Platform/Linux/Window.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::Center() {
     gint windowWidth, windowHeight;
     gtk_window_get_size(GTK_WINDOW(m_impl->_window), &windowWidth, &windowHeight);
@@ -65,5 +68,3 @@ void InfiniFrameWindow::WaitForExit() {
 void InfiniFrameWindow::CloseWebView() {
     // Not implemented on Linux
 }
-
-#endif

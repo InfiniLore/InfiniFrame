@@ -1,14 +1,17 @@
 #pragma once
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <climits>
 #include <string>
-
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
 
 #include "Public/InfiniFrameWindow.h"
 #include "Public/InfiniFrameWindowImpl.h"
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     GtkWidget* _window = nullptr;
     GtkWidget* _webview = nullptr;

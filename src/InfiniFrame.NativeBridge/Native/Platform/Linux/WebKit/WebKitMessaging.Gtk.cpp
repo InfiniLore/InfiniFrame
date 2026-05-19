@@ -1,12 +1,15 @@
-#ifdef __linux__
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <JavaScriptCore/JavaScript.h>
 #include <webkit2/webkit2.h>
 
 #include "Types/Basic.h"
 #include "Types/Callbacks.h"
-#include "WebKit.Gtk.Internal.h"
-
+#include "Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 namespace gtk_webkit {
     void HandleWebMessage(
         WebKitUserContentManager* contentManager, WebKitJavascriptResult* jsResult, const gpointer userData
@@ -43,6 +46,4 @@ namespace gtk_webkit {
         }
         webkit_javascript_result_unref(jsResult);
     }
-} // namespace gtk_webkit
-
-#endif
+} 

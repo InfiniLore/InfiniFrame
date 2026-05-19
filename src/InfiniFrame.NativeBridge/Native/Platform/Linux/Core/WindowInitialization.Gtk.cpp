@@ -1,11 +1,14 @@
-#ifdef __linux__
-
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 #include <algorithm>
 #include <cstring>
 
-#include "../../../Public/InfiniFrameDialog.h"
-#include "../Window.Gtk.Internal.h"
-
+#include "Public/InfiniFrameDialog.h"
+#include "Platform/Linux/Window.Gtk.Internal.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 gboolean on_configure_event(GtkWidget* widget, GdkEvent* event, gpointer self);
 gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, gpointer self);
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, gpointer self);
@@ -168,5 +171,3 @@ void InfiniFrameWindow::Impl::ConnectWebViewSignals(InfiniFrameWindow* window) {
 
     g_signal_connect(G_OBJECT(_webview), "permission-request", G_CALLBACK(on_permission_request), window);
 }
-
-#endif
