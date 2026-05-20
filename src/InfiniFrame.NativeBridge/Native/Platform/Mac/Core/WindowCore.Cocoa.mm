@@ -2,12 +2,12 @@
 
 #include <simdjson.h>
 
-#include "../AppDelegate.h"
+#include "../Delegates/AppDelegate.h"
 #include "../../../Public/InfiniFrameDialog.h"
 #include "../../../Public/InfiniFrameWindow.h"
 #include "../NSWindowBorderless.h"
 #include "../Window.Cocoa.Internal.h"
-#include "../WindowDelegate.h"
+#include "../Delegates/WindowDelegate.h"
 
 void InfiniFrameWindow::Register()
 {

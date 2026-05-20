@@ -28,60 +28,6 @@ void InfiniFrameWindow::Close() {
     PostMessage(m_impl->_hWnd, WM_CLOSE, 0, 0);
 }
 
-void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const {
-    if (!m_impl->_webviewController) {
-        *enabled = m_impl->_transparentEnabled;
-        return;
-    }
-    wil::com_ptr<ICoreWebView2Controller2> controller2;
-    if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2) {
-        *enabled = m_impl->_transparentEnabled;
-        return;
-    }
-    COREWEBVIEW2_COLOR backgroundColor;
-    controller2->get_DefaultBackgroundColor(&backgroundColor);
-    *enabled = backgroundColor.A == 0;
-}
-
-void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const {
-    if (!m_impl->_webviewWindow) {
-        *enabled = m_impl->_contextMenuEnabled;
-        return;
-    }
-    wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
-        BOOL boolValue = FALSE;
-        settings->get_AreDefaultContextMenusEnabled(&boolValue);
-        *enabled = (boolValue != FALSE);
-    }
-}
-
-void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const {
-    if (!m_impl->_webviewWindow) {
-        *enabled = m_impl->_zoomEnabled;
-        return;
-    }
-    wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
-        BOOL boolValue = FALSE;
-        settings->get_IsZoomControlEnabled(&boolValue);
-        *enabled = (boolValue != FALSE);
-    }
-}
-
-void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
-    if (!m_impl->_webviewWindow) {
-        *enabled = m_impl->_devToolsEnabled;
-        return;
-    }
-    wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
-        BOOL boolValue = FALSE;
-        settings->get_AreDevToolsEnabled(&boolValue);
-        *enabled = (boolValue != FALSE);
-    }
-}
-
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const {
     LONG lStyles = GetWindowLong(m_impl->_hWnd, GWL_STYLE);
     *fullScreen = (lStyles & WS_POPUP) != 0;
@@ -159,10 +105,6 @@ void InfiniFrameWindow::GetResizable(bool* resizable) const {
     *resizable = (lStyles & WS_THICKFRAME) != 0;
 }
 
-unsigned int InfiniFrameWindow::GetScreenDpi() const {
-    return GetDpiForWindow(m_impl->_hWnd);
-}
-
 void InfiniFrameWindow::GetSize(int* width, int* height) const {
     RECT rect = {};
     GetWindowRect(m_impl->_hWnd, &rect);
@@ -232,53 +174,6 @@ void InfiniFrameWindow::SendWebMessage(AutoString message) {
 
     std::wstring wideMessage = ToUTF16String(message);
     m_impl->_webviewWindow->PostWebMessageAsString(wideMessage.c_str());
-}
-
-void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {
-    m_impl->_transparentEnabled = enabled;
-    if (!m_impl->_webviewController || !m_impl->_webviewWindow)
-        return;
-    wil::com_ptr<ICoreWebView2Controller2> controller2;
-    if (FAILED(m_impl->_webviewController->QueryInterface(&controller2)) || !controller2)
-        return;
-    COREWEBVIEW2_COLOR backgroundColor;
-    controller2->get_DefaultBackgroundColor(&backgroundColor);
-    backgroundColor.A = enabled ? 0 : 255;
-    controller2->put_DefaultBackgroundColor(backgroundColor);
-    m_impl->_webviewWindow->Reload();
-}
-
-void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
-    m_impl->_contextMenuEnabled = enabled;
-    if (!m_impl->_webviewWindow)
-        return;
-    wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
-        settings->put_AreDefaultContextMenusEnabled(enabled);
-        m_impl->_webviewWindow->Reload();
-    }
-}
-
-void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
-    m_impl->_zoomEnabled = enabled;
-    if (!m_impl->_webviewWindow)
-        return;
-    wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
-        settings->put_IsZoomControlEnabled(enabled);
-        m_impl->_webviewWindow->Reload();
-    }
-}
-
-void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
-    m_impl->_devToolsEnabled = enabled;
-    if (!m_impl->_webviewWindow)
-        return;
-    wil::com_ptr<ICoreWebView2Settings> settings;
-    if (SUCCEEDED(m_impl->_webviewWindow->get_Settings(&settings)) && settings) {
-        settings->put_AreDevToolsEnabled(enabled);
-        m_impl->_webviewWindow->Reload();
-    }
 }
 
 void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {

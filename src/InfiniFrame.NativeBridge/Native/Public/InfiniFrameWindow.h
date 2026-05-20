@@ -587,6 +587,9 @@ class InfiniFrameWindow {
 #ifdef _WIN32
     static bool EnsureWebViewIsInstalled();
     static bool InstallWebView2();
+    bool RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentOptions* options);
+    void AttachCustomSchemeHandler();
+    HRESULT ApplyInitialWebViewSettings();
 #endif
 
 #ifdef _WIN32

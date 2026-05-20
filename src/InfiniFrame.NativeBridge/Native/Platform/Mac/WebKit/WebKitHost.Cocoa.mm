@@ -1,8 +1,8 @@
 #ifdef __APPLE__
 
 #include "../../../Embedded/Embedded.h"
-#include "../NavigationDelegate.h"
-#include "../UiDelegate.h"
+#include "../Delegates/NavigationDelegate.h"
+#include "../Delegates/UiDelegate.h"
 #include "../Window.Cocoa.Internal.h"
 
 void InfiniFrameWindow::AttachWebView()

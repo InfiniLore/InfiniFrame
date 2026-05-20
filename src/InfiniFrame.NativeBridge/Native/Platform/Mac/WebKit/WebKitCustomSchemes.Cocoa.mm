@@ -1,6 +1,6 @@
 #ifdef __APPLE__
 
-#include "../UrlSchemeHandler.h"
+#include "../Delegates/UrlSchemeHandler.h"
 #include "../Window.Cocoa.Internal.h"
 
 void InfiniFrameWindow::Impl::AddCustomScheme(
