@@ -4,13 +4,14 @@
 #include <gtk/gtk.h>
 
 #include "Public/InfiniFrameDialog.h"
+#include "Utils/StringArrayCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 /** @brief Distinguishes which GtkFileChooserAction to configure in ShowDialog */
 enum DialogType {
-    OpenFile, /// GTK_FILE_CHOOSER_ACTION_OPEN — select one or more files
-    OpenFolder, /// GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER — select one or more directories
+    OpenFile, /// GTK_FILE_CHOOSER_ACTION_OPEN, select one or more files
+    OpenFolder, /// GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, select one or more directories
     SaveFile /// GTK_FILE_CHOOSER_ACTION_SAVE — choose a save destination
 };
 
@@ -119,7 +120,7 @@ AutoString* ShowDialog(
     if (type == OpenFile || type == OpenFolder) {
         GSList* pathList = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
         int count = g_slist_length(pathList);
-        char** results = new char*[count];
+        auto* results = AllocateStringArray(count);
         for (int i = 0; i < count; i++) {
             results[i] = g_strdup(static_cast<char*>(g_slist_nth_data(pathList, i)));
         }
@@ -130,7 +131,9 @@ AutoString* ShowDialog(
     } else {
         char* result = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
         gtk_widget_destroy(dialog);
-        return new char*[1]{result};
+        auto* arr = AllocateStringArray(1);
+        arr[0] = result;
+        return arr;
     }
 }
 

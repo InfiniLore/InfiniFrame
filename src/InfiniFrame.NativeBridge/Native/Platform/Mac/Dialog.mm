@@ -1,4 +1,7 @@
-#ifdef __APPLE__
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+
 /**
  * @file Dialog.mm (macOS)
  * @brief macOS implementation of InfiniFrameDialog using NSOpenPanel, NSSavePanel, and NSAlert
@@ -11,6 +14,10 @@
 #else
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 // Base64-encoded PNG icon images bundled directly to avoid a dependency on external icon files
 // Each string decodes to a 64×64 PNG used as the NSAlert icon for the corresponding DialogIcon value
@@ -234,4 +241,3 @@ DialogResult InfiniFrameDialog::ShowMessage(AutoString title, AutoString text, D
 
   return DialogResult::Cancel;
 }
-#endif

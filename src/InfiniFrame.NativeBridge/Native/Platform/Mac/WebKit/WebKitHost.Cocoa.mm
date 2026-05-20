@@ -1,9 +1,15 @@
-#ifdef __APPLE__
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 
 #include "../../../Embedded/Embedded.h"
-#include "../NavigationDelegate.h"
-#include "../UiDelegate.h"
+#include "../Delegates/NavigationDelegate.h"
+#include "../Delegates/UiDelegate.h"
 #include "../Window.Cocoa.Internal.h"
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 void InfiniFrameWindow::AttachWebView()
 {
@@ -67,5 +73,3 @@ void InfiniFrameWindow::Show(bool isAlreadyShown)
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
     [m_impl->_window orderFrontRegardless];
 }
-
-#endif

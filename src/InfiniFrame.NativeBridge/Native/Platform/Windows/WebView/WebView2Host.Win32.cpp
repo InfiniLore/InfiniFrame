@@ -13,12 +13,16 @@ void InfiniFrameWindow::CloseWebView() {
         m_impl->_webviewController.get(), m_impl->_webviewWindow.get(), m_impl->_webviewEnvironment.get()
     );
 
-    if (m_impl->_webviewController != nullptr) {
-        m_impl->_webviewController->Close();
-        m_impl->_webviewController = nullptr;
+    // Explicitly revoke all event subscriptions before tearing down the WebView.
+    // This ensures callbacks cannot fire during or after teardown.
+    if (m_impl->_webviewWindow) {
+        if (m_impl->_hasWebMessageReceivedToken)
+            m_impl->_webviewWindow->remove_WebMessageReceived(m_impl->_webMessageReceivedToken);
+        if (m_impl->_hasWebResourceRequestedToken)
+            m_impl->_webviewWindow->remove_WebResourceRequested(m_impl->_webResourceRequestedTokenForCustomScheme);
+        if (m_impl->_hasPermissionRequestedToken)
+            m_impl->_webviewWindow->remove_PermissionRequested(m_impl->_permissionRequestedToken);
     }
-
-    m_impl->_webviewWindow = nullptr;
 
     m_impl->_hasWebMessageReceivedToken = false;
     m_impl->_hasWebResourceRequestedToken = false;
@@ -26,6 +30,13 @@ void InfiniFrameWindow::CloseWebView() {
     m_impl->_webMessageReceivedToken = {};
     m_impl->_webResourceRequestedTokenForCustomScheme = {};
     m_impl->_permissionRequestedToken = {};
+
+    if (m_impl->_webviewController != nullptr) {
+        m_impl->_webviewController->Close();
+        m_impl->_webviewController = nullptr;
+    }
+
+    m_impl->_webviewWindow = nullptr;
 
     if (m_impl->_webviewEnvironment != nullptr && !deferEnvironmentRelease) {
         m_impl->_webviewEnvironment = nullptr;

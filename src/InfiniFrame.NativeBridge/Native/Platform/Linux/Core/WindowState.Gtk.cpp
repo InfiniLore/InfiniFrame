@@ -4,7 +4,7 @@
 #include <format>
 #include <string_view>
 
-#include "Utils/Common.h"
+#include "Utils/StringCopy.h"
 #include "Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -28,42 +28,6 @@ void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const {
 
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const {
     *fullScreen = m_impl->_isFullScreen;
-}
-
-void InfiniFrameWindow::GetGrantBrowserPermissions(bool* grant) const {
-    *grant = m_impl->_grantBrowserPermissions;
-}
-
-AutoString InfiniFrameWindow::GetUserAgent() const {
-    return AllocateStringCopy(m_impl->_userAgent);
-}
-
-void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const {
-    *enabled = m_impl->_mediaAutoplayEnabled;
-}
-
-void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const {
-    *enabled = m_impl->_fileSystemAccessEnabled;
-}
-
-void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const {
-    *enabled = m_impl->_webSecurityEnabled;
-}
-
-void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const {
-    *enabled = m_impl->_javascriptClipboardAccessEnabled;
-}
-
-void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const {
-    *enabled = m_impl->_mediaStreamEnabled;
-}
-
-void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const {
-    *enabled = m_impl->_smoothScrollingEnabled;
-}
-
-void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const {
-    *enabled = m_impl->_ignoreCertificateErrorsEnabled;
 }
 
 void InfiniFrameWindow::GetMaximized(bool* isMaximized) const {
@@ -132,10 +96,6 @@ void InfiniFrameWindow::GetZoom(int* zoom) const {
 
 void InfiniFrameWindow::GetFocused(bool* isFocused) const {
     *isFocused = gtk_window_is_active(GTK_WINDOW(m_impl->_window));
-}
-
-AutoString InfiniFrameWindow::GetIconFileName() const {
-    return AllocateStringCopy(m_impl->_iconFileName);
 }
 
 void InfiniFrameWindow::NavigateToString(const AutoString content) {

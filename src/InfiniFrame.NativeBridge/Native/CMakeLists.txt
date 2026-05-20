@@ -41,6 +41,8 @@ set(COMMON_SOURCES
         Public/Exports/Exports.Dialog.cpp
         Public/Exports/Exports.Events.cpp
         Public/Exports/Exports.Memory.cpp
+        Platform/Shared/WindowEvents.cpp
+        Platform/Shared/WindowState.cpp
 )
 
 set(TEST_SOURCES
@@ -56,12 +58,16 @@ set(WINDOWS_SOURCES
         Platform/Windows/Core/WindowLifecycle.Win32.cpp
         Platform/Windows/Core/WindowProc.Win32.cpp
         Platform/Windows/Core/WindowState.Win32.cpp
-        Platform/Windows/Core/WindowEvents.Win32.cpp
+        Platform/Windows/Core/UiDispatcher.Win32.cpp
         Platform/Windows/WebView/WebView2Host.Win32.cpp
         Platform/Windows/WebView/WebView2Runtime.Win32.cpp
         Platform/Windows/WebView/WebView2Controller.Win32.cpp
         Platform/Windows/WebView/WebView2Attach.Win32.cpp
-        Platform/Windows/Core/UiDispatcher.Win32.cpp
+        Platform/Windows/WebView/WebView2CustomSchemes.Win32.cpp
+        Platform/Windows/WebView/WebView2Settings.Win32.cpp
+        Platform/Windows/Monitors.Win32.cpp
+        Platform/Windows/Notifications.WinToast.cpp
+        Platform/Windows/Dpi.Win32.cpp
         Platform/Windows/DarkMode.cpp
         Platform/Windows/Dialog.cpp
 )
@@ -73,22 +79,26 @@ set(LINUX_SOURCES
         Platform/Linux/Core/WindowState.Gtk.cpp
         Platform/Linux/Core/WindowEvents.Gtk.cpp
         Platform/Linux/Core/UiDispatcher.Gtk.cpp
+        Platform/Linux/Core/WindowSignals.Gtk.cpp
         Platform/Linux/WebKit/WebKitHost.Gtk.cpp
         Platform/Linux/WebKit/WebKitSettings.Gtk.cpp
         Platform/Linux/WebKit/WebKitMessaging.Gtk.cpp
         Platform/Linux/WebKit/WebKitCustomSchemes.Gtk.cpp
-        Platform/Linux/Core/WindowSignals.Gtk.cpp
+        Platform/Linux/Notifications.LibNotify.cpp
+        Platform/Linux/Monitors.Gtk.cpp
         Platform/Linux/Dialog.cpp
 )
 
 set(MAC_SOURCES
-        Platform/Mac/AppDelegate.mm
-        Platform/Mac/UiDelegate.mm
-        Platform/Mac/WindowDelegate.mm
-        Platform/Mac/NavigationDelegate.mm
-        Platform/Mac/UrlSchemeHandler.mm
+        Platform/Mac/Delegates/AppDelegate.mm
+        Platform/Mac/Delegates/UiDelegate.mm
+        Platform/Mac/Delegates/WindowDelegate.mm
+        Platform/Mac/Delegates/NavigationDelegate.mm
+        Platform/Mac/Delegates/UrlSchemeHandler.mm
         Platform/Mac/NSWindowBorderless.mm
         Platform/Mac/Dialog.mm
+        Platform/Mac/Notifications.UserNotifications.mm
+        Platform/Mac/Monitors.Cocoa.mm
         Platform/Mac/Core/WindowCore.Cocoa.mm
         Platform/Mac/Core/WindowLifecycle.Cocoa.mm
         Platform/Mac/Core/WindowState.Cocoa.mm
@@ -106,32 +116,32 @@ set(HEADER_FILES
         Embedded/Embedded.h
         Embedded/InfiniFrameJs/InfiniFrameJs.h
         Types/Basic.h
-        Types/Dialog.h
         Types/DialogResult.h
         Types/DialogButtons.h
         Types/DialogIcon.h
         Types/Monitor.h
         Public/InfiniFrameInitParams.h
         Types/Callbacks.h
-        Utils/Common.h
         Utils/Dimensions.h
         Utils/ErrorCode.h
         Utils/Result.h
         Utils/StringCopy.h
+        Utils/StringArrayCopy.h
         Utils/WindowsHandles.h
         Utils/Event.h
         Public/Exports/Exports.h
         Utils/ExportGuards.h
+        Platform/Shared/CustomSchemeResponse.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/Window.Win32.Internal.h
         Platform/Windows/Window.Win32.Context.h
         Platform/Windows/DarkMode.h
-        Platform/Mac/AppDelegate.h
-        Platform/Mac/NavigationDelegate.h
+        Platform/Mac/Delegates/AppDelegate.h
+        Platform/Mac/Delegates/NavigationDelegate.h
         Platform/Mac/NSWindowBorderless.h
-        Platform/Mac/UiDelegate.h
-        Platform/Mac/WindowDelegate.h
-        Platform/Mac/UrlSchemeHandler.h
+        Platform/Mac/Delegates/UiDelegate.h
+        Platform/Mac/Delegates/WindowDelegate.h
+        Platform/Mac/Delegates/UrlSchemeHandler.h
         Platform/Linux/Window.Gtk.Internal.h
         Platform/Linux/WebKit/WebKit.Gtk.Internal.h
         Platform/Mac/Window.Cocoa.Internal.h

@@ -1,5 +1,8 @@
-#ifdef __APPLE__
 #pragma once
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+
 /**
  * @file NSWindowBorderless.h
  * @brief NSWindow subclass that accepts first-mouse events and supports transparent backgrounds
@@ -8,6 +11,10 @@
  * over a fully transparent window background without the standard title bar and borders
  */
 #include "Public/InfiniFrame.h"
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 /**
  * @brief Borderless, transparent NSWindow subclass.
@@ -20,4 +27,3 @@
     {
     }
 @ end
-#endif

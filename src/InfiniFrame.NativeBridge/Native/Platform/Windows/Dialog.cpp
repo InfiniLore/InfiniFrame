@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Public/InfiniFrame.h"
+#include "Utils/StringArrayCopy.h"
 
 #include <iostream>
 #include <shobjidl.h>
@@ -229,7 +230,7 @@ AutoString* GetResults(IFileOpenDialog* pfd, HRESULT* hr, int* resultCount) {
         psiResults->GetCount(&count);
         if (count > 0) {
             *resultCount = static_cast<int>(count);
-            auto** result = new wchar_t*[count]();
+            auto* result = AllocateStringArray(count);
             for (DWORD i = 0; i < count; ++i) {
                 IShellItem* psiItem = nullptr;
                 *hr = psiResults->GetItemAt(i, &psiItem);

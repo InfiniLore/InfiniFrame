@@ -1,0 +1,49 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+#include "Public/InfiniFrameWindow.h"
+#include "Public/InfiniFrameWindowImpl.h"
+#include "Utils/StringCopy.h"
+// ---------------------------------------------------------------------------------------------------------------------
+// Pure property getters that read from InfiniFrameWindowImpl fields with no
+// platform-specific logic. Shared across all platforms.
+// ---------------------------------------------------------------------------------------------------------------------
+void InfiniFrameWindow::GetGrantBrowserPermissions(bool* grant) const {
+    *grant = ImplBase()->_grantBrowserPermissions;
+}
+
+AutoString InfiniFrameWindow::GetUserAgent() const {
+    return AllocateStringCopy(ImplBase()->_userAgent);
+}
+
+void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const {
+    *enabled = ImplBase()->_mediaAutoplayEnabled;
+}
+
+void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const {
+    *enabled = ImplBase()->_fileSystemAccessEnabled;
+}
+
+void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const {
+    *enabled = ImplBase()->_webSecurityEnabled;
+}
+
+void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const {
+    *enabled = ImplBase()->_javascriptClipboardAccessEnabled;
+}
+
+void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const {
+    *enabled = ImplBase()->_mediaStreamEnabled;
+}
+
+void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const {
+    *enabled = ImplBase()->_smoothScrollingEnabled;
+}
+
+void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const {
+    *enabled = ImplBase()->_ignoreCertificateErrorsEnabled;
+}
+
+AutoString InfiniFrameWindow::GetIconFileName() const {
+    return AllocateStringCopy(ImplBase()->_iconFileName);
+}

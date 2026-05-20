@@ -1,13 +1,19 @@
-#ifdef __APPLE__
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 
 #include <simdjson.h>
 
-#include "../AppDelegate.h"
+#include "../Delegates/AppDelegate.h"
 #include "../../../Public/InfiniFrameDialog.h"
 #include "../../../Public/InfiniFrameWindow.h"
 #include "../NSWindowBorderless.h"
 #include "../Window.Cocoa.Internal.h"
-#include "../WindowDelegate.h"
+#include "../Delegates/WindowDelegate.h"
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 void InfiniFrameWindow::Register()
 {
@@ -297,4 +303,5 @@ InfiniFrameWindow::~InfiniFrameWindow()
     [m_impl->_window performClose: m_impl->_window];
 }
 
-#endif
+InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }
+const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept { return m_impl.get(); }

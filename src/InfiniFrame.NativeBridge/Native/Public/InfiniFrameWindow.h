@@ -28,7 +28,9 @@
 #include <vector>
 
 #include "Types/Basic.h"
-#include "Types/Dialog.h"
+#include "Types/DialogButtons.h"
+#include "Types/DialogIcon.h"
+#include "Types/DialogResult.h"
 #include "Types/Callbacks.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -38,6 +40,8 @@ class WinToastHandler;
 #endif
 class InfiniFrameDialog;
 struct InfiniFrameInitParams;
+
+struct InfiniFrameWindowImpl;
 
 /**
  * @brief Main window class providing WebView-based UI
@@ -587,11 +591,17 @@ class InfiniFrameWindow {
 #ifdef _WIN32
     static bool EnsureWebViewIsInstalled();
     static bool InstallWebView2();
+    bool RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentOptions* options);
+    void AttachCustomSchemeHandler();
+    HRESULT ApplyInitialWebViewSettings();
 #endif
 
 #ifdef _WIN32
     friend LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
+
+    InfiniFrameWindowImpl* ImplBase() noexcept;
+    const InfiniFrameWindowImpl* ImplBase() const noexcept;
 
     struct Impl;
     std::unique_ptr<Impl> m_impl;

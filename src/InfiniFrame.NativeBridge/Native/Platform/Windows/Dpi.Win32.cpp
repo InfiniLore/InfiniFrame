@@ -1,17 +1,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
-#include "../Window.Cocoa.Internal.h"
-
+#include "Platform/Windows/Window.Win32.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-
-void InfiniFrameWindow::Invoke(ACTION callback)
-{
-    if ([NSThread isMainThread])
-        callback();
-    else
-        dispatch_sync(dispatch_get_main_queue(), ^(void){ callback(); });
+unsigned int InfiniFrameWindow::GetScreenDpi() const {
+    return GetDpiForWindow(m_impl->_hWnd);
 }

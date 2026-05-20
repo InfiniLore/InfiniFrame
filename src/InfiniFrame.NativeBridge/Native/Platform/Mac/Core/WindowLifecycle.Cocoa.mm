@@ -1,6 +1,12 @@
-#ifdef __APPLE__
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 
 #include "../Window.Cocoa.Internal.h"
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 void InfiniFrameWindow::Center()
 {
@@ -31,22 +37,6 @@ void InfiniFrameWindow::Close()
         [m_impl->_window performClose: m_impl->_window];
 }
 
-void InfiniFrameWindow::ShowNotification(AutoString title, AutoString body)
-{
-    UNMutableNotificationContent *objNotificationContent = [[UNMutableNotificationContent alloc] init];
-    objNotificationContent.title = [NSString stringWithUTF8String: title];
-    objNotificationContent.body = [NSString stringWithUTF8String: body];
-    objNotificationContent.sound = [UNNotificationSound defaultSound];
-    UNTimeIntervalNotificationTrigger *trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval: 0.3 repeats: NO];
-    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier: @"three"
-                                                                          content: objNotificationContent
-                                                                          trigger: trigger];
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    [center addNotificationRequest: request withCompletionHandler: ^(NSError * _Nullable error) {
-        (void)error;
-    }];
-}
-
 void InfiniFrameWindow::WaitForExit()
 {
     if (![NSApp isRunning]) {
@@ -75,5 +65,3 @@ void InfiniFrameWindow::CloseWebView()
 {
     // Not implemented on macOS
 }
-
-#endif
