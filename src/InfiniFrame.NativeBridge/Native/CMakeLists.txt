@@ -58,7 +58,6 @@ set(WINDOWS_SOURCES
         Platform/Windows/Core/WindowLifecycle.Win32.cpp
         Platform/Windows/Core/WindowProc.Win32.cpp
         Platform/Windows/Core/WindowState.Win32.cpp
-        Platform/Windows/Core/WindowEvents.Win32.cpp
         Platform/Windows/Core/UiDispatcher.Win32.cpp
         Platform/Windows/WebView/WebView2Host.Win32.cpp
         Platform/Windows/WebView/WebView2Runtime.Win32.cpp
