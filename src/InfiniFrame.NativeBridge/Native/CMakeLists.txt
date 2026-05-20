@@ -131,6 +131,7 @@ set(HEADER_FILES
         Utils/Event.h
         Public/Exports/Exports.h
         Utils/ExportGuards.h
+        Shared/CustomSchemeResponse.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/Window.Win32.Internal.h
         Platform/Windows/Window.Win32.Context.h
