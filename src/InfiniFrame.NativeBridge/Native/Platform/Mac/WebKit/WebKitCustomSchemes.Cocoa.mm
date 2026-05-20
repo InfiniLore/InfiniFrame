@@ -1,7 +1,13 @@
-#ifdef __APPLE__
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
 
 #include "../Delegates/UrlSchemeHandler.h"
 #include "../Window.Cocoa.Internal.h"
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
 
 void InfiniFrameWindow::Impl::AddCustomScheme(
     const AutoStringConst scheme,
@@ -18,5 +24,3 @@ void InfiniFrameWindow::Impl::AddCustomScheme(
         setURLSchemeHandler: schemeHandler
         forURLScheme: [NSString stringWithUTF8String: scheme]];
 }
-
-#endif
