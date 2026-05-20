@@ -41,6 +41,8 @@ class WinToastHandler;
 class InfiniFrameDialog;
 struct InfiniFrameInitParams;
 
+struct InfiniFrameWindowImpl;
+
 /**
  * @brief Main window class providing WebView-based UI
  *
