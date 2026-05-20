@@ -1,6 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include <stdexcept>
+#include <string>
+
 #include <X11/Xlib.h>
 #include <libnotify/notify.h>
 
@@ -15,14 +18,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
     notify_init(initParams->Title);
 
     if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
-        GtkWidget* dialog = gtk_message_dialog_new(
-            nullptr, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE,
-            "Initial parameters passed are %i bytes, but expected %lu bytes.", initParams->StructSize,
-            sizeof(InfiniFrameInitParams)
+        throw std::invalid_argument(
+            "Initial parameters passed are " + std::to_string(initParams->StructSize) +
+            " bytes, but expected " + std::to_string(sizeof(InfiniFrameInitParams)) + " bytes."
         );
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
-        exit(0);
     }
 
     m_impl->InitializeFromParams(initParams);

@@ -5,6 +5,7 @@
 #include <comdef.h>
 
 #include <format>
+#include <stdexcept>
 
 #include "Embedded/Embedded.h"
 #include "Platform/Windows/Window.Win32.Context.h"
@@ -28,7 +29,7 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
         if (hasConfiguredRuntimePath || EnsureWebViewIsInstalled())
             AttachWebView();
         else
-            exit(0);
+            throw std::runtime_error("WebView2 Runtime is not installed and automatic installation failed.");
     }
 }
 
@@ -239,11 +240,10 @@ void InfiniFrameWindow::AttachWebView() {
                                             self->m_impl->_startString.c_str()
                                         );
                                     else {
-                                        MessageBox(
-                                            nullptr, L"Neither StartUrl nor StartString was specified",
-                                            L"Native Initialization Failed", MB_OK
+                                        OutputDebugStringW(
+                                            L"[InfiniFrame] ERROR: Neither StartUrl nor StartString was specified\n"
                                         );
-                                        exit(0);
+                                        self->m_impl->_isWebView2Initializing = false;
                                     }
                                 }
                             };

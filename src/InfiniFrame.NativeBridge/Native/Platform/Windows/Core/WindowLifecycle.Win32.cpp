@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <format>
+#include <stdexcept>
+#include <string>
 
 #include "Platform/Windows/DarkMode.h"
 #include "Platform/Windows/Window.Win32.Context.h"
@@ -92,12 +94,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
     // Fail fast if caller and native side disagree on struct layout/version.
     if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
-        auto msg = std::format(
-            L"Initial parameters passed are {} bytes, but expected {} bytes.", initParams->StructSize,
-            sizeof(InfiniFrameInitParams)
+        throw std::invalid_argument(
+            "Initial parameters passed are " + std::to_string(initParams->StructSize) +
+            " bytes, but expected " + std::to_string(sizeof(InfiniFrameInitParams)) + " bytes."
         );
-        MessageBox(nullptr, msg.c_str(), L"Native Initialization Failed", MB_OK);
-        exit(0);
     }
 
     // Initialize window title and optional toast notification identity.
