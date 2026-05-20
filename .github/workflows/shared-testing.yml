@@ -113,6 +113,18 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
 
+    sanitizers:
+        name: Native Sanitizer Build
+        if: ${{ inputs.run_linux == true }}
+        needs: [ prepare ]
+        uses: ./.github/workflows/shared-testing-sanitizers.yml
+        with:
+            pr_number: ${{ inputs.pr_number }}
+            checkout_ref: ${{ inputs.checkout_ref }}
+            target_sha: ${{ needs.prepare.outputs.sha }}
+            workflow_url: ${{ format('https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) }}
+        secrets: inherit
+
     linux:
         name: Linux Tests
         if: ${{ inputs.run_linux == true }}

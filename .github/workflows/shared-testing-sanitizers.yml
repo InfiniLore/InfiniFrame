@@ -1,0 +1,84 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
+name: "Shared: Native Sanitizer Build"
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                required: true
+            checkout_ref:
+                type: string
+                default: ''
+                required: false
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+
+permissions:
+    contents: read
+
+jobs:
+    sanitizer:
+        name: Native Sanitizer (Linux x64)
+        runs-on: ubuntu-latest
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        permissions:
+            contents: read
+            statuses: write
+            checks: write
+        steps:
+            -   uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+
+            -   name: Setup Native dependencies
+                uses: ./.github/actions/setup-dependencies-native
+
+            -   name: Set Sanitizer Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Sanitizers/x64
+                    state: pending
+                    status-description: Sanitizer build in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+
+            -   name: Build Native (Debug + ASan/UBSan)
+                shell: pwsh
+                env:
+                    CC: clang
+                    CXX: clang++
+                run: |
+                    ./src/InfiniFrame.NativeBridge/native-build.ps1 `
+                      "Debug" `
+                      "x64" `
+                      "true"
+
+            -   name: Update Sanitizer Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check-finalize
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Sanitizers/x64
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: Sanitizer build passed
+                    failure-description: Sanitizer build failed
