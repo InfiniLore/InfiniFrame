@@ -171,6 +171,14 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
 }
 
 void InfiniFrameWindow::AddCustomSchemeName(const AutoStringConst scheme) {
-    if (scheme)
-        m_impl->_customSchemeNames.emplace_back(ToUTF16String(const_cast<AutoString>(scheme)));
+    if (scheme == nullptr)
+        return;
+    if (m_impl->_customSchemeNames.size() >= InfiniFrameInitParams::MaxCustomSchemeNames)
+        return;
+    std::wstring wide = ToUTF16String(const_cast<AutoString>(scheme));
+    for (const auto& existing : m_impl->_customSchemeNames) {
+        if (_wcsicmp(existing.c_str(), wide.c_str()) == 0)
+            return;
+    }
+    m_impl->_customSchemeNames.emplace_back(std::move(wide));
 }
