@@ -25,7 +25,7 @@ internal static class InvokeUtility {
             value = callback(window);
             completed = true;
         });
-        Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
+        Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
         return value;
     }
 
@@ -37,7 +37,7 @@ internal static class InvokeUtility {
             value = callback(window.InstanceHandle);
             completed = true;
         });
-        Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
+        Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
         return value;
     }
 
@@ -49,7 +49,7 @@ internal static class InvokeUtility {
             callback(window.InstanceHandle, out value);
             completed = true;
         });
-        Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
+        Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
         return value!;
     }
 
@@ -62,7 +62,7 @@ internal static class InvokeUtility {
             result = callback(window.InstanceHandle, out value);
             completed = true;
         });
-        Debug.Assert(completed, "Invoke must be synchronous — callback did not complete before Invoke returned.");
+        Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
         if (validateResult is not null && result is not null) {
             validateResult(result);
         }

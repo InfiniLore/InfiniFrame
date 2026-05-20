@@ -60,7 +60,7 @@ EXPORTED InteropStatus InfiniFrame_GetGrantBrowserPermissions(InfiniFrameWindow*
     });
 }
 
-/// @param[out] value Owned string — caller must free with InfiniFrame_FreeString.
+/// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
 EXPORTED InteropStatus InfiniFrame_GetUserAgent(InfiniFrameWindow* instance, AutoString* value) {
     ResetOut(value, static_cast<AutoString>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
@@ -205,7 +205,7 @@ EXPORTED InteropStatus InfiniFrame_GetMinSize(InfiniFrameWindow* instance, int* 
     });
 }
 
-/// @param[out] value Owned string — caller must free with InfiniFrame_FreeString.
+/// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
 EXPORTED InteropStatus InfiniFrame_GetTitle(InfiniFrameWindow* instance, AutoString* value) {
     ResetOut(value, static_cast<AutoString>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
@@ -242,7 +242,7 @@ EXPORTED InteropStatus InfiniFrame_GetFocused(InfiniFrameWindow* instance, bool*
     });
 }
 
-/// @param[out] value Owned string — caller must free with InfiniFrame_FreeString.
+/// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
 EXPORTED InteropStatus InfiniFrame_GetIconFileName(InfiniFrameWindow* instance, AutoString* value) {
     ResetOut(value, static_cast<AutoString>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {

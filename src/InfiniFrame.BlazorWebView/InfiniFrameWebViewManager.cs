@@ -101,7 +101,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         // IMPORTANT FIX: allow Blazor + app internal scheme BEFORE validation
         // ---------------------------------------------------------------------
         if (requestUri.Scheme == BlazorAppScheme) {
-            // no security policy, no warnings — this is framework/app internal traffic
+            // no security policy, no warnings, this is framework/app internal traffic
 
             string localPath = requestUri.LocalPath;
             bool hasFileExtension = Path.HasExtension(localPath);

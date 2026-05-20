@@ -6,7 +6,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-/// @param[out] values Owned string array — caller must free with InfiniFrame_FreeStringArray(values, resultCount).
+/// @param[out] values Owned string array, caller must free with InfiniFrame_FreeStringArray(values, resultCount).
 EXPORTED InteropStatus InfiniFrame_ShowOpenFile(
     InfiniFrameWindow* inst,
     const AutoString title,
@@ -32,7 +32,7 @@ EXPORTED InteropStatus InfiniFrame_ShowOpenFile(
     });
 }
 
-/// @param[out] values Owned string array — caller must free with InfiniFrame_FreeStringArray(values, resultCount).
+/// @param[out] values Owned string array, caller must free with InfiniFrame_FreeStringArray(values, resultCount).
 EXPORTED InteropStatus InfiniFrame_ShowOpenFolder(
     InfiniFrameWindow* inst,
     const AutoString title,
@@ -53,7 +53,7 @@ EXPORTED InteropStatus InfiniFrame_ShowOpenFolder(
     });
 }
 
-/// @param[out] value Owned string — caller must free with InfiniFrame_FreeString.
+/// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
 EXPORTED InteropStatus InfiniFrame_ShowSaveFile(
     InfiniFrameWindow* inst,
     const AutoString title,
