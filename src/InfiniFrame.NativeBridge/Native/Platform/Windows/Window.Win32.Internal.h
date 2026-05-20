@@ -12,7 +12,7 @@
 #include "Public/InfiniFrameWindow.h"
 #include "Public/InfiniFrameWindowImpl.h"
 #include "Platform/Windows/ToastHandler.h"
-#include "Utils/Common.h"
+#include "Utils/Dimensions.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

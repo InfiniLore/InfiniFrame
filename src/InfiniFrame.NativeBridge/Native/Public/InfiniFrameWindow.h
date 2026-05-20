@@ -28,7 +28,9 @@
 #include <vector>
 
 #include "Types/Basic.h"
-#include "Types/Dialog.h"
+#include "Types/DialogButtons.h"
+#include "Types/DialogIcon.h"
+#include "Types/DialogResult.h"
 #include "Types/Callbacks.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

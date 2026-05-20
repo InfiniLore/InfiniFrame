@@ -4,7 +4,7 @@
 
 #include "../Window.Cocoa.Internal.h"
 
-#include "Utils/Common.h"
+#include "Utils/StringCopy.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

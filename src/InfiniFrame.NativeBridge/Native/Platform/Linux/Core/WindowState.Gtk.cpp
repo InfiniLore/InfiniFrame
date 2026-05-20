@@ -4,7 +4,7 @@
 #include <format>
 #include <string_view>
 
-#include "Utils/Common.h"
+#include "Utils/StringCopy.h"
 #include "Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code

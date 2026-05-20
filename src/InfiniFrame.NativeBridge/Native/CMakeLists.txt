@@ -117,14 +117,12 @@ set(HEADER_FILES
         Embedded/Embedded.h
         Embedded/InfiniFrameJs/InfiniFrameJs.h
         Types/Basic.h
-        Types/Dialog.h
         Types/DialogResult.h
         Types/DialogButtons.h
         Types/DialogIcon.h
         Types/Monitor.h
         Public/InfiniFrameInitParams.h
         Types/Callbacks.h
-        Utils/Common.h
         Utils/Dimensions.h
         Utils/ErrorCode.h
         Utils/Result.h
