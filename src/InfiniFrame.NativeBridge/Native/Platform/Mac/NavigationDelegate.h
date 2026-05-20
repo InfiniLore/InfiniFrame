@@ -4,6 +4,9 @@
  * @file NavigationDelegate.h
  * @brief WKNavigationDelegate that handles TLS certificate validation for the embedded WebView
  */
+#import <Cocoa/Cocoa.h>
+#import <WebKit/WebKit.h>
+#import <Security/SecTrust.h>
 #include "Public/InfiniFrame.h"
 
 /**

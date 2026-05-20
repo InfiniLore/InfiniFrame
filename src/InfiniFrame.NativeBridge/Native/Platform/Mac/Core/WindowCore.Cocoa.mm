@@ -9,6 +9,16 @@
 #include "../Window.Cocoa.Internal.h"
 #include "../WindowDelegate.h"
 
+InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept
+{
+    return m_impl.get();
+}
+
+const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept
+{
+    return m_impl.get();
+}
+
 void InfiniFrameWindow::Register()
 {
     [NSAutoreleasePool new];
@@ -210,22 +220,22 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
     m_impl->SetUserAgent(initParams->UserAgent);
 
-    m_impl->SetPreference(@"developerExtrasEnabled", initParams->DevToolsEnabled ? @YES : @NO);
-    m_impl->SetPreference(@"allowFileAccessFromFileURLs", initParams->FileSystemAccessEnabled ? @YES : @NO);
-    m_impl->SetPreference(@"webSecurityEnabled", initParams->WebSecurityEnabled ? @YES : @NO);
-    m_impl->SetPreference(@"javaScriptCanAccessClipboard", initParams->JavascriptClipboardAccessEnabled ? @YES : @NO);
-    m_impl->SetPreference(@"mediaStreamEnabled", initParams->MediaStreamEnabled ? @YES : @NO);
+    m_impl->SetPreference("developerExtrasEnabled", initParams->DevToolsEnabled);
+    m_impl->SetPreference("allowFileAccessFromFileURLs", initParams->FileSystemAccessEnabled);
+    m_impl->SetPreference("webSecurityEnabled", initParams->WebSecurityEnabled);
+    m_impl->SetPreference("javaScriptCanAccessClipboard", initParams->JavascriptClipboardAccessEnabled);
+    m_impl->SetPreference("mediaStreamEnabled", initParams->MediaStreamEnabled);
 
-    m_impl->SetPreference(@"mediaDevicesEnabled", @YES);
-    m_impl->SetPreference(@"mediaCaptureRequiresSecureConnection", @NO);
+    m_impl->SetPreference("mediaDevicesEnabled", true);
+    m_impl->SetPreference("mediaCaptureRequiresSecureConnection", false);
 
     if ([NSProcessInfo.processInfo isOperatingSystemAtLeastVersion: NSOperatingSystemVersion({13, 3, 0})])
     {
-        m_impl->SetPreference(@"notificationEventEnabled", @YES);
+        m_impl->SetPreference("notificationEventEnabled", true);
     }
 
-    m_impl->SetPreference(@"notificationsEnabled", @YES);
-    m_impl->SetPreference(@"screenCaptureEnabled", @YES);
+    m_impl->SetPreference("notificationsEnabled", true);
+    m_impl->SetPreference("screenCaptureEnabled", true);
 
     if (initParams->BrowserControlInitParameters != nullptr)
     {
@@ -236,17 +246,17 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
             std::string_view key = field.unescaped_key().value();
             auto value = field.value();
 
-            NSString *preferenceKey = [[NSString alloc] initWithBytes:key.data() length:key.length() encoding:NSUTF8StringEncoding];
+            std::string preferenceKey(key.data(), key.length());
 
             switch (value.type()) {
                 case simdjson::ondemand::json_type::number: {
                     int64_t intVal;
                     if (value.get(intVal) == simdjson::SUCCESS) {
-                        m_impl->SetPreference(preferenceKey, [NSNumber numberWithInt: (int)intVal]);
+                        m_impl->SetPreference(preferenceKey.c_str(), intVal);
                     } else {
                         double doubleVal;
                         if (value.get(doubleVal) == simdjson::SUCCESS) {
-                            m_impl->SetPreference(preferenceKey, [NSNumber numberWithDouble: doubleVal]);
+                            m_impl->SetPreference(preferenceKey.c_str(), doubleVal);
                         }
                     }
                     break;
@@ -254,17 +264,15 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
                 case simdjson::ondemand::json_type::boolean: {
                     bool boolVal;
                     if (value.get(boolVal) == simdjson::SUCCESS) {
-                        m_impl->SetPreference(preferenceKey, [NSNumber numberWithBool: boolVal]);
+                        m_impl->SetPreference(preferenceKey.c_str(), boolVal);
                     }
                     break;
                 }
                 case simdjson::ondemand::json_type::string: {
                     std::string_view strVal;
                     if (value.get(strVal) == simdjson::SUCCESS) {
-                        NSString *preferenceValue = [[NSString alloc] initWithBytes:strVal.data()
-                                                                             length:strVal.length()
-                                                                           encoding:NSUTF8StringEncoding];
-                        m_impl->SetPreference(preferenceKey, preferenceValue);
+                        std::string strValStr(strVal.data(), strVal.length());
+                        m_impl->SetPreference(preferenceKey.c_str(), strValStr.c_str());
                     }
                     break;
                 }

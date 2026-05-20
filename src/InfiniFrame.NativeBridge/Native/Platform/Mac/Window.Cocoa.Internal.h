@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <Cocoa/Cocoa.h>
+#include <UserNotifications/UserNotifications.h>
 #include <WebKit/WKWebView.h>
 #include <WebKit/WKWebViewConfiguration.h>
 
@@ -25,9 +26,10 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     CGFloat _preMaximizedXPosition = 0;
     CGFloat _preMaximizedYPosition = 0;
 
-    std::vector<Monitor> GetMonitors() const;
     void SetUserAgent(AutoString userAgent);
-    void SetPreference(NSString* key, NSNumber* value);
-    void SetPreference(NSString* key, NSString* value);
+    void SetPreference(const char* key, bool value);
+    void SetPreference(const char* key, int64_t value);
+    void SetPreference(const char* key, double value);
+    void SetPreference(const char* key, const char* value);
     void AddCustomScheme(const AutoStringConst scheme, WebResourceRequestedCallback requestHandler);
 };

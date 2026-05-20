@@ -8,16 +8,6 @@
 #include <WebView2.h>
 #endif
 
-#ifdef __APPLE__
-#include <Cocoa/Cocoa.h>
-#include <Foundation/Foundation.h>
-#include <UserNotifications/UserNotifications.h>
-#include <WebKit/WebKit.h>
-#include <WebKit/WKWebView.h>
-#include <WebKit/WKWebViewConfiguration.h>
-#include <Security/SecTrust.h>
-#endif
-
 #ifdef __linux__
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
@@ -37,6 +27,7 @@
 class WinToastHandler;
 #endif
 class InfiniFrameDialog;
+struct InfiniFrameWindowImpl;
 struct InfiniFrameInitParams;
 
 /**
@@ -595,6 +586,11 @@ class InfiniFrameWindow {
 
     struct Impl;
     std::unique_ptr<Impl> m_impl;
+
+    /// Returns a pointer to the platform-neutral base impl without exposing platform-specific Impl fields.
+    /// Used by pure-C++ translation units that only need access to InfiniFrameWindowImpl fields.
+    InfiniFrameWindowImpl* ImplBase() noexcept;
+    const InfiniFrameWindowImpl* ImplBase() const noexcept;
 };
 
 #include "InfiniFrameInitParams.h"

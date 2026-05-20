@@ -13,11 +13,6 @@ function(infiniframe_configure_macos_target target_name common_sources test_sour
             ${header_files}
     )
 
-    # Export units include platform headers that require Objective-C++ on macOS.
-    set_source_files_properties(${common_sources} ${test_sources} PROPERTIES
-            LANGUAGE OBJCXX
-    )
-
     target_include_directories(${target_name} PRIVATE "${CMAKE_SOURCE_DIR}")
 
     set_target_properties(${target_name} PROPERTIES

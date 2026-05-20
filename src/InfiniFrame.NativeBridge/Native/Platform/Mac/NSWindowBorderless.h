@@ -7,7 +7,7 @@
  * Used when InfiniFrameInitParams::Transparent is set, allowing the WebView to render
  * over a fully transparent window background without the standard title bar and borders
  */
-#include "Public/InfiniFrame.h"
+#import <Cocoa/Cocoa.h>
 
 /**
  * @brief Borderless, transparent NSWindow subclass.

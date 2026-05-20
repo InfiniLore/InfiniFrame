@@ -4,6 +4,7 @@
  * @file WindowDelegate.h
  * @brief NSWindow delegate that forwards window lifecycle events to InfiniFrameWindow callbacks
  */
+#import <Cocoa/Cocoa.h>
 #include "Public/InfiniFrame.h"
 
 /**

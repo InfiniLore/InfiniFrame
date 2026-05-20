@@ -91,9 +91,12 @@ set(MAC_SOURCES
         Platform/Mac/Dialog.mm
         Platform/Mac/Core/WindowCore.Cocoa.mm
         Platform/Mac/Core/WindowLifecycle.Cocoa.mm
+        Platform/Mac/Core/WindowLifecycle.cpp
         Platform/Mac/Core/WindowState.Cocoa.mm
+        Platform/Mac/Core/WindowState.cpp
         Platform/Mac/Core/WindowEvents.Cocoa.mm
-        Platform/Mac/Core/UiDispatcher.Cocoa.mm
+        Platform/Mac/Core/WindowEvents.cpp
+        Platform/Mac/Core/UiDispatcher.cpp
         Platform/Mac/WebKit/WebKitBridge.Cocoa.mm
         Platform/Mac/WebKit/WebKitCustomSchemes.Cocoa.mm
         Platform/Mac/WebKit/WebKitHost.Cocoa.mm

@@ -1,13 +1,2 @@
-#ifdef __APPLE__
-
-#include "../Window.Cocoa.Internal.h"
-
-void InfiniFrameWindow::Invoke(ACTION callback)
-{
-    if ([NSThread isMainThread])
-        callback();
-    else
-        dispatch_sync(dispatch_get_main_queue(), ^(void){ callback(); });
-}
-
-#endif
+// Invoke() has been moved to UiDispatcher.cpp (pure C++ using dispatch_sync_f).
+// This file is intentionally empty and retained only to avoid stale IDE references.

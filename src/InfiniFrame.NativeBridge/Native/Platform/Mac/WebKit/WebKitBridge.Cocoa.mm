@@ -1,35 +1,6 @@
 #ifdef __APPLE__
 
-#include <vector>
-
 #include "../Window.Cocoa.Internal.h"
-
-std::vector<Monitor> InfiniFrameWindow::Impl::GetMonitors() const
-{
-    std::vector<Monitor> monitors;
-
-    for (NSScreen *screen : [NSScreen screens])
-    {
-        NSRect monitorFrame = [screen frame];
-        Monitor::MonitorRect monitorArea;
-        monitorArea.x = static_cast<int>(roundf(monitorFrame.origin.x));
-        monitorArea.y = static_cast<int>(roundf(monitorFrame.origin.y));
-        monitorArea.width = static_cast<int>(roundf(monitorFrame.size.width));
-        monitorArea.height = static_cast<int>(roundf(monitorFrame.size.height));
-
-        NSRect workFrame = [screen visibleFrame];
-        Monitor::MonitorRect workArea;
-        workArea.x = static_cast<int>(roundf(workFrame.origin.x));
-        workArea.y = static_cast<int>(roundf(workFrame.origin.y));
-        workArea.width = static_cast<int>(roundf(workFrame.size.width));
-        workArea.height = static_cast<int>(roundf(workFrame.size.height));
-
-        CGFloat scaleFactor = [screen backingScaleFactor];
-        monitors.push_back({monitorArea, workArea, static_cast<double>(scaleFactor)});
-    }
-
-    return monitors;
-}
 
 void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
 {
@@ -44,14 +15,29 @@ void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
     }
 }
 
-void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSNumber *value)
+void InfiniFrameWindow::Impl::SetPreference(const char* key, bool value)
 {
-    [_webviewConfiguration.preferences setValue: value forKey: key];
+    NSString* nsKey = [NSString stringWithUTF8String:key];
+    [_webviewConfiguration.preferences setValue:[NSNumber numberWithBool:value] forKey:nsKey];
 }
 
-void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSString *value)
+void InfiniFrameWindow::Impl::SetPreference(const char* key, int64_t value)
 {
-    [_webviewConfiguration.preferences setValue: value forKey: key];
+    NSString* nsKey = [NSString stringWithUTF8String:key];
+    [_webviewConfiguration.preferences setValue:[NSNumber numberWithLongLong:value] forKey:nsKey];
+}
+
+void InfiniFrameWindow::Impl::SetPreference(const char* key, double value)
+{
+    NSString* nsKey = [NSString stringWithUTF8String:key];
+    [_webviewConfiguration.preferences setValue:[NSNumber numberWithDouble:value] forKey:nsKey];
+}
+
+void InfiniFrameWindow::Impl::SetPreference(const char* key, const char* value)
+{
+    NSString* nsKey = [NSString stringWithUTF8String:key];
+    NSString* nsValue = [NSString stringWithUTF8String:value];
+    [_webviewConfiguration.preferences setValue:nsValue forKey:nsKey];
 }
 
 #endif

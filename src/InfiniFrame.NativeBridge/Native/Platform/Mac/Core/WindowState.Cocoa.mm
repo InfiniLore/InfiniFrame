@@ -2,69 +2,7 @@
 
 #include "../Window.Cocoa.Internal.h"
 
-#include "Utils/Common.h"
-
 static const int MAX_WINDOW_DIMENSION = 10000;
-
-void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
-{
-    *enabled = false;
-}
-
-void InfiniFrameWindow::GetContextMenuEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_contextMenuEnabled;
-}
-
-void InfiniFrameWindow::GetZoomEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_zoomEnabled;
-}
-
-void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_devToolsEnabled;
-}
-
-void InfiniFrameWindow::GetGrantBrowserPermissions(bool* enabled) const
-{
-    *enabled = m_impl->_grantBrowserPermissions;
-}
-
-AutoString InfiniFrameWindow::GetUserAgent() const
-{
-    return AllocateStringCopy(m_impl->_userAgent);
-}
-
-void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const
-{
-    *enabled = true;
-}
-
-void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_fileSystemAccessEnabled;
-}
-
-void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const
-{
-    *enabled = false;
-}
-
-void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_webSecurityEnabled;
-}
-
-void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_javascriptClipboardAccessEnabled;
-}
-
-void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_mediaStreamEnabled;
-}
 
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const
 {
@@ -104,11 +42,6 @@ void InfiniFrameWindow::GetResizable(bool* resizable) const
     *resizable = (([m_impl->_window styleMask] & NSWindowStyleMaskResizable) == NSWindowStyleMaskResizable);
 }
 
-void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_ignoreCertificateErrorsEnabled;
-}
-
 void InfiniFrameWindow::GetFocused(bool* isFocused) const
 {
     if (!isFocused)
@@ -121,11 +54,6 @@ void InfiniFrameWindow::GetFocused(bool* isFocused) const
     }
 
     *isFocused = [NSApp isActive] && [m_impl->_window isKeyWindow];
-}
-
-unsigned int InfiniFrameWindow::GetScreenDpi() const
-{
-    return 72;
 }
 
 void InfiniFrameWindow::GetSize(int* width, int* height) const
@@ -149,11 +77,6 @@ void InfiniFrameWindow::GetMinSize(int* width, int* height) const
     if (height) *height = static_cast<int>(roundf(minSize.height));
 }
 
-AutoString InfiniFrameWindow::GetTitle() const
-{
-    return AllocateStringCopy(m_impl->_windowTitle);
-}
-
 void InfiniFrameWindow::GetTopmost(bool* topmost) const
 {
     *topmost = ([m_impl->_window level] & NSFloatingWindowLevel) == NSFloatingWindowLevel;
@@ -164,11 +87,6 @@ void InfiniFrameWindow::GetZoom(int* zoom) const
     CGFloat rawValue = [m_impl->_webview magnification];
     rawValue = (rawValue * 100.0) + 0.5;
     *zoom = static_cast<int>(rawValue);
-}
-
-AutoString InfiniFrameWindow::GetIconFileName() const
-{
-    return AllocateStringCopy(m_impl->_iconFileName);
 }
 
 void InfiniFrameWindow::NavigateToString(AutoString content)
@@ -182,16 +100,6 @@ void InfiniFrameWindow::NavigateToUrl(AutoString url)
     NSURL *nsurl = [NSURL URLWithString: nsurlstring];
     NSURLRequest *nsrequest = [NSURLRequest requestWithURL: nsurl];
     [m_impl->_webview loadRequest: nsrequest];
-}
-
-void InfiniFrameWindow::Restore()
-{
-    bool minimized;
-    bool maximized;
-    GetMinimized(&minimized);
-    GetMaximized(&maximized);
-    if (minimized) SetMinimized(false);
-    if (maximized) SetMaximized(false);
 }
 
 void InfiniFrameWindow::SendWebMessage(AutoString message)
@@ -221,22 +129,7 @@ void InfiniFrameWindow::SendWebMessage(AutoString message)
 void InfiniFrameWindow::SetDevToolsEnabled(bool enabled)
 {
     m_impl->_devToolsEnabled = enabled;
-    m_impl->SetPreference(@"developerExtrasEnabled", enabled ? @YES : @NO);
-}
-
-void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
-{
-    (void)enabled;
-}
-
-void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
-{
-    (void)enabled;
-}
-
-void InfiniFrameWindow::SetZoomEnabled(bool enabled)
-{
-    (void)enabled;
+    m_impl->SetPreference("developerExtrasEnabled", enabled);
 }
 
 void InfiniFrameWindow::SetIconFile(AutoString filename)

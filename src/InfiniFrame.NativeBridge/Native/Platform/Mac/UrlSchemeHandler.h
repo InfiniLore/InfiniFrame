@@ -4,6 +4,8 @@
  * @file UrlSchemeHandler.h
  * @brief WKURLSchemeHandler that intercepts custom-scheme requests and serves responses from the .NET layer
  */
+#import <Cocoa/Cocoa.h>
+#import <WebKit/WebKit.h>
 #include "Public/InfiniFrame.h"
 
 /**

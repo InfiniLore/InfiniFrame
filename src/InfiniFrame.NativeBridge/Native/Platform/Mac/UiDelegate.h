@@ -4,6 +4,8 @@
  * @file UiDelegate.h
  * @brief WKUIDelegate and WKScriptMessageHandler that routes JavaScript messages to the .NET layer
  */
+#import <Cocoa/Cocoa.h>
+#import <WebKit/WebKit.h>
 #include "Public/InfiniFrame.h"
 
 /**

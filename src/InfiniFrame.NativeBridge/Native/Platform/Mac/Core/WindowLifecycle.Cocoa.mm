@@ -8,11 +8,6 @@ void InfiniFrameWindow::Center()
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
 }
 
-void InfiniFrameWindow::ClearBrowserAutoFill()
-{
-    // TODO
-}
-
 void InfiniFrameWindow::Close()
 {
     if (m_impl->_parentWillCloseObserver != nil) {
@@ -69,11 +64,6 @@ void InfiniFrameWindow::WaitForExit()
     }
 
     [[NSNotificationCenter defaultCenter] removeObserver: observer];
-}
-
-void InfiniFrameWindow::CloseWebView()
-{
-    // Not implemented on macOS
 }
 
 #endif
