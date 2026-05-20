@@ -41,6 +41,8 @@ set(COMMON_SOURCES
         Public/Exports/Exports.Dialog.cpp
         Public/Exports/Exports.Events.cpp
         Public/Exports/Exports.Memory.cpp
+        Platform/Shared/WindowEvents.cpp
+        Platform/Shared/WindowState.cpp
 )
 
 set(TEST_SOURCES
@@ -132,7 +134,7 @@ set(HEADER_FILES
         Utils/Event.h
         Public/Exports/Exports.h
         Utils/ExportGuards.h
-        Shared/CustomSchemeResponse.h
+        Platform/Shared/CustomSchemeResponse.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/Window.Win32.Internal.h
         Platform/Windows/Window.Win32.Context.h

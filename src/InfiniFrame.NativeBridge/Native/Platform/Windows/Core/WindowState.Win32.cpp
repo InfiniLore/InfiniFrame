@@ -13,52 +13,12 @@ void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const {
     *fullScreen = (lStyles & WS_POPUP) != 0;
 }
 
-void InfiniFrameWindow::GetGrantBrowserPermissions(bool* grant) const {
-    *grant = m_impl->_grantBrowserPermissions;
-}
-
-AutoString InfiniFrameWindow::GetUserAgent() const {
-    return AllocateStringCopy(m_impl->_userAgent);
-}
-
-void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const {
-    *enabled = m_impl->_mediaAutoplayEnabled;
-}
-
-void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const {
-    *enabled = m_impl->_fileSystemAccessEnabled;
-}
-
-void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const {
-    *enabled = m_impl->_webSecurityEnabled;
-}
-
-void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const {
-    *enabled = m_impl->_javascriptClipboardAccessEnabled;
-}
-
-void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const {
-    *enabled = m_impl->_mediaStreamEnabled;
-}
-
-void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const {
-    *enabled = m_impl->_smoothScrollingEnabled;
-}
-
-void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const {
-    *enabled = m_impl->_ignoreCertificateErrorsEnabled;
-}
-
 void InfiniFrameWindow::GetFocused(bool* isFocused) const {
     *isFocused = GetFocus() == m_impl->_hWnd;
 }
 
 void InfiniFrameWindow::GetNotificationsEnabled(bool* enabled) const {
     *enabled = m_impl->_notificationsEnabled;
-}
-
-AutoString InfiniFrameWindow::GetIconFileName() const {
-    return AllocateStringCopy(m_impl->_iconFileName);
 }
 
 void InfiniFrameWindow::GetMaximized(bool* isMaximized) const {

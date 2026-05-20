@@ -32,46 +32,6 @@ void InfiniFrameWindow::GetDevToolsEnabled(bool* enabled) const
     *enabled = m_impl->_devToolsEnabled;
 }
 
-void InfiniFrameWindow::GetGrantBrowserPermissions(bool* enabled) const
-{
-    *enabled = m_impl->_grantBrowserPermissions;
-}
-
-AutoString InfiniFrameWindow::GetUserAgent() const
-{
-    return AllocateStringCopy(m_impl->_userAgent);
-}
-
-void InfiniFrameWindow::GetMediaAutoplayEnabled(bool* enabled) const
-{
-    *enabled = true;
-}
-
-void InfiniFrameWindow::GetFileSystemAccessEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_fileSystemAccessEnabled;
-}
-
-void InfiniFrameWindow::GetSmoothScrollingEnabled(bool* enabled) const
-{
-    *enabled = false;
-}
-
-void InfiniFrameWindow::GetWebSecurityEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_webSecurityEnabled;
-}
-
-void InfiniFrameWindow::GetJavascriptClipboardAccessEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_javascriptClipboardAccessEnabled;
-}
-
-void InfiniFrameWindow::GetMediaStreamEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_mediaStreamEnabled;
-}
-
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const
 {
     *fullScreen = ([m_impl->_window styleMask] & NSWindowStyleMaskFullScreen) != 0;
@@ -108,11 +68,6 @@ void InfiniFrameWindow::GetPosition(int* x, int* y) const
 void InfiniFrameWindow::GetResizable(bool* resizable) const
 {
     *resizable = (([m_impl->_window styleMask] & NSWindowStyleMaskResizable) == NSWindowStyleMaskResizable);
-}
-
-void InfiniFrameWindow::GetIgnoreCertificateErrorsEnabled(bool* enabled) const
-{
-    *enabled = m_impl->_ignoreCertificateErrorsEnabled;
 }
 
 void InfiniFrameWindow::GetFocused(bool* isFocused) const
@@ -170,11 +125,6 @@ void InfiniFrameWindow::GetZoom(int* zoom) const
     CGFloat rawValue = [m_impl->_webview magnification];
     rawValue = (rawValue * 100.0) + 0.5;
     *zoom = static_cast<int>(rawValue);
-}
-
-AutoString InfiniFrameWindow::GetIconFileName() const
-{
-    return AllocateStringCopy(m_impl->_iconFileName);
 }
 
 void InfiniFrameWindow::NavigateToString(AutoString content)

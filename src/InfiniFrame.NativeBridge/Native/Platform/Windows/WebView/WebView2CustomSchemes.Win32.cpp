@@ -4,7 +4,7 @@
 #include <WebView2EnvironmentOptions.h>
 
 #include "Platform/Windows/Window.Win32.Context.h"
-#include "Shared/CustomSchemeResponse.h"
+#include "Platform/Shared/CustomSchemeResponse.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

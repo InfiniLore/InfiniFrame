@@ -596,6 +596,9 @@ class InfiniFrameWindow {
     friend LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 
+    InfiniFrameWindowImpl* ImplBase() noexcept;
+    const InfiniFrameWindowImpl* ImplBase() const noexcept;
+
     struct Impl;
     std::unique_ptr<Impl> m_impl;
 };

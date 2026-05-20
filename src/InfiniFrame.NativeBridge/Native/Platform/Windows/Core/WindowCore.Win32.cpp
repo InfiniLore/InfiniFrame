@@ -273,6 +273,9 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
 InfiniFrameWindow::~InfiniFrameWindow() {}
 
+InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }
+const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept { return m_impl.get(); }
+
 HWND InfiniFrameWindow::getHwnd() {
     return m_impl->_hWnd;
 }

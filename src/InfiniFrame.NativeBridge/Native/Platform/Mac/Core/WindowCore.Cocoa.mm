@@ -302,3 +302,6 @@ InfiniFrameWindow::~InfiniFrameWindow()
     [m_impl->_webview release];
     [m_impl->_window performClose: m_impl->_window];
 }
+
+InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }
+const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept { return m_impl.get(); }
