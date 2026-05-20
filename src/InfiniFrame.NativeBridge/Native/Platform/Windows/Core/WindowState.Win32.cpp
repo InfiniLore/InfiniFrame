@@ -8,26 +8,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-void InfiniFrameWindow::Center() {
-    int screenDpi = GetDpiForWindow(m_impl->_hWnd);
-    int screenHeight = GetSystemMetricsForDpi(SM_CYSCREEN, screenDpi);
-    int screenWidth = GetSystemMetricsForDpi(SM_CXSCREEN, screenDpi);
-
-    RECT windowRect = {};
-    GetWindowRect(m_impl->_hWnd, &windowRect);
-    int windowHeight = windowRect.bottom - windowRect.top;
-    int windowWidth = windowRect.right - windowRect.left;
-
-    int left = (screenWidth / 2) - (windowWidth / 2);
-    int top = (screenHeight / 2) - (windowHeight / 2);
-
-    SetPosition(left, top);
-}
-
-void InfiniFrameWindow::Close() {
-    PostMessage(m_impl->_hWnd, WM_CLOSE, 0, 0);
-}
-
 void InfiniFrameWindow::GetFullScreen(bool* fullScreen) const {
     LONG lStyles = GetWindowLong(m_impl->_hWnd, GWL_STYLE);
     *fullScreen = (lStyles & WS_POPUP) != 0;

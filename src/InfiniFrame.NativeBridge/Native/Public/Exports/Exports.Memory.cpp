@@ -43,17 +43,10 @@ EXPORTED InteropStatus InfiniFrame_FreeStringArray(AutoString* values, const int
 
 EXPORTED InteropStatus InfiniFrame_GetLastErrorMessage(AutoString* value) {
     ResetOut(value, static_cast<AutoString>(nullptr));
-    if (!EnsureOutNotNull(value, "value"))
-        return InteropStatus::OutParameterSetToInvalidNull;
-
-    try {
+    return RunExportStatus([&] {
+        if (!EnsureOutNotNull(value, "value"))
+            return;
         *value = GetLastErrorMessageCopy();
-        return InteropStatus::Success;
-    } catch (const std::exception& ex) {
-        return infiniframe::exports::detail::TranslateException(ex);
-    } catch (...) {
-        infiniframe::exports::detail::SetFailure(InteropStatus::OperationFailed, "Unknown native exception.");
-        return InteropStatus::OperationFailed;
-    }
+    });
 }
 }

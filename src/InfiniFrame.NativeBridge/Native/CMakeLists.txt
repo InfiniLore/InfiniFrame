@@ -127,6 +127,7 @@ set(HEADER_FILES
         Utils/ErrorCode.h
         Utils/Result.h
         Utils/StringCopy.h
+        Utils/StringArrayCopy.h
         Utils/WindowsHandles.h
         Utils/Event.h
         Public/Exports/Exports.h

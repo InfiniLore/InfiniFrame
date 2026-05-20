@@ -54,10 +54,6 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     EventRegistrationToken _webMessageReceivedToken = {};
     EventRegistrationToken _webResourceRequestedTokenForCustomScheme = {};
     EventRegistrationToken _permissionRequestedToken = {};
-    EventRegistrationToken _windowClosedToken = {};
-    EventRegistrationToken _windowClosingToken = {};
-    EventRegistrationToken _documentTitleChangedToken = {};
-    EventRegistrationToken _coreWebView2InitializedToken = {};
     bool _hasWebMessageReceivedToken = false;
     bool _hasWebResourceRequestedToken = false;
     bool _hasPermissionRequestedToken = false;
