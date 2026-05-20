@@ -65,19 +65,30 @@ bool InfiniFrameWindow::RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentO
     return true;
 }
 
+// Installs request interception used to serve responses for registered custom schemes.
+// This handler must work across multiple WebView2 runtime versions.
 void InfiniFrameWindow::AttachCustomSchemeHandler() {
     EventRegistrationToken webResourceRequestedToken;
+
+    // Prefer the newer API when available so we can include request source kinds.
+    // Fall back to the older filter API for compatibility with older runtimes.
     auto webview23 = m_impl->_webviewWindow.try_query<ICoreWebView2_23>();
     if (webview23) {
+        // Intercept all URL patterns/contexts/source kinds. The custom-scheme dispatch
+        // decision is made inside the callback after inspecting the request URI.
         webview23->AddWebResourceRequestedFilterWithRequestSourceKinds(
             L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL,
             COREWEBVIEW2_WEB_RESOURCE_REQUEST_SOURCE_KINDS_ALL
         );
     } else {
+        // Compatibility path for runtimes that do not expose ICoreWebView2_23.
         m_impl->_webviewWindow->AddWebResourceRequestedFilter(
             L"*", COREWEBVIEW2_WEB_RESOURCE_CONTEXT_ALL
         );
     }
+
+    // Central interception callback: validates/normalizes custom-scheme requests and
+    // attaches a synthetic response when the request targets an application-owned scheme.
     m_impl->_webviewWindow->add_WebResourceRequested(
         Callback<ICoreWebView2WebResourceRequestedEventHandler>(
             [this](ICoreWebView2*, ICoreWebView2WebResourceRequestedEventArgs* args) {
@@ -166,6 +177,8 @@ void InfiniFrameWindow::AttachCustomSchemeHandler() {
         ).Get(),
         &webResourceRequestedToken
     );
+
+    // Persist registration state so the handler can be removed during teardown.
     m_impl->_webResourceRequestedTokenForCustomScheme = webResourceRequestedToken;
     m_impl->_hasWebResourceRequestedToken = true;
 }
