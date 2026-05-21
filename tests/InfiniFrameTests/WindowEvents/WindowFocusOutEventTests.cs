@@ -5,7 +5,6 @@ using InfiniFrame;
 using InfiniFrameTests.Shared;
 
 namespace InfiniFrameTests.WindowEvents;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,11 +16,11 @@ public class WindowFocusOutEventTests {
     public async Task TestWindowFocusOutEvent(CancellationToken ct = default) {
         // Arrange
         int focusOutEventCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder
-            .RegisterFocusOutHandler(_ => {
-                // ReSharper disable once AccessToModifiedClosure
-                Interlocked.Increment(ref focusOutEventCount);
-            })
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+                .RegisterFocusOutHandler(_ => {
+                    // ReSharper disable once AccessToModifiedClosure
+                    Interlocked.Increment(ref focusOutEventCount);
+                })
             , ct
         );
 
@@ -31,11 +30,11 @@ public class WindowFocusOutEventTests {
         await Task.Delay(100, ct);
         int baseline = Volatile.Read(ref focusOutEventCount);
 
-        // Act — minimize causes WM_ACTIVATE with WA_INACTIVE → FocusOut
+        // Act: minimize causes WM_ACTIVATE with WA_INACTIVE → FocusOut
         windowUtility.Window.SetMinimized(true);
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref focusOutEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForChangeAsync(getValue: () => Volatile.Read(ref focusOutEventCount), baseline, TimeSpan.FromSeconds(5), ct);
         await Assert.That(focusOutEventCount).IsGreaterThanOrEqualTo(baseline + 1);
     }
 }

@@ -5,7 +5,6 @@ using InfiniFrame;
 using InfiniFrameTests.Shared;
 
 namespace InfiniFrameTests.WindowEvents;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -17,11 +16,11 @@ public class WindowMinimizedEventTests {
     public async Task TestWindowMinimizedEvent(CancellationToken ct = default) {
         // Arrange
         int minimizedEventCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder
-            .RegisterMinimizedHandler(_ => {
-                // ReSharper disable once AccessToModifiedClosure
-                Interlocked.Increment(ref minimizedEventCount);
-            })
+        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+                .RegisterMinimizedHandler(_ => {
+                    // ReSharper disable once AccessToModifiedClosure
+                    Interlocked.Increment(ref minimizedEventCount);
+                })
             , ct
         );
         int baseline = Volatile.Read(ref minimizedEventCount);
@@ -30,7 +29,7 @@ public class WindowMinimizedEventTests {
         windowUtility.Window.SetMinimized(true);
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref minimizedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForChangeAsync(getValue: () => Volatile.Read(ref minimizedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
         await Assert.That(minimizedEventCount).IsEqualTo(baseline + 1);
     }
 }
