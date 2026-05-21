@@ -24,15 +24,13 @@ public class WindowFocusInEventTests {
             })
             , ct
         );
+        int baseline = Volatile.Read(ref focusInEventCount);
 
         // Act
         windowUtility.Window.SetFocused();
-        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (Volatile.Read(ref focusInEventCount) < 1 && DateTime.UtcNow < timeoutAt) {
-            await Task.Delay(50, ct);
-        }
 
         // Assert
-        await Assert.That(focusInEventCount).IsGreaterThanOrEqualTo(1);
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref focusInEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(focusInEventCount).IsGreaterThanOrEqualTo(baseline + 1);
     }
 }

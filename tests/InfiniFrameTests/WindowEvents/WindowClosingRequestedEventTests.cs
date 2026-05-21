@@ -24,15 +24,13 @@ public class WindowClosingRequestedEventTests {
             })
             , ct
         );
+        int baseline = Volatile.Read(ref closingRequestedEventCount);
 
         // Act
         windowUtility.Window.Close();
-        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (Volatile.Read(ref closingRequestedEventCount) < 1 && DateTime.UtcNow < timeoutAt) {
-            await Task.Delay(50, ct);
-        }
 
         // Assert
-        await Assert.That(closingRequestedEventCount).IsEqualTo(1);
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref closingRequestedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(closingRequestedEventCount).IsEqualTo(baseline + 1);
     }
 }

@@ -25,17 +25,17 @@ public class WindowFocusOutEventTests {
             , ct
         );
 
-        // Act — minimize causes the window to lose focus
+        // Ensure the window is focused before recording the baseline,
+        // so that minimizing it produces a clean FocusOut transition
         windowUtility.Window.SetFocused();
         await Task.Delay(100, ct);
+        int baseline = Volatile.Read(ref focusOutEventCount);
+
+        // Act — minimize causes WM_ACTIVATE with WA_INACTIVE → FocusOut
         windowUtility.Window.SetMinimized(true);
 
-        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (Volatile.Read(ref focusOutEventCount) < 1 && DateTime.UtcNow < timeoutAt) {
-            await Task.Delay(50, ct);
-        }
-
         // Assert
-        await Assert.That(focusOutEventCount).IsGreaterThanOrEqualTo(1);
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref focusOutEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(focusOutEventCount).IsGreaterThanOrEqualTo(baseline + 1);
     }
 }

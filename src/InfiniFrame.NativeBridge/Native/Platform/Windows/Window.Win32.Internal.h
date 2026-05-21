@@ -38,6 +38,11 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
     RECT _savedRect = {};
 
+    int _lastLeft = INT_MIN;
+    int _lastTop = INT_MIN;
+    int _lastWidth = INT_MIN;
+    int _lastHeight = INT_MIN;
+
     int _zoom = 100;
     int _minWidth = MinWindowDimension;
     int _minHeight = MinWindowDimension;

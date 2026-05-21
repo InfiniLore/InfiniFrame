@@ -25,7 +25,8 @@ public class WindowCreatingEventTests {
             , ct
         );
 
-        // Assert
+        // Assert — event fires synchronously during Build(); no act step needed
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref creatingEventCount), 0, TimeSpan.FromSeconds(5), ct);
         await Assert.That(creatingEventCount).IsEqualTo(1);
     }
 }

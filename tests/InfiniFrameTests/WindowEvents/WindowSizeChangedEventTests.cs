@@ -15,24 +15,23 @@ public class WindowSizeChangedEventTests {
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestWindowSizeChangedEvent(CancellationToken ct = default) {
-        // Arrange
+        // Arrange — start at a known size so the second SetSize guarantees a change
         int sizeChangedCount = 0;
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder => builder
+            .SetSize(800, 600)
             .RegisterSizeChangedHandler((_, _) => {
                 // ReSharper disable once AccessToModifiedClosure
                 Interlocked.Increment(ref sizeChangedCount);
             })
             , ct
         );
+        int baseline = Volatile.Read(ref sizeChangedCount);
 
         // Act
-        windowUtility.Window.SetSize(640, 480);
-        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (Volatile.Read(ref sizeChangedCount) < 1 && DateTime.UtcNow < timeoutAt) {
-            await Task.Delay(50, ct);
-        }
+        windowUtility.Window.SetSize(400, 300);
 
         // Assert
-        await Assert.That(sizeChangedCount).IsGreaterThanOrEqualTo(1);
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref sizeChangedCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(sizeChangedCount).IsGreaterThanOrEqualTo(baseline + 1);
     }
 }

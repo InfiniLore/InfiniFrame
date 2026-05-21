@@ -25,14 +25,14 @@ public class WindowLocationChangedEventTests {
             , ct
         );
 
-        // Act
-        windowUtility.Window.MoveWithinCurrentMonitorArea(100, 100);
-        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (Volatile.Read(ref locationChangedCount) < 1 && DateTime.UtcNow < timeoutAt) {
-            await Task.Delay(50, ct);
-        }
+        // Act — move to a known position first to establish a stable baseline,
+        // then record the count and move to a different position
+        windowUtility.Window.SetLocation(50, 50);
+        int baseline = Volatile.Read(ref locationChangedCount);
+        windowUtility.Window.SetLocation(150, 150);
 
         // Assert
-        await Assert.That(locationChangedCount).IsGreaterThanOrEqualTo(1);
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref locationChangedCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(locationChangedCount).IsGreaterThanOrEqualTo(baseline + 1);
     }
 }

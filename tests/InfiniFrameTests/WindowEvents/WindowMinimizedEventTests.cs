@@ -24,15 +24,13 @@ public class WindowMinimizedEventTests {
             })
             , ct
         );
+        int baseline = Volatile.Read(ref minimizedEventCount);
 
         // Act
         windowUtility.Window.SetMinimized(true);
-        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (Volatile.Read(ref minimizedEventCount) < 1 && DateTime.UtcNow < timeoutAt) {
-            await Task.Delay(50, ct);
-        }
 
         // Assert
-        await Assert.That(minimizedEventCount).IsEqualTo(1);
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref minimizedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(minimizedEventCount).IsEqualTo(baseline + 1);
     }
 }

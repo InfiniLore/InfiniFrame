@@ -28,15 +28,12 @@ public class WindowRestoredEventTests {
         // Act — maximize first, then restore
         windowUtility.Window.SetMaximized(true);
         await Task.Delay(100, ct);
+        int baseline = Volatile.Read(ref restoredEventCount);
         windowUtility.Window.SetMaximized(false);
 
-        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (Volatile.Read(ref restoredEventCount) < 1 && DateTime.UtcNow < timeoutAt) {
-            await Task.Delay(50, ct);
-        }
-
         // Assert
-        await Assert.That(restoredEventCount).IsEqualTo(1);
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref restoredEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(restoredEventCount).IsEqualTo(baseline + 1);
     }
 
     [Test]
@@ -57,14 +54,11 @@ public class WindowRestoredEventTests {
         // Act — minimize first, then restore
         windowUtility.Window.SetMinimized(true);
         await Task.Delay(100, ct);
+        int baseline = Volatile.Read(ref restoredEventCount);
         windowUtility.Window.SetMinimized(false);
 
-        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (Volatile.Read(ref restoredEventCount) < 1 && DateTime.UtcNow < timeoutAt) {
-            await Task.Delay(50, ct);
-        }
-
         // Assert
-        await Assert.That(restoredEventCount).IsEqualTo(1);
+        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref restoredEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(restoredEventCount).IsEqualTo(baseline + 1);
     }
 }
