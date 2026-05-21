@@ -115,13 +115,36 @@ jobs:
 
                     echo "=== Running Tests ==="
 
+                    exit_code=0
+
                     dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
                       --configuration Release \
                       --no-build \
                       --no-restore \
+                      --framework net8.0 \
                       -p:NativeArch=${{ matrix.arch }} \
                       -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} || exit_code=$?
+
+                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework net9.0 \
+                      -p:NativeArch=${{ matrix.arch }} \
+                      -p:InfiniFrameSkipNativeBuild=true \
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} || exit_code=$?
+
+                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework net10.0 \
+                      -p:NativeArch=${{ matrix.arch }} \
+                      -p:InfiniFrameSkipNativeBuild=true \
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} || exit_code=$?
+
+                    exit $exit_code
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
