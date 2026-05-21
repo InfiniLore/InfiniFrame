@@ -2,19 +2,14 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $composeFile = Join-Path $scriptDir "..\compose\infiniframe-linux-arm64.yml"
 
+$displayValue = if ($env:DISPLAY) { $env:DISPLAY } else { ":0" }
 $playwrightVisibleDebugValue = if ($env:PLAYWRIGHT_VISIBLE_DEBUG) { $env:PLAYWRIGHT_VISIBLE_DEBUG } else { "0" }
 $playwrightVisibleDebugSecondsValue = if ($env:PLAYWRIGHT_VISIBLE_DEBUG_SECONDS) { $env:PLAYWRIGHT_VISIBLE_DEBUG_SECONDS } else { "8" }
 
-$extraArgs = @(
-    "-e", "PLAYWRIGHT_VISIBLE_DEBUG=$playwrightVisibleDebugValue",
-    "-e", "PLAYWRIGHT_VISIBLE_DEBUG_SECONDS=$playwrightVisibleDebugSecondsValue"
-)
-
-if ($env:USE_HOST_DISPLAY -eq "1") {
-    $displayValue = if ($env:DISPLAY) { $env:DISPLAY } else { ":0" }
-    $extraArgs += "-e", "USE_HOST_DISPLAY=1"
-    $extraArgs += "-e", "DISPLAY=$displayValue"
-    $extraArgs += "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
-}
-
-docker compose -f $composeFile run --rm @extraArgs linux-arm64-tests-playwright
+docker compose -f $composeFile run --rm `
+    -e USE_HOST_DISPLAY=1 `
+    -e DISPLAY=$displayValue `
+    -e PLAYWRIGHT_VISIBLE_DEBUG=$playwrightVisibleDebugValue `
+    -e PLAYWRIGHT_VISIBLE_DEBUG_SECONDS=$playwrightVisibleDebugSecondsValue `
+    -v /tmp/.X11-unix:/tmp/.X11-unix `
+    linux-arm64-tests-playwright

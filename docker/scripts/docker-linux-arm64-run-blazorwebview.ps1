@@ -2,13 +2,10 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $composeFile = Join-Path $scriptDir "..\compose\infiniframe-linux-arm64.yml"
 
-$extraArgs = @()
+$displayValue = if ($env:DISPLAY) { $env:DISPLAY } else { ":0" }
 
-if ($env:USE_HOST_DISPLAY -eq "1") {
-    $displayValue = if ($env:DISPLAY) { $env:DISPLAY } else { ":0" }
-    $extraArgs += "-e", "USE_HOST_DISPLAY=1"
-    $extraArgs += "-e", "DISPLAY=$displayValue"
-    $extraArgs += "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
-}
-
-docker compose -f $composeFile run --rm @extraArgs linux-arm64-example-blazorwebview
+docker compose -f $composeFile run --rm `
+    -e USE_HOST_DISPLAY=1 `
+    -e DISPLAY=$displayValue `
+    -v /tmp/.X11-unix:/tmp/.X11-unix `
+    linux-arm64-example-blazorwebview

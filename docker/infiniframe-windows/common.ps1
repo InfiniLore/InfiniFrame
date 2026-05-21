@@ -30,6 +30,7 @@ function Build-NativeProject {
     dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj `
         --configuration $script:Configuration `
         --no-restore `
+        /p:SolutionDir="C:\work\" `
         /p:Platform=$script:NativePlatform
 }
 
