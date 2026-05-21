@@ -150,8 +150,53 @@ void InfiniFrameWindow::Restore()
     if (maximized) SetMaximized(false);
 }
 
+static std::string BuildMacWebMessageJs(AutoString message) {
+    @autoreleasepool {
+        NSString* nsmessage = [NSString stringWithUTF8String: message];
+
+        NSData* data = [
+            NSJSONSerialization
+            dataWithJSONObject: @[nsmessage]
+            options: 0
+            error: nil];
+
+        NSString *nsmessageJson = [
+            [[NSString alloc]
+            initWithData: data
+            encoding: NSUTF8StringEncoding] autorelease];
+
+        nsmessageJson = [
+            [nsmessageJson substringToIndex: ([nsmessageJson length] - 1)]
+            substringFromIndex: 1
+        ];
+
+        NSString *javaScriptToEval = [NSString stringWithFormat: @"__dispatchMessageCallback(%@)", nsmessageJson];
+        return std::string([javaScriptToEval UTF8String]);
+    }
+}
+
+void InfiniFrameWindow::FlushPendingWebMessages() {
+    m_impl->_webviewReady = true;
+    if (m_impl->_pendingWebMessages.empty())
+        return;
+
+    for (const auto& js : m_impl->_pendingWebMessages) {
+        NSString* nsJs = [NSString stringWithUTF8String: js.c_str()];
+        [m_impl->_webview evaluateJavaScript: nsJs completionHandler: nil];
+    }
+    m_impl->_pendingWebMessages.clear();
+}
+
 void InfiniFrameWindow::SendWebMessage(AutoString message)
 {
+    if (!m_impl->_webviewReady) {
+        // WKWebView is still loading (e.g. message sent from WindowCreated handler).
+        // Queue the message; it will be flushed on the first didFinishNavigation callback.
+        if (message != nullptr)
+            m_impl->_pendingWebMessages.push_back(BuildMacWebMessageJs(message));
+        return;
+    }
+
     NSString* nsmessage = [NSString stringWithUTF8String: message];
 
     NSData* data = [

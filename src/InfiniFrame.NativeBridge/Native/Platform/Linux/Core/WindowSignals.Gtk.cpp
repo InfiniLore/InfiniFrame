@@ -129,14 +129,18 @@ gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest*
 }
 
 void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
-    if (!linux_webview_diagnostics_enabled())
-        return;
+    if (linux_webview_diagnostics_enabled()) {
+        const char* uri = webkit_web_view_get_uri(web_view);
+        g_message(
+            "[InfiniFrame/Linux] WebKit load-changed: event=%s uri=%s", webkit_load_event_to_string(load_event),
+            uri ? uri : "<null>"
+        );
+    }
 
-    const char* uri = webkit_web_view_get_uri(web_view);
-    g_message(
-        "[InfiniFrame/Linux] WebKit load-changed: event=%s uri=%s", webkit_load_event_to_string(load_event),
-        uri ? uri : "<null>"
-    );
+    if (load_event == WEBKIT_LOAD_FINISHED) {
+        auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+        instance->FlushPendingWebMessages();
+    }
 }
 
 gboolean on_webview_load_failed(

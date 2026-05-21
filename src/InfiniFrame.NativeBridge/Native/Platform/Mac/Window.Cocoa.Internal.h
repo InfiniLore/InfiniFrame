@@ -26,6 +26,11 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::string _temporaryFilesPath;
 
     bool _chromeless = false;
+    bool _webviewReady = false;
+
+    // Messages queued while WKWebView is still loading (e.g. sent from WindowCreated handler).
+    // Flushed on the first didFinishNavigation callback.
+    std::vector<std::string> _pendingWebMessages;
 
     CGFloat _preMaximizedWidth = 0;
     CGFloat _preMaximizedHeight = 0;
