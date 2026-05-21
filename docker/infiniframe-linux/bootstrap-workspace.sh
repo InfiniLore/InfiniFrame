@@ -36,11 +36,8 @@ tar -C "${SRC_DIR}" \
   --exclude="docs/node_modules" \
   --exclude="docs/.docusaurus" \
   --exclude="docs/build" \
-  --exclude="src/InfiniFrame.Native/packages" \
-  --exclude="src/InfiniFrame.Native/build" \
-  --exclude="src/InfiniFrame.Native/cmake-build-debug" \
-  --exclude="src/InfiniFrame.Native/cmake-build-debug-linux" \
-  --exclude="src/InfiniFrame.Native/cmake-build-debug-windows" \
+  --exclude="src/InfiniFrame.NativeBridge/Native/packages" \
+  --exclude="src/InfiniFrame.NativeBridge/build" \
   --exclude="*/node_modules" \
   --exclude="*/bin" \
   --exclude="*/obj" \

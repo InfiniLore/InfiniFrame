@@ -5,7 +5,6 @@ init_common_defaults() {
   CONFIGURATION="${CONFIGURATION:-Release}"
   NATIVE_PLATFORM="${NATIVE_PLATFORM:-x64}"
   USE_HOST_DISPLAY="${USE_HOST_DISPLAY:-0}"
-  CMAKE_BUILD_DIR="${CMAKE_BUILD_DIR:-/tmp/infiniframe-cmake/${NATIVE_PLATFORM}/${CONFIGURATION}}"
   NUGET_CONFIG_FILE="${NUGET_CONFIG_FILE:-/work/docker/infiniframe-linux/NuGet.Config}"
   NUGET_PACKAGES_DIR="${NUGET_PACKAGES:-/root/.nuget/packages}"
 
@@ -132,13 +131,10 @@ restore_solution_filter() {
 
 build_native_project() {
   echo "Building native project..."
-  mkdir -p "${CMAKE_BUILD_DIR}"
-  dotnet build src/InfiniFrame.Native/InfiniFrame.Native.proj \
+  dotnet build src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj \
     --configuration "${CONFIGURATION}" \
     --no-restore \
-    /p:SolutionDir="/work/" \
     /p:Platform="${NATIVE_PLATFORM}" \
-    /p:CMakeBuildDir="${CMAKE_BUILD_DIR}" \
     "${COMMON_DOTNET_PROPS[@]}"
 }
 

@@ -22,8 +22,8 @@ $excludes = @(
     "docs\node_modules",
     "docs\.docusaurus",
     "docs\build",
-    "src\InfiniFrame.Native\packages",
-    "src\InfiniFrame.Native\build"
+    "src\InfiniFrame.NativeBridge\Native\packages",
+    "src\InfiniFrame.NativeBridge\build"
 )
 
 $excludeArgs = @()

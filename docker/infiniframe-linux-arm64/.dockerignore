@@ -8,11 +8,8 @@ artifacts
 docs/node_modules
 docs/.docusaurus
 docs/build
-src/InfiniFrame.Native/packages
-src/InfiniFrame.Native/build
-src/InfiniFrame.Native/cmake-build-debug
-src/InfiniFrame.Native/cmake-build-debug-linux
-src/InfiniFrame.Native/cmake-build-debug-windows
+src/InfiniFrame.NativeBridge/Native/packages
+src/InfiniFrame.NativeBridge/build
 **/node_modules
 **/bin
 **/obj
