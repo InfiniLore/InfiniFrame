@@ -84,7 +84,16 @@ gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, co
 
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer self) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-    return instance->InvokeClose();
+    const bool cancel = instance->InvokeClose();
+    if (cancel)
+        return TRUE;
+
+    // The user (or default handler) accepted the close. Tear the WebKitWebView down explicitly before the window
+    // destroy cascade runs so WebKit can settle its singletons synchronously instead of being implicitly disposed
+    // by GtkContainer. The latter leaves dangling refs that abort inside libwebkit's atexit cleanup at process exit
+    // (exit code 134).
+    instance->CloseWebView();
+    return FALSE;
 }
 
 void on_widget_destroyed(GtkWidget* widget, const gpointer self) {

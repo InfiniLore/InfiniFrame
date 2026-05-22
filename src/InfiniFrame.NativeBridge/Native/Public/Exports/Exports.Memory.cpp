@@ -43,8 +43,8 @@ EXPORTED InteropStatus InfiniFrame_FreeStringArray(AutoString* values, const int
 
 /// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
 EXPORTED InteropStatus InfiniFrame_GetLastErrorMessage(AutoString* value) {
-    // Must NOT go through RunExportStatus — that helper calls SetSuccess() first,
-    // which would wipe g_lastErrorMessage before we can read it.
+    // Must NOT go through RunExportStatus, that helper calls SetSuccess() first, which would wipe g_lastErrorMessage 
+    // before we can read it.
     ResetOut(value, static_cast<AutoString>(nullptr));
     if (!EnsureOutNotNull(value, "value")) {
         return InteropStatus::OutParameterSetToInvalidNull;

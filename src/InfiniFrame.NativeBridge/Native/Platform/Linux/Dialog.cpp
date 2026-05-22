@@ -12,7 +12,7 @@
 enum DialogType {
     OpenFile, /// GTK_FILE_CHOOSER_ACTION_OPEN, select one or more files
     OpenFolder, /// GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, select one or more directories
-    SaveFile /// GTK_FILE_CHOOSER_ACTION_SAVE — choose a save destination
+    SaveFile /// GTK_FILE_CHOOSER_ACTION_SAVE, choose a save destination
 };
 
 /**

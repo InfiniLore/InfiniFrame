@@ -12,7 +12,6 @@ public class WindowClosingRequestedEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestWindowClosingRequestedEvent(CancellationToken ct = default) {
         // Arrange
