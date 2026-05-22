@@ -12,6 +12,11 @@
     <File Path="InfiniFrame.GitHubActions.Release.slnf" />
     <File Path="InfiniFrame.GitHubActions.slnf" />
   </Folder>
+  <Folder Name="/.dev-tools/devcontainer/">
+    <File Path=".devcontainer/devcontainer.json" />
+    <File Path=".devcontainer/docker-compose.yml" />
+    <File Path=".devcontainer/Dockerfile" />
+  </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />
     <File Path=".github/dependabot.yml" />

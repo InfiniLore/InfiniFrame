@@ -39,11 +39,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Node.js 24
+# Node.js 24 + latest npm
 # ----------------------------------------------------------------------------------------------------------------------
 
 RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y nodejs && \
+    npm install -g npm@latest
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Latest CMake (Kitware)
@@ -91,30 +92,41 @@ RUN apt-get install -y \
     libwebkit2gtk-4.1-dev
 
 # ----------------------------------------------------------------------------------------------------------------------
-# .NET SDKs (8, 9, 10)
+# .NET SDKs (8, 9, 10 via install script)
 # ----------------------------------------------------------------------------------------------------------------------
-RUN wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb && \
-    dpkg -i packages-microsoft-prod.deb && \
-    rm packages-microsoft-prod.deb && \
-    apt-get update && \
-    apt-get install -y \
-        dotnet-sdk-8.0 \
-        dotnet-sdk-9.0 \
-        dotnet-sdk-10.0
+
+ENV DOTNET_ROOT=/usr/share/dotnet
+ENV PATH="$PATH:/usr/share/dotnet"
+
+ENV NUGET_PACKAGES=/home/vscode/.nuget/packages
+ENV NUGET_HTTP_CACHE_PATH=/home/vscode/.nuget/http-cache
+
+RUN apt-get update && apt-get install -y curl ca-certificates && \
+    curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh && \
+    chmod +x dotnet-install.sh && \
+    \
+    ./dotnet-install.sh --install-dir /usr/share/dotnet --channel 8.0 && \
+    ./dotnet-install.sh --install-dir /usr/share/dotnet --channel 9.0 && \
+    ./dotnet-install.sh --install-dir /usr/share/dotnet --channel 10.0 && \
+    \
+    rm dotnet-install.sh
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Playwright deps
 # ----------------------------------------------------------------------------------------------------------------------
 
-RUN npx playwright install-deps || true
+RUN npx -y playwright install-deps
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Non-root user for Rider/devcontainers
+# Non-root user for devcontainers
 # ----------------------------------------------------------------------------------------------------------------------
 
 RUN useradd -ms /bin/bash vscode && \
     usermod -aG sudo vscode && \
     echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+RUN mkdir -p /home/vscode/.nuget && \
+    chown -R vscode:vscode /home/vscode
 
 USER vscode
 
