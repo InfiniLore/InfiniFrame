@@ -3,28 +3,27 @@
         build:
             context: ..
             dockerfile: .devcontainer/Dockerfile
-
         container_name: infiniframe-dev
-
         working_dir: /workspace
-
         volumes:
             - ..:/workspace:cached
             - /tmp/.X11-unix:/tmp/.X11-unix
-
         tty: true
         stdin_open: true
-
-        # Keeps the container alive permanently
         command: sleep infinity
-
         environment:
             DOTNET_USE_POLLING_FILE_WATCHER: "1"
-
-            # WSLg GUI forwarding
-            DISPLAY: ${DISPLAY}
-            WAYLAND_DISPLAY: ${WAYLAND_DISPLAY}
-            XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR}
+            XDG_RUNTIME_DIR: "/tmp/runtime"
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities: [gpu]
+        # Remove deploy block above if you don't want GPU passthrough. 
+        # For headless Linux GUI testing, CPU-only is actually preferred (llvmpipe).
 
 volumes:
     nuget-cache:
+    nuget-http:
