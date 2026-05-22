@@ -8,10 +8,12 @@ chmod 700 "${XDG_RUNTIME_DIR}"
 # Initialize D-Bus if not already set
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
   eval "$(dbus-launch --sh-syntax)"
-  cat > /etc/profile.d/dbus_env.sh <<EOF
+  if [ -w /etc/profile.d ]; then
+    cat > /etc/profile.d/dbus_env.sh <<EOF
 export DBUS_SESSION_BUS_ADDRESS='${DBUS_SESSION_BUS_ADDRESS}'
 EOF
-  chmod +x /etc/profile.d/dbus_env.sh
+    chmod +x /etc/profile.d/dbus_env.sh
+  fi
   echo "✅ D-Bus session started: ${DBUS_SESSION_BUS_ADDRESS}"
 fi
 

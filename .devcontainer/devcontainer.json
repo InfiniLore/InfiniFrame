@@ -10,7 +10,7 @@
         "source=nuget-http,target=/home/devuser/.nuget/http-cache,type=volume"
     ],
     "postCreateCommand": "sudo mkdir -p /home/devuser/.nuget/packages /home/devuser/.nuget/http-cache && sudo chown -R devuser:devuser /home/devuser/.nuget",
-    "postStartCommand": "bash .devcontainer/init-x11.sh",
+    "postStartCommand": "bash /workspace/.devcontainer/init-x11.sh",
     "remoteEnv": {
         "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
         "DOTNET_NOLOGO": "1",
