@@ -14,7 +14,8 @@ sudo apt install -y \
     curl \
     build-essential \
     pkg-config \
-    lsb-release
+    lsb-release \
+    x11-apps
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Node.js 24
