@@ -91,6 +91,10 @@ RUN glib-compile-schemas /usr/share/glib-2.0/schemas/
 # Playwright deps
 RUN npx -y playwright install-deps
 
+# X11 init script for lifecycle hooks (independent of workspace mount path)
+COPY .devcontainer/init-x11.sh /usr/local/bin/init-x11.sh
+RUN chmod +x /usr/local/bin/init-x11.sh
+
 # Create non-root user
 RUN useradd -ms /bin/bash devuser && \
     usermod -aG sudo devuser && \
