@@ -43,7 +43,7 @@ fi
 # No-op if no workloads are used, but prevents confusing errors if they're added later.
 # ----------------------------------------------------------------------------------------------------------------------
 echo "Restoring .NET workloads..."
-dotnet workload restore /workspace || true
+sudo dotnet workload restore /workspace || true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Copy JetBrains IDE settings from host (read-only bind mount at /host-jetbrains-settings).
