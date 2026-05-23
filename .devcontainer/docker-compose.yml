@@ -7,7 +7,6 @@
         working_dir: /workspace
         volumes:
             - ..:/workspace:cached
-            - /tmp/.X11-unix:/tmp/.X11-unix
             - jetbrains-config:/home/devuser/.config/JetBrains
             - jetbrains-data:/home/devuser/.local/share/JetBrains
             - jetbrains-cache:/home/devuser/.cache/JetBrains
@@ -15,9 +14,16 @@
         tty: true
         stdin_open: true
         command: sleep infinity
+        dns:
+            - 8.8.8.8
+            - 1.1.1.1
         environment:
             DOTNET_USE_POLLING_FILE_WATCHER: "1"
             XDG_RUNTIME_DIR: "/tmp/runtime"
+        # GPU passthrough — remove the deploy block below if you don't need it.
+        # NOTE: if GPU is enabled, remove LIBGL_ALWAYS_SOFTWARE / GALLIUM_DRIVER
+        # from devcontainer.json remoteEnv so the GPU is actually used.
+        # If GPU is disabled, keep those env vars for llvmpipe software rendering.
         deploy:
             resources:
                 reservations:
@@ -25,8 +31,6 @@
                         - driver: nvidia
                           count: all
                           capabilities: [gpu]
-        # Remove deploy block above if you don't want GPU passthrough. 
-        # For headless Linux GUI testing, CPU-only is actually preferred (llvmpipe).
 
 volumes:
     nuget-cache:

@@ -10,6 +10,9 @@
         "source=nuget-http,target=/home/devuser/.nuget/http-cache,type=volume",
         "source=npm-cache,target=/home/devuser/.npm,type=volume",
         "source=playwright-browsers,target=/home/devuser/.cache/ms-playwright,type=volume",
+        "source=jetbrains-config,target=/home/devuser/.config/JetBrains,type=volume",
+        "source=jetbrains-data,target=/home/devuser/.local/share/JetBrains,type=volume",
+        "source=jetbrains-cache,target=/home/devuser/.cache/JetBrains,type=volume",
         "source=${localEnv:APPDATA}/JetBrains,target=/host-jetbrains-settings,type=bind,readonly=true,consistency=cached"
     ],
     "postCreateCommand": "bash /workspace/.devcontainer/postcreate.sh",
@@ -21,10 +24,12 @@
         "XDG_SESSION_TYPE": "x11",
         "DESKTOP_SESSION": "openbox",
         "XDG_CURRENT_DESKTOP": "Openbox",
+        // Software rendering — comment these three out if using GPU passthrough via the deploy block in docker-compose.yml
         "LIBGL_ALWAYS_SOFTWARE": "1",
         "GALLIUM_DRIVER": "llvmpipe",
         "MESA_GL_VERSION_OVERRIDE": "3.3",
-        "WEBKIT_DISABLE_COMPOSITING_MODE": "1"
+        "WEBKIT_DISABLE_COMPOSITING_MODE": "1",
+        "JAVA_TOOL_OPTIONS": "-Djava.net.preferIPv4Stack=true"
     },
     "customizations": {
         "vscode": {

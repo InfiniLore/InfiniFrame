@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
-# Ensure XDG runtime dir exists with correct permissions
+# Ensure XDG runtime dir exists with correct permissions.
+# The 2>/dev/null || true guards against a race where another process
+# owns the directory (e.g. dbus or systemd created it first).
 mkdir -p "${XDG_RUNTIME_DIR:-/tmp/runtime}"
-chmod 700 "${XDG_RUNTIME_DIR}"
+chmod 700 "${XDG_RUNTIME_DIR:-/tmp/runtime}" 2>/dev/null || true
 
 # Initialize D-Bus if not already set
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
   eval "$(dbus-launch --sh-syntax)"
   if [ -w /etc/profile.d ]; then
-    cat > /etc/profile.d/dbus_env.sh <<EOF
+    cat > /etc/profile.d/dbus_env.sh <<ENVEOF
 export DBUS_SESSION_BUS_ADDRESS='${DBUS_SESSION_BUS_ADDRESS}'
-EOF
+ENVEOF
     chmod +x /etc/profile.d/dbus_env.sh
   fi
   echo "✅ D-Bus session started: ${DBUS_SESSION_BUS_ADDRESS}"
