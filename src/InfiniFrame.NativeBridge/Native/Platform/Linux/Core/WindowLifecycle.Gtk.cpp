@@ -65,24 +65,12 @@ void InfiniFrameWindow::CloseWebView() {
     if (webview == nullptr)
         return;
 
-    // Disconnect every signal whose user_data is this instance so callbacks can't fire while the WebKit objects tear
-    // themselves down.
+    // Disconnect every signal whose user_data is this instance so our callbacks can't fire after the window starts
+    // tearing down. The webview itself is destroyed implicitly by GTK when the parent window is destroyed.
+    // Explicit destruction here (gtk_widget_destroy, terminate_web_process, pumping events) triggers WebKit's web
+    // process cleanup from inside a GTK signal handler, which causes SIGABRT on libwebkit2gtk-4.1.
+    // The process-exit SIGABRT from WebKit's own atexit handler is handled separately by webkit_atexit_bypass()
+    // in WebKitHost.Gtk.cpp.
     g_signal_handlers_disconnect_by_data(webview, this);
-
-    // Stop any in-flight load before we detach the widget.
     webkit_web_view_stop_loading(WEBKIT_WEB_VIEW(webview));
-
-    // Explicitly detach and destroy the webview before the window destroy cascade runs so WebKit can settle its
-    // singletons synchronously instead of being implicitly disposed by GtkContainer. The latter can leave dangling refs
-    // in WebKit's singleton context that abort in its atexit handler (exit code 134).
-    // NOTE: Do NOT call webkit_web_view_terminate_web_process() here — that sends SIGTERM to the WebKit subprocess and
-    // can trigger a SIGABRT via GLib signal handling while we are inside a GTK signal callback. The process-exit
-    // SIGABRT from WebKit's own atexit is handled separately by webkit_atexit_bypass() in WebKitHost.Gtk.cpp.
-    g_object_ref(webview);
-    if (GtkWidget* parent = gtk_widget_get_parent(webview))
-        gtk_container_remove(GTK_CONTAINER(parent), webview);
-    gtk_widget_destroy(webview);
-    g_object_unref(webview);
-
-    m_impl->_webview = nullptr;
 }

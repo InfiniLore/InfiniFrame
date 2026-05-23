@@ -50,15 +50,12 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         builder?.Invoke(windowBuilder);
 
         // Windows: WebView2 requires STA thread for COM initialization
-        // Linux: gtk_init() and gtk_main() must run on the same thread; using a dedicated thread
-        //        avoids the deadlock that occurs when WaitForClose() is called from a different
-        //        thread than the one that called gtk_init() (which happens during Build()).
-        // macOS: Similar to Windows — Cocoa/AppKit requires a dedicated UI thread.
+        // Linux: gtk_init() is called during Build() on the current thread; WaitForClose() runs
+        //        gtk_main() on a separate background thread. GTK calls from the current thread
+        //        (which also called gtk_init) are safe because XInitThreads() enables X11 thread safety.
+        // macOS: NSApp requires the UI to run on the process main thread, so Build() stays here.
         if (OperatingSystem.IsWindows()) return CreateOnStaThread(windowBuilder);
-        if (!OperatingSystem.IsMacOS()) return CreateOnDedicatedThread(windowBuilder);
 
-        // macOS: NSApp requires the UI to run on the process main thread, which is the test
-        // runner thread itself, so we cannot move Build() to a background thread.
         IInfiniFrameWindow window = windowBuilder.Build();
 
         var utility = new InfiniFrameWindowTestUtility {
@@ -80,34 +77,6 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         thread.Start();
 
         return utility;
-    }
-
-    [MustDisposeResource]
-    private static InfiniFrameWindowTestUtility CreateOnDedicatedThread(
-        InfiniFrameWindowBuilder windowBuilder
-    ) {
-        var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        var thread = new Thread(() => {
-            try {
-                IInfiniFrameWindow window = windowBuilder.Build();
-                windowSource.SetResult(window);
-                window.WaitForClose();
-            }
-            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                windowSource.TrySetException(ex);
-            }
-        }) {
-            IsBackground = true,
-            Name = "InfiniFrame Test Window Thread"
-        };
-
-        thread.Start();
-
-        return new InfiniFrameWindowTestUtility {
-            Window = windowSource.Task.GetAwaiter().GetResult(),
-            _windowThread = thread
-        };
     }
 
     [SupportedOSPlatform("windows"), MustDisposeResource]
