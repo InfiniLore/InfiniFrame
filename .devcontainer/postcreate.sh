@@ -33,7 +33,7 @@ for _dir in /home/devuser/.cache/ms-playwright/chromium-*/; do
 done
 if [ "$_playwright_installed" = false ]; then
     echo "Installing Playwright browsers..."
-    npx playwright install
+    cd /workspace && npm install && npx playwright install
 else
     echo "Playwright browsers already installed, skipping."
 fi
