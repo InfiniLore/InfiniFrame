@@ -65,22 +65,19 @@ void InfiniFrameWindow::CloseWebView() {
     if (webview == nullptr)
         return;
 
-    // Disconnect every signal whose user_data is this instance so callbacks  can't fire while the WebKit objects tear
+    // Disconnect every signal whose user_data is this instance so callbacks can't fire while the WebKit objects tear
     // themselves down.
     g_signal_handlers_disconnect_by_data(webview, this);
 
-    // Stop any in-flight load and kill the WebProcess subprocess. Without this the default WebKitWebContext singleton 
-    // still holds refs to the dying WebView's state, and its destructor, invoked from libwebkit's atexit handler,
-    // aborts at process shutdown (exit code 134).
+    // Stop any in-flight load before we detach the widget.
     webkit_web_view_stop_loading(WEBKIT_WEB_VIEW(webview));
-    webkit_web_view_terminate_web_process(WEBKIT_WEB_VIEW(webview));
 
-    // Pump pending events so WebKit can finish processing the stop/terminate synchronously before we detach the widget.
-    while (gtk_events_pending())
-        gtk_main_iteration_do(FALSE);
-
-    // Take a temporary reference so we control destruction order even when the widget's GTK container parent also 
-    // drops its reference.
+    // Explicitly detach and destroy the webview before the window destroy cascade runs so WebKit can settle its
+    // singletons synchronously instead of being implicitly disposed by GtkContainer. The latter can leave dangling refs
+    // in WebKit's singleton context that abort in its atexit handler (exit code 134).
+    // NOTE: Do NOT call webkit_web_view_terminate_web_process() here — that sends SIGTERM to the WebKit subprocess and
+    // can trigger a SIGABRT via GLib signal handling while we are inside a GTK signal callback. The process-exit
+    // SIGABRT from WebKit's own atexit is handled separately by webkit_atexit_bypass() in WebKitHost.Gtk.cpp.
     g_object_ref(webview);
     if (GtkWidget* parent = gtk_widget_get_parent(webview))
         gtk_container_remove(GTK_CONTAINER(parent), webview);
