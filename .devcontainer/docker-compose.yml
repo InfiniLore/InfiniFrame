@@ -11,6 +11,7 @@
             - jetbrains-config:/home/devuser/.config/JetBrains
             - jetbrains-data:/home/devuser/.local/share/JetBrains
             - jetbrains-cache:/home/devuser/.cache/JetBrains
+            - vscode-server:/home/devuser/.vscode-server
         tty: true
         stdin_open: true
         command: sleep infinity
@@ -35,3 +36,4 @@ volumes:
     jetbrains-config:
     jetbrains-data:
     jetbrains-cache:
+    vscode-server:
