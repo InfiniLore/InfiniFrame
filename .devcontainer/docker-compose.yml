@@ -8,6 +8,9 @@
         volumes:
             - ..:/workspace:cached
             - /tmp/.X11-unix:/tmp/.X11-unix
+            - jetbrains-config:/home/devuser/.config/JetBrains
+            - jetbrains-data:/home/devuser/.local/share/JetBrains
+            - jetbrains-cache:/home/devuser/.cache/JetBrains
         tty: true
         stdin_open: true
         command: sleep infinity
@@ -27,3 +30,8 @@
 volumes:
     nuget-cache:
     nuget-http:
+    npm-cache:
+    playwright-browsers:
+    jetbrains-config:
+    jetbrains-data:
+    jetbrains-cache:

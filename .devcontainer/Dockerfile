@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip \
     zip \
+    rsync \
     python3 \
     python3-pip \
     ninja-build \

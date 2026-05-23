@@ -7,9 +7,12 @@
     "remoteUser": "devuser",
     "mounts": [
         "source=nuget-cache,target=/home/devuser/.nuget/packages,type=volume",
-        "source=nuget-http,target=/home/devuser/.nuget/http-cache,type=volume"
+        "source=nuget-http,target=/home/devuser/.nuget/http-cache,type=volume",
+        "source=npm-cache,target=/home/devuser/.npm,type=volume",
+        "source=playwright-browsers,target=/home/devuser/.cache/ms-playwright,type=volume",
+        "source=${localEnv:APPDATA}/JetBrains/Rider2026.1,target=/host-rider-settings,type=bind,readonly=true,consistency=cached"
     ],
-    "postCreateCommand": "sudo mkdir -p /home/devuser/.nuget/packages /home/devuser/.nuget/http-cache && sudo chown -R devuser:devuser /home/devuser/.nuget",
+    "postCreateCommand": "sudo mkdir -p /home/devuser/.nuget/packages /home/devuser/.nuget/http-cache /home/devuser/.npm /home/devuser/.cache/ms-playwright /home/devuser/.config/JetBrains/Rider2026.1 /home/devuser/.local/share/JetBrains /home/devuser/.cache/JetBrains && sudo chown -R devuser:devuser /home/devuser/.nuget /home/devuser/.npm /home/devuser/.cache /home/devuser/.config/JetBrains /home/devuser/.local/share/JetBrains && [ -d /host-rider-settings ] && rsync -a --exclude='plugins/' --exclude='system/' --exclude='log/' /host-rider-settings/ /home/devuser/.config/JetBrains/Rider2026.1/ || true",
     "postStartCommand": "bash /usr/local/bin/init-x11.sh",
     "remoteEnv": {
         "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
