@@ -17,6 +17,7 @@
     <File Path=".devcontainer/docker-compose.yml" />
     <File Path=".devcontainer/Dockerfile" />
     <File Path=".devcontainer/init-x11.sh" />
+    <File Path=".devcontainer/postcreate.sh" />
   </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />

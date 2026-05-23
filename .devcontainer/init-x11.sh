@@ -2,10 +2,15 @@
 set -e
 
 # Ensure XDG runtime dir exists with correct permissions.
-# The 2>/dev/null || true guards against a race where another process
-# owns the directory (e.g. dbus or systemd created it first).
+# The || true guards against a race where another process owns the directory.
 mkdir -p "${XDG_RUNTIME_DIR:-/tmp/runtime}"
 chmod 700 "${XDG_RUNTIME_DIR:-/tmp/runtime}" 2>/dev/null || true
+
+# Ensure /tmp/.X11-unix exists with sticky-bit permissions so Xvfb can
+# create its socket as a non-root user. Created in the Dockerfile too, but
+# tmpfs remounts on some runtimes wipe /tmp between starts.
+sudo mkdir -p /tmp/.X11-unix
+sudo chmod 1777 /tmp/.X11-unix
 
 # Initialize D-Bus if not already set
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
