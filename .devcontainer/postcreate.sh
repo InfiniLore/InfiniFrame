@@ -27,7 +27,11 @@ sudo chown -R devuser:devuser \
 # install-deps (in Dockerfile) installs OS-level dependencies only; this installs the actual browser binaries.
 # Skipped if browsers are already present (volume persists across container restarts).
 # ----------------------------------------------------------------------------------------------------------------------
-if [ ! -d "/home/devuser/.cache/ms-playwright/chromium-"* ] 2>/dev/null; then
+_playwright_installed=false
+for _dir in /home/devuser/.cache/ms-playwright/chromium-*/; do
+    [ -d "$_dir" ] && _playwright_installed=true && break
+done
+if [ "$_playwright_installed" = false ]; then
     echo "Installing Playwright browsers..."
     npx playwright install
 else
