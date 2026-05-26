@@ -24,13 +24,19 @@ extern void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocatio
 namespace {
     // libwebkit2gtk-4.1 (and its JavaScriptCore/WPE dependencies) call abort(), raising SIGABRT, during process
     // shutdown when the WebKitWebContext singleton destructs. abort() bypasses atexit handlers entirely, so an atexit
-    // bypass does not help. Instead we install a SIGABRT handler that calls _exit(0), which terminates cleanly before
-    // WebKit's crash handler can act.
+    // bypass does not help. Instead we install a SIGABRT handler.
     //
-    // _exit(0) skips further C++ destructors and signal delivery, so the .NET test host can still flush its report
-    // buffers (they are written synchronously before reaching this point) and the process exits with code 0.
+    // First invocation: call exit(0) so the .NET runtime's managed cleanup runs (flushes report buffers and sends
+    // the TUnit "TestSessionEnd" protocol message back to the dotnet-test orchestrator). During that cleanup WebKit
+    // will call abort() a second time.
+    // Second invocation (re-entrant): call _exit(0) immediately to break the loop.
+    static std::atomic<bool> webkit_sigabrt_first_entry{true};
+
     void webkit_sigabrt_handler(int) noexcept {
-        _exit(0);
+        if (!webkit_sigabrt_first_entry.exchange(false, std::memory_order_acq_rel)) {
+            _exit(0);
+        }
+        exit(0); // allows .NET managed shutdown + session-end message to complete
     }
 
     void install_webkit_sigabrt_bypass_once() noexcept {
