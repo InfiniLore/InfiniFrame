@@ -33,7 +33,7 @@
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageVersion Include="TUnit" Version="1.45.0" />
+    <PackageVersion Include="TUnit" Version="1.45.29" />
     <PackageVersion Include="TUnit.Assertions" Version="1.45.0" />
     <PackageVersion Include="TUnit.Core" Version="1.45.0" />
     <PackageVersion Include="TUnit.Playwright" Version="1.45.0" />
