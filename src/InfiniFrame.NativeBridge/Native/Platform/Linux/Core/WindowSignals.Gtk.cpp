@@ -66,6 +66,40 @@ void InfiniFrameWindow::OnWindowStateEvent(GdkWindowState newState) {
     }
 }
 
+void InfiniFrameWindow::OnWidgetDestroyed() {
+    // In the normal close path, CloseWebView() was already called from on_widget_deleted, so
+    // _webview is nullptr here and this block is a no-op.
+    // In the forced-destroy path (C++ destructor calling gtk_widget_destroy directly), the webview
+    // may still be alive. Tear it down explicitly now — before GtkContainer's built-in cleanup
+    // cascade runs — to prevent the main-loop deadlock described in on_widget_deleted's comment.
+    if (m_impl->_webview != nullptr) {
+        CloseWebView();
+    }
+
+    // Release our ownership ref taken by g_object_ref_sink() in ConfigureInitialWindow.
+    // g_object_run_dispose() holds its own ref during dispose, so this drops the count from
+    // 2→1 (not to 0), meaning finalize is deferred until g_object_run_dispose() returns safely.
+    if (m_impl->_window != nullptr) {
+        g_object_unref(m_impl->_window);
+        m_impl->_window = nullptr;
+    }
+
+    // Fire the Closed callback BEFORE unblocking WaitForExit(). The native instance must not be
+    // freed by TryDestroyNativeInstanceNoThrow while this callback is still executing on the GTK
+    // worker thread.
+    InvokeClosed();
+
+    {
+        std::lock_guard<std::mutex> lk(m_impl->_destroyedMutex);
+        m_impl->_windowDestroyed = true;
+    }
+    m_impl->_destroyedCv.notify_all();
+
+    // Quit the nested GMainLoop that WaitForExit() started when called on the GTK thread.
+    if (m_impl->_exitLoop != nullptr)
+        g_main_loop_quit(m_impl->_exitLoop);
+}
+
 gboolean on_configure_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {
     if (event->type == GDK_CONFIGURE) {
         auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
@@ -84,21 +118,20 @@ gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, co
 
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer self) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-    const bool cancel = instance->InvokeClose();
-    if (cancel)
+    if (instance->InvokeClose())
         return TRUE;
-
-    // The user (or default handler) accepted the close. Tear the WebKitWebView down explicitly before the window
-    // destroy cascade runs so WebKit can settle its singletons synchronously instead of being implicitly disposed
-    // by GtkContainer. The latter leaves dangling refs that abort inside libwebkit's atexit cleanup at process exit
-    // (exit code 134).
+    // Tear the WebView down before the window destroy cascade. When the webview is left as a
+    // GtkContainer child and GTK destroys it implicitly, WebKit's web-process termination is
+    // asynchronous and needs GLib main-loop dispatch to complete — but the main loop is blocked
+    // inside the cascade, causing a deadlock and a 100% hang. Explicit pre-cascade teardown here
+    // avoids that: by the time GTK's cascade runs the window has no children and completes cleanly.
     instance->CloseWebView();
     return FALSE;
 }
 
 void on_widget_destroyed(GtkWidget* widget, const gpointer self) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-    instance->InvokeClosed();
+    instance->OnWidgetDestroyed();
 }
 
 gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {

@@ -19,6 +19,16 @@
     <File Path=".devcontainer/init-x11.sh" />
     <File Path=".devcontainer/postcreate.sh" />
   </Folder>
+  <Folder Name="/.dev-tools/docker/" />
+  <Folder Name="/.dev-tools/docker/linux/">
+    <File Path="docker/linux/docker-compose.yml" />
+    <File Path="docker/linux/Dockerfile" />
+    <File Path="docker/linux/entrypoint.sh" />
+    <File Path="docker/linux/run-example-blazorwebview-wslg.ps1" />
+    <File Path="docker/linux/run-example-blazorwebview-wslg.sh" />
+    <File Path="docker/linux/run-linux-tests-wslg.ps1" />
+    <File Path="docker/linux/run-linux-tests-wslg.sh" />
+  </Folder>
   <Folder Name="/.dev-tools/github/">
     <File Path=".github/codeql-config.yml" />
     <File Path=".github/dependabot.yml" />

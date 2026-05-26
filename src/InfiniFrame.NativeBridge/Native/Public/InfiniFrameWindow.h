@@ -524,6 +524,7 @@ class InfiniFrameWindow {
 #ifdef __linux__
     void OnConfigureEvent(int x, int y, int width, int height);
     void OnWindowStateEvent(GdkWindowState newState);
+    void OnWidgetDestroyed();
     void FlushPendingWebMessages();
 #endif
 

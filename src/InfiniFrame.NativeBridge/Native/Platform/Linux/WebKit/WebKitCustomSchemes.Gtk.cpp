@@ -36,7 +36,10 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
     if (_customSchemeCallback == nullptr)
         return;
 
-    WebKitWebContext* context = webkit_web_context_get_default();
+    if (_webContext == nullptr)
+        return;
+
+    WebKitWebContext* context = _webContext;
     WebKitSecurityManager* securityManager = webkit_web_context_get_security_manager(context);
     for (const auto& value : _customSchemeNames) {
         if (securityManager != nullptr && g_ascii_strcasecmp(value.c_str(), "app") == 0) {

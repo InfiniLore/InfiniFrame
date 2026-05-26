@@ -42,6 +42,7 @@ public static partial class InfiniFrameNative {
 
     [LibraryImport(NativeLibraryName, EntryPoint = "InfiniFrame_Close", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus Close(IntPtr instance);
+
     #endregion
 
     #region Get

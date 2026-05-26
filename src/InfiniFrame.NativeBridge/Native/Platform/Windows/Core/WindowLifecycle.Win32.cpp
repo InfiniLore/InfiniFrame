@@ -27,18 +27,25 @@ void InfiniFrameWindow::Close() {
 
 void InfiniFrameWindow::WaitForExit() {
     auto* impl = m_impl.get();
+    if (!impl || !impl->_hWnd) return;
+
+    HWND hwnd = impl->_hWnd;
+
     ApplyPendingOwnerWindow(impl, L"wait_for_exit");
 
-    messageLoopRootWindowHandle = impl->_hWnd;
-    TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, impl->_hWnd);
+    messageLoopRootWindowHandle = hwnd;
+    TraceTeardown(L"WaitForExit start instance=%p hwnd=%p", this, hwnd);
 
-    MSG msg = {};
+    MSG msg;
+
     while (true) {
         const int getMessageResult = GetMessage(&msg, nullptr, 0, 0);
+
         if (getMessageResult == -1) {
             TraceTeardown(L"WaitForExit GetMessage failed err=%lu", GetLastError());
             break;
         }
+
         if (getMessageResult == 0)
             break;
 
@@ -47,5 +54,6 @@ void InfiniFrameWindow::WaitForExit() {
     }
 
     messageLoopRootWindowHandle = nullptr;
-    TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, impl->_hWnd);
+
+    TraceTeardown(L"WaitForExit end instance=%p hwnd=%p", this, hwnd);
 }

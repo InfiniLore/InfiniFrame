@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/artifacts/
+.git/
+.github/
+.idea/
+.vs/
+node_modules/
+**/node_modules/
+**/TestResults/
+**/.cache/
+**/*.nupkg
+**/*.snupkg
+**/*.log
+**/*.tmp
+**/*.user

@@ -13,6 +13,7 @@
         "source=jetbrains-config,target=/home/devuser/.config/JetBrains,type=volume",
         "source=jetbrains-data,target=/home/devuser/.local/share/JetBrains,type=volume",
         "source=jetbrains-cache,target=/home/devuser/.cache/JetBrains,type=volume",
+        "source=vscode-server,target=/home/devuser/.vscode-server,type=volume",
         "source=${localEnv:APPDATA}/JetBrains,target=/host-jetbrains-settings,type=bind,readonly=true,consistency=cached"
     ],
     "postCreateCommand": "bash /usr/local/bin/postcreate.sh",
@@ -25,9 +26,8 @@
         "DESKTOP_SESSION": "openbox",
         "XDG_CURRENT_DESKTOP": "Openbox",
         "WEBKIT_DISABLE_COMPOSITING_MODE": "1",
-        "JAVA_TOOL_OPTIONS": "-Djava.net.preferIPv4Stack=true",
+        "JAVA_TOOL_OPTIONS": "-Djava.net.preferIPv4Stack=true -Djava.net.useSystemProxies=true",
         "GIT_DISCOVERY_ACROSS_FILESYSTEM": "1",
-        // Software rendering — comment these three out if using GPU passthrough via the deploy block in docker-compose.yml
         "LIBGL_ALWAYS_SOFTWARE": "1",
         "GALLIUM_DRIVER": "llvmpipe",
         "MESA_GL_VERSION_OVERRIDE": "3.3"
@@ -39,6 +39,40 @@
                 "ms-vscode.cpptools",
                 "eamodio.gitlens"
             ]
+        },
+        "jetbrains": {
+            "backend": "Rider",
+            "plugins": [
+                "artsiomch.cmake",
+                "com.github.xepozz.gitattributes",
+                "com.intellij.mcpServer",
+                "com.intellij.ml.llm",
+                "com.intellij.plugin.adernov.powershell",
+                "com.intellij.plugins.gitblame",
+                "com.intellij.plugins.resharperkeymap",
+                "com.intellij.plugins.visualassistkeymap",
+                "com.intellij.plugins.visualstudio2022keymap",
+                "com.intellij.plugins.visualstudiokeymap",
+                "com.intellij.plugins.vscodekeymap",
+                "com.intellij.resharper.azure",
+                "com.intellij.resharper.HeapAllocationsViewer",
+                "com.jetbrains.rider.android",
+                "fr.socolin.awesomeLogViewer",
+                "izhangzhihao.rainbow.brackets",
+                "me.rafaelldi.aspire",
+                "nsubstitutecomplete-rider",
+                "org.jetbrains.completion.full.line",
+                "org.jetbrains.junie",
+                "org.jetbrains.plugins.remote-run",
+                "org.toml.lang",
+                "PythonCore",
+                "Subversion"
+            ],
+            "settings": {
+                "com.intellij:app:HttpConfigurable.use_proxy_pac": true,
+                "com.intellij:app:VcsApplicationSettings.show_editor_preview_on_double_click": false,
+                "org.intellij.plugins.markdown:app:MarkdownCodeFoldingSettings.collapseLinks": false
+            }
         }
     }
 }

@@ -20,7 +20,7 @@
         environment:
             DOTNET_USE_POLLING_FILE_WATCHER: "1"
             XDG_RUNTIME_DIR: "/tmp/runtime"
-        # GPU passthrough — remove the deploy block below if you don't need it.
+        # GPU passthrough, remove the deploy block below if you don't need it.
         # NOTE: if GPU is enabled, remove LIBGL_ALWAYS_SOFTWARE / GALLIUM_DRIVER
         # from devcontainer.json remoteEnv so the GPU is actually used.
         # If GPU is disabled, keep those env vars for llvmpipe software rendering.

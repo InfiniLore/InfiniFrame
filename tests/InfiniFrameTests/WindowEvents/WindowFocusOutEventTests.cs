@@ -12,6 +12,7 @@ public class WindowFocusOutEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
     [SkipUtility.SkipOnWindowsArm("WM_ACTIVATE WA_INACTIVE is not reliably delivered on headless ARM64 CI runners")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestWindowFocusOutEvent(CancellationToken ct = default) {
