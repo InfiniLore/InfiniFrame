@@ -45,7 +45,6 @@ struct InfiniFrameWindowImpl {
     bool _mediaStreamEnabled = false;
     bool _smoothScrollingEnabled = true;
     bool _ignoreCertificateErrorsEnabled = false;
-    bool _windowDestroyed = false;
 
     // -----------------------------------------------------------------------------------------------------------------
     // String state

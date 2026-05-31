@@ -106,7 +106,8 @@ EXPORTED InteropStatus InfiniFrame_SetZoom(InfiniFrameWindow* instance, const in
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetZoom(zoom); });
 }
 
-EXPORTED InteropStatus InfiniFrame_ShowNotification(InfiniFrameWindow* instance, const AutoString title, const AutoString body) {
+EXPORTED InteropStatus
+InfiniFrame_ShowNotification(InfiniFrameWindow* instance, const AutoString title, const AutoString body) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         window->ShowNotification(NullToEmpty(title), NullToEmpty(body));
     });

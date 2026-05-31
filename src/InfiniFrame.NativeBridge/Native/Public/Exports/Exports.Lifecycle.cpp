@@ -36,5 +36,4 @@ EXPORTED InteropStatus InfiniFrame_Close(InfiniFrameWindow* instance) {
 EXPORTED InteropStatus InfiniFrame_WaitForExit(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->WaitForExit(); });
 }
-
 }

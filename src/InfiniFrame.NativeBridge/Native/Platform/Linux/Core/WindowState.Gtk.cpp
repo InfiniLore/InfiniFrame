@@ -283,11 +283,7 @@ void InfiniFrameWindow::SetZoom(const int zoom) {
 }
 
 void InfiniFrameWindow::SetFocused() {
-    gtk_window_deiconify(GTK_WINDOW(m_impl->_window));
-    gtk_window_present_with_time(GTK_WINDOW(m_impl->_window), GDK_CURRENT_TIME);
-
-    if (m_impl->_webview != nullptr && GTK_IS_WIDGET(m_impl->_webview))
-        gtk_widget_grab_focus(m_impl->_webview);
+    gtk_window_present(GTK_WINDOW(m_impl->_window));
 }
 
 void InfiniFrameWindow::SetTransparentEnabled(const bool enabled) {

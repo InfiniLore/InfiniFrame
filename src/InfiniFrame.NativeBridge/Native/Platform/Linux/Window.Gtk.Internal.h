@@ -3,10 +3,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <climits>
-#include <condition_variable>
-#include <mutex>
 #include <string>
-#include <thread>
 #include <vector>
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
@@ -19,19 +16,12 @@
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     GtkWidget* _window = nullptr;
     GtkWidget* _webview = nullptr;
-    WebKitWebContext* _webContext = nullptr;
 
     std::string _temporaryFilesPath;
 
     bool _isFullScreen = false;
     bool _webviewReady = false;
-    std::thread::id _gtkThreadId = std::thread::id();
-
-    std::mutex _destroyedMutex;
-    std::condition_variable _destroyedCv;
-    // Nested GMainLoop started by WaitForExit() when called on the GTK worker thread (via C# Invoke()).
-    // OnWidgetDestroyed() calls g_main_loop_quit() on it so events keep processing until window close.
-    GMainLoop* _exitLoop = nullptr;
+    bool _webviewClosed = false;
     double _zoom = 100.0;
     int _minWidth = 0;
     int _minHeight = 0;
@@ -57,8 +47,4 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     void ApplyInitialWindowState(InfiniFrameWindow* window, const InfiniFrameInitParams* initParams);
     void ConnectWindowSignals(InfiniFrameWindow* window);
     void ConnectWebViewSignals(InfiniFrameWindow* window);
-
-    bool IsGtkThread() const {
-        return _gtkThreadId == std::this_thread::get_id();
-    }
 };

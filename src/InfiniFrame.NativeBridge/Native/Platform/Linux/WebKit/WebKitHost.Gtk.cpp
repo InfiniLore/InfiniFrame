@@ -4,7 +4,6 @@
 #include <atomic>
 #include <signal.h>
 #include <unistd.h>
-#include <mutex>
 #include <webkit2/webkit2.h>
 
 #include "Embedded/Embedded.h"
@@ -23,58 +22,49 @@ extern void on_webview_process_terminated(
 extern void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data);
 
 namespace {
-    // Armed by InfiniFrame_ArmWebKitTeardown() once the last InfiniFrameWindow is destroyed.
-    // After that point all GTK/WebKit activity is complete; any subsequent SIGABRT is from
-    // WebKit's own background cleanup and should be suppressed rather than propagated.
-    std::atomic<bool> g_webkit_teardown_active{false};
-} // namespace
+    // libwebkit2gtk-4.1 (and its JavaScriptCore/WPE dependencies) call abort(), raising SIGABRT, during process
+    // shutdown when the WebKitWebContext singleton destructs. abort() bypasses atexit handlers entirely, so an atexit
+    // bypass does not help. Instead we install a SIGABRT handler.
+    //
+    // First invocation: call exit(0) so the .NET runtime's managed cleanup runs (flushes report buffers and sends
+    // the TUnit "TestSessionEnd" protocol message back to the dotnet-test orchestrator). During that cleanup WebKit
+    // will call abort() a second time.
+    // Second invocation (re-entrant): call _exit(0) immediately to break the loop.
+    static std::atomic<bool> webkit_sigabrt_first_entry{true};
 
-// Called from InfiniFrameWindow::~InfiniFrameWindow when the last window instance is destroyed.
-void InfiniFrame_ArmWebKitTeardown() noexcept {
-    g_webkit_teardown_active.store(true, std::memory_order_relaxed);
-}
-
-void InfiniFrameWindow::Show(bool isAlreadyShown) {
-    static std::mutex showMutex;
-    std::lock_guard<std::mutex> showGuard(showMutex);
-
-    if (m_impl->_webview) {
-        return;
+    void webkit_sigabrt_handler(int) noexcept {
+        if (!webkit_sigabrt_first_entry.exchange(false, std::memory_order_acq_rel)) {
+            _exit(0);
+        }
+        exit(0); // allows .NET managed shutdown + session-end message to complete
     }
 
-    // Install a SIGABRT bypass as a safety net against WebKit abort() calls.
-    // The process-global WebKit context uses a permanent static reference (never unref'd) so GLib
-    // never finalizes it and the known process-exit abort() path no longer fires. This handler
-    // guards against any other unforeseen abort() originating from WebKit internals: it only calls
-    // _exit(0) once g_webkit_teardown_active is armed (after the last window is destroyed),
-    // so real crashes during active test execution still propagate normally.
-    static bool sigabrtHandlerInstalled = false;
-    if (!sigabrtHandlerInstalled) {
-        sigabrtHandlerInstalled = true;
+    void install_webkit_sigabrt_bypass_once() noexcept {
+        static std::atomic<bool> installed{false};
+        bool expected = false;
+        if (!installed.compare_exchange_strong(expected, true, std::memory_order_acq_rel))
+            return;
+
         struct sigaction sa{};
-        sa.sa_handler = [](int) noexcept {
-            if (g_webkit_teardown_active.load(std::memory_order_relaxed)) {
-                _exit(0);
-            }
-            signal(SIGABRT, SIG_DFL);
-            raise(SIGABRT);
-        };
+        sa.sa_handler = webkit_sigabrt_handler;
         sigemptyset(&sa.sa_mask);
         sa.sa_flags = 0;
         sigaction(SIGABRT, &sa, nullptr);
     }
+} // namespace
 
-    // Flush pending GLib events to allow WebKit's previous web process to finish shutting down
-    // before creating a new WebView. Without this, if the previous web process is still
-    // terminating asynchronously, webkit_web_view_new_with_context() hits an internal assertion
-    // and calls abort(). This call is safe here because Show() always runs on the GTK worker thread.
-    while (g_main_context_pending(nullptr))
-        g_main_context_iteration(nullptr, FALSE);
+void InfiniFrameWindow::Show(bool isAlreadyShown) {
+    if (m_impl->_webview) {
+        return;
+    }
 
     struct sigaction oldAction{};
     sigaction(SIGCHLD, nullptr, &oldAction);
-    m_impl->_webview = webkit_web_view_new_with_context(m_impl->_webContext);
-    auto* contentManager = webkit_web_view_get_user_content_manager(WEBKIT_WEB_VIEW(m_impl->_webview));
+    WebKitUserContentManager* contentManager = webkit_user_content_manager_new();
+    // Install the SIGABRT handler now that WebKit globals are initialised (first webview creation). Any abort() from
+    // WebKit's shutdown path will be caught and turned into a clean _exit(0).
+    install_webkit_sigabrt_bypass_once();
+    m_impl->_webview = webkit_web_view_new_with_user_content_manager(contentManager);
 
     m_impl->set_webkit_settings();
 
@@ -97,6 +87,10 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
     );
     webkit_user_content_manager_register_script_message_handler(contentManager, "infiniFrameInterop");
+
+    // webkit_web_view_new_with_user_content_manager keeps its own reference; drop ours so the content manager doesn't
+    // leak past the webview's lifetime.
+    g_object_unref(contentManager);
 
     g_signal_connect(G_OBJECT(m_impl->_webview), "load-changed", G_CALLBACK(on_webview_load_changed), this);
     g_signal_connect(G_OBJECT(m_impl->_webview), "load-failed", G_CALLBACK(on_webview_load_failed), this);

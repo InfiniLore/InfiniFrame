@@ -3,14 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <algorithm>
 #include <cstring>
-#include <mutex>
-#include <thread>
 
 #include "Public/InfiniFrameDialog.h"
 #include "Platform/Linux/Window.Gtk.Internal.h"
-
-// Defined in WindowCore.Gtk.cpp — identifies the permanent GTK worker thread.
-extern std::thread::id g_gtk_worker_thread_id;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -96,31 +91,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
 }
 
 void InfiniFrameWindow::Impl::ConfigureInitialWindow(InfiniFrameWindow* window, InfiniFrameInitParams* initParams) {
-    // This function is always called on the permanent GTK worker thread (dispatched from the constructor).
-    _gtkThreadId = g_gtk_worker_thread_id;
     _window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    g_object_ref_sink(_window);
-    // Use a process-global context created once and intentionally never freed (leaked).
-    //
-    // Two problems to avoid:
-    //   1. Per-window contexts (webkit_web_context_new per InfiniFrameWindow) trigger async WebKit
-    //      cleanup when g_object_unref'd. If a new window is created while that cleanup is still
-    //      running on WebKit's background threads, webkit_web_view_new_with_context() hits an
-    //      internal assertion and calls abort() (exit 134).
-    //   2. webkit_web_context_get_default() causes GLib to register the singleton for automatic
-    //      finalization at process exit. That finalization fires WebKit's own abort() call.
-    //
-    // Holding a permanent reference (refcount always ≥ 1) prevents GLib from ever finalizing the
-    // context: GLib only finalizes objects whose refcount reaches 0, so the abort() never fires.
-    // The small one-time memory leak is harmless — the OS reclaims it on process exit anyway.
-    static WebKitWebContext* s_processContext = nullptr;
-    static std::once_flag s_contextOnce;
-    std::call_once(s_contextOnce, [] {
-        s_processContext = webkit_web_context_new();
-        // Intentionally not calling g_object_unref(). The single floating reference is held
-        // permanently so GLib never finalizes the context and WebKit's abort() never fires.
-    });
-    _webContext = s_processContext;
     _dialog = std::make_unique<InfiniFrameDialog>();
 
     if (initParams->FullScreen) {

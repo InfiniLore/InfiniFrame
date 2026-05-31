@@ -22,7 +22,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
     private int _shutdownRequested;
     private int _shutdownStarted;
-    private IntPtr _nativeOwnedHandle;
 
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
@@ -91,8 +90,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         finally {
             Interlocked.Exchange(ref _shutdownRequested, 1);
             Interlocked.Exchange(ref _shutdownStarted, 1);
-            TryDestroyNativeInstanceNoThrow();
-            InstanceHandle = IntPtr.Zero;
         }
     }
 
@@ -107,11 +104,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     void IInfiniFrameWindow.MarkClosedFromNativeCallback() {
         Interlocked.Exchange(ref _shutdownRequested, 1);
         Interlocked.Exchange(ref _shutdownStarted, 1);
-        // Do NOT call TryDestroyNativeInstanceNoThrow here: this fires from WM_DESTROY (inside the
-        // message loop), and deleting the native object while the loop is still running causes
-        // WM_NCDESTROY to access a dangling GWLP_USERDATA pointer (access violation on ARM64).
-        // WaitForClose's finally block calls TryDestroyNativeInstanceNoThrow after WaitForExit
-        // returns and the message loop has fully wound down past WM_NCDESTROY.
         InstanceHandle = IntPtr.Zero;
     }
 
@@ -368,21 +360,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             : Task.Run(workItem, ct);
     }
 
-    private void TryDestroyNativeInstanceNoThrow() {
-        IntPtr nativeHandle = Interlocked.Exchange(ref _nativeOwnedHandle, IntPtr.Zero);
-        if (nativeHandle == IntPtr.Zero) return;
-
-        try {
-            InfiniFrameNativeInteropStatus status = InfiniFrameNative.Destructor(nativeHandle);
-            if (status != InfiniFrameNativeInteropStatus.Success) {
-                Logger.LogWarning("Native window destructor returned {Status}.", status);
-            }
-        }
-        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            Logger.LogWarning(ex, "Native window destructor threw while shutting down.");
-        }
-    }
-
     public void Initialize() {
         InfiniFrameNativeParameters startupParameters = Configuration.StartupParameters;
         
@@ -410,7 +387,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                         InfiniFrameNative.Constructor(in startupParameters, out IntPtr instanceHandle),
                         nameof(InfiniFrameNative.Constructor));
                     InstanceHandle = instanceHandle;
-                    _nativeOwnedHandle = instanceHandle;
                 });
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
@@ -559,7 +535,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Gets the value indicating whether the native window is chromeless.
     /// </summary>
     /// <remarks>
-    ///     The user has to supply titlebar, border, dragging, and resizing manually.
+    ///     The user has to supply titlebar, border, dragging and resizing manually.
     /// </remarks>
     public bool Chromeless => Configuration.StartupParameters.Chromeless;
 

@@ -34,9 +34,6 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameWindowTestUtility() {}
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
     [MustDisposeResource]
     public static InfiniFrameWindowTestUtility Create(CancellationToken cancellationToken = default)
         => Create(null, cancellationToken);
