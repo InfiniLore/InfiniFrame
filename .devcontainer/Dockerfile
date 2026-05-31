@@ -24,7 +24,6 @@ RUN apt-get update && apt-get install -y \
     gdb \
     gdbserver \
     x11-apps \
-    xvfb \
     mesa-utils \
     mesa-utils-extra \
     libx11-dev \
@@ -35,7 +34,6 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     libnotify-dev \
     dbus-x11 \
-    openbox \
     gsettings-desktop-schemas \
     fonts-liberation \
     glib2.0-bin \
@@ -95,12 +93,6 @@ RUN npx -y playwright install-deps
 # Create /tmp/.X11-unix with correct sticky-bit permissions so Xvfb can
 # create its socket as a non-root user (devuser) without a host bind mount.
 RUN mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
-
-# Lifecycle scripts — baked into the image so they are available before
-# the workspace volume is mounted (postcreate.sh) and on every start (init-x11.sh).
-COPY .devcontainer/init-x11.sh /usr/local/bin/init-x11.sh
-COPY .devcontainer/postcreate.sh /usr/local/bin/postcreate.sh
-RUN chmod +x /usr/local/bin/init-x11.sh /usr/local/bin/postcreate.sh
 
 # Create non-root user
 RUN useradd -ms /bin/bash devuser && \
