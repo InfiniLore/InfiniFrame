@@ -3,27 +3,38 @@
         build:
             context: ..
             dockerfile: .devcontainer/Dockerfile
+
         container_name: infiniframe-dev
         working_dir: /workspace
+
         volumes:
             - ..:/workspace:cached
+
             - jetbrains-config:/home/devuser/.config/JetBrains
             - jetbrains-data:/home/devuser/.local/share/JetBrains
             - jetbrains-cache:/home/devuser/.cache/JetBrains
             - vscode-server:/home/devuser/.vscode-server
+
+            # WSLg
+            - /tmp/.X11-unix:/tmp/.X11-unix
+            - /mnt/wslg:/mnt/wslg
+
         tty: true
         stdin_open: true
         command: sleep infinity
+
         dns:
             - 8.8.8.8
             - 1.1.1.1
+
         environment:
             DOTNET_USE_POLLING_FILE_WATCHER: "1"
-            XDG_RUNTIME_DIR: "/tmp/runtime"
-        # GPU passthrough, remove the deploy block below if you don't need it.
-        # NOTE: if GPU is enabled, remove LIBGL_ALWAYS_SOFTWARE / GALLIUM_DRIVER
-        # from devcontainer.json remoteEnv so the GPU is actually used.
-        # If GPU is disabled, keep those env vars for llvmpipe software rendering.
+
+            DISPLAY: "${DISPLAY}"
+            WAYLAND_DISPLAY: "${WAYLAND_DISPLAY}"
+            XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR}"
+            PULSE_SERVER: "${PULSE_SERVER}"
+
         deploy:
             resources:
                 reservations:

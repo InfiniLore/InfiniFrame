@@ -24,7 +24,6 @@ RUN apt-get update && apt-get install -y \
     gdb \
     gdbserver \
     x11-apps \
-    xvfb \
     mesa-utils \
     mesa-utils-extra \
     libx11-dev \
@@ -35,7 +34,6 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     libnotify-dev \
     dbus-x11 \
-    openbox \
     gsettings-desktop-schemas \
     fonts-liberation \
     glib2.0-bin \
