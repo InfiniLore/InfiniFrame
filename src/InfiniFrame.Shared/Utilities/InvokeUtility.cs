@@ -29,18 +29,6 @@ internal static class InvokeUtility {
         return value;
     }
 
-    public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IntPtr, T> callback) {
-        T? value = default;
-        // ReSharper disable once RedundantAssignment
-        bool completed = false;
-        window.Invoke(() => {
-            value = callback(window.InstanceHandle);
-            completed = true;
-        });
-        Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
-        return value;
-    }
-
     public static T InvokeAndReturn<T>(IInfiniFrameWindow window, FuncWithOut<T> callback) {
         T? value = default;
         // ReSharper disable once RedundantAssignment

@@ -1,24 +1,22 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Utilities;
-
+namespace InfiniFrame.BlazorWebView.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal static class TitleStringHelper {
-    public const string DefaultTitle = "InfiniFrame";
+internal class SynchronousTaskScheduler : TaskScheduler {
+    public override int MaximumConcurrencyLevel => 1;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public static string? Validate(string? title, bool limitLinuxLength) {
-        if (string.IsNullOrWhiteSpace(title)) return title;
-        string newTitle = title.Trim();
+    protected override void QueueTask(Task task) 
+        => TryExecuteTask(task);
 
-        if (limitLinuxLength && OperatingSystem.IsLinux() && newTitle.Length > 31)
-            newTitle = newTitle[..31];
+    protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) 
+        => TryExecuteTask(task);
 
-        return newTitle.Length > 0 ? newTitle : DefaultTitle;
-    }
+    protected override IEnumerable<Task> GetScheduledTasks() 
+        => [];
 }

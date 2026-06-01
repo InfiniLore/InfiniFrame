@@ -774,7 +774,7 @@ public static class InfiniFrameWindowExtensions {
 
             InfiniFrameNative.SetTitle(
                 window.InstanceHandle,
-                TitleStringHelper.Validate(title, window.Configuration.LimitLinuxWindowTitleLength)
+                TitleStringUtility.Validate(title, window.Configuration.LimitLinuxWindowTitleLength)
             );
         });
 

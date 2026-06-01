@@ -44,10 +44,10 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
         "infiniframe",
         Environment.ProcessId.ToString());
     
-    private string? _title = TitleStringHelper.DefaultTitle;
+    private string? _title = TitleStringUtility.DefaultTitle;
     public string? Title {
         get => _title;
-        set => _title = TitleStringHelper.Validate(value, LimitLinuxWindowTitleLength);
+        set => _title = TitleStringUtility.Validate(value, LimitLinuxWindowTitleLength);
     }
     
     public int Top { get; set; }

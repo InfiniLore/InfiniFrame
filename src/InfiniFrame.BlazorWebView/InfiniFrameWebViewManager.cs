@@ -1,7 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BlazorWebView.Utils;
+using InfiniFrame.BlazorWebView.Utilities;
 using InfiniFrame.Security;
 using InfiniFrame.Utilities;
 using Microsoft.AspNetCore.Components;
