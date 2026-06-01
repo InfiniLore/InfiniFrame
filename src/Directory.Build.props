@@ -46,7 +46,7 @@
         <InternalsVisibleTo Include="InfiniFrame.Blazor" />
         <InternalsVisibleTo Include="InfiniFrame.BlazorWebView" />
         <InternalsVisibleTo Include="InfiniFrame.Js" />
-        <InternalsVisibleTo Include="InfiniFrame.Native" />
+        <InternalsVisibleTo Include="InfiniFrame.NativeBridge" />
         <InternalsVisibleTo Include="InfiniFrame.Shared" />
         <InternalsVisibleTo Include="InfiniFrame.WebServer" />
 
@@ -55,7 +55,7 @@
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Blazor" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.BlazorWebView" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Js" />
-        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Native" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.NativeBridge" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Shared" />
         <InternalsVisibleTo Include="InfiniTests.InfiniFrame.WebServer" />
         

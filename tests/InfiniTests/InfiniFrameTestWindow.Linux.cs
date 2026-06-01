@@ -19,6 +19,8 @@ public sealed partial class InfiniFrameTestWindow {
     private static readonly object HostLock = new();
     #endif
 
+    // Resolves a weird bug where if certain tests are ran on linux, the window is not properly disposed of
+    // Unless there is some form of a parent-child relationship, the closing and cleanup mechanism is not properly handled
     private static IInfiniFrameWindow? _hostWindow;
 
     // -----------------------------------------------------------------------------------------------------------------

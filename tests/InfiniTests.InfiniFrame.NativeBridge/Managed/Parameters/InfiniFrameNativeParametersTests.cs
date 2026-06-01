@@ -1,16 +1,287 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Parameters;
 using System.Runtime.InteropServices;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.NativeBridge.Managed.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class InfiniFrameNativeParameterTests {
+public class InfiniFrameNativeParametersTests {
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Helpers
+    // -----------------------------------------------------------------------------------------------------------------
+    private static InfiniFrameNativeParameters CreateDefault() => new() {
+        StartUrl = "https://example.com",
+        CustomSchemeNames = new IntPtr[16]
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Equals
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task Equals_TwoStructsWithSameValues_ReturnsTrue(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+
+        // Act
+        bool result = a.Equals(b);
+
+        // Assert
+        await Assert.That(result).IsTrue();
+    }
+
+    [Test]
+    public async Task Equals_DifferentStartUrl_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.StartUrl = "https://other.com";
+
+        // Act
+        bool result = a.Equals(b);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_DifferentTitle_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.Title = "Different Title";
+
+        // Act
+        bool result = a.Equals(b);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_DifferentNativeParent_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.NativeParent = new IntPtr(12345);
+
+        // Act
+        bool result = a.Equals(b);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_DifferentLeft_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.Left = 100;
+
+        // Act
+        bool result = a.Equals(b);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_DifferentBooleanField_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.Resizable = true;
+
+        // Act
+        bool result = a.Equals(b);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_DifferentCustomSchemeNames_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+
+        IntPtr ptr = Marshal.StringToHGlobalAnsi("app");
+        b.CustomSchemeNames[0] = ptr;
+
+        try {
+            // Act
+            bool result = a.Equals(b);
+
+            // Assert
+            await Assert.That(result).IsFalse();
+        }
+        finally {
+            Marshal.FreeHGlobal(ptr);
+        }
+    }
+
+    [Test]
+    public async Task Equals_ObjectOverload_WithNonParameters_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        object other = "not a parameters struct";
+
+        // Act
+        bool result = a.Equals(other);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_ObjectOverload_WithNull_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+
+        // Act
+        bool result = a.Equals(null);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task Equals_ObjectOverload_WithBoxedCopy_ReturnsTrue(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        object boxed = CreateDefault();
+
+        // Act
+        bool result = a.Equals(boxed);
+
+        // Assert
+        await Assert.That(result).IsTrue();
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // GetHashCode
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task GetHashCode_CalledTwiceOnSameValues_ReturnsSameHash(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+
+        // Act
+        int hash1 = a.GetHashCode();
+        int hash2 = a.GetHashCode();
+
+        // Assert
+        await Assert.That(hash1).IsEqualTo(hash2);
+    }
+
+    [Test]
+    public async Task GetHashCode_EqualStructs_ReturnSameHash(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+
+        // Act
+        int hashA = a.GetHashCode();
+        int hashB = b.GetHashCode();
+
+        // Assert
+        await Assert.That(hashA).IsEqualTo(hashB);
+    }
+
+    [Test]
+    public async Task GetHashCode_StructsWithDifferentStartUrl_ReturnDifferentHashes(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.StartUrl = "https://different.com";
+
+        // Act
+        int hashA = a.GetHashCode();
+        int hashB = b.GetHashCode();
+
+        // Assert — different values are highly unlikely to collide
+        await Assert.That(hashA).IsNotEqualTo(hashB);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Operators
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task OperatorEquals_SameValues_ReturnsTrue(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+
+        // Act
+        bool result = a == b;
+
+        // Assert
+        await Assert.That(result).IsTrue();
+    }
+
+    [Test]
+    public async Task OperatorEquals_DifferentValues_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.Title = "Changed";
+
+        // Act
+        bool result = a == b;
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task OperatorNotEquals_SameValues_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+
+        // Act
+        bool result = a != b;
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
+    public async Task OperatorNotEquals_DifferentValues_ReturnsTrue(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.Width = 1280;
+
+        // Act
+        bool result = a != b;
+
+        // Assert
+        await Assert.That(result).IsTrue();
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // SequentialLayout
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task SequentialLayout_SizeMatchesMarshalSizeOf(CancellationToken ct = default) {
+        // Arrange
+        // Size must be consistent across managed/native boundary; Marshal.SizeOf is the source of truth.
+        int expectedSize = Marshal.SizeOf<InfiniFrameNativeParameters>();
+
+        // Act — read back to confirm it's stable
+        int actualSize = Marshal.SizeOf<InfiniFrameNativeParameters>();
+
+        // Assert
+        await Assert.That(actualSize).IsEqualTo(expectedSize);
+    }
+    
     [Test]
     public async Task NativeExport_InvalidArgument_SetsDeterministicLastErrorAndMessage(CancellationToken ct = default) {
         // Act

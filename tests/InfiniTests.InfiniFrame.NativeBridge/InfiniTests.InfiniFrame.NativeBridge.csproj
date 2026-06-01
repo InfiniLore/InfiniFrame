@@ -14,4 +14,14 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Managed\" />
+      <Folder Include="Managed\Dialogs\" />
+      <Folder Include="Managed\Parameters\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\InfiniFrame.NativeBridge\InfiniFrame.NativeBridge.csproj" />
+    </ItemGroup>
+
 </Project>
