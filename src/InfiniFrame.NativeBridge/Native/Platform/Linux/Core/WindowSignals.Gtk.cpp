@@ -57,11 +57,27 @@ void InfiniFrameWindow::OnConfigureEvent(int x, int y, int width, int height) {
 }
 
 void InfiniFrameWindow::OnWindowStateEvent(GdkWindowState newState) {
-    if (newState & GDK_WINDOW_STATE_MAXIMIZED) {
-        InvokeMaximized();
-    } else if ((newState & GDK_WINDOW_STATE_ICONIFIED) || !gtk_widget_get_mapped(m_impl->_window)) {
-        InvokeMinimized();
-    } else if (!(newState & GDK_WINDOW_STATE_MAXIMIZED) && !(newState & GDK_WINDOW_STATE_ICONIFIED)) {
+    // GTK emits window-state-event repeatedly for the same logical state (e.g. a focus or geometry change arrives
+    // right after a maximize, each carrying the MAXIMIZED bit). Gate every callback on an actual state transition so
+    // a single SetMaximized/SetMinimized/restore raises exactly one event, matching the Win32 WM_SIZE handling.
+    const bool isMaximized = (newState & GDK_WINDOW_STATE_MAXIMIZED) != 0;
+    const bool isMinimized = (newState & GDK_WINDOW_STATE_ICONIFIED) || !gtk_widget_get_mapped(m_impl->_window);
+
+    if (isMaximized) {
+        if (!m_impl->_maximized) {
+            m_impl->_maximized = true;
+            m_impl->_minimized = false;
+            InvokeMaximized();
+        }
+    } else if (isMinimized) {
+        if (!m_impl->_minimized) {
+            m_impl->_maximized = false;
+            m_impl->_minimized = true;
+            InvokeMinimized();
+        }
+    } else if (m_impl->_maximized || m_impl->_minimized) {
+        m_impl->_maximized = false;
+        m_impl->_minimized = false;
         InvokeRestored();
     }
 }

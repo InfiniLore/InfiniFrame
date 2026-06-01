@@ -22,6 +22,8 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _isFullScreen = false;
     bool _webviewReady = false;
     bool _webviewClosed = false;
+    bool _maximized = false;
+    bool _minimized = false;
     double _zoom = 100.0;
     int _minWidth = 0;
     int _minHeight = 0;

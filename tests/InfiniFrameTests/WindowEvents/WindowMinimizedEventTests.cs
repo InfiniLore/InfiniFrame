@@ -17,6 +17,8 @@ public class WindowMinimizedEventTests {
     public async Task TestWindowMinimizedEvent(CancellationToken ct = default) {
         // Arrange
         int minimizedEventCount = 0;
+        int baseline = Volatile.Read(ref minimizedEventCount);
+        
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
                 .RegisterMinimizedHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
@@ -24,7 +26,6 @@ public class WindowMinimizedEventTests {
                 })
             , ct
         );
-        int baseline = Volatile.Read(ref minimizedEventCount);
 
         // Act
         windowUtility.Window.SetMinimized(true);
