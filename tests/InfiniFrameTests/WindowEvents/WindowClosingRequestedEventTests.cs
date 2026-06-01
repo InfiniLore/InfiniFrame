@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -8,28 +8,28 @@ namespace InfiniFrameTests.WindowEvents;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class WindowClosedEventTests {
+public class WindowClosingRequestedEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task TestWindowClosedEvent(CancellationToken ct = default) {
+    public async Task TestWindowClosingRequestedEvent(CancellationToken ct = default) {
         // Arrange
-        int closedEventCount = 0;
+        int closingRequestedEventCount = 0;
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
-                .RegisterWindowClosedHandler(_ => {
+                .RegisterWindowClosingRequestedHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
-                    Interlocked.Increment(ref closedEventCount);
+                    Interlocked.Increment(ref closingRequestedEventCount);
                 })
             , ct
         );
-        int baseline = Volatile.Read(ref closedEventCount);
+        int baseline = Volatile.Read(ref closingRequestedEventCount);
 
         // Act
         windowUtility.Window.Close();
 
         // Assert
-        await PollUtility.WaitForChangeAsync(getValue: () => Volatile.Read(ref closedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
-        await Assert.That(closedEventCount).IsEqualTo(baseline + 1);
+        await PollUtility.WaitForChangeAsync(getValue: () => Volatile.Read(ref closingRequestedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(closingRequestedEventCount).IsEqualTo(baseline + 1);
     }
 }

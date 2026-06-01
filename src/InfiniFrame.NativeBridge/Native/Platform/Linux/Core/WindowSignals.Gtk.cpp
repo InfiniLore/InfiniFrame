@@ -57,11 +57,27 @@ void InfiniFrameWindow::OnConfigureEvent(int x, int y, int width, int height) {
 }
 
 void InfiniFrameWindow::OnWindowStateEvent(GdkWindowState newState) {
-    if (newState & GDK_WINDOW_STATE_MAXIMIZED) {
-        InvokeMaximized();
-    } else if ((newState & GDK_WINDOW_STATE_ICONIFIED) || !gtk_widget_get_mapped(m_impl->_window)) {
-        InvokeMinimized();
-    } else if (!(newState & GDK_WINDOW_STATE_MAXIMIZED) && !(newState & GDK_WINDOW_STATE_ICONIFIED)) {
+    // GTK emits window-state-event repeatedly for the same logical state (e.g. a focus or geometry change arrives
+    // right after a maximize, each carrying the MAXIMIZED bit). Gate every callback on an actual state transition so
+    // a single SetMaximized/SetMinimized/restore raises exactly one event, matching the Win32 WM_SIZE handling.
+    const bool isMaximized = (newState & GDK_WINDOW_STATE_MAXIMIZED) != 0;
+    const bool isMinimized = (newState & GDK_WINDOW_STATE_ICONIFIED) || !gtk_widget_get_mapped(m_impl->_window);
+
+    if (isMaximized) {
+        if (!m_impl->_maximized) {
+            m_impl->_maximized = true;
+            m_impl->_minimized = false;
+            InvokeMaximized();
+        }
+    } else if (isMinimized) {
+        if (!m_impl->_minimized) {
+            m_impl->_maximized = false;
+            m_impl->_minimized = true;
+            InvokeMinimized();
+        }
+    } else if (m_impl->_maximized || m_impl->_minimized) {
+        m_impl->_maximized = false;
+        m_impl->_minimized = false;
         InvokeRestored();
     }
 }
@@ -84,7 +100,17 @@ gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, co
 
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer self) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-    return instance->InvokeClose();
+    const bool cancel = instance->InvokeClose();
+    if (cancel)
+        return TRUE;
+
+    // The user (or default handler) accepted the close. Disconnect our webview signal handlers and stop any in-flight
+    // load before the GtkContainer destroy cascade disposes the webview, so none of our callbacks (FlushPendingWebMessages,
+    // load/permission/context-menu handlers) can fire against a half-destroyed window. CloseWebView does NOT destroy the
+    // webview itself. Explicit destruction from inside this signal handler triggers WebKit's web-process teardown
+    // re-entrantly and aborts (SIGABRT); GtkContainer disposes the webview implicitly once we return FALSE.
+    instance->CloseWebView();
+    return FALSE;
 }
 
 void on_widget_destroyed(GtkWidget* widget, const gpointer self) {
@@ -129,14 +155,18 @@ gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest*
 }
 
 void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
-    if (!linux_webview_diagnostics_enabled())
-        return;
+    if (linux_webview_diagnostics_enabled()) {
+        const char* uri = webkit_web_view_get_uri(web_view);
+        g_message(
+            "[InfiniFrame/Linux] WebKit load-changed: event=%s uri=%s", webkit_load_event_to_string(load_event),
+            uri ? uri : "<null>"
+        );
+    }
 
-    const char* uri = webkit_web_view_get_uri(web_view);
-    g_message(
-        "[InfiniFrame/Linux] WebKit load-changed: event=%s uri=%s", webkit_load_event_to_string(load_event),
-        uri ? uri : "<null>"
-    );
+    if (load_event == WEBKIT_LOAD_FINISHED) {
+        auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+        instance->FlushPendingWebMessages();
+    }
 }
 
 gboolean on_webview_load_failed(

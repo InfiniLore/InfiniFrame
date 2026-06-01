@@ -524,6 +524,7 @@ class InfiniFrameWindow {
 #ifdef __linux__
     void OnConfigureEvent(int x, int y, int width, int height);
     void OnWindowStateEvent(GdkWindowState newState);
+    void FlushPendingWebMessages();
 #endif
 
 #ifdef _WIN32
@@ -578,6 +579,8 @@ class InfiniFrameWindow {
          * @brief Initialise the NSApplication shared instance; must be called once before creating any window
          */
     static void Register();
+
+    void FlushPendingWebMessages();
 #endif
 
     // -----------------------------------------------------------------------------------------------------------------

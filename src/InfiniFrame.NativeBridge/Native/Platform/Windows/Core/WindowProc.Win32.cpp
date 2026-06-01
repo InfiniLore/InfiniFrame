@@ -85,6 +85,52 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             }
             break;
         }
+        case WM_SIZE: {
+            InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
+            if (instance) {
+                const bool wasMaximized = instance->m_impl->_maximized;
+                const bool wasMinimized = instance->m_impl->_minimized;
+
+                if (wParam == SIZE_MAXIMIZED) {
+                    instance->m_impl->_maximized = true;
+                    instance->m_impl->_minimized = false;
+                    instance->InvokeMaximized();
+                } else if (wParam == SIZE_MINIMIZED) {
+                    instance->m_impl->_maximized = false;
+                    instance->m_impl->_minimized = true;
+                    instance->InvokeMinimized();
+                } else {
+                    instance->m_impl->_maximized = false;
+                    instance->m_impl->_minimized = false;
+                    if (wasMaximized || wasMinimized)
+                        instance->InvokeRestored();
+                }
+
+                if (wParam != SIZE_MINIMIZED) {
+                    int width = 0, height = 0;
+                    instance->GetSize(&width, &height);
+                    if (instance->m_impl->_lastWidth != width || instance->m_impl->_lastHeight != height) {
+                        instance->m_impl->_lastWidth = width;
+                        instance->m_impl->_lastHeight = height;
+                        instance->InvokeResize(width, height);
+                    }
+                }
+            }
+            break;
+        }
+        case WM_MOVE: {
+            InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
+            if (instance) {
+                int x = 0, y = 0;
+                instance->GetPosition(&x, &y);
+                if (instance->m_impl->_lastLeft != x || instance->m_impl->_lastTop != y) {
+                    instance->m_impl->_lastLeft = x;
+                    instance->m_impl->_lastTop = y;
+                    instance->InvokeMove(x, y);
+                }
+            }
+            break;
+        }
         case WM_CLOSE: {
             // Give the instance a chance to cancel close. If close proceeds, clear owner
             // relationship before destruction to avoid shutdown-order and ownership edge cases.

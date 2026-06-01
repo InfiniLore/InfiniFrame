@@ -28,4 +28,8 @@
             }
         }
 
+    - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+        infiniFrame->FlushPendingWebMessages();
+    }
+
 @end

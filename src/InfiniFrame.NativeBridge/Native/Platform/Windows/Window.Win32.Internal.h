@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <atomic>
 #include <string>
+#include <vector>
 
 #include <windows.h>
 #include <wil/com.h>
@@ -38,6 +39,11 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
 
     RECT _savedRect = {};
 
+    int _lastLeft = INT_MIN;
+    int _lastTop = INT_MIN;
+    int _lastWidth = INT_MIN;
+    int _lastHeight = INT_MIN;
+
     int _zoom = 100;
     int _minWidth = MinWindowDimension;
     int _minHeight = MinWindowDimension;
@@ -54,9 +60,15 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     EventRegistrationToken _webMessageReceivedToken = {};
     EventRegistrationToken _webResourceRequestedTokenForCustomScheme = {};
     EventRegistrationToken _permissionRequestedToken = {};
+    EventRegistrationToken _navigationCompletedToken = {};
     bool _hasWebMessageReceivedToken = false;
     bool _hasWebResourceRequestedToken = false;
     bool _hasPermissionRequestedToken = false;
+    bool _hasNavigationCompletedToken = false;
+
+    // Messages queued while WebView2 is still initializing (e.g. sent from WindowCreated).
+    // Flushed to the WebView on the first NavigationCompleted event.
+    std::vector<std::wstring> _pendingWebMessages;
 
     std::unique_ptr<WinToastHandler> _toastHandler;
 };

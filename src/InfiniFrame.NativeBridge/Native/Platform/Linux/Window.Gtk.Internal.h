@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <climits>
 #include <string>
+#include <vector>
 #include <gtk/gtk.h>
 #include <webkit2/webkit2.h>
 
@@ -19,6 +20,10 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::string _temporaryFilesPath;
 
     bool _isFullScreen = false;
+    bool _webviewReady = false;
+    bool _webviewClosed = false;
+    bool _maximized = false;
+    bool _minimized = false;
     double _zoom = 100.0;
     int _minWidth = 0;
     int _minHeight = 0;
@@ -31,6 +36,10 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     int _lastTop = 0;
     int _lastWidth = 0;
     int _lastHeight = 0;
+
+    // Messages queued while WebKit is still loading (e.g. sent from WindowCreated handler). 
+    // Flushed on the first WEBKIT_LOAD_FINISHED event.
+    std::vector<std::string> _pendingWebMessages;
 
     void set_webkit_settings();
     void set_webkit_customsettings(WebKitSettings* settings);

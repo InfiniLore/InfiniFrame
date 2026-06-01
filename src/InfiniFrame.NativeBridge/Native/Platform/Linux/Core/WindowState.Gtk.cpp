@@ -158,6 +158,19 @@ static void webview_eval_finished(GObject* object, GAsyncResult* result, gpointe
     }
 }
 
+void InfiniFrameWindow::FlushPendingWebMessages() {
+    m_impl->_webviewReady = true;
+    if (m_impl->_pendingWebMessages.empty())
+        return;
+
+    for (const auto& js : m_impl->_pendingWebMessages) {
+        webkit_web_view_evaluate_javascript(
+            WEBKIT_WEB_VIEW(m_impl->_webview), js.c_str(), -1, nullptr, nullptr, nullptr, webview_eval_finished, nullptr
+        );
+    }
+    m_impl->_pendingWebMessages.clear();
+}
+
 void InfiniFrameWindow::SendWebMessage(const AutoString message) {
     std::string escaped = escapeJsonString(message ? message : "");
 
@@ -165,6 +178,13 @@ void InfiniFrameWindow::SendWebMessage(const AutoString message) {
     js.append("__dispatchMessageCallback(\"");
     js.append(escaped);
     js.append("\")");
+
+    if (!m_impl->_webviewReady) {
+        // WebKit is still loading (e.g. message sent from WindowCreated handler).
+        // Queue the message; it will be flushed on the first WEBKIT_LOAD_FINISHED event.
+        m_impl->_pendingWebMessages.push_back(std::move(js));
+        return;
+    }
 
     webkit_web_view_evaluate_javascript(
         WEBKIT_WEB_VIEW(m_impl->_webview), js.c_str(), -1, nullptr, nullptr, nullptr, webview_eval_finished, nullptr

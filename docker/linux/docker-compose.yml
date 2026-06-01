@@ -1,0 +1,74 @@
+services:
+  linux-tests:
+    build:
+      context: ../..
+      dockerfile: docker/linux/Dockerfile
+      args:
+        NATIVE_ARCH: ${NATIVE_ARCH:-x64}
+    image: infiniframe-linux:local
+    environment:
+      RUN_MODE: tests
+      NATIVE_ARCH: ${NATIVE_ARCH:-x64}
+      USE_HOST_X11: ${USE_HOST_X11:-1}
+      DISPLAY: ${DISPLAY:-host.docker.internal:0.0}
+      TERM: xterm-256color
+      CLICOLOR_FORCE: "1"
+      FORCE_COLOR: "1"
+      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: "1"
+    stdin_open: true
+    tty: true
+
+  linux-tests-wslg:
+    build:
+      context: ../..
+      dockerfile: docker/linux/Dockerfile
+      args:
+        NATIVE_ARCH: ${NATIVE_ARCH:-x64}
+    image: infiniframe-linux:local
+    privileged: true
+    ulimits:
+      core: -1
+    environment:
+      RUN_MODE: tests
+      NATIVE_ARCH: ${NATIVE_ARCH:-x64}
+      USE_WSLG: "1"
+      USE_HOST_X11: "0"
+      DISPLAY: ${DISPLAY:-:0}
+      WAYLAND_DISPLAY: ${WAYLAND_DISPLAY:-wayland-0}
+      XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR:-/mnt/wslg/runtime-dir}
+      PULSE_SERVER: ${PULSE_SERVER:-unix:/mnt/wslg/PulseServer}
+      TERM: xterm-256color
+      CLICOLOR_FORCE: "1"
+      FORCE_COLOR: "1"
+      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: "1"
+    volumes:
+      - /mnt/wslg:/mnt/wslg
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    stdin_open: true
+    tty: true
+
+  example-blazorwebview-wslg:
+    build:
+      context: ../..
+      dockerfile: docker/linux/Dockerfile
+      args:
+        NATIVE_ARCH: ${NATIVE_ARCH:-x64}
+    image: infiniframe-linux:local
+    environment:
+      RUN_MODE: example-blazorwebview
+      NATIVE_ARCH: ${NATIVE_ARCH:-x64}
+      USE_WSLG: "1"
+      USE_HOST_X11: "0"
+      DISPLAY: ${DISPLAY:-:0}
+      WAYLAND_DISPLAY: ${WAYLAND_DISPLAY:-wayland-0}
+      XDG_RUNTIME_DIR: ${XDG_RUNTIME_DIR:-/mnt/wslg/runtime-dir}
+      PULSE_SERVER: ${PULSE_SERVER:-unix:/mnt/wslg/PulseServer}
+      TERM: xterm-256color
+      CLICOLOR_FORCE: "1"
+      FORCE_COLOR: "1"
+      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: "1"
+    volumes:
+      - /mnt/wslg:/mnt/wslg
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    stdin_open: true
+    tty: true

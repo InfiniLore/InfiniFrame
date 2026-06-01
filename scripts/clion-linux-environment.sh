@@ -14,7 +14,23 @@ sudo apt install -y \
     curl \
     build-essential \
     pkg-config \
-    lsb-release
+    lsb-release \
+    x11-apps
+    
+# ----------------------------------------------------------------------------------------------------------------------
+# .NET SDKs (8, 9, 10)
+# ----------------------------------------------------------------------------------------------------------------------
+echo "Installing/updating .NET SDKs..."
+
+curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
+curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 9.0
+curl -fsSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0
+
+echo ".NET SDKs installed:"
+dotnet --list-sdks || true
+
+echo ".NET runtimes installed:"
+dotnet --list-runtimes || true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Node.js 24
@@ -152,6 +168,15 @@ clang++ --version || true
 
 echo "GDB version:"
 gdb --version || true
+
+echo ".NET SDKs:"
+dotnet --list-sdks || true
+
+echo ".NET runtimes:"
+dotnet --list-runtimes || true
+
+echo ".NET info:"
+dotnet --info || true
 
 echo ""
 echo "Setup complete!"

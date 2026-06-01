@@ -249,6 +249,29 @@ void InfiniFrameWindow::AttachWebView() {
                             m_impl->_permissionRequestedToken = permissionRequestedToken;
                             m_impl->_hasPermissionRequestedToken = true;
 
+                            // Subscribe to NavigationCompleted so that any messages queued
+                            // before WebView2 was ready (e.g. from a WindowCreated handler)
+                            // are flushed once the first page navigation finishes and the
+                            // InfiniFrame bridge script is guaranteed to be running.
+                            EventRegistrationToken navigationCompletedToken;
+                            m_impl->_webviewWindow->add_NavigationCompleted(
+                                Callback<ICoreWebView2NavigationCompletedEventHandler>(
+                                    [this](ICoreWebView2*, ICoreWebView2NavigationCompletedEventArgs*) -> HRESULT {
+                                        if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+                                            return S_OK;
+                                        if (m_impl->_pendingWebMessages.empty() || !m_impl->_webviewWindow)
+                                            return S_OK;
+                                        for (const auto& msg : m_impl->_pendingWebMessages)
+                                            m_impl->_webviewWindow->PostWebMessageAsString(msg.c_str());
+                                        m_impl->_pendingWebMessages.clear();
+                                        return S_OK;
+                                    }
+                                ).Get(),
+                                &navigationCompletedToken
+                            );
+                            m_impl->_navigationCompletedToken = navigationCompletedToken;
+                            m_impl->_hasNavigationCompletedToken = true;
+
                             HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
                                 js_wide.c_str(),
                                 Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(

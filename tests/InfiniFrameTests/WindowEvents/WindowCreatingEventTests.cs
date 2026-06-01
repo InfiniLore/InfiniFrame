@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -8,28 +8,24 @@ namespace InfiniFrameTests.WindowEvents;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class WindowClosedEventTests {
+public class WindowCreatingEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
     [NotInParallel(ParallelControl.InfiniFrame)]
-    public async Task TestWindowClosedEvent(CancellationToken ct = default) {
+    public async Task TestWindowCreatingEvent(CancellationToken ct = default) {
         // Arrange
-        int closedEventCount = 0;
+        int creatingEventCount = 0;
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
-                .RegisterWindowClosedHandler(_ => {
+                .RegisterWindowCreatingHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
-                    Interlocked.Increment(ref closedEventCount);
+                    Interlocked.Increment(ref creatingEventCount);
                 })
             , ct
         );
-        int baseline = Volatile.Read(ref closedEventCount);
 
-        // Act
-        windowUtility.Window.Close();
-
-        // Assert
-        await PollUtility.WaitForChangeAsync(getValue: () => Volatile.Read(ref closedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
-        await Assert.That(closedEventCount).IsEqualTo(baseline + 1);
+        // Assert: event fires synchronously during Build(); no act step needed
+        await PollUtility.WaitForChangeAsync(getValue: () => Volatile.Read(ref creatingEventCount), 0, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(creatingEventCount).IsEqualTo(1);
     }
 }

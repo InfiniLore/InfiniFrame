@@ -57,5 +57,20 @@ void InfiniFrameWindow::WaitForExit() {
 }
 
 void InfiniFrameWindow::CloseWebView() {
-    // Not implemented on Linux
+    if (m_impl->_webviewClosed)
+        return;
+    m_impl->_webviewClosed = true;
+
+    GtkWidget* webview = m_impl->_webview;
+    if (webview == nullptr)
+        return;
+
+    // Disconnect every signal whose user_data is this instance so our callbacks can't fire after the window starts
+    // tearing down. The webview itself is destroyed implicitly by GTK when the parent window is destroyed.
+    // Explicit destruction here (gtk_widget_destroy, terminate_web_process, pumping events) triggers WebKit's web
+    // process cleanup from inside a GTK signal handler, which causes SIGABRT on libwebkit2gtk-4.1.
+    // The process-exit SIGABRT from WebKit's own atexit handler is handled separately by webkit_atexit_bypass()
+    // in WebKitHost.Gtk.cpp.
+    g_signal_handlers_disconnect_by_data(webview, this);
+    webkit_web_view_stop_loading(WEBKIT_WEB_VIEW(webview));
 }

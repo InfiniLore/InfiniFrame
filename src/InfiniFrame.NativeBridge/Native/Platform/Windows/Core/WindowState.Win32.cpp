@@ -109,8 +109,16 @@ void InfiniFrameWindow::Restore() {
 }
 
 void InfiniFrameWindow::SendWebMessage(AutoString message) {
-    if (!m_impl->_webviewWindow || !m_impl->_webviewController || !m_impl->_hWnd || !IsWindow(m_impl->_hWnd))
+    if (!m_impl->_hWnd || !IsWindow(m_impl->_hWnd) || m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
         return;
+
+    if (!m_impl->_webviewWindow || !m_impl->_webviewController) {
+        // WebView2 is still initializing (e.g. message sent from WindowCreated handler).
+        // Queue the message; it will be flushed on the first NavigationCompleted event.
+        if (message != nullptr)
+            m_impl->_pendingWebMessages.emplace_back(ToUTF16String(message));
+        return;
+    }
 
     std::wstring wideMessage = ToUTF16String(message);
     m_impl->_webviewWindow->PostWebMessageAsString(wideMessage.c_str());

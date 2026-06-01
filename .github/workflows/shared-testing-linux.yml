@@ -92,6 +92,11 @@ jobs:
                       -p:InfiniFrameSkipNativeBuild=true \
                       -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
+            -   name: Install Native Debugging Tools
+                run: |
+                    sudo apt-get update
+                    sudo apt-get install -y gdb libc6-dbg
+
             -   name: Export Actions Runtime
                 uses: actions/github-script@v9
                 with:
@@ -166,15 +171,75 @@ jobs:
                     export MESA_GL_VERSION_OVERRIDE=3.3
                     export WEBKIT_DISABLE_COMPOSITING_MODE=1
                     
+                    mkdir -p artifacts/native-crash
                     ulimit -c unlimited
-                    
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore \
-                      -p:NativeArch=${{ matrix.arch }} \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+                    sudo sysctl -w kernel.core_uses_pid=1
+                    sudo sysctl -w "kernel.core_pattern=${GITHUB_WORKSPACE}/artifacts/native-crash/core.%e.%p.%t"
+
+                    exit_code=0
+
+                    run_test() {
+                      local framework="$1"
+                      echo "=== Running ${framework} ==="
+                      dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
+                        --configuration Release \
+                        --no-build \
+                        --no-restore \
+                        --framework "$framework" \
+                        -p:NativeArch=${{ matrix.arch }} \
+                        -p:InfiniFrameSkipNativeBuild=true \
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} || exit_code=$?
+                    }
+
+                    run_test net8.0
+                    run_test net9.0
+                    run_test net10.0
+
+                    shopt -s nullglob
+                    for core_file in artifacts/native-crash/core.*; do
+                      core_name="$(basename "$core_file")"
+                      dump_file="artifacts/native-crash/${core_name}.gdb.txt"
+                      core_meta="$(file "$core_file" || true)"
+                      exe_path="$(echo "$core_meta" | sed -n "s/.*execfn: '\\([^']*\\)'.*/\\1/p")"
+                      if [ -z "$exe_path" ] || [ ! -x "$exe_path" ]; then
+                        exe_path="/usr/bin/dotnet"
+                      fi
+                      {
+                        echo "===== CORE FILE ====="
+                        echo "$core_file"
+                        echo
+                        echo "$core_meta"
+                        echo
+                        echo "===== EXECUTABLE ====="
+                        echo "$exe_path"
+                        echo
+                      } > "$dump_file"
+
+                      gdb -q --batch \
+                        -ex "set pagination off" \
+                        -ex "set confirm off" \
+                        -ex "echo ===== INFO FILES =====\n" \
+                        -ex "info files" \
+                        -ex "echo \n===== THREAD BACKTRACES =====\n" \
+                        -ex "thread apply all bt full" \
+                        -ex "echo \n===== REGISTERS =====\n" \
+                        -ex "info registers" \
+                        -ex "echo \n===== SHARED LIBS =====\n" \
+                        -ex "info sharedlibrary" \
+                        "$exe_path" "$core_file" >> "$dump_file" 2>&1 || true
+                    done
+
+                    exit $exit_code
+
+            -   name: Upload Native Crash Diagnostics
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: linux-native-crash-${{ matrix.arch }}
+                    path: |
+                        artifacts/native-crash/**
+                        core*
+                    if-no-files-found: ignore
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
