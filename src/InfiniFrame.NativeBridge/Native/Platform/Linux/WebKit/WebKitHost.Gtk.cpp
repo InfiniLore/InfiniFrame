@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <atomic>
+#include <cstdlib>
 #include <signal.h>
 #include <unistd.h>
 #include <webkit2/webkit2.h>
@@ -22,34 +23,25 @@ extern void on_webview_process_terminated(
 extern void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data);
 
 namespace {
-    // libwebkit2gtk-4.1 (and its JavaScriptCore/WPE dependencies) call abort(), raising SIGABRT, during process
-    // shutdown when the WebKitWebContext singleton destructs. abort() bypasses atexit handlers entirely, so an atexit
-    // bypass does not help. Instead we install a SIGABRT handler.
+    // libwebkit2gtk-4.1 registers an atexit() handler when its globals are initialized.That handler walks the default
+    // WebKitWebContext singleton and unrefs its members. On Ubuntu 22.04 (WebKit 2.50.4) one of those member destructors 
+    // aborts with SIGABRT (process exits with 134) any time a UI process has hosted a WebKitWebView. We can't avoid 
+    // creating a webview, and we can't reach into WebKit's globals to tidy them up, so we register a competing atexit 
+    // handler AFTER WebKit has initialised its own. atexit() runs handlers in LIFO order, so ours fires first and _exit()s
+    // the process, skipping WebKit's crashing cleanup.
     //
-    // First invocation: call exit(0) so the .NET runtime's managed cleanup runs (flushes report buffers and sends
-    // the TUnit "TestSessionEnd" protocol message back to the dotnet-test orchestrator). During that cleanup WebKit
-    // will call abort() a second time.
-    // Second invocation (re-entrant): call _exit(0) immediately to break the loop.
-    static std::atomic<bool> webkit_sigabrt_first_entry{true};
-
-    void webkit_sigabrt_handler(int) noexcept {
-        if (!webkit_sigabrt_first_entry.exchange(false, std::memory_order_acq_rel)) {
-            _exit(0);
-        }
-        exit(0); // allows .NET managed shutdown + session-end message to complete
+    // _exit() bypasses remaining atexit handlers and stdio buffer flushing. The .NET test host writes its TRX/HTML reports 
+    // synchronously before returning from main(), and stderr/stdout are line-buffered when not attached to a terminal,
+    // so no test output is lost.
+    void webkit_atexit_bypass() noexcept {
+        std::_Exit(0);
     }
 
-    void install_webkit_sigabrt_bypass_once() noexcept {
-        static std::atomic<bool> installed{false};
+    void register_webkit_atexit_bypass_once() noexcept {
+        static std::atomic<bool> registered{false};
         bool expected = false;
-        if (!installed.compare_exchange_strong(expected, true, std::memory_order_acq_rel))
-            return;
-
-        struct sigaction sa{};
-        sa.sa_handler = webkit_sigabrt_handler;
-        sigemptyset(&sa.sa_mask);
-        sa.sa_flags = 0;
-        sigaction(SIGABRT, &sa, nullptr);
+        if (registered.compare_exchange_strong(expected, true, std::memory_order_acq_rel))
+            std::atexit(webkit_atexit_bypass);
     }
 } // namespace
 
@@ -61,9 +53,9 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     struct sigaction oldAction{};
     sigaction(SIGCHLD, nullptr, &oldAction);
     WebKitUserContentManager* contentManager = webkit_user_content_manager_new();
-    // Install the SIGABRT handler now that WebKit globals are initialised (first webview creation). Any abort() from
-    // WebKit's shutdown path will be caught and turned into a clean _exit(0).
-    install_webkit_sigabrt_bypass_once();
+    // Now that libwebkit's globals are guaranteed to be initialised (and its own atexit handler is registered), install
+    // ours so it runs first.
+    register_webkit_atexit_bypass_once();
     m_impl->_webview = webkit_web_view_new_with_user_content_manager(contentManager);
 
     m_impl->set_webkit_settings();
