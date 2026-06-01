@@ -12,7 +12,6 @@ public class WindowMaximizedEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestWindowMaximizedEvent(CancellationToken ct = default) {
         // Arrange
