@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MudBlazor"/>
+        <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Playwright"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj" />
+        <ProjectReference Include="../InfiniAutomationTests/InfiniAutomationTests.csproj" />
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj" />
+    </ItemGroup>
+</Project>

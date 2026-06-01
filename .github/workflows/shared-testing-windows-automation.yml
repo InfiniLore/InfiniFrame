@@ -1,0 +1,259 @@
+#file: noinspection UndefinedAction,UndefinedParamsPresent
+name: "Shared: Windows Playwright Tests"
+
+on:
+    workflow_call:
+        inputs:
+            pr_number:
+                type: string
+                required: true
+            checkout_ref:
+                type: string
+                required: false
+                default: ''
+            target_sha:
+                type: string
+                required: true
+            workflow_url:
+                type: string
+                required: true
+            enable_test_exports:
+                type: boolean
+                required: false
+                default: false
+
+permissions:
+    contents: read
+    checks: write
+    statuses: write
+
+jobs:
+    windows-playwright-pending:
+        name: CI Testing - Windows Playwright (Pending)
+        runs-on: windows-latest
+        timeout-minutes: 10
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Set Playwright Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Playwright
+                    state: pending
+                    status-description: Windows Playwright tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+    
+    windows-playwright:
+        name: CI Testing - Windows Playwright ${{ matrix.project.name }}
+        runs-on: windows-latest
+        timeout-minutes: 75
+        
+        needs: windows-playwright-pending
+        
+        strategy:
+            fail-fast: false
+            matrix:
+                project:
+                    -   name: WebApp Vue
+                        path: InfiniAutomationTests.WebApp.Vue
+                        sourceFolder: tests/InfiniAutomationTests.WebApp.Vue/Sources/infiniframe-playwright-vue
+                    -   name: WebApp React
+                        path: InfiniAutomationTests.WebApp.React
+                        sourceFolder: tests/InfiniAutomationTests.WebApp.React/Sources/infiniframe-playwright-react
+                    -   name: Blazor MudBlazor
+                        path: InfiniAutomationTests.BlazorWebView.MudBlazor
+                        sourceFolder: ""
+        
+        env:
+            TARGET_SHA: ${{ inputs.target_sha }}
+            WORKFLOW_URL: ${{ inputs.workflow_url }}
+        
+        permissions:
+            contents: read
+            statuses: write
+            checks: write
+        
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
+
+            -   name: Set Playwright Check Pending
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}
+                    state: pending
+                    status-description: Windows Playwright tests in progress
+                    target-url: ${{ inputs.workflow_url }}
+                    allow-status-422: 'true'
+
+            -   name: Download Testing Native Build Artifacts
+                uses: ./.github/actions/download-native-binaries
+                with:
+                    artifact-type: testing
+
+            -   name: NPM Install
+                if: ${{ matrix.project.sourceFolder != '' }}
+                shell: pwsh
+                run: |
+                    $dir = "${{ matrix.project.sourceFolder }}"
+
+                    if ([string]::IsNullOrWhiteSpace($dir)) {
+                        throw "sourceFolder is empty for ${{ matrix.project.name }}"
+                    }
+
+                    Write-Host "Installing npm dependencies in $dir"
+
+                    if (!(Test-Path $dir)) {
+                        throw "Directory not found: $dir"
+                    }
+
+                    Push-Location $dir
+                    npm ci
+                    Pop-Location
+
+            -   name: Restore
+                run: |
+                    dotnet restore InfiniFrame.GitHubActions.Testing.Automation.slnf `
+                      /p:NoWarn=NU1503
+
+            -   name: Build Tests
+                run: |
+                    dotnet build tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
+                      --configuration Release `
+                      --no-restore `
+                      /p:SolutionDir=$env:GITHUB_WORKSPACE/ `
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+
+            -   name: Install Playwright Browsers
+                shell: pwsh
+                run: |
+                    $script = "tests/${{ matrix.project.path }}/bin/Release/net10.0/playwright.ps1"
+                    
+                    if (-not (Test-Path $script)) {
+                      throw "Playwright script not found: $script"
+                    }
+                    pwsh $script install
+
+            -   name: Verify Native Binaries
+                shell: pwsh
+                run: |
+                    $binPath = "tests/${{ matrix.project.path }}/bin/Release/net10.0"
+                    $dlls = @("InfiniFrame.Native.dll", "WebView2Loader.dll")
+
+                    foreach ($dll in $dlls) {
+                        $fullPath = Join-Path $binPath $dll
+                        if (-Not (Test-Path $fullPath)) {
+                            throw "$dll missing in $binPath"
+                        }
+                    }
+
+            -   name: Export Actions Runtime
+                uses: actions/github-script@v9
+                with:
+                    script: |
+                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
+                        core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
+
+            -   name: Run Playwright tests NET 8.0
+                shell: pwsh
+                run: |
+                    dotnet test `
+                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --framework net8.0 `
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+
+            -   name: Run Playwright tests NET 9.0
+                shell: pwsh
+                run: |
+                    dotnet test `
+                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --framework net9.0 `
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+
+            -   name: Run Playwright tests NET 10.0
+                shell: pwsh
+                run: |
+                    dotnet test `
+                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
+                      --configuration Release `
+                      --no-build `
+                      --no-restore `
+                      --framework net10.0 `
+                      /p:InfiniFrameSkipNativeBuild=true `
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
+
+            -   name: Update Playwright Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check-finalize
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: Windows Playwright tests passed
+                    failure-description: Windows Playwright tests failed
+    
+    windows-playwright-finalize:
+        name: CI Testing - Windows Playwright (Finalize)
+        runs-on: windows-latest
+        timeout-minutes: 10
+
+        needs: windows-playwright
+        if: always()
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+                with:
+                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
+                    fetch-depth: 1
+
+            -   name: Set Playwright Check Final Status
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check-finalize
+                with:
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - Windows Playwright
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ needs.windows-playwright.result == 'success' && 'success' || 'failure' }}
+                    success-description: Windows Playwright tests passed
+                    failure-description: Windows Playwright tests failed

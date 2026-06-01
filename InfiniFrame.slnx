@@ -2,7 +2,7 @@
   <Folder Name="/.dev-tools/">
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
-    <File Path="InfiniFrame.GitHubActions.Testing.Playwright.slnf" />
+    <File Path="InfiniFrame.GitHubActions.Testing.Automation.slnf" />
     <File Path="LICENSE" />
     <File Path="native-vendor-deps.json" />
     <File Path="README.md" />
@@ -84,7 +84,7 @@
     <File Path=".github/workflows/shared-testing-windows.yml" />
     <File Path=".github/workflows/shared-testing-dotnetpack.yml" />
     <File Path=".github/workflows/shared-testing-js.yml" />
-    <File Path=".github/workflows/shared-testing-windows-playwright.yml" />
+    <File Path=".github/workflows/shared-testing-windows-automation.yml" />
     <File Path=".github/workflows/shared-testing-python.yml" />
     <File Path=".github/workflows/shared-testing-windows-trim-aot.yml" />
     <File Path=".github/workflows/shared-testing.yml" />
@@ -125,15 +125,22 @@
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
-    <Project Path="tests/InfiniFrameTests.Blazor/InfiniFrameTests.Blazor.csproj" />
-    <Project Path="tests/InfiniFrameTests.BlazorWebView/InfiniFrameTests.BlazorWebView.csproj" />
-    <Project Path="tests/InfiniFrameTests.Playwright/InfiniFrameTests.Playwright.csproj" />
-    <Project Path="tests/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor/InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.csproj" />
-    <Project Path="tests/InfiniFrameTests.Playwright.WebApp.React/InfiniFrameTests.Playwright.WebApp.React.csproj" />
-    <Project Path="tests/InfiniFrameTests.Playwright.WebApp.Vue/InfiniFrameTests.Playwright.WebApp.Vue.csproj" />
-    <Project Path="tests/InfiniFrameTests.Shared/InfiniFrameTests.Shared.csproj" />
-    <Project Path="tests/InfiniFrameTests.Tools.Pack/InfiniFrameTests.Tools.Pack.csproj" />
-    <Project Path="tests/InfiniFrameTests.WebServer/InfiniFrameTests.WebServer.csproj" />
-    <Project Path="tests/InfiniFrameTests/InfiniFrameTests.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj" />
+    <Project Path="tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj" />
+    <Project Path="tests/InfiniTests/InfiniTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/automation/">
+    <Project Path="tests/InfiniAutomationTests.BlazorWebView.MudBlazor/InfiniAutomationTests.BlazorWebView.MudBlazor.csproj" />
+    <Project Path="tests/InfiniAutomationTests/InfiniAutomationTests.csproj" />
+    <Project Path="tests/InfiniAutomationTests.WebApp.React/InfiniAutomationTests.WebApp.React.csproj" />
+    <Project Path="tests/InfiniAutomationTests.WebApp.Vue/InfiniAutomationTests.WebApp.Vue.csproj" />
+  </Folder>
+  <Folder Name="/tests/tools/">
+    <Project Path="tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj" />
   </Folder>
 </Solution>

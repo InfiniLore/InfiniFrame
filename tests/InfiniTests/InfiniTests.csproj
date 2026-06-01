@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="TUnit.Core"/>
+        <PackageReference Include="NSubstitute" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
+    </ItemGroup>
+</Project>

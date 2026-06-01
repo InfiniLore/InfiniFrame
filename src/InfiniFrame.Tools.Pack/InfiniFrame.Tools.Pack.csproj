@@ -25,6 +25,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack"/>
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Tools.Pack"/>
     </ItemGroup>
 </Project>

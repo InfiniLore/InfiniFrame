@@ -18,19 +18,19 @@
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</NativePlatform>
 
         <NativeStamp>
-            $(MSBuildThisFileDirectory)artifacts\native\$(NativePlatform)\$(NativeArch)\$(Configuration)\.build.stamp
+            $(MSBuildThisFileDirectory)artifacts/native/$(NativePlatform)/$(NativeArch)/$(Configuration)/.build.stamp
         </NativeStamp>
-        <NativeOutputRoot>$(MSBuildThisFileDirectory)artifacts\native</NativeOutputRoot>
+        <NativeOutputRoot>$(MSBuildThisFileDirectory)artifacts/native</NativeOutputRoot>
         <InfiniFrameSkipNativeBuild Condition="'$(InfiniFrameSkipNativeBuild)'==''">false</InfiniFrameSkipNativeBuild>
         <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'=='' and '$(Configuration)'=='Debug'">true</InfiniFrameEnableTestExports>
         <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'==''">false</InfiniFrameEnableTestExports>
 
-        <WindowsX64>$(NativeOutputRoot)\windows\x64\$(Configuration)</WindowsX64>
-        <WindowsArm64>$(NativeOutputRoot)\windows\arm64\$(Configuration)</WindowsArm64>
-        <LinuxX64>$(NativeOutputRoot)\linux\x64\$(Configuration)</LinuxX64>
-        <LinuxArm64>$(NativeOutputRoot)\linux\arm64\$(Configuration)</LinuxArm64>
-        <MacOsX64>$(NativeOutputRoot)\osx\x64\$(Configuration)</MacOsX64>
-        <MacOsArm64>$(NativeOutputRoot)\osx\arm64\$(Configuration)</MacOsArm64>
+        <WindowsX64>$(NativeOutputRoot)/windows/x64/$(Configuration)</WindowsX64>
+        <WindowsArm64>$(NativeOutputRoot)/windows/arm64/$(Configuration)</WindowsArm64>
+        <LinuxX64>$(NativeOutputRoot)/linux/x64/$(Configuration)</LinuxX64>
+        <LinuxArm64>$(NativeOutputRoot)/linux/arm64/$(Configuration)</LinuxArm64>
+        <MacOsX64>$(NativeOutputRoot)/osx/x64/$(Configuration)</MacOsX64>
+        <MacOsArm64>$(NativeOutputRoot)/osx/arm64/$(Configuration)</MacOsArm64>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(InfiniFrameEnableTestExports)' == 'true'">
@@ -42,27 +42,27 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Native\**\*" />
-        <EmbeddedResource Remove="Native\**\*" />
-        <Content Remove="Native\**\*" />
-        <None Remove="Native\**\*" />
-        <None Include="Native\**\*.*"
-              Exclude="Native\build\**\*;Native\packages\**\*;Native\cmake-build-*\**\*;"
+        <Compile Remove="Native/**/*" />
+        <EmbeddedResource Remove="Native/**/*" />
+        <Content Remove="Native/**/*" />
+        <None Remove="Native/**/*" />
+        <None Include="Native/**/*.*"
+              Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*;"
               Pack="false" />
 
-        <Compile Remove="build\**\*" />
-        <EmbeddedResource Remove="build\**\*" />
-        <Content Remove="build\**\*" />
-        <None Remove="build\**\*" />
+        <Compile Remove="build/**/*" />
+        <EmbeddedResource Remove="build/**/*" />
+        <Content Remove="build/**/*" />
+        <None Remove="build/**/*" />
 
-        <NativeSource Include="Native\**\*.cpp" />
-        <NativeSource Include="Native\**\*.h" />
-        <NativeSource Include="Native\**\*.mm" />
+        <NativeSource Include="Native/**/*.cpp" />
+        <NativeSource Include="Native/**/*.h" />
+        <NativeSource Include="Native/**/*.mm" />
     </ItemGroup>
 
     <!-- WINDOWS x64 -->
-    <ItemGroup Condition="Exists('$(WindowsX64)\InfiniFrame.Native.dll')">
-        <Content Include="$(WindowsX64)\InfiniFrame.Native.dll">
+    <ItemGroup Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')">
+        <Content Include="$(WindowsX64)/InfiniFrame.Native.dll">
             <Visible>false</Visible>
             <Link Condition="'$(NativeArch)'=='x64' and '$(NativePlatform)'=='windows'">InfiniFrame.Native.dll</Link>
             <PackagePath>runtimes/win-x64/native/</PackagePath>
@@ -72,8 +72,8 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup Condition="Exists('$(WindowsX64)\WebView2Loader.dll')">
-        <Content Include="$(WindowsX64)\WebView2Loader.dll"
+    <ItemGroup Condition="Exists('$(WindowsX64)/WebView2Loader.dll')">
+        <Content Include="$(WindowsX64)/WebView2Loader.dll"
         >
             <Visible>false</Visible>
             <Link Condition="'$(NativeArch)'=='x64' and '$(NativePlatform)'=='windows'">WebView2Loader.dll</Link>
@@ -85,8 +85,8 @@
     </ItemGroup>
 
     <!-- WINDOWS arm64 -->
-    <ItemGroup Condition="Exists('$(WindowsArm64)\InfiniFrame.Native.dll')">
-        <Content Include="$(WindowsArm64)\InfiniFrame.Native.dll">
+    <ItemGroup Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')">
+        <Content Include="$(WindowsArm64)/InfiniFrame.Native.dll">
             <Visible>false</Visible>
             <Link Condition="'$(NativeArch)'=='arm64' and '$(NativePlatform)'=='windows'">InfiniFrame.Native.dll</Link>
             <PackagePath>runtimes/win-arm64/native/</PackagePath>
@@ -96,8 +96,8 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup Condition="Exists('$(WindowsArm64)\WebView2Loader.dll')">
-        <Content Include="$(WindowsArm64)\WebView2Loader.dll">
+    <ItemGroup Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')">
+        <Content Include="$(WindowsArm64)/WebView2Loader.dll">
             <Visible>false</Visible>
             <Link Condition="'$(NativeArch)'=='arm64' and '$(NativePlatform)'=='windows'">WebView2Loader.dll</Link>
             <PackagePath>runtimes/win-arm64/native/</PackagePath>
@@ -108,8 +108,8 @@
     </ItemGroup>
 
     <!-- LINUX x64 -->
-    <ItemGroup Condition="Exists('$(LinuxX64)\InfiniFrame.Native.so')">
-        <Content Include="$(LinuxX64)\InfiniFrame.Native.so">
+    <ItemGroup Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')">
+        <Content Include="$(LinuxX64)/InfiniFrame.Native.so">
             <Visible>false</Visible>
             <Link Condition="'$(NativeArch)'=='x64' and '$(NativePlatform)'=='linux'">InfiniFrame.Native.so</Link>
             <PackagePath>runtimes/linux-x64/native/</PackagePath>
@@ -120,8 +120,8 @@
     </ItemGroup>
 
     <!-- LINUX arm64 -->
-    <ItemGroup Condition="Exists('$(LinuxArm64)\InfiniFrame.Native.so')">
-        <Content Include="$(LinuxArm64)\InfiniFrame.Native.so">
+    <ItemGroup Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')">
+        <Content Include="$(LinuxArm64)/InfiniFrame.Native.so">
             <Visible>false</Visible>
             <Link Condition="'$(NativeArch)'=='arm64' and '$(NativePlatform)'=='linux'">InfiniFrame.Native.so</Link>
             <PackagePath>runtimes/linux-arm64/native/</PackagePath>
@@ -132,8 +132,8 @@
     </ItemGroup>
 
     <!-- macOS x64 -->
-    <ItemGroup Condition="Exists('$(MacOsX64)\InfiniFrame.Native.dylib')">
-        <Content Include="$(MacOsX64)\InfiniFrame.Native.dylib">
+    <ItemGroup Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')">
+        <Content Include="$(MacOsX64)/InfiniFrame.Native.dylib">
             <Visible>false</Visible>
             <Link Condition="'$(NativeArch)'=='x64' and '$(NativePlatform)'=='osx'">InfiniFrame.Native.dylib</Link>
             <PackagePath>runtimes/osx-x64/native/</PackagePath>
@@ -144,8 +144,8 @@
     </ItemGroup>
 
     <!-- macOS arm64 -->
-    <ItemGroup Condition="Exists('$(MacOsArm64)\InfiniFrame.Native.dylib')">
-        <Content Include="$(MacOsArm64)\InfiniFrame.Native.dylib">
+    <ItemGroup Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')">
+        <Content Include="$(MacOsArm64)/InfiniFrame.Native.dylib">
             <Visible>false</Visible>
             <Link Condition="'$(NativeArch)'=='arm64' and '$(NativePlatform)'=='osx'">InfiniFrame.Native.dylib</Link>
             <PackagePath>runtimes/osx-arm64/native/</PackagePath>
