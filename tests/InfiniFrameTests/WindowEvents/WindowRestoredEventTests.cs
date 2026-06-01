@@ -12,6 +12,7 @@ public class WindowRestoredEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestWindowRestoredFromMaximized(CancellationToken ct = default) {
         // Arrange
@@ -38,6 +39,7 @@ public class WindowRestoredEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestWindowRestoredFromMinimized(CancellationToken ct = default) {
         // Arrange

@@ -12,6 +12,7 @@ public class WindowFocusInEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestWindowFocusInEvent(CancellationToken ct = default) {
         // Arrange
