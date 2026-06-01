@@ -16,6 +16,8 @@ public class WindowMaximizedEventTests {
     public async Task TestWindowMaximizedEvent(CancellationToken ct = default) {
         // Arrange
         int maximizedEventCount = 0;
+        int baseline = Volatile.Read(ref maximizedEventCount);
+        
         using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
                 .RegisterMaximizedHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
@@ -23,7 +25,6 @@ public class WindowMaximizedEventTests {
                 })
             , ct
         );
-        int baseline = Volatile.Read(ref maximizedEventCount);
 
         // Act
         windowUtility.Window.SetMaximized(true);
