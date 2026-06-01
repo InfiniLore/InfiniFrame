@@ -8,6 +8,9 @@ namespace InfiniFrame.BlazorWebView.Utils;
 internal class SynchronousTaskScheduler : TaskScheduler {
     public override int MaximumConcurrencyLevel => 1;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     protected override void QueueTask(Task task) 
         => TryExecuteTask(task);
 
@@ -15,5 +18,5 @@ internal class SynchronousTaskScheduler : TaskScheduler {
         => TryExecuteTask(task);
 
     protected override IEnumerable<Task> GetScheduledTasks() 
-        => Enumerable.Empty<Task>();
+        => [];
 }

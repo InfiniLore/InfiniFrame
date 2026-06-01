@@ -6,8 +6,7 @@ using InfiniFrame.Utilities;
 using System.Collections.Immutable;
 using System.Drawing;
 
-namespace InfiniTests.InfiniFrame.Utilities;
-
+namespace InfiniTests.InfiniFrame.Shared.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------

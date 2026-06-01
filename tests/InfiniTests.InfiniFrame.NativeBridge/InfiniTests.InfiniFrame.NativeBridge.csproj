@@ -1,23 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="TUnit"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="../../assets/favicon.ico">
-            <Link>Assets/favicon.ico</Link>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Managed\" />
-      <Folder Include="Managed\Dialogs\" />
-      <Folder Include="Managed\Parameters\" />
     </ItemGroup>
 
     <ItemGroup>

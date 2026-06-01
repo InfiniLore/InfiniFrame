@@ -5,8 +5,7 @@ using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace InfiniTests.InfiniFrame.Utilities;
-
+namespace InfiniTests.InfiniFrame.Shared.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -49,7 +48,7 @@ public class InfiniFrameNativeParametersValidatorTests {
     [Test]
     public async Task Validate_CreatesAndAcceptsWritableTemporaryFilesPath(CancellationToken ct = default) {
         // Arrange
-        string path = Path.Join(Path.GetTempPath(), "InfiniTests.InfiniFrame", $"validator-{Guid.NewGuid():N}");
+        string path = Path.Join(Path.GetTempPath(), "InfiniTests.InfiniFrame.Shared", $"validator-{Guid.NewGuid():N}");
         if (Directory.Exists(path))
             Directory.Delete(path, recursive: true);
 

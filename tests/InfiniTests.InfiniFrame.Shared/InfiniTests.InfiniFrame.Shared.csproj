@@ -1,17 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="TUnit"/>
+        <PackageReference Include="NSubstitute"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="../../assets/favicon.ico">
-            <Link>Assets/favicon.ico</Link>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
+        <ProjectReference Include="..\..\src\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
     </ItemGroup>
 
 </Project>
