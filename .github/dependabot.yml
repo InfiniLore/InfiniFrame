@@ -1,26 +1,42 @@
 version: 2
+
 updates:
-  - package-ecosystem: "nuget"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "Chore(deps): "
-      include: "scope"
+    -   package-ecosystem: "nuget"
+        directory: "/"
+        schedule:
+            interval: "weekly"
+        
+        commit-message:
+            prefix: "Chore(deps): "
+            include: "scope"
+        
+        groups:
+            tunit:
+                patterns:
+                    - "TUnit*"
+            
+            serilog:
+                patterns:
+                    - "Serilog*"
+            
+            microsoft-extensions:
+                patterns:
+                    - "Microsoft.Extensions.*"
 
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-        interval: "weekly"
-    commit-message:
-        prefix: "Chore(deps): "
-        include: "scope"
+    -   package-ecosystem: "npm"
+        directory: "/"
+        schedule:
+            interval: "weekly"
+        
+        commit-message:
+            prefix: "Chore(deps): "
+            include: "scope"
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-        interval: "weekly"
-    commit-message:
-        prefix: "Chore(deps): "
-        include: "scope"
-
+    -   package-ecosystem: "github-actions"
+        directory: "/"
+        schedule:
+            interval: "weekly"
+        
+        commit-message:
+            prefix: "Chore(deps): "
+            include: "scope"
