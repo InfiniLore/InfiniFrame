@@ -46,18 +46,18 @@ public class ParentChildWindowTests {
     }
     
     [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnWindowsArm]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnWindowsArm]
+    [NotInParallelInfiniTests]
     public async Task TestParentChildWindow(CancellationToken ct = default) {
         WriteDiagnostics(nameof(TestParentChildWindow));
 
         // Arrange
-        using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
 
         // Act
-        using var childWindowUtility = InfiniFrameWindowTestUtility.Create(
+        using var childWindowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetParentWindow(parentWindow),
             ct
         );
@@ -69,17 +69,17 @@ public class ParentChildWindowTests {
     }
 
     [Test]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnWindowsArm]
-    [TimeoutUtility.WithDefaultTimeout(6_000)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnWindowsArm]
+    [DefaultInfiniTestsTimeout(6_000)]
+    [NotInParallelInfiniTests]
     public async Task ClosingParent_ShouldCloseChildWindow(CancellationToken ct = default) {
         WriteDiagnostics(nameof(ClosingParent_ShouldCloseChildWindow));
 
-        using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
 
-        using var childWindowUtility = InfiniFrameWindowTestUtility.Create(
+        using var childWindowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetParentWindow(parentWindow),
             ct
         );
@@ -95,15 +95,15 @@ public class ParentChildWindowTests {
     }
 
     [Test]
-    [SkipUtility.OnlyRunOnWindowsX64]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [OnlyRunOnWindowsX64]
+    [NotInParallelInfiniTests]
     public async Task ChildWindow_ShouldHaveNativeOwnerWindow_OnWindows(CancellationToken ct = default) {
         WriteDiagnostics(nameof(ChildWindow_ShouldHaveNativeOwnerWindow_OnWindows));
 
-        using var parentWindowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
 
-        using var childWindowUtility = InfiniFrameWindowTestUtility.Create(
+        using var childWindowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetParentWindow(parentWindow),
             ct
         );

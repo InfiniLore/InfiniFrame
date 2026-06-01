@@ -12,12 +12,12 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 public class CenterOnCurrentMonitorTests {
     [Test]
     [DisplayName($"{nameof(CenterOnCurrentMonitorTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act

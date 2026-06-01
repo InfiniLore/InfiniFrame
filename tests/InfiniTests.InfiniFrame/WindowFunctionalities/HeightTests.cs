@@ -57,12 +57,12 @@ public class HeightTests {
 
     [Test]
     [DisplayName($"{nameof(HeightTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -74,13 +74,13 @@ public class HeightTests {
 
     [Test]
     [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder
                 .SetChromeless(true)
                 .SetHeight(500),
@@ -94,12 +94,12 @@ public class HeightTests {
 
     [Test]
     [DisplayName($"{nameof(HeightTests)}.{nameof(Window_WithChromelessToGetSmallestHeight)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window_WithChromelessToGetSmallestHeight(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetChromeless(true),
             ct
         );
@@ -114,13 +114,13 @@ public class HeightTests {
 
     [Test]
     [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestHeight)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration_WithChromelessToGetSmallestHeight(CancellationToken ct = default) {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder
                 .SetChromeless(true)
                 .SetHeight(Height),

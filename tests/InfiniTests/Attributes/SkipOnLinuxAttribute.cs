@@ -1,9 +1,11 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniTests;
+namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[assembly: DefaultInfiniTestsTimeout]
-[assembly: Retry(5)]
+public class SkipOnLinuxAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Linux environments") {
+    public override Task<bool> ShouldSkip(TestRegisteredContext context)
+        => Task.FromResult(OperatingSystem.IsLinux());
+}

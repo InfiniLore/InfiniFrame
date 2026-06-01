@@ -30,13 +30,13 @@ public class ContextMenuTests {
 
     [Test]
     [DisplayName($"{nameof(ContextMenuTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -49,15 +49,15 @@ public class ContextMenuTests {
 
     [Test]
     [DisplayName($"{nameof(ContextMenuTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetContextMenuEnabled(state),
             ct
         );

@@ -1,12 +1,13 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
+
 namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class TimeoutUtility {
-    public const int DefaultTimeout = 10_000;
-
-    public class WithDefaultTimeout(int offset = 0) : TimeoutAttribute(DefaultTimeout + offset);
+public class OnlyRunOnWindowsX64Attribute(string? message = null) : SkipAttribute(message ?? "This test is only supported on Windows environments") {
+    public override Task<bool> ShouldSkip(TestRegisteredContext context)
+        => Task.FromResult(!OperatingSystem.IsWindows() || RuntimeInformation.ProcessArchitecture != Architecture.X64);
 }

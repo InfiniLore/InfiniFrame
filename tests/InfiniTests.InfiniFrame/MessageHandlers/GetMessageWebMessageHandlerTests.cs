@@ -4,7 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
-using InfiniTests.TestDoubles;
+using InfiniTests.Substitutes;
 using NSubstitute;
 using System.Text.Json;
 

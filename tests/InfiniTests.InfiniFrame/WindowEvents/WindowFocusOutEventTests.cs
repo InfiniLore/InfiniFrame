@@ -10,14 +10,14 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 public class WindowFocusOutEventTests {
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnWindowsArm("WM_ACTIVATE WA_INACTIVE is not reliably delivered on headless ARM64 CI runners")]
-    [SkipUtility.SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnWindowsArm("WM_ACTIVATE WA_INACTIVE is not reliably delivered on headless ARM64 CI runners")]
+    [SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
+    [NotInParallelInfiniTests]
     public async Task TestWindowFocusOutEvent(CancellationToken ct = default) {
         // Arrange
         int focusOutEventCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterFocusOutHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
                     Interlocked.Increment(ref focusOutEventCount);

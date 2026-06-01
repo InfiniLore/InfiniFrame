@@ -10,12 +10,12 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 public class WindowClosingRequestedEventTests {
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestWindowClosingRequestedEvent(CancellationToken ct = default) {
         // Arrange
         int closingRequestedEventCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterWindowClosingRequestedHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
                     Interlocked.Increment(ref closingRequestedEventCount);

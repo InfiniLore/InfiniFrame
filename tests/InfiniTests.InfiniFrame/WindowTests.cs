@@ -14,11 +14,11 @@ public class WindowTests {
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task InstanceHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -28,11 +28,11 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task WindowHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -44,11 +44,11 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task Monitors_IsNotEmpty(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -59,11 +59,11 @@ public class WindowTests {
     }
 
     [Test]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task NativeType_IsDefined(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -74,14 +74,14 @@ public class WindowTests {
 
     [Test]
     [Retry(5)] // Sometimes fails on CI due to timing issues
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [TimeoutUtility.WithDefaultTimeout(1_000)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [DefaultInfiniTestsTimeout(1_000)]
     [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
     public async Task Close_IsDefined(CancellationToken ct = default) {
         // Arrange
         var windowClosingTcs = new TaskCompletionSource<bool>();
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder.EventsStore.WindowClosingRequested.Add(_ => {
                 windowClosingTcs.TrySetResult(true);
             }),
@@ -100,11 +100,11 @@ public class WindowTests {
 
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [TimeoutUtility.WithDefaultTimeout(6_000)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [DefaultInfiniTestsTimeout(6_000)]
+    [NotInParallelInfiniTests]
     public async Task IsClosed_TracksWindowState(CancellationToken ct = default) {
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         await Assert.That(window.IsClosed).IsFalse();

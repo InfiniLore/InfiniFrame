@@ -30,15 +30,15 @@ public class MinimizeTests {
 
     [Test]
     [DisplayName($"{nameof(MinimizeTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         SkipUtility.SkipOnLinux(state);
 
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -50,8 +50,8 @@ public class MinimizeTests {
 
     [Test]
     [DisplayName($"{nameof(MinimizeTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
@@ -60,7 +60,7 @@ public class MinimizeTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetMinimized(state),
             ct
         );

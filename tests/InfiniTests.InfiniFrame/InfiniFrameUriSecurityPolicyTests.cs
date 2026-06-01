@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.Security;
-using InfiniTests.TestDoubles;
+using InfiniTests.Substitutes;
 
 namespace InfiniTests.InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------

@@ -30,15 +30,15 @@ public class MaximizeTests {
 
     [Test]
     [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         SkipUtility.SkipOnLinux(state);
 
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -50,14 +50,14 @@ public class MaximizeTests {
 
     [Test]
     [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window_Toggle)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task Window_Toggle(bool state, CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -70,8 +70,8 @@ public class MaximizeTests {
 
     [Test]
     [DisplayName($"{nameof(MaximizeTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
@@ -80,7 +80,7 @@ public class MaximizeTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetMaximized(state),
             ct
         );

@@ -10,13 +10,13 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 public class WindowLocationChangedEventTests {
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux("Location transitions are desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux("Location transitions are desktop-state dependent under WSLg/local Linux runs")]
+    [NotInParallelInfiniTests]
     public async Task TestWindowLocationChangedEvent(CancellationToken ct = default) {
         // Arrange
         int locationChangedCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterLocationChangedHandler((_, _) => {
                     // ReSharper disable once AccessToModifiedClosure
                     Interlocked.Increment(ref locationChangedCount);

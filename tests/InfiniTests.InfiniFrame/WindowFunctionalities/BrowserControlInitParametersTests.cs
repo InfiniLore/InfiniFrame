@@ -12,8 +12,8 @@ public class BrowserControlInitParametersTests {
 
     [Test]
     [DisplayName($"{nameof(BrowserControlInitParametersTests)}.{nameof(Builder)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux]
+    [SkipOnMacOs]
+    [SkipOnLinux]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();

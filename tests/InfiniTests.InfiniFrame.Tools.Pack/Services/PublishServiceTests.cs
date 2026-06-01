@@ -116,7 +116,7 @@ public class PublishServiceTests {
     }
 
     [Test]
-    [SkipUtility.SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
     public async Task PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),
@@ -130,7 +130,7 @@ public class PublishServiceTests {
     }
 
     [Test]
-    [SkipUtility.SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
     public async Task PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),

@@ -16,7 +16,7 @@ public sealed class ScriptSrcImportTests : InfiniFramePlaywrightTestBase {
     protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 
     [Test]
-    [NotInParallel(ParallelControl.Playwright)]
+    [NotInParallelInfiniAutomationTests]
     public async Task ClassicScriptSrc_IsLoaded_AndExecutesCode(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 

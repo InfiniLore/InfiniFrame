@@ -12,15 +12,15 @@ public class OffsetTests {
 
     [Test]
     [DisplayName($"{nameof(OffsetTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
     public async Task Window(int x, int y, CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 
@@ -35,15 +35,15 @@ public class OffsetTests {
 
     [Test]
     [DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsPoint)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
     public async Task Window_AsPoint(int x, int y, CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 
@@ -58,15 +58,15 @@ public class OffsetTests {
 
     [Test]
     [DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsDouble)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     [Arguments(0, 0)]
     [Arguments(100, 100)]
     [Arguments(-100, -100)]
     public async Task Window_AsDouble(double x, double y, CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         Point initialLocation = window.Location;
 

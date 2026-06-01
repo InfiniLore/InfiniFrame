@@ -15,7 +15,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
     protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 
     [Test]
-    [NotInParallel(ParallelControl.Playwright)]
+    [NotInParallelInfiniAutomationTests]
     public async Task CustomElement_Registers_Renders_AndUpdatesFromAttributes(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
@@ -83,7 +83,7 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
     }
 
     [Test]
-    [NotInParallel(ParallelControl.Playwright)]
+    [NotInParallelInfiniAutomationTests]
     public async Task JsComponent_WithoutInitializer_AutoRegisters_AsCustomElement_ByDefault(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 

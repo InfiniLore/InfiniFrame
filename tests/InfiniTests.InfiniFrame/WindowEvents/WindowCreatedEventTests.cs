@@ -10,12 +10,12 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 public class WindowCreatedEventTests {
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestWindowCreatedEvent(CancellationToken ct = default) {
         // Arrange
         int createdEventCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterWindowCreatedHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
                     Interlocked.Increment(ref createdEventCount);
@@ -30,14 +30,14 @@ public class WindowCreatedEventTests {
 
     [Test]
     [Retry(3)]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestSendWebMessageFromWindowCreatedDoesNotCrash(CancellationToken ct = default) {
         // Arrange: register a WindowCreated handler that immediately calls SendWebMessage.
         // Before the fix this raised SystemAccessViolationException on Windows because
         // the WebView2 COM objects were not yet initialized at the time WindowCreated fires.
         bool windowCreatedCalled = false;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterWindowCreatedHandler(window => {
                     window.SendWebMessage("hello-from-window-created");
                     // ReSharper disable once AccessToModifiedClosure

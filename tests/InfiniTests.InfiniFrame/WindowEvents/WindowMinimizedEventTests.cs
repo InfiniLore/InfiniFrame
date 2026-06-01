@@ -10,15 +10,15 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 public class WindowMinimizedEventTests {
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
+    [NotInParallelInfiniTests]
     public async Task TestWindowMinimizedEvent(CancellationToken ct = default) {
         // Arrange
         int minimizedEventCount = 0;
         int baseline = Volatile.Read(ref minimizedEventCount);
         
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterMinimizedHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
                     Interlocked.Increment(ref minimizedEventCount);

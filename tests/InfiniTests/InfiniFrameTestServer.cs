@@ -13,7 +13,7 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [MustDisposeResource]
-public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
+public sealed class InfiniFrameTestServer : IAsyncDisposable {
     public required IInfiniFrameWindow Window { get; init; }
     public required WebApplication WebApplication { get; init; }
 
@@ -23,16 +23,16 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameServerTestUtility(Thread thread) {
+    private InfiniFrameTestServer(Thread thread) {
         _thread = thread;
     }
 
-    public static InfiniFrameServerTestUtility Create(
+    public static InfiniFrameTestServer Create(
         Action<WebApplicationBuilder>? appBuilder = null,
         Action<IInfiniFrameWindowBuilder>? windowBuilder = null,
         CancellationToken cancellationToken = default
     ) {
-        var ready = new TaskCompletionSource<InfiniFrameServerTestUtility>(
+        var ready = new TaskCompletionSource<InfiniFrameTestServer>(
             TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() => {
             try {
@@ -54,7 +54,7 @@ public sealed class InfiniFrameServerTestUtility : IAsyncDisposable {
                 app.WebApp.StartAsync(cancellationToken).GetAwaiter().GetResult();
                 IInfiniFrameWindow window = app.Window;
                 
-                var util = new InfiniFrameServerTestUtility(Thread.CurrentThread) {
+                var util = new InfiniFrameTestServer(Thread.CurrentThread) {
                     Window = window,
                     WebApplication = app.WebApp
                 };

@@ -207,9 +207,9 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux]
+    [NotInParallelInfiniTests]
+    [SkipOnMacOs]
+    [SkipOnLinux]
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
@@ -236,7 +236,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [NotInParallelInfiniTests]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
@@ -262,7 +262,7 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
     
     [Test]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [NotInParallelInfiniTests]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWork(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
@@ -288,9 +288,9 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
     
     [Test]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [SkipUtility.SkipOnMacOs("Given init parameters are not supported on macOS")]
-    [SkipUtility.SkipOnLinux("Given init parameters are not supported on Linux")]
+    [NotInParallelInfiniTests]
+    [SkipOnMacOs("Given init parameters are not supported on macOS")]
+    [SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
@@ -319,9 +319,9 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
     
     [Test]
-    [NotInParallel(ParallelControl.InfiniFrame)]
-    [SkipUtility.SkipOnMacOs("Given init parameters are not supported on macOS")]
-    [SkipUtility.SkipOnLinux("Given init parameters are not supported on Linux")]
+    [NotInParallelInfiniTests]
+    [SkipOnMacOs("Given init parameters are not supported on macOS")]
+    [SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();

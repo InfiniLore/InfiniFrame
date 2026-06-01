@@ -1,8 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using System.Runtime.InteropServices;
-
 namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -11,39 +9,6 @@ public static class SkipUtility {
     #region Reasons
     public const string LinuxMovement = "The current test environment does not properly support window moving";
     public const string MacOsMainThreadIssue = "API misuse: setting the main menu on a non-main thread. Main menu contents should only be modified from the main thread";
-    #endregion
-
-    #region Attributes
-    public class SkipOnLinuxAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Linux environments") {
-        public override Task<bool> ShouldSkip(TestRegisteredContext context)
-            => Task.FromResult(OperatingSystem.IsLinux());
-    }
-
-    public class SkipOnWindowsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
-        public override Task<bool> ShouldSkip(TestRegisteredContext context)
-            => Task.FromResult(OperatingSystem.IsWindows());
-    }
-
-    public class SkipOnWindowsArmAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
-        public override Task<bool> ShouldSkip(TestRegisteredContext context)
-            => Task.FromResult(OperatingSystem.IsWindows() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64);
-    }
-
-    public class SkipOnMacOsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Mac OS environments") {
-        public override Task<bool> ShouldSkip(TestRegisteredContext context)
-            => Task.FromResult(OperatingSystem.IsMacOS());
-    }
-    
-    public class OnlyRunOnWindows(string? message = null) : SkipAttribute(message ?? "This test is only supported on Windows environments") {
-        public override Task<bool> ShouldSkip(TestRegisteredContext context)
-            => Task.FromResult(!OperatingSystem.IsWindows());
-    }
-    
-    public class OnlyRunOnWindowsX64(string? message = null) : SkipAttribute(message ?? "This test is only supported on Windows environments") {
-        public override Task<bool> ShouldSkip(TestRegisteredContext context)
-            => Task.FromResult(!OperatingSystem.IsWindows() || RuntimeInformation.ProcessArchitecture != Architecture.X64);
-    }
-    
     #endregion
 
     #region Methods

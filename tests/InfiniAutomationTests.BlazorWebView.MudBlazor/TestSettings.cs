@@ -7,4 +7,4 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniTests;
 
-[assembly: Timeout(TimeoutUtility.DefaultTimeout)]
+[assembly: DefaultInfiniTestsTimeout]

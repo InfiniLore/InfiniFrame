@@ -15,7 +15,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
     public override IInfiniFrameWindow Window => _utility!.Window;
     [UsedImplicitly] public WebApplication WebApplication => _utility!.WebApplication; // kept for future reference
     
-    private InfiniFrameServerTestUtility? _utility;
+    private InfiniFrameTestServer? _utility;
     private int _serverPort;
     private int _playwrightDevtoolsPort;
     
@@ -46,7 +46,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
         
         using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
 
-        _utility = InfiniFrameServerTestUtility.Create(
+        _utility = InfiniFrameTestServer.Create(
             appBuilder: serverBuilder => serverBuilder
                 .WebHost.UseUrls(ServerUrl),
             windowBuilder: windowBuilder => windowBuilder

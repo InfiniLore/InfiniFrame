@@ -10,13 +10,13 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 public class WindowFocusInEventTests {
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
+    [NotInParallelInfiniTests]
     public async Task TestWindowFocusInEvent(CancellationToken ct = default) {
         // Arrange
         int focusInEventCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterFocusInHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
                     Interlocked.Increment(ref focusInEventCount);

@@ -48,15 +48,15 @@ public class TitleTests {
 
     [Test]
     [DisplayName($"{nameof(TitleTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     [Arguments("")]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
     [Arguments("🏳️‍⚧️")]
     public async Task Window(string title, CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -68,11 +68,11 @@ public class TitleTests {
 
     [Test]
     [DisplayName($"{nameof(TitleTests)}.{nameof(Window_OnNull)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task Window_OnNull(CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
@@ -84,8 +84,8 @@ public class TitleTests {
 
     [Test]
     [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     [Arguments("")]
     [Arguments("InfiniWindow")]
     [Arguments("Ω")]
@@ -94,7 +94,7 @@ public class TitleTests {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetTitle(title),
             ct
         );
@@ -106,13 +106,13 @@ public class TitleTests {
 
     [Test]
     [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration_OnNull(CancellationToken ct = default) {
         // Arrange
 
         // Act
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(
+        using var windowUtility = InfiniFrameTestWindow.Create(
             builder => builder.SetTitle(null),
             ct
         );

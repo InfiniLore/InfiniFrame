@@ -13,7 +13,7 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [MustDisposeResource]
-public sealed class InfiniFrameWindowTestUtility : IDisposable {
+public sealed class InfiniFrameTestWindow : IDisposable {
     public required IInfiniFrameWindow Window { get; init; }
 
     private Thread? _windowThread;
@@ -33,14 +33,14 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameWindowTestUtility() {}
+    private InfiniFrameTestWindow() {}
 
     [MustDisposeResource]
-    public static InfiniFrameWindowTestUtility Create(CancellationToken cancellationToken = default)
+    public static InfiniFrameTestWindow Create(CancellationToken cancellationToken = default)
         => Create(null, cancellationToken);
 
     [MustDisposeResource]
-    public static InfiniFrameWindowTestUtility Create(
+    public static InfiniFrameTestWindow Create(
         Action<IInfiniFrameWindowBuilder>? builder = null,
         CancellationToken cancellationToken = default
     ) {
@@ -65,7 +65,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         IInfiniFrameWindow window = windowBuilder.Build();
 
-        var utility = new InfiniFrameWindowTestUtility {
+        var utility = new InfiniFrameTestWindow {
             Window = window
         };
 
@@ -131,7 +131,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
     }
 
     [MustDisposeResource]
-    private static InfiniFrameWindowTestUtility CreateOnSharedGtkThread(
+    private static InfiniFrameTestWindow CreateOnSharedGtkThread(
         InfiniFrameWindowBuilder windowBuilder
     ) {
         IInfiniFrameWindow host = EnsureGtkHost();
@@ -151,7 +151,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         });
         failure?.Throw();
 
-        return new InfiniFrameWindowTestUtility {
+        return new InfiniFrameTestWindow {
             Window = built!,
             // The GTK loop is owned by the shared host thread, not by this test, so there is nothing to join.
             _windowThread = null
@@ -159,7 +159,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
     }
 
     [SupportedOSPlatform("windows"), MustDisposeResource]
-    private static InfiniFrameWindowTestUtility CreateOnStaThread(
+    private static InfiniFrameTestWindow CreateOnStaThread(
         InfiniFrameWindowBuilder windowBuilder
     ) {
         var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -186,7 +186,7 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
 
         thread.Start();
 
-        var utility = new InfiniFrameWindowTestUtility {
+        var utility = new InfiniFrameTestWindow {
             Window = windowSource.Task.GetAwaiter().GetResult(),
             _windowThread = thread
         };

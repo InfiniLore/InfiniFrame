@@ -5,7 +5,7 @@ namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class ParallelControl {
-    public const string InfiniFrame = nameof(InfiniFrame);
-    public const string Playwright = nameof(Playwright);
+public class SkipOnWindowsAttribute(string? message = null) : SkipAttribute(message ?? "This test is not supported on Windows environments") {
+    public override Task<bool> ShouldSkip(TestRegisteredContext context)
+        => Task.FromResult(OperatingSystem.IsWindows());
 }

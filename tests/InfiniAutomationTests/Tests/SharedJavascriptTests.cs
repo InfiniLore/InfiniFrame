@@ -17,7 +17,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    [NotInParallel(ParallelControl.Playwright)]
+    [NotInParallelInfiniAutomationTests]
     public async Task InfiniWindowIsInitialized(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
         var initState = await EvaluateWhenPageReadyAsync<JsonElement>(
@@ -42,7 +42,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
     }
 
     [Test]
-    [NotInParallel(ParallelControl.Playwright)]
+    [NotInParallelInfiniAutomationTests]
     public async Task DynamicallyUpdateTitleFromJs(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
         string? originalTitle = RuntimeContext.Window.Title;
@@ -63,7 +63,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
     }
 
     [Test]
-    [NotInParallel(ParallelControl.Playwright)]
+    [NotInParallelInfiniAutomationTests]
     public async Task WindowClose(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
         int initialCloseRequestCount = RuntimeContext.GetWindowCloseRequestCount();

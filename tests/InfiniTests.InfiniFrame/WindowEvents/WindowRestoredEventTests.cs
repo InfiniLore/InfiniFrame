@@ -10,12 +10,12 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 public class WindowRestoredEventTests {
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestWindowRestoredFromMaximized(CancellationToken ct = default) {
         // Arrange
         int restoredEventCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterRestoredHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
                     Interlocked.Increment(ref restoredEventCount);
@@ -36,13 +36,13 @@ public class WindowRestoredEventTests {
 
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
+    [NotInParallelInfiniTests]
     public async Task TestWindowRestoredFromMinimized(CancellationToken ct = default) {
         // Arrange
         int restoredEventCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterRestoredHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure
                     Interlocked.Increment(ref restoredEventCount);

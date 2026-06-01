@@ -10,12 +10,12 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 public class WindowSizeChangedEventTests {
     [Test]
     [Retry(5)]
-    [SkipUtility.SkipOnMacOs]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestWindowSizeChangedEvent(CancellationToken ct = default) {
         // Arrange: start at a known size so the second SetSize guarantees a change
         int sizeChangedCount = 0;
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(builder: builder => builder
+        using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .SetSize(800, 600)
                 .RegisterSizeChangedHandler((_, _) => {
                     // ReSharper disable once AccessToModifiedClosure

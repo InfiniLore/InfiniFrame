@@ -12,9 +12,9 @@ public class ResizeTests {
 
     [Test]
     [DisplayName($"{nameof(ResizeTests)}.{nameof(Window)}")]
-    [SkipUtility.SkipOnMacOs]
-    [SkipUtility.SkipOnLinux]
-    [NotInParallel(ParallelControl.InfiniFrame)]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
     [Arguments(0, 0, ResizeOrigin.TopLeft)]
     [Arguments(0, 0, ResizeOrigin.Top)]
     [Arguments(0, 0, ResizeOrigin.TopRight)]
@@ -57,7 +57,7 @@ public class ResizeTests {
     [Arguments(-10, 10, ResizeOrigin.Left)]
     public async Task Window(int widthOffset, int heightOffset, ResizeOrigin origin, CancellationToken ct = default) {
         // Arrange
-        using var windowUtility = InfiniFrameWindowTestUtility.Create(ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         Point originalLocation = window.Location;
         Size originalSize = window.Size;

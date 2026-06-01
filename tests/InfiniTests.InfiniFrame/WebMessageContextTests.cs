@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
-using InfiniTests.TestDoubles;
+using InfiniTests.Substitutes;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame;
