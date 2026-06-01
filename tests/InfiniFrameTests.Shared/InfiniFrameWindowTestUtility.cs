@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.Utilities;
 using JetBrains.Annotations;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
@@ -49,12 +50,18 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         windowBuilder.SetStartString(StartString);
         builder?.Invoke(windowBuilder);
 
-        // Windows: WebView2 requires STA thread for COM initialization
-        // Linux: gtk_init() is called during Build() on the current thread; WaitForClose() runs
-        //        gtk_main() on a separate background thread. GTK calls from the current thread
-        //        (which also called gtk_init) are safe because XInitThreads() enables X11 thread safety.
+        // Windows: WebView2 requires STA thread for COM initialization.
+        // Linux: GTK/WebKit have hard single-thread, process-wide affinity. gtk_init() binds GTK to the FIRST
+        //        thread that calls it, and the default WebKitWebContext is a process-global singleton, so EVERY
+        //        window in the process must be created, driven and torn down on that one thread. Creating a
+        //        WebKitWebView on any other thread makes WebKit abort() the process (exit code 134). A new
+        //        thread per window therefore works only for the first window; the rest abort. We instead run a
+        //        single process-wide GTK host thread (see CreateOnSharedGtkThread) and marshal every window's
+        //        Build() onto it; cross-thread access from test methods is marshalled back via
+        //        InfiniFrameWindow.Invoke().
         // macOS: NSApp requires the UI to run on the process main thread, so Build() stays here.
         if (OperatingSystem.IsWindows()) return CreateOnStaThread(windowBuilder);
+        if (OperatingSystem.IsLinux()) return CreateOnSharedGtkThread(windowBuilder);
 
         IInfiniFrameWindow window = windowBuilder.Build();
 
@@ -77,6 +84,78 @@ public sealed class InfiniFrameWindowTestUtility : IDisposable {
         thread.Start();
 
         return utility;
+    }
+
+    // The process-wide GTK host. Lazily started once; owns gtk_init() + gtk_main() for the whole test process.
+    private static readonly object HostLock = new();
+    private static IInfiniFrameWindow? _hostWindow;
+
+    /// <summary>
+    ///     Returns the process-wide GTK host window, starting the host thread on first use. A persistent keep-alive
+    ///     window owns gtk_main() for the process lifetime so that every test window can be created on — and marshalled
+    ///     onto — the single thread GTK and WebKit are bound to.
+    /// </summary>
+    private static IInfiniFrameWindow EnsureGtkHost() {
+        if (_hostWindow is not null) return _hostWindow;
+
+        lock (HostLock) {
+            if (_hostWindow is not null) return _hostWindow;
+
+            var hostSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var thread = new Thread(() => {
+                try {
+                    var hostBuilder = InfiniFrameWindowBuilder.Create();
+                    hostBuilder.SetStartString(StartString);
+
+                    IInfiniFrameWindow host = hostBuilder.Build();
+                    hostSource.SetResult(host);
+
+                    // Runs gtk_main() on this thread for the rest of the process. Test windows are built and torn
+                    // down via this loop without quitting it (only this host window's destroy calls gtk_main_quit).
+                    host.WaitForClose();
+                }
+                catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                    hostSource.TrySetException(ex);
+                }
+            }) {
+                IsBackground = true,
+                Name = "InfiniFrame GTK Host Thread"
+            };
+
+            thread.Start();
+
+            _hostWindow = hostSource.Task.GetAwaiter().GetResult();
+            return _hostWindow;
+        }
+    }
+
+    [MustDisposeResource]
+    private static InfiniFrameWindowTestUtility CreateOnSharedGtkThread(
+        InfiniFrameWindowBuilder windowBuilder
+    ) {
+        IInfiniFrameWindow host = EnsureGtkHost();
+
+        // Marshal Build() (gtk_init is a no-op here, plus WebKitWebView creation) onto the host thread so the
+        // webview is created on the thread GTK/WebKit are bound to. Build() runs on the host thread, so the new
+        // window captures it as its UI thread and InfiniFrameWindow.Invoke() routes later calls back here.
+        IInfiniFrameWindow? built = null;
+        ExceptionDispatchInfo? failure = null;
+        host.Invoke(() => {
+            try {
+                built = windowBuilder.Build();
+            }
+            catch (Exception ex) {
+                failure = ExceptionDispatchInfo.Capture(ex);
+            }
+        });
+        failure?.Throw();
+
+        return new InfiniFrameWindowTestUtility {
+            Window = built!,
+            // The GTK loop is owned by the shared host thread, not by this test, so there is nothing to join.
+            _windowThread = null
+        };
     }
 
     [SupportedOSPlatform("windows"), MustDisposeResource]

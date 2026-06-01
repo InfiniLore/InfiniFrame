@@ -88,10 +88,11 @@ gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer se
     if (cancel)
         return TRUE;
 
-    // The user (or default handler) accepted the close. Tear the WebKitWebView down explicitly before the window
-    // destroy cascade runs so WebKit can settle its singletons synchronously instead of being implicitly disposed
-    // by GtkContainer. The latter leaves dangling refs that abort inside libwebkit's atexit cleanup at process exit
-    // (exit code 134).
+    // The user (or default handler) accepted the close. Disconnect our webview signal handlers and stop any in-flight
+    // load before the GtkContainer destroy cascade disposes the webview, so none of our callbacks (FlushPendingWebMessages,
+    // load/permission/context-menu handlers) can fire against a half-destroyed window. CloseWebView does NOT destroy the
+    // webview itself. Explicit destruction from inside this signal handler triggers WebKit's web-process teardown
+    // re-entrantly and aborts (SIGABRT); GtkContainer disposes the webview implicitly once we return FALSE.
     instance->CloseWebView();
     return FALSE;
 }
