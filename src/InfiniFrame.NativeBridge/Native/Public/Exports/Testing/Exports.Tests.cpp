@@ -2,7 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Public/InfiniFrame.h"
-#include "Utils/ExportGuards.h"
+#include "Public/Exports/Exports.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,33 +13,6 @@
 #endif
 
 #if defined(INFINIFRAME_BUILD_TEST_EXPORTS)
-
-using infiniframe::exports::EnsureNotNull;
-using infiniframe::exports::RunExportStatus;
-
-#ifdef _WIN32
-inline AutoString duplicateString(const AutoStringConst str) {
-    if (str == nullptr) {
-        return nullptr;
-    }
-
-    const size_t len = wcslen(str);
-    auto* copy = new wchar_t[len + 1];
-    wcscpy_s(copy, len + 1, str);
-    return copy;
-}
-#else
-inline AutoString duplicateString(const AutoStringConst str) {
-    if (str == nullptr) {
-        return nullptr;
-    }
-
-    const size_t len = strlen(str);
-    auto* copy = new char[len + 1];
-    strcpy(copy, str);
-    return copy;
-}
-#endif
 
 extern "C" {
 EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
@@ -57,14 +30,14 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
 
         *new_params = new InfiniFrameInitParams();
 
-        (*new_params)->StartString = duplicateString(params->StartString);
-        (*new_params)->StartUrl = duplicateString(params->StartUrl);
-        (*new_params)->Title = duplicateString(params->Title);
-        (*new_params)->WindowIconFile = duplicateString(params->WindowIconFile);
-        (*new_params)->TemporaryFilesPath = duplicateString(params->TemporaryFilesPath);
-        (*new_params)->UserAgent = duplicateString(params->UserAgent);
-        (*new_params)->BrowserControlInitParameters = duplicateString(params->BrowserControlInitParameters);
-        (*new_params)->NotificationRegistrationId = duplicateString(params->NotificationRegistrationId);
+        (*new_params)->StartString = DuplicateString(params->StartString);
+        (*new_params)->StartUrl = DuplicateString(params->StartUrl);
+        (*new_params)->Title = DuplicateString(params->Title);
+        (*new_params)->WindowIconFile = DuplicateString(params->WindowIconFile);
+        (*new_params)->TemporaryFilesPath = DuplicateString(params->TemporaryFilesPath);
+        (*new_params)->UserAgent = DuplicateString(params->UserAgent);
+        (*new_params)->BrowserControlInitParameters = DuplicateString(params->BrowserControlInitParameters);
+        (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
 
         (*new_params)->ParentInstance = params->ParentInstance;
         (*new_params)->ClosingHandler = params->ClosingHandler;

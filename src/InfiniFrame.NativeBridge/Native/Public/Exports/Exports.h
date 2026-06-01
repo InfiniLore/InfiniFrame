@@ -12,8 +12,10 @@
 #define EXPORTED
 #endif
 
-#include "Public/InfiniFrame.h"
-#include "Utils/ExportGuards.h"
+#include "Types/Basic.h"
+#include "Utils/InteropStatus.h"
+#include "Public/Exports/Utilities/Utilities.h"
+
 // ---------------------------------------------------------------------------------------------------------------------
 // String Ownership Contract
 // ---------------------------------------------------------------------------------------------------------------------
@@ -38,27 +40,3 @@
 //  NULL semantics:
 //    Returning nullptr from an owned-string function means "no value" (e.g. no
 //    file selected). The caller must still check before calling FreeString.
-// ---------------------------------------------------------------------------------------------------------------------
-// Code
-// ---------------------------------------------------------------------------------------------------------------------
-using infiniframe::exports::EnsureNotNull;
-using infiniframe::exports::GetLastErrorMessageCopy;
-using infiniframe::exports::ResetOut;
-using infiniframe::exports::ResetOut2;
-using infiniframe::exports::RunExportStatus;
-using infiniframe::exports::RunReturnExport;
-using infiniframe::exports::RunWindowExportStatus;
-using infiniframe::exports::RunWindowReturnExport;
-
-template <typename T> bool EnsureOutNotNull(T* value, const char* argumentName) noexcept {
-    return infiniframe::exports::EnsureNotNull(value, argumentName, InteropStatus::OutParameterSetToInvalidNull);
-}
-
-inline AutoString NullToEmpty(const AutoString value) noexcept {
-#ifdef _WIN32
-    static const wchar_t empty[] = L"";
-#else
-    static const char empty[] = "";
-#endif
-    return value != nullptr ? value : const_cast<AutoString>(empty);
-}

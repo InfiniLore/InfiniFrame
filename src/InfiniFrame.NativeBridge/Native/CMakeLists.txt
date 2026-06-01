@@ -46,7 +46,7 @@ set(COMMON_SOURCES
 )
 
 set(TEST_SOURCES
-        Public/Exports/Exports.Tests.cpp
+        Public/Exports/Testing/Exports.Tests.cpp
 )
 
 set(WINDOWS_SOURCES
@@ -130,7 +130,12 @@ set(HEADER_FILES
         Utils/WindowsHandles.h
         Utils/Event.h
         Public/Exports/Exports.h
-        Utils/ExportGuards.h
+        Public/Exports/Utilities/ExportErrorState.h
+        Public/Exports/Utilities/ExportExecution.h
+        Public/Exports/Utilities/ExportStringHelpers.h
+        Public/Exports/Utilities/ExportValidation.h
+        Public/Exports/Utilities/Utilities.h
+        Utils/InteropStatus.h
         Platform/Shared/CustomSchemeResponse.h
         Platform/Windows/ToastHandler.h
         Platform/Windows/Window.Win32.Internal.h
