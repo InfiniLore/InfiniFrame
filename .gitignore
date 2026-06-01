@@ -378,3 +378,4 @@ src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js
 src/InfiniFrame.Js/wwwroot/InfiniFrame.dev.js.map
 
 /.claude
+/scripts/dotnet-install.sh
