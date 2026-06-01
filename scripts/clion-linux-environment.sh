@@ -16,6 +16,35 @@ sudo apt install -y \
     pkg-config \
     lsb-release \
     x11-apps
+    
+# ----------------------------------------------------------------------------------------------------------------------
+# .NET SDKs (8, 9, 10)
+# ----------------------------------------------------------------------------------------------------------------------
+echo "Installing/updating .NET SDKs..."
+
+# Add Microsoft repository if not already installed
+if ! dpkg -s packages-microsoft-prod >/dev/null 2>&1; then
+    wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb \
+        -O packages-microsoft-prod.deb
+
+    sudo dpkg -i packages-microsoft-prod.deb
+    rm packages-microsoft-prod.deb
+fi
+
+sudo add-apt-repository ppa:dotnet/backports -y
+sudo apt update
+
+# Install or upgrade SDKs to latest available patch versions
+sudo apt install -y \
+    dotnet-sdk-8.0 \
+    dotnet-sdk-9.0 \
+    dotnet-sdk-10.0
+
+echo ".NET SDKs installed:"
+dotnet --list-sdks || true
+
+echo ".NET runtimes installed:"
+dotnet --list-runtimes || true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Node.js 24
@@ -153,6 +182,15 @@ clang++ --version || true
 
 echo "GDB version:"
 gdb --version || true
+
+echo ".NET SDKs:"
+dotnet --list-sdks || true
+
+echo ".NET runtimes:"
+dotnet --list-runtimes || true
+
+echo ".NET info:"
+dotnet --info || true
 
 echo ""
 echo "Setup complete!"
