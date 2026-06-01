@@ -173,8 +173,7 @@ public class InfiniFrameWebApplicationTests {
             .IsTrue();
     }
 
-    [Test]
-    [Retry(5)]
+    [Test, Retry(5)]
     public async Task Stop_ShouldCloseWindowAndStopWebApp() {
         // Arrange
         IInfiniFrameWindow mockWindow = CreateMockWindow();

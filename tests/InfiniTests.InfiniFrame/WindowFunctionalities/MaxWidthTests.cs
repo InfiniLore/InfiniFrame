@@ -14,8 +14,7 @@ public class MaxWidthTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    [DisplayName($"{nameof(MaxWidthTests)}.{nameof(Builder)}")]
+    [Test, DisplayName($"{nameof(MaxWidthTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -30,10 +29,7 @@ public class MaxWidthTests {
         await Assert.That(configParameters.MaxWidth).IsEqualTo(MaxWidth);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MaxWidthTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(MaxWidthTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -46,16 +42,13 @@ public class MaxWidthTests {
         await Assert.That(window.MaxWidth).IsEqualTo(500);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MaxWidthTests)}.{nameof(FullIntegration)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(MaxWidthTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder.SetMaxWidth(500),
+            builder: builder => builder.SetMaxWidth(500),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;

@@ -66,7 +66,7 @@ public class ProcessRunnerTests {
         (string fileName, string[] arguments) = BuildLongRunningCommand();
 
         // Act & Assert
-        TimeoutException? ex = await Assert.ThrowsAsync<TimeoutException>(async () => {
+        var ex = await Assert.ThrowsAsync<TimeoutException>(async () => {
             await ProcessRunner.RunAsync(fileName, arguments, timeout: TimeSpan.FromMilliseconds(250));
         });
 

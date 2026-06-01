@@ -8,9 +8,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj" />
-        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
-        <ProjectReference Include="../InfiniTests/InfiniTests.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

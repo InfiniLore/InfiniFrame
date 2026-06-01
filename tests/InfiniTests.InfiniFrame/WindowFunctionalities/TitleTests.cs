@@ -10,12 +10,7 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TitleTests {
 
-    [Test]
-    [DisplayName($"{nameof(TitleTests)}.{nameof(Builder)}")]
-    [Arguments("")]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
+    [Test, DisplayName($"{nameof(TitleTests)}.{nameof(Builder)}"), Arguments(""), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
     public async Task Builder(string title, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,9 +24,8 @@ public class TitleTests {
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.Title).IsEqualTo(title);
     }
-    
-    [Test]
-    [DisplayName($"{nameof(TitleTests)}.{nameof(Builder_OnNull)}")]
+
+    [Test, DisplayName($"{nameof(TitleTests)}.{nameof(Builder_OnNull)}")]
     public async Task Builder_OnNull(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -46,14 +40,7 @@ public class TitleTests {
         await Assert.That(configParameters.Title).IsNull();
     }
 
-    [Test]
-    [DisplayName($"{nameof(TitleTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
-    [Arguments("")]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
+    [Test, DisplayName($"{nameof(TitleTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(""), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
     public async Task Window(string title, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -66,10 +53,7 @@ public class TitleTests {
         await Assert.That(window.Title).IsEqualTo(title);
     }
 
-    [Test]
-    [DisplayName($"{nameof(TitleTests)}.{nameof(Window_OnNull)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(TitleTests)}.{nameof(Window_OnNull)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task Window_OnNull(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -82,20 +66,13 @@ public class TitleTests {
         await Assert.That(window.Title).IsEmpty();
     }
 
-    [Test]
-    [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
-    [Arguments("")]
-    [Arguments("InfiniWindow")]
-    [Arguments("Ω")]
-    [Arguments("🏳️‍⚧️")]
+    [Test, DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(""), Arguments("InfiniWindow"), Arguments("Ω"), Arguments("🏳️‍⚧️")]
     public async Task FullIntegration(string title, CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder.SetTitle(title),
+            builder: builder => builder.SetTitle(title),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
@@ -104,16 +81,13 @@ public class TitleTests {
         await Assert.That(window.Title).IsEqualTo(title);
     }
 
-    [Test]
-    [DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(TitleTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task FullIntegration_OnNull(CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder.SetTitle(null),
+            builder: builder => builder.SetTitle(null),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
@@ -121,5 +95,4 @@ public class TitleTests {
         // Assert
         await Assert.That(window.Title).IsEmpty();
     }
-
 }

@@ -16,8 +16,7 @@ public class LocationTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    [DisplayName($"{nameof(LocationTests)}.{nameof(Builder)}")]
+    [Test, DisplayName($"{nameof(LocationTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -35,8 +34,7 @@ public class LocationTests {
         await Assert.That(configParameters.Top).IsEqualTo(Top);
     }
 
-    [Test]
-    [DisplayName($"{nameof(LocationTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
+    [Test, DisplayName($"{nameof(LocationTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -61,11 +59,7 @@ public class LocationTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 
-    [Test]
-    [DisplayName($"{nameof(LocationTests)}.{nameof(Window)}")]   
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]   
+    [Test, DisplayName($"{nameof(LocationTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -78,11 +72,7 @@ public class LocationTests {
         await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
     }
 
-    [Test]
-    [DisplayName($"{nameof(LocationTests)}.{nameof(Window_AsPoint)}")]  
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(LocationTests)}.{nameof(Window_AsPoint)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
     public async Task Window_AsPoint(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -95,17 +85,13 @@ public class LocationTests {
         await Assert.That(window.Location).IsEqualTo(new Point(Left, Top));
     }
 
-    [Test]
-    [DisplayName($"{nameof(LocationTests)}.{nameof(FullIntegration)}")] 
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(LocationTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder.SetLocation(Left, Top),
+            builder: builder => builder.SetLocation(Left, Top),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;

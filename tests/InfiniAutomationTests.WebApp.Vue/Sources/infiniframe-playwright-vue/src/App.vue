@@ -1,7 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import FullscreenToggleButton from "./components/FullscreenToggleButton.vue";
 import TitleChangeButton from "./components/TitleChangeButton.vue";
-
 </script>
 
 <template>

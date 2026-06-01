@@ -11,21 +11,6 @@ namespace InfiniTests.InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebMessageReceivedHandlerTests {
-    private sealed class TestService {
-        public string Id { get; } = Guid.NewGuid().ToString("N");
-    }
-
-    private sealed class TestServiceProvider : IServiceProvider {
-        private readonly Dictionary<Type, object> _services;
-
-        public TestServiceProvider(params object[] services) {
-            _services = services.ToDictionary(service => service.GetType(), service => service);
-        }
-
-        public object? GetService(Type serviceType) {
-            return _services.TryGetValue(serviceType, out object? service) ? service : null;
-        }
-    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
@@ -39,10 +24,10 @@ public class WebMessageReceivedHandlerTests {
         var service = new TestService();
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
-            ServiceProvider =  new TestServiceProvider(service),
+            ServiceProvider = new TestServiceProvider(service),
             Events = events,
             Configuration = Substitute.For<IInfiniFrameOptions>(),
-            StaticAssets = null,
+            StaticAssets = null
         };
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
@@ -73,7 +58,7 @@ public class WebMessageReceivedHandlerTests {
             ServiceProvider = null,
             Events = new InfiniFrameEvents(eventsStore),
             Configuration = Substitute.For<IInfiniFrameOptions>(),
-            StaticAssets = null,
+            StaticAssets = null
         };
 
         var tcs = new TaskCompletionSource<string?>();
@@ -85,5 +70,19 @@ public class WebMessageReceivedHandlerTests {
         // Assert
         string? origin = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(1));
         await Assert.That(origin).IsEqualTo("https://example.test");
+    }
+
+    private sealed class TestService {
+        public string Id { get; } = Guid.NewGuid().ToString("N");
+    }
+
+    private sealed class TestServiceProvider : IServiceProvider {
+        private readonly Dictionary<Type, object> _services;
+
+        public TestServiceProvider(params object[] services) {
+            _services = services.ToDictionary(keySelector: service => service.GetType(), elementSelector: service => service);
+        }
+
+        public object? GetService(Type serviceType) => _services.TryGetValue(serviceType, out object? service) ? service : null;
     }
 }

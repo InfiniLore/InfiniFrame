@@ -8,10 +8,7 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowRestoredEventTests {
-    [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, Retry(5), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task TestWindowRestoredFromMaximized(CancellationToken ct = default) {
         // Arrange
         int restoredEventCount = 0;
@@ -34,11 +31,7 @@ public class WindowRestoredEventTests {
         await Assert.That(restoredEventCount).IsEqualTo(baseline + 1);
     }
 
-    [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
-    [SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallelInfiniTests]
+    [Test, Retry(5), SkipOnMacOs, SkipOnLinux("desktop-state dependent under WSLg/local Linux runs"), NotInParallelInfiniTests]
     public async Task TestWindowRestoredFromMinimized(CancellationToken ct = default) {
         // Arrange
         int restoredEventCount = 0;

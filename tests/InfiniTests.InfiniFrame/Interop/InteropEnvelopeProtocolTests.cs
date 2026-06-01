@@ -40,17 +40,16 @@ public class InteropEnvelopeProtocolTests {
 
         throw new FileNotFoundException($"Could not locate {GoldenVectorsFileName}.");
     }
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    [Retry(5)]
+    [Test, Retry(5)]
     public async Task CreateEnvelope_GoldenVectors(CancellationToken ct = default) {
         // Arrange
         JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
         JsonElement vectors = goldenVectorsDocument.RootElement.GetProperty("createVectors");
-        
+
         // Act & Assert
         foreach (JsonElement vector in vectors.EnumerateArray()) {
             string id = vector.GetProperty("id").GetString()!;
@@ -60,18 +59,17 @@ public class InteropEnvelopeProtocolTests {
                 : vector.GetProperty("data").GetString();
 
             string message = InteropEnvelopeProtocol.CreateEnvelopeMessage(id, data);
-            
+
             await Assert.That(message).IsEqualTo(expectedMessage);
         }
     }
 
-    [Test]
-    [Retry(5)]
+    [Test, Retry(5)]
     public async Task ParseEnvelope_GoldenVectors(CancellationToken ct = default) {
         // Arrange
         JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
         JsonElement vectors = goldenVectorsDocument.RootElement.GetProperty("parseVectors");
-        
+
         // Act & Assert
         foreach (JsonElement vector in vectors.EnumerateArray()) {
             string message = vector.GetProperty("message").GetString()!;
@@ -97,8 +95,7 @@ public class InteropEnvelopeProtocolTests {
         }
     }
 
-    [Test]
-    [Retry(5)]
+    [Test, Retry(5)]
     public async Task Parse_TooLargeMessage_IsRejected(CancellationToken ct = default) {
         // Arrange
         string message = new('a', InteropEnvelopeProtocol.MaxMessageSizeBytes + 1);

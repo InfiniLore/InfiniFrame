@@ -6,6 +6,7 @@ using InfiniFrame.BlazorWebView;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Playwright;
 
 namespace InfiniAutomationTests.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,12 +14,13 @@ namespace InfiniAutomationTests.TestUtility;
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documentTitle) : PlaywrightContextBase(documentTitle)
     where TRootComponent : IComponent {
-    public override IInfiniFrameWindow Window => _window!;
-    
-    [UsedImplicitly] private InfiniFrameBlazorApp? _app; // kept for future reference
-    private IInfiniFrameWindow? _window;
-    private Thread? _appThread;
     private readonly int _playwrightDevtoolsPort = PlaywrightConnectionUtility.GetAvailablePort();
+
+    [UsedImplicitly]
+    private InfiniFrameBlazorApp? _app;// kept for future reference
+    private Thread? _appThread;
+    private IInfiniFrameWindow? _window;
+    public override IInfiniFrameWindow Window => _window!;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -55,14 +57,14 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
         windowBuilder
             .SetTitle(DefaultDocumentTitle)
             .SetBrowserControlInitParameters($"--remote-debugging-port={playwrightDevtoolsPort}")
-                .RegisterWindowManagementWebMessageHandler()
-                .RegisterFullScreenWebMessageHandler()
-                .RegisterOpenExternalTargetWebMessageHandler()
-                .RegisterTitleChangedWebMessageHandler()
-                .RegisterWindowClosingHandler((_, _) => {
-                    bool suppressClose = OnWindowClosingRequested();
-                    return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
-                });
+            .RegisterWindowManagementWebMessageHandler()
+            .RegisterFullScreenWebMessageHandler()
+            .RegisterOpenExternalTargetWebMessageHandler()
+            .RegisterTitleChangedWebMessageHandler()
+            .RegisterWindowClosingHandler((_, _) => {
+                bool suppressClose = OnWindowClosingRequested();
+                return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
+            });
     }
 
     protected virtual void RunApp(InfiniFrameBlazorApp app)
@@ -104,7 +106,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
         catch (TimeoutException ex) {
             ready.TrySetException(ex);
         }
-        catch (Microsoft.Playwright.PlaywrightException ex) {
+        catch (PlaywrightException ex) {
             ready.TrySetException(ex);
         }
     }

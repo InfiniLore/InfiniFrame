@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import {useState} from 'react'
 
 function App() {
     const [isFullscreen, setIsFullscreen] = useState(false)

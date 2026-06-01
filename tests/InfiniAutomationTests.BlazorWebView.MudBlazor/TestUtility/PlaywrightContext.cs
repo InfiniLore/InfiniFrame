@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.BlazorWebView;
 using InfiniAutomationTests.BlazorWebView.MudBlazor.Components;
 using InfiniAutomationTests.TestUtility;
+using InfiniFrame.BlazorWebView;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
@@ -13,12 +13,12 @@ namespace InfiniAutomationTests.BlazorWebView.MudBlazor.TestUtility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class PlaywrightContext : BlazorPlaywrightContextBase<App> {
-    public static PlaywrightContext Instance { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     private PlaywrightContext() : base("InfiniFrame Playwright BlazorWebView") {}
+    public static PlaywrightContext Instance { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

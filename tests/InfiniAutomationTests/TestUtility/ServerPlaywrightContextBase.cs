@@ -12,13 +12,14 @@ namespace InfiniAutomationTests.TestUtility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class ServerPlaywrightContextBase(string documentTitle) : PlaywrightContextBase(documentTitle) {
-    public override IInfiniFrameWindow Window => _utility!.Window;
-    [UsedImplicitly] public WebApplication WebApplication => _utility!.WebApplication; // kept for future reference
-    
-    private InfiniFrameTestServer? _utility;
-    private int _serverPort;
     private int _playwrightDevtoolsPort;
-    
+    private int _serverPort;
+
+    private InfiniFrameTestServer? _utility;
+    public override IInfiniFrameWindow Window => _utility!.Window;
+    [UsedImplicitly]
+    public WebApplication WebApplication => _utility!.WebApplication;// kept for future reference
+
     private string ServerUrl => $"http://127.0.0.1:{_serverPort}";
     private string PlaywrightConnectionString => $"http://127.0.0.1:{_playwrightDevtoolsPort}";
 
@@ -34,6 +35,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
         if (_utility is not null) {
             await _utility.DisposeAsync();
         }
+
         _utility = null;
     }
 
@@ -43,7 +45,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
     private void StartUtilityWithFreshPorts() {
         _serverPort = PlaywrightConnectionUtility.GetAvailablePort();
         _playwrightDevtoolsPort = PlaywrightConnectionUtility.GetAvailablePort();
-        
+
         using var startupCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(90));
 
         _utility = InfiniFrameTestServer.Create(
@@ -61,7 +63,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
                     bool suppressClose = OnWindowClosingRequested();
                     return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
                 }),
-            cancellationToken: startupCancellation.Token
+            startupCancellation.Token
         );
         Console.WriteLine("[PlaywrightSetup] Assembly setup completed.");
     }

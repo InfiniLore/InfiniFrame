@@ -8,7 +8,6 @@ namespace InfiniAutomationTests.Tests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class InfiniFramePlaywrightTestBase {
-    protected abstract IPlaywrightRuntimeContext RuntimeContext { get; }
 
     private const string RootRelativeUrl = "/";
     private const int NavigationRetryCount = 5;
@@ -16,6 +15,7 @@ public abstract class InfiniFramePlaywrightTestBase {
     private const int InfiniFrameReadyTimeoutMs = 20_000;
     private const int BrowserContextReadyTimeoutMs = 20_000;
     private const int BrowserContextReadyPollDelayMs = 100;
+    protected abstract IPlaywrightRuntimeContext RuntimeContext { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -114,6 +114,7 @@ public abstract class InfiniFramePlaywrightTestBase {
                 await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
         }
+
         Fail.Test($"Could not execute script: {script} within timeout");
     }
 
@@ -131,6 +132,7 @@ public abstract class InfiniFramePlaywrightTestBase {
                 await page.WaitForTimeoutAsync(NavigationRetryDelayMs);
             }
         }
+
         Fail.Test($"Could not execute script: {script} within timeout");
         return default!;
     }
@@ -192,7 +194,7 @@ public abstract class InfiniFramePlaywrightTestBase {
         Fail.Test("Timed out waiting for browser page.");
         return null!;
     }
-    
+
     private static bool IsExecutionContextDestroyedByNavigation(PlaywrightException exception)
         => exception.Message.Contains("Execution context was destroyed", StringComparison.OrdinalIgnoreCase);
 }

@@ -14,8 +14,7 @@ public class MinWidthTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    [DisplayName($"{nameof(MinWidthTests)}.{nameof(Builder)}")]
+    [Test, DisplayName($"{nameof(MinWidthTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -30,10 +29,7 @@ public class MinWidthTests {
         await Assert.That(configParameters.MinWidth).IsEqualTo(MinWidth);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MinWidthTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(MinWidthTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -46,16 +42,13 @@ public class MinWidthTests {
         await Assert.That(window.MinWidth).IsEqualTo(500);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MinWidthTests)}.{nameof(FullIntegration)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(MinWidthTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder.SetMinWidth(500),
+            builder: builder => builder.SetMinWidth(500),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;

@@ -49,7 +49,7 @@ public class GetMessageWebMessageHandlerTests {
         (InfiniFrameWindowBuilder _, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window)
             = CreateWindowHarness();
 
-        events.RegisterWebMessageGetHandler("app:echo", (_, payload) => $"echo:{payload}");
+        events.RegisterWebMessageGetHandler("app:echo", handler: (_, payload) => $"echo:{payload}");
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             "app:echo",
@@ -138,12 +138,12 @@ public class GetMessageWebMessageHandlerTests {
 
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
-        
+
         var events = new InfiniFrameEvents(eventsStore);
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignSender(window.Window);
-        
+
         return (builder, events, window);
     }
 

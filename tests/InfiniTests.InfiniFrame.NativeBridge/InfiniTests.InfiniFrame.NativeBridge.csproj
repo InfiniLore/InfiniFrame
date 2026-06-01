@@ -4,7 +4,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\InfiniFrame.NativeBridge\InfiniFrame.NativeBridge.csproj" />
+        <ProjectReference Include="..\..\src\InfiniFrame.NativeBridge\InfiniFrame.NativeBridge.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -11,10 +11,6 @@ namespace InfiniTests;
 // ---------------------------------------------------------------------------------------------------------------------
 [MustDisposeResource]
 public sealed partial class InfiniFrameTestWindow : IDisposable {
-    public required IInfiniFrameWindow Window { get; init; }
-
-    private Thread? _windowThread;
-    private int _disposed;
 
     private const string StartString = """
         <!DOCTYPE html>
@@ -26,47 +22,15 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
         </body>
         </html>
         """;
+    private int _disposed;
+
+    private Thread? _windowThread;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameTestWindow() {}
-
-    [MustDisposeResource]
-    public static InfiniFrameTestWindow Create(CancellationToken cancellationToken = default)
-        => Create(null, cancellationToken);
-
-    // ReSharper disable once ConvertIfStatementToReturnStatement
-    [MustDisposeResource]
-    public static InfiniFrameTestWindow Create(Action<IInfiniFrameWindowBuilder>? builder = null, CancellationToken ct = default) {
-        ct.ThrowIfCancellationRequested();
-
-        var windowBuilder = InfiniFrameWindowBuilder.Create();
-        windowBuilder.SetStartString(StartString);
-
-        builder?.Invoke(windowBuilder);
-
-        if (OperatingSystem.IsWindows()) return CreateWindows(windowBuilder);
-        if (OperatingSystem.IsLinux()) return CreateLinux(windowBuilder);
-        if (OperatingSystem.IsMacOS()) return CreateMacOs(windowBuilder);
-
-        throw new PlatformNotSupportedException("Unsupported operating system");
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    private static partial InfiniFrameTestWindow CreateWindows(
-        InfiniFrameWindowBuilder windowBuilder
-    );
-
-    private static partial InfiniFrameTestWindow CreateLinux(
-        InfiniFrameWindowBuilder windowBuilder
-    );
-
-    private static partial InfiniFrameTestWindow CreateMacOs(
-        InfiniFrameWindowBuilder windowBuilder
-    );
+    public required IInfiniFrameWindow Window { get; init; }
 
     public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
@@ -109,4 +73,40 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
         catch (ObjectDisposedException) {
         }
     }
+
+    [MustDisposeResource]
+    public static InfiniFrameTestWindow Create(CancellationToken cancellationToken = default)
+        => Create(null, cancellationToken);
+
+    // ReSharper disable once ConvertIfStatementToReturnStatement
+    [MustDisposeResource]
+    public static InfiniFrameTestWindow Create(Action<IInfiniFrameWindowBuilder>? builder = null, CancellationToken ct = default) {
+        ct.ThrowIfCancellationRequested();
+
+        var windowBuilder = InfiniFrameWindowBuilder.Create();
+        windowBuilder.SetStartString(StartString);
+
+        builder?.Invoke(windowBuilder);
+
+        if (OperatingSystem.IsWindows()) return CreateWindows(windowBuilder);
+        if (OperatingSystem.IsLinux()) return CreateLinux(windowBuilder);
+        if (OperatingSystem.IsMacOS()) return CreateMacOs(windowBuilder);
+
+        throw new PlatformNotSupportedException("Unsupported operating system");
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    private static partial InfiniFrameTestWindow CreateWindows(
+        InfiniFrameWindowBuilder windowBuilder
+    );
+
+    private static partial InfiniFrameTestWindow CreateLinux(
+        InfiniFrameWindowBuilder windowBuilder
+    );
+
+    private static partial InfiniFrameTestWindow CreateMacOs(
+        InfiniFrameWindowBuilder windowBuilder
+    );
 }

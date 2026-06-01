@@ -4,14 +4,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NSubstitute" />
+        <PackageReference Include="NSubstitute"/>
         <PackageReference Include="TUnit"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj" />
-        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
-        <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj" />
+        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.Shared/InfiniFrame.Shared.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame.WebServer/InfiniFrame.WebServer.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

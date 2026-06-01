@@ -27,7 +27,7 @@ public class TitleStringUtilityTests {
     [Test]
     public async Task Validate_NullTitle_ReturnsNull(CancellationToken ct = default) {
         // Arrange & Act
-        string? result = TitleStringUtility.Validate(null, limitLinuxLength: false);
+        string? result = TitleStringUtility.Validate(null, false);
 
         // Assert
         await Assert.That(result).IsNull();
@@ -36,7 +36,7 @@ public class TitleStringUtilityTests {
     [Test]
     public async Task Validate_EmptyString_ReturnsEmptyString(CancellationToken ct = default) {
         // Arrange & Act
-        string? result = TitleStringUtility.Validate("", limitLinuxLength: false);
+        string? result = TitleStringUtility.Validate("", false);
 
         // Assert
         await Assert.That(result).IsEqualTo("");
@@ -46,7 +46,7 @@ public class TitleStringUtilityTests {
     public async Task Validate_WhitespaceOnly_ReturnsOriginalWhitespace(CancellationToken ct = default) {
         // Arrange — whitespace-only strings are returned unchanged (not collapsed to DefaultTitle)
         const string whitespace = "   ";
-        string? result = TitleStringUtility.Validate(whitespace, limitLinuxLength: false);
+        string? result = TitleStringUtility.Validate(whitespace, false);
 
         // Assert
         await Assert.That(result).IsEqualTo(whitespace);
@@ -58,7 +58,7 @@ public class TitleStringUtilityTests {
     [Test]
     public async Task Validate_TitleWithLeadingWhitespace_ReturnsTrimmed(CancellationToken ct = default) {
         // Arrange & Act
-        string? result = TitleStringUtility.Validate("   My App", limitLinuxLength: false);
+        string? result = TitleStringUtility.Validate("   My App", false);
 
         // Assert
         await Assert.That(result).IsEqualTo("My App");
@@ -67,7 +67,7 @@ public class TitleStringUtilityTests {
     [Test]
     public async Task Validate_TitleWithTrailingWhitespace_ReturnsTrimmed(CancellationToken ct = default) {
         // Arrange & Act
-        string? result = TitleStringUtility.Validate("My App   ", limitLinuxLength: false);
+        string? result = TitleStringUtility.Validate("My App   ", false);
 
         // Assert
         await Assert.That(result).IsEqualTo("My App");
@@ -76,7 +76,7 @@ public class TitleStringUtilityTests {
     [Test]
     public async Task Validate_TitleWithLeadingAndTrailingWhitespace_ReturnsTrimmed(CancellationToken ct = default) {
         // Arrange & Act
-        string? result = TitleStringUtility.Validate("   My App   ", limitLinuxLength: false);
+        string? result = TitleStringUtility.Validate("   My App   ", false);
 
         // Assert
         await Assert.That(result).IsEqualTo("My App");
@@ -85,7 +85,7 @@ public class TitleStringUtilityTests {
     [Test]
     public async Task Validate_TitleWithNoWhitespace_ReturnsSameTitle(CancellationToken ct = default) {
         // Arrange & Act
-        string? result = TitleStringUtility.Validate("MyApp", limitLinuxLength: false);
+        string? result = TitleStringUtility.Validate("MyApp", false);
 
         // Assert
         await Assert.That(result).IsEqualTo("MyApp");
@@ -100,7 +100,7 @@ public class TitleStringUtilityTests {
         string longTitle = new('A', 50);
 
         // Act
-        string? result = TitleStringUtility.Validate(longTitle, limitLinuxLength: false);
+        string? result = TitleStringUtility.Validate(longTitle, false);
 
         // Assert — limitLinuxLength=false means no truncation regardless of platform
         await Assert.That(result!.Length).IsEqualTo(50);
@@ -112,7 +112,7 @@ public class TitleStringUtilityTests {
         string title = new('B', 31);
 
         // Act
-        string? result = TitleStringUtility.Validate(title, limitLinuxLength: true);
+        string? result = TitleStringUtility.Validate(title, true);
 
         // Assert — 31 chars is not > 31, so no truncation on any platform
         await Assert.That(result!.Length).IsEqualTo(31);
@@ -120,13 +120,13 @@ public class TitleStringUtilityTests {
 
     [Test]
     public async Task Validate_LimitLinuxLength_True_OnLinux_TruncatesTo31Chars(CancellationToken ct = default) {
-        if (!OperatingSystem.IsLinux()) return; // skip on non-Linux platforms
+        if (!OperatingSystem.IsLinux()) return;// skip on non-Linux platforms
 
         // Arrange
         string longTitle = new('X', 50);
 
         // Act
-        string? result = TitleStringUtility.Validate(longTitle, limitLinuxLength: true);
+        string? result = TitleStringUtility.Validate(longTitle, true);
 
         // Assert
         await Assert.That(result!.Length).IsEqualTo(31);
@@ -135,13 +135,13 @@ public class TitleStringUtilityTests {
 
     [Test]
     public async Task Validate_LimitLinuxLength_True_OnNonLinux_DoesNotTruncate(CancellationToken ct = default) {
-        if (OperatingSystem.IsLinux()) return; // skip on Linux
+        if (OperatingSystem.IsLinux()) return;// skip on Linux
 
         // Arrange
         string longTitle = new('X', 50);
 
         // Act
-        string? result = TitleStringUtility.Validate(longTitle, limitLinuxLength: true);
+        string? result = TitleStringUtility.Validate(longTitle, true);
 
         // Assert — limitLinuxLength=true has no effect on non-Linux platforms
         await Assert.That(result!.Length).IsEqualTo(50);
@@ -155,7 +155,7 @@ public class TitleStringUtilityTests {
         string title = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345_extra";
 
         // Act
-        string? result = TitleStringUtility.Validate(title, limitLinuxLength: true);
+        string? result = TitleStringUtility.Validate(title, true);
 
         // Assert — only the first 31 characters are kept
         await Assert.That(result).IsEqualTo("ABCDEFGHIJKLMNOPQRSTUVWXYZ12345");

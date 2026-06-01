@@ -14,9 +14,9 @@ public class InfiniFrameUriSecurityPolicyTests {
     public async Task IsTrustedOrigin_MatchesBySchemeHostAndPortOnly(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
-            allowedNavigationSchemes: [Uri.UriSchemeHttps],
-            allowedExternalSchemes: [Uri.UriSchemeHttps],
-            trustedOrigins: [new Uri("https://example.com/base-path")]
+            [Uri.UriSchemeHttps],
+            [Uri.UriSchemeHttps],
+            [new Uri("https://example.com/base-path")]
         );
 
         // Act
@@ -32,9 +32,9 @@ public class InfiniFrameUriSecurityPolicyTests {
     public async Task IsTrustedOrigin_RequiresAllowedNavigationScheme(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
-            allowedNavigationSchemes: ["app"],
-            allowedExternalSchemes: [Uri.UriSchemeHttps],
-            trustedOrigins: [new Uri("https://example.com/")]
+            ["app"],
+            [Uri.UriSchemeHttps],
+            [new Uri("https://example.com/")]
         );
 
         // Act
@@ -48,10 +48,10 @@ public class InfiniFrameUriSecurityPolicyTests {
     public async Task IsTrustedOrigin_WithTrustAllOrigins_TrustsAnyOriginWithAllowedScheme(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
-            allowedNavigationSchemes: [Uri.UriSchemeHttps],
-            allowedExternalSchemes: [Uri.UriSchemeHttps],
-            trustedOrigins: [],
-            trustAllOrigins: true
+            [Uri.UriSchemeHttps],
+            [Uri.UriSchemeHttps],
+            [],
+            true
         );
 
         // Act
@@ -67,9 +67,9 @@ public class InfiniFrameUriSecurityPolicyTests {
     public async Task IsTrustedOrigin_WithNullCandidate_ThrowsArgumentNullException(CancellationToken ct = default) {
         // Arrange
         var policy = new InfiniFrameUriSecurityPolicy(
-            allowedNavigationSchemes: [Uri.UriSchemeHttps],
-            allowedExternalSchemes: [Uri.UriSchemeHttps],
-            trustedOrigins: [new Uri("https://example.com/")]
+            [Uri.UriSchemeHttps],
+            [Uri.UriSchemeHttps],
+            [new Uri("https://example.com/")]
         );
 
         // Act
@@ -122,9 +122,9 @@ public class InfiniFrameUriSecurityPolicyTests {
         // Arrange
         var window = new RecordingInfiniFrameWindowSubstitute();
         var policy = new InfiniFrameUriSecurityPolicy(
-            allowedNavigationSchemes: [Uri.UriSchemeHttps],
-            allowedExternalSchemes: [Uri.UriSchemeMailto],
-            trustedOrigins: [new Uri("https://trusted.example/")]
+            [Uri.UriSchemeHttps],
+            [Uri.UriSchemeMailto],
+            [new Uri("https://trusted.example/")]
         );
 
         // Act
@@ -143,7 +143,7 @@ public class InfiniFrameUriSecurityPolicyTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, policyBuilder => policyBuilder
+        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure: policyBuilder => policyBuilder
             .SetAllowedNavigationSchemes([Uri.UriSchemeHttps])
             .SetAllowedExternalSchemes([Uri.UriSchemeMailto])
             .SetTrustedOrigins([new Uri("https://trusted.example/")]));
@@ -192,10 +192,10 @@ public class InfiniFrameUriSecurityPolicyTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, policyBuilder => policyBuilder
+        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure: policyBuilder => policyBuilder
             .SetAllowedNavigationSchemes([Uri.UriSchemeHttps])
             .SetTrustedOrigins([new Uri("https://one.example/")]));
-        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, policyBuilder => policyBuilder
+        InfiniFrameUriSecurityPolicyRegistry.ConfigureForBuilder(builder, configure: policyBuilder => policyBuilder
             .AddTrustedOrigin(new Uri("https://two.example/")));
         IInfiniFrameUriSecurityPolicy policy = InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(builder);
 

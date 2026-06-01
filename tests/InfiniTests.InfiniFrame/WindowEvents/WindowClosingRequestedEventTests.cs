@@ -8,10 +8,7 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowClosingRequestedEventTests {
-    [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, Retry(5), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task TestWindowClosingRequestedEvent(CancellationToken ct = default) {
         // Arrange
         int closingRequestedEventCount = 0;

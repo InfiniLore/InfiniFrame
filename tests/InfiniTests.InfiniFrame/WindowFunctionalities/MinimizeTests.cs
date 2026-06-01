@@ -10,11 +10,8 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class MinimizeTests {
 
-    [Test]
-    [DisplayName($"{nameof(MinimizeTests)}.{nameof(Builder)}")]
-    [Arguments(true)]
-    [Arguments(false)]
-    public async Task Builder(bool state,CancellationToken ct = default) {
+    [Test, DisplayName($"{nameof(MinimizeTests)}.{nameof(Builder)}"), Arguments(true), Arguments(false)]
+    public async Task Builder(bool state, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -28,12 +25,7 @@ public class MinimizeTests {
         await Assert.That(configParameters.Minimized).IsEqualTo(state);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MinimizeTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
-    [Arguments(true)]
-    [Arguments(false)]
+    [Test, DisplayName($"{nameof(MinimizeTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         SkipUtility.SkipOnLinux(state);
 
@@ -48,12 +40,7 @@ public class MinimizeTests {
         await Assert.That(window.Minimized).IsEqualTo(state);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MinimizeTests)}.{nameof(FullIntegration)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
-    [Arguments(true)]
-    [Arguments(false)]
+    [Test, DisplayName($"{nameof(MinimizeTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
         SkipUtility.SkipOnLinux(state);
 
@@ -61,7 +48,7 @@ public class MinimizeTests {
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder.SetMinimized(state),
+            builder: builder => builder.SetMinimized(state),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
@@ -69,5 +56,4 @@ public class MinimizeTests {
         // Assert
         await Assert.That(window.Minimized).IsEqualTo(state);
     }
-
 }

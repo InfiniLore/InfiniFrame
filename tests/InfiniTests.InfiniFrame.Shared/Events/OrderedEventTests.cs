@@ -27,7 +27,7 @@ public class OrderedEventTests {
     public async Task Add_SingleHandler_SnapshotContainsOneEntry(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> handler = _ => { };
+        Action<IInfiniFrameWindow> handler = _ => {};
 
         // Act
         orderedEvent.Add(handler);
@@ -40,7 +40,7 @@ public class OrderedEventTests {
     public async Task Add_SameHandlerTwice_AppendsBothEntries(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> handler = _ => { };
+        Action<IInfiniFrameWindow> handler = _ => {};
 
         // Act
         orderedEvent.Add(handler);
@@ -66,7 +66,7 @@ public class OrderedEventTests {
     public async Task Remove_RegisteredHandler_ReducesSnapshotCount(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> handler = _ => { };
+        Action<IInfiniFrameWindow> handler = _ => {};
         orderedEvent.Add(handler);
 
         // Act
@@ -80,7 +80,7 @@ public class OrderedEventTests {
     public async Task Remove_HandlerNotRegistered_DoesNotThrow(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> unregistered = _ => { };
+        Action<IInfiniFrameWindow> unregistered = _ => {};
 
         // Act & Assert — removing a handler that was never added must not throw
         await Assert.That(() => orderedEvent.Remove(unregistered)).ThrowsNothing();
@@ -93,7 +93,7 @@ public class OrderedEventTests {
     public async Task Invoke_NoHandlers_DoesNotThrow(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
 
         // Act & Assert
         await Assert.That(() => orderedEvent.Invoke(window)).ThrowsNothing();
@@ -103,7 +103,7 @@ public class OrderedEventTests {
     public async Task Invoke_SingleHandler_PassesWindowToHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         IInfiniFrameWindow? received = null;
         orderedEvent.Add(w => received = w);
 
@@ -118,7 +118,7 @@ public class OrderedEventTests {
     public async Task Invoke_MultipleHandlers_InvokesInRegistrationOrder(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         var calls = new List<int>();
 
         orderedEvent.Add(_ => calls.Add(1));
@@ -136,7 +136,7 @@ public class OrderedEventTests {
     public async Task Invoke_AfterRemove_DoesNotCallRemovedHandler(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         var calls = new List<int>();
         Action<IInfiniFrameWindow> first = _ => calls.Add(1);
         Action<IInfiniFrameWindow> second = _ => calls.Add(2);
@@ -156,7 +156,7 @@ public class OrderedEventTests {
     public async Task Invoke_HandlerThrowsException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         orderedEvent.Add(_ => throw new InvalidOperationException("boom"));
 
         // Act & Assert — OrderedEvent.Invoke does not swallow exceptions
@@ -170,8 +170,8 @@ public class OrderedEventTests {
     public async Task Snapshot_IsImmutable_SubsequentAddDoesNotAffectCapturedSnapshot(CancellationToken ct = default) {
         // Arrange
         var orderedEvent = new OrderedEvent();
-        Action<IInfiniFrameWindow> handler1 = _ => { };
-        Action<IInfiniFrameWindow> handler2 = _ => { };
+        Action<IInfiniFrameWindow> handler1 = _ => {};
+        Action<IInfiniFrameWindow> handler2 = _ => {};
         orderedEvent.Add(handler1);
 
         // Act

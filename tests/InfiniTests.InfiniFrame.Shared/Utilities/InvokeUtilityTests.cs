@@ -19,10 +19,10 @@ public class InvokeUtilityTests {
     ///     action synchronously — matching the contract documented on <see cref="InvokeUtility" />.
     /// </summary>
     private static IInfiniFrameWindow CreateSynchronousWindow(IntPtr instanceHandle = default) {
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         window.InstanceHandle.Returns(instanceHandle);
         window.When(w => w.Invoke(Arg.Any<Action>()))
-              .Do(c => c.Arg<Action>()());
+            .Do(c => c.Arg<Action>()());
         return window;
     }
 
@@ -35,7 +35,7 @@ public class InvokeUtilityTests {
         IInfiniFrameWindow window = CreateSynchronousWindow();
 
         // Act
-        string? result = InvokeUtility.InvokeAndReturn(window, _ => "hello");
+        string? result = InvokeUtility.InvokeAndReturn(window, callback: _ => "hello");
 
         // Assert
         await Assert.That(result).IsEqualTo("hello");
@@ -48,7 +48,10 @@ public class InvokeUtilityTests {
         IInfiniFrameWindow? received = null;
 
         // Act
-        InvokeUtility.InvokeAndReturn(window, w => { received = w; return 0; });
+        InvokeUtility.InvokeAndReturn(window, callback: w => {
+            received = w;
+            return 0;
+        });
 
         // Assert
         await Assert.That(received).IsEqualTo(window);
@@ -60,7 +63,7 @@ public class InvokeUtilityTests {
         IInfiniFrameWindow window = CreateSynchronousWindow();
 
         // Act
-        string? result = InvokeUtility.InvokeAndReturn<string>(window, _ => null!);
+        string? result = InvokeUtility.InvokeAndReturn<string>(window, callback: _ => null!);
 
         // Assert
         await Assert.That(result).IsNull();
@@ -72,12 +75,12 @@ public class InvokeUtilityTests {
         IInfiniFrameWindow window = CreateSynchronousWindow();
 
         // Act
-        int result = InvokeUtility.InvokeAndReturn(window, _ => 42);
+        int result = InvokeUtility.InvokeAndReturn(window, callback: _ => 42);
 
         // Assert
         await Assert.That(result).IsEqualTo(42);
     }
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // InvokeAndReturn<T>(window, FuncWithOut<T>)
     // -----------------------------------------------------------------------------------------------------------------
@@ -87,7 +90,7 @@ public class InvokeUtilityTests {
         IInfiniFrameWindow window = CreateSynchronousWindow();
 
         // Act
-        string result = InvokeUtility.InvokeAndReturn<string>(window, (_, out value) => {
+        string result = InvokeUtility.InvokeAndReturn<string>(window, callback: (_, out value) => {
             value = "out-value";
         });
 
@@ -98,12 +101,12 @@ public class InvokeUtilityTests {
     [Test]
     public async Task InvokeAndReturn_FuncWithOut_PassesInstanceHandleToCallback(CancellationToken ct = default) {
         // Arrange
-        var expectedHandle = new IntPtr(99999);
+        IntPtr expectedHandle = new(99999);
         IInfiniFrameWindow window = CreateSynchronousWindow(expectedHandle);
         IntPtr received = IntPtr.Zero;
 
         // Act
-        InvokeUtility.InvokeAndReturn<int>(window, (h, out v) => {
+        InvokeUtility.InvokeAndReturn<int>(window, callback: (h, out v) => {
             received = h;
             v = 0;
         });
@@ -123,7 +126,10 @@ public class InvokeUtilityTests {
         // Act
         string result = InvokeUtility.InvokeAndReturn<string, int>(
             window,
-            (_, out value) => { value = "result-value"; return 0; }
+            callback: (_, out value) => {
+                value = "result-value";
+                return 0;
+            }
         );
 
         // Assert
@@ -139,7 +145,10 @@ public class InvokeUtilityTests {
         // Act
         InvokeUtility.InvokeAndReturn<string, int>(
             window,
-            (_, out value) => { value = "x"; return 7; },
+            callback: (_, out value) => {
+                value = "x";
+                return 7;
+            },
             validateResult: r => validatedWith = r
         );
 
@@ -156,8 +165,10 @@ public class InvokeUtilityTests {
         await Assert.That(() =>
             InvokeUtility.InvokeAndReturn<string, int>(
                 window,
-                (_, out v) => { v = "x"; return 1; },
-                validateResult: null
+                callback: (_, out v) => {
+                    v = "x";
+                    return 1;
+                }
             )
         ).ThrowsNothing();
     }
@@ -171,7 +182,10 @@ public class InvokeUtilityTests {
         // Act — returning default(int?) = null (using nullable TResult) skips the validator
         InvokeUtility.InvokeAndReturn<string, int?>(
             window,
-            (_, out v) => { v = "x"; return null; },
+            callback: (_, out v) => {
+                v = "x";
+                return null;
+            },
             validateResult: _ => validatorCalled = true
         );
 
@@ -182,14 +196,18 @@ public class InvokeUtilityTests {
     [Test]
     public async Task InvokeAndReturn_FuncWithOutResult_PassesInstanceHandleToCallback(CancellationToken ct = default) {
         // Arrange
-        var expectedHandle = new IntPtr(55555);
+        IntPtr expectedHandle = new(55555);
         IInfiniFrameWindow window = CreateSynchronousWindow(expectedHandle);
         IntPtr received = IntPtr.Zero;
 
         // Act
         InvokeUtility.InvokeAndReturn<string, int>(
             window,
-            (h, out v) => { received = h; v = "x"; return 0; }
+            callback: (h, out v) => {
+                received = h;
+                v = "x";
+                return 0;
+            }
         );
 
         // Assert

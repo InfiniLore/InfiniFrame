@@ -146,7 +146,7 @@ public class CustomSchemeNameMemoryTests {
     [Test]
     public async Task FreeAll_AllZeroArray_DoesNotThrow(CancellationToken ct = default) {
         // Arrange
-        IntPtr[] pointers = new IntPtr[16]; // all IntPtr.Zero by default
+        IntPtr[] pointers = new IntPtr[16];// all IntPtr.Zero by default
 
         // Act — must not throw
         CustomSchemeNameMemory.FreeAll(pointers);

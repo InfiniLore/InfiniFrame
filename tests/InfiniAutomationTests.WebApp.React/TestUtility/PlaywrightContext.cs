@@ -8,12 +8,12 @@ namespace InfiniAutomationTests.WebApp.React.TestUtility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class PlaywrightContext : ServerPlaywrightContextBase {
-    public static PlaywrightContext Instance { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     private PlaywrightContext() : base("InfiniFrame Playwright React") {}
+    public static PlaywrightContext Instance { get; } = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

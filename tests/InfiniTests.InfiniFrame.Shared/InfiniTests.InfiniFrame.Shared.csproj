@@ -5,7 +5,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="..\..\src\InfiniFrame.Shared\InfiniFrame.Shared.csproj"/>
     </ItemGroup>
 
 </Project>

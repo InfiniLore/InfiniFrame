@@ -14,8 +14,7 @@ public class HeightTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration)}")]
+    [Test, DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -31,8 +30,7 @@ public class HeightTests {
         await Assert.That(configParameters.Height).IsEqualTo(Height);
     }
 
-    [Test]
-    [DisplayName($"{nameof(HeightTests)}.{nameof(Builder_ShouldOverwriteOsDefaultSizeAndCentered)}")]
+    [Test, DisplayName($"{nameof(HeightTests)}.{nameof(Builder_ShouldOverwriteOsDefaultSizeAndCentered)}")]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered() {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -55,11 +53,7 @@ public class HeightTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 
-    [Test]
-    [DisplayName($"{nameof(HeightTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(HeightTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -72,16 +66,13 @@ public class HeightTests {
         await Assert.That(window.Height).IsEqualTo(500);
     }
 
-    [Test]
-    [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder
+            builder: builder => builder
                 .SetChromeless(true)
                 .SetHeight(500),
             ct
@@ -92,15 +83,11 @@ public class HeightTests {
         await Assert.That(window.Height).IsEqualTo(500);
     }
 
-    [Test]
-    [DisplayName($"{nameof(HeightTests)}.{nameof(Window_WithChromelessToGetSmallestHeight)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(HeightTests)}.{nameof(Window_WithChromelessToGetSmallestHeight)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
     public async Task Window_WithChromelessToGetSmallestHeight(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder.SetChromeless(true),
+            builder: builder => builder.SetChromeless(true),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
@@ -112,16 +99,13 @@ public class HeightTests {
         await Assert.That(window.Height).IsEqualTo(Height);
     }
 
-    [Test]
-    [DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestHeight)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(HeightTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestHeight)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task FullIntegration_WithChromelessToGetSmallestHeight(CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder
+            builder: builder => builder
                 .SetChromeless(true)
                 .SetHeight(Height),
             ct

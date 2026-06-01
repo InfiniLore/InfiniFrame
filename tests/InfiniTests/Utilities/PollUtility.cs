@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 namespace InfiniTests;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,8 +24,10 @@ public static class PollUtility {
             T current = getValue();
             if (!EqualityComparer<T>.Default.Equals(current, fromValue))
                 return current;
+
             if (DateTime.UtcNow >= deadline)
                 throw new TimeoutException($"Value did not change from {fromValue} within {timeout}.");
+
             await Task.Delay(50, ct);
         }
     }

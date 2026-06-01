@@ -8,10 +8,7 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowCreatingEventTests {
-    [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, Retry(5), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task TestWindowCreatingEvent(CancellationToken ct = default) {
         // Arrange
         int creatingEventCount = 0;

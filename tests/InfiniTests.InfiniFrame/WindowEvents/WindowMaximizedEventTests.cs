@@ -8,15 +8,12 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowMaximizedEventTests {
-    [Test]
-    [Retry(5)]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, Retry(5), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task TestWindowMaximizedEvent(CancellationToken ct = default) {
         // Arrange
         int maximizedEventCount = 0;
         int baseline = Volatile.Read(ref maximizedEventCount);
-        
+
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder
                 .RegisterMaximizedHandler(_ => {
                     // ReSharper disable once AccessToModifiedClosure

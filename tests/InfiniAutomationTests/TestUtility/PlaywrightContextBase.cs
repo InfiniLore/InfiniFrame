@@ -9,16 +9,16 @@ namespace InfiniAutomationTests.TestUtility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class PlaywrightContextBase(string documentTitle) : IPlaywrightRuntimeContext {
-    public abstract IInfiniFrameWindow Window { get; }
-    public string DefaultDocumentTitle => documentTitle;
-    
-    private IPlaywright? _playwright;
-    private IBrowser? _browser;
-    private int _windowCloseRequestCount;
-    private int _suppressCloseRequests;
 
     private readonly SemaphoreSlim _browserLock = new(1, 1);
-    
+    private IBrowser? _browser;
+
+    private IPlaywright? _playwright;
+    private int _suppressCloseRequests;
+    private int _windowCloseRequestCount;
+    public abstract IInfiniFrameWindow Window { get; }
+    public string DefaultDocumentTitle => documentTitle;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ public abstract class PlaywrightContextBase(string documentTitle) : IPlaywrightR
     }
 
     protected abstract Uri CreatePlaywrightConnectionUri(string relativeUrl);
-    
+
     private async Task<IBrowser> ConnectAsync(string relativeUrl) {
         Uri url = CreatePlaywrightConnectionUri(relativeUrl);
 

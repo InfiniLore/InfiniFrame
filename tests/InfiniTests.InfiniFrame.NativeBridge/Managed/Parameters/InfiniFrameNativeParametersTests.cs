@@ -281,7 +281,7 @@ public class InfiniFrameNativeParametersTests {
         // Assert
         await Assert.That(actualSize).IsEqualTo(expectedSize);
     }
-    
+
     [Test]
     public async Task NativeExport_InvalidArgument_SetsDeterministicLastErrorAndMessage(CancellationToken ct = default) {
         // Act

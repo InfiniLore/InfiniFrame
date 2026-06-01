@@ -116,8 +116,8 @@ public class NativeMonitorTests {
     public async Task IsValueType_Copy_ProducesIndependentInstance(CancellationToken ct = default) {
         // Arrange
         NativeMonitor original = new() {
-            Monitor = new() { X = 0, Y = 0, Width = 1920, Height = 1080 },
-            Work = new() { X = 0, Y = 40, Width = 1920, Height = 1040 },
+            Monitor = new NativeRect { X = 0, Y = 0, Width = 1920, Height = 1080 },
+            Work = new NativeRect { X = 0, Y = 40, Width = 1920, Height = 1040 },
             Scale = 1.0
         };
 
@@ -147,8 +147,8 @@ public class NativeMonitorTests {
     public async Task AllFields_WhenSetTogether_AllValuesArePreserved(CancellationToken ct = default) {
         // Arrange & Act
         NativeMonitor monitor = new() {
-            Monitor = new() { X = -3840, Y = -1080, Width = 3840, Height = 2160 },
-            Work = new() { X = -3840, Y = -1040, Width = 3840, Height = 2120 },
+            Monitor = new NativeRect { X = -3840, Y = -1080, Width = 3840, Height = 2160 },
+            Work = new NativeRect { X = -3840, Y = -1040, Width = 3840, Height = 2120 },
             Scale = 1.5
         };
 

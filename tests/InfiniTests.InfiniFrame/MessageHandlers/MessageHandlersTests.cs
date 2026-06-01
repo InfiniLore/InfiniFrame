@@ -116,8 +116,8 @@ public class MessageHandlersTests {
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
             window.Window,
             new InfiniFrameUriSecurityPolicy(
-                allowedNavigationSchemes: [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
-                allowedExternalSchemes: [Uri.UriSchemeMailto]));
+                [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
+                [Uri.UriSchemeMailto]));
         builder.RegisterOpenExternalTargetWebMessageHandler();
 
         // Act
@@ -139,7 +139,7 @@ public class MessageHandlersTests {
 
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
-        
+
         var events = new InfiniFrameEvents(eventsStore);
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);

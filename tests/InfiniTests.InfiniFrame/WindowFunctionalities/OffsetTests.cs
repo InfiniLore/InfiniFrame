@@ -10,14 +10,7 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class OffsetTests {
 
-    [Test]
-    [DisplayName($"{nameof(OffsetTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
-    [Arguments(0, 0)]
-    [Arguments(100, 100)]
-    [Arguments(-100, -100)]
+    [Test, DisplayName($"{nameof(OffsetTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests, Arguments(0, 0), Arguments(100, 100), Arguments(-100, -100)]
     public async Task Window(int x, int y, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -33,14 +26,7 @@ public class OffsetTests {
         await Assert.That(location.Y).IsEqualTo(initialLocation.Y + y);
     }
 
-    [Test]
-    [DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsPoint)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
-    [Arguments(0, 0)]
-    [Arguments(100, 100)]
-    [Arguments(-100, -100)]
+    [Test, DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsPoint)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests, Arguments(0, 0), Arguments(100, 100), Arguments(-100, -100)]
     public async Task Window_AsPoint(int x, int y, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -56,14 +42,7 @@ public class OffsetTests {
         await Assert.That(location.Y).IsEqualTo(initialLocation.Y + y);
     }
 
-    [Test]
-    [DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsDouble)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
-    [Arguments(0, 0)]
-    [Arguments(100, 100)]
-    [Arguments(-100, -100)]
+    [Test, DisplayName($"{nameof(OffsetTests)}.{nameof(Window_AsDouble)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests, Arguments(0, 0), Arguments(100, 100), Arguments(-100, -100)]
     public async Task Window_AsDouble(double x, double y, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

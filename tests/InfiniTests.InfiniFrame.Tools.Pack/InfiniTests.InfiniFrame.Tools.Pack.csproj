@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj"/>
-        <ProjectReference Include="../InfiniTests/InfiniTests.csproj" />
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
     </ItemGroup>
 
 </Project>

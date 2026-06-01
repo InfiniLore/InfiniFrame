@@ -22,13 +22,13 @@ public class PublishServiceTests {
     private static Task<SharedPublishFixture>? _sharedPublishFixtureTask;
     private TemporaryDirectory TemporaryDirectory { get; set; } = null!;
 
-    
+
     #if DEBUG
     private const string Configuration = "Debug";
     #else
     private const string Configuration = "Release";
     #endif
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Test Setup
     // -----------------------------------------------------------------------------------------------------------------
@@ -115,8 +115,7 @@ public class PublishServiceTests {
         await Assert.That(exception!.Message.Contains("Could not resolve required InfiniFrame native artifacts from project publish output.", StringComparison.Ordinal)).IsTrue();
     }
 
-    [Test]
-    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [Test, SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
     public async Task PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),
@@ -129,8 +128,7 @@ public class PublishServiceTests {
         await Assert.That(Directory.GetFileSystemEntries(fixture.OutputPath, "*", SearchOption.TopDirectoryOnly).Length).IsEqualTo(1);
     }
 
-    [Test]
-    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [Test, SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
     public async Task PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),
@@ -188,6 +186,7 @@ public class PublishServiceTests {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
         while (current is not null) {
             if (File.Exists(Path.Join(current.FullName, "InfiniFrame.slnx"))) return current.FullName;
+
             current = current.Parent;
         }
 
@@ -220,6 +219,7 @@ public class PublishServiceTests {
             catch (InvalidOperationException) {
                 // best effort
             }
+
             throw new TimeoutException($"Timed out after {timeout} while running '{fileName}'.");
         }
 
@@ -260,26 +260,26 @@ public class PublishServiceTests {
         const string startupMarker = "BOOTSTRAP_SMOKE_OK";
 
         await File.WriteAllTextAsync(appProjectPath, $$"""
-        <Project Sdk="Microsoft.NET.Sdk">
-          <PropertyGroup>
-            <OutputType>Exe</OutputType>
-            <TargetFramework>net10.0</TargetFramework>
-            <ImplicitUsings>enable</ImplicitUsings>
-            <Nullable>enable</Nullable>
-          </PropertyGroup>
-          <ItemGroup>
-            <ProjectReference Include="{{infiniFrameProjectPath}}" />
-          </ItemGroup>
-        </Project>
-        """);
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <OutputType>Exe</OutputType>
+                <TargetFramework>net10.0</TargetFramework>
+                <ImplicitUsings>enable</ImplicitUsings>
+                <Nullable>enable</Nullable>
+              </PropertyGroup>
+              <ItemGroup>
+                <ProjectReference Include="{{infiniFrameProjectPath}}" />
+              </ItemGroup>
+            </Project>
+            """);
 
         await File.WriteAllTextAsync(Path.Join(appDirectory, "Program.cs"), $$"""
-        using InfiniFrame;
+            using InfiniFrame;
 
-        InfiniFrameSingleFileBootstrap.Initialize();
-        Console.WriteLine("{{startupMarker}}");
-        return 0;
-        """);
+            InfiniFrameSingleFileBootstrap.Initialize();
+            Console.WriteLine("{{startupMarker}}");
+            return 0;
+            """);
 
         string outputPath = Path.Join(root, "publish-output");
         string rid = RuntimeResolver.ResolveRid("auto");

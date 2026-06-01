@@ -7,13 +7,12 @@ using InfiniTests.Substitutes;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WebMessageContextTests {
     private const string TestMessageCommand = nameof(TestMessageCommand);
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -28,12 +27,12 @@ public class WebMessageContextTests {
         events.AssignSender(window.Window);
 
         string? observedMessage = null;
-        eventsStore.WebMessagePostData.Add(TestMessageCommand, (_, message) => {
+        eventsStore.WebMessagePostData.Add(TestMessageCommand, handler: (_, message) => {
             observedMessage = message;
         });
 
         // Act
-        events.OnWebMessageReceived(CreatePostEnvelope(TestMessageCommand,"TEST" ), "https://webview.example");
+        events.OnWebMessageReceived(CreatePostEnvelope(TestMessageCommand, "TEST"), "https://webview.example");
 
         // Assert
         await Assert.That(observedMessage).IsNotNull();

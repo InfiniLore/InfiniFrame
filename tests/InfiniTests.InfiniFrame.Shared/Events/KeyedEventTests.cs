@@ -19,7 +19,7 @@ public class KeyedEventTests {
         var evt = new KeyedEvent<string, int>();
 
         // Act & Assert
-        await Assert.That(() => evt.Add(null!, (_, _) => { })).Throws<ArgumentNullException>();
+        await Assert.That(() => evt.Add(null!, handler: (_, _) => {})).Throws<ArgumentNullException>();
     }
 
     [Test]
@@ -37,8 +37,8 @@ public class KeyedEventTests {
         var evt = new KeyedEvent<string, int>();
 
         // Act
-        evt.Add("a", (_, _) => { });
-        evt.Add("b", (_, _) => { });
+        evt.Add("a", handler: (_, _) => {});
+        evt.Add("b", handler: (_, _) => {});
 
         // Assert
         await Assert.That(evt.Count).IsEqualTo(2);
@@ -49,10 +49,10 @@ public class KeyedEventTests {
         // Arrange
         var evt = new KeyedEvent<string, int>();
         var calls = new List<string>();
-        evt.Add("key", (_, _) => calls.Add("first"));
+        evt.Add("key", handler: (_, _) => calls.Add("first"));
 
         // Act — second add with same key replaces the first handler
-        evt.Add("key", (_, _) => calls.Add("second"));
+        evt.Add("key", handler: (_, _) => calls.Add("second"));
 
         // Assert count
         await Assert.That(evt.Count).IsEqualTo(1);
@@ -78,7 +78,7 @@ public class KeyedEventTests {
     public async Task Remove_ExistingKey_DecreasesCount(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        evt.Add("key", (_, _) => { });
+        evt.Add("key", handler: (_, _) => {});
 
         // Act
         evt.Remove("key");
@@ -103,7 +103,7 @@ public class KeyedEventTests {
     public async Task ContainsKey_AddedKey_ReturnsTrue(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        evt.Add("present", (_, _) => { });
+        evt.Add("present", handler: (_, _) => {});
 
         // Act & Assert
         await Assert.That(evt.ContainsKey("present")).IsTrue();
@@ -122,7 +122,7 @@ public class KeyedEventTests {
     public async Task ContainsKey_AfterRemove_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        evt.Add("key", (_, _) => { });
+        evt.Add("key", handler: (_, _) => {});
         evt.Remove("key");
 
         // Act & Assert
@@ -136,7 +136,7 @@ public class KeyedEventTests {
     public async Task TryInvoke_MissingKey_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
 
         // Act
         bool result = evt.TryInvoke("absent", window, 0);
@@ -149,9 +149,9 @@ public class KeyedEventTests {
     public async Task TryInvoke_ExistingKey_InvokesHandlerAndReturnsTrue(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         var calls = new List<int>();
-        evt.Add("key", (_, v) => calls.Add(v));
+        evt.Add("key", handler: (_, v) => calls.Add(v));
 
         // Act
         bool result = evt.TryInvoke("key", window, 99);
@@ -165,9 +165,9 @@ public class KeyedEventTests {
     public async Task TryInvoke_PassesCorrectWindowToHandler(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         IInfiniFrameWindow? received = null;
-        evt.Add("key", (w, _) => received = w);
+        evt.Add("key", handler: (w, _) => received = w);
 
         // Act
         evt.TryInvoke("key", window, 0);
@@ -180,8 +180,8 @@ public class KeyedEventTests {
     public async Task TryInvoke_HandlerThrowsRegularException_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
-        evt.Add("key", (_, _) => throw new InvalidOperationException("boom"));
+        var window = Substitute.For<IInfiniFrameWindow>();
+        evt.Add("key", handler: (_, _) => throw new InvalidOperationException("boom"));
 
         // Act — exception is swallowed and false is returned
         bool result = evt.TryInvoke("key", window, 0);
@@ -194,8 +194,8 @@ public class KeyedEventTests {
     public async Task TryInvoke_HandlerThrowsOperationCanceledException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
-        evt.Add("key", (_, _) => throw new OperationCanceledException());
+        var window = Substitute.For<IInfiniFrameWindow>();
+        evt.Add("key", handler: (_, _) => throw new OperationCanceledException());
 
         // Act & Assert — OperationCanceledException is NOT swallowed
         await Assert.That(() => evt.TryInvoke("key", window, 0)).Throws<OperationCanceledException>();
@@ -205,8 +205,8 @@ public class KeyedEventTests {
     public async Task TryInvoke_AfterRemove_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
-        evt.Add("key", (_, _) => { });
+        var window = Substitute.For<IInfiniFrameWindow>();
+        evt.Add("key", handler: (_, _) => {});
         evt.Remove("key");
 
         // Act
@@ -223,11 +223,11 @@ public class KeyedEventTests {
     public async Task Snapshot_ContainsAllRegisteredHandlers(CancellationToken ct = default) {
         // Arrange
         var evt = new KeyedEvent<string, int>();
-        evt.Add("a", (_, _) => { });
-        evt.Add("b", (_, _) => { });
+        evt.Add("a", handler: (_, _) => {});
+        evt.Add("b", handler: (_, _) => {});
 
         // Act
-        var snapshot = evt.Snapshot.ToList();
+        List<KeyValuePair<string, Action<IInfiniFrameWindow, int>>> snapshot = evt.Snapshot.ToList();
 
         // Assert
         await Assert.That(snapshot.Count).IsEqualTo(2);

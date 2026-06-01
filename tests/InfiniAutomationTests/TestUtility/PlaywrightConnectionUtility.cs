@@ -119,7 +119,7 @@ public static class PlaywrightConnectionUtility {
         if (connectTimeout == TimeSpan.Zero) connectTimeout = DefaultPlaywrightConnectTimeout;
         if (retryWindow == TimeSpan.Zero) retryWindow = DefaultPlaywrightConnectRetryWindow;
         if (retryInterval == TimeSpan.Zero) retryInterval = DefaultPlaywrightConnectRetryInterval;
-        
+
         using var retryWindowCancellation = new CancellationTokenSource(retryWindow);
         CancellationToken cancellationToken = retryWindowCancellation.Token;
         Exception? lastException = null;
@@ -189,5 +189,4 @@ public static class PlaywrightConnectionUtility {
 
         return TimeSpan.FromSeconds(8);
     }
-
 }

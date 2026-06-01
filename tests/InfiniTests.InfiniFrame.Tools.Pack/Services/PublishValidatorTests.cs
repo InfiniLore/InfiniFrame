@@ -13,7 +13,7 @@ public class PublishValidatorTests {
     private const ushort ImageFileMachineArm64 = 0xAA64;
 
     private TemporaryDirectory TemporaryDirectory { get; set; } = null!;
-    
+
     private static void WriteMinimalPeBinary(string path, ushort machine) {
         byte[] bytes = new byte[0x90];
         bytes[0] = (byte)'M';
@@ -32,11 +32,11 @@ public class PublishValidatorTests {
 
         // IMAGE_FILE_HEADER.Machine
         bytes[0x84] = (byte)(machine & 0xFF);
-        bytes[0x85] = (byte)((machine >> 8) & 0xFF);
+        bytes[0x85] = (byte)(machine>> 8 & 0xFF);
 
         File.WriteAllBytes(path, bytes);
     }
-    
+
     // -----------------------------------------------------------------------------------------------------------------
     // Test Setup
     // -----------------------------------------------------------------------------------------------------------------
@@ -217,13 +217,13 @@ public class PublishValidatorTests {
         bool output = PublishValidator.ValidateRidConsistency("linux-x64");
         await Assert.That(output).IsTrue();
     }
-    
+
     [Test]
     public async Task ValidateOutputPath_AllowsProjectBinPath() {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(projectDirectory, "bin", "Release", "net10.0", "win-x64", "publish");
 
-        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
+        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
         await Assert.That(output).IsTrue();
     }
 
@@ -234,7 +234,7 @@ public class PublishValidatorTests {
         Directory.CreateDirectory(outputPath);
 
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
+            PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
             return Task.CompletedTask;
         }) ?? throw new InvalidOperationException("Expected exception was not thrown.");
 
@@ -247,7 +247,7 @@ public class PublishValidatorTests {
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
         Directory.CreateDirectory(outputPath);
 
-        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: true);
+        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, true);
         await Assert.That(output).IsTrue();
     }
 
@@ -256,7 +256,7 @@ public class PublishValidatorTests {
         string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
         string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
 
-        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
+        bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
         await Assert.That(output).IsTrue();
     }
 
@@ -267,13 +267,13 @@ public class PublishValidatorTests {
         Directory.CreateDirectory(outputPath);
 
         if (OperatingSystem.IsWindows()) {
-            bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
+            bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
             await Assert.That(output).IsTrue();
             return;
         }
 
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
-            PublishValidator.ValidateOutputPath(projectDirectory, outputPath, forceCleanOutput: false);
+            PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
             return Task.CompletedTask;
         }) ?? throw new InvalidOperationException("Expected exception was not thrown.");
 

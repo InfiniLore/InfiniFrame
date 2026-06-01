@@ -9,9 +9,7 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class ZoomTests {
-    [Test]
-    [DisplayName($"{nameof(ZoomTests)}.{nameof(Builder)}")]
-    [MatrixDataSource]
+    [Test, DisplayName($"{nameof(ZoomTests)}.{nameof(Builder)}"), MatrixDataSource]
     public async Task Builder([MatrixRange<int>(10, 200, 10)] int zoom, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -26,16 +24,12 @@ public class ZoomTests {
         await Assert.That(configParameters.Zoom).IsEqualTo(zoom);
     }
 
-    [Test]
-    [DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}")]
-    [NotInParallelInfiniTests]
-    [SkipOnLinux]
-    [SkipOnMacOs]
+    [Test, DisplayName($"{nameof(ZoomTests)}.{nameof(Window)}"), NotInParallelInfiniTests, SkipOnLinux, SkipOnMacOs]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         const int zoom = 120;
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder
+            builder: builder => builder
                 .SetUseOsDefaultLocation(true)
                 .SetUseOsDefaultSize(true)
                 .SetZoomEnabled(true),
@@ -50,18 +44,13 @@ public class ZoomTests {
         await Assert.That(window.Zoom).IsEqualTo(zoom);
     }
 
-    [Test]
-    [DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}")]
-    [NotInParallelInfiniTests]
-    [SkipOnLinux]
-    [SkipOnMacOs]
-    [MatrixDataSource]
+    [Test, DisplayName($"{nameof(ZoomTests)}.{nameof(FullIntegration)}"), NotInParallelInfiniTests, SkipOnLinux, SkipOnMacOs, MatrixDataSource]
     public async Task FullIntegration([MatrixRange<int>(26, 250, 10)] int zoom, CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder
+            builder: builder => builder
                 .SetZoomEnabled(true)
                 .SetZoom(zoom),
             ct

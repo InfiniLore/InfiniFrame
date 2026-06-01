@@ -99,11 +99,11 @@ public class InfiniFrameNativeParametersMarshallerTests {
         //   22 × byte    — boolean options mapped to bytes
         //    2 bytes     — padding to re-align the trailing int (Size) to 4-byte boundary
         //    1 × int     — Size
-        int expected = 36 * IntPtr.Size   // pointer fields
-                     + 9 * sizeof(int)    // numeric integer fields
-                     + 22 * sizeof(byte)  // boolean-as-byte fields
-                     + 2                  // alignment padding before Size
-                     + sizeof(int);       // Size field
+        int expected = 36 * IntPtr.Size// pointer fields
+            + 9 * sizeof(int)// numeric integer fields
+            + 22 * sizeof(byte)// boolean-as-byte fields
+            + 2// alignment padding before Size
+            + sizeof(int);// Size field
 
         // Act
         int actual = Marshal.SizeOf<InfiniFrameNativeParametersMarshaller.Unmanaged>();
@@ -118,7 +118,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_NonNullStartUrl_SetsNonZeroPointer(CancellationToken ct = default) {
         // Arrange & Act
-        var (startUrlNonNull, _, _, _, _) = MarshalScalarFields("https://example.com", null, 0, false, false);
+        (bool startUrlNonNull, _, _, _, _) = MarshalScalarFields("https://example.com", null, 0, false, false);
 
         // Assert
         await Assert.That(startUrlNonNull).IsTrue();
@@ -127,7 +127,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_NullTitle_SetsZeroPointer(CancellationToken ct = default) {
         // Arrange & Act
-        var (_, titleNonNull, _, _, _) = MarshalScalarFields("https://example.com", null, 0, false, false);
+        (_, bool titleNonNull, _, _, _) = MarshalScalarFields("https://example.com", null, 0, false, false);
 
         // Assert
         await Assert.That(titleNonNull).IsFalse();
@@ -136,7 +136,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_NonNullTitle_SetsNonZeroPointer(CancellationToken ct = default) {
         // Arrange & Act
-        var (_, titleNonNull, _, _, _) = MarshalScalarFields("https://example.com", "My Window", 0, false, false);
+        (_, bool titleNonNull, _, _, _) = MarshalScalarFields("https://example.com", "My Window", 0, false, false);
 
         // Assert
         await Assert.That(titleNonNull).IsTrue();
@@ -148,7 +148,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_NonZeroLeft_PassesThroughDirectly(CancellationToken ct = default) {
         // Arrange & Act
-        var (_, _, left, _, _) = MarshalScalarFields("https://example.com", null, 42, false, false);
+        (_, _, int left, _, _) = MarshalScalarFields("https://example.com", null, 42, false, false);
 
         // Assert
         await Assert.That(left).IsEqualTo(42);
@@ -157,7 +157,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_NegativeLeft_PassesThroughDirectly(CancellationToken ct = default) {
         // Arrange — negative coordinates occur with monitors to the left of the primary
-        var (_, _, left, _, _) = MarshalScalarFields("https://example.com", null, -800, false, false);
+        (_, _, int left, _, _) = MarshalScalarFields("https://example.com", null, -800, false, false);
 
         // Assert
         await Assert.That(left).IsEqualTo(-800);
@@ -169,7 +169,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_BoolTrue_IsRepresentedAsByteOne(CancellationToken ct = default) {
         // Arrange & Act
-        var (_, _, _, centerOnInit, _) = MarshalScalarFields("https://example.com", null, 0, true, false);
+        (_, _, _, byte centerOnInit, _) = MarshalScalarFields("https://example.com", null, 0, true, false);
 
         // Assert
         await Assert.That(centerOnInit).IsEqualTo((byte)1);
@@ -178,7 +178,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_BoolFalse_IsRepresentedAsByteZero(CancellationToken ct = default) {
         // Arrange & Act
-        var (_, _, _, centerOnInit, _) = MarshalScalarFields("https://example.com", null, 0, false, false);
+        (_, _, _, byte centerOnInit, _) = MarshalScalarFields("https://example.com", null, 0, false, false);
 
         // Assert
         await Assert.That(centerOnInit).IsEqualTo((byte)0);
@@ -187,7 +187,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_IndependentBoolFields_EachConvertedCorrectly(CancellationToken ct = default) {
         // Arrange & Act — CenterOnInitialize=false, Resizable=true
-        var (_, _, _, centerOnInit, resizable) = MarshalScalarFields("https://example.com", null, 0, false, true);
+        (_, _, _, byte centerOnInit, byte resizable) = MarshalScalarFields("https://example.com", null, 0, false, true);
 
         // Assert
         await Assert.That(centerOnInit).IsEqualTo((byte)0);
@@ -200,7 +200,7 @@ public class InfiniFrameNativeParametersMarshallerTests {
     [Test]
     public async Task FromManaged_NullCustomSchemeNames_AllSlotsAreZero(CancellationToken ct = default) {
         // Arrange
-        IntPtr[] customSchemeNames = new IntPtr[16]; // all IntPtr.Zero
+        IntPtr[] customSchemeNames = new IntPtr[16];// all IntPtr.Zero
 
         // Act
         bool[] nonNull = MarshalCustomSchemeNames(customSchemeNames);

@@ -68,7 +68,7 @@ public class OrderedResultEventTests {
     public async Task Invoke_NoHandlers_ReturnsEmptyArray(CancellationToken ct = default) {
         // Arrange
         var evt = new OrderedResultEvent<int, string>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
 
         // Act
         string?[] result = evt.Invoke(window, 0);
@@ -81,7 +81,7 @@ public class OrderedResultEventTests {
     public async Task Invoke_SingleHandler_ReturnsResultInArray(CancellationToken ct = default) {
         // Arrange
         var evt = new OrderedResultEvent<int, string>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add((_, v) => $"value={v}");
 
         // Act
@@ -96,7 +96,7 @@ public class OrderedResultEventTests {
     public async Task Invoke_MultipleHandlers_ReturnsAllResultsInRegistrationOrder(CancellationToken ct = default) {
         // Arrange
         var evt = new OrderedResultEvent<int, string>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add((_, _) => "first");
         evt.Add((_, _) => "second");
         evt.Add((_, _) => "third");
@@ -114,7 +114,7 @@ public class OrderedResultEventTests {
     public async Task Invoke_HandlerThrowsRegularException_SlotIsDefault(CancellationToken ct = default) {
         // Arrange
         var evt = new OrderedResultEvent<int, string>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add((_, _) => "before");
         evt.Add((_, _) => throw new InvalidOperationException("boom"));
         evt.Add((_, _) => "after");
@@ -133,7 +133,7 @@ public class OrderedResultEventTests {
     public async Task Invoke_HandlerThrowsOperationCanceledException_PropagatesException(CancellationToken ct = default) {
         // Arrange
         var evt = new OrderedResultEvent<int, string>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         evt.Add((_, _) => throw new OperationCanceledException());
 
         // Act & Assert — OperationCanceledException is NOT swallowed
@@ -144,7 +144,7 @@ public class OrderedResultEventTests {
     public async Task Invoke_AfterRemove_DoesNotIncludeRemovedHandlerResult(CancellationToken ct = default) {
         // Arrange
         var evt = new OrderedResultEvent<int, string>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         Func<IInfiniFrameWindow, int, string> removed = (_, _) => "removed";
         evt.Add(removed);
         evt.Add((_, _) => "kept");
@@ -162,10 +162,14 @@ public class OrderedResultEventTests {
     public async Task Invoke_PassesWindowAndPayloadToEachHandler(CancellationToken ct = default) {
         // Arrange
         var evt = new OrderedResultEvent<string, string>();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         IInfiniFrameWindow? receivedWindow = null;
         string? receivedPayload = null;
-        evt.Add((w, p) => { receivedWindow = w; receivedPayload = p; return "ok"; });
+        evt.Add((w, p) => {
+            receivedWindow = w;
+            receivedPayload = p;
+            return "ok";
+        });
 
         // Act
         evt.Invoke(window, "payload");

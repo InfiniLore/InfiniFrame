@@ -50,7 +50,7 @@ public class InfiniFrameNativeParametersValidatorTests {
         // Arrange
         string path = Path.Join(Path.GetTempPath(), "InfiniTests.InfiniFrame.Shared", $"validator-{Guid.NewGuid():N}");
         if (Directory.Exists(path))
-            Directory.Delete(path, recursive: true);
+            Directory.Delete(path, true);
 
         var parameters = new InfiniFrameNativeParameters {
             StartUrl = "https://example.com",
@@ -64,7 +64,7 @@ public class InfiniFrameNativeParametersValidatorTests {
         await Assert.That(valid).IsTrue();
         await Assert.That(Directory.Exists(path)).IsTrue();
 
-        Directory.Delete(path, recursive: true);
+        Directory.Delete(path, true);
     }
 
     [Test]

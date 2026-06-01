@@ -7,7 +7,6 @@ using InfiniTests.Substitutes;
 using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.WindowFunctionalities;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -19,8 +18,8 @@ public class LoadTests {
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
             window.Window,
             new InfiniFrameUriSecurityPolicy(
-                allowedNavigationSchemes: [Uri.UriSchemeHttps],
-                allowedExternalSchemes: [Uri.UriSchemeHttps]
+                [Uri.UriSchemeHttps],
+                [Uri.UriSchemeHttps]
             ));
 
         // Act
@@ -37,8 +36,8 @@ public class LoadTests {
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
             window.Window,
             new InfiniFrameUriSecurityPolicy(
-                allowedNavigationSchemes: ["app"],
-                allowedExternalSchemes: [Uri.UriSchemeHttps]
+                ["app"],
+                [Uri.UriSchemeHttps]
             ));
 
         // Act

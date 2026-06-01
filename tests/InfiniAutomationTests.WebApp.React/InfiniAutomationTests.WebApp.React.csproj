@@ -13,18 +13,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="TUnit" />
-        <PackageReference Include="TUnit.Playwright" />
+        <PackageReference Include="TUnit"/>
+        <PackageReference Include="TUnit.Playwright"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../InfiniAutomationTests/InfiniAutomationTests.csproj" />
-        <ProjectReference Include="../InfiniTests/InfiniTests.csproj" />
+        <ProjectReference Include="../InfiniAutomationTests/InfiniAutomationTests.csproj"/>
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
     </ItemGroup>
 
     <!-- Track ALL frontend sources -->
     <ItemGroup>
-        <FrontendSources Include="$(ProjectDir)Sources/infiniframe-playwright-react/**/*" />
+        <FrontendSources Include="$(ProjectDir)Sources/infiniframe-playwright-react/**/*"/>
     </ItemGroup>
 
     <!-- Build frontend once -->
@@ -32,11 +32,11 @@
             BeforeTargets="DispatchToInnerBuilds;Build"
             Condition="'$(DesignTimeBuild)'!='true' and '$(RunFrontendBuild)'=='true'">
 
-        <Message Text="Running React frontend build..." Importance="high" />
+        <Message Text="Running React frontend build..." Importance="high"/>
 
         <!-- FIX: cross-platform safe node path -->
         <Exec Command="node &quot;$(RepositoryRoot)/scripts/BuildFrontend.mjs&quot; &quot;$(ProjectDir)Sources/infiniframe-playwright-react&quot; &quot;$(ProjectDir)obj/frontend-build.stamp&quot; &quot;$(FrontendOutputFile)&quot;"
-              WorkingDirectory="$(ProjectDir)" />
+              WorkingDirectory="$(ProjectDir)"/>
 
         <!-- prevent re-running in same build graph -->
         <PropertyGroup>
@@ -52,7 +52,7 @@
 
         <Copy SourceFiles="$(RepositoryRoot)/src/InfiniFrame.Js/wwwroot/InfiniFrame.js"
               DestinationFiles="$(ProjectDir)wwwroot/InfiniFrame.js"
-              SkipUnchangedFiles="true" />
+              SkipUnchangedFiles="true"/>
 
     </Target>
 
@@ -62,12 +62,12 @@
             Condition="'$(DesignTimeBuild)'!='true'">
 
         <ItemGroup>
-            <FrontendFiles Include="$(ProjectDir)wwwroot/**/*" />
+            <FrontendFiles Include="$(ProjectDir)wwwroot/**/*"/>
         </ItemGroup>
 
         <Copy SourceFiles="@(FrontendFiles)"
               DestinationFiles="@(FrontendFiles->'$(TargetDir)wwwroot/%(RecursiveDir)%(Filename)%(Extension)')"
-              SkipUnchangedFiles="true" />
+              SkipUnchangedFiles="true"/>
 
     </Target>
 

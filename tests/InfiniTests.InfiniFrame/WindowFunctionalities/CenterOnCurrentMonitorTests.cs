@@ -10,11 +10,7 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterOnCurrentMonitorTests {
-    [Test]
-    [DisplayName($"{nameof(CenterOnCurrentMonitorTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(CenterOnCurrentMonitorTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -35,5 +31,4 @@ public class CenterOnCurrentMonitorTests {
 
         await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));
     }
-
 }

@@ -13,13 +13,13 @@ namespace InfiniTests.InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilderTests {
+
+    private const int DefaultIncludedMessageHandlers = 0;
     private static (Stream? Data, string? ContentType) EmptyHandler(IInfiniFrameWindow sender, string url) {
         _ = sender;
         _ = url;
         return default;
     }
-
-    private const int DefaultIncludedMessageHandlers = 0;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
@@ -54,7 +54,7 @@ public class InfiniFrameWindowBuilderTests {
     public async Task ResolveLogger_WithProvider_UsesLoggerFactoryFallback(CancellationToken ct = default) {
         // Arrange
         await using ServiceProvider provider = new ServiceCollection()
-            .AddSingleton(LoggerFactory.Create(static _ => { }))
+            .AddSingleton(LoggerFactory.Create(static _ => {}))
             .BuildServiceProvider();
 
         // Act
@@ -69,8 +69,8 @@ public class InfiniFrameWindowBuilderTests {
     public async Task CreateSnapshot_CanBeCalledMoreThanOnce_WithUniqueMutableReferences(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        builder.EventsStore.WindowCreated.Add(_ => { });
-        builder.RegisterWebMessagePostHandler("ping", (_, _) => { });
+        builder.EventsStore.WindowCreated.Add(_ => {});
+        builder.RegisterWebMessagePostHandler("ping", handler: (_, _) => {});
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
 
         // Act
@@ -99,14 +99,14 @@ public class InfiniFrameWindowBuilderTests {
         IInfiniFrameEventsStore firstEvents = first.EventsStore;
         IInfiniFrameEventsStore secondEvents = second.EventsStore;
 
-        firstEvents.WebMessagePostData.Add("ping", (_, _) => { });
-        firstEvents.WindowCreated.Add(_ => { });
+        firstEvents.WebMessagePostData.Add("ping", handler: (_, _) => {});
+        firstEvents.WindowCreated.Add(_ => {});
 
         // Assert
         await Assert.That(firstEvents.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers + 1);
         await Assert.That(secondEvents.WebMessagePostData.Count).IsEqualTo(DefaultIncludedMessageHandlers);
         await Assert.That(firstEvents.WindowCreated.Snapshot.Length).IsEqualTo(secondEvents.WindowCreated.Snapshot.Length + 1);
-       await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("only-first")).IsFalse();
+        await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("only-first")).IsFalse();
     }
 
     [Test]

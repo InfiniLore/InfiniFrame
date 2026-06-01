@@ -14,8 +14,7 @@ public class MinHeightTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test]
-    [DisplayName($"{nameof(MinHeightTests)}.{nameof(Builder)}")]
+    [Test, DisplayName($"{nameof(MinHeightTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -30,10 +29,7 @@ public class MinHeightTests {
         await Assert.That(configParameters.MinHeight).IsEqualTo(MinHeight);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MinHeightTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(MinHeightTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -46,16 +42,13 @@ public class MinHeightTests {
         await Assert.That(window.MinHeight).IsEqualTo(500);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MinHeightTests)}.{nameof(FullIntegration)}")]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
+    [Test, DisplayName($"{nameof(MinHeightTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder => builder.SetMinHeight(500),
+            builder: builder => builder.SetMinHeight(500),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;

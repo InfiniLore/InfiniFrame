@@ -11,14 +11,7 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class MoveWithinCurrentMonitorAreaTests {
 
-    [Test]
-    [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
-    [Arguments(0, 0, 0, 0)]
-    [Arguments(100, 100, 100, 100)]
-    [Arguments(-100, -100, 0, 0)]
+    [Test, DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests, Arguments(0, 0, 0, 0), Arguments(100, 100, 100, 100), Arguments(-100, -100, 0, 0)]
     public async Task Window(int x, int y, int expectedX, int expectedY, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -41,14 +34,7 @@ public class MoveWithinCurrentMonitorAreaTests {
         await Assert.That(location.Y).IsEqualTo(offsetY + expectedY);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window_AsPoint)}")] 
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
-    [Arguments(0, 0, 0, 0)]
-    [Arguments(100, 100, 100, 100)]
-    [Arguments(-100, -100, 0, 0)]
+    [Test, DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window_AsPoint)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests, Arguments(0, 0, 0, 0), Arguments(100, 100, 100, 100), Arguments(-100, -100, 0, 0)]
     public async Task Window_AsPoint(int x, int y, int expectedX, int expectedY, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -71,14 +57,7 @@ public class MoveWithinCurrentMonitorAreaTests {
         await Assert.That(location.Y).IsEqualTo(offsetY + expectedY);
     }
 
-    [Test]
-    [DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window_AsDouble)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux(SkipUtility.LinuxMovement)]
-    [NotInParallelInfiniTests]
-    [Arguments(0, 0, 0, 0)]
-    [Arguments(100, 100, 100, 100)]
-    [Arguments(-100, -100, 0, 0)]
+    [Test, DisplayName($"{nameof(MoveWithinCurrentMonitorAreaTests)}.{nameof(Window_AsDouble)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests, Arguments(0, 0, 0, 0), Arguments(100, 100, 100, 100), Arguments(-100, -100, 0, 0)]
     public async Task Window_AsDouble(double x, double y, int expectedX, int expectedY, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

@@ -10,53 +10,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilderTests {
-    private sealed class TestJsComponent : IComponent {
-        public void Attach(RenderHandle renderHandle) { }
-
-        public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
-    }
-
-    private sealed class DisposeProbe : IDisposable {
-        public bool IsDisposed { get; private set; }
-
-        public void Dispose() {
-            IsDisposed = true;
-        }
-    }
-
-    private sealed class RecordingUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
-        private int _activeHandlers;
-        private int _registrationCount;
-
-        public int ActiveHandlers => Volatile.Read(ref _activeHandlers);
-        public int RegistrationCount => Volatile.Read(ref _registrationCount);
-
-        public IDisposable Register(UnhandledExceptionEventHandler handler) {
-            _ = handler;
-            Interlocked.Increment(ref _registrationCount);
-            Interlocked.Increment(ref _activeHandlers);
-            return new Subscription(this);
-        }
-
-        private sealed class Subscription : IDisposable {
-            private RecordingUnhandledExceptionSource? _owner;
-
-            public Subscription(RecordingUnhandledExceptionSource owner) {
-                _owner = owner;
-            }
-
-            public void Dispose() {
-                RecordingUnhandledExceptionSource? owner = Interlocked.Exchange(ref _owner, null);
-                if (owner is null) return;
-                Interlocked.Decrement(ref owner._activeHandlers);
-            }
-        }
-    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
@@ -206,10 +163,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         await Assert.That(exception!.ParamName).IsEqualTo("handler");
     }
 
-    [Test]
-    [NotInParallelInfiniTests]
-    [SkipOnMacOs]
-    [SkipOnLinux]
+    [Test, NotInParallelInfiniTests, SkipOnMacOs, SkipOnLinux]
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
@@ -223,8 +177,8 @@ public class InfiniFrameBlazorAppBuilderTests {
         var disposeProbe = services.GetRequiredService<DisposeProbe>();
 
         var app = new InfiniFrameBlazorApp(
-            provider: services,
-            rootComponents: new InfiniFrameRootComponentList());
+            services,
+            new InfiniFrameRootComponentList());
 
         // Act
         app.Run();
@@ -235,15 +189,14 @@ public class InfiniFrameBlazorAppBuilderTests {
         await Assert.That(disposeProbe.IsDisposed).IsTrue();
     }
 
-    [Test]
-    [NotInParallelInfiniTests]
+    [Test, NotInParallelInfiniTests]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
-        
+
         // Act
-        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, builder => builder
+        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, windowBuilder: builder => builder
             .SetTitle("Test")
             .SetBrowserControlInitParameters(initParameters)
             .SetLeft(0)
@@ -253,21 +206,20 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetChromeless(true)
             .SetSmoothScrollingEnabled(false)
         );
-        
+
         // Assert
         await Assert.That(appbuilder).IsNotNull();
         await Assert.That(appbuilder.WindowBuilder.Configuration.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }
-    
-    [Test]
-    [NotInParallelInfiniTests]
+
+    [Test, NotInParallelInfiniTests]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWork(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
-        
+
         // Act
         var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
         appbuilder.WindowBuilder
@@ -279,25 +231,22 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetResizable(false)
             .SetChromeless(true)
             .SetSmoothScrollingEnabled(false);
-        
+
         // Assert
         await Assert.That(appbuilder).IsNotNull();
         await Assert.That(appbuilder.WindowBuilder.Configuration.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }
-    
-    [Test]
-    [NotInParallelInfiniTests]
-    [SkipOnMacOs("Given init parameters are not supported on macOS")]
-    [SkipOnLinux("Given init parameters are not supported on Linux")]
+
+    [Test, NotInParallelInfiniTests, SkipOnMacOs("Given init parameters are not supported on macOS"), SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
-        
+
         // Act
-        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, builder => builder
+        var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args, windowBuilder: builder => builder
             .SetTitle("Test")
             .SetBrowserControlInitParameters(initParameters)
             .SetLeft(0)
@@ -310,23 +259,20 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         InfiniFrameBlazorApp app = appbuilder.Build();
         var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
-        
+
         // Assert
         await Assert.That(window).IsNotNull();
         await Assert.That(window.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }
-    
-    [Test]
-    [NotInParallelInfiniTests]
-    [SkipOnMacOs("Given init parameters are not supported on macOS")]
-    [SkipOnLinux("Given init parameters are not supported on Linux")]
+
+    [Test, NotInParallelInfiniTests, SkipOnMacOs("Given init parameters are not supported on macOS"), SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
         const string initParameters = "--force-device-scale-factor=1";
-        
+
         // Act
         var appbuilder = InfiniFrameBlazorAppBuilder.CreateDefault(args);
         appbuilder.WindowBuilder
@@ -341,11 +287,55 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         InfiniFrameBlazorApp app = appbuilder.Build();
         var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
-        
+
         // Assert
         await Assert.That(window).IsNotNull();
         await Assert.That(window.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
+    }
+
+    private sealed class TestJsComponent : IComponent {
+        public void Attach(RenderHandle renderHandle) {}
+
+        public Task SetParametersAsync(ParameterView parameters) => Task.CompletedTask;
+    }
+
+    private sealed class DisposeProbe : IDisposable {
+        public bool IsDisposed { get; private set; }
+
+        public void Dispose() {
+            IsDisposed = true;
+        }
+    }
+
+    private sealed class RecordingUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
+        private int _activeHandlers;
+        private int _registrationCount;
+
+        public int ActiveHandlers => Volatile.Read(ref _activeHandlers);
+        public int RegistrationCount => Volatile.Read(ref _registrationCount);
+
+        public IDisposable Register(UnhandledExceptionEventHandler handler) {
+            _ = handler;
+            Interlocked.Increment(ref _registrationCount);
+            Interlocked.Increment(ref _activeHandlers);
+            return new Subscription(this);
+        }
+
+        private sealed class Subscription : IDisposable {
+            private RecordingUnhandledExceptionSource? _owner;
+
+            public Subscription(RecordingUnhandledExceptionSource owner) {
+                _owner = owner;
+            }
+
+            public void Dispose() {
+                RecordingUnhandledExceptionSource? owner = Interlocked.Exchange(ref _owner, null);
+                if (owner is null) return;
+
+                Interlocked.Decrement(ref owner._activeHandlers);
+            }
+        }
     }
 }

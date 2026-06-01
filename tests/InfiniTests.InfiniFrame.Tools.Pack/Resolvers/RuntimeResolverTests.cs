@@ -38,5 +38,4 @@ public class RuntimeResolverTests {
         await Assert.That(rid).StartsWith(expectedPrefix);
         await Assert.That(rid).Matches("^(win|linux|osx)-(x64|arm64)$");
     }
-
 }
