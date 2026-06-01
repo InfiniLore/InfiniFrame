@@ -1,0 +1,76 @@
+@*--------------------------------------------------------------------------------------------------------------------*@
+@* Imports
+@*--------------------------------------------------------------------------------------------------------------------*@
+
+@*--------------------------------------------------------------------------------------------------------------------*@
+@* Decorators
+@*--------------------------------------------------------------------------------------------------------------------*@
+@page "/"
+@using InfiniFrame
+@using JetBrains.Annotations
+@inject IInfiniFrameWindow Window
+
+@*--------------------------------------------------------------------------------------------------------------------*@
+@* Html
+@*--------------------------------------------------------------------------------------------------------------------*@
+<MudStack Row="true" Spacing="2" Class="pa-4">
+    <MudButton
+        id="fullscreen-toggle-button"
+        Variant="Variant.Filled"
+        Color="Color.Primary"
+        OnClick="@(_ => ToggleFullscreen())">
+        @if (_isFullscreen) {
+            <span>Exit Fullscreen</span>
+        }
+        else {
+            <span>Enter Fullscreen</span>
+        }
+    </MudButton>
+
+    <MudButton
+        id="title-toggle-button"
+        Variant="Variant.Outlined"
+        Color="Color.Secondary"
+        OnClick="@(_ => ToggleTitle())">
+        @if (_isToggledToNewTitle) {
+            <span>Reset Title</span>
+        }
+        else {
+            <span>Define New Title</span>
+        }
+    </MudButton>
+</MudStack>
+
+@*--------------------------------------------------------------------------------------------------------------------*@
+@* Code
+@*--------------------------------------------------------------------------------------------------------------------*@
+
+@code {
+    private const string NewTitle = "New Title";
+    private const string DefaultTitle = "InfiniFrame Playwright BlazorWebView";
+
+    private bool _isFullscreen;
+    private bool _isToggledToNewTitle;
+
+    [UsedImplicitly]
+    private void ToggleFullscreen() {
+        bool targetFullscreen = !_isFullscreen;
+        _isFullscreen = targetFullscreen;
+        _ = Task.Run(() => Window.SetFullScreen(targetFullscreen));
+        StateHasChanged();
+    }
+
+    [UsedImplicitly]
+    private void ToggleTitle() {
+        if (!_isToggledToNewTitle) {
+            _isToggledToNewTitle = true;
+            _ = Task.Run(() => Window.SetTitle(NewTitle));
+            StateHasChanged();
+            return;
+        }
+
+        _isToggledToNewTitle = false;
+        _ = Task.Run(() => Window.SetTitle(DefaultTitle));
+        StateHasChanged();
+    }
+}

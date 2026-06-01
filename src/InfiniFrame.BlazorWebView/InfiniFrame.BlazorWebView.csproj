@@ -11,7 +11,7 @@
     <ItemGroup>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame/InfiniFrame.csproj"/>
         <ProjectReference Include="$(MSBuildThisFileDirectory)../InfiniFrame.Blazor/InfiniFrame.Blazor.csproj" />
-        <ProjectReference Include="..\InfiniFrame.Shared\InfiniFrame.Shared.csproj" />
+        <ProjectReference Include="../InfiniFrame.Shared/InfiniFrame.Shared.csproj" />
     </ItemGroup>
 
 </Project>

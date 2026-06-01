@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Playwright"/>
+        <PackageReference Include="TUnit.Assertions"/>
+        <PackageReference Include="TUnit.Core"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj"/>
+        <ProjectReference Include="../../src/InfiniFrame/InfiniFrame.csproj"/>
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
+    </ItemGroup>
+</Project>

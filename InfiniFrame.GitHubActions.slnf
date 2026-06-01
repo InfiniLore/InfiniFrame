@@ -11,15 +11,21 @@
             "src\\InfiniFrame.Tools.Pack\\InfiniFrame.Tools.Pack.csproj",
             "src\\InfiniFrame.WebServer\\InfiniFrame.WebServer.csproj",
             
-            "tests\\InfiniFrameTests\\InfiniFrameTests.csproj",
-            "tests\\InfiniFrameTests.Playwright.WebApp.React\\InfiniFrameTests.Playwright.WebApp.React.csproj",
-            "tests\\InfiniFrameTests.Playwright.WebApp.Vue\\InfiniFrameTests.Playwright.WebApp.Vue.csproj",
-            "tests\\InfiniFrameTests.Playwright.BlazorWebView.MudBlazor\\InfiniFrameTests.Playwright.BlazorWebView.MudBlazor.csproj",
-            "tests\\InfiniFrameTests.Shared\\InfiniFrameTests.Shared.csproj",
-            "tests\\InfiniFrameTests.Tools.Pack\\InfiniFrameTests.Tools.Pack.csproj",
-            "tests\\InfiniFrameTests.WebServer\\InfiniFrameTests.WebServer.csproj",
-            "tests\\InfiniFrameTests.Blazor\\InfiniFrameTests.Blazor.csproj",
-            "tests\\InfiniFrameTests.BlazorWebView\\InfiniFrameTests.BlazorWebView.csproj"
+            "tests\\InfiniTests\\InfiniTests.csproj",
+            "tests\\InfiniTests.InfiniFrame\\InfiniTests.InfiniFrame.csproj",
+            "tests\\InfiniTests.InfiniFrame.Blazor\\InfiniTests.InfiniFrame.Blazor.csproj",
+            "tests\\InfiniTests.InfiniFrame.BlazorWebView\\InfiniTests.InfiniFrame.BlazorWebView.csproj",
+            "tests\\InfiniTests.InfiniFrame.Js\\InfiniTests.InfiniFrame.Js.csproj",
+            "tests\\InfiniTests.InfiniFrame.NativeBridge\\InfiniTests.InfiniFrame.NativeBridge.csproj",
+            "tests\\InfiniTests.InfiniFrame.Shared\\InfiniTests.InfiniFrame.Shared.csproj",
+            "tests\\InfiniTests.InfiniFrame.WebServer\\InfiniTests.InfiniFrame.WebServer.csproj",
+            
+            "tests\\InfiniTests.InfiniFrame.Tools.Pack\\InfiniTests.InfiniFrame.Tools.Pack.csproj",
+            
+            "tests\\InfiniAutomationTests\\InfiniAutomationTests.csproj",
+            "tests\\InfiniAutomationTests.BlazorWebView.MudBlazor\\InfiniAutomationTests.BlazorWebView.MudBlazor.csproj",
+            "tests\\InfiniAutomationTests.WebApp.React\\InfiniAutomationTests.WebApp.React.csproj",
+            "tests\\InfiniAutomationTests.WebApp.Vue\\InfiniAutomationTests.WebApp.Vue.csproj"
         ]
     }
 }

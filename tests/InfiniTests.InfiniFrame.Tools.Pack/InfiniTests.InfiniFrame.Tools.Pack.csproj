@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <!--suppress MsbuildTargetFrameworkTagInspection -->
+        <TargetFrameworks>net10.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="TUnit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj"/>
+        <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
+    </ItemGroup>
+
+</Project>

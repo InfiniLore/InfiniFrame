@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="TUnit"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\InfiniFrame.NativeBridge\InfiniFrame.NativeBridge.csproj"/>
+    </ItemGroup>
+
+</Project>

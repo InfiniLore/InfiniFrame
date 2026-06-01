@@ -109,7 +109,7 @@ jobs:
                     New-ItemProperty -Path $werBase -Name DumpType -PropertyType DWord -Value 2 -Force | Out-Null
                     New-ItemProperty -Path $werBase -Name DumpCount -PropertyType DWord -Value 20 -Force | Out-Null
 
-                    foreach ($exe in @("testhost.exe", "InfiniFrameTests.exe", "dotnet.exe")) {
+                    foreach ($exe in @("testhost.exe", "InfiniTests.InfiniFrame.exe", "dotnet.exe")) {
                       $exeKey = Join-Path $werBase $exe
                       New-Item -Path $exeKey -Force | Out-Null
                       New-ItemProperty -Path $exeKey -Name DumpFolder -PropertyType ExpandString -Value $dumpRoot -Force | Out-Null
@@ -145,7 +145,7 @@ jobs:
                     Write-Host "Runner architecture: $env:PROCESSOR_ARCHITECTURE"
                     dotnet --info
 
-                    $nativeFiles = Get-ChildItem -Path "tests/InfiniFrameTests/bin/Release" -Recurse -File `
+                    $nativeFiles = Get-ChildItem -Path "tests/InfiniTests/bin/Release" -Recurse -File `
                       | Where-Object { $_.Name -in @("InfiniFrame.Native.dll", "WebView2Loader.dll", "testhost.exe") }
                     foreach ($file in $nativeFiles) {
                       $machine = Get-PeMachine $file.FullName

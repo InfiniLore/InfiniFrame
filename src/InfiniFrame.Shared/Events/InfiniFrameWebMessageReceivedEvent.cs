@@ -5,4 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public readonly record struct InfiniFrameWebMessageReceivedEvent(string Message, string? Origin);
+public readonly record struct InfiniFrameWebMessageReceivedEvent(
+    string Message,
+    string? Origin
+);

@@ -46,19 +46,25 @@
         <InternalsVisibleTo Include="InfiniFrame.Blazor" />
         <InternalsVisibleTo Include="InfiniFrame.BlazorWebView" />
         <InternalsVisibleTo Include="InfiniFrame.Js" />
-        <InternalsVisibleTo Include="InfiniFrame.Native" />
+        <InternalsVisibleTo Include="InfiniFrame.NativeBridge" />
         <InternalsVisibleTo Include="InfiniFrame.Shared" />
         <InternalsVisibleTo Include="InfiniFrame.WebServer" />
-        <InternalsVisibleTo Include="InfiniFrameTests" />
-        <InternalsVisibleTo Include="InfiniFrameTests.Blazor" />
-        <InternalsVisibleTo Include="InfiniFrameTests.BlazorWebView" />
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright" />
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.BlazorWebView.MudBlazor" />
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.WebApp.React" />
-        <InternalsVisibleTo Include="InfiniFrameTests.Playwright.WebApp.Vue" />
-        <InternalsVisibleTo Include="InfiniFrameTests.Shared" />
-        <InternalsVisibleTo Include="InfiniFrameTests.Tools.Pack" />
-        <InternalsVisibleTo Include="InfiniFrameTests.WebServer" />
+
+        <InternalsVisibleTo Include="InfiniTests" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Blazor" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.BlazorWebView" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Js" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.NativeBridge" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Shared" />
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.WebServer" />
+        
+        <InternalsVisibleTo Include="InfiniTests.InfiniFrame.Tools.Pack" />
+        
+        <InternalsVisibleTo Include="InfiniAutomationTests" />
+        <InternalsVisibleTo Include="InfiniAutomationTests.BlazorWebView.MudBlazor" />
+        <InternalsVisibleTo Include="InfiniAutomationTests.WebApp.React" />
+        <InternalsVisibleTo Include="InfiniAutomationTests.WebApp.Vue" />
         
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>

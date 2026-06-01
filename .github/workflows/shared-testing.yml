@@ -156,7 +156,7 @@ jobs:
         name: Windows Playwright Tests
         if: ${{ inputs.run_windows_playwright == true }}
         needs: [ prepare, native-build ]
-        uses: ./.github/workflows/shared-testing-windows-playwright.yml
+        uses: ./.github/workflows/shared-testing-windows-automation.yml
         with:
             pr_number: ${{ inputs.pr_number }}
             checkout_ref: ${{ inputs.checkout_ref }}
