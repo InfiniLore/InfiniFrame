@@ -14,4 +14,9 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\InfiniFrame.Js\InfiniFrame.Js.csproj" />
+      <ProjectReference Include="..\InfiniTests\InfiniTests.csproj" />
+    </ItemGroup>
+
 </Project>
