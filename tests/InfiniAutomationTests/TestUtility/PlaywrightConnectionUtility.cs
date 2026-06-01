@@ -92,8 +92,7 @@ public static class PlaywrightConnectionUtility {
             return;
 
         try {
-            if (Directory.Exists(path))
-                Directory.Delete(path, recursive: true);
+            if (Directory.Exists(path)) Directory.Delete(path, true);
         }
         catch (IOException) {
             // WebView2 can release files shortly after the window closes.
@@ -107,7 +106,7 @@ public static class PlaywrightConnectionUtility {
         if (timeout == TimeSpan.Zero)
             timeout = DefaultPlaywrightCreateTimeout;
 
-        return await Microsoft.Playwright.Playwright.CreateAsync().WaitAsync(timeout);
+        return await Playwright.CreateAsync().WaitAsync(timeout);
     }
 
     public static async Task<IBrowser> ConnectOverCdpWithRetryAsync(
@@ -117,13 +116,10 @@ public static class PlaywrightConnectionUtility {
         TimeSpan retryWindow = default,
         TimeSpan retryInterval = default
     ) {
-        if (connectTimeout == TimeSpan.Zero)
-            connectTimeout = DefaultPlaywrightConnectTimeout;
-        if (retryWindow == TimeSpan.Zero)
-            retryWindow = DefaultPlaywrightConnectRetryWindow;
-        if (retryInterval == TimeSpan.Zero)
-            retryInterval = DefaultPlaywrightConnectRetryInterval;
-
+        if (connectTimeout == TimeSpan.Zero) connectTimeout = DefaultPlaywrightConnectTimeout;
+        if (retryWindow == TimeSpan.Zero) retryWindow = DefaultPlaywrightConnectRetryWindow;
+        if (retryInterval == TimeSpan.Zero) retryInterval = DefaultPlaywrightConnectRetryInterval;
+        
         using var retryWindowCancellation = new CancellationTokenSource(retryWindow);
         CancellationToken cancellationToken = retryWindowCancellation.Token;
         Exception? lastException = null;
@@ -186,12 +182,10 @@ public static class PlaywrightConnectionUtility {
 
     public static TimeSpan GetVisibleDebugDelay() {
         string? debugEnabled = Environment.GetEnvironmentVariable("PLAYWRIGHT_VISIBLE_DEBUG");
-        if (!string.Equals(debugEnabled, "1", StringComparison.Ordinal))
-            return TimeSpan.Zero;
+        if (!string.Equals(debugEnabled, "1", StringComparison.Ordinal)) return TimeSpan.Zero;
 
         string? secondsValue = Environment.GetEnvironmentVariable("PLAYWRIGHT_VISIBLE_DEBUG_SECONDS");
-        if (int.TryParse(secondsValue, out int seconds) && seconds > 0)
-            return TimeSpan.FromSeconds(seconds);
+        if (int.TryParse(secondsValue, out int seconds) && seconds > 0) return TimeSpan.FromSeconds(seconds);
 
         return TimeSpan.FromSeconds(8);
     }
