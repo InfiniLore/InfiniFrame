@@ -38,6 +38,7 @@ public class WindowRestoredEventTests {
     [Test]
     [Retry(5)]
     [SkipUtility.SkipOnMacOs]
+    [SkipUtility.SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
     [NotInParallel(ParallelControl.InfiniFrame)]
     public async Task TestWindowRestoredFromMinimized(CancellationToken ct = default) {
         // Arrange
@@ -51,9 +52,10 @@ public class WindowRestoredEventTests {
         );
 
         // Act: minimize first, then restore
-        await Task.Delay(1000, ct);
-        int baseline = Volatile.Read(ref restoredEventCount);
         windowUtility.Window.SetMinimized(true);
+        await Task.Delay(100, ct);
+        int baseline = Volatile.Read(ref restoredEventCount);
+        windowUtility.Window.SetMinimized(false);
 
         // Assert
         await PollUtility.WaitForChangeAsync(getValue: () => Volatile.Read(ref restoredEventCount), baseline, TimeSpan.FromSeconds(5), ct);
