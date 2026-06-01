@@ -350,9 +350,11 @@ healthchecksdb
 /src/InfiniFrame.NativeBridge/Native/packages/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-debug/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-debug-linux/
+/src/InfiniFrame.NativeBridge/Native/cmake-build-debug-linux-wsl/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-debug-windows/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-release/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-release-linux/
+/src/InfiniFrame.NativeBridge/Native/cmake-build-release-linux-wsl/
 /src/InfiniFrame.NativeBridge/Native/cmake-build-release-windows/
 /src/InfiniFrame.NativeBridge/Native/Embedded/InfiniFrameJs/InfiniFrameJs.cpp
 /src/InfiniFrame.NativeBridge/Native/Embedded/InfiniFrameJs/InfiniFrameJs.h
