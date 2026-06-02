@@ -20,7 +20,7 @@ public class ReOpeningAnotherWindowTests {
 
             // Act
             await Task.Run(() => window2Utility.Window.Close(), ct);
-            window1Utility.Window.WaitForClose();
+            window2Utility.Window.WaitForClose();
 
             // Assert
             await Assert.That(window1Utility.Window.IsClosed).IsTrue();
