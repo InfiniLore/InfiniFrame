@@ -27,11 +27,6 @@
 //    Multi-string results (AutoString** from dialog APIs) must be freed with
 //    InfiniFrame_FreeStringArray(values, count).
 //
-//    Affected exports:
-//      InfiniFrame_GetUserAgent, InfiniFrame_GetTitle, InfiniFrame_GetIconFileName,
-//      InfiniFrame_GetLastErrorMessage, InfiniFrame_ShowOpenFile,
-//      InfiniFrame_ShowOpenFolder, InfiniFrame_ShowSaveFile
-//
 //  BORROWED (callee does not take ownership):
 //    All AutoString input parameters (const AutoString) are borrowed for the
 //    duration of the call. The native layer copies what it needs internally.

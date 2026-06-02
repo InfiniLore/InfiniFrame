@@ -82,80 +82,17 @@ public partial class InfiniFrameNative {
         return status;
     }
 
-    internal static InfiniFrameNativeInteropStatus GetUserAgent(IntPtr instance, out string? userAgent) {
-        InfiniFrameNativeInteropStatus status = GetUserAgent(instance, out IntPtr ptr);
-        try {
-            userAgent = PtrToNativeString(ptr);
-        }
-        finally {
-            if (ptr != IntPtr.Zero) {
-                FreeString(ptr);
-            }
-        }
-
-        return status;
-    }
-
-    internal static InfiniFrameNativeInteropStatus GetTitle(IntPtr instance, out string? title) {
-        InfiniFrameNativeInteropStatus status = GetTitle(instance, out IntPtr ptr);
-        try {
-            title = PtrToNativeString(ptr);
-        }
-        finally {
-            if (ptr != IntPtr.Zero) {
-                FreeString(ptr);
-            }
-        }
-
-        return status;
-    }
-
-    internal static InfiniFrameNativeInteropStatus GetIconFileName(IntPtr instance, out string iconFileName) {
-        InfiniFrameNativeInteropStatus status = GetIconFileName(instance, out IntPtr ptr);
-        try {
-            iconFileName = PtrToNativeString(ptr) ?? string.Empty;
-        }
-        finally {
-            if (ptr != IntPtr.Zero) {
-                FreeString(ptr);
-            }
-        }
-
-        return status;
-    }
-
-    internal static string? GetLastErrorMessage() {
-        InfiniFrameNativeInteropStatus status = GetLastErrorMessagePtr(out IntPtr ptr);
-        if (status != InfiniFrameNativeInteropStatus.Success || ptr == IntPtr.Zero) return null;
-
-        try {
-            return PtrToNativeString(ptr);
-        }
-        finally {
-            FreeString(ptr);
-        }
-    }
-
     internal static InfiniFrameNativeInteropStatus EnsureSucceeded(InfiniFrameNativeInteropStatus status, string operationName) {
         
         int fallbackLastError = Marshal.GetLastPInvokeError();
 
         if (status is InfiniFrameNativeInteropStatus.Success && fallbackLastError is 0) return status;
         
-        InfiniFrameNativeInteropStatus fallbackStatus = GetLastErrorMessagePtr(out IntPtr ptr);
-
-        string? fallbackMessage;
-        if (fallbackStatus != InfiniFrameNativeInteropStatus.Success || ptr == IntPtr.Zero) {
-            fallbackMessage = "No native error message provided.";
-        }
-        else {
-            try {
-                fallbackMessage = PtrToNativeString(ptr);
-            }
-            finally {
-                FreeString(ptr);
-            }
-        }
+        const string noNativeMessage = "No native error message provided.";
+        string fallbackMessage = GetLastErrorMessage() ?? noNativeMessage;
+        InfiniFrameNativeInteropStatus fallbackStatus = fallbackMessage == noNativeMessage
+            ? InfiniFrameNativeInteropStatus.OperationFailed
+            : InfiniFrameNativeInteropStatus.Success;
         
         throw new ApplicationException($"Native interop call '{operationName}' failed with unknown status state. Fallback last error {fallbackLastError}. {fallbackMessage} {fallbackStatus}");
     }

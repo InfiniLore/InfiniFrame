@@ -17,4 +17,16 @@ public partial class InfiniFrameNative {
 
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_GetLastErrorMessage", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial InfiniFrameNativeInteropStatus GetLastErrorMessagePtr(out IntPtr value);
+
+    internal static string? GetLastErrorMessage() {
+        InfiniFrameNativeInteropStatus status = GetLastErrorMessagePtr(out IntPtr ptr);
+        if (status != InfiniFrameNativeInteropStatus.Success || ptr == IntPtr.Zero) return null;
+
+        try {
+            return PtrToNativeString(ptr);
+        }
+        finally {
+            FreeString(ptr);
+        }
+    }
 }
