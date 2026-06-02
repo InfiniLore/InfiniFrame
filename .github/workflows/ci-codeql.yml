@@ -194,6 +194,7 @@ jobs:
                 with:
                     brew-cache-key: ${{ runner.os }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
                     brew-restore-key: ${{ runner.os }}-brew-codeql-
+                    restore-nativebridge-packages: 'true'
 
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4
@@ -269,6 +270,7 @@ jobs:
                 with:
                     brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-codeql-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/ci-codeql.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-codeql-
+                    restore-nativebridge-packages: 'true'
 
             -   name: Initialize CodeQL
                 uses: github/codeql-action/init@v4

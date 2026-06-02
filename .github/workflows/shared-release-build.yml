@@ -62,6 +62,7 @@ jobs:
                 with:
                     brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-build.yml') }}
                     brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
+                    restore-nativebridge-packages: 'true'
 
             -   name: Build Native
                 shell: bash
