@@ -11,4 +11,3 @@
 
 #include "Utils/Dimensions.h"
 #include "Utils/StringCopy.h"
-#include "Utils/Event.h"
