@@ -38,7 +38,7 @@ file(WRITE "${OUTPUT_SOURCE}" "// ----------------------------------------------
 // Generated at: ${GENERATED_AT}
 // -----------------------------------------------------------------------------
 
-#include \"Embedded/InfiniFrameJs/InfiniFrameJs.h\"
+#include \"src/Embedded/InfiniFrameJs/InfiniFrameJs.h\"
 
 alignas(16) const unsigned char GInfiniframeJsData[] = {${BYTES}};
 

@@ -34,122 +34,122 @@ infiniframe_setup_dependencies()
 # Source Files
 # ----------------------------------------------------------------------------------------------------------------------
 set(COMMON_SOURCES
-        Platform/Shared/WindowEvents.cpp
-        Platform/Shared/WindowState.cpp
-        Public/Exports/Exports.Dialog.cpp
-        Public/Exports/Exports.Events.cpp
-        Public/Exports/Exports.Lifecycle.cpp
-        Public/Exports/Exports.Memory.cpp
-        Public/Exports/Exports.Platform.cpp
-        Public/Exports/Exports.WindowCommands.cpp
-        Public/Exports/Exports.WindowState.cpp
+        src/Runtime/Shared/Window/WindowEvents.cpp
+        src/Runtime/Shared/Window/WindowState.cpp
+        src/Api/Exports/Exports.Dialog.cpp
+        src/Api/Exports/Exports.Events.cpp
+        src/Api/Exports/Exports.Lifecycle.cpp
+        src/Api/Exports/Exports.Memory.cpp
+        src/Api/Exports/Exports.Platform.cpp
+        src/Api/Exports/Exports.WindowCommands.cpp
+        src/Api/Exports/Exports.WindowState.cpp
 )
 
 set(TEST_SOURCES
-        Public/Exports/Testing/Exports.Tests.cpp
+        src/Api/Testing/Exports.Tests.cpp
 )
 
 set(WINDOWS_SOURCES
-        Platform/Windows/DarkMode.h
-        Platform/Windows/ToastHandler.h
-        Platform/Windows/Window.Win32.Context.h
-        Platform/Windows/Window.Win32.Internal.h
+        src/Runtime/Platform/Windows/DarkMode.h
+        src/Runtime/Platform/Windows/ToastHandler.h
+        src/Runtime/Platform/Windows/Window.Win32.Context.h
+        src/Runtime/Platform/Windows/Window.Win32.Internal.h
         
-        Platform/Windows/Core/UiDispatcher.Win32.cpp
-        Platform/Windows/Core/WindowCore.Win32.cpp
-        Platform/Windows/Core/WindowEncoding.Win32.cpp
-        Platform/Windows/Core/WindowLifecycle.Win32.cpp
-        Platform/Windows/Core/WindowOwnership.Win32.cpp
-        Platform/Windows/Core/WindowProc.Win32.cpp
-        Platform/Windows/Core/WindowState.Win32.cpp
-        Platform/Windows/Core/WindowStorage.Win32.cpp
-        Platform/Windows/Core/WindowTracing.Win32.cpp
-        Platform/Windows/DarkMode.cpp
-        Platform/Windows/Dialog.cpp
-        Platform/Windows/Dpi.Win32.cpp
-        Platform/Windows/Monitors.Win32.cpp
-        Platform/Windows/Notifications.WinToast.cpp
-        Platform/Windows/WebView/WebView2Attach.Win32.cpp
-        Platform/Windows/WebView/WebView2Controller.Win32.cpp
-        Platform/Windows/WebView/WebView2CustomSchemes.Win32.cpp
-        Platform/Windows/WebView/WebView2Host.Win32.cpp
-        Platform/Windows/WebView/WebView2Runtime.Win32.cpp
-        Platform/Windows/WebView/WebView2Settings.Win32.cpp
+        src/Runtime/Platform/Windows/Core/UiDispatcher.Win32.cpp
+        src/Runtime/Platform/Windows/Core/WindowCore.Win32.cpp
+        src/Runtime/Platform/Windows/Core/WindowEncoding.Win32.cpp
+        src/Runtime/Platform/Windows/Core/WindowLifecycle.Win32.cpp
+        src/Runtime/Platform/Windows/Core/WindowOwnership.Win32.cpp
+        src/Runtime/Platform/Windows/Core/WindowProc.Win32.cpp
+        src/Runtime/Platform/Windows/Core/WindowState.Win32.cpp
+        src/Runtime/Platform/Windows/Core/WindowStorage.Win32.cpp
+        src/Runtime/Platform/Windows/Core/WindowTracing.Win32.cpp
+        src/Runtime/Platform/Windows/DarkMode.cpp
+        src/Runtime/Platform/Windows/Dialog.cpp
+        src/Runtime/Platform/Windows/Dpi.Win32.cpp
+        src/Runtime/Platform/Windows/Monitors.Win32.cpp
+        src/Runtime/Platform/Windows/Notifications.WinToast.cpp
+        src/Runtime/Platform/Windows/WebView/WebView2Attach.Win32.cpp
+        src/Runtime/Platform/Windows/WebView/WebView2Controller.Win32.cpp
+        src/Runtime/Platform/Windows/WebView/WebView2CustomSchemes.Win32.cpp
+        src/Runtime/Platform/Windows/WebView/WebView2Host.Win32.cpp
+        src/Runtime/Platform/Windows/WebView/WebView2Runtime.Win32.cpp
+        src/Runtime/Platform/Windows/WebView/WebView2Settings.Win32.cpp
 )
 
 set(LINUX_SOURCES
-        Platform/Linux/WebKit/WebKit.Gtk.Internal.h
-        Platform/Linux/Window.Gtk.Internal.h
+        src/Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h
+        src/Runtime/Platform/Linux/Window.Gtk.Internal.h
         
-        Platform/Linux/Core/UiDispatcher.Gtk.cpp
-        Platform/Linux/Core/WindowCore.Gtk.cpp
-        Platform/Linux/Core/WindowEvents.Gtk.cpp
-        Platform/Linux/Core/WindowInitialization.Gtk.cpp
-        Platform/Linux/Core/WindowLifecycle.Gtk.cpp
-        Platform/Linux/Core/WindowSignals.Gtk.cpp
-        Platform/Linux/Core/WindowState.Gtk.cpp
-        Platform/Linux/Dialog.cpp
-        Platform/Linux/Monitors.Gtk.cpp
-        Platform/Linux/Notifications.LibNotify.cpp
-        Platform/Linux/WebKit/WebKitCustomSchemes.Gtk.cpp
-        Platform/Linux/WebKit/WebKitHost.Gtk.cpp
-        Platform/Linux/WebKit/WebKitMessaging.Gtk.cpp
-        Platform/Linux/WebKit/WebKitSettings.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/UiDispatcher.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/WindowCore.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/WindowEvents.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/WindowInitialization.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/WindowLifecycle.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/WindowSignals.Gtk.cpp
+        src/Runtime/Platform/Linux/Core/WindowState.Gtk.cpp
+        src/Runtime/Platform/Linux/Dialog.cpp
+        src/Runtime/Platform/Linux/Monitors.Gtk.cpp
+        src/Runtime/Platform/Linux/Notifications.LibNotify.cpp
+        src/Runtime/Platform/Linux/WebKit/WebKitCustomSchemes.Gtk.cpp
+        src/Runtime/Platform/Linux/WebKit/WebKitHost.Gtk.cpp
+        src/Runtime/Platform/Linux/WebKit/WebKitMessaging.Gtk.cpp
+        src/Runtime/Platform/Linux/WebKit/WebKitSettings.Gtk.cpp
 )
 
 set(MAC_SOURCES
-        Platform/Mac/Delegates/AppDelegate.h
-        Platform/Mac/Delegates/NavigationDelegate.h
-        Platform/Mac/Delegates/UiDelegate.h
-        Platform/Mac/Delegates/UrlSchemeHandler.h
-        Platform/Mac/Delegates/WindowDelegate.h
-        Platform/Mac/NSWindowBorderless.h
-        Platform/Mac/Window.Cocoa.Internal.h
+        src/Runtime/Platform/Mac/Delegates/AppDelegate.h
+        src/Runtime/Platform/Mac/Delegates/NavigationDelegate.h
+        src/Runtime/Platform/Mac/Delegates/UiDelegate.h
+        src/Runtime/Platform/Mac/Delegates/UrlSchemeHandler.h
+        src/Runtime/Platform/Mac/Delegates/WindowDelegate.h
+        src/Runtime/Platform/Mac/NSWindowBorderless.h
+        src/Runtime/Platform/Mac/Window.Cocoa.Internal.h
         
-        Platform/Mac/Core/UiDispatcher.Cocoa.mm
-        Platform/Mac/Core/WindowCore.Cocoa.mm
-        Platform/Mac/Core/WindowEvents.Cocoa.mm
-        Platform/Mac/Core/WindowLifecycle.Cocoa.mm
-        Platform/Mac/Core/WindowState.Cocoa.mm
-        Platform/Mac/Delegates/AppDelegate.mm
-        Platform/Mac/Delegates/NavigationDelegate.mm
-        Platform/Mac/Delegates/UiDelegate.mm
-        Platform/Mac/Delegates/UrlSchemeHandler.mm
-        Platform/Mac/Delegates/WindowDelegate.mm
-        Platform/Mac/Dialog.mm
-        Platform/Mac/Monitors.Cocoa.mm
-        Platform/Mac/NSWindowBorderless.mm
-        Platform/Mac/Notifications.UserNotifications.mm
-        Platform/Mac/WebKit/WebKitBridge.Cocoa.mm
-        Platform/Mac/WebKit/WebKitCustomSchemes.Cocoa.mm
-        Platform/Mac/WebKit/WebKitHost.Cocoa.mm
+        src/Runtime/Platform/Mac/Core/UiDispatcher.Cocoa.mm
+        src/Runtime/Platform/Mac/Core/WindowCore.Cocoa.mm
+        src/Runtime/Platform/Mac/Core/WindowEvents.Cocoa.mm
+        src/Runtime/Platform/Mac/Core/WindowLifecycle.Cocoa.mm
+        src/Runtime/Platform/Mac/Core/WindowState.Cocoa.mm
+        src/Runtime/Platform/Mac/Delegates/AppDelegate.mm
+        src/Runtime/Platform/Mac/Delegates/NavigationDelegate.mm
+        src/Runtime/Platform/Mac/Delegates/UiDelegate.mm
+        src/Runtime/Platform/Mac/Delegates/UrlSchemeHandler.mm
+        src/Runtime/Platform/Mac/Delegates/WindowDelegate.mm
+        src/Runtime/Platform/Mac/Dialog.mm
+        src/Runtime/Platform/Mac/Monitors.Cocoa.mm
+        src/Runtime/Platform/Mac/NSWindowBorderless.mm
+        src/Runtime/Platform/Mac/Notifications.UserNotifications.mm
+        src/Runtime/Platform/Mac/WebKit/WebKitBridge.Cocoa.mm
+        src/Runtime/Platform/Mac/WebKit/WebKitCustomSchemes.Cocoa.mm
+        src/Runtime/Platform/Mac/WebKit/WebKitHost.Cocoa.mm
 )
 
 set(HEADER_FILES
-        Embedded/Embedded.h
-        Embedded/InfiniFrameJs/InfiniFrameJs.h
-        Platform/Shared/CustomSchemeResponse.h
-        Public/Exports/Exports.h
-        Public/Exports/Utilities/ExportErrorState.h
-        Public/Exports/Utilities/ExportExecution.h
-        Public/Exports/Utilities/ExportStringHelpers.h
-        Public/Exports/Utilities/ExportValidation.h
-        Public/Exports/Utilities/Utilities.h
-        Public/InfiniFrame.h
-        Public/InfiniFrameDialog.h
-        Public/InfiniFrameInitParams.h
-        Public/InfiniFrameWindow.h
-        Types/Basic.h
-        Types/Callbacks.h
-        Types/DialogButtons.h
-        Types/DialogIcon.h
-        Types/DialogResult.h
-        Types/Monitor.h
-        Utils/Dimensions.h
-        Utils/ErrorCode.h
-        Utils/InteropStatus.h
-        Utils/StringArrayCopy.h
-        Utils/StringCopy.h
+        src/Embedded/Embedded.h
+        src/Embedded/InfiniFrameJs/InfiniFrameJs.h
+        src/Runtime/Shared/WebView/CustomSchemeResponse.h
+        src/Api/Exports/Exports.h
+        src/Api/Utilities/ExportErrorState.h
+        src/Api/Utilities/ExportExecution.h
+        src/Api/Utilities/ExportStringHelpers.h
+        src/Api/Utilities/ExportValidation.h
+        src/Api/Utilities/Utilities.h
+        src/Runtime/Shared/Window/InfiniFrame.h
+        src/Runtime/Shared/Window/InfiniFrameDialog.h
+        src/Runtime/Shared/Window/InfiniFrameInitParams.h
+        src/Runtime/Shared/Window/InfiniFrameWindow.h
+        src/Runtime/Shared/Types/Basic.h
+        src/Runtime/Shared/Types/Callbacks.h
+        src/Runtime/Shared/Types/DialogButtons.h
+        src/Runtime/Shared/Types/DialogIcon.h
+        src/Runtime/Shared/Types/DialogResult.h
+        src/Runtime/Shared/Types/Monitor.h
+        src/Runtime/Shared/Utilities/Dimensions.h
+        src/Runtime/Shared/Utilities/ErrorCode.h
+        src/Runtime/Shared/Utilities/InteropStatus.h
+        src/Runtime/Shared/Utilities/StringArrayCopy.h
+        src/Runtime/Shared/Utilities/StringCopy.h
 )
 
 if (WIN32)

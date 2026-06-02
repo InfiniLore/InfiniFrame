@@ -216,15 +216,15 @@ endfunction()
 # - `INFINIFRAME_WINDOWS_ARCH_DIR`
 function(infiniframe_setup_dependencies)
     message(STATUS "Setting up InfiniFrame native dependencies")
-    infiniframe_add_vendor_static_library("simdjson" "${CMAKE_SOURCE_DIR}/Dependencies/simdjson" "simdjson.cpp" "simdjson.h")
-    infiniframe_add_vendor_static_library("simdutf" "${CMAKE_SOURCE_DIR}/Dependencies/simdutf" "simdutf.cpp" "simdutf.h")
+    infiniframe_add_vendor_static_library("simdjson" "${CMAKE_SOURCE_DIR}/src/Dependencies/simdjson" "simdjson.cpp" "simdjson.h")
+    infiniframe_add_vendor_static_library("simdutf" "${CMAKE_SOURCE_DIR}/src/Dependencies/simdutf" "simdutf.cpp" "simdutf.h")
 
     if (NOT WIN32)
         message(STATUS "Windows-specific dependencies skipped on non-Windows host")
         return()
     endif ()
 
-    infiniframe_add_vendor_static_library("wintoastlib" "${CMAKE_SOURCE_DIR}/Dependencies/wintoastlib" "wintoastlib.cpp" "wintoastlib.h")
+    infiniframe_add_vendor_static_library("wintoastlib" "${CMAKE_SOURCE_DIR}/src/Dependencies/wintoastlib" "wintoastlib.cpp" "wintoastlib.h")
 
     set(_packages_config_path "${CMAKE_SOURCE_DIR}/packages.config")
     if (NOT EXISTS "${_packages_config_path}")

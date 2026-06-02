@@ -32,6 +32,7 @@ function(infiniframe_configure_linux_target target_name common_sources test_sour
 
     target_include_directories(${target_name} PRIVATE
             "${CMAKE_SOURCE_DIR}"
+            "${CMAKE_SOURCE_DIR}/src"
             ${GTK3_INCLUDE_DIRS}
             ${WEBKIT2_INCLUDE_DIRS}
             ${LIBNOTIFY_INCLUDE_DIRS}

@@ -18,7 +18,10 @@ function(infiniframe_configure_macos_target target_name common_sources test_sour
             LANGUAGE OBJCXX
     )
 
-    target_include_directories(${target_name} PRIVATE "${CMAKE_SOURCE_DIR}")
+    target_include_directories(${target_name} PRIVATE
+            "${CMAKE_SOURCE_DIR}"
+            "${CMAKE_SOURCE_DIR}/src"
+    )
 
     set_target_properties(${target_name} PROPERTIES
             PREFIX ""
