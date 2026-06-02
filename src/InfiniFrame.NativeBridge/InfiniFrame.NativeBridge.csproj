@@ -173,7 +173,7 @@
             Inputs="@(NativeSource)"
             Outputs="$(NativeStamp)">
 
-        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports) $(InfiniFrameWebView2Version) $(InfiniFrameWindowsImplementationLibraryVersion) &quot;$(NuGetPackageRoot)&quot;" />
+        <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)" />
 
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
     </Target>

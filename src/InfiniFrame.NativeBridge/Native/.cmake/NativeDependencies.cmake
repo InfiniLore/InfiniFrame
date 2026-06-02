@@ -43,7 +43,58 @@ function(_infiniframe_resolve_base_dir out_var required_relative_path)
     set(${out_var} "${_resolved}" PARENT_SCOPE)
 endfunction()
 
-# Resolve package version from a required CMake cache variable.
+# Walk parent directories from `${CMAKE_SOURCE_DIR}` to find `Directory.Packages.props`.
+# Params:
+# - out_var: parent-scope variable receiving full path when found, otherwise empty
+function(infiniframe_find_directory_packages_props out_var)
+    if (DEFINED INFINIFRAME_DIRECTORY_PACKAGES_PROPS AND NOT "${INFINIFRAME_DIRECTORY_PACKAGES_PROPS}" STREQUAL "")
+        if (EXISTS "${INFINIFRAME_DIRECTORY_PACKAGES_PROPS}")
+            set(${out_var} "${INFINIFRAME_DIRECTORY_PACKAGES_PROPS}" PARENT_SCOPE)
+            return()
+        endif ()
+    endif ()
+
+    set(_current_dir "${CMAKE_SOURCE_DIR}")
+    while (TRUE)
+        set(_candidate "${_current_dir}/Directory.Packages.props")
+        if (EXISTS "${_candidate}")
+            set(${out_var} "${_candidate}" PARENT_SCOPE)
+            return()
+        endif ()
+
+        get_filename_component(_parent_dir "${_current_dir}" DIRECTORY)
+        if ("${_parent_dir}" STREQUAL "${_current_dir}")
+            break()
+        endif ()
+        set(_current_dir "${_parent_dir}")
+    endwhile ()
+
+    set(${out_var} "" PARENT_SCOPE)
+endfunction()
+
+# Read package version from a `<PackageVersion Include="...">` entry in
+# `Directory.Packages.props`.
+# Params:
+# - props_path: full path to Directory.Packages.props
+# - package_id: e.g. `Microsoft.Web.WebView2`
+# - out_var: parent-scope variable receiving the value
+function(infiniframe_read_central_package_version props_path package_id out_var)
+    file(READ "${props_path}" _props_content)
+    string(REPLACE "." "\\." _package_id_regex "${package_id}")
+    string(
+            REGEX MATCH
+            "<PackageVersion[^>]*Include=\"${_package_id_regex}\"[^>]*Version=\"([^\"]+)\""
+            _match
+            "${_props_content}"
+    )
+    if (NOT CMAKE_MATCH_1)
+        message(FATAL_ERROR "PackageVersion for '${package_id}' not found in ${props_path}")
+    endif ()
+    string(STRIP "${CMAKE_MATCH_1}" _value)
+    set(${out_var} "${_value}" PARENT_SCOPE)
+endfunction()
+
+# Resolve package version from CMake cache variable or Directory.Packages.props.
 # Params:
 # - package_id: package id as defined in `<package id="...">`
 # - cmake_var_name: cache variable expected to contain the package version
@@ -55,7 +106,15 @@ function(infiniframe_get_package_version package_id cmake_var_name out_var)
         return()
     endif ()
 
-    message(FATAL_ERROR "Missing ${package_id} version. Pass -D${cmake_var_name}=<version>.")
+    infiniframe_find_directory_packages_props(_directory_packages_props_path)
+    if (_directory_packages_props_path)
+        infiniframe_read_central_package_version("${_directory_packages_props_path}" "${package_id}" _version_from_props)
+        message(STATUS "Using ${package_id} version from ${_directory_packages_props_path}=${_version_from_props}")
+        set(${out_var} "${_version_from_props}" PARENT_SCOPE)
+        return()
+    endif ()
+
+    message(FATAL_ERROR "Missing ${package_id} version. Pass -D${cmake_var_name}=<version> or set -DINFINIFRAME_DIRECTORY_PACKAGES_PROPS=<path to Directory.Packages.props>.")
 endfunction()
 
 # Create a vendored static library target and namespaced alias from local source/header files.
