@@ -5,8 +5,8 @@
 #   - `simdjson::simdjson`
 #   - `simdutf::simdutf`
 #   - `wintoastlib::wintoastlib` (Windows only)
-# - Restores NuGet packages needed for Windows SDK-style dependencies.
-# - Reads `packages.config` as the single source of truth for package versions.
+# - Resolves NuGet packages needed for Windows SDK-style dependencies.
+# - Uses versions passed from CMake cache vars.
 # - Resolves and creates imported interface targets:
 #   - `webview2::sdk` (Windows only)
 #   - `wil::headers` (Windows only)
@@ -43,27 +43,19 @@ function(_infiniframe_resolve_base_dir out_var required_relative_path)
     set(${out_var} "${_resolved}" PARENT_SCOPE)
 endfunction()
 
-# Read a NuGet package version from `packages.config`.
+# Resolve package version from a required CMake cache variable.
 # Params:
-# - packages_config: absolute path to `packages.config`
 # - package_id: package id as defined in `<package id="...">`
+# - cmake_var_name: cache variable expected to contain the package version
 # - out_var: parent-scope variable receiving parsed version string
-# Fails with `FATAL_ERROR` when the package/version entry is missing.
-function(infiniframe_read_package_version packages_config package_id out_var)
-    message(STATUS "Reading package version for '${package_id}' from ${packages_config}")
-    file(READ "${packages_config}" _packages_content)
-    string(REPLACE "." "\\." _package_id_regex "${package_id}")
-    string(
-            REGEX MATCH
-            "<package[^>]*id=\"${_package_id_regex}\"[^>]*version=\"([^\"]+)\""
-            _match
-            "${_packages_content}"
-    )
-    if (NOT CMAKE_MATCH_1)
-        message(FATAL_ERROR "${package_id} package version not found in ${packages_config}")
+function(infiniframe_get_package_version package_id cmake_var_name out_var)
+    if (DEFINED ${cmake_var_name} AND NOT "${${cmake_var_name}}" STREQUAL "")
+        message(STATUS "Using ${package_id} version from -D${cmake_var_name}=${${cmake_var_name}}")
+        set(${out_var} "${${cmake_var_name}}" PARENT_SCOPE)
+        return()
     endif ()
-    message(STATUS "  ${package_id} version: ${CMAKE_MATCH_1}")
-    set(${out_var} "${CMAKE_MATCH_1}" PARENT_SCOPE)
+
+    message(FATAL_ERROR "Missing ${package_id} version. Pass -D${cmake_var_name}=<version>.")
 endfunction()
 
 # Create a vendored static library target and namespaced alias from local source/header files.
@@ -97,23 +89,6 @@ function(infiniframe_add_vendor_static_library vendor_name vendor_dir source_nam
     message(STATUS "  created target '${_target_name}' and alias '${vendor_name}::${vendor_name}'")
 endfunction()
 
-# Restore NuGet packages declared in `packages.config` into `${CMAKE_SOURCE_DIR}/packages`.
-# Params:
-# - packages_config_path: path to `packages.config`
-# Fails with `FATAL_ERROR` when restore returns non-zero.
-function(infiniframe_restore_nuget_packages packages_config_path)
-    message(STATUS "Restoring NuGet packages using ${packages_config_path}")
-    execute_process(
-            COMMAND nuget restore "${packages_config_path}" -PackagesDirectory "${CMAKE_SOURCE_DIR}/packages"
-            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-            RESULT_VARIABLE _nuget_result
-    )
-    if (NOT _nuget_result EQUAL 0)
-        message(FATAL_ERROR "NuGet restore failed")
-    endif ()
-    message(STATUS "NuGet restore succeeded")
-endfunction()
-
 # Determine Windows architecture folder token from current CMake generator platform.
 # Params:
 # - out_var: parent-scope variable receiving one of `x64` or `arm64`
@@ -138,10 +113,24 @@ endfunction()
 # Fails with `FATAL_ERROR` if no candidate is valid.
 function(infiniframe_resolve_webview2_base_dir webview2_version out_var)
     message(STATUS "Resolving WebView2 SDK path for version ${webview2_version}")
+    set(_nuget_roots "")
+    if (DEFINED INFINIFRAME_NUGET_PACKAGES_ROOT AND NOT "${INFINIFRAME_NUGET_PACKAGES_ROOT}" STREQUAL "")
+        list(APPEND _nuget_roots "${INFINIFRAME_NUGET_PACKAGES_ROOT}")
+    endif ()
+    if (DEFINED ENV{NUGET_PACKAGES} AND NOT "$ENV{NUGET_PACKAGES}" STREQUAL "")
+        list(APPEND _nuget_roots "$ENV{NUGET_PACKAGES}")
+    endif ()
+    if (DEFINED ENV{USERPROFILE} AND NOT "$ENV{USERPROFILE}" STREQUAL "")
+        list(APPEND _nuget_roots "$ENV{USERPROFILE}/.nuget/packages")
+    endif ()
+
     set(_candidates
             "${CMAKE_SOURCE_DIR}/packages/Microsoft.Web.WebView2.${webview2_version}/build/native"
-            "$ENV{USERPROFILE}/.nuget/packages/microsoft.web.webview2/${webview2_version}/build/native"
+            "${CMAKE_SOURCE_DIR}/packages/microsoft.web.webview2/${webview2_version}/build/native"
     )
+    foreach (_root IN LISTS _nuget_roots)
+        list(APPEND _candidates "${_root}/microsoft.web.webview2/${webview2_version}/build/native")
+    endforeach ()
     _infiniframe_resolve_base_dir(_base_dir "include/WebView2.h" ${_candidates})
     if (NOT _base_dir)
         message(FATAL_ERROR "WebView2 headers not found")
@@ -159,10 +148,24 @@ endfunction()
 # Fails with `FATAL_ERROR` if neither layout exists.
 function(infiniframe_resolve_wil_include_dir winimpl_version out_var)
     message(STATUS "Resolving WIL include path for version ${winimpl_version}")
+    set(_nuget_roots "")
+    if (DEFINED INFINIFRAME_NUGET_PACKAGES_ROOT AND NOT "${INFINIFRAME_NUGET_PACKAGES_ROOT}" STREQUAL "")
+        list(APPEND _nuget_roots "${INFINIFRAME_NUGET_PACKAGES_ROOT}")
+    endif ()
+    if (DEFINED ENV{NUGET_PACKAGES} AND NOT "$ENV{NUGET_PACKAGES}" STREQUAL "")
+        list(APPEND _nuget_roots "$ENV{NUGET_PACKAGES}")
+    endif ()
+    if (DEFINED ENV{USERPROFILE} AND NOT "$ENV{USERPROFILE}" STREQUAL "")
+        list(APPEND _nuget_roots "$ENV{USERPROFILE}/.nuget/packages")
+    endif ()
+
     set(_candidates
             "${CMAKE_SOURCE_DIR}/packages/Microsoft.Windows.ImplementationLibrary.${winimpl_version}"
-            "$ENV{USERPROFILE}/.nuget/packages/microsoft.windows.implementationlibrary/${winimpl_version}"
+            "${CMAKE_SOURCE_DIR}/packages/microsoft.windows.implementationlibrary/${winimpl_version}"
     )
+    foreach (_root IN LISTS _nuget_roots)
+        list(APPEND _candidates "${_root}/microsoft.windows.implementationlibrary/${winimpl_version}")
+    endforeach ()
 
     _infiniframe_resolve_base_dir(_base_include "include/wil/com.h" ${_candidates})
     if (_base_include)
@@ -209,7 +212,7 @@ endfunction()
 # Main module entrypoint. Sets up all dependency targets used by `InfiniFrame.Native`.
 # Behavior:
 # - Always configures vendored `simdjson` and `simdutf`.
-# - On Windows also configures vendored `wintoastlib`, restores NuGet, resolves
+# - On Windows also configures vendored `wintoastlib`, resolves
 #   WebView2/WIL from package versions, and creates imported SDK targets.
 # Exports to parent scope on Windows:
 # - `INFINIFRAME_WEBVIEW2_BASE_DIR`
@@ -226,15 +229,9 @@ function(infiniframe_setup_dependencies)
 
     infiniframe_add_vendor_static_library("wintoastlib" "${CMAKE_SOURCE_DIR}/src/Dependencies/wintoastlib" "wintoastlib.cpp" "wintoastlib.h")
 
-    set(_packages_config_path "${CMAKE_SOURCE_DIR}/packages.config")
-    if (NOT EXISTS "${_packages_config_path}")
-        message(FATAL_ERROR "packages.config not found at ${_packages_config_path}")
-    endif ()
-
-    infiniframe_restore_nuget_packages("${_packages_config_path}")
     infiniframe_detect_windows_arch_dir(_win_arch_dir)
-    infiniframe_read_package_version("${_packages_config_path}" "Microsoft.Web.WebView2" _webview2_version)
-    infiniframe_read_package_version("${_packages_config_path}" "Microsoft.Windows.ImplementationLibrary" _winimpl_version)
+    infiniframe_get_package_version("Microsoft.Web.WebView2" "INFINIFRAME_WEBVIEW2_VERSION" _webview2_version)
+    infiniframe_get_package_version("Microsoft.Windows.ImplementationLibrary" "INFINIFRAME_WINDOWS_IMPLEMENTATION_LIBRARY_VERSION" _winimpl_version)
     infiniframe_resolve_webview2_base_dir("${_webview2_version}" _webview2_base_dir)
     infiniframe_resolve_wil_include_dir("${_winimpl_version}" _wil_include_dir)
     infiniframe_add_imported_windows_sdk_targets("${_webview2_base_dir}" "${_win_arch_dir}" "${_wil_include_dir}")

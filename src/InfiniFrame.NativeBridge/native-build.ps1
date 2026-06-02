@@ -1,7 +1,10 @@
 param(
     [string]$Configuration = "Debug",
     [string]$Arch = "x64",
-    [string]$EnableTestExports = ""
+    [string]$EnableTestExports = "",
+    [string]$WebView2Version = "",
+    [string]$WindowsImplementationLibraryVersion = "",
+    [string]$NuGetPackageRoot = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -114,6 +117,17 @@ try {
     }
 
     $CMakeArgs += "-DINFINIFRAME_BUILD_TEST_EXPORTS=$EnableTestExportsCMakeValue"
+    if (-not [string]::IsNullOrWhiteSpace($WebView2Version)) {
+        $CMakeArgs += "-DINFINIFRAME_WEBVIEW2_VERSION:STRING=$WebView2Version"
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($WindowsImplementationLibraryVersion)) {
+        $CMakeArgs += "-DINFINIFRAME_WINDOWS_IMPLEMENTATION_LIBRARY_VERSION:STRING=$WindowsImplementationLibraryVersion"
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($NuGetPackageRoot)) {
+        $CMakeArgs += "-DINFINIFRAME_NUGET_PACKAGES_ROOT:STRING=$NuGetPackageRoot"
+    }
 
     cmake -B $BuildDir -S $NativeDir @CMakeArgs
     if ($LASTEXITCODE -ne 0) {
