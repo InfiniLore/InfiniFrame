@@ -79,7 +79,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     The operation of the message loop is exclusive to the main native window only.
     /// </remarks>
     public void WaitForClose() {
-        if (IsShutdownRequested || IsShutdownStarted || IsClosed) return;
+        if (IsShutdownRequested || IsShutdownStarted || IsClosed) {
+            Logger.LogDebug("Skipping WaitForClose during shutdown");
+            return;
+        }
         
         try {
             Logger.LogDebug("Starting message loop for window.");
@@ -119,7 +122,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Thrown when the window is not initialized.
     /// </exception>
     public void Close() {
-        if (IsShutdownStarted) return;
+        if (IsShutdownRequested || IsShutdownStarted || IsClosed) {
+            Logger.LogDebug("Skipping Close during shutdown");
+            return;
+        }
 
         Logger.LogDebug(".Close()");
         Events.OnWindowClosingRequested();
@@ -154,9 +160,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </exception>
     /// <param name="message">Message as string</param>
     public void SendWebMessage(string message) {
-        if (IsShutdownRequested
-            || IsShutdownStarted
-            || IsClosed) {
+        if (IsShutdownRequested || IsShutdownStarted || IsClosed) {
             Logger.LogDebug("Skipping SendWebMessage during shutdown");
             return;
         }
@@ -189,7 +193,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="title">The title of the notification</param>
     /// <param name="body">The text of the notification</param>
     public void SendNotification(string title, string body) {
-        if (IsShutdownStarted || InstanceHandle == IntPtr.Zero) {
+        if (IsShutdownRequested || IsShutdownStarted || IsClosed) {
             Logger.LogDebug("Skipping SendNotification during shutdown");
             return;
         }
