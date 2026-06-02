@@ -17,11 +17,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindow : IInfiniFrameWindow {
-
-    //Pointers to the type and instance.
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
-    private int _shutdownRequested;
-    private int _shutdownStarted;
 
     public required ILogger<IInfiniFrameWindow> Logger { get; init; }
     public required IServiceProvider? ServiceProvider { get; init; }
@@ -33,11 +29,18 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     
     public IntPtr NativeType => WindowType.Value;
     public IntPtr InstanceHandle { get; private set; }
-    public bool IsClosed => Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero;
 
     public Rectangle CachedPreFullScreenBounds { get; set; } = Rectangle.Empty;
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
+    private int _shutdownRequested;
+    private bool IsShutdownRequested => Volatile.Read(ref _shutdownRequested) != 0;
+    
+    private int _shutdownStarted;
+    private bool IsShutdownStarted => Volatile.Read(ref _shutdownStarted) != 0;
+    
+    public bool IsClosed => IsShutdownRequested || IsShutdownStarted || InstanceHandle == IntPtr.Zero;
+    
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -76,6 +79,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     The operation of the message loop is exclusive to the main native window only.
     /// </remarks>
     public void WaitForClose() {
+        if (IsShutdownRequested || IsShutdownStarted || IsClosed) return;
+        
         try {
             Logger.LogDebug("Starting message loop for window.");
             Invoke(() => InfiniFrameNative.WaitForExit(InstanceHandle));
@@ -114,7 +119,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Thrown when the window is not initialized.
     /// </exception>
     public void Close() {
-        if (Volatile.Read(ref _shutdownStarted) != 0) return;
+        if (IsShutdownStarted) return;
 
         Logger.LogDebug(".Close()");
         Events.OnWindowClosingRequested();
@@ -149,16 +154,16 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </exception>
     /// <param name="message">Message as string</param>
     public void SendWebMessage(string message) {
-        if (Volatile.Read(ref _shutdownRequested) != 0
-            || Volatile.Read(ref _shutdownStarted) != 0
-            || InstanceHandle == IntPtr.Zero) {
+        if (IsShutdownRequested
+            || IsShutdownStarted
+            || IsClosed) {
             Logger.LogDebug("Skipping SendWebMessage during shutdown");
             return;
         }
 
         Logger.LogDebug(".SendWebMessage({Message})", message);
         Invoke(() => {
-            if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+            if (IsShutdownStarted || InstanceHandle == IntPtr.Zero) {
                 Logger.LogDebug("Window closed before SendWebMessage could execute");
                 return;
             }
@@ -184,14 +189,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// <param name="title">The title of the notification</param>
     /// <param name="body">The text of the notification</param>
     public void SendNotification(string title, string body) {
-        if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+        if (IsShutdownStarted || InstanceHandle == IntPtr.Zero) {
             Logger.LogDebug("Skipping SendNotification during shutdown");
             return;
         }
 
         Logger.LogDebug(".SendNotification({Title}, {Body})", title, body);
         Invoke(() => {
-            if (Volatile.Read(ref _shutdownStarted) != 0 || InstanceHandle == IntPtr.Zero) {
+            if (IsShutdownStarted || InstanceHandle == IntPtr.Zero) {
                 Logger.LogDebug("Window closed before SendNotification could execute");
                 return;
             }

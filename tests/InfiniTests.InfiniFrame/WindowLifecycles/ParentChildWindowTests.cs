@@ -5,7 +5,7 @@ using InfiniFrame;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace InfiniTests.InfiniFrame.ParentChildLogic;
+namespace InfiniTests.InfiniFrame.WindowLifecycles;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
