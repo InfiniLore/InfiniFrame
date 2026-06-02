@@ -148,7 +148,6 @@ set(HEADER_FILES
         Utils/Dimensions.h
         Utils/ErrorCode.h
         Utils/InteropStatus.h
-        Utils/Result.h
         Utils/StringArrayCopy.h
         Utils/StringCopy.h
 )
