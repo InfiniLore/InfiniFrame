@@ -10,19 +10,21 @@ namespace InfiniFrame.NativeBridge;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameNative {
-    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_AddCustomSchemeName", SetLastError = true, StringMarshalling = StringMarshalling.Utf8), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus AddCustomSchemeName(IntPtr instance, string scheme);
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_SetClosingCallback", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetClosingCallback(IntPtr instance, CppClosingDelegate callback);
 
-    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_GetAllMonitors", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus GetAllMonitors(IntPtr instance, CppGetAllMonitorsDelegate callback);
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_setClosedCallback", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetClosedCallback(IntPtr instance, CppClosedDelegate callback);
 
-    // InfiniFrame_SetClosingCallback
-    // InfiniFrame_setClosedCallback
-    // InfiniFrame_SetFocusInCallback
-    // InfiniFrame_SetFocusOutCallback
-    // InfiniFrame_SetMovedCallback
-    // InfiniFrame_SetResizedCallback
-    
-    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_Invoke", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus Invoke(IntPtr instance, Action callback);
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_SetFocusInCallback", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetFocusInCallback(IntPtr instance, CppFocusInDelegate callback);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_SetFocusOutCallback", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetFocusOutCallback(IntPtr instance, CppFocusOutDelegate callback);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_SetMovedCallback", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetMovedCallback(IntPtr instance, CppMovedDelegate callback);
+
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrame_SetResizedCallback", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    internal static partial InfiniFrameNativeInteropStatus SetResizedCallback(IntPtr instance, CppResizedDelegate callback);
 }

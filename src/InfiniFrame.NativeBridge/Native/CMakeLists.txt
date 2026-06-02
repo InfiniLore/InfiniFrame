@@ -36,10 +36,13 @@ infiniframe_setup_dependencies()
 set(COMMON_SOURCES
         src/Runtime/Shared/Window/WindowEvents.cpp
         src/Runtime/Shared/Window/WindowState.cpp
+        src/Api/Exports/Exports.CustomSchemes.cpp
+        src/Api/Exports/Exports.Dispatch.cpp
         src/Api/Exports/Exports.Dialog.cpp
         src/Api/Exports/Exports.Events.cpp
         src/Api/Exports/Exports.Lifecycle.cpp
         src/Api/Exports/Exports.Memory.cpp
+        src/Api/Exports/Exports.Monitors.cpp
         src/Api/Exports/Exports.Platform.MacOs.cpp
         src/Api/Exports/Exports.Platform.Windows.cpp
         src/Api/Exports/Exports.Window.cpp
