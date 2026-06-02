@@ -10,7 +10,11 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterOnMonitorTests {
-    [Test, DisplayName($"{nameof(CenterOnMonitorTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(CenterOnMonitorTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

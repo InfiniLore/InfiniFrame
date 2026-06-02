@@ -8,7 +8,10 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowMaximizedEventTests {
-    [Test, Retry(5), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [Retry(5)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestWindowMaximizedEvent(CancellationToken ct = default) {
         // Arrange
         int maximizedEventCount = 0;

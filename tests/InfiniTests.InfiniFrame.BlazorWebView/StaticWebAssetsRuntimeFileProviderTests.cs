@@ -11,7 +11,8 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 public class StaticWebAssetsRuntimeFileProviderTests {
     // ReSharper disable SimilarAnonymousTypeNearby
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task TryCreate_WithEqualScores_ShouldUseDeterministicManifestTieBreaker(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -65,7 +66,8 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         await Assert.That(content).IsEqualTo("alpha");
     }
 
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task TryCreate_WhenManifestContainsExplicitAsset_ShouldResolveFile(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -106,7 +108,8 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         await Assert.That(fileInfo.Name).IsEqualTo("editor-bridge.js");
     }
 
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task TryCreate_WhenManifestContainsWildcardPattern_ShouldResolveFileFromPattern(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -148,7 +151,8 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         await Assert.That(fileInfo.Name).IsEqualTo("module.js");
     }
 
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task TryCreate_WithMultipleManifests_ShouldPreferAppManifest(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -222,7 +226,8 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         await Assert.That(jsInfo!.Exists).IsTrue();
     }
 
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task GetDirectoryContents_WhenNodeHasPatternsButNoChildren_ReturnsExistingDirectory(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
@@ -260,7 +265,8 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         await Assert.That(contents.Any()).IsFalse();
     }
 
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task GetFileInfo_WhenCalledConcurrently_ShouldRemainStable(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();

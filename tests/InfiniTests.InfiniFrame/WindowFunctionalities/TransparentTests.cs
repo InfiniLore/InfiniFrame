@@ -10,7 +10,10 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TransparentTests {
 
-    [Test, DisplayName($"{nameof(TransparentTests)}.{nameof(Builder)}"), Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(TransparentTests)}.{nameof(Builder)}")]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -25,7 +28,13 @@ public class TransparentTests {
         await Assert.That(configParameters.Transparent).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(TransparentTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux("Headless display lacks compositing support for post-init transparency changes"), NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(TransparentTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux("Headless display lacks compositing support for post-init transparency changes")]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -39,7 +48,12 @@ public class TransparentTests {
         await Assert.That(window.Transparent).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(TransparentTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(TransparentTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
         // Arrange
 

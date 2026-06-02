@@ -44,7 +44,8 @@ public class InteropEnvelopeProtocolTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task CreateEnvelope_GoldenVectors(CancellationToken ct = default) {
         // Arrange
         JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
@@ -64,7 +65,8 @@ public class InteropEnvelopeProtocolTests {
         }
     }
 
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task ParseEnvelope_GoldenVectors(CancellationToken ct = default) {
         // Arrange
         JsonDocument goldenVectorsDocument = await GetGoldenVectorsAsync(ct);
@@ -95,7 +97,8 @@ public class InteropEnvelopeProtocolTests {
         }
     }
 
-    [Test, Retry(5)]
+    [Test]
+    [Retry(5)]
     public async Task Parse_TooLargeMessage_IsRejected(CancellationToken ct = default) {
         // Arrange
         string message = new('a', InteropEnvelopeProtocol.MaxMessageSizeBytes + 1);

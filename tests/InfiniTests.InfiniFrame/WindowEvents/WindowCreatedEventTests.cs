@@ -8,7 +8,10 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowCreatedEventTests {
-    [Test, Retry(5), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [Retry(5)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestWindowCreatedEvent(CancellationToken ct = default) {
         // Arrange
         int createdEventCount = 0;
@@ -25,7 +28,10 @@ public class WindowCreatedEventTests {
         await Assert.That(createdEventCount).IsEqualTo(1);
     }
 
-    [Test, Retry(3), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [Retry(3)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestSendWebMessageFromWindowCreatedDoesNotCrash(CancellationToken ct = default) {
         // Arrange: register a WindowCreated handler that immediately calls SendWebMessage.
         // Before the fix this raised SystemAccessViolationException on Windows because

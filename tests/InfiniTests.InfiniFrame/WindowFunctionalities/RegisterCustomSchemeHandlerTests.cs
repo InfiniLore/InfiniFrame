@@ -17,7 +17,8 @@ public class RegisterCustomSchemeHandlerTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test, DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder)}")]
+    [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -37,7 +38,8 @@ public class RegisterCustomSchemeHandlerTests {
         await Assert.That(found).IsTrue();
     }
 
-    [Test, DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder_ReRegisteringSameScheme_DoesNotDuplicateConfigurationEntry)}")]
+    [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Builder_ReRegisteringSameScheme_DoesNotDuplicateConfigurationEntry)}")]
     public async Task Builder_ReRegisteringSameScheme_DoesNotDuplicateConfigurationEntry(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -61,7 +63,10 @@ public class RegisterCustomSchemeHandlerTests {
         await Assert.That(nativeAppCount).IsEqualTo(1);
     }
 
-    [Test, DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -82,7 +87,10 @@ public class RegisterCustomSchemeHandlerTests {
         await Assert.That(customScheme).IsTrue();
     }
 
-    [Test, DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(RegisterCustomSchemeHandlerTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 

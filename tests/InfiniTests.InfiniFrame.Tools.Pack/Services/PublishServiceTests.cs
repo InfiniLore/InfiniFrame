@@ -115,7 +115,8 @@ public class PublishServiceTests {
         await Assert.That(exception!.Message.Contains("Could not resolve required InfiniFrame native artifacts from project publish output.", StringComparison.Ordinal)).IsTrue();
     }
 
-    [Test, SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [Test]
+    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
     public async Task PublishAsync_ReturnsSuccessAndSingleFileOutput_WhenProjectIncludesInfiniFrame() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),
@@ -128,7 +129,8 @@ public class PublishServiceTests {
         await Assert.That(Directory.GetFileSystemEntries(fixture.OutputPath, "*", SearchOption.TopDirectoryOnly).Length).IsEqualTo(1);
     }
 
-    [Test, SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
+    [Test]
+    [SkipOnMacOs("4 Hours lost on trying to fix this on macOs... too much time to spent on this.")]
     public async Task PublishAsync_LaunchedPackedApp_InitializesBootstrapAndExitsSuccessfully() {
         SharedPublishFixture fixture = await ExecuteWithTimeout(
             GetOrCreateSharedPublishFixtureAsync(),

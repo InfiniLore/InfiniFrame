@@ -11,7 +11,8 @@ namespace InfiniFrame.NativeBridge;
 /// <summary>
 ///     Represents a 2D rectangle in a native (integer-based) coordinate system.
 /// </summary>
-[StructLayout(LayoutKind.Sequential), SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+[StructLayout(LayoutKind.Sequential)]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public struct NativeRect {
     public int X { get; set; }
     public int Y { get; set; }

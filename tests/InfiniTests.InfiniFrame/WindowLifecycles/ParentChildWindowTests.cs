@@ -44,7 +44,10 @@ public class ParentChildWindowTests {
         }
     }
 
-    [Test, SkipOnMacOs, SkipOnWindowsArm, NotInParallelInfiniTests]
+    [Test]
+    [SkipOnMacOs]
+    [SkipOnWindowsArm]
+    [NotInParallelInfiniTests]
     public async Task TestParentChildWindow(CancellationToken ct = default) {
         WriteDiagnostics(nameof(TestParentChildWindow));
 
@@ -64,7 +67,11 @@ public class ParentChildWindowTests {
         await Assert.That(childWindow.Configuration.StartupParameters.NativeParent).IsEqualTo(parentWindow.InstanceHandle);
     }
 
-    [Test, SkipOnMacOs, SkipOnWindowsArm, DefaultInfiniTestsTimeout(6_000), NotInParallelInfiniTests]
+    [Test]
+    [SkipOnMacOs]
+    [SkipOnWindowsArm]
+    [DefaultInfiniTestsTimeout(6_000)]
+    [NotInParallelInfiniTests]
     public async Task ClosingParent_ShouldCloseChildWindow(CancellationToken ct = default) {
         WriteDiagnostics(nameof(ClosingParent_ShouldCloseChildWindow));
 
@@ -86,7 +93,9 @@ public class ParentChildWindowTests {
         await Assert.That(childWindow.IsClosed).IsTrue();
     }
 
-    [Test, OnlyRunOnWindowsX64, NotInParallelInfiniTests]
+    [Test]
+    [OnlyRunOnWindowsX64]
+    [NotInParallelInfiniTests]
     public async Task ChildWindow_ShouldHaveNativeOwnerWindow_OnWindows(CancellationToken ct = default) {
         WriteDiagnostics(nameof(ChildWindow_ShouldHaveNativeOwnerWindow_OnWindows));
 

@@ -16,7 +16,8 @@ public class SizeTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test, DisplayName($"{nameof(SizeTests)}.{nameof(Builder)}")]
+    [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -33,7 +34,8 @@ public class SizeTests {
         await Assert.That(configParameters.Height).IsEqualTo(Height);
     }
 
-    [Test, DisplayName($"{nameof(SizeTests)}.{nameof(Builder_ShouldOverwriteOsDefaultSizeAndCentered)}")]
+    [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Builder_ShouldOverwriteOsDefaultSizeAndCentered)}")]
     public async Task Builder_ShouldOverwriteOsDefaultSizeAndCentered(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -58,7 +60,11 @@ public class SizeTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 
-    [Test, DisplayName($"{nameof(SizeTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -71,7 +77,11 @@ public class SizeTests {
         await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, DisplayName($"{nameof(SizeTests)}.{nameof(Window_AsSize)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Window_AsSize)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window_AsSize(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -84,7 +94,10 @@ public class SizeTests {
         await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, DisplayName($"{nameof(SizeTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 
@@ -101,7 +114,11 @@ public class SizeTests {
         await Assert.That(window.Size).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, DisplayName($"{nameof(SizeTests)}.{nameof(Window_WithChromelessToGetSmallestSize)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(Window_WithChromelessToGetSmallestSize)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window_WithChromelessToGetSmallestSize(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(
@@ -117,7 +134,10 @@ public class SizeTests {
         await Assert.That(window.Size).IsEqualTo(new Size(Width, Height));
     }
 
-    [Test, DisplayName($"{nameof(SizeTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestSize)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(SizeTests)}.{nameof(FullIntegration_WithChromelessToGetSmallestSize)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration_WithChromelessToGetSmallestSize(CancellationToken ct = default) {
         // Arrange
 

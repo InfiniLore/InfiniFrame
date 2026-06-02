@@ -10,7 +10,10 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class BrowserControlInitParametersTests {
 
-    [Test, DisplayName($"{nameof(BrowserControlInitParametersTests)}.{nameof(Builder)}"), SkipOnMacOs, SkipOnLinux]
+    [Test]
+    [DisplayName($"{nameof(BrowserControlInitParametersTests)}.{nameof(Builder)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();

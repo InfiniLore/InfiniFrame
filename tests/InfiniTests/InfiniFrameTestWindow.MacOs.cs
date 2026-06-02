@@ -10,7 +10,8 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed partial class InfiniFrameTestWindow {
-    [SupportedOSPlatform("macos"), MustDisposeResource]
+    [SupportedOSPlatform("macos")]
+    [MustDisposeResource]
     private static partial InfiniFrameTestWindow CreateMacOs(InfiniFrameWindowBuilder windowBuilder) {
         IInfiniFrameWindow window = windowBuilder.Build();
 

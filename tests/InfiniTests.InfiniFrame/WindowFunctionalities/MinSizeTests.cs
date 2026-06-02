@@ -16,7 +16,8 @@ public class MinSizeTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test, DisplayName($"{nameof(MinSizeTests)}.{nameof(Builder)}")]
+    [Test]
+    [DisplayName($"{nameof(MinSizeTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -33,7 +34,10 @@ public class MinSizeTests {
         await Assert.That(configParameters.MinHeight).IsEqualTo(Height);
     }
 
-    [Test, DisplayName($"{nameof(MinSizeTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(MinSizeTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -46,7 +50,10 @@ public class MinSizeTests {
         await Assert.That(window.MinSize).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, DisplayName($"{nameof(MinSizeTests)}.{nameof(Window_AsSize)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(MinSizeTests)}.{nameof(Window_AsSize)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task Window_AsSize(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -59,7 +66,10 @@ public class MinSizeTests {
         await Assert.That(window.MinSize).IsEqualTo(new Size(400, 500));
     }
 
-    [Test, DisplayName($"{nameof(MinSizeTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(MinSizeTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 

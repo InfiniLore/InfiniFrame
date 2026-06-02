@@ -11,7 +11,8 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed partial class InfiniFrameTestWindow {
-    [SupportedOSPlatform("windows"), MustDisposeResource]
+    [SupportedOSPlatform("windows")]
+    [MustDisposeResource]
     private static partial InfiniFrameTestWindow CreateWindows(InfiniFrameWindowBuilder windowBuilder) {
         var windowSource = new TaskCompletionSource<IInfiniFrameWindow>(TaskCreationOptions.RunContinuationsAsynchronously);
 

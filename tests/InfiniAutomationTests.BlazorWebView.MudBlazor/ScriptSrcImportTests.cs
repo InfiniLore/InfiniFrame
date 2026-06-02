@@ -15,7 +15,8 @@ namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
 public sealed class ScriptSrcImportTests : InfiniFramePlaywrightTestBase {
     protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 
-    [Test, NotInParallelInfiniAutomationTests]
+    [Test]
+    [NotInParallelInfiniAutomationTests]
     public async Task ClassicScriptSrc_IsLoaded_AndExecutesCode(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
