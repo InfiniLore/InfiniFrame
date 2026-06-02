@@ -26,12 +26,12 @@ This document walks through what changed to help you migrate.
 | Native DLL               | `Photino.Native`                        | `InfiniFrame.Native` (internal)      |
 | C++ class                | `Photino`                               | `InfiniFrameWindow`                  |
 | C++ init params          | `PhotinoInitParams`                     | `InfiniFrameInitParams`              |
-| Exported function prefix | `Photino_`                              | `InfiniFrame_`                       |
+| Exported function prefix | `Photino_`                              | `InfiniFrameNative_`                       |
 | Default window title     | `"Photino"`                             | `"InfiniFrame"`                      |
 | Default user agent       | `"Photino WebView"`                     | `"InfiniFrame WebView"`              |
 | Default temp path        | `%LocalAppData%\Photino` (Windows only) | `%TEMP%\infiniframe` (all platforms) |
 
-Every type that was prefixed `Photino` is now prefixed `InfiniFrame`. If you're calling the native DLL directly via P/Invoke, all exported symbol names need to change from `Photino_*` to `InfiniFrame_*`.
+Every type that was prefixed `Photino` is now prefixed `InfiniFrame`. If you're calling the native DLL directly via P/Invoke, all exported symbol names need to change from `Photino_*` to `InfiniFrameNative_*`.
 
 ## Entry Point and Builder API
 
@@ -288,7 +288,7 @@ static extern void Photino_SetTitle(IntPtr instance, string title);
 
 // InfiniFrame
 [LibraryImport("InfiniFrame.Native", ...)]
-static partial void InfiniFrame_SetTitle(IntPtr instance, ...);
+static partial void InfiniFrameNative_SetTitle(IntPtr instance, ...);
 ```
 
 ### String ownership
@@ -298,8 +298,8 @@ Photino has no explicit API for freeing native-allocated strings, which causes m
 InfiniFrame exports explicit free functions that must be called on any string returned from the native layer:
 
 ```csharp
-InfiniFrame_FreeString(ptr);
-InfiniFrame_FreeStringArray(ptr, count);
+InfiniFrameNative_FreeString(ptr);
+InfiniFrameNative_FreeStringArray(ptr, count);
 ```
 
 The managed wrapper calls these automatically. If you're calling native exports directly, you're responsible for invoking them yourself.
@@ -313,7 +313,7 @@ The native `SaveFileDialog` export gained a `defaultFileName` parameter:
 Photino_ShowSaveFile(title, defaultPath, filters, count)
 
 // InfiniFrame
-InfiniFrame_ShowSaveFile(title, defaultPath, filters, count, defaultFileName)
+InfiniFrameNative_ShowSaveFile(title, defaultPath, filters, count, defaultFileName)
 ```
 
 ## Known Photino Issues Addressed
@@ -321,8 +321,8 @@ InfiniFrame_ShowSaveFile(title, defaultPath, filters, count, defaultFileName)
 | Photino Issue                                                                      | Description                                                                              | How InfiniFrame addresses it                                                                              |
 |------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
 | [photino.native #173/174](https://github.com/tryphotino/photino.native/issues/173) | Custom scheme handlers completely broken on Windows (`WebResourceRequested` never fires) | Rewritten registration path; scheme handlers tested end-to-end in examples                                |
-| [photino.native #165](https://github.com/tryphotino/photino.native/issues/165)     | Memory leak in `SendWebMessage` on Windows                                               | Explicit `InfiniFrame_FreeString` ownership model; Pimpl isolates per-window native allocations           |
-| [photino.native #158](https://github.com/tryphotino/photino.native/issues/158)     | No way to programmatically focus a window                                                | `InfiniFrame_SetFocused` / `InfiniFrame_GetFocused` exported and exposed via `IInfiniFrameWindow.Focused` |
+| [photino.native #165](https://github.com/tryphotino/photino.native/issues/165)     | Memory leak in `SendWebMessage` on Windows                                               | Explicit `InfiniFrameNative_FreeString` ownership model; Pimpl isolates per-window native allocations           |
+| [photino.native #158](https://github.com/tryphotino/photino.native/issues/158)     | No way to programmatically focus a window                                                | `InfiniFrameNative_SetFocused` / `InfiniFrameNative_GetFocused` exported and exposed via `IInfiniFrameWindow.Focused` |
 | [photino.native #163](https://github.com/tryphotino/photino.native/issues/163)     | UTF encoding bug in `SetWebView2RuntimePath` silently corrupts non-ASCII paths           | `simdutf` used for all UTF-8/UTF-16 conversions on Windows                                                |
 | [photino.native #141](https://github.com/tryphotino/photino.native/issues/141)     | Stack overflow in `WaitForExit` on Linux                                                 | Per-window independent message loops; no shared global `MessageLoopState` lock                            |
 | [photino.NET #75](https://github.com/tryphotino/photino.NET/issues/75)             | `RegisterWindowClosingHandler` does not fire on Linux                                    | Closing handler rewritten using the GTK `delete-event` signal correctly                                   |

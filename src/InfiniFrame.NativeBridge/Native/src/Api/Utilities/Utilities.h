@@ -1,0 +1,23 @@
+﻿#pragma once
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+#include "ExportErrorState.h"
+#include "ExportExecution.h"
+#include "ExportStringHelpers.h"
+#include "ExportValidation.h"
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+using infiniframe::exports::EnsureNotNull;
+using infiniframe::exports::EnsureOutNotNull;
+using infiniframe::exports::GetLastErrorMessageCopy;
+using infiniframe::exports::ResetOut;
+using infiniframe::exports::ResetOut2;
+using infiniframe::exports::RunExportStatus;
+using infiniframe::exports::RunReturnExport;
+using infiniframe::exports::RunWindowExportStatus;
+using infiniframe::exports::RunWindowReturnExport;
+using infiniframe::exports::NullToEmpty;
+using infiniframe::exports::DuplicateString;

@@ -286,16 +286,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         Invoke(() => {
             InfiniFrameNative.EnsureSucceeded(
-                InfiniFrameNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length, null, out IntPtr ptrResult),
+                InfiniFrameNative.ShowSaveFile(InstanceHandle, title, defaultPath, nativeFilters, filters.Length, null, out result),
                 nameof(InfiniFrameNative.ShowSaveFile));
-            if (ptrResult == IntPtr.Zero) return;
-
-            try {
-                result = InfiniFrameNative.PtrToNativeString(ptrResult);
-            }
-            finally {
-                InfiniFrameNative.FreeString(ptrResult);
-            }
         });
 
         return result;
@@ -423,23 +415,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
         Invoke(() => {
             InfiniFrameNativeInteropStatus status = foldersOnly
-                ? InfiniFrameNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out int resultCount, out IntPtr ptrResults)
-                : InfiniFrameNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out resultCount, out ptrResults);
+                ? InfiniFrameNative.ShowOpenFolder(InstanceHandle, title, defaultPath, multiSelect, out results)
+                : InfiniFrameNative.ShowOpenFile(InstanceHandle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out results);
             InfiniFrameNative.EnsureSucceeded(status, foldersOnly ? nameof(InfiniFrameNative.ShowOpenFolder) : nameof(InfiniFrameNative.ShowOpenFile));
-
-            if (resultCount == 0 || ptrResults == IntPtr.Zero) return;
-
-            try {
-                IntPtr[] ptrArray = new IntPtr[resultCount];
-                results = new string?[resultCount];
-                Marshal.Copy(ptrResults, ptrArray, 0, resultCount);
-                for (int i = 0; i < resultCount; i++) {
-                    results[i] = InfiniFrameNative.PtrToNativeString(ptrArray[i]);
-                }
-            }
-            finally {
-                InfiniFrameNative.FreeStringArray(ptrResults, resultCount);
-            }
         });
 
         return results;

@@ -7,7 +7,7 @@
       <configuration PROFILE_NAME="Debug Linux WSL" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="WSL" />
       <configuration PROFILE_NAME="Release Linux WSL" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="WSL" />
       <configuration PROFILE_NAME="Debug Linux" ENABLED="true" CONFIG_NAME="Debug" />
-      <configuration PROFILE_NAME="Release Linux" ENABLED="true" CONFIG_NAME="Release" TOOLCHAIN_NAME="Default" />
+      <configuration PROFILE_NAME="Release Linux" ENABLED="true" CONFIG_NAME="Release" />
     </configurations>
   </component>
 </project>

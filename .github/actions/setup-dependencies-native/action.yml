@@ -1,5 +1,5 @@
 name: Setup Native Dependencies
-description: Install and cache Native related dependencies for Linux/macOS runners.
+description: Install and cache Native related dependencies and optional NativeBridge NuGet restore.
 
 inputs:
     brew-cache-key:
@@ -10,6 +10,10 @@ inputs:
         description: Homebrew cache restore key prefix for macOS runners
         required: false
         default: ""
+    restore-nativebridge-packages:
+        description: Restore InfiniFrame.NativeBridge NuGet packages on Windows
+        required: false
+        default: "false"
 
 runs:
     using: composite
@@ -96,3 +100,9 @@ runs:
                 if ! command -v pwsh >/dev/null 2>&1; then
                     brew list --cask powershell >/dev/null 2>&1 || brew install --cask powershell
                 fi
+
+        -   name: Restore NativeBridge NuGet packages (Windows)
+            if: runner.os == 'Windows' && inputs['restore-nativebridge-packages'] == 'true'
+            shell: pwsh
+            run: |
+                dotnet restore ./src/InfiniFrame.NativeBridge/InfiniFrame.NativeBridge.csproj

@@ -23,6 +23,7 @@ function(infiniframe_configure_windows_target target_name common_sources test_so
 
     target_include_directories(${target_name} PRIVATE
             "${CMAKE_SOURCE_DIR}"
+            "${CMAKE_SOURCE_DIR}/src"
     )
 
     target_link_libraries(${target_name} PRIVATE

@@ -1,4 +1,4 @@
-﻿function(infiniframe_setup_embed_js target_name)
+function(infiniframe_setup_embed_js target_name)
     get_filename_component(native_dir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/.." ABSOLUTE)
     get_filename_component(native_bridge_dir "${native_dir}/.." ABSOLUTE)
     get_filename_component(src_dir "${native_bridge_dir}/.." ABSOLUTE)
@@ -18,7 +18,7 @@
 
     set(js_input "${js_project_dir}/wwwroot/InfiniFrame.js")
 
-    set(embed_dir "${CMAKE_SOURCE_DIR}/Embedded/InfiniFrameJs")
+    set(embed_dir "${CMAKE_SOURCE_DIR}/src/Embedded/InfiniFrameJs")
     set(header_output "${embed_dir}/InfiniFrameJs.h")
     set(source_output "${embed_dir}/InfiniFrameJs.cpp")
 

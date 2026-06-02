@@ -7,18 +7,18 @@
       "assets": [
         {
           "asset": "simdjson.h",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/simdjson/simdjson.h"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdjson/simdjson.h"
         },
         {
           "asset": "simdjson.cpp",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/simdjson/simdjson.cpp"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdjson/simdjson.cpp"
         }
       ],
       "source_files": [],
       "license_files": [
         {
           "source": "https://raw.githubusercontent.com/simdjson/simdjson/{tag}/LICENSE",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/simdjson/LICENSE"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdjson/LICENSE"
         }
       ]
     },
@@ -29,26 +29,26 @@
       "assets": [
         {
           "asset": "simdutf.h",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/simdutf/simdutf.h"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdutf/simdutf.h"
         },
         {
           "asset": "simdutf.cpp",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/simdutf/simdutf.cpp"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdutf/simdutf.cpp"
         },
         {
           "asset": "simdutf_c.h",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/simdutf/simdutf_c.h"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdutf/simdutf_c.h"
         }
       ],
       "source_files": [],
       "license_files": [
         {
           "source": "https://raw.githubusercontent.com/simdutf/simdutf/{tag}/LICENSE-MIT",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/simdutf/LICENSE-MIT"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdutf/LICENSE-MIT"
         },
         {
           "source": "https://raw.githubusercontent.com/simdutf/simdutf/{tag}/LICENSE-APACHE",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/simdutf/LICENSE-APACHE"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/simdutf/LICENSE-APACHE"
         }
       ]
     },
@@ -60,17 +60,17 @@
       "source_files": [
         {
           "source": "https://raw.githubusercontent.com/mohabouje/WinToast/{tag}/include/wintoastlib.h",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/wintoastlib/wintoastlib.h"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/wintoastlib/wintoastlib.h"
         },
         {
           "source": "https://raw.githubusercontent.com/mohabouje/WinToast/{tag}/src/wintoastlib.cpp",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/wintoastlib/wintoastlib.cpp"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/wintoastlib/wintoastlib.cpp"
         }
       ],
       "license_files": [
         {
           "source": "https://raw.githubusercontent.com/mohabouje/WinToast/{tag}/LICENSE.txt",
-          "destination": "src/InfiniFrame.NativeBridge/Native/Dependencies/wintoastlib/LICENSE.txt"
+          "destination": "src/InfiniFrame.NativeBridge/Native/src/Dependencies/wintoastlib/LICENSE.txt"
         }
       ]
     }

@@ -757,18 +757,8 @@ public static class InfiniFrameWindowExtensions {
 
         window.Invoke(() => {
             InfiniFrameNative.EnsureSucceeded(
-                InfiniFrameNative.GetTitle(window.InstanceHandle, out IntPtr ptr),
+                InfiniFrameNative.GetTitle(window.InstanceHandle, out string? oldTitle),
                 nameof(InfiniFrameNative.GetTitle));
-
-            string? oldTitle;
-            try {
-                oldTitle = InfiniFrameNative.PtrToNativeString(ptr);
-            }
-            finally {
-                if (ptr != IntPtr.Zero) {
-                    InfiniFrameNative.FreeString(ptr);
-                }
-            }
 
             if (title == oldTitle) return;
 

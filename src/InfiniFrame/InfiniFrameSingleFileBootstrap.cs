@@ -53,7 +53,7 @@ public static class InfiniFrameSingleFileBootstrap {
             try {
                 Directory.CreateDirectory(_nativeDir);
                 ExtractEmbeddedNative(entryAssembly, rid, GetNativeFileNamesForCurrentPlatform());
-                NativeLibrary.SetDllImportResolver(typeof(InfiniFrameNativeTesting).Assembly, ResolveNativeLibrary);
+                NativeLibrary.SetDllImportResolver(typeof(InfiniFrameNative).Assembly, ResolveNativeLibrary);
 
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => TryCleanupNativeDirectory();
                 _initialized = 1;
