@@ -9,7 +9,6 @@ public class ReOpeningAnotherWindowTests {
     [Test]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
-    [Timeout(1000000000)]
     public async Task CreateAnotherWindowAfterClosingOthers(CancellationToken ct = default) {
         // Arrange
         var window1Utility = InfiniFrameTestWindow.Create(ct);
