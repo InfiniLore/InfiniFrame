@@ -6,7 +6,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-EXPORTED InteropStatus InfiniFrame_NavigateToString(InfiniFrameWindow* instance, const AutoString content) {
+EXPORTED InteropStatus InfiniFrameNative_NavigateToString(InfiniFrameWindow* instance, const AutoString content) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureNotNull(content, "content"))
             return;
@@ -14,7 +14,7 @@ EXPORTED InteropStatus InfiniFrame_NavigateToString(InfiniFrameWindow* instance,
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_NavigateToUrl(InfiniFrameWindow* instance, const AutoString url) {
+EXPORTED InteropStatus InfiniFrameNative_NavigateToUrl(InfiniFrameWindow* instance, const AutoString url) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureNotNull(url, "url"))
             return;
@@ -22,7 +22,7 @@ EXPORTED InteropStatus InfiniFrame_NavigateToUrl(InfiniFrameWindow* instance, co
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_SendWebMessage(InfiniFrameWindow* instance, const AutoString message) {
+EXPORTED InteropStatus InfiniFrameNative_SendWebMessage(InfiniFrameWindow* instance, const AutoString message) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         window->SendWebMessage(NullToEmpty(message));
     });

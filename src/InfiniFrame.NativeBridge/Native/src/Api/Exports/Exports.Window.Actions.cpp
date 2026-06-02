@@ -6,23 +6,23 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-EXPORTED InteropStatus InfiniFrame_Center(InfiniFrameWindow* instance) {
+EXPORTED InteropStatus InfiniFrameNative_Center(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->Center(); });
 }
 
-EXPORTED InteropStatus InfiniFrame_ClearBrowserAutoFill(InfiniFrameWindow* instance) {
+EXPORTED InteropStatus InfiniFrameNative_ClearBrowserAutoFill(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->ClearBrowserAutoFill(); });
 }
 
-EXPORTED InteropStatus InfiniFrame_Restore(InfiniFrameWindow* instance) {
+EXPORTED InteropStatus InfiniFrameNative_Restore(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->Restore(); });
 }
 
-EXPORTED InteropStatus InfiniFrame_SetFocused(InfiniFrameWindow* instance) {
+EXPORTED InteropStatus InfiniFrameNative_SetFocused(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->SetFocused(); });
 }
 
-EXPORTED InteropStatus InfiniFrame_ShowNotification(
+EXPORTED InteropStatus InfiniFrameNative_ShowNotification(
     InfiniFrameWindow* instance,
     const AutoString title,
     const AutoString body

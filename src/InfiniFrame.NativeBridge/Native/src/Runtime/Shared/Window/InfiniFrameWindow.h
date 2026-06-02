@@ -123,7 +123,7 @@ class InfiniFrameWindow {
 
     /**
          * @brief Get the custom user-agent string
-         * @return UTF-8 user-agent string; caller must free with InfiniFrame_FreeString
+         * @return UTF-8 user-agent string; caller must free with InfiniFrameNative_FreeString
          */
     [[nodiscard]] AutoString GetUserAgent() const;
 
@@ -165,7 +165,7 @@ class InfiniFrameWindow {
 
     /**
          * @brief Get the window icon file path
-         * @return UTF-8 path to the icon file; caller must free with InfiniFrame_FreeString
+         * @return UTF-8 path to the icon file; caller must free with InfiniFrameNative_FreeString
          */
     [[nodiscard]] AutoString GetIconFileName() const;
 
@@ -223,7 +223,7 @@ class InfiniFrameWindow {
 
     /**
          * @brief Get the window title bar text
-         * @return UTF-8 title string; caller must free with InfiniFrame_FreeString
+         * @return UTF-8 title string; caller must free with InfiniFrameNative_FreeString
          */
     [[nodiscard]] AutoString GetTitle() const;
 

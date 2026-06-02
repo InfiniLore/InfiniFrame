@@ -6,7 +6,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-EXPORTED InteropStatus InfiniFrame_GetTransparentEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetTransparentEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -15,7 +15,7 @@ EXPORTED InteropStatus InfiniFrame_GetTransparentEnabled(InfiniFrameWindow* inst
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetContextMenuEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetContextMenuEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -24,7 +24,7 @@ EXPORTED InteropStatus InfiniFrame_GetContextMenuEnabled(InfiniFrameWindow* inst
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetZoomEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetZoomEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -33,7 +33,7 @@ EXPORTED InteropStatus InfiniFrame_GetZoomEnabled(InfiniFrameWindow* instance, b
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetDevToolsEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetDevToolsEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -42,7 +42,7 @@ EXPORTED InteropStatus InfiniFrame_GetDevToolsEnabled(InfiniFrameWindow* instanc
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetFullScreen(InfiniFrameWindow* instance, bool* fullScreen) {
+EXPORTED InteropStatus InfiniFrameNative_GetFullScreen(InfiniFrameWindow* instance, bool* fullScreen) {
     ResetOut(fullScreen, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(fullScreen, "fullScreen"))
@@ -51,7 +51,7 @@ EXPORTED InteropStatus InfiniFrame_GetFullScreen(InfiniFrameWindow* instance, bo
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetGrantBrowserPermissions(InfiniFrameWindow* instance, bool* grant) {
+EXPORTED InteropStatus InfiniFrameNative_GetGrantBrowserPermissions(InfiniFrameWindow* instance, bool* grant) {
     ResetOut(grant, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(grant, "grant"))
@@ -60,8 +60,8 @@ EXPORTED InteropStatus InfiniFrame_GetGrantBrowserPermissions(InfiniFrameWindow*
     });
 }
 
-/// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
-EXPORTED InteropStatus InfiniFrame_GetUserAgent(InfiniFrameWindow* instance, AutoString* value) {
+/// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
+EXPORTED InteropStatus InfiniFrameNative_GetUserAgent(InfiniFrameWindow* instance, AutoString* value) {
     ResetOut(value, static_cast<AutoString>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
@@ -70,7 +70,7 @@ EXPORTED InteropStatus InfiniFrame_GetUserAgent(InfiniFrameWindow* instance, Aut
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetMediaAutoplayEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetMediaAutoplayEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -79,7 +79,7 @@ EXPORTED InteropStatus InfiniFrame_GetMediaAutoplayEnabled(InfiniFrameWindow* in
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetFileSystemAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetFileSystemAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -88,7 +88,7 @@ EXPORTED InteropStatus InfiniFrame_GetFileSystemAccessEnabled(InfiniFrameWindow*
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetWebSecurityEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetWebSecurityEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -97,7 +97,7 @@ EXPORTED InteropStatus InfiniFrame_GetWebSecurityEnabled(InfiniFrameWindow* inst
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetJavascriptClipboardAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetJavascriptClipboardAccessEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -106,7 +106,7 @@ EXPORTED InteropStatus InfiniFrame_GetJavascriptClipboardAccessEnabled(InfiniFra
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetMediaStreamEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetMediaStreamEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -115,7 +115,7 @@ EXPORTED InteropStatus InfiniFrame_GetMediaStreamEnabled(InfiniFrameWindow* inst
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetSmoothScrollingEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetSmoothScrollingEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -124,7 +124,7 @@ EXPORTED InteropStatus InfiniFrame_GetSmoothScrollingEnabled(InfiniFrameWindow* 
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetMaximized(InfiniFrameWindow* instance, bool* isMaximized) {
+EXPORTED InteropStatus InfiniFrameNative_GetMaximized(InfiniFrameWindow* instance, bool* isMaximized) {
     ResetOut(isMaximized, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(isMaximized, "isMaximized"))
@@ -133,7 +133,7 @@ EXPORTED InteropStatus InfiniFrame_GetMaximized(InfiniFrameWindow* instance, boo
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetMinimized(InfiniFrameWindow* instance, bool* isMinimized) {
+EXPORTED InteropStatus InfiniFrameNative_GetMinimized(InfiniFrameWindow* instance, bool* isMinimized) {
     ResetOut(isMinimized, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(isMinimized, "isMinimized"))
@@ -142,7 +142,7 @@ EXPORTED InteropStatus InfiniFrame_GetMinimized(InfiniFrameWindow* instance, boo
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetIgnoreCertificateErrorsEnabled(InfiniFrameWindow* instance, bool* enabled) {
+EXPORTED InteropStatus InfiniFrameNative_GetIgnoreCertificateErrorsEnabled(InfiniFrameWindow* instance, bool* enabled) {
     ResetOut(enabled, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(enabled, "enabled"))
@@ -151,7 +151,7 @@ EXPORTED InteropStatus InfiniFrame_GetIgnoreCertificateErrorsEnabled(InfiniFrame
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetPosition(InfiniFrameWindow* instance, int* x, int* y) {
+EXPORTED InteropStatus InfiniFrameNative_GetPosition(InfiniFrameWindow* instance, int* x, int* y) {
     ResetOut2(x, y, 0);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(x, "x") || !EnsureOutNotNull(y, "y"))
@@ -160,7 +160,7 @@ EXPORTED InteropStatus InfiniFrame_GetPosition(InfiniFrameWindow* instance, int*
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetResizable(InfiniFrameWindow* instance, bool* resizable) {
+EXPORTED InteropStatus InfiniFrameNative_GetResizable(InfiniFrameWindow* instance, bool* resizable) {
     ResetOut(resizable, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(resizable, "resizable"))
@@ -169,7 +169,7 @@ EXPORTED InteropStatus InfiniFrame_GetResizable(InfiniFrameWindow* instance, boo
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetScreenDpi(InfiniFrameWindow* instance, unsigned int* value) {
+EXPORTED InteropStatus InfiniFrameNative_GetScreenDpi(InfiniFrameWindow* instance, unsigned int* value) {
     ResetOut(value, static_cast<unsigned int>(0));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
@@ -178,7 +178,7 @@ EXPORTED InteropStatus InfiniFrame_GetScreenDpi(InfiniFrameWindow* instance, uns
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetSize(InfiniFrameWindow* instance, int* width, int* height) {
+EXPORTED InteropStatus InfiniFrameNative_GetSize(InfiniFrameWindow* instance, int* width, int* height) {
     ResetOut2(width, height, 0);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(width, "width") || !EnsureOutNotNull(height, "height"))
@@ -187,7 +187,7 @@ EXPORTED InteropStatus InfiniFrame_GetSize(InfiniFrameWindow* instance, int* wid
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetMaxSize(InfiniFrameWindow* instance, int* width, int* height) {
+EXPORTED InteropStatus InfiniFrameNative_GetMaxSize(InfiniFrameWindow* instance, int* width, int* height) {
     ResetOut2(width, height, 0);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(width, "width") || !EnsureOutNotNull(height, "height"))
@@ -196,7 +196,7 @@ EXPORTED InteropStatus InfiniFrame_GetMaxSize(InfiniFrameWindow* instance, int* 
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetMinSize(InfiniFrameWindow* instance, int* width, int* height) {
+EXPORTED InteropStatus InfiniFrameNative_GetMinSize(InfiniFrameWindow* instance, int* width, int* height) {
     ResetOut2(width, height, 0);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(width, "width") || !EnsureOutNotNull(height, "height"))
@@ -205,8 +205,8 @@ EXPORTED InteropStatus InfiniFrame_GetMinSize(InfiniFrameWindow* instance, int* 
     });
 }
 
-/// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
-EXPORTED InteropStatus InfiniFrame_GetTitle(InfiniFrameWindow* instance, AutoString* value) {
+/// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
+EXPORTED InteropStatus InfiniFrameNative_GetTitle(InfiniFrameWindow* instance, AutoString* value) {
     ResetOut(value, static_cast<AutoString>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
@@ -215,7 +215,7 @@ EXPORTED InteropStatus InfiniFrame_GetTitle(InfiniFrameWindow* instance, AutoStr
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetTopmost(InfiniFrameWindow* instance, bool* topmost) {
+EXPORTED InteropStatus InfiniFrameNative_GetTopmost(InfiniFrameWindow* instance, bool* topmost) {
     ResetOut(topmost, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(topmost, "topmost"))
@@ -224,7 +224,7 @@ EXPORTED InteropStatus InfiniFrame_GetTopmost(InfiniFrameWindow* instance, bool*
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetZoom(InfiniFrameWindow* instance, int* zoom) {
+EXPORTED InteropStatus InfiniFrameNative_GetZoom(InfiniFrameWindow* instance, int* zoom) {
     ResetOut(zoom, 0);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(zoom, "zoom"))
@@ -233,7 +233,7 @@ EXPORTED InteropStatus InfiniFrame_GetZoom(InfiniFrameWindow* instance, int* zoo
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_GetFocused(InfiniFrameWindow* instance, bool* isFocused) {
+EXPORTED InteropStatus InfiniFrameNative_GetFocused(InfiniFrameWindow* instance, bool* isFocused) {
     ResetOut(isFocused, false);
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(isFocused, "isFocused"))
@@ -242,8 +242,8 @@ EXPORTED InteropStatus InfiniFrame_GetFocused(InfiniFrameWindow* instance, bool*
     });
 }
 
-/// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
-EXPORTED InteropStatus InfiniFrame_GetIconFileName(InfiniFrameWindow* instance, AutoString* value) {
+/// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
+EXPORTED InteropStatus InfiniFrameNative_GetIconFileName(InfiniFrameWindow* instance, AutoString* value) {
     ResetOut(value, static_cast<AutoString>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))

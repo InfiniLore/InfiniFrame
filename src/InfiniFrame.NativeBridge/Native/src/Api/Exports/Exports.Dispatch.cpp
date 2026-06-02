@@ -6,7 +6,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-EXPORTED InteropStatus InfiniFrame_Invoke(InfiniFrameWindow* instance, const ACTION callback) {
+EXPORTED InteropStatus InfiniFrameNative_Invoke(InfiniFrameWindow* instance, const ACTION callback) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (callback == nullptr)
             throw std::invalid_argument("Argument 'callback' is null.");

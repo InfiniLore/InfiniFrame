@@ -6,8 +6,8 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-/// @param[out] values Owned string array, caller must free with InfiniFrame_FreeStringArray(values, resultCount).
-EXPORTED InteropStatus InfiniFrame_ShowOpenFile(
+/// @param[out] values Owned string array, caller must free with InfiniFrameNative_FreeStringArray(values, resultCount).
+EXPORTED InteropStatus InfiniFrameNative_ShowOpenFile(
     InfiniFrameWindow* inst,
     const AutoString title,
     const AutoString defaultPath,
@@ -32,8 +32,8 @@ EXPORTED InteropStatus InfiniFrame_ShowOpenFile(
     });
 }
 
-/// @param[out] values Owned string array, caller must free with InfiniFrame_FreeStringArray(values, resultCount).
-EXPORTED InteropStatus InfiniFrame_ShowOpenFolder(
+/// @param[out] values Owned string array, caller must free with InfiniFrameNative_FreeStringArray(values, resultCount).
+EXPORTED InteropStatus InfiniFrameNative_ShowOpenFolder(
     InfiniFrameWindow* inst,
     const AutoString title,
     const AutoString defaultPath,
@@ -53,8 +53,8 @@ EXPORTED InteropStatus InfiniFrame_ShowOpenFolder(
     });
 }
 
-/// @param[out] value Owned string, caller must free with InfiniFrame_FreeString.
-EXPORTED InteropStatus InfiniFrame_ShowSaveFile(
+/// @param[out] value Owned string, caller must free with InfiniFrameNative_FreeString.
+EXPORTED InteropStatus InfiniFrameNative_ShowSaveFile(
     InfiniFrameWindow* inst,
     const AutoString title,
     const AutoString defaultPath,
@@ -75,7 +75,7 @@ EXPORTED InteropStatus InfiniFrame_ShowSaveFile(
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_ShowMessage(
+EXPORTED InteropStatus InfiniFrameNative_ShowMessage(
     InfiniFrameWindow* inst,
     const AutoString title,
     const AutoString text,

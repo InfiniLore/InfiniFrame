@@ -6,7 +6,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-EXPORTED InteropStatus InfiniFrame_AddCustomSchemeName(InfiniFrameWindow* instance, const AutoString scheme) {
+EXPORTED InteropStatus InfiniFrameNative_AddCustomSchemeName(InfiniFrameWindow* instance, const AutoString scheme) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureNotNull(scheme, "scheme"))
             return;

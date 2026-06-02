@@ -10,7 +10,7 @@
 // Owned string array allocation and free, consistent with StringCopy.h.
 //
 // The caller owns the returned array AND each element. Use FreeStringArray()
-// or the platform-matched InfiniFrame_FreeStringArray export to release.
+// or the platform-matched InfiniFrameNative_FreeStringArray export to release.
 // ---------------------------------------------------------------------------------------------------------------------
 
 /// Allocate a zero-initialized array of AutoString pointers.

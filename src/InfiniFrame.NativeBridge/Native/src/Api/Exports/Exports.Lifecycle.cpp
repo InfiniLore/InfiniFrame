@@ -6,7 +6,7 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-EXPORTED InteropStatus InfiniFrame_ctor(InfiniFrameInitParams* initParams, InfiniFrameWindow** value) {
+EXPORTED InteropStatus InfiniFrameNative_ctor(InfiniFrameInitParams* initParams, InfiniFrameWindow** value) {
     ResetOut(value, static_cast<InfiniFrameWindow*>(nullptr));
     return RunExportStatus([&] {
         if (!EnsureOutNotNull(value, "value"))
@@ -21,7 +21,7 @@ EXPORTED InteropStatus InfiniFrame_ctor(InfiniFrameInitParams* initParams, Infin
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_dtor(InfiniFrameWindow* instance) {
+EXPORTED InteropStatus InfiniFrameNative_dtor(InfiniFrameWindow* instance) {
     return RunExportStatus([&] {
         if (!EnsureNotNull(instance, "instance"))
             return;
@@ -29,11 +29,11 @@ EXPORTED InteropStatus InfiniFrame_dtor(InfiniFrameWindow* instance) {
     });
 }
 
-EXPORTED InteropStatus InfiniFrame_Close(InfiniFrameWindow* instance) {
+EXPORTED InteropStatus InfiniFrameNative_Close(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->Close(); });
 }
 
-EXPORTED InteropStatus InfiniFrame_WaitForExit(InfiniFrameWindow* instance) {
+EXPORTED InteropStatus InfiniFrameNative_WaitForExit(InfiniFrameWindow* instance) {
     return RunWindowExportStatus(instance, [](InfiniFrameWindow* window) { window->WaitForExit(); });
 }
 }

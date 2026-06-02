@@ -7,7 +7,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
 #ifdef __APPLE__
-EXPORTED InteropStatus InfiniFrame_register_mac() {
+EXPORTED InteropStatus InfiniFrameNative_register_mac() {
     return RunExportStatus([] { InfiniFrameWindow::Register(); });
 }
 #endif

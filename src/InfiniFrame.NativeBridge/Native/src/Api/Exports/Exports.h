@@ -23,9 +23,9 @@
 //
 //  OWNED (caller-frees):
 //    Any AutoString written to an out-parameter (AutoString*) is heap-allocated
-//    by the native layer. The caller MUST free it with InfiniFrame_FreeString().
+//    by the native layer. The caller MUST free it with InfiniFrameNative_FreeString().
 //    Multi-string results (AutoString** from dialog APIs) must be freed with
-//    InfiniFrame_FreeStringArray(values, count).
+//    InfiniFrameNative_FreeStringArray(values, count).
 //
 //  BORROWED (callee does not take ownership):
 //    All AutoString input parameters (const AutoString) are borrowed for the
