@@ -41,9 +41,5 @@ EXPORTED InteropStatus InfiniFrame_GetNotificationsEnabled(InfiniFrameWindow* in
         window->GetNotificationsEnabled(enabled);
     });
 }
-#elif __APPLE__
-EXPORTED InteropStatus InfiniFrame_register_mac() {
-    return RunExportStatus([] { InfiniFrameWindow::Register(); });
-}
 #endif
 }

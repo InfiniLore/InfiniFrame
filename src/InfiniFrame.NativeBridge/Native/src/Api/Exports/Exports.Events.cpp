@@ -26,7 +26,7 @@ EXPORTED InteropStatus InfiniFrame_SetClosingCallback(InfiniFrameWindow* instanc
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetClosingCallback(callback); });
 }
 
-EXPORTED InteropStatus InfiniFrame_setClosedClosedCallback(InfiniFrameWindow* instance, const ClosedCallback callback) {
+EXPORTED InteropStatus InfiniFrame_setClosedCallback(InfiniFrameWindow* instance, const ClosedCallback callback) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetClosedCallback(callback); });
 }
 

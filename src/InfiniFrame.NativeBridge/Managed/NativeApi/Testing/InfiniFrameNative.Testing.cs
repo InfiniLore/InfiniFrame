@@ -5,22 +5,20 @@ using InfiniFrame.NativeBridge.Parameters;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using static InfiniFrame.NativeBridge.ArtifactManifest;
 
 namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static partial class InfiniFrameNativeTesting {
-// #if InfiniFrameNativeTestExports
-    [LibraryImport(NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_NativeParametersReturnAsIs", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+public partial class InfiniFrameNativeTesting {
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_NativeParametersReturnAsIs", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial InfiniFrameNativeInteropStatus NativeParametersReturnAsIsNative(
         [MarshalUsing(typeof(InfiniFrameNativeParametersMarshaller))]
         in InfiniFrameNativeParameters parameters,
         out IntPtr newParameters
     );
 
-    [LibraryImport(NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_FreeInitParams", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_FreeInitParams", SetLastError = true), UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial InfiniFrameNativeInteropStatus FreeInitParamsNative(IntPtr parameters);
 
     /// <summary>
@@ -45,15 +43,4 @@ public static partial class InfiniFrameNativeTesting {
             FreeInitParamsNative(newParametersPtr),
             nameof(FreeInitParamsNative));
     }
-// #else
-//     internal static IntPtr NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters) {
-//         throw new PlatformNotSupportedException("InfiniFrame native test exports are not enabled for this build.");
-//     }
-//
-//     internal static void FreeInitParams(IntPtr newParametersPtr) {
-//         if (newParametersPtr != IntPtr.Zero) {
-//             throw new PlatformNotSupportedException("InfiniFrame native test exports are not enabled for this build.");
-//         }
-//     }
-// #endif
 }

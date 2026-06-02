@@ -40,9 +40,9 @@ set(COMMON_SOURCES
         src/Api/Exports/Exports.Events.cpp
         src/Api/Exports/Exports.Lifecycle.cpp
         src/Api/Exports/Exports.Memory.cpp
-        src/Api/Exports/Exports.Platform.cpp
-        src/Api/Exports/Exports.WindowCommands.cpp
-        src/Api/Exports/Exports.WindowState.cpp
+        src/Api/Exports/Exports.Platform.MacOs.cpp
+        src/Api/Exports/Exports.Platform.Windows.cpp
+        src/Api/Exports/Exports.Window.cpp
 )
 
 set(TEST_SOURCES
