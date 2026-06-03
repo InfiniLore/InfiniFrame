@@ -8,6 +8,7 @@ namespace InfiniTests.InfiniFrame.WindowLifecycles;
 public class ReOpeningAnotherWindowTests {
     [Test]
     [SkipOnMacOs]
+    [SkipOnWindowsArm]
     [NotInParallelInfiniTests]
     public async Task CreateAnotherWindowAfterClosingOthers(CancellationToken ct = default) {
         // Arrange
