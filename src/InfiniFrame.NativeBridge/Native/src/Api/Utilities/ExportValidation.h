@@ -49,4 +49,4 @@ namespace infiniframe::exports {
     template <typename T> bool EnsureOutNotNull(T* value, const char* argumentName) noexcept {
         return exports::EnsureNotNull(value, argumentName, InteropStatus::OutParameterSetToInvalidNull);
     }
-}  infiniframe::exports
+} 

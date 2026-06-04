@@ -30,7 +30,7 @@ namespace gtk_webkit {
         g_object_unref(stream);
         free(contentType);
     }
-}  gtk_webkit
+} 
 
 void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
     if (_customSchemeCallback == nullptr)

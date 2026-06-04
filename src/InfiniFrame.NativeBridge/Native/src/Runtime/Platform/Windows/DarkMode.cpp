@@ -60,7 +60,7 @@ namespace {
     };
 
     ModuleHandle gUxtheme;
-} 
+}
 
 static void EnableDarkModeForApp() noexcept {
     if (setPreferredAppMode != nullptr) {
