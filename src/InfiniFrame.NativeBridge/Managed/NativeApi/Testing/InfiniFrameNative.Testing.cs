@@ -23,6 +23,10 @@ public partial class InfiniFrameNativeTesting {
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial InfiniFrameNativeInteropStatus FreeInitParamsNative(IntPtr parameters);
 
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNativeTests_IsColorSchemeChange", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus IsColorSchemeChangeNative(IntPtr lParam, out int result);
+
     /// <summary>
     ///     Returns a native pointer to a newly allocated InfiniFrameInitParams clone.
     ///     Ownership is transferred to managed caller, which must call <see cref="FreeInitParams" /> exactly once.
@@ -44,5 +48,13 @@ public partial class InfiniFrameNativeTesting {
         InfiniFrameNative.EnsureSucceeded(
             FreeInitParamsNative(newParametersPtr),
             nameof(FreeInitParamsNative));
+    }
+
+    internal static bool IsColorSchemeChange(IntPtr lParam) {
+        InfiniFrameNative.EnsureSucceeded(
+            IsColorSchemeChangeNative(lParam, out int result),
+            nameof(IsColorSchemeChangeNative));
+
+        return result != 0;
     }
 }

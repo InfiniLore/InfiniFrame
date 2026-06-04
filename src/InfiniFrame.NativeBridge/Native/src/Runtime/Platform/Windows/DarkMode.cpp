@@ -172,12 +172,21 @@ void RefreshNonClientArea(const HWND hwnd) noexcept {
 
 auto IsColorSchemeChange(const LPARAM lParam) noexcept -> bool {
     bool returnValue = false;
-    if (lParam > 0 &&
-        CompareStringOrdinal(reinterpret_cast<LPCWCH>(lParam), -1, L"ImmersiveColorSet", -1, TRUE) == CSTR_EQUAL) {
-        if (refreshImmersiveColorPolicyState != nullptr) {
-            refreshImmersiveColorPolicyState();
+    if (lParam > 0) {
+        bool isImmersiveColorSet = false;
+        __try {
+            isImmersiveColorSet =
+                CompareStringOrdinal(reinterpret_cast<LPCWCH>(lParam), -1, L"ImmersiveColorSet", -1, TRUE) == CSTR_EQUAL;
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            isImmersiveColorSet = false;
         }
-        returnValue = true;
+
+        if (isImmersiveColorSet) {
+            if (refreshImmersiveColorPolicyState != nullptr) {
+                refreshImmersiveColorPolicyState();
+            }
+            returnValue = true;
+        }
     }
 
     if (getIsImmersiveColorUsingHighContrast != nullptr) {
