@@ -462,22 +462,28 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     #region PROPERTIES
     /// <summary>
-    /// Gets the native handle of the window associated with the current instance.
-    /// This property provides the platform-specific window handle used for low-level operations.
+    /// Gets the native window handle for the current platform.
+    /// This property provides a platform-specific handle to the window, such as an HWND on Windows,
+    /// or equivalent platform-specific handles on macOS and Linux.
     /// </summary>
     /// <remarks>
-    /// The returned handle is dependent on the underlying operating system (Windows, macOS, or Linux).
-    /// If the operating system is unsupported, accessing this property will throw a PlatformNotSupportedException.
+    /// The returned handle allows low-level, platform-specific operations on the native window.
+    /// If the window is already closed or is in the process of closing, the property will return <see cref="IntPtr.Zero"/>.
+    /// Platform-specific behavior is handled internally, and the property is only accessible when the native
+    /// window initialization is complete.
     /// </remarks>
     /// <exception cref="PlatformNotSupportedException">
-    /// Thrown when the current operating system is unsupported.
+    /// Thrown when the property is accessed on an unsupported operating system.
     /// </exception>
     /// <returns>
-    /// A pointer to the native window handle represented as an <see cref="IntPtr"/>.
+    /// A platform-specific <see cref="IntPtr"/> representing the native window handle.
+    /// If the window is closed or closing, it returns <see cref="IntPtr.Zero"/>.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public IntPtr WindowHandle {
         get {
+            if (IsClosedOrClosing) return IntPtr.Zero;
+            
             IntPtr handle;
             if (OperatingSystem.IsWindows()) {
                 handle = InvokeUtility.InvokeAndReturn<IntPtr, InfiniFrameNativeInteropStatus>(
@@ -490,15 +496,15 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 handle = InvokeUtility.InvokeAndReturn<IntPtr, InfiniFrameNativeInteropStatus>(
                     this,
                     InfiniFrameNative.GetWindowHandleMac,
-                    s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetWindowHandleWin32))
+                    s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetWindowHandleMac))
                 );
-                
+            
             }
             else if (OperatingSystem.IsLinux()) {
                 handle = InvokeUtility.InvokeAndReturn<IntPtr, InfiniFrameNativeInteropStatus>(
                     this,
                     InfiniFrameNative.GetWindowHandleLinux,
-                    s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetWindowHandleWin32))
+                    s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetWindowHandleLinux))
                 );
             }
             else {
