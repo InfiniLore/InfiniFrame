@@ -21,7 +21,6 @@ public class WindowHandleTests {
 
         // Assert
         await Assert.That(handle).IsNotDefault();
-        await Assert.That(handle).IsNotDefault();
     }
 
     [Test]
