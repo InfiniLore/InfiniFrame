@@ -14,7 +14,8 @@ public class LeftTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Test Methods
     // -----------------------------------------------------------------------------------------------------------------
-    [Test, DisplayName($"{nameof(LeftTests)}.{nameof(Builder)}")]
+    [Test]
+    [DisplayName($"{nameof(LeftTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -29,7 +30,8 @@ public class LeftTests {
         await Assert.That(configParameters.Left).IsEqualTo(Left);
     }
 
-    [Test, DisplayName($"{nameof(LeftTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
+    [Test]
+    [DisplayName($"{nameof(LeftTests)}.{nameof(Builder_ShouldOverwriteOsDefaultLocationAndCentered)}")]
     public async Task Builder_ShouldOverwriteOsDefaultLocationAndCentered(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -53,7 +55,11 @@ public class LeftTests {
         await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
     }
 
-    [Test, DisplayName($"{nameof(LeftTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(LeftTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -66,7 +72,11 @@ public class LeftTests {
         await Assert.That(window.Left).IsEqualTo(Left);
     }
 
-    [Test, DisplayName($"{nameof(LeftTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(LeftTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 

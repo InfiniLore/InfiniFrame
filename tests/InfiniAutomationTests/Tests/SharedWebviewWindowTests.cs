@@ -9,7 +9,8 @@ namespace InfiniAutomationTests.Tests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public abstract class SharedWebviewWindowTests : InfiniFramePlaywrightTestBase {
-    [Test, NotInParallelInfiniAutomationTests]
+    [Test]
+    [NotInParallelInfiniAutomationTests]
     public async Task Title_ShouldBeExpectedValue(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 

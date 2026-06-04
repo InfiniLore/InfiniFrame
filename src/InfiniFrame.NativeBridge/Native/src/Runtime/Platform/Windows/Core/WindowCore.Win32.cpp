@@ -56,7 +56,7 @@ namespace {
         std::unique_ptr<void, HBRUSHDeleter> m_darkBrush;
         std::unique_ptr<void, HBRUSHDeleter> m_lightBrush;
     };
-} // namespace
+} 
 
 HBRUSH GetDarkBrush() {
     return BrushManager::instance().dark();

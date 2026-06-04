@@ -16,7 +16,8 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
 
     protected virtual string ToggledTitle => "New Title";
 
-    [Test, NotInParallelInfiniAutomationTests]
+    [Test]
+    [NotInParallelInfiniAutomationTests]
     public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen(CancellationToken ct = default) {
         bool originalFullscreenState = RuntimeContext.Window.FullScreen;
         IPage page = await GetRootPageAsync();
@@ -38,7 +39,8 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         await Assert.That(finalFullscreenState).IsFalse();
     }
 
-    [Test, NotInParallelInfiniAutomationTests]
+    [Test]
+    [NotInParallelInfiniAutomationTests]
     public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
         string? originalTitleState = RuntimeContext.Window.Title;
@@ -70,7 +72,8 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         }
     }
 
-    [Test, NotInParallelInfiniAutomationTests]
+    [Test]
+    [NotInParallelInfiniAutomationTests]
     public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle(CancellationToken ct = default) {
         // Arrange
         IPage page = await GetRootPageAsync();
@@ -87,7 +90,8 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         await Assert.That(titleFromJsInitially).IsEqualTo(originalTitleState);
     }
 
-    [Test, NotInParallelInfiniAutomationTests]
+    [Test]
+    [NotInParallelInfiniAutomationTests]
     public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle_AndShouldReturnCorrectTitle(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
         string? originalTitleState = RuntimeContext.Window.Title;

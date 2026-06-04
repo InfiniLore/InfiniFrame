@@ -10,7 +10,10 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class FullScreenTests {
 
-    [Test, DisplayName($"{nameof(FullScreenTests)}.{nameof(Builder)}"), Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(FullScreenTests)}.{nameof(Builder)}")]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -25,7 +28,12 @@ public class FullScreenTests {
         await Assert.That(configParameters.FullScreen).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(FullScreenTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(FullScreenTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -38,7 +46,12 @@ public class FullScreenTests {
         await Assert.That(window.FullScreen).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(FullScreenTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(FullScreenTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
         // Arrange
 

@@ -253,23 +253,39 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.I1)]
     internal bool FileSystemAccessEnabled;
 
-    ///<summary>OPTIONAL: If true, ??? Default is Default is true.</summary>
+    /// <summary>
+    /// OPTIONAL: Determines whether web security features are enabled or disabled.
+    /// Default is true.
+    /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool WebSecurityEnabled;
 
-    ///<summary>OPTIONAL: If true, ??? Default is v.</summary>
+    /// <summary>
+    /// OPTIONAL: Enables JavaScript access to the system clipboard when set to true.
+    /// Default behavior is disabled (false), which restricts clipboard operations.
+    /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool JavascriptClipboardAccessEnabled;
 
-    ///<summary>OPTIONAL: If true, ??? Default is Default is true.</summary>
+    /// <summary>
+    /// OPTIONAL: Indicates whether media streaming is enabled.
+    /// If set to true, media streaming functionality will be available. Default is true.
+    /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool MediaStreamEnabled;
 
-    ///<summary>OPTIONAL: If true, ??? Default is Default is true.</summary>
+    /// <summary>
+    /// OPTIONAL: Enables smooth scrolling behavior if set to true.
+    /// Default value is true.
+    /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool SmoothScrollingEnabled;
 
-    ///<summary>OPTIONAL: If true, ??? Default is Default is false.</summary>
+    /// <summary>
+    /// OPTIONAL: If true, certificate errors encountered by the browser control will be ignored.
+    /// Typically used to allow navigation to websites with invalid or untrusted certificates.
+    /// Default is false.
+    /// </summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool IgnoreCertificateErrorsEnabled;
 

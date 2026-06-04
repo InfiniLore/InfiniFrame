@@ -40,7 +40,7 @@ namespace {
                 return "unknown";
         }
     }
-} // namespace
+} 
 
 void InfiniFrameWindow::OnConfigureEvent(int x, int y, int width, int height) {
     if (m_impl->_lastLeft != x || m_impl->_lastTop != y) {

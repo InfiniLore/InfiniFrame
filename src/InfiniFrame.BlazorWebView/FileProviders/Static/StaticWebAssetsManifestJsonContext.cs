@@ -7,5 +7,6 @@ namespace InfiniFrame.BlazorWebView.FileProviders.Static;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true), JsonSerializable(typeof(StaticWebAssetManifest))]
+[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
+[JsonSerializable(typeof(StaticWebAssetManifest))]
 internal sealed partial class StaticWebAssetsManifestJsonContext : JsonSerializerContext;

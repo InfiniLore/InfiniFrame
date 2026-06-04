@@ -10,7 +10,10 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TopMostTests {
 
-    [Test, DisplayName($"{nameof(TopMostTests)}.{nameof(Builder)}"), Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(Builder)}")]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -25,7 +28,13 @@ public class TopMostTests {
         await Assert.That(configParameters.Topmost).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(TopMostTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -38,7 +47,13 @@ public class TopMostTests {
         await Assert.That(window.TopMost).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(TopMostTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, SkipOnLinux, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
         // Arrange
 

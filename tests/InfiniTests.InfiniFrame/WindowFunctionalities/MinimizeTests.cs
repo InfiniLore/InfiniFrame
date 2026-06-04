@@ -10,7 +10,10 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class MinimizeTests {
 
-    [Test, DisplayName($"{nameof(MinimizeTests)}.{nameof(Builder)}"), Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(MinimizeTests)}.{nameof(Builder)}")]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -25,7 +28,12 @@ public class MinimizeTests {
         await Assert.That(configParameters.Minimized).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(MinimizeTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(MinimizeTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         SkipUtility.SkipOnLinux(state);
 
@@ -40,7 +48,12 @@ public class MinimizeTests {
         await Assert.That(window.Minimized).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(MinimizeTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(MinimizeTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
         SkipUtility.SkipOnLinux(state);
 

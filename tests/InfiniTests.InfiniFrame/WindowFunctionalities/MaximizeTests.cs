@@ -10,7 +10,10 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class MaximizeTests {
 
-    [Test, DisplayName($"{nameof(MaximizeTests)}.{nameof(Builder)}"), Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Builder)}")]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -25,7 +28,12 @@ public class MaximizeTests {
         await Assert.That(configParameters.Maximized).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(MaximizeTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window(bool state, CancellationToken ct = default) {
         SkipUtility.SkipOnLinux(state);
 
@@ -40,7 +48,13 @@ public class MaximizeTests {
         await Assert.That(window.Maximized).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(MaximizeTests)}.{nameof(Window_Toggle)}"), SkipOnMacOs, SkipOnLinux, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(Window_Toggle)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Window_Toggle(bool state, CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -54,7 +68,12 @@ public class MaximizeTests {
         await Assert.That(window.Maximized).IsEqualTo(!state);
     }
 
-    [Test, DisplayName($"{nameof(MaximizeTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(MaximizeTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
         SkipUtility.SkipOnLinux(state);
 

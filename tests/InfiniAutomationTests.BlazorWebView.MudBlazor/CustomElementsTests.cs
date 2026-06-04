@@ -14,7 +14,8 @@ namespace InfiniAutomationTests.BlazorWebView.MudBlazor;
 public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
     protected override IPlaywrightRuntimeContext RuntimeContext => PlaywrightContext.Instance;
 
-    [Test, NotInParallelInfiniAutomationTests]
+    [Test]
+    [NotInParallelInfiniAutomationTests]
     public async Task CustomElement_Registers_Renders_AndUpdatesFromAttributes(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 
@@ -81,7 +82,8 @@ public sealed class CustomElementsTests : InfiniFramePlaywrightTestBase {
         await Assert.That(renderedBeta).IsEqualTo("beta");
     }
 
-    [Test, NotInParallelInfiniAutomationTests]
+    [Test]
+    [NotInParallelInfiniAutomationTests]
     public async Task JsComponent_WithoutInitializer_AutoRegisters_AsCustomElement_ByDefault(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
 

@@ -11,7 +11,8 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 public class MaxHeightTests {
     private const int MaxHeight = 20;
 
-    [Test, DisplayName($"{nameof(MaxHeightTests)}.{nameof(Builder)}")]
+    [Test]
+    [DisplayName($"{nameof(MaxHeightTests)}.{nameof(Builder)}")]
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -26,7 +27,10 @@ public class MaxHeightTests {
         await Assert.That(configParameters.MaxHeight).IsEqualTo(MaxHeight);
     }
 
-    [Test, DisplayName($"{nameof(MaxHeightTests)}.{nameof(Window)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(MaxHeightTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -39,7 +43,10 @@ public class MaxHeightTests {
         await Assert.That(window.MaxHeight).IsEqualTo(500);
     }
 
-    [Test, DisplayName($"{nameof(MaxHeightTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(MaxHeightTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task FullIntegration(CancellationToken ct = default) {
         // Arrange
 

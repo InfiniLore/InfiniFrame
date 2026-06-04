@@ -8,7 +8,10 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowSizeChangedEventTests {
-    [Test, Retry(5), SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [Retry(5)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task TestWindowSizeChangedEvent(CancellationToken ct = default) {
         // Arrange: start at a known size so the second SetSize guarantees a change
         int sizeChangedCount = 0;

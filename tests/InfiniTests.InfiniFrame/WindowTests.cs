@@ -13,7 +13,9 @@ public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
     // Tests
     // -----------------------------------------------------------------------------------------------------------------
-    [Test, SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task InstanceHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -25,7 +27,9 @@ public class WindowTests {
         await Assert.That(window.InstanceHandle).IsNotDefault();
     }
 
-    [Test, SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task WindowHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -39,7 +43,9 @@ public class WindowTests {
         else await Assert.That(handle).IsEqualTo(IntPtr.Zero);
     }
 
-    [Test, SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task Monitors_IsNotEmpty(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -52,7 +58,9 @@ public class WindowTests {
         await Assert.That(monitors).IsNotEmpty();
     }
 
-    [Test, SkipOnMacOs, NotInParallelInfiniTests]
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
     public async Task NativeType_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -64,7 +72,12 @@ public class WindowTests {
         await Assert.That(window.NativeType).IsNotDefault();
     }
 
-    [Test, Retry(5), SkipOnMacOs, NotInParallelInfiniTests, DefaultInfiniTestsTimeout(1_000), SuppressMessage("ReSharper", "MethodSupportsCancellation")]
+    [Test]
+    [Retry(5)]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [DefaultInfiniTestsTimeout(1_000)]
+    [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
     // Sometimes fails on CI due to timing issues
     public async Task Close_IsDefined(CancellationToken ct = default) {
         // Arrange
@@ -86,7 +99,11 @@ public class WindowTests {
         await Assert.That(windowClosing).IsTrue();
     }
 
-    [Test, Retry(5), SkipOnMacOs, DefaultInfiniTestsTimeout(6_000), NotInParallelInfiniTests]
+    [Test]
+    [Retry(5)]
+    [SkipOnMacOs]
+    [DefaultInfiniTestsTimeout(6_000)]
+    [NotInParallelInfiniTests]
     public async Task IsClosed_TracksWindowState(CancellationToken ct = default) {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;

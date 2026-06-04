@@ -8,7 +8,11 @@ namespace InfiniTests.InfiniFrame.WindowEvents;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class WindowLocationChangedEventTests {
-    [Test, Retry(5), SkipOnMacOs, SkipOnLinux("Location transitions are desktop-state dependent under WSLg/local Linux runs"), NotInParallelInfiniTests]
+    [Test]
+    [Retry(5)]
+    [SkipOnMacOs]
+    [SkipOnLinux("Location transitions are desktop-state dependent under WSLg/local Linux runs")]
+    [NotInParallelInfiniTests]
     public async Task TestWindowLocationChangedEvent(CancellationToken ct = default) {
         // Arrange
         int locationChangedCount = 0;

@@ -12,7 +12,10 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class CenterTests {
 
-    [Test, DisplayName($"{nameof(CenterTests)}.{nameof(Builder)}"), Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(CenterTests)}.{nameof(Builder)}")]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task Builder(bool state, CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -27,7 +30,11 @@ public class CenterTests {
         await Assert.That(configParameters.CenterOnInitialize).IsEqualTo(state);
     }
 
-    [Test, DisplayName($"{nameof(CenterTests)}.{nameof(Window)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests]
+    [Test]
+    [DisplayName($"{nameof(CenterTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -49,7 +56,13 @@ public class CenterTests {
         await Assert.That(window.Location).IsEqualTo(new Point(centerX, centerY));
     }
 
-    [Test, DisplayName($"{nameof(CenterTests)}.{nameof(FullIntegration)}"), SkipOnMacOs, SkipOnLinux(SkipUtility.LinuxMovement), NotInParallelInfiniTests, Arguments(true), Arguments(false)]
+    [Test]
+    [DisplayName($"{nameof(CenterTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux(SkipUtility.LinuxMovement)]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
     public async Task FullIntegration(bool state, CancellationToken ct = default) {
         // Arrange
 

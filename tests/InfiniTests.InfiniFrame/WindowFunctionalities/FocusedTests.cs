@@ -8,7 +8,12 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class FocusedTests {
-    [Test, DisplayName($"{nameof(FocusedTests)}.{nameof(Window)}"), SkipOnMacOs(SkipUtility.MacOsMainThreadIssue), SkipOnLinux("Given that the window is virtualized, this test is not applicable."), NotInParallelInfiniTests, Retry(5)]
+    [Test]
+    [DisplayName($"{nameof(FocusedTests)}.{nameof(Window)}")]
+    [SkipOnMacOs(SkipUtility.MacOsMainThreadIssue)]
+    [SkipOnLinux("Given that the window is virtualized, this test is not applicable.")]
+    [NotInParallelInfiniTests]
+    [Retry(5)]
     public async Task Window(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

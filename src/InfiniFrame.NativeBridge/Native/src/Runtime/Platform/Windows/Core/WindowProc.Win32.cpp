@@ -197,9 +197,13 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                     callback();
                 waitInfo->isCompleted = true;
                 deleteWaitInfo = waitInfo->isAbandoned;
+                // Notify while still holding the lock. When waitInfo is owned by the waiter (not abandoned), the
+                // waiter in Invoke() may observe isCompleted before blocking, return immediately and delete waitInfo;
+                // signalling after releasing the lock would then touch a freed condition_variable (use-after-free).
+                // Holding the lock guarantees the waiter cannot re-acquire it (and thus cannot delete waitInfo) until
+                // notify_one has finished. delete stays outside the scope so the lock is released before teardown.
+                waitInfo->completionNotifier.notify_one();
             }
-
-            waitInfo->completionNotifier.notify_one();
 
             if (deleteWaitInfo)
                 delete waitInfo;

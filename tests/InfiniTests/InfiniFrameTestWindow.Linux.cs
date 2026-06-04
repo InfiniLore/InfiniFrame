@@ -62,7 +62,8 @@ public sealed partial class InfiniFrameTestWindow {
         }
     }
 
-    [SupportedOSPlatform("linux"), MustDisposeResource]
+    [SupportedOSPlatform("linux")]
+    [MustDisposeResource]
     private static partial InfiniFrameTestWindow CreateLinux(InfiniFrameWindowBuilder windowBuilder) {
         IInfiniFrameWindow host = EnsureGtkHost();
 

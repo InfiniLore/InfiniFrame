@@ -12,7 +12,7 @@ namespace InfiniFrameExample.BlazorWebView.MultiWindowSample;
 // ---------------------------------------------------------------------------------------------------------------------
 public static class Program {
 
-    private static readonly List<IInfiniFrameWindow> Windows = new();
+    private static readonly List<IInfiniFrameWindow> Windows = [];
 
     [STAThread]
     private static void Main(string[] args) {
@@ -22,10 +22,10 @@ public static class Program {
         appBuilder.Services.AddLogging();
 
         CreateWindows(appBuilder,
-            new Queue<WindowCreationArgs>(new[] {
+            new Queue<WindowCreationArgs>([
                 new WindowCreationArgs(typeof(Window1), "Window 1", new Uri("window1.html", UriKind.Relative)),
                 new WindowCreationArgs(typeof(Window2), "Window 2", new Uri("window2.html", UriKind.Relative))
-            })
+            ])
         );
     }
 
