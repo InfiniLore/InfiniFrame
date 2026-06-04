@@ -43,7 +43,7 @@ namespace {
         if (registered.compare_exchange_strong(expected, true, std::memory_order_acq_rel))
             std::atexit(webkit_atexit_bypass);
     }
-} // namespace
+} 
 
 void InfiniFrameWindow::Show(bool isAlreadyShown) {
     if (m_impl->_webview) {
