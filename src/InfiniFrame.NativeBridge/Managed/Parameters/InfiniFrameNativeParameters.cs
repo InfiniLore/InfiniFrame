@@ -65,6 +65,10 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? NotificationRegistrationId;
 
+    ///<summary>OPTIONAL: Windows-only remote debugging port for loopback endpoint. 0 disables remote debugging.</summary>
+    [MarshalAs(UnmanagedType.I4)]
+    internal int RemoteDebuggingPort;
+
     /// <summary>
     ///     OPTIONAL: If native window is created from another native window, this is the pointer to the parent window.
     /// </summary>
@@ -326,6 +330,7 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         if (UserAgent != other.UserAgent) return false;
         if (BrowserControlInitParameters != other.BrowserControlInitParameters) return false;
         if (NotificationRegistrationId != other.NotificationRegistrationId) return false;
+        if (RemoteDebuggingPort != other.RemoteDebuggingPort) return false;
         if (NativeParent != other.NativeParent) return false;
         if (Left != other.Left) return false;
         if (Top != other.Top) return false;
@@ -375,6 +380,7 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         hashCode.Add(UserAgent);
         hashCode.Add(BrowserControlInitParameters);
         hashCode.Add(NotificationRegistrationId);
+        hashCode.Add(RemoteDebuggingPort);
         hashCode.Add(NativeParent);
         hashCode.Add(ClosingHandler);
         hashCode.Add(FocusInHandler);

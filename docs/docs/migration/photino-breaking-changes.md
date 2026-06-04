@@ -9,6 +9,7 @@ This document walks through what changed to help you migrate.
 - [Package and Namespace](#package-and-namespace)
 - [Entry Point and Builder API](#entry-point-and-builder-api)
 - [Runtime Window API](#runtime-window-api)
+- [Javascript Debugging](#javascript-debugging)
 - [Event System](#event-system)
 - [Web Messaging and Message Routing](#web-messaging-and-message-routing)
 - [Web Security, CORS, and Trusted Origins](#web-security-cors-and-trusted-origins)
@@ -117,6 +118,32 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 | `IInfiniFrameWindow.CachedPreFullScreenBounds` / `CachedPreMaximizedBounds` | Saved geometry for restore                                                          |
 | `RegisterCustomSchemeHandler()`                                             | Returns `IInfiniFrameWindow` (fluent); in Photino it returned void                  |
 | `ZoomEnabled`                                                               | Separate bool controlling whether the user can zoom, distinct from the `Zoom` level |
+
+## Javascript Debugging
+
+Photino users often configured JavaScript debugging through a mix of devtools flags and raw browser startup arguments.
+InfiniFrame makes this explicit and deterministic.
+
+### What changed
+
+| Photino expectation | InfiniFrame behavior |
+|---|---|
+| `SetDevToolsEnabled(true)` also implies remote debug endpoint | `SetDevToolsEnabled(bool)` only controls local inspector/devtools UI |
+| Remote debugging usually configured with raw Chromium args | Use `SetRemoteDebuggingPort(int? port)` (`1..65535`, `0/null` disables) |
+| Runtime mutation unclear | `RemoteDebuggingPort` is startup-only; runtime mutation throws `InvalidOperationException` |
+| Platform behavior was implicit | Windows supports remote debugging; Linux/macOS throw `PlatformNotSupportedException` when enabled |
+
+### New API surface
+
+- Builder: `SetRemoteDebuggingPort(int? port)`
+- Runtime properties: `SupportsRemoteDebugging`, `RemoteDebuggingPort`
+- Endpoint lookup: `TryGetRemoteDebuggingEndpoint(out Uri? endpoint)`
+
+### Precedence and security
+
+- `SetRemoteDebuggingPort(...)` is authoritative over raw `SetBrowserControlInitParameters(...)` remote-debugging switches.
+- InfiniFrame strips raw remote-debugging flags and applies loopback-only binding (`127.0.0.1`) for the explicit API.
+- Startup fails with actionable `InvalidOperationException` when the requested port is unavailable (for example port-in-use).
 
 ## Event System
 

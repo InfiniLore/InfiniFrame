@@ -11,7 +11,11 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     #region Native Parameters
-    public string? BrowserControlInitParameters { get; set; }
+    private string? _browserControlInitParameters;
+    public string? BrowserControlInitParameters {
+        get => _browserControlInitParameters;
+        set => _browserControlInitParameters = value;
+    }
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }
     public bool ContextMenuEnabled { get; set; } = true;
@@ -60,6 +64,11 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     public int Width { get; set; }
     public int Zoom { get; set; } = 100;
     public bool ZoomEnabled { get; set; } = true;
+    private int? _remoteDebuggingPort;
+    public int? RemoteDebuggingPort {
+        get => _remoteDebuggingPort;
+        set => _remoteDebuggingPort = RemoteDebuggingUtility.NormalizePort(value, nameof(RemoteDebuggingPort));
+    }
     #endregion
 
     #region C# Options
@@ -77,6 +86,9 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameNativeParameters ToNativeParameters() {
+        int? normalizedRemoteDebuggingPort = RemoteDebuggingUtility.NormalizePort(RemoteDebuggingPort, nameof(RemoteDebuggingPort));
+        RemoteDebuggingUtility.EnsureSupportedPlatform(normalizedRemoteDebuggingPort);
+
         IconFileUtility.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath);
 
         if (CustomSchemeNames.Count > CustomSchemeNameMemory.MaxCustomSchemeNames)
@@ -84,8 +96,12 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
 
         IntPtr[] customSchemeNameArray = CustomSchemeNameMemory.Allocate(CustomSchemeNames);
 
+        string? effectiveBrowserControlInitParameters = RemoteDebuggingUtility.ComposeBrowserControlInitParameters(
+            BrowserControlInitParameters,
+            normalizedRemoteDebuggingPort);
+
         return new InfiniFrameNativeParameters {
-            BrowserControlInitParameters = BrowserControlInitParameters,
+            BrowserControlInitParameters = effectiveBrowserControlInitParameters,
             CenterOnInitialize = Centered,
             Chromeless = Chromeless,
             ContextMenuEnabled = ContextMenuEnabled,
@@ -108,6 +124,7 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
             Minimized = Minimized,
             NativeParent = ParentWindow?.InstanceHandle ?? IntPtr.Zero,
             NotificationRegistrationId = NotificationRegistrationId,
+            RemoteDebuggingPort = normalizedRemoteDebuggingPort ?? 0,
             NotificationsEnabled = NotificationsEnabled,
             Resizable = Resizable,
             Size = Marshal.SizeOf<InfiniFrameNativeParameters>(),

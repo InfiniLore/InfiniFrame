@@ -369,6 +369,20 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             out uri);
     }
 
+    public bool TryGetRemoteDebuggingEndpoint(out Uri? endpoint) {
+        endpoint = null;
+        if (!SupportsRemoteDebugging) {
+            throw new PlatformNotSupportedException("Remote debugging is only supported on Windows in InfiniFrame.");
+        }
+
+        int? port = RemoteDebuggingPort;
+        if (!port.HasValue || IsClosedOrClosing)
+            return false;
+
+        endpoint = RemoteDebuggingUtility.CreateEndpointUri(port.Value);
+        return true;
+    }
+
     private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) =>
         ct.IsCancellationRequested
             ? Task.FromCanceled<TResult>(ct)
@@ -377,8 +391,23 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     public void Initialize() {
         InfiniFrameNativeParameters startupParameters = Configuration.StartupParameters;
+        int? remoteDebuggingPort = startupParameters.RemoteDebuggingPort is > 0
+            ? startupParameters.RemoteDebuggingPort
+            : null;
 
         try {
+            if (remoteDebuggingPort.HasValue) {
+                Logger.LogInformation(
+                    "Remote debugging requested on loopback port {RemoteDebuggingPort}.",
+                    remoteDebuggingPort.Value);
+            }
+            else {
+                Logger.LogDebug("Remote debugging is disabled.");
+            }
+
+            RemoteDebuggingUtility.EnsureSupportedPlatform(remoteDebuggingPort);
+            RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(remoteDebuggingPort, Logger);
+
             if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, Logger)) {
                 throw new ArgumentException("Startup Parameters Are Not Valid");
             }
@@ -906,5 +935,13 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ZoomEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetZoomEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetZoomEnabled)));
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int? RemoteDebuggingPort => Configuration.StartupParameters.RemoteDebuggingPort > 0
+        ? Configuration.StartupParameters.RemoteDebuggingPort
+        : null;
     #endregion
 }

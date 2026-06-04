@@ -49,6 +49,7 @@ public interface IInfiniFrameOptionsBuilder {
     List<string> CustomSchemeNames { get; set; }
     int Zoom { get; set; }
     bool ZoomEnabled { get; set; }
+    int? RemoteDebuggingPort { get; set; }
     #endregion
     
     #region C# Options

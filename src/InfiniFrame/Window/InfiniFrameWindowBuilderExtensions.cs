@@ -266,6 +266,22 @@ public static class InfiniFrameWindowBuilderExtensions {
     }
 
     /// <summary>
+    ///     Configures the browser remote debugging port at startup.
+    ///     A value in the range 1..65535 enables remote debugging.
+    ///     A value of 0 or null disables remote debugging.
+    /// </summary>
+    /// <remarks>
+    ///     This API is only supported on Windows.
+    ///     Any remote-debugging switches in <see cref="SetBrowserControlInitParameters{T}" /> are ignored in favor of this API.
+    /// </remarks>
+    public static T SetRemoteDebuggingPort<T>(this T builder, int? port) where T : IInfiniFrameWindowBuilder {
+        int? normalized = RemoteDebuggingUtility.NormalizePort(port);
+        RemoteDebuggingUtility.EnsureSupportedPlatform(normalized);
+        builder.Configuration.RemoteDebuggingPort = normalized;
+        return builder;
+    }
+
+    /// <summary>
     ///     Sets TemporaryFilesPath on the browser control at initialization.
     /// </summary>
     public static T SetTemporaryFilesPath<T>(this T builder, string? path) where T : IInfiniFrameWindowBuilder {

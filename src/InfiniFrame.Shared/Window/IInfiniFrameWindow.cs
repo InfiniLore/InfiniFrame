@@ -54,5 +54,6 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
 
     bool TryResolveStaticAssetUri(string path, out Uri uri);
+    bool TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
     internal void MarkClosedFromNativeCallback();
 }

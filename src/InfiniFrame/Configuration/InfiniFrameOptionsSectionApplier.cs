@@ -39,6 +39,7 @@ internal static class InfiniFrameOptionsSectionApplier {
         SetBool(section, nameof(InfiniFrameOptionsBuilder.NotificationsEnabled), assign: value => configuration.NotificationsEnabled = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.NotificationRegistrationId), assign: value => configuration.NotificationRegistrationId = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Resizable), assign: value => configuration.Resizable = value);
+        SetInt(section, nameof(InfiniFrameOptionsBuilder.RemoteDebuggingPort), assign: value => configuration.RemoteDebuggingPort = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.SmoothScrollingEnabled), assign: value => configuration.SmoothScrollingEnabled = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.StartString), assign: value => configuration.StartString = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.StartUrl), assign: value => configuration.StartUrl = value);

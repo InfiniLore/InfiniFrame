@@ -91,6 +91,11 @@ void InfiniFrameWindow::AttachWebView() {
         startupString += L"--ignore-certificate-errors ";
     if (!m_impl->_browserControlInitParameters.empty())
         startupString += m_impl->_browserControlInitParameters; //e.g.--hide-scrollbars
+    if (m_impl->_remoteDebuggingPort > 0) {
+        startupString += std::format(
+            L" --remote-debugging-address=127.0.0.1 --remote-debugging-port={}",
+            m_impl->_remoteDebuggingPort);
+    }
 
     auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
     if (startupString.length() > 0)

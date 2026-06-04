@@ -95,13 +95,15 @@ public class InfiniFrameNativeParametersMarshallerTests {
         // Arrange
         // Layout (LayoutKind.Sequential, default packing):
         //   36 × IntPtr  — 8 string/handler/scheme pointers + NativeParent + CustomSchemeHandler
-        //    9 × int     — Left, Top, Width, Height, Zoom, MinWidth, MinHeight, MaxWidth, MaxHeight
+        //   10 × int     — RemoteDebuggingPort + Left, Top, Width, Height, Zoom, MinWidth, MinHeight, MaxWidth, MaxHeight
         //   22 × byte    — boolean options mapped to bytes
+        //    4 bytes     — padding after RemoteDebuggingPort so NativeParent stays pointer-aligned
         //    2 bytes     — padding to re-align the trailing int (Size) to 4-byte boundary
         //    1 × int     — Size
         int expected = 36 * IntPtr.Size// pointer fields
-            + 9 * sizeof(int)// numeric integer fields
+            + 10 * sizeof(int)// numeric integer fields
             + 22 * sizeof(byte)// boolean-as-byte fields
+            + 4// alignment padding before NativeParent
             + 2// alignment padding before Size
             + sizeof(int);// Size field
 

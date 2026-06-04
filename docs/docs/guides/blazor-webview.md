@@ -231,6 +231,28 @@ Configure Services & RootComponents
 DisposeAsync()  ← Disposes all services
 ```
 
+## Debugging workflow
+
+Use devtools and remote debugging separately:
+
+```csharp
+var builder = InfiniFrameBlazorAppBuilder.CreateDefault(args, w => w
+    .SetDevToolsEnabled(true)
+    .SetRemoteDebuggingPort(9222) // Windows only, startup-only
+);
+
+var app = builder.Build();
+
+if (app.Window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
+    Console.WriteLine($"Remote debug endpoint: {endpoint}");
+
+app.Run();
+```
+
+- `SetDevToolsEnabled(true)` controls local inspector UI.
+- `SetRemoteDebuggingPort(int? port)` controls TCP endpoint availability (`1..65535`, `0/null` disables).
+- On Linux/macOS, enabling remote debugging throws `PlatformNotSupportedException`.
+
 ## Custom Window Chrome
 
 Combine with `InfiniLore.InfiniFrame.Blazor` for a fully custom title bar.

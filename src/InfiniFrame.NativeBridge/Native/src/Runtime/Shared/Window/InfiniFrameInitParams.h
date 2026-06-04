@@ -26,6 +26,7 @@ struct InfiniFrameInitParams {
     AutoString UserAgent;
     AutoString BrowserControlInitParameters;
     AutoString NotificationRegistrationId;
+    int RemoteDebuggingPort;
 
     // Parent window
     InfiniFrameWindow* ParentInstance;

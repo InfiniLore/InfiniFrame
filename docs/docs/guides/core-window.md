@@ -8,6 +8,7 @@ This guide covers everything available through the `InfiniLore.InfiniFrame` pack
 - [Single-File Native Packaging](#single-file-native-packaging)
 - [Window Configuration](#window-configuration)
 - [Browser Features](#browser-features)
+- [DevTools and Remote Debugging](#devtools-and-remote-debugging)
 - [Runtime Window Control](#runtime-window-control)
 - [Events](#events)
 - [Web Messaging](#web-messaging)
@@ -134,6 +135,55 @@ builder
     .SetUserAgent("MyApp/1.0")
 ```
 
+## DevTools and Remote Debugging
+
+`SetDevToolsEnabled(bool)` and remote debugging are separate controls:
+
+- `SetDevToolsEnabled(bool)` controls local in-window inspector/devtools access.
+- `SetRemoteDebuggingPort(int? port)` configures a loopback TCP debug endpoint at startup.
+
+```csharp
+var window = InfiniFrameWindowBuilder.Create()
+    .SetTitle("Debuggable App")
+    .SetStartUrl("https://example.com")
+    .SetDevToolsEnabled(true)          // local inspector
+    .SetRemoteDebuggingPort(9222)      // remote endpoint (Windows only)
+    .Build();
+
+if (window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
+    Console.WriteLine(endpoint);
+```
+
+### Contract
+
+- Port range: `1..65535`.
+- `0` or `null`: disable remote debugging.
+- Invalid ports throw `ArgumentOutOfRangeException`.
+- Remote debugging is startup-only; calling `window.SetRemoteDebuggingPort(...)` after `Build()` throws `InvalidOperationException`.
+- `window.RemoteDebuggingPort` remains stable after startup; after close, `TryGetRemoteDebuggingEndpoint(out _)` returns `false` with `null` endpoint.
+
+### Platform behavior
+
+| Platform | `SetDevToolsEnabled` | `SetRemoteDebuggingPort` |
+|---|---|---|
+| Windows (WebView2) | Supported | Supported |
+| Linux (WebKitGTK) | Supported | Not supported (throws when enabled) |
+| macOS (WKWebView) | Supported | Not supported (throws when enabled) |
+
+- Use `window.SupportsRemoteDebugging` to query support.
+- On unsupported platforms, `TryGetRemoteDebuggingEndpoint(out _)` throws `PlatformNotSupportedException`.
+
+### Precedence with raw browser arguments
+
+`SetRemoteDebuggingPort(...)` is authoritative.  
+If `SetBrowserControlInitParameters(...)` contains `--remote-debugging-port=...` or `--remote-debugging-address=...`, those switches are stripped and replaced by the explicit API value.
+
+### Security and networking
+
+- InfiniFrame binds remote debugging to loopback (`127.0.0.1`) when enabled.
+- It does not intentionally expose externally reachable debug endpoints.
+- Startup validates port availability and throws actionable `InvalidOperationException` when the port is unavailable.
+
 ### URI Security Policy (Trusted Origins)
 
 InfiniFrame validates URI origins independently from browser `WebSecurity` toggles. For embedded apps (including BlazorWebView), trust external module/CDN origins explicitly:
@@ -180,6 +230,8 @@ builder.SetBrowserControlInitParameters("{ \"enable_developer_extras\": true }")
 // macOS: JSON object matching WKPreferences keys
 builder.SetBrowserControlInitParameters("{ \"minimumFontSize\": 12 }")
 ```
+
+For remote debugging, prefer `SetRemoteDebuggingPort(...)` over raw flags.
 
 ## Runtime Window Control
 

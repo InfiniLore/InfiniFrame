@@ -41,6 +41,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->UserAgent = DuplicateString(params->UserAgent);
         (*new_params)->BrowserControlInitParameters = DuplicateString(params->BrowserControlInitParameters);
         (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
+        (*new_params)->RemoteDebuggingPort = params->RemoteDebuggingPort;
 
         (*new_params)->ParentInstance = params->ParentInstance;
         (*new_params)->ClosingHandler = params->ClosingHandler;

@@ -137,6 +137,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
     if (initParams->NotificationRegistrationId != nullptr)
         m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
+    m_impl->_remoteDebuggingPort = initParams->RemoteDebuggingPort;
 
     m_impl->_transparentEnabled = initParams->Transparent;
     m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
