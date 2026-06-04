@@ -305,3 +305,7 @@ InfiniFrameWindow::~InfiniFrameWindow()
 
 InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }
 const InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() const noexcept { return m_impl.get(); }
+
+NSWindow* InfiniFrameWindow::getNSWindow() {
+    return m_impl->_window;
+}

@@ -18,7 +18,7 @@ public partial class InfiniFrameNative {
     [SupportedOSPlatform("windows")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_getHwnd_win32", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus GetWindowHandlerWin32(IntPtr instance, out IntPtr value);
+    internal static partial InfiniFrameNativeInteropStatus GetWindowHandleWin32(IntPtr instance, out IntPtr value);
 
     [SupportedOSPlatform("windows")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_setWebView2RuntimePath_win32", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]

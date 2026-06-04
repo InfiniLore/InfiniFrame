@@ -13,5 +13,5 @@ public partial class InfiniFrameNative {
     [SupportedOSPlatform("linux")]
     [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_getGtkWindow_linux", SetLastError = true)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    internal static partial InfiniFrameNativeInteropStatus GetWindowHandlerLinux(IntPtr instance, out IntPtr value);
+    internal static partial InfiniFrameNativeInteropStatus GetWindowHandleLinux(IntPtr instance, out IntPtr value);
 }

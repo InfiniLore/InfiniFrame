@@ -11,6 +11,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -385,12 +386,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             Events.OnWindowCreating();
 
             try {
-                if (OperatingSystem.IsWindows()) {
-                    Invoke(() => InfiniFrameNative.RegisterWin32(NativeType));
-                }
-                else if (OperatingSystem.IsMacOS()) {
-                    Invoke(() => InfiniFrameNative.RegisterMac());
-                }
+                Invoke(() => {
+                    if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(NativeType);
+                    else if (OperatingSystem.IsMacOS()) InfiniFrameNative.RegisterMac();
+                    else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
+                    else throw new PlatformNotSupportedException();
+                });
 
                 Invoke(() => {
                     InfiniFrameNative.EnsureSucceeded(
@@ -461,25 +462,52 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     #region PROPERTIES
     /// <summary>
-    ///     Represents a property that gets the handle of the native window on a Windows platform.
+    /// Gets the native handle of the window associated with the current instance.
+    /// This property provides the platform-specific window handle used for low-level operations.
     /// </summary>
     /// <remarks>
-    ///     Only available on the Windows platform.
-    ///     If this property is accessed from a non-Windows platform, a PlatformNotSupportedException will be thrown.
-    ///     If this property is accessed before the window is initialized, an ApplicationException will be thrown.
+    /// The returned handle is dependent on the underlying operating system (Windows, macOS, or Linux).
+    /// If the operating system is unsupported, accessing this property will throw a PlatformNotSupportedException.
     /// </remarks>
-    /// <value>
-    ///     The handle of the native window. The value is of type <see cref="IntPtr" />.
-    /// </value>
-    /// <exception cref="System.ApplicationException">Thrown when the window is not initialized yet.</exception>
-    /// <exception cref="System.PlatformNotSupportedException">Thrown when accessed from a non-Windows platform.</exception>
+    /// <exception cref="PlatformNotSupportedException">
+    /// Thrown when the current operating system is unsupported.
+    /// </exception>
+    /// <returns>
+    /// A pointer to the native window handle represented as an <see cref="IntPtr"/>.
+    /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public IntPtr WindowHandle => OperatingSystem.IsWindows()
-        ? InvokeUtility.InvokeAndReturn<IntPtr, InfiniFrameNativeInteropStatus>(
-            this,
-            InfiniFrameNative.GetWindowHandlerWin32,
-            validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetWindowHandlerWin32)))
-        : IntPtr.Zero;
+    public IntPtr WindowHandle {
+        get {
+            IntPtr handle;
+            if (OperatingSystem.IsWindows()) {
+                handle = InvokeUtility.InvokeAndReturn<IntPtr, InfiniFrameNativeInteropStatus>(
+                    this,
+                    InfiniFrameNative.GetWindowHandleWin32,
+                    s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetWindowHandleWin32))
+                );
+            }
+            else if (OperatingSystem.IsMacOS()) {
+                handle = InvokeUtility.InvokeAndReturn<IntPtr, InfiniFrameNativeInteropStatus>(
+                    this,
+                    InfiniFrameNative.GetWindowHandleMac,
+                    s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetWindowHandleWin32))
+                );
+                
+            }
+            else if (OperatingSystem.IsLinux()) {
+                handle = InvokeUtility.InvokeAndReturn<IntPtr, InfiniFrameNativeInteropStatus>(
+                    this,
+                    InfiniFrameNative.GetWindowHandleLinux,
+                    s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetWindowHandleWin32))
+                );
+            }
+            else {
+                throw new PlatformNotSupportedException();
+            }
+
+            return handle;
+        }
+    }
 
     /// <summary>
     ///     Gets a list of information for each monitor from the native window.
@@ -591,6 +619,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IgnoreCertificateErrorsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetIgnoreCertificateErrorsEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetIgnoreCertificateErrorsEnabled)));
 
+    [SupportedOSPlatform("windows")]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool NotificationsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetNotificationsEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetNotificationsEnabled)));
 

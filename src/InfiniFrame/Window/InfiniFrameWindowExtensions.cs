@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Runtime.Versioning;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -857,6 +858,7 @@ public static class InfiniFrameWindowExtensions {
     /// <seealso href="https://docs.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution" />
     /// <param name="data">Runtime path for WebView2</param>
     /// <param name="window">InfiniFrame window instance</param>
+    [SupportedOSPlatform("windows")]
     public static T Win32SetWebView2Path<T>(this T window, string data) where T : class, IInfiniFrameWindow {
         if (OperatingSystem.IsWindows())
             window.Invoke(()
