@@ -23,11 +23,16 @@ namespace {
         {
             std::lock_guard guard(invokeLockMutex);
             waitInfo->isCompleted = true;
+            // Notify while still holding the lock. The waiter in Invoke() may observe isCompleted before ever
+            // blocking, return immediately and destroy the stack-allocated waitInfo. Signalling after releasing the
+            // lock would then touch a freed condition_variable (use-after-free -> SIGSEGV -> PAL_SEHException ->
+            // terminate -> exit 134). Holding the lock guarantees the waiter cannot re-acquire it (and thus cannot
+            // return/destroy waitInfo) until notify_one has finished and the lock is released here.
+            waitInfo->completionNotifier.notify_one();
         }
-        waitInfo->completionNotifier.notify_one();
         return false;
     }
-} // namespace
+} 
 
 void InfiniFrameWindow::Invoke(const ACTION callback) {
     InvokeWaitInfo waitInfo = {};
