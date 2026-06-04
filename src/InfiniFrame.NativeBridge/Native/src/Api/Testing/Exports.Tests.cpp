@@ -3,6 +3,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include "Runtime/Shared/Window/InfiniFrame.h"
 #include "Api/Exports/Exports.h"
+#ifdef _WIN32
+#include "Runtime/Platform/Windows/DarkMode.h"
+#endif
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -106,6 +109,22 @@ EXPORTED InteropStatus InfiniFrameNativeTests_FreeInitParams(InfiniFrameInitPara
         delete params;
     });
 }
+
+#ifdef _WIN32
+EXPORTED InteropStatus InfiniFrameNativeTests_IsColorSchemeChange(const LPARAM lParam, int* result) {
+    if (result != nullptr) {
+        *result = 0;
+    }
+
+    return RunExportStatus([&] {
+        if (!EnsureNotNull(result, "result", ::InteropStatus::OutParameterSetToInvalidNull)) {
+            return;
+        }
+
+        *result = IsColorSchemeChange(lParam) ? 1 : 0;
+    });
+}
+#endif
 }
 
 #endif
