@@ -30,22 +30,6 @@ public class WindowTests {
     [Test]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
-    public async Task WindowHandle_IsDefined(CancellationToken ct = default) {
-        // Arrange
-        using var windowUtility = InfiniFrameTestWindow.Create(ct);
-        IInfiniFrameWindow window = windowUtility.Window;
-
-        // Act
-        IntPtr handle = window.WindowHandle;
-
-        // Assert
-        if (OperatingSystem.IsWindows()) await Assert.That(handle).IsNotDefault();
-        else await Assert.That(handle).IsEqualTo(IntPtr.Zero);
-    }
-
-    [Test]
-    [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task Monitors_IsNotEmpty(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

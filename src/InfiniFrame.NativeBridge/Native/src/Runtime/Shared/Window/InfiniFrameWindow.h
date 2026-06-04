@@ -525,6 +525,12 @@ class InfiniFrameWindow {
     void OnConfigureEvent(int x, int y, int width, int height);
     void OnWindowStateEvent(GdkWindowState newState);
     void FlushPendingWebMessages();
+
+    /**
+         * @brief Get the native GTK toplevel window widget
+         * @return GtkWidget* for this window
+         */
+    GtkWidget* getGtkWindow();
 #endif
 
 #ifdef _WIN32
@@ -581,6 +587,12 @@ class InfiniFrameWindow {
     static void Register();
 
     void FlushPendingWebMessages();
+
+    /**
+         * @brief Get the native NSWindow pointer for this window
+         * @return NSWindow* for this window
+         */
+    NSWindow* getNSWindow();
 #endif
 
     // -----------------------------------------------------------------------------------------------------------------

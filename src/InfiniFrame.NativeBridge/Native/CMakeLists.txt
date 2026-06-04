@@ -43,6 +43,7 @@ set(COMMON_SOURCES
         src/Api/Exports/Exports.Lifecycle.cpp
         src/Api/Exports/Exports.Memory.cpp
         src/Api/Exports/Exports.Monitors.cpp
+        src/Api/Exports/Exports.Platform.Linux.cpp
         src/Api/Exports/Exports.Platform.MacOs.cpp
         src/Api/Exports/Exports.Platform.Windows.cpp
         src/Api/Exports/Exports.Window.Actions.cpp

@@ -6,18 +6,13 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 extern "C" {
-#ifdef __APPLE__
-EXPORTED InteropStatus InfiniFrameNative_register_mac() {
-    return RunExportStatus([] { InfiniFrameWindow::Register(); });
-}
-
-EXPORTED InteropStatus InfiniFrameNative_getNSWindow_mac(InfiniFrameWindow* instance, void** value) {
-    ResetOut(value, static_cast<void*>(nullptr));
+#ifdef __linux__
+EXPORTED InteropStatus InfiniFrameNative_getGtkWindow_linux(InfiniFrameWindow* instance, GtkWidget** value) {
+    ResetOut(value, static_cast<GtkWidget*>(nullptr));
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) {
         if (!EnsureOutNotNull(value, "value"))
             return;
-
-        *value = static_cast<void*>(window->getNSWindow());
+        *value = window->getGtkWindow();
     });
 }
 #endif
