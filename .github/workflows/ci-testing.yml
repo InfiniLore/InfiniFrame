@@ -7,6 +7,10 @@ permissions:
     checks: write
 
 on:
+    push:
+        branches:
+            - core
+        
     workflow_dispatch:
         inputs:
             pr_number:
@@ -49,11 +53,13 @@ jobs:
         uses: ./.github/workflows/shared-testing.yml
         with:
             pr_number: ${{ inputs.pr_number }}
-            run_windows: ${{ inputs.run_windows }}
-            run_windows_playwright: ${{ inputs.run_windows_playwright }}
-            run_linux: ${{ inputs.run_linux }}
-            run_macos: ${{ inputs.run_macos }}
-            run_docs: ${{ inputs.run_docs }}
-            run_trim_aot: ${{ inputs.run_trim_aot }}
+
+            run_windows: ${{ github.event_name == 'push' || inputs.run_windows }}
+            run_windows_playwright: ${{ github.event_name == 'push' || inputs.run_windows_playwright }}
+            run_linux: ${{ github.event_name == 'push' || inputs.run_linux }}
+            run_macos: ${{ github.event_name == 'push' || inputs.run_macos }}
+            run_docs: ${{ github.event_name == 'push' || inputs.run_docs }}
+            run_trim_aot: ${{ github.event_name == 'push' || inputs.run_trim_aot }}
+
             enable_test_exports: true
         secrets: inherit
