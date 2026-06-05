@@ -18,17 +18,17 @@ public class WebInspectorTests {
 
         // Act
         if (isSupported) {
-            builder.Debug.SetWebInspectorEnabled();
+            builder.Debugging.SetWebInspectorEnabled();
             InfiniFrameNativeParameters nativeParameters = builder.Configuration.ToNativeParameters();
 
             // Assert
-            await Assert.That(builder.Debug.WebInspectorEnabled).IsTrue();
+            await Assert.That(builder.Debugging.WebInspectorEnabled).IsTrue();
             await Assert.That(nativeParameters.WebInspectorEnabled).IsTrue();
             return;
         }
 
         var exception = await Assert.ThrowsAsync<PlatformNotSupportedException>(() => Task.Run(() => {
-            builder.Debug.SetWebInspectorEnabled();
+            builder.Debugging.SetWebInspectorEnabled();
         }, ct));
 
         // Assert
@@ -42,11 +42,11 @@ public class WebInspectorTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        builder.Debug.SetWebInspectorEnabled(false);
+        builder.Debugging.SetWebInspectorEnabled(false);
         InfiniFrameNativeParameters nativeParameters = builder.Configuration.ToNativeParameters();
 
         // Assert
-        await Assert.That(builder.Debug.WebInspectorEnabled).IsFalse();
+        await Assert.That(builder.Debugging.WebInspectorEnabled).IsFalse();
         await Assert.That(nativeParameters.WebInspectorEnabled).IsFalse();
     }
 }

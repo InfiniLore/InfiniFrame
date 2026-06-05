@@ -11,7 +11,7 @@ public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEventsStore {
     IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
     IInfiniFrameOptionsBuilder Configuration { get; }
-    IInfiniFrameWindowDebugBuilder Debug { get; }
+    IInfiniFrameWindowDebuggingBuilder Debugging { get; }
 
     IInfiniFrameWindow Build(IServiceProvider? provider = null);
 }

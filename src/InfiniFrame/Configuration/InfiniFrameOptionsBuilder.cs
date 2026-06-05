@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 using System.Runtime.InteropServices;
@@ -75,6 +76,8 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
         set => _childWindows = value.ToList();
     }
     #endregion
+    
+    public IInfiniFrameWindowDebuggingBuilder Debugging { get; } = new InfiniFrameWindowDebuggingBuilder();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -88,7 +91,10 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
         IntPtr[] customSchemeNameArray = CustomSchemeNameMemory.Allocate(CustomSchemeNames);
 
         return new InfiniFrameNativeParameters {
-            BrowserControlInitParameters = BrowserControlInitParameters,
+            BrowserControlInitParameters = RemoteDebuggingUtility.ComposeBrowserControlInitParameters(
+                BrowserControlInitParameters,
+                Debugging.RemoteDebuggingPort
+            ),
             CenterOnInitialize = Centered,
             Chromeless = Chromeless,
             ContextMenuEnabled = ContextMenuEnabled,
@@ -128,7 +134,12 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
             Width = Width,
             WindowIconFile = resolvedIconFilePath,
             Zoom = Zoom,
-            ZoomEnabled = ZoomEnabled
+            ZoomEnabled = ZoomEnabled,
+            
+            // Debug options
+            RemoteDebuggingPort = Debugging.RemoteDebuggingPort,
+            DevToolsEnabled = Debugging.DevToolsEnabled,
+            WebInspectorEnabled = Debugging.WebInspectorEnabled
         };
     }
 }

@@ -17,17 +17,14 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     private static readonly ILogger<IInfiniFrameWindow> FallbackLogger = NullLogger<IInfiniFrameWindow>.Instance;
 
     public IInfiniFrameOptionsBuilder Configuration { get; } = new InfiniFrameOptionsBuilder();
+    public IInfiniFrameWindowDebuggingBuilder Debugging => Configuration.Debugging;
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
-    public IInfiniFrameWindowDebugBuilder Debug { get; private init; }
     
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameWindowBuilder() {
-        Debug = new InfiniFrameWindowDebugBuilder();
-    }
     
     public static InfiniFrameWindowBuilder Create(InfiniFrameEventsStore? events = null) {
         var builder = new InfiniFrameWindowBuilder {
@@ -74,16 +71,10 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             IConfigurationSection? section = config?.GetSection("InfiniFrame");
 
             if (section is not null && section.Exists()) {
-                InfiniFrameOptionsSectionApplier.Apply(section, Configuration, Debug);
+                InfiniFrameOptionsSectionApplier.Apply(section, Configuration);
             }
         }
-
-        InfiniFrameNativeParameters parameters = Configuration.ToNativeParameters();
-        if (Debug is InfiniFrameWindowDebugBuilder debugBuilder) {
-            debugBuilder.ApplyStartupDebugSettings(ref parameters);
-        }
-
-        return parameters;
+        return Configuration.ToNativeParameters();
     }
 
     internal static ILogger<IInfiniFrameWindow> ResolveLogger(IServiceProvider? provider) {

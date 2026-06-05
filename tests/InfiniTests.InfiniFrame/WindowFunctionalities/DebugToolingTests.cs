@@ -17,7 +17,7 @@ public class DebugToolingTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
-        InfiniFrameDebugCapabilities capabilities = window.Debug.Capabilities;
+        InfiniFrameDebugCapabilities capabilities = window.Debugging.Capabilities;
 
         await Assert.That(capabilities.SupportsLocalDevTools).IsTrue();
         await Assert.That(capabilities.SupportsRemoteDebuggingEndpoint).IsEqualTo(OperatingSystem.IsWindows() || OperatingSystem.IsLinux());
@@ -35,19 +35,19 @@ public class DebugToolingTests {
             : null;
 
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
-            builder.SetDevToolsEnabled(false);
+            builder.Debugging.SetDevToolsEnabled(false);
             if (debugPort.HasValue) {
-                builder.SetRemoteDebuggingPort(debugPort.Value);
+                builder.Debugging.SetRemoteDebuggingPort(debugPort.Value);
             }
         }, ct);
 
         IInfiniFrameWindow window = windowUtility.Window;
-        InfiniFrameDebugDiagnostics diagnostics = window.Debug.GetDiagnostics();
+        InfiniFrameDebugDiagnostics diagnostics = window.Debugging.GetDiagnostics();
 
         await Assert.That(diagnostics.Capabilities).IsNotNull();
-        await Assert.That(diagnostics.DevToolsEnabled).IsEqualTo(window.Debug.DevToolsEnabled);
-        await Assert.That(diagnostics.RemoteDebuggingPort).IsEqualTo(window.Debug.RemoteDebuggingPort);
-        await Assert.That(diagnostics.WebInspectorEnabled).IsEqualTo(window.Debug.WebInspectorEnabled);
+        await Assert.That(diagnostics.DevToolsEnabled).IsEqualTo(window.Debugging.DevToolsEnabled);
+        await Assert.That(diagnostics.RemoteDebuggingPort).IsEqualTo(window.Debugging.RemoteDebuggingPort);
+        await Assert.That(diagnostics.WebInspectorEnabled).IsEqualTo(window.Debugging.WebInspectorEnabled);
         await Assert.That(diagnostics.Platform).IsNotNull();
         await Assert.That(diagnostics.Runtime).IsNotNull();
     }
@@ -61,7 +61,7 @@ public class DebugToolingTests {
         var kinds = new ConcurrentQueue<InfiniFrameDebugEventKind>();
         using var eventReceived = new AutoResetEvent(false);
 
-        window.Debug.Event += OnDebugEvent;
+        window.Debugging.Event += OnDebugEvent;
 
         try {
             window.Close();
@@ -76,7 +76,7 @@ public class DebugToolingTests {
             }
         }
         finally {
-            window.Debug.Event -= OnDebugEvent;
+            window.Debugging.Event -= OnDebugEvent;
         }
 
         if (!kinds.Any()) {

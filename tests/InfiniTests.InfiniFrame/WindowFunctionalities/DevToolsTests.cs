@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 
 namespace InfiniTests.InfiniFrame.WindowFunctionalities;
@@ -20,10 +19,10 @@ public class DevToolsTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        builder.Debug.SetDevToolsEnabled(state);
+        builder.Debugging.SetDevToolsEnabled(state);
 
         // Assert
-        await Assert.That(builder.Debug.DevToolsEnabled).IsEqualTo(state);
+        await Assert.That(builder.Debugging.DevToolsEnabled).IsEqualTo(state);
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.DevToolsEnabled).IsEqualTo(state);
@@ -41,10 +40,10 @@ public class DevToolsTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        window.Debug.SetDevToolsEnabled(state);
+        window.Debugging.SetDevToolsEnabled(state);
 
         // Assert
-        bool foundState = window.Debug.DevToolsEnabled;
+        bool foundState = window.Debugging.DevToolsEnabled;
         await Assert.That(foundState).IsEqualTo(state);
     }
 
@@ -59,13 +58,13 @@ public class DevToolsTests {
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder: builder => builder.SetDevToolsEnabled(state),
+            builder: builder => builder.Debugging.SetDevToolsEnabled(state),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        bool foundState = window.Debug.DevToolsEnabled;
+        bool foundState = window.Debugging.DevToolsEnabled;
         await Assert.That(foundState).IsEqualTo(state);
     }
 }

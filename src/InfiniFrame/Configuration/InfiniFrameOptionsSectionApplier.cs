@@ -15,14 +15,13 @@ internal static class InfiniFrameOptionsSectionApplier {
     /// </summary>
     /// <param name="section"></param>
     /// <param name="configuration"></param>
-    /// <param name="debug"></param>
-    public static void Apply(IConfigurationSection section, IInfiniFrameOptionsBuilder configuration, IInfiniFrameWindowDebugBuilder debug) {
+    public static void Apply(IConfigurationSection section, IInfiniFrameOptionsBuilder configuration) {
         SetString(section, nameof(InfiniFrameOptionsBuilder.BrowserControlInitParameters), assign: value => configuration.BrowserControlInitParameters = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Centered), assign: value => configuration.Centered = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Chromeless), assign: value => configuration.Chromeless = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.ContextMenuEnabled), assign: value => configuration.ContextMenuEnabled = value);
-        SetBool(section, nameof(IInfiniFrameWindowDebugBuilder.DevToolsEnabled), assign: value => debug.SetDevToolsEnabled(value));
-        SetBool(section, nameof(IInfiniFrameWindowDebugBuilder.WebInspectorEnabled), assign: value => debug.SetWebInspectorEnabled(value));
+        SetBool(section, nameof(IInfiniFrameWindowDebuggingBuilder.DevToolsEnabled), assign: value => configuration.Debugging.SetDevToolsEnabled(value));
+        SetBool(section, nameof(IInfiniFrameWindowDebuggingBuilder.WebInspectorEnabled), assign: value => configuration.Debugging.SetWebInspectorEnabled(value));
         SetBool(section, nameof(InfiniFrameOptionsBuilder.FileSystemAccessEnabled), assign: value => configuration.FileSystemAccessEnabled = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.FullScreen), assign: value => configuration.FullScreen = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.GrantBrowserPermissions), assign: value => configuration.GrantBrowserPermissions = value);
@@ -42,7 +41,7 @@ internal static class InfiniFrameOptionsSectionApplier {
         SetBool(section, nameof(InfiniFrameOptionsBuilder.NotificationsEnabled), assign: value => configuration.NotificationsEnabled = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.NotificationRegistrationId), assign: value => configuration.NotificationRegistrationId = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Resizable), assign: value => configuration.Resizable = value);
-        SetInt(section, nameof(IInfiniFrameWindowDebugBuilder.RemoteDebuggingPort), assign: value => debug.SetRemoteDebuggingPort(value));
+        SetInt(section, nameof(IInfiniFrameWindowDebuggingBuilder.RemoteDebuggingPort), assign: value => configuration.Debugging.SetRemoteDebuggingPort(value));
         SetBool(section, nameof(InfiniFrameOptionsBuilder.SmoothScrollingEnabled), assign: value => configuration.SmoothScrollingEnabled = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.StartString), assign: value => configuration.StartString = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.StartUrl), assign: value => configuration.StartUrl = value);

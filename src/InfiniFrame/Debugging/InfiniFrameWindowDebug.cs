@@ -11,7 +11,7 @@ namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
+public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
     private readonly InfiniFrameWindow _window;
     private readonly Dictionary<EventHandler<InfiniFrameDebugEventArgs>, Action<IInfiniFrameWindow, InfiniFrameDebugEventArgs>> _eventHandlers = [];
 
@@ -24,7 +24,7 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    internal InfiniFrameWindowDebug(InfiniFrameWindow window) {
+    internal InfiniFrameWindowDebugging(InfiniFrameWindow window) {
         _window = window;
     }
 
@@ -44,7 +44,7 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
                 }
 
                 _eventHandlers[value] = Bridge;
-                _window.EventsStore.DebugEvent.Add(Bridge);
+                _window.EventsStore.DebuggingEvent.Add(Bridge);
             }
         }
         remove {
@@ -57,7 +57,7 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
                     return;
                 }
 
-                _window.EventsStore.DebugEvent.Remove(bridge);
+                _window.EventsStore.DebuggingEvent.Remove(bridge);
             }
         }
     }

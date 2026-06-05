@@ -19,16 +19,16 @@ public class RemoteDebuggingTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        builder.Debug.SetRemoteDebuggingPort(9222);
-        int? enabledPort = builder.Debug.RemoteDebuggingPort;
+        builder.Debugging.SetRemoteDebuggingPort(9222);
+        int? enabledPort = builder.Debugging.RemoteDebuggingPort;
         InfiniFrameNativeParameters enabled = builder.Configuration.ToNativeParameters();
 
-        builder.Debug.SetRemoteDebuggingPort(0);
-        int? disabledPort = builder.Debug.RemoteDebuggingPort;
+        builder.Debugging.SetRemoteDebuggingPort(0);
+        int? disabledPort = builder.Debugging.RemoteDebuggingPort;
         InfiniFrameNativeParameters disabled = builder.Configuration.ToNativeParameters();
 
         // Assert
-        await Assert.That(builder.Debug.RemoteDebuggingPort).IsNull();
+        await Assert.That(builder.Debugging.RemoteDebuggingPort).IsNull();
         await Assert.That(enabledPort).IsEqualTo(9222);
         await Assert.That(enabled.RemoteDebuggingPort).IsEqualTo(9222);
         if (OperatingSystem.IsWindows()) {
@@ -57,7 +57,7 @@ public class RemoteDebuggingTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => Task.Run(() => {
-            builder.Debug.SetRemoteDebuggingPort(invalidPort);
+            builder.Debugging.SetRemoteDebuggingPort(invalidPort);
         }, ct));
 
         // Assert
@@ -74,7 +74,7 @@ public class RemoteDebuggingTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<PlatformNotSupportedException>(() => Task.Run(() => {
-            builder.Debug.SetRemoteDebuggingPort(9222);
+            builder.Debugging.SetRemoteDebuggingPort(9222);
         }, ct));
 
         // Assert
@@ -91,7 +91,7 @@ public class RemoteDebuggingTests {
         builder.SetBrowserControlInitParameters("--disable-gpu --remote-debugging-port=9999");
         InfiniFrameNativeParameters withoutExplicitPort = builder.Configuration.ToNativeParameters();
 
-        builder.Debug.SetRemoteDebuggingPort(9222);
+        builder.Debugging.SetRemoteDebuggingPort(9222);
         InfiniFrameNativeParameters withExplicitPort = builder.Configuration.ToNativeParameters();
 
         // Assert
@@ -121,15 +121,15 @@ public class RemoteDebuggingTests {
     public async Task Window_AliveAndClosed_ShouldExposeDeterministicEndpointState(CancellationToken ct = default) {
         // Arrange
         int port = GetAvailableLoopbackPort();
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.SetRemoteDebuggingPort(port), ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.Debugging.SetRemoteDebuggingPort(port), ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act (alive)
-        bool aliveResult = window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? aliveEndpoint);
+        bool aliveResult = window.Debugging.TryGetRemoteDebuggingEndpoint(out Uri? aliveEndpoint);
 
         // Assert (alive)
-        await Assert.That(window.Debug.SupportsRemoteDebugging).IsTrue();
-        await Assert.That(window.Debug.RemoteDebuggingPort).IsEqualTo(port);
+        await Assert.That(window.Debugging.SupportsRemoteDebugging).IsTrue();
+        await Assert.That(window.Debugging.RemoteDebuggingPort).IsEqualTo(port);
         await Assert.That(aliveResult).IsTrue();
         await Assert.That(aliveEndpoint).IsNotNull();
         await Assert.That(aliveEndpoint!.ToString()).IsEqualTo(GetExpectedEndpointUri(port).ToString());
@@ -141,10 +141,10 @@ public class RemoteDebuggingTests {
             await Task.Delay(50, ct);
         }
 
-        bool closedResult = window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? closedEndpoint);
+        bool closedResult = window.Debugging.TryGetRemoteDebuggingEndpoint(out Uri? closedEndpoint);
 
         // Assert (closed)
-        await Assert.That(window.Debug.RemoteDebuggingPort).IsEqualTo(port);
+        await Assert.That(window.Debugging.RemoteDebuggingPort).IsEqualTo(port);
         await Assert.That(closedResult).IsFalse();
         await Assert.That(closedEndpoint).IsNull();
     }
@@ -156,9 +156,9 @@ public class RemoteDebuggingTests {
     public async Task Window_EndpointReadinessAndClose_ShouldBeDeterministic(CancellationToken ct = default) {
         // Arrange
         int port = GetAvailableLoopbackPort();
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.SetRemoteDebuggingPort(port), ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.Debugging.SetRemoteDebuggingPort(port), ct);
         IInfiniFrameWindow window = windowUtility.Window;
-        bool hasEndpoint = window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
+        bool hasEndpoint = window.Debugging.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
 
         await Assert.That(hasEndpoint).IsTrue();
         await Assert.That(endpoint).IsNotNull();
@@ -191,7 +191,7 @@ public class RemoteDebuggingTests {
     [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 50_000)]
     public async Task Window_Debug_TryProbeEndpoint_ShouldExposeBoundedDeterministicState(CancellationToken ct = default) {
         int port = GetAvailableLoopbackPort();
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.SetRemoteDebuggingPort(port), ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.Debugging.SetRemoteDebuggingPort(port), ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         bool reachable = await WaitUntilProbeSucceeds(window, TimeSpan.FromSeconds(40), ct);
@@ -200,7 +200,7 @@ public class RemoteDebuggingTests {
             return;
         }
 
-        bool probed = window.Debug.TryProbeEndpoint(out Uri? endpoint, out string? reason);
+        bool probed = window.Debugging.TryProbeEndpoint(out Uri? endpoint, out string? reason);
         await Assert.That(probed).IsTrue();
         await Assert.That(endpoint).IsNotNull();
         await Assert.That(reason).IsNull();
@@ -211,12 +211,12 @@ public class RemoteDebuggingTests {
             await Task.Delay(50, ct);
         }
 
-        bool closedProbe = window.Debug.TryProbeEndpoint(out Uri? closedEndpoint, out string? closedReason);
+        bool closedProbe = window.Debugging.TryProbeEndpoint(out Uri? closedEndpoint, out string? closedReason);
         await Assert.That(closedProbe).IsFalse();
         await Assert.That(closedEndpoint).IsNull();
         await Assert.That(closedReason).Contains("closed");
 
-        InfiniFrameDebugDiagnostics diagnostics = window.Debug.GetDiagnostics();
+        InfiniFrameDebugDiagnostics diagnostics = window.Debugging.GetDiagnostics();
         await Assert.That(diagnostics.EndpointStatus).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);
     }
 
@@ -231,7 +231,7 @@ public class RemoteDebuggingTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => {
-            using var _ = InfiniFrameTestWindow.Create(builder => builder.SetRemoteDebuggingPort(port), ct);
+            using var _ = InfiniFrameTestWindow.Create(builder => builder.Debugging.SetRemoteDebuggingPort(port), ct);
         }, ct));
 
         // Assert
@@ -291,7 +291,7 @@ public class RemoteDebuggingTests {
     private static async Task<bool> WaitUntilProbeSucceeds(IInfiniFrameWindow window, TimeSpan timeout, CancellationToken ct) {
         DateTime timeoutAt = DateTime.UtcNow.Add(timeout);
         while (DateTime.UtcNow < timeoutAt && !ct.IsCancellationRequested) {
-            if (window.Debug.TryProbeEndpoint(out _, out _))
+            if (window.Debugging.TryProbeEndpoint(out _, out _))
                 return true;
 
             await Task.Delay(200, ct);

@@ -15,6 +15,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     ILogger<IInfiniFrameWindow> Logger { get; }
     IServiceProvider? ServiceProvider { get; }
     IInfiniFrameEvents Events { get; }
+    IInfiniFrameWindowDebugging Debugging { get; }
     
     IInfiniFrameOptions Configuration { get; }
     
@@ -53,8 +54,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
     Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default);
     InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
-    IInfiniFrameWindowDebug Debug { get; }
-
+   
     bool TryResolveStaticAssetUri(string path, out Uri uri);
     internal void MarkClosedFromNativeCallback();
 }

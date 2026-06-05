@@ -2,15 +2,15 @@ namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowDebugBuilder {
+public interface IInfiniFrameWindowDebuggingBuilder {
     bool SupportsRemoteDebuggingEndpoint { get; }
     bool SupportsWebInspectorAttach { get; }
 
     bool DevToolsEnabled { get; }
     bool WebInspectorEnabled { get; }
-    int? RemoteDebuggingPort { get; }
+    int RemoteDebuggingPort { get; }
 
-    void SetDevToolsEnabled(bool enabled);
-    void SetWebInspectorEnabled(bool enabled = true);
-    void SetRemoteDebuggingPort(int? port);
+    IInfiniFrameWindowDebuggingBuilder SetDevToolsEnabled(bool enabled);
+    IInfiniFrameWindowDebuggingBuilder SetWebInspectorEnabled(bool enabled = true);
+    IInfiniFrameWindowDebuggingBuilder SetRemoteDebuggingPort(int port);
 }

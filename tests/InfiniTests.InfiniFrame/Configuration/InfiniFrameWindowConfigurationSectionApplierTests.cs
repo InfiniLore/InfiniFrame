@@ -27,7 +27,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameOptionsSectionApplier.Apply(section, configuration, builder.Debug);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.Title).IsEqualTo("New Title");
@@ -51,7 +51,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameOptionsSectionApplier.Apply(section, configuration, builder.Debug);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.Title).IsEqualTo("Expected");
@@ -74,7 +74,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameOptionsSectionApplier.Apply(section, configuration, builder.Debug);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
 
         // Assert
         await Assert.That(configuration.CustomSchemeNames.Count).IsEqualTo(2);

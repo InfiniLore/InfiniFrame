@@ -2,7 +2,7 @@ namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowDebug {
+public interface IInfiniFrameWindowDebugging {
     bool DevToolsEnabled { get; }
     bool SupportsWebInspector { get; }
     bool WebInspectorEnabled { get; }

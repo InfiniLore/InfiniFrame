@@ -23,7 +23,7 @@ public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
     public OrderedEvent WindowCreated { get; } = new();
     
     public OrderedEvent<InfiniFrameWebMessageReceivedEvent> WebMessageReceived { get; } = new();
-    public OrderedEvent<InfiniFrameDebugEventArgs> DebugEvent { get; } = new();
+    public OrderedEvent<InfiniFrameDebugEventArgs> DebuggingEvent { get; } = new();
     public KeyedEvent<string, string?> WebMessagePostData { get; } = new();
     public KeyedResultEvent<string, string?, string?> WebMessageGetData { get; } = new();
     
@@ -36,7 +36,7 @@ public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
         var copy = new InfiniFrameEventsStore();
 
         CopyHandlers(WebMessageReceived.Snapshot, copy.WebMessageReceived.Add);
-        CopyHandlers(DebugEvent.Snapshot, copy.DebugEvent.Add);
+        CopyHandlers(DebuggingEvent.Snapshot, copy.DebuggingEvent.Add);
         CopyHandlers(WebMessagePostData.Snapshot, static (target, item) => target.WebMessagePostData.Add(item.Key, item.Value), copy);
         CopyHandlers(WebMessageGetData.Handlers, static (target, item) => target.WebMessageGetData.Add(item.Key, item.Value), copy);
         CopyHandlers(CustomScheme.Handlers, static (target, item) => target.CustomScheme.Add(item.Key, item.Value), copy);

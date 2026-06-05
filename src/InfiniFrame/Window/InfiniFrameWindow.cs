@@ -40,12 +40,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     private int _shutdownState;
     private string _lastDebugInitializationStatus = "NotStarted";
     private string? _lastDebugInitializationError;
-    private InfiniFrameWindowDebug? _debug;
+    private InfiniFrameWindowDebugging? _debug;
 
     private bool IsClosing => Volatile.Read(ref _shutdownState) != 0;
     public bool IsClosed => Volatile.Read(ref _shutdownState) == 2;
     public bool IsClosedOrClosing => IsClosing || InstanceHandle == IntPtr.Zero;
-    public IInfiniFrameWindowDebug Debug => _debug ??= new InfiniFrameWindowDebug(this);
+    public IInfiniFrameWindowDebugging Debugging => _debug ??= new InfiniFrameWindowDebugging(this);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

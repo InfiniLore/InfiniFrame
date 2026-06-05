@@ -27,7 +27,7 @@ public partial class InfiniFrameEvents {
             ? DateTimeOffset.FromUnixTimeMilliseconds(timestampUnixMillisecondsUtc).UtcDateTime
             : DateTime.UtcNow;
 
-        EventsStore.DebugEvent.Invoke(Sender, new InfiniFrameDebugEventArgs {
+        EventsStore.DebuggingEvent.Invoke(Sender, new InfiniFrameDebugEventArgs {
             Kind = parsedKind,
             Message = string.IsNullOrWhiteSpace(message) ? null : message,
             Level = string.IsNullOrWhiteSpace(level) ? null : level,

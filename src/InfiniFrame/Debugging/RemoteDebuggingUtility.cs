@@ -15,12 +15,13 @@ internal static partial class RemoteDebuggingUtility {
     public const int MaxPort = 65535;
 
     private const string LoopbackAddress = "127.0.0.1";
-    public static int? NormalizePort(int? port, string parameterName = "port") {
-        if (port is null or 0) return null;
-        if (port < MinPort || port > MaxPort)
-            throw new ArgumentOutOfRangeException(parameterName, port, $"Remote debugging port must be {MinPort}..{MaxPort}, or 0/null to disable.");
+    public static int NormalizePort(int port, string parameterName = "port") {
+        return port switch {
+            0 => 0,
+            < MinPort or > MaxPort => throw new ArgumentOutOfRangeException(parameterName, port, $"Remote debugging port must be {MinPort}..{MaxPort}, or 0/null to disable."),
+            _ => port
+        };
 
-        return port;
     }
 
     public static bool IsSupportedPlatform() => OperatingSystem.IsWindows() || OperatingSystem.IsLinux();

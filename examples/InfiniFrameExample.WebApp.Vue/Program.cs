@@ -15,7 +15,7 @@ public static class Program {
         InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
         // WebApplicationBuilder appBuilder = builder.WebApp;
 
-        appBuilder.WindowBuilder.Debug.SetRemoteDebuggingPort(9222);
+        appBuilder.WindowBuilder.Debugging.SetRemoteDebuggingPort(9222);
         
         appBuilder.WindowBuilder
             .Center()
