@@ -6,24 +6,66 @@ using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
-namespace InfiniFrame;
+namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
     private readonly InfiniFrameWindow _window;
+    private readonly object _eventHandlersLock = new();
+    private readonly Dictionary<EventHandler<InfiniFrameDebugEventArgs>, Action<IInfiniFrameWindow, InfiniFrameDebugEventArgs>> _eventHandlers = [];
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
     internal InfiniFrameWindowDebug(InfiniFrameWindow window) {
         _window = window;
     }
 
-    public event EventHandler<InfiniFrameDebugEventArgs>? Event;
+    public event EventHandler<InfiniFrameDebugEventArgs>? Event {
+        add {
+            if (value is null) {
+                return;
+            }
 
-    public bool DevToolsEnabled => _window.GetDebugDevToolsEnabled();
-    public bool SupportsWebInspector => _window.GetDebugSupportsWebInspector();
-    public bool WebInspectorEnabled => _window.GetDebugWebInspectorEnabled();
-    public bool SupportsRemoteDebugging => _window.GetDebugSupportsRemoteDebugging();
-    public int? RemoteDebuggingPort => _window.GetDebugRemoteDebuggingPort();
+            lock (_eventHandlersLock) {
+                if (_eventHandlers.ContainsKey(value)) {
+                    return;
+                }
+
+                void Bridge(IInfiniFrameWindow sender, InfiniFrameDebugEventArgs args) {
+                    value(sender, args);
+                }
+
+                _eventHandlers[value] = Bridge;
+                _window.EventsStore.DebugEvent.Add(Bridge);
+            }
+        }
+        remove {
+            if (value is null) {
+                return;
+            }
+
+            lock (_eventHandlersLock) {
+                if (!_eventHandlers.Remove(value, out Action<IInfiniFrameWindow, InfiniFrameDebugEventArgs>? bridge)) {
+                    return;
+                }
+
+                _window.EventsStore.DebugEvent.Remove(bridge);
+            }
+        }
+    }
+
+    public bool DevToolsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(
+        _window,
+        InfiniFrameNative.GetDevToolsEnabled,
+        validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
+    public bool SupportsWebInspector => WebInspectorUtility.IsSupportedPlatform();
+    public bool WebInspectorEnabled => _window.Configuration.StartupParameters.WebInspectorEnabled;
+    public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
+    public int? RemoteDebuggingPort => _window.Configuration.StartupParameters.RemoteDebuggingPort > 0
+        ? _window.Configuration.StartupParameters.RemoteDebuggingPort
+        : null;
 
     public InfiniFrameDebugCapabilities Capabilities => new() {
         SupportsLocalDevTools = true,
@@ -33,6 +75,9 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
         SupportsNavigationDiagnostics = true
     };
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void SetDevToolsEnabled(bool enabled) {
         _window.Logger.LogDebug(".Debug.SetDevToolsEnabled({Enabled})", enabled);
 
@@ -122,7 +167,7 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
         return new InfiniFrameDebugDiagnostics {
             Platform = RuntimeInformation.OSDescription,
             Runtime = RuntimeInformation.FrameworkDescription,
-            BrowserRuntime = _window.GetBrowserRuntimeIdentity(),
+            BrowserRuntime = GetBrowserRuntimeIdentity(),
             Capabilities = Capabilities,
             DevToolsEnabled = DevToolsEnabled,
             RemoteDebuggingPort = RemoteDebuggingPort,
@@ -137,10 +182,6 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
         };
     }
 
-    internal void Raise(InfiniFrameDebugEventArgs args) {
-        Event?.Invoke(_window, args);
-    }
-
     private static string? GetPlatformDiagnosticsNotes() {
         if (OperatingSystem.IsLinux()) {
             return "Linux remote inspector server is process-scoped in WebKitGTK.";
@@ -148,6 +189,22 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
 
         if (OperatingSystem.IsMacOS()) {
             return "Web inspector is Safari attach mode and differs from remote TCP endpoint debugging.";
+        }
+
+        return null;
+    }
+
+    private static string? GetBrowserRuntimeIdentity() {
+        if (OperatingSystem.IsWindows()) {
+            return InfiniFrameNative.GetWebView2RuntimeVersion();
+        }
+
+        if (OperatingSystem.IsLinux()) {
+            return "WebKitGTK";
+        }
+
+        if (OperatingSystem.IsMacOS()) {
+            return "WKWebView";
         }
 
         return null;

@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using System.Drawing;
+using InfiniFrame.Debugging;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,6 +17,7 @@ public interface IInfiniFrameEventsStore {
     OrderedEvent WindowFocusOut { get; }
     OrderedEvent WindowMinimized { get; }
     OrderedEvent<InfiniFrameWebMessageReceivedEvent> WebMessageReceived { get; }
+    OrderedEvent<InfiniFrameDebugEventArgs> DebugEvent { get; }
     
     KeyedEvent<string, string?> WebMessagePostData { get; }
     KeyedResultEvent<string, string?, string?> WebMessageGetData { get; }

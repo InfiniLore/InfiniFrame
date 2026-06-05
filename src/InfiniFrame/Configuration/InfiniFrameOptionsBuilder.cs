@@ -4,6 +4,7 @@
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 using System.Runtime.InteropServices;
+using RemoteDebuggingUtility = InfiniFrame.Debugging.RemoteDebuggingUtility;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------

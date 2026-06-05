@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Debugging;
 using System.Collections.Concurrent;
 
 namespace InfiniTests.InfiniFrame.WindowFunctionalities;

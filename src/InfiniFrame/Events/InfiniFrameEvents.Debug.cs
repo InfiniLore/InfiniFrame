@@ -1,8 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame;
+using InfiniFrame.Debugging;
 
+namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -26,7 +27,7 @@ public partial class InfiniFrameEvents {
             ? DateTimeOffset.FromUnixTimeMilliseconds(timestampUnixMillisecondsUtc).UtcDateTime
             : DateTime.UtcNow;
 
-        Sender.RaiseDebugEvent(new InfiniFrameDebugEventArgs {
+        EventsStore.DebugEvent.Invoke(Sender, new InfiniFrameDebugEventArgs {
             Kind = parsedKind,
             Message = string.IsNullOrWhiteSpace(message) ? null : message,
             Level = string.IsNullOrWhiteSpace(level) ? null : level,

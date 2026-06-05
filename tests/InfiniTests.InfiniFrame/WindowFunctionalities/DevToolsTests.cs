@@ -19,9 +19,10 @@ public class DevToolsTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        builder.SetDevToolsEnabled(state);
+        builder.Debug.SetDevToolsEnabled(state);
 
         // Assert
+        await Assert.That(builder.Debug.DevToolsEnabled).IsEqualTo(state);
         await Assert.That(builder.Configuration.DevToolsEnabled).IsEqualTo(state);
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();

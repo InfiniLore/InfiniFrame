@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Security;
 using Microsoft.Extensions.Configuration;
@@ -17,13 +18,16 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     public IInfiniFrameOptionsBuilder Configuration { get; } = new InfiniFrameOptionsBuilder();
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
+    public IInfiniFrameWindowDebugBuilder Debug { get; private init; }
     
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    private InfiniFrameWindowBuilder() {}
+    private InfiniFrameWindowBuilder() {
+        Debug = new InfiniFrameWindowDebugBuilder(this);
+    }
     
     public static InfiniFrameWindowBuilder Create(InfiniFrameEventsStore? events = null) {
         var builder = new InfiniFrameWindowBuilder {

@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Dialogs;
 using InfiniFrame.NativeBridge.Parameters;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using RemoteDebuggingUtility = InfiniFrame.Debugging.RemoteDebuggingUtility;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -130,11 +132,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     void IInfiniFrameWindow.MarkClosedFromNativeCallback() {
         InstanceHandle = IntPtr.Zero;
         Interlocked.Exchange(ref _shutdownState, 2);
-    }
-
-    void IInfiniFrameWindow.RaiseDebugEvent(InfiniFrameDebugEventArgs args) {
-        ArgumentNullException.ThrowIfNull(args);
-        (_debug ??= new InfiniFrameWindowDebug(this)).Raise(args);
     }
 
     /// <summary>
@@ -948,33 +945,5 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     internal string LastDebugInitializationStatus => _lastDebugInitializationStatus;
     internal string? LastDebugInitializationError => _lastDebugInitializationError;
 
-    internal bool GetDebugDevToolsEnabled()
-        => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(
-            this,
-            InfiniFrameNative.GetDevToolsEnabled,
-            validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
-
-    internal bool GetDebugSupportsWebInspector() => WebInspectorUtility.IsSupportedPlatform();
-    internal bool GetDebugWebInspectorEnabled() => Configuration.StartupParameters.WebInspectorEnabled;
-    internal bool GetDebugSupportsRemoteDebugging() => RemoteDebuggingUtility.IsSupportedPlatform();
-    internal int? GetDebugRemoteDebuggingPort() => Configuration.StartupParameters.RemoteDebuggingPort > 0
-        ? Configuration.StartupParameters.RemoteDebuggingPort
-        : null;
-
-    internal string? GetBrowserRuntimeIdentity() {
-        if (OperatingSystem.IsWindows()) {
-            return InfiniFrameNative.GetWebView2RuntimeVersion();
-        }
-
-        if (OperatingSystem.IsLinux()) {
-            return "WebKitGTK";
-        }
-
-        if (OperatingSystem.IsMacOS()) {
-            return "WKWebView";
-        }
-
-        return null;
-    }
     #endregion
 }

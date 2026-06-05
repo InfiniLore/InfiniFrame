@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 using System.Net;
 using System.Net.Sockets;
@@ -18,15 +19,16 @@ public class RemoteDebuggingTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        builder.SetRemoteDebuggingPort(9222);
+        builder.Debug.SetRemoteDebuggingPort(9222);
         int? enabledPort = builder.Configuration.RemoteDebuggingPort;
         InfiniFrameNativeParameters enabled = builder.Configuration.ToNativeParameters();
 
-        builder.SetRemoteDebuggingPort(0);
+        builder.Debug.SetRemoteDebuggingPort(0);
         int? disabledPort = builder.Configuration.RemoteDebuggingPort;
         InfiniFrameNativeParameters disabled = builder.Configuration.ToNativeParameters();
 
         // Assert
+        await Assert.That(builder.Debug.RemoteDebuggingPort).IsNull();
         await Assert.That(enabledPort).IsEqualTo(9222);
         await Assert.That(enabled.RemoteDebuggingPort).IsEqualTo(9222);
         if (OperatingSystem.IsWindows()) {
@@ -56,7 +58,7 @@ public class RemoteDebuggingTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => Task.Run(() => {
-            builder.SetRemoteDebuggingPort(invalidPort);
+            builder.Debug.SetRemoteDebuggingPort(invalidPort);
         }, ct));
 
         // Assert
@@ -74,7 +76,7 @@ public class RemoteDebuggingTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<PlatformNotSupportedException>(() => Task.Run(() => {
-            builder.SetRemoteDebuggingPort(9222);
+            builder.Debug.SetRemoteDebuggingPort(9222);
         }, ct));
 
         // Assert
@@ -92,7 +94,7 @@ public class RemoteDebuggingTests {
         builder.SetBrowserControlInitParameters("--disable-gpu --remote-debugging-port=9999");
         InfiniFrameNativeParameters withoutExplicitPort = builder.Configuration.ToNativeParameters();
 
-        builder.SetRemoteDebuggingPort(9222);
+        builder.Debug.SetRemoteDebuggingPort(9222);
         InfiniFrameNativeParameters withExplicitPort = builder.Configuration.ToNativeParameters();
 
         // Assert

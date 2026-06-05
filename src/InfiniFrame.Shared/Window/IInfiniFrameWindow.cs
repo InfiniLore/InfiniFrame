@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Dialogs;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
@@ -55,6 +56,5 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     IInfiniFrameWindowDebug Debug { get; }
 
     bool TryResolveStaticAssetUri(string path, out Uri uri);
-    internal void RaiseDebugEvent(InfiniFrameDebugEventArgs args);
     internal void MarkClosedFromNativeCallback();
 }
