@@ -10,7 +10,6 @@ public interface IInfiniFrameWindowDebugging {
     int? RemoteDebuggingPort { get; }
 
     InfiniFrameDebugCapabilities Capabilities { get; }
-    event EventHandler<InfiniFrameDebugEventArgs>? Event;
     void SetDevToolsEnabled(bool enabled);
     void SetWebInspectorEnabled(bool enabled = true);
     InfiniFrameDebugDiagnostics GetDiagnostics();

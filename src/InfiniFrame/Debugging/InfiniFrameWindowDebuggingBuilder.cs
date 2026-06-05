@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Utilities;
 using System.Runtime.Versioning;
 
 namespace InfiniFrame.Debugging;
@@ -10,7 +9,7 @@ namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowDebuggingBuilder : IInfiniFrameWindowDebuggingBuilder {
     public bool SupportsRemoteDebuggingEndpoint => RemoteDebuggingUtility.IsSupportedPlatform();
-    public bool SupportsWebInspectorAttach => WebInspectorUtility.IsSupportedPlatform();
+    public bool SupportsWebInspectorAttach => MacOsWebInspectorUtility.IsSupportedPlatform();
 
     public bool DevToolsEnabled { get; private set; } = true;
     public bool WebInspectorEnabled { get; private set; }
@@ -26,9 +25,7 @@ public sealed class InfiniFrameWindowDebuggingBuilder : IInfiniFrameWindowDebugg
 
     [SupportedOSPlatform("macos13.3")]
     public IInfiniFrameWindowDebuggingBuilder SetWebInspectorEnabled(bool enabled = true) {
-        if (enabled) {
-            WebInspectorUtility.ThrowIfUnsupported();
-        }
+        MacOsWebInspectorUtility.ThrowIfUnsupported();
 
         WebInspectorEnabled = enabled;
         return this;

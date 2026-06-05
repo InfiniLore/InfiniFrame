@@ -61,7 +61,12 @@ public class DebugToolingTests {
         var kinds = new ConcurrentQueue<InfiniFrameDebugEventKind>();
         using var eventReceived = new AutoResetEvent(false);
 
-        window.Debugging.Event += OnDebugEvent;
+        Action<IInfiniFrameWindow, InfiniFrameDebugEventArgs> onDebugEvent = (_, args) => {
+            kinds.Enqueue(args.Kind);
+            // ReSharper disable once AccessToDisposedClosure
+            eventReceived.Set();
+        };
+        window.EventsStore.DebuggingEvent.Add(onDebugEvent);
 
         try {
             window.Close();
@@ -76,7 +81,7 @@ public class DebugToolingTests {
             }
         }
         finally {
-            window.Debugging.Event -= OnDebugEvent;
+            window.EventsStore.DebuggingEvent.Remove(onDebugEvent);
         }
 
         if (!kinds.Any()) {
@@ -86,12 +91,5 @@ public class DebugToolingTests {
 
         bool hasSupportedKind = kinds.Any(kind => kind is InfiniFrameDebugEventKind.Navigation or InfiniFrameDebugEventKind.ScriptError or InfiniFrameDebugEventKind.Process);
         await Assert.That(hasSupportedKind).IsTrue();
-        return;
-
-        void OnDebugEvent(object? sender, InfiniFrameDebugEventArgs args) {
-            kinds.Enqueue(args.Kind);
-            // ReSharper disable once AccessToDisposedClosure
-            eventReceived.Set();
-        }
     }
 }

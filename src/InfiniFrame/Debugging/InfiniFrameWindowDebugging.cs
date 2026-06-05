@@ -13,13 +13,6 @@ namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
     private readonly InfiniFrameWindow _window;
-    private readonly Dictionary<EventHandler<InfiniFrameDebugEventArgs>, Action<IInfiniFrameWindow, InfiniFrameDebugEventArgs>> _eventHandlers = [];
-
-    #if NET9_0_OR_GREATER
-    private readonly Lock _eventHandlersLock = new();
-    #else
-    private readonly object _eventHandlersLock = new();
-    #endif
     
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -28,45 +21,11 @@ public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
         _window = window;
     }
 
-    public event EventHandler<InfiniFrameDebugEventArgs>? Event {
-        add {
-            if (value is null) {
-                return;
-            }
-
-            lock (_eventHandlersLock) {
-                if (_eventHandlers.ContainsKey(value)) {
-                    return;
-                }
-
-                void Bridge(IInfiniFrameWindow sender, InfiniFrameDebugEventArgs args) {
-                    value(sender, args);
-                }
-
-                _eventHandlers[value] = Bridge;
-                _window.EventsStore.DebuggingEvent.Add(Bridge);
-            }
-        }
-        remove {
-            if (value is null) {
-                return;
-            }
-
-            lock (_eventHandlersLock) {
-                if (!_eventHandlers.Remove(value, out Action<IInfiniFrameWindow, InfiniFrameDebugEventArgs>? bridge)) {
-                    return;
-                }
-
-                _window.EventsStore.DebuggingEvent.Remove(bridge);
-            }
-        }
-    }
-
     public bool DevToolsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(
         _window,
         InfiniFrameNative.GetDevToolsEnabled,
         validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
-    public bool SupportsWebInspector => WebInspectorUtility.IsSupportedPlatform();
+    public bool SupportsWebInspector => MacOsWebInspectorUtility.IsSupportedPlatform();
     public bool WebInspectorEnabled => _window.Configuration.StartupParameters.WebInspectorEnabled;
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
     public int? RemoteDebuggingPort => _window.Configuration.StartupParameters.RemoteDebuggingPort > 0

@@ -1,12 +1,12 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-namespace InfiniFrame.Utilities;
+namespace InfiniFrame.Debugging;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal static class WebInspectorUtility {
+internal static class MacOsWebInspectorUtility {
     public static bool IsSupportedPlatform() 
         => OperatingSystem.IsMacOS()
             && OperatingSystem.IsMacOSVersionAtLeast(13, 3);

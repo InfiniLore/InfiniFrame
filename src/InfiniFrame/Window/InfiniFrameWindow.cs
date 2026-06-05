@@ -410,7 +410,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             RemoteDebuggingUtility.EnsureSupportedPlatform(remoteDebuggingPort);
             RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(remoteDebuggingPort, Logger);
             if (webInspectorEnabled) {
-                WebInspectorUtility.ThrowIfUnsupported();
+                MacOsWebInspectorUtility.ThrowIfUnsupported();
             }
 
             _lastDebugInitializationStatus = "PreflightPassed";

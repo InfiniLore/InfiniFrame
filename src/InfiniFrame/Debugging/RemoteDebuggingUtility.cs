@@ -15,6 +15,10 @@ internal static partial class RemoteDebuggingUtility {
     public const int MaxPort = 65535;
 
     private const string LoopbackAddress = "127.0.0.1";
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public static int NormalizePort(int port, string parameterName = "port") {
         return port switch {
             0 => 0,
