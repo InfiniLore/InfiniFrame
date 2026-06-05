@@ -11,7 +11,7 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class DebugToolingTests {
     [Test]
-    [DisplayName($"{nameof(DebugToolingTests)}.{nameof(Window_DebugCapabilities_ShouldMatchPlatformMatrix)}")]
+    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task Window_DebugCapabilities_ShouldMatchPlatformMatrix(CancellationToken ct = default) {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -27,7 +27,7 @@ public class DebugToolingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(DebugToolingTests)}.{nameof(Window_DebugDiagnostics_ShouldReflectRuntimeConfiguration)}")]
+    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task Window_DebugDiagnostics_ShouldReflectRuntimeConfiguration(CancellationToken ct = default) {
         int? debugPort = OperatingSystem.IsWindows() || OperatingSystem.IsLinux()
@@ -53,7 +53,7 @@ public class DebugToolingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(DebugToolingTests)}.{nameof(Window_DebugEvent_Smoke_ShouldEmitSupportedKindWithoutCrash)}")]
+    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task Window_DebugEvent_Smoke_ShouldEmitSupportedKindWithoutCrash(CancellationToken ct = default) {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

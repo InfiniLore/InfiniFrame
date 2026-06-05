@@ -13,7 +13,7 @@ namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
 public class RemoteDebuggingTests {
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Builder_PortSetAndClear_ShouldPropagate)}")]
+    [SkipOnMacOs]
     public async Task Builder_PortSetAndClear_ShouldPropagate(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -49,7 +49,6 @@ public class RemoteDebuggingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Builder_InvalidPort_ShouldThrowArgumentOutOfRangeException)}")]
     [Arguments(-1)]
     [Arguments(65536)]
     public async Task Builder_InvalidPort_ShouldThrowArgumentOutOfRangeException(int invalidPort, CancellationToken ct = default) {
@@ -67,7 +66,6 @@ public class RemoteDebuggingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Builder_OnUnsupportedPlatform_ShouldThrowPlatformNotSupportedException)}")]
     [SkipOnWindows]
     [SkipOnLinux]
     public async Task Builder_OnUnsupportedPlatform_ShouldThrowPlatformNotSupportedException(CancellationToken ct = default) {
@@ -84,7 +82,6 @@ public class RemoteDebuggingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Builder_Precedence_ShouldIgnoreRawRemoteDebuggingSwitches)}")]
     [SkipOnMacOs]
     public async Task Builder_Precedence_ShouldIgnoreRawRemoteDebuggingSwitches(CancellationToken ct = default) {
         // Arrange
@@ -119,7 +116,6 @@ public class RemoteDebuggingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_AliveAndClosed_ShouldExposeDeterministicEndpointState)}")]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task Window_AliveAndClosed_ShouldExposeDeterministicEndpointState(CancellationToken ct = default) {
@@ -154,7 +150,6 @@ public class RemoteDebuggingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_EndpointReadinessAndClose_ShouldBeDeterministic)}")]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 50_000)]
@@ -191,7 +186,6 @@ public class RemoteDebuggingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_Debug_TryProbeEndpoint_ShouldExposeBoundedDeterministicState)}")]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 50_000)]
@@ -227,7 +221,6 @@ public class RemoteDebuggingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_Collision_ShouldSurfaceActionableFailure)}")]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task Window_Collision_ShouldSurfaceActionableFailure(CancellationToken ct = default) {

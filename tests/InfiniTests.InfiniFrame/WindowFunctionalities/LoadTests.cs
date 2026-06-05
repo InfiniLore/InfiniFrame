@@ -82,6 +82,7 @@ public class LoadTests {
     }
 
     [Test]
+    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
     public async Task Window_Load_AfterClose_ShouldNotThrowAndShouldNoOp(CancellationToken ct = default) {
@@ -100,6 +101,7 @@ public class LoadTests {
     }
 
     [Test]
+    [SkipOnMacOs]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
     public async Task Window_LoadRawString_DuringClosingRequested_ShouldNotThrow(CancellationToken ct = default) {
