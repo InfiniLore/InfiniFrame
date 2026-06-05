@@ -99,10 +99,16 @@ void InfiniFrameWindow::GetFocused(bool* isFocused) const {
 }
 
 void InfiniFrameWindow::NavigateToString(const AutoString content) {
+    if (m_impl->_webviewClosed || m_impl->_webview == nullptr)
+        return;
+
     webkit_web_view_load_html(WEBKIT_WEB_VIEW(m_impl->_webview), content, nullptr);
 }
 
 void InfiniFrameWindow::NavigateToUrl(const AutoString url) {
+    if (m_impl->_webviewClosed || m_impl->_webview == nullptr)
+        return;
+
     webkit_web_view_load_uri(WEBKIT_WEB_VIEW(m_impl->_webview), url);
 }
 

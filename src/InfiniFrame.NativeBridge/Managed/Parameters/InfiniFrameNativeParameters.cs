@@ -114,6 +114,10 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppWebMessageReceivedDelegate? WebMessageReceivedHandler;
 
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    internal CppDebugEventDelegate? DebugEventHandler;
+
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
     internal IntPtr[] CustomSchemeNames;
@@ -323,6 +327,7 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         // && MinimizedHandler.Equals(other.MinimizedHandler)
         // && MovedHandler.Equals(other.MovedHandler)
         // && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
+        // && DebugEventHandler.Equals(other.DebugEventHandler)
         // && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
 
         if (!CustomSchemeNames.AsSpan().SequenceEqual(other.CustomSchemeNames.AsSpan())) return false;
@@ -396,6 +401,7 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         hashCode.Add(MinimizedHandler);
         hashCode.Add(MovedHandler);
         hashCode.Add(WebMessageReceivedHandler);
+        hashCode.Add(DebugEventHandler);
 
         if (CustomSchemeNames is not null) {
             foreach (IntPtr ptr in CustomSchemeNames) {

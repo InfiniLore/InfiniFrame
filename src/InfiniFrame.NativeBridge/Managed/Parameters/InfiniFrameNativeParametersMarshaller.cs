@@ -37,6 +37,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr MinimizedHandler;
         internal IntPtr MovedHandler;
         internal IntPtr WebMessageReceivedHandler;
+        internal IntPtr DebugEventHandler;
         internal IntPtr CustomSchemeNames0;
         internal IntPtr CustomSchemeNames1;
         internal IntPtr CustomSchemeNames2;
@@ -114,6 +115,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 MinimizedHandler = ToFunctionPtr(managed.MinimizedHandler),
                 MovedHandler = ToFunctionPtr(managed.MovedHandler),
                 WebMessageReceivedHandler = ToFunctionPtr(managed.WebMessageReceivedHandler),
+                DebugEventHandler = ToFunctionPtr(managed.DebugEventHandler),
                 CustomSchemeNames0 = GetCustomSchemeName(managed.CustomSchemeNames, 0),
                 CustomSchemeNames1 = GetCustomSchemeName(managed.CustomSchemeNames, 1),
                 CustomSchemeNames2 = GetCustomSchemeName(managed.CustomSchemeNames, 2),
@@ -206,6 +208,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
             CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
             CppRestoredDelegate restored => Marshal.GetFunctionPointerForDelegate(restored),
             CppWebMessageReceivedDelegate webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
+            CppDebugEventDelegate debugEvent => Marshal.GetFunctionPointerForDelegate(debugEvent),
             CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
             _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
         };

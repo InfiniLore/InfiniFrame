@@ -373,6 +373,7 @@ public class InfiniFrameNativeParametersTests {
                 MinimizedHandler = null,
                 MovedHandler = null,
                 WebMessageReceivedHandler = null,
+                DebugEventHandler = null,
                 CustomSchemeHandler = null,
 
                 Left = 23165,

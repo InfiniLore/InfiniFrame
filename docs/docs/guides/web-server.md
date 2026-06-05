@@ -78,7 +78,7 @@ app.Run();
 Remote debugging notes:
 - `SetRemoteDebuggingPort(...)` is startup-only and validates `1..65535` (`0/null` disables).
 - Linux and Windows are supported. On unsupported platforms (macOS), enabling it throws `PlatformNotSupportedException`.
-- Use `app.Window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint)` after startup to retrieve the endpoint when available.
+- Use `app.Window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint)` after startup to retrieve the endpoint when available.
 
 ## Start URL
 

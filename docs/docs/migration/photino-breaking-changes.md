@@ -131,15 +131,19 @@ InfiniFrame makes this explicit and deterministic.
 | `SetDevToolsEnabled(true)` also implies remote debug endpoint | `SetDevToolsEnabled(bool)` only controls local inspector/devtools UI |
 | Remote debugging usually configured with raw Chromium args | Use `SetRemoteDebuggingPort(int? port)` (`1..65535`, `0/null` disables) |
 | macOS inspector attachability was implicit via Safari Develop tools | Use explicit `SetWebInspectorEnabled(bool)` on macOS 13.3+ |
-| Runtime mutation unclear | `RemoteDebuggingPort` is startup-only; runtime mutation throws `InvalidOperationException` |
+| Runtime mutation unclear | `Debug.RemoteDebuggingPort` is startup-only; runtime mutation throws `InvalidOperationException` |
 | Platform behavior was implicit | Windows and Linux support remote debugging; macOS throws `PlatformNotSupportedException` when enabled |
 
 ### New API surface
 
 - Builder: `SetRemoteDebuggingPort(int? port)`
 - Builder: `SetWebInspectorEnabled(bool)` (macOS 13.3+)
-- Runtime properties: `SupportsRemoteDebugging`, `RemoteDebuggingPort`
-- Endpoint lookup: `TryGetRemoteDebuggingEndpoint(out Uri? endpoint)`
+- Runtime properties: `window.Debug.SupportsRemoteDebugging`, `window.Debug.RemoteDebuggingPort`
+- Endpoint lookup: `window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint)`
+- Capability matrix: `window.Debug.Capabilities`
+- Runtime diagnostics snapshot: `window.Debug.GetDiagnostics()`
+- Endpoint probe helper: `window.Debug.TryProbeEndpoint(out Uri? endpoint, out string? reason)`
+- Unified debug event stream: `window.Debug.Event`
 
 ### Precedence and security
 
@@ -148,6 +152,7 @@ InfiniFrame makes this explicit and deterministic.
 - Startup fails with actionable `InvalidOperationException` when the requested port is unavailable (for example port-in-use).
 - Linux path uses WebKitGTK inspector server configuration (`WEBKIT_INSPECTOR_SERVER` / `WEBKIT_INSPECTOR_HTTP_SERVER`).
 - Linux inspector endpoint configuration is process-scoped in WebKitGTK.
+- Remote endpoint parity is intentionally not universal. Always check capabilities before assuming endpoint or event support.
 
 ## Event System
 

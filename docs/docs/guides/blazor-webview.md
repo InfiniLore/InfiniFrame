@@ -244,7 +244,7 @@ var builder = InfiniFrameBlazorAppBuilder.CreateDefault(args, w => w
 
 var app = builder.Build();
 
-if (app.Window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
+if (app.Window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
     Console.WriteLine($"Remote debug endpoint: {endpoint}");
 
 app.Run();

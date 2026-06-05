@@ -42,6 +42,7 @@ struct InfiniFrameInitParams {
     MinimizedCallback MinimizedHandler;
     MovedCallback MovedHandler;
     WebMessageReceivedCallback WebMessageReceivedHandler;
+    DebugEventCallback DebugEventHandler;
     AutoString CustomSchemeNames[MaxCustomSchemeNames]; // NOLINT(*-avoid-c-arrays)
     WebResourceRequestedCallback CustomSchemeHandler;
 

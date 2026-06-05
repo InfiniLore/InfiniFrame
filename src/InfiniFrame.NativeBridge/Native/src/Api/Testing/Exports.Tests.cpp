@@ -54,6 +54,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->MinimizedHandler = params->MinimizedHandler;
         (*new_params)->MovedHandler = params->MovedHandler;
         (*new_params)->WebMessageReceivedHandler = params->WebMessageReceivedHandler;
+        (*new_params)->DebugEventHandler = params->DebugEventHandler;
         (*new_params)->CustomSchemeHandler = params->CustomSchemeHandler;
         memcpy((*new_params)->CustomSchemeNames, params->CustomSchemeNames, sizeof(params->CustomSchemeNames));
 

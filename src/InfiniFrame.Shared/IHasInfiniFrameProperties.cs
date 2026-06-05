@@ -9,7 +9,6 @@ public interface IHasInfiniFrameProperties {
     bool Chromeless { get; }
     bool Transparent { get; }
     bool ContextMenuEnabled { get; }
-    bool DevToolsEnabled { get; }
     bool FileSystemAccessEnabled { get; }
     bool WebSecurityEnabled { get; }
     bool JavascriptClipboardAccessEnabled { get; }
@@ -40,8 +39,4 @@ public interface IHasInfiniFrameProperties {
     bool TopMost { get; }
     int Zoom { get; }
     bool ZoomEnabled { get; }
-    bool SupportsWebInspector { get; }
-    bool WebInspectorEnabled { get; }
-    bool SupportsRemoteDebugging { get; }
-    int? RemoteDebuggingPort { get; }
 }

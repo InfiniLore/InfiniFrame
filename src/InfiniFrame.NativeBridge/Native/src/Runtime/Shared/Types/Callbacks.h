@@ -2,6 +2,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include <cstdint>
+
 #include "Basic.h"
 #include "Monitor.h"
 // ---------------------------------------------------------------------------------------------------------------------
@@ -16,6 +18,26 @@ using ACTION = void (*)();
  * @param origin UTF-8 encoded sender origin URL, or null if unavailable
  */
 using WebMessageReceivedCallback = void (*)(AutoString message, AutoString origin);
+
+/**
+ * @brief Called when a debug/diagnostic event is produced by the platform WebView runtime.
+ * @param kind Event kind (Console, ScriptError, Navigation, Network, Process, Runtime)
+ * @param message Human-readable message for the event
+ * @param level Severity level where available (Debug/Info/Warning/Error)
+ * @param uri Related URI where available
+ * @param statusCode Status or native code when available, or 0 when unavailable
+ * @param timestampUnixMillisecondsUtc UTC timestamp in unix milliseconds
+ * @param platformPayload Optional platform-specific payload string
+ */
+using DebugEventCallback = void (*)(
+    AutoString kind,
+    AutoString message,
+    AutoString level,
+    AutoString uri,
+    int statusCode,
+    int64_t timestampUnixMillisecondsUtc,
+    AutoString platformPayload
+);
 
 /**
  * @brief Called when the WebView requests a custom-scheme resource.

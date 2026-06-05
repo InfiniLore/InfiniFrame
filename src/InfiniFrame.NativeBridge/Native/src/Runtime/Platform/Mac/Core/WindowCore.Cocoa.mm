@@ -106,6 +106,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
     m_impl->_maximizedCallback = initParams->MaximizedHandler;
     m_impl->_minimizedCallback = initParams->MinimizedHandler;
     m_impl->_restoredCallback = initParams->RestoredHandler;
+    m_impl->_debugEventCallback = initParams->DebugEventHandler;
     m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
 
     for (int i = 0; i < 16; ++i)

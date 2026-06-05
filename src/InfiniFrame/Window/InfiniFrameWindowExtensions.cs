@@ -28,8 +28,20 @@ public static class InfiniFrameWindowExtensions {
     /// <param name="uri">A Uri pointing to the file or the URL to load.</param>
     /// <param name="window">InfiniFrame window instance</param>
     public static T Load<T>(this T window, Uri uri) where T : class, IInfiniFrameWindow {
+        if (window.IsClosed)
+            return window;
+
         window.Logger.LogDebug(".Load({uri})", uri);
-        window.Invoke(() => InfiniFrameNative.NavigateToUrl(window.InstanceHandle, uri.ToString()));
+        window.Invoke(() => {
+            IntPtr instance = window.InstanceHandle;
+            if (instance == IntPtr.Zero)
+                return;
+
+            InfiniFrameNative.EnsureSucceeded(
+                InfiniFrameNative.NavigateToUrl(instance, uri.ToString()),
+                nameof(InfiniFrameNative.NavigateToUrl)
+            );
+        });
         return window;
     }
 
@@ -82,9 +94,21 @@ public static class InfiniFrameWindowExtensions {
     /// <param name="content">Raw content (such as HTML)</param>
     /// <param name="window">InfiniFrame window instance</param>
     public static T LoadRawString<T>(this T window, string content) where T : class, IInfiniFrameWindow {
+        if (window.IsClosed)
+            return window;
+
         string shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 47), "...") : content;
         window.Logger.LogDebug(".LoadRawString({Content})", shortContent);
-        window.Invoke(() => InfiniFrameNative.NavigateToString(window.InstanceHandle, content));
+        window.Invoke(() => {
+            IntPtr instance = window.InstanceHandle;
+            if (instance == IntPtr.Zero)
+                return;
+
+            InfiniFrameNative.EnsureSucceeded(
+                InfiniFrameNative.NavigateToString(instance, content),
+                nameof(InfiniFrameNative.NavigateToString)
+            );
+        });
         return window;
     }
 
@@ -321,45 +345,6 @@ public static class InfiniFrameWindowExtensions {
         return window;
     }
 
-    /// <summary>
-    ///     When true, the user can access the browser control's developer tools.
-    ///     By default, this is set to true.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
-    /// </returns>
-    /// <param name="enabled">Whether developer tools should be available</param>
-    /// <param name="window">InfiniFrame window instance</param>
-    public static T SetDevToolsEnabled<T>(this T window, bool enabled) where T : class, IInfiniFrameWindow {
-        window.Logger.LogDebug(".SetDevTools({Enabled})", enabled);
-
-        window.Invoke(() => {
-            InfiniFrameNative.GetDevToolsEnabled(window.InstanceHandle, out bool isEnabled);
-            if (isEnabled == enabled) return;
-
-            InfiniFrameNative.SetDevToolsEnabled(window.InstanceHandle, enabled);
-        });
-
-        return window;
-    }
-
-    /// <summary>
-    ///     Web inspector mode is startup-only and cannot be changed after the native window has been created.
-    /// </summary>
-    /// <exception cref="PlatformNotSupportedException">
-    ///     Thrown when enabling inspector mode on unsupported platforms.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    ///     Always thrown because this value is immutable at runtime.
-    /// </exception>
-    public static T SetWebInspectorEnabled<T>(this T window, bool enabled = true) where T : class, IInfiniFrameWindow {
-        if (enabled && !window.SupportsWebInspector) {
-            throw new PlatformNotSupportedException("Web inspector mode is only supported on macOS 13.3+ in InfiniFrame.");
-        }
-
-        throw new InvalidOperationException("WebInspectorEnabled is startup-only. Configure it with builder.SetWebInspectorEnabled(...) before Build().");
-    }
-    
     /// <summary>
     ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.
     ///     By default, this is set to false.

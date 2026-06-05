@@ -49,6 +49,10 @@ void InfiniFrameWindow::SetMinimizedCallback(const MinimizedCallback callback) {
     ImplBase()->_minimizedCallback = callback;
 }
 
+void InfiniFrameWindow::SetDebugEventCallback(const DebugEventCallback callback) {
+    ImplBase()->_debugEventCallback = callback;
+}
+
 // -----------------------------------------------------------------------------------------------------------------
 // Callback Invokers
 // -----------------------------------------------------------------------------------------------------------------
@@ -96,4 +100,25 @@ void InfiniFrameWindow::InvokeRestored() const noexcept {
 void InfiniFrameWindow::InvokeMinimized() const noexcept {
     if (ImplBase()->_minimizedCallback)
         ImplBase()->_minimizedCallback();
+}
+
+void InfiniFrameWindow::InvokeDebugEvent(
+    const AutoStringConst kind,
+    const AutoStringConst message,
+    const AutoStringConst level,
+    const AutoStringConst uri,
+    const int statusCode,
+    const int64_t timestampUnixMillisecondsUtc,
+    const AutoStringConst platformPayload
+) const noexcept {
+    if (ImplBase()->_debugEventCallback)
+        ImplBase()->_debugEventCallback(
+            const_cast<AutoString>(kind),
+            const_cast<AutoString>(message),
+            const_cast<AutoString>(level),
+            const_cast<AutoString>(uri),
+            statusCode,
+            timestampUnixMillisecondsUtc,
+            const_cast<AutoString>(platformPayload)
+        );
 }

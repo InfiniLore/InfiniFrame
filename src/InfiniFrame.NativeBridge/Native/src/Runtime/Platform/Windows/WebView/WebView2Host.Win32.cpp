@@ -24,16 +24,23 @@ void InfiniFrameWindow::CloseWebView() {
             m_impl->_webviewWindow->remove_PermissionRequested(m_impl->_permissionRequestedToken);
         if (m_impl->_hasNavigationCompletedToken)
             m_impl->_webviewWindow->remove_NavigationCompleted(m_impl->_navigationCompletedToken);
+        if (m_impl->_hasProcessFailedToken) {
+            auto webview2_2 = m_impl->_webviewWindow.try_query<ICoreWebView2_2>();
+            if (webview2_2)
+                webview2_2->remove_ProcessFailed(m_impl->_processFailedToken);
+        }
     }
 
     m_impl->_hasWebMessageReceivedToken = false;
     m_impl->_hasWebResourceRequestedToken = false;
     m_impl->_hasPermissionRequestedToken = false;
     m_impl->_hasNavigationCompletedToken = false;
+    m_impl->_hasProcessFailedToken = false;
     m_impl->_webMessageReceivedToken = {};
     m_impl->_webResourceRequestedTokenForCustomScheme = {};
     m_impl->_permissionRequestedToken = {};
     m_impl->_navigationCompletedToken = {};
+    m_impl->_processFailedToken = {};
     m_impl->_pendingWebMessages.clear();
 
     if (m_impl->_webviewController != nullptr) {

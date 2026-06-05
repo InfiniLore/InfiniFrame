@@ -36,10 +36,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
     private int _shutdownState;
+    private string _lastDebugInitializationStatus = "NotStarted";
+    private string? _lastDebugInitializationError;
+    private InfiniFrameWindowDebug? _debug;
 
     private bool IsClosing => Volatile.Read(ref _shutdownState) != 0;
     public bool IsClosed => Volatile.Read(ref _shutdownState) == 2;
     public bool IsClosedOrClosing => IsClosing || InstanceHandle == IntPtr.Zero;
+    public IInfiniFrameWindowDebug Debug => _debug ??= new InfiniFrameWindowDebug(this);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -126,6 +130,11 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     void IInfiniFrameWindow.MarkClosedFromNativeCallback() {
         InstanceHandle = IntPtr.Zero;
         Interlocked.Exchange(ref _shutdownState, 2);
+    }
+
+    void IInfiniFrameWindow.RaiseDebugEvent(InfiniFrameDebugEventArgs args) {
+        ArgumentNullException.ThrowIfNull(args);
+        (_debug ??= new InfiniFrameWindowDebug(this)).Raise(args);
     }
 
     /// <summary>
@@ -369,20 +378,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             out uri);
     }
 
-    public bool TryGetRemoteDebuggingEndpoint(out Uri? endpoint) {
-        endpoint = null;
-        if (!SupportsRemoteDebugging) {
-            throw new PlatformNotSupportedException("Remote debugging is only supported on Windows and Linux in InfiniFrame.");
-        }
-
-        int? port = RemoteDebuggingPort;
-        if (!port.HasValue || IsClosedOrClosing)
-            return false;
-
-        endpoint = RemoteDebuggingUtility.CreateEndpointUri(port.Value);
-        return true;
-    }
-
     private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) =>
         ct.IsCancellationRequested
             ? Task.FromCanceled<TResult>(ct)
@@ -395,6 +390,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             ? startupParameters.RemoteDebuggingPort
             : null;
         bool webInspectorEnabled = startupParameters.WebInspectorEnabled;
+
+        _lastDebugInitializationStatus = "Initializing";
+        _lastDebugInitializationError = null;
 
         try {
             if (remoteDebuggingPort.HasValue) {
@@ -417,6 +415,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             if (webInspectorEnabled) {
                 WebInspectorUtility.ThrowIfUnsupported();
             }
+
+            _lastDebugInitializationStatus = "PreflightPassed";
 
             if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, Logger)) {
                 throw new ArgumentException("Startup Parameters Are Not Valid");
@@ -450,6 +450,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             }
 
             Events.OnWindowCreated();
+            _lastDebugInitializationStatus = "Initialized";
+        }
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+            _lastDebugInitializationStatus = "InitializationFailed";
+            _lastDebugInitializationError ??= ex.Message;
+            throw;
         }
         finally {
             CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
@@ -629,13 +635,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ContextMenuEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetContextMenuEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetContextMenuEnabled)));
-
-    /// <summary>
-    ///     When true, the user can access the browser control's developer tools.
-    ///     By default, this is set to true.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool DevToolsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetDevToolsEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool MediaAutoplayEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetMediaAutoplayEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetMediaAutoplayEnabled)));
@@ -946,18 +945,36 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ZoomEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetZoomEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetZoomEnabled)));
 
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool SupportsWebInspector => WebInspectorUtility.IsSupportedPlatform();
+    internal string LastDebugInitializationStatus => _lastDebugInitializationStatus;
+    internal string? LastDebugInitializationError => _lastDebugInitializationError;
 
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool WebInspectorEnabled => Configuration.StartupParameters.WebInspectorEnabled;
+    internal bool GetDebugDevToolsEnabled()
+        => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(
+            this,
+            InfiniFrameNative.GetDevToolsEnabled,
+            validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
 
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
-
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int? RemoteDebuggingPort => Configuration.StartupParameters.RemoteDebuggingPort > 0
+    internal bool GetDebugSupportsWebInspector() => WebInspectorUtility.IsSupportedPlatform();
+    internal bool GetDebugWebInspectorEnabled() => Configuration.StartupParameters.WebInspectorEnabled;
+    internal bool GetDebugSupportsRemoteDebugging() => RemoteDebuggingUtility.IsSupportedPlatform();
+    internal int? GetDebugRemoteDebuggingPort() => Configuration.StartupParameters.RemoteDebuggingPort > 0
         ? Configuration.StartupParameters.RemoteDebuggingPort
         : null;
+
+    internal string? GetBrowserRuntimeIdentity() {
+        if (OperatingSystem.IsWindows()) {
+            return InfiniFrameNative.GetWebView2RuntimeVersion();
+        }
+
+        if (OperatingSystem.IsLinux()) {
+            return "WebKitGTK";
+        }
+
+        if (OperatingSystem.IsMacOS()) {
+            return "WKWebView";
+        }
+
+        return null;
+    }
     #endregion
 }

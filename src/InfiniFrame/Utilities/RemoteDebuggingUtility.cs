@@ -51,6 +51,32 @@ internal static partial class RemoteDebuggingUtility {
         return new Uri($"{scheme}://{LoopbackAddress}:{port}", UriKind.Absolute);
     }
 
+    public static bool TryProbeEndpoint(Uri endpoint, out string? reason) {
+        ArgumentNullException.ThrowIfNull(endpoint);
+        reason = null;
+
+        try {
+            using var client = new TcpClient();
+            IAsyncResult connect = client.BeginConnect(endpoint.Host, endpoint.Port, null, null);
+            bool signaled = connect.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(500));
+            if (!signaled) {
+                reason = "Timed out while probing endpoint.";
+                return false;
+            }
+
+            client.EndConnect(connect);
+            return client.Connected;
+        }
+        catch (SocketException ex) {
+            reason = $"{ex.SocketErrorCode}";
+            return false;
+        }
+        catch (Exception ex) {
+            reason = ex.Message;
+            return false;
+        }
+    }
+
     public static void ValidatePortAvailabilityOrThrow(int? normalizedPort, ILogger logger) {
         if (!normalizedPort.HasValue)
             return;

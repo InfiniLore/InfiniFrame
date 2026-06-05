@@ -119,6 +119,22 @@ public class InfiniFrameNativeParametersMarshallerTests {
         return unmanagedWebInspectorEnabled;
     }
 
+    private static bool MarshalDebugEventHandlerIsNonNull() {
+        var parameters = new InfiniFrameNativeParameters {
+            StartUrl = "https://example.com",
+            DebugEventHandler = (_, _, _, _, _, _, _) => { },
+            CustomSchemeNames = new IntPtr[16]
+        };
+
+        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        marshaller.FromManaged(parameters);
+        var unmanaged = marshaller.ToUnmanaged();
+
+        bool result = unmanaged.DebugEventHandler != IntPtr.Zero;
+        marshaller.Free();
+        return result;
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Unmanaged struct layout
     // -----------------------------------------------------------------------------------------------------------------
@@ -126,13 +142,13 @@ public class InfiniFrameNativeParametersMarshallerTests {
     public async Task Unmanaged_SequentialLayout_SizeMatchesExpectedFieldLayout(CancellationToken ct = default) {
         // Arrange
         // Layout (LayoutKind.Sequential, default packing):
-        //   36 × IntPtr  — 8 string/handler/scheme pointers + NativeParent + CustomSchemeHandler
+        //   37 × IntPtr  — 8 string pointers + callbacks + NativeParent + CustomSchemeHandler
         //   10 × int     — RemoteDebuggingPort + Left, Top, Width, Height, Zoom, MinWidth, MinHeight, MaxWidth, MaxHeight
         //   23 × byte    — boolean options mapped to bytes
         //    4 bytes     — padding after RemoteDebuggingPort so NativeParent stays pointer-aligned
         //    1 byte      — padding to re-align the trailing int (Size) to 4-byte boundary
         //    1 × int     — Size
-        int expected = 36 * IntPtr.Size// pointer fields
+        int expected = 37 * IntPtr.Size// pointer fields
             + 10 * sizeof(int)// numeric integer fields
             + 23 * sizeof(byte)// boolean-as-byte fields
             + 4// alignment padding before NativeParent
@@ -213,6 +229,12 @@ public class InfiniFrameNativeParametersMarshallerTests {
 
         // Assert
         await Assert.That(unmanagedWebInspectorEnabled).IsEqualTo((byte)1);
+    }
+
+    [Test]
+    public async Task FromManaged_DebugEventHandler_PassesThroughFunctionPointer(CancellationToken ct = default) {
+        bool unmanagedHandlerNonNull = MarshalDebugEventHandlerIsNonNull();
+        await Assert.That(unmanagedHandlerNonNull).IsTrue();
     }
 
     // -----------------------------------------------------------------------------------------------------------------

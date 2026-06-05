@@ -169,6 +169,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_closedCallback = initParams->ClosedHandler;
     m_impl->_focusInCallback = initParams->FocusInHandler;
     m_impl->_focusOutCallback = initParams->FocusOutHandler;
+    m_impl->_debugEventCallback = initParams->DebugEventHandler;
     m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
 
     for (int i = 0; i < 16; ++i) {

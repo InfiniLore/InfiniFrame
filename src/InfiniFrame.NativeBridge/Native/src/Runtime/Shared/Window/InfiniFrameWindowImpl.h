@@ -29,6 +29,7 @@ struct InfiniFrameWindowImpl {
     ClosedCallback _closedCallback = nullptr;
     FocusInCallback _focusInCallback = nullptr;
     FocusOutCallback _focusOutCallback = nullptr;
+    DebugEventCallback _debugEventCallback = nullptr;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Feature flags

@@ -40,10 +40,10 @@ public class DevToolsTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        window.SetDevToolsEnabled(state);
+        window.Debug.SetDevToolsEnabled(state);
 
         // Assert
-        bool foundState = window.DevToolsEnabled;
+        bool foundState = window.Debug.DevToolsEnabled;
         await Assert.That(foundState).IsEqualTo(state);
     }
 
@@ -64,7 +64,7 @@ public class DevToolsTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        bool foundState = window.DevToolsEnabled;
+        bool foundState = window.Debug.DevToolsEnabled;
         await Assert.That(foundState).IsEqualTo(state);
     }
 }

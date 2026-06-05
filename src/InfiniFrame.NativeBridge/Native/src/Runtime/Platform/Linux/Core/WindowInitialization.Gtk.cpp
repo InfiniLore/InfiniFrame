@@ -78,6 +78,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _maximizedCallback = initParams->MaximizedHandler;
     _minimizedCallback = initParams->MinimizedHandler;
     _restoredCallback = initParams->RestoredHandler;
+    _debugEventCallback = initParams->DebugEventHandler;
     _customSchemeCallback = initParams->CustomSchemeHandler;
 
     _customSchemeNames.clear();

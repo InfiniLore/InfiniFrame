@@ -9,6 +9,7 @@ This guide covers everything available through the `InfiniLore.InfiniFrame` pack
 - [Window Configuration](#window-configuration)
 - [Browser Features](#browser-features)
 - [DevTools and Remote Debugging](#devtools-and-remote-debugging)
+- [Debug Tooling](#debug-tooling)
 - [Runtime Window Control](#runtime-window-control)
 - [Events](#events)
 - [Web Messaging](#web-messaging)
@@ -152,7 +153,7 @@ var window = InfiniFrameWindowBuilder.Create()
     .SetRemoteDebuggingPort(9222)      // remote endpoint (Windows and Linux)
     .Build();
 
-if (window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
+if (window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
     Console.WriteLine(endpoint);
 ```
 
@@ -161,9 +162,9 @@ if (window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
 - Port range: `1..65535`.
 - `0` or `null`: disable remote debugging.
 - Invalid ports throw `ArgumentOutOfRangeException`.
-- Remote debugging is startup-only; calling `window.SetRemoteDebuggingPort(...)` after `Build()` throws `InvalidOperationException`.
-- Web inspector mode is startup-only; calling `window.SetWebInspectorEnabled(...)` after `Build()` throws `InvalidOperationException`.
-- `window.RemoteDebuggingPort` remains stable after startup; after close, `TryGetRemoteDebuggingEndpoint(out _)` returns `false` with `null` endpoint.
+- Remote debugging is startup-only; configure it with `builder.SetRemoteDebuggingPort(...)` before `Build()`.
+- Web inspector mode is startup-only; calling `window.Debug.SetWebInspectorEnabled(...)` after `Build()` throws `InvalidOperationException`.
+- `window.Debug.RemoteDebuggingPort` remains stable after startup; after close, `window.Debug.TryGetRemoteDebuggingEndpoint(out _)` returns `false` with `null` endpoint.
 
 ### Platform behavior
 
@@ -179,8 +180,8 @@ if (window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
 | Linux (WebKitGTK) | Not supported (throws when enabled) |
 | macOS (WKWebView) | Supported on macOS 13.3+ |
 
-- Use `window.SupportsRemoteDebugging` to query support.
-- On unsupported platforms, `TryGetRemoteDebuggingEndpoint(out _)` throws `PlatformNotSupportedException`.
+- Use `window.Debug.SupportsRemoteDebugging` to query support.
+- On unsupported platforms, `window.Debug.TryGetRemoteDebuggingEndpoint(out _)` throws `PlatformNotSupportedException`.
 
 ### Precedence with raw browser arguments
 
@@ -205,6 +206,52 @@ If `SetBrowserControlInitParameters(...)` contains `--remote-debugging-port=...`
   - Linux: WebKitGTK inspector server flow.
   - macOS: no remote endpoint support through `SetRemoteDebuggingPort(...)`.
 - Limitation: WebKitGTK inspector depends on developer extras in the engine; local inspector UI and remote inspector capabilities are not fully decoupled while remote debugging is active.
+
+## Debug Tooling
+
+InfiniFrame exposes additive runtime diagnostics and debug events under `window.Debug`:
+
+- `window.Debug.Capabilities` (what this platform/runtime supports)
+- `window.Debug.GetDiagnostics()` (snapshot of enabled state + endpoint status + last init status/error)
+- `window.Debug.Event` (best-effort event stream; capability-gated)
+- `window.Debug.TryProbeEndpoint(out Uri? endpoint, out string? reason)` (endpoint probe where supported)
+
+### Debug Tooling Matrix
+
+| Capability | Windows (WebView2) | Linux (WebKitGTK) | macOS (WKWebView) |
+|---|---|---|---|
+| Local DevTools toggle | ✅ | ✅ | ✅ |
+| Remote debugging endpoint | ✅ | ✅ | ❌ |
+| Web Inspector attach mode | ❌ | ❌ | ✅ (macOS 13.3+) |
+| Script error forwarding | ✅ (navigation failure mapped) | ✅ | ✅ |
+| Navigation diagnostics | ✅ | ✅ | ✅ |
+
+### Guarantees vs best effort
+
+- Capability fields are deterministic and safe to branch on.
+- Endpoint probing is bounded and loopback-only by design.
+- Debug events are best effort and platform-dependent; InfiniFrame does not emulate missing native signals.
+- Linux inspector endpoint is process-scoped (WebKitGTK behavior), not window-scoped.
+- macOS inspector mode (`SetWebInspectorEnabled`) is Safari attachability, not a TCP remote debugging endpoint.
+
+### Example
+
+```csharp
+InfiniFrameDebugCapabilities caps = window.Debug.Capabilities;
+InfiniFrameDebugDiagnostics diag = window.Debug.GetDiagnostics();
+
+if (caps.SupportsRemoteDebuggingEndpoint &&
+    window.Debug.TryProbeEndpoint(out Uri? endpoint, out string? reason)) {
+    Console.WriteLine($"Endpoint ready: {endpoint}");
+}
+else {
+    Console.WriteLine($"Endpoint unavailable: {reason}");
+}
+
+window.Debug.Event += (_, e) => {
+    Console.WriteLine($"[{e.TimestampUtc:O}] {e.Kind} {e.Level} {e.Message}");
+};
+```
 
 ### URI Security Policy (Trusted Origins)
 

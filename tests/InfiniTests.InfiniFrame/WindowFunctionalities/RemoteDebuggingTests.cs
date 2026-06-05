@@ -127,11 +127,11 @@ public class RemoteDebuggingTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act (alive)
-        bool aliveResult = window.TryGetRemoteDebuggingEndpoint(out Uri? aliveEndpoint);
+        bool aliveResult = window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? aliveEndpoint);
 
         // Assert (alive)
-        await Assert.That(window.SupportsRemoteDebugging).IsTrue();
-        await Assert.That(window.RemoteDebuggingPort).IsEqualTo(port);
+        await Assert.That(window.Debug.SupportsRemoteDebugging).IsTrue();
+        await Assert.That(window.Debug.RemoteDebuggingPort).IsEqualTo(port);
         await Assert.That(aliveResult).IsTrue();
         await Assert.That(aliveEndpoint).IsNotNull();
         await Assert.That(aliveEndpoint!.ToString()).IsEqualTo(GetExpectedEndpointUri(port).ToString());
@@ -143,10 +143,10 @@ public class RemoteDebuggingTests {
             await Task.Delay(50, ct);
         }
 
-        bool closedResult = window.TryGetRemoteDebuggingEndpoint(out Uri? closedEndpoint);
+        bool closedResult = window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? closedEndpoint);
 
         // Assert (closed)
-        await Assert.That(window.RemoteDebuggingPort).IsEqualTo(port);
+        await Assert.That(window.Debug.RemoteDebuggingPort).IsEqualTo(port);
         await Assert.That(closedResult).IsFalse();
         await Assert.That(closedEndpoint).IsNull();
     }
@@ -161,7 +161,7 @@ public class RemoteDebuggingTests {
         int port = GetAvailableLoopbackPort();
         using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.SetRemoteDebuggingPort(port), ct);
         IInfiniFrameWindow window = windowUtility.Window;
-        bool hasEndpoint = window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
+        bool hasEndpoint = window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
 
         await Assert.That(hasEndpoint).IsTrue();
         await Assert.That(endpoint).IsNotNull();
@@ -186,6 +186,42 @@ public class RemoteDebuggingTests {
 
         // Assert (closed)
         await Assert.That(becameUnreachable).IsTrue();
+    }
+
+    [Test]
+    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_Debug_TryProbeEndpoint_ShouldExposeBoundedDeterministicState)}")]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 50_000)]
+    public async Task Window_Debug_TryProbeEndpoint_ShouldExposeBoundedDeterministicState(CancellationToken ct = default) {
+        int port = GetAvailableLoopbackPort();
+        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.SetRemoteDebuggingPort(port), ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        bool reachable = await WaitUntilProbeSucceeds(window, TimeSpan.FromSeconds(40), ct);
+        if (!reachable) {
+            Skip.Test("Debug endpoint probe did not succeed in this environment.");
+            return;
+        }
+
+        bool probed = window.Debug.TryProbeEndpoint(out Uri? endpoint, out string? reason);
+        await Assert.That(probed).IsTrue();
+        await Assert.That(endpoint).IsNotNull();
+        await Assert.That(reason).IsNull();
+
+        window.Close();
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (!window.IsClosed && DateTime.UtcNow < timeoutAt) {
+            await Task.Delay(50, ct);
+        }
+
+        bool closedProbe = window.Debug.TryProbeEndpoint(out Uri? closedEndpoint, out string? closedReason);
+        await Assert.That(closedProbe).IsFalse();
+        await Assert.That(closedEndpoint).IsNull();
+        await Assert.That(closedReason).Contains("closed");
+
+        InfiniFrameDebugDiagnostics diagnostics = window.Debug.GetDiagnostics();
+        await Assert.That(diagnostics.EndpointStatus).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);
     }
 
     [Test]
@@ -250,6 +286,18 @@ public class RemoteDebuggingTests {
             catch (SocketException) {
                 return true;
             }
+
+            await Task.Delay(200, ct);
+        }
+
+        return false;
+    }
+
+    private static async Task<bool> WaitUntilProbeSucceeds(IInfiniFrameWindow window, TimeSpan timeout, CancellationToken ct) {
+        DateTime timeoutAt = DateTime.UtcNow.Add(timeout);
+        while (DateTime.UtcNow < timeoutAt && !ct.IsCancellationRequested) {
+            if (window.Debug.TryProbeEndpoint(out _, out _))
+                return true;
 
             await Task.Delay(200, ct);
         }
