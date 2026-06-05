@@ -238,6 +238,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
         normalizedTop, normalizedWidth, normalizedHeight, nullptr, nullptr, windowInstance, this
     );
+    SetWindowTextW(m_impl->_hWnd, m_impl->_windowTitle.c_str());
 
     ApplyPendingOwnerWindow(m_impl.get(), L"ctor");
 
