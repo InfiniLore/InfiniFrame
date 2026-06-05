@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using Microsoft.Extensions.Configuration;
 
 namespace InfiniFrame;
@@ -14,13 +15,14 @@ internal static class InfiniFrameOptionsSectionApplier {
     /// </summary>
     /// <param name="section"></param>
     /// <param name="configuration"></param>
-    public static void Apply(IConfigurationSection section, IInfiniFrameOptionsBuilder configuration) {
+    /// <param name="debug"></param>
+    public static void Apply(IConfigurationSection section, IInfiniFrameOptionsBuilder configuration, IInfiniFrameWindowDebugBuilder debug) {
         SetString(section, nameof(InfiniFrameOptionsBuilder.BrowserControlInitParameters), assign: value => configuration.BrowserControlInitParameters = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Centered), assign: value => configuration.Centered = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Chromeless), assign: value => configuration.Chromeless = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.ContextMenuEnabled), assign: value => configuration.ContextMenuEnabled = value);
-        SetBool(section, nameof(InfiniFrameOptionsBuilder.DevToolsEnabled), assign: value => configuration.DevToolsEnabled = value);
-        SetBool(section, nameof(InfiniFrameOptionsBuilder.WebInspectorEnabled), assign: value => configuration.WebInspectorEnabled = value);
+        SetBool(section, nameof(IInfiniFrameWindowDebugBuilder.DevToolsEnabled), assign: value => debug.SetDevToolsEnabled(value));
+        SetBool(section, nameof(IInfiniFrameWindowDebugBuilder.WebInspectorEnabled), assign: value => debug.SetWebInspectorEnabled(value));
         SetBool(section, nameof(InfiniFrameOptionsBuilder.FileSystemAccessEnabled), assign: value => configuration.FileSystemAccessEnabled = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.FullScreen), assign: value => configuration.FullScreen = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.GrantBrowserPermissions), assign: value => configuration.GrantBrowserPermissions = value);
@@ -40,7 +42,7 @@ internal static class InfiniFrameOptionsSectionApplier {
         SetBool(section, nameof(InfiniFrameOptionsBuilder.NotificationsEnabled), assign: value => configuration.NotificationsEnabled = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.NotificationRegistrationId), assign: value => configuration.NotificationRegistrationId = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Resizable), assign: value => configuration.Resizable = value);
-        SetInt(section, nameof(InfiniFrameOptionsBuilder.RemoteDebuggingPort), assign: value => configuration.RemoteDebuggingPort = value);
+        SetInt(section, nameof(IInfiniFrameWindowDebugBuilder.RemoteDebuggingPort), assign: value => debug.SetRemoteDebuggingPort(value));
         SetBool(section, nameof(InfiniFrameOptionsBuilder.SmoothScrollingEnabled), assign: value => configuration.SmoothScrollingEnabled = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.StartString), assign: value => configuration.StartString = value);
         SetString(section, nameof(InfiniFrameOptionsBuilder.StartUrl), assign: value => configuration.StartUrl = value);

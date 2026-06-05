@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 
 namespace InfiniTests.InfiniFrame.WindowFunctionalities;
@@ -23,7 +24,6 @@ public class DevToolsTests {
 
         // Assert
         await Assert.That(builder.Debug.DevToolsEnabled).IsEqualTo(state);
-        await Assert.That(builder.Configuration.DevToolsEnabled).IsEqualTo(state);
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
         await Assert.That(configParameters.DevToolsEnabled).IsEqualTo(state);

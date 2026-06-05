@@ -26,7 +26,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameWindowBuilder() {
-        Debug = new InfiniFrameWindowDebugBuilder(this);
+        Debug = new InfiniFrameWindowDebugBuilder();
     }
     
     public static InfiniFrameWindowBuilder Create(InfiniFrameEventsStore? events = null) {
@@ -69,16 +69,21 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     }
 
     private InfiniFrameNativeParameters GetNativeParameters(IServiceProvider? provider = null) {
-        if (provider is null) return Configuration.ToNativeParameters();
+        if (provider is not null) {
+            var config = provider.GetService<IConfiguration>();
+            IConfigurationSection? section = config?.GetSection("InfiniFrame");
 
-        var config = provider.GetService<IConfiguration>();
-        IConfigurationSection? section = config?.GetSection("InfiniFrame");
-
-        if (section is not null && section.Exists()) {
-            InfiniFrameOptionsSectionApplier.Apply(section, Configuration);
+            if (section is not null && section.Exists()) {
+                InfiniFrameOptionsSectionApplier.Apply(section, Configuration, Debug);
+            }
         }
 
-        return Configuration.ToNativeParameters();
+        InfiniFrameNativeParameters parameters = Configuration.ToNativeParameters();
+        if (Debug is InfiniFrameWindowDebugBuilder debugBuilder) {
+            debugBuilder.ApplyStartupDebugSettings(ref parameters);
+        }
+
+        return parameters;
     }
 
     internal static ILogger<IInfiniFrameWindow> ResolveLogger(IServiceProvider? provider) {

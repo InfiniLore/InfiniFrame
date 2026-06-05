@@ -1,65 +1,69 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
+using System.Runtime.Versioning;
 
 namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowDebugBuilder : IInfiniFrameWindowDebugBuilder {
-    private readonly IInfiniFrameWindowBuilder _builder;
-
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    internal InfiniFrameWindowDebugBuilder(IInfiniFrameWindowBuilder builder) {
-        _builder = builder;
-    }
-
     public bool SupportsRemoteDebuggingEndpoint => RemoteDebuggingUtility.IsSupportedPlatform();
     public bool SupportsWebInspectorAttach => WebInspectorUtility.IsSupportedPlatform();
 
-    public bool DevToolsEnabled {
-        get => _builder.Configuration.DevToolsEnabled;
-        set => _builder.Configuration.DevToolsEnabled = value;
-    }
+    public bool DevToolsEnabled { get; private set; } = true;
+    public bool WebInspectorEnabled { get; private set; }
+    public int? RemoteDebuggingPort { get; private set; }
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    internal InfiniFrameWindowDebugBuilder() { }
 
-    public bool WebInspectorEnabled {
-        get => _builder.Configuration.WebInspectorEnabled;
-        set {
-            if (value) {
-                WebInspectorUtility.ThrowIfUnsupported();
-            }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+    internal void ApplyStartupDebugSettings(ref InfiniFrameNativeParameters parameters) {
+        int? normalizedRemoteDebuggingPort = RemoteDebuggingUtility.NormalizePort(
+            RemoteDebuggingPort,
+            nameof(RemoteDebuggingPort));
 
-            _builder.Configuration.WebInspectorEnabled = value;
+        RemoteDebuggingUtility.EnsureSupportedPlatform(normalizedRemoteDebuggingPort);
+        if (WebInspectorEnabled) {
+            WebInspectorUtility.ThrowIfUnsupported();
         }
-    }
 
-    public int? RemoteDebuggingPort {
-        get => _builder.Configuration.RemoteDebuggingPort;
-        set {
-            int? normalized = RemoteDebuggingUtility.NormalizePort(value);
-            RemoteDebuggingUtility.EnsureSupportedPlatform(normalized);
-            _builder.Configuration.RemoteDebuggingPort = normalized;
-        }
+        parameters.DevToolsEnabled = DevToolsEnabled;
+        parameters.WebInspectorEnabled = WebInspectorEnabled;
+        parameters.RemoteDebuggingPort = normalizedRemoteDebuggingPort ?? 0;
+        parameters.BrowserControlInitParameters = RemoteDebuggingUtility.ComposeBrowserControlInitParameters(
+            parameters.BrowserControlInitParameters,
+            normalizedRemoteDebuggingPort);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IInfiniFrameWindowBuilder SetDevToolsEnabled(bool enabled) {
+    public void SetDevToolsEnabled(bool enabled) {
         DevToolsEnabled = enabled;
-        return _builder;
     }
 
-    public IInfiniFrameWindowBuilder SetWebInspectorEnabled(bool enabled = true) {
+    [SupportedOSPlatform("macos13.3")]
+    public void SetWebInspectorEnabled(bool enabled = true) {
+        if (enabled) {
+            WebInspectorUtility.ThrowIfUnsupported();
+        }
+
         WebInspectorEnabled = enabled;
-        return _builder;
     }
 
-    public IInfiniFrameWindowBuilder SetRemoteDebuggingPort(int? port) {
-        RemoteDebuggingPort = port;
-        return _builder;
+    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
+    public void SetRemoteDebuggingPort(int? port) {
+        int? normalized = RemoteDebuggingUtility.NormalizePort(port);
+        RemoteDebuggingUtility.EnsureSupportedPlatform(normalized);
+        RemoteDebuggingPort = normalized;
     }
 }

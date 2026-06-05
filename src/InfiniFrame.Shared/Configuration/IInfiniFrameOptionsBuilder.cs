@@ -13,8 +13,6 @@ public interface IInfiniFrameOptionsBuilder {
     bool Chromeless { get; set; }
     bool Transparent { get; set; }
     bool ContextMenuEnabled { get; set; }
-    bool DevToolsEnabled { get; set; }
-    bool WebInspectorEnabled { get; set; }
     bool MediaAutoplayEnabled { get; set; }
     string? UserAgent { get; set; }
     bool FileSystemAccessEnabled { get; set; }
@@ -50,7 +48,6 @@ public interface IInfiniFrameOptionsBuilder {
     List<string> CustomSchemeNames { get; set; }
     int Zoom { get; set; }
     bool ZoomEnabled { get; set; }
-    int? RemoteDebuggingPort { get; set; }
     #endregion
     
     #region C# Options

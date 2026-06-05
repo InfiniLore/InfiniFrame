@@ -5,6 +5,7 @@ using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -94,19 +95,16 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
         });
     }
 
+    [SupportedOSPlatform("macos13.3")]
     public void SetWebInspectorEnabled(bool enabled = true) {
-        if (enabled && !SupportsWebInspector) {
-            throw new PlatformNotSupportedException("Web inspector mode is only supported on macOS 13.3+ in InfiniFrame.");
-        }
-
         throw new InvalidOperationException("WebInspectorEnabled is startup-only. Configure it with builder.SetWebInspectorEnabled(...) before Build().");
     }
 
+    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
     public bool TryGetRemoteDebuggingEndpoint(out Uri? endpoint) {
         endpoint = null;
-        if (!SupportsRemoteDebugging) {
-            throw new PlatformNotSupportedException("Remote debugging is only supported on Windows and Linux in InfiniFrame.");
-        }
+        if (!SupportsRemoteDebugging) return false;
 
         int? port = RemoteDebuggingPort;
         if (!port.HasValue || _window.IsClosedOrClosing)
@@ -116,6 +114,8 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
         return true;
     }
 
+    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
     public bool TryProbeEndpoint(out Uri? endpoint, out string? reason) {
         endpoint = null;
         reason = null;
@@ -148,7 +148,7 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
         Uri? endpoint = null;
         string? endpointReason = null;
         InfiniFrameDebugEndpointStatus endpointStatus;
-        if (!Capabilities.SupportsRemoteDebuggingEndpoint) {
+        if (!IsRemoteDebuggingPlatform()) {
             endpointStatus = InfiniFrameDebugEndpointStatus.NotSupported;
         }
         else if (!RemoteDebuggingPort.HasValue) {
@@ -198,6 +198,11 @@ public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
 
         return null;
     }
+
+    [SupportedOSPlatformGuard("windows")]
+    [SupportedOSPlatformGuard("linux")]
+    private static bool IsRemoteDebuggingPlatform() =>
+        OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
 
     private static string? GetBrowserRuntimeIdentity() {
         if (OperatingSystem.IsWindows()) {

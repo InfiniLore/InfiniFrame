@@ -34,11 +34,7 @@ internal static partial class RemoteDebuggingUtility {
 
     public static string? ComposeBrowserControlInitParameters(string? rawParameters, int? normalizedPort) {
         string? sanitized = StripRemoteDebuggingSwitches(rawParameters);
-        if (!normalizedPort.HasValue)
-            return sanitized;
-
-        if (!OperatingSystem.IsWindows())
-            return sanitized;
+        if (!normalizedPort.HasValue || !OperatingSystem.IsWindows()) return sanitized;
 
         string explicitArguments = $"--remote-debugging-address={LoopbackAddress} --remote-debugging-port={normalizedPort.Value}";
         return string.IsNullOrWhiteSpace(sanitized)

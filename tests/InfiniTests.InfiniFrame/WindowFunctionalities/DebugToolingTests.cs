@@ -86,9 +86,11 @@ public class DebugToolingTests {
 
         bool hasSupportedKind = kinds.Any(kind => kind is InfiniFrameDebugEventKind.Navigation or InfiniFrameDebugEventKind.ScriptError or InfiniFrameDebugEventKind.Process);
         await Assert.That(hasSupportedKind).IsTrue();
+        return;
 
         void OnDebugEvent(object? sender, InfiniFrameDebugEventArgs args) {
             kinds.Enqueue(args.Kind);
+            // ReSharper disable once AccessToDisposedClosure
             eventReceived.Set();
         }
     }

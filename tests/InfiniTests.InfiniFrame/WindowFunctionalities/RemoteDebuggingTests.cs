@@ -20,11 +20,11 @@ public class RemoteDebuggingTests {
 
         // Act
         builder.Debug.SetRemoteDebuggingPort(9222);
-        int? enabledPort = builder.Configuration.RemoteDebuggingPort;
+        int? enabledPort = builder.Debug.RemoteDebuggingPort;
         InfiniFrameNativeParameters enabled = builder.Configuration.ToNativeParameters();
 
         builder.Debug.SetRemoteDebuggingPort(0);
-        int? disabledPort = builder.Configuration.RemoteDebuggingPort;
+        int? disabledPort = builder.Debug.RemoteDebuggingPort;
         InfiniFrameNativeParameters disabled = builder.Configuration.ToNativeParameters();
 
         // Assert

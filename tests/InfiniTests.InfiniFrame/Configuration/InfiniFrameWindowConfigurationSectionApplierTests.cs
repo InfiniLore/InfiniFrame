@@ -12,12 +12,12 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
     public async Task Apply_OverridesConfiguredScalarValues(CancellationToken ct = default) {
         // Arrange
-        var configuration = new InfiniFrameOptionsBuilder {
-            Title = "Old Title",
-            Width = 200,
-            Centered = false,
-            NotificationsEnabled = true
-        };
+        InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create();
+        var configuration = (InfiniFrameOptionsBuilder)builder.Configuration;
+        configuration.Title = "Old Title";
+        configuration.Width = 200;
+        configuration.Centered = false;
+        configuration.NotificationsEnabled = true;
 
         IConfigurationSection section = BuildSection(new Dictionary<string, string?> {
             ["InfiniFrame:Title"] = "New Title",
@@ -27,7 +27,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration, builder.Debug);
 
         // Assert
         await Assert.That(configuration.Title).IsEqualTo("New Title");
@@ -39,11 +39,11 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
     public async Task Apply_IgnoresInvalidOrMissingScalarValues(CancellationToken ct = default) {
         // Arrange
-        var configuration = new InfiniFrameOptionsBuilder {
-            Title = "Expected",
-            Width = 640,
-            Centered = true
-        };
+        InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create();
+        var configuration = (InfiniFrameOptionsBuilder)builder.Configuration;
+        configuration.Title = "Expected";
+        configuration.Width = 640;
+        configuration.Centered = true;
 
         IConfigurationSection section = BuildSection(new Dictionary<string, string?> {
             ["InfiniFrame:Width"] = "invalid-int",
@@ -51,7 +51,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration, builder.Debug);
 
         // Assert
         await Assert.That(configuration.Title).IsEqualTo("Expected");
@@ -62,9 +62,9 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
     [Test]
     public async Task Apply_ReplacesCustomSchemeNamesWithNonEmptyValues(CancellationToken ct = default) {
         // Arrange
-        var configuration = new InfiniFrameOptionsBuilder {
-            CustomSchemeNames = ["old1", "old2"]
-        };
+        InfiniFrameWindowBuilder builder = InfiniFrameWindowBuilder.Create();
+        var configuration = (InfiniFrameOptionsBuilder)builder.Configuration;
+        configuration.CustomSchemeNames = ["old1", "old2"];
 
         IConfigurationSection section = BuildSection(new Dictionary<string, string?> {
             ["InfiniFrame:CustomSchemeNames:0"] = "app",
@@ -74,7 +74,7 @@ public class InfiniFrameWindowNativeParameterBuilderSectionApplierTests {
         });
 
         // Act
-        InfiniFrameOptionsSectionApplier.Apply(section, configuration);
+        InfiniFrameOptionsSectionApplier.Apply(section, configuration, builder.Debug);
 
         // Assert
         await Assert.That(configuration.CustomSchemeNames.Count).IsEqualTo(2);
