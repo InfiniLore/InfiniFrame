@@ -193,6 +193,10 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.I1)]
     internal bool DevToolsEnabled;
 
+    ///<summary>OPTIONAL: If true, macOS WKWebView is marked inspectable for Safari Web Inspector. Default is false.</summary>
+    [MarshalAs(UnmanagedType.I1)]
+    internal bool WebInspectorEnabled;
+
     /// <summary>
     ///     OPTIONAL: If true, native browser control covers the entire screen. Useful for kiosks for example.
     ///     Incompatible with Maximized and Minimized. Default is false.
@@ -346,6 +350,7 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         if (Transparent != other.Transparent) return false;
         if (ContextMenuEnabled != other.ContextMenuEnabled) return false;
         if (DevToolsEnabled != other.DevToolsEnabled) return false;
+        if (WebInspectorEnabled != other.WebInspectorEnabled) return false;
         if (FullScreen != other.FullScreen) return false;
         if (Maximized != other.Maximized) return false;
         if (Minimized != other.Minimized) return false;
@@ -413,6 +418,7 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
         hashCode.Add(Transparent);
         hashCode.Add(ContextMenuEnabled);
         hashCode.Add(DevToolsEnabled);
+        hashCode.Add(WebInspectorEnabled);
         hashCode.Add(FullScreen);
         hashCode.Add(Maximized);
         hashCode.Add(Minimized);

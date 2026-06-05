@@ -93,6 +93,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
     m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
     m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
     m_impl->_zoomEnabled = initParams->ZoomEnabled;
+    m_impl->_webInspectorEnabled = initParams->WebInspectorEnabled;
     m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
 
     m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;

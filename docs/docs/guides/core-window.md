@@ -141,12 +141,14 @@ builder
 
 - `SetDevToolsEnabled(bool)` controls local in-window inspector/devtools access.
 - `SetRemoteDebuggingPort(int? port)` configures a loopback TCP debug endpoint at startup.
+- `SetWebInspectorEnabled(bool)` enables Safari Web Inspector attachability on macOS 13.3+.
 
 ```csharp
 var window = InfiniFrameWindowBuilder.Create()
     .SetTitle("Debuggable App")
     .SetStartUrl("https://example.com")
     .SetDevToolsEnabled(true)          // local inspector
+    .SetWebInspectorEnabled(true)      // macOS 13.3+ Safari Web Inspector attachability
     .SetRemoteDebuggingPort(9222)      // remote endpoint (Windows and Linux)
     .Build();
 
@@ -160,6 +162,7 @@ if (window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
 - `0` or `null`: disable remote debugging.
 - Invalid ports throw `ArgumentOutOfRangeException`.
 - Remote debugging is startup-only; calling `window.SetRemoteDebuggingPort(...)` after `Build()` throws `InvalidOperationException`.
+- Web inspector mode is startup-only; calling `window.SetWebInspectorEnabled(...)` after `Build()` throws `InvalidOperationException`.
 - `window.RemoteDebuggingPort` remains stable after startup; after close, `TryGetRemoteDebuggingEndpoint(out _)` returns `false` with `null` endpoint.
 
 ### Platform behavior
@@ -169,6 +172,12 @@ if (window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
 | Windows (WebView2) | Supported | Supported |
 | Linux (WebKitGTK) | Supported | Supported |
 | macOS (WKWebView) | Supported | Not supported (throws when enabled) |
+
+| Platform | `SetWebInspectorEnabled` |
+|---|---|
+| Windows (WebView2) | Not supported (throws when enabled) |
+| Linux (WebKitGTK) | Not supported (throws when enabled) |
+| macOS (WKWebView) | Supported on macOS 13.3+ |
 
 - Use `window.SupportsRemoteDebugging` to query support.
 - On unsupported platforms, `TryGetRemoteDebuggingEndpoint(out _)` throws `PlatformNotSupportedException`.

@@ -72,6 +72,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->ContextMenuEnabled = params->ContextMenuEnabled;
         (*new_params)->ZoomEnabled = params->ZoomEnabled;
         (*new_params)->DevToolsEnabled = params->DevToolsEnabled;
+        (*new_params)->WebInspectorEnabled = params->WebInspectorEnabled;
         (*new_params)->FullScreen = params->FullScreen;
         (*new_params)->Maximized = params->Maximized;
         (*new_params)->Minimized = params->Minimized;

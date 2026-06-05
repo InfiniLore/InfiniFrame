@@ -40,6 +40,8 @@ public interface IHasInfiniFrameProperties {
     bool TopMost { get; }
     int Zoom { get; }
     bool ZoomEnabled { get; }
+    bool SupportsWebInspector { get; }
+    bool WebInspectorEnabled { get; }
     bool SupportsRemoteDebugging { get; }
     int? RemoteDebuggingPort { get; }
 }

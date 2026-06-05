@@ -21,6 +21,7 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     public bool ContextMenuEnabled { get; set; } = true;
     public List<string> CustomSchemeNames { get; set; } = new(16);
     public bool DevToolsEnabled { get; set; } = true;
+    public bool WebInspectorEnabled { get; set; }
     public bool FileSystemAccessEnabled { get; set; } = true;
     public bool FullScreen { get; set; }
     public bool GrantBrowserPermissions { get; set; } = true;
@@ -88,6 +89,9 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     public InfiniFrameNativeParameters ToNativeParameters() {
         int? normalizedRemoteDebuggingPort = RemoteDebuggingUtility.NormalizePort(RemoteDebuggingPort, nameof(RemoteDebuggingPort));
         RemoteDebuggingUtility.EnsureSupportedPlatform(normalizedRemoteDebuggingPort);
+        if (WebInspectorEnabled) {
+            WebInspectorUtility.ThrowIfUnsupported();
+        }
 
         IconFileUtility.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath);
 
@@ -107,6 +111,7 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
             ContextMenuEnabled = ContextMenuEnabled,
             CustomSchemeNames = customSchemeNameArray,
             DevToolsEnabled = DevToolsEnabled,
+            WebInspectorEnabled = WebInspectorEnabled,
             FileSystemAccessEnabled = FileSystemAccessEnabled,
             FullScreen = FullScreen,
             GrantBrowserPermissions = GrantBrowserPermissions,

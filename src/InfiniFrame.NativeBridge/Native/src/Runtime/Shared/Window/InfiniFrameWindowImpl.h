@@ -37,6 +37,7 @@ struct InfiniFrameWindowImpl {
     bool _contextMenuEnabled = true;
     bool _zoomEnabled = true;
     bool _devToolsEnabled = false;
+    bool _webInspectorEnabled = false;
     bool _grantBrowserPermissions = false;
     bool _mediaAutoplayEnabled = false;
     bool _fileSystemAccessEnabled = false;

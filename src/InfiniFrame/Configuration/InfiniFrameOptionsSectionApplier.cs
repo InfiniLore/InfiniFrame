@@ -20,6 +20,7 @@ internal static class InfiniFrameOptionsSectionApplier {
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Chromeless), assign: value => configuration.Chromeless = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.ContextMenuEnabled), assign: value => configuration.ContextMenuEnabled = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.DevToolsEnabled), assign: value => configuration.DevToolsEnabled = value);
+        SetBool(section, nameof(InfiniFrameOptionsBuilder.WebInspectorEnabled), assign: value => configuration.WebInspectorEnabled = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.FileSystemAccessEnabled), assign: value => configuration.FileSystemAccessEnabled = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.FullScreen), assign: value => configuration.FullScreen = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.GrantBrowserPermissions), assign: value => configuration.GrantBrowserPermissions = value);

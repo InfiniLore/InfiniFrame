@@ -394,6 +394,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         int? remoteDebuggingPort = startupParameters.RemoteDebuggingPort is > 0
             ? startupParameters.RemoteDebuggingPort
             : null;
+        bool webInspectorEnabled = startupParameters.WebInspectorEnabled;
 
         try {
             if (remoteDebuggingPort.HasValue) {
@@ -413,6 +414,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
             RemoteDebuggingUtility.EnsureSupportedPlatform(remoteDebuggingPort);
             RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(remoteDebuggingPort, Logger);
+            if (webInspectorEnabled) {
+                WebInspectorUtility.ThrowIfUnsupported();
+            }
 
             if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, Logger)) {
                 throw new ArgumentException("Startup Parameters Are Not Valid");
@@ -941,6 +945,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ZoomEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetZoomEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetZoomEnabled)));
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool SupportsWebInspector => WebInspectorUtility.IsSupportedPlatform();
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool WebInspectorEnabled => Configuration.StartupParameters.WebInspectorEnabled;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();

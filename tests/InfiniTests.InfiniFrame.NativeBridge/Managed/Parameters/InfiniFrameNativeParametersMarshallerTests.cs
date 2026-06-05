@@ -103,6 +103,22 @@ public class InfiniFrameNativeParametersMarshallerTests {
         return unmanagedRemoteDebuggingPort;
     }
 
+    private static byte MarshalWebInspectorEnabled(bool webInspectorEnabled) {
+        var parameters = new InfiniFrameNativeParameters {
+            StartUrl = "https://example.com",
+            WebInspectorEnabled = webInspectorEnabled,
+            CustomSchemeNames = new IntPtr[16]
+        };
+
+        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        marshaller.FromManaged(parameters);
+        var unmanaged = marshaller.ToUnmanaged();
+
+        byte unmanagedWebInspectorEnabled = unmanaged.WebInspectorEnabled;
+        marshaller.Free();
+        return unmanagedWebInspectorEnabled;
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Unmanaged struct layout
     // -----------------------------------------------------------------------------------------------------------------
@@ -112,15 +128,15 @@ public class InfiniFrameNativeParametersMarshallerTests {
         // Layout (LayoutKind.Sequential, default packing):
         //   36 × IntPtr  — 8 string/handler/scheme pointers + NativeParent + CustomSchemeHandler
         //   10 × int     — RemoteDebuggingPort + Left, Top, Width, Height, Zoom, MinWidth, MinHeight, MaxWidth, MaxHeight
-        //   22 × byte    — boolean options mapped to bytes
+        //   23 × byte    — boolean options mapped to bytes
         //    4 bytes     — padding after RemoteDebuggingPort so NativeParent stays pointer-aligned
-        //    2 bytes     — padding to re-align the trailing int (Size) to 4-byte boundary
+        //    1 byte      — padding to re-align the trailing int (Size) to 4-byte boundary
         //    1 × int     — Size
         int expected = 36 * IntPtr.Size// pointer fields
             + 10 * sizeof(int)// numeric integer fields
-            + 22 * sizeof(byte)// boolean-as-byte fields
+            + 23 * sizeof(byte)// boolean-as-byte fields
             + 4// alignment padding before NativeParent
-            + 2// alignment padding before Size
+            + 1// alignment padding before Size
             + sizeof(int);// Size field
 
         // Act
@@ -188,6 +204,15 @@ public class InfiniFrameNativeParametersMarshallerTests {
 
         // Assert
         await Assert.That(unmanagedRemoteDebuggingPort).IsEqualTo(9222);
+    }
+
+    [Test]
+    public async Task FromManaged_WebInspectorEnabled_PassesThroughDirectly(CancellationToken ct = default) {
+        // Arrange & Act
+        byte unmanagedWebInspectorEnabled = MarshalWebInspectorEnabled(true);
+
+        // Assert
+        await Assert.That(unmanagedWebInspectorEnabled).IsEqualTo((byte)1);
     }
 
     // -----------------------------------------------------------------------------------------------------------------

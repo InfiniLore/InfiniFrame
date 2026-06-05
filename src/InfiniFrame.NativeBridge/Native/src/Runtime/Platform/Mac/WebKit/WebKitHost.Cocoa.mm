@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
+#include <stdexcept>
+
 #include "Embedded/Embedded.h"
 #include "../Delegates/NavigationDelegate.h"
 #include "../Delegates/UiDelegate.h"
@@ -32,6 +34,18 @@ void InfiniFrameWindow::AttachWebView()
         [WKWebView alloc]
         initWithFrame: m_impl->_window.contentView.frame
         configuration: m_impl->_webviewConfiguration];
+
+    SEL setInspectableSelector = NSSelectorFromString(@"setInspectable:");
+    if ([m_impl->_webview respondsToSelector: setInspectableSelector])
+    {
+        using SetInspectableFn = void (*)(id, SEL, BOOL);
+        auto setInspectable = reinterpret_cast<SetInspectableFn>([m_impl->_webview methodForSelector: setInspectableSelector]);
+        setInspectable(m_impl->_webview, setInspectableSelector, m_impl->_webInspectorEnabled ? YES : NO);
+    }
+    else if (m_impl->_webInspectorEnabled)
+    {
+        throw std::runtime_error("Web inspector mode requires macOS 13.3+ WKWebView runtime support.");
+    }
 
     [m_impl->_webview setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
     [m_impl->_window.contentView addSubview: m_impl->_webview];

@@ -238,6 +238,7 @@ Use devtools and remote debugging separately:
 ```csharp
 var builder = InfiniFrameBlazorAppBuilder.CreateDefault(args, w => w
     .SetDevToolsEnabled(true)
+    .SetWebInspectorEnabled(true)  // macOS 13.3+ Safari Web Inspector attachability
     .SetRemoteDebuggingPort(9222) // Windows and Linux, startup-only
 );
 
@@ -250,11 +251,13 @@ app.Run();
 ```
 
 - `SetDevToolsEnabled(true)` controls local inspector UI.
+- `SetWebInspectorEnabled(true)` controls WKWebView Safari Web Inspector attachability on macOS 13.3+.
 - `SetRemoteDebuggingPort(int? port)` controls TCP endpoint availability (`1..65535`, `0/null` disables).
 - Linux inspector endpoint uses WebKitGTK inspector server (`http://127.0.0.1:<port>/`).
 - On Linux, WebKit requires developer extras for remote inspector and keeps them enabled while remote debugging is active.
 - On Linux, inspector server configuration is process-scoped (shared across windows in the same process).
 - On unsupported platforms (macOS), enabling remote debugging throws `PlatformNotSupportedException`.
+- On unsupported platforms (Windows/Linux, or macOS below 13.3), enabling web inspector mode throws `PlatformNotSupportedException`.
 
 ## Custom Window Chrome
 

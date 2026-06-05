@@ -515,6 +515,21 @@ public static class InfiniFrameWindowBuilderExtensions {
     }
 
     /// <summary>
+    ///     Enables Safari Web Inspector attachability for WKWebView on macOS.
+    /// </summary>
+    /// <remarks>
+    ///     This API is startup-only and only supported on macOS 13.3+.
+    /// </remarks>
+    public static T SetWebInspectorEnabled<T>(this T builder, bool enabled = true) where T : IInfiniFrameWindowBuilder {
+        if (enabled) {
+            WebInspectorUtility.ThrowIfUnsupported();
+        }
+
+        builder.Configuration.WebInspectorEnabled = enabled;
+        return builder;
+    }
+
+    /// <summary>
     ///     Sets the maximum size of the window by specifying the width and height.
     /// </summary>
     /// <param name="builder">The builder of the window</param>

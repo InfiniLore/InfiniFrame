@@ -63,6 +63,7 @@ struct InfiniFrameInitParams {
     bool ContextMenuEnabled;
     bool ZoomEnabled;
     bool DevToolsEnabled;
+    bool WebInspectorEnabled;
     bool FullScreen;
     bool Maximized;
     bool Minimized;

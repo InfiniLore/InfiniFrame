@@ -130,12 +130,14 @@ InfiniFrame makes this explicit and deterministic.
 |---|---|
 | `SetDevToolsEnabled(true)` also implies remote debug endpoint | `SetDevToolsEnabled(bool)` only controls local inspector/devtools UI |
 | Remote debugging usually configured with raw Chromium args | Use `SetRemoteDebuggingPort(int? port)` (`1..65535`, `0/null` disables) |
+| macOS inspector attachability was implicit via Safari Develop tools | Use explicit `SetWebInspectorEnabled(bool)` on macOS 13.3+ |
 | Runtime mutation unclear | `RemoteDebuggingPort` is startup-only; runtime mutation throws `InvalidOperationException` |
 | Platform behavior was implicit | Windows and Linux support remote debugging; macOS throws `PlatformNotSupportedException` when enabled |
 
 ### New API surface
 
 - Builder: `SetRemoteDebuggingPort(int? port)`
+- Builder: `SetWebInspectorEnabled(bool)` (macOS 13.3+)
 - Runtime properties: `SupportsRemoteDebugging`, `RemoteDebuggingPort`
 - Endpoint lookup: `TryGetRemoteDebuggingEndpoint(out Uri? endpoint)`
 

@@ -342,6 +342,23 @@ public static class InfiniFrameWindowExtensions {
 
         return window;
     }
+
+    /// <summary>
+    ///     Web inspector mode is startup-only and cannot be changed after the native window has been created.
+    /// </summary>
+    /// <exception cref="PlatformNotSupportedException">
+    ///     Thrown when enabling inspector mode on unsupported platforms.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    ///     Always thrown because this value is immutable at runtime.
+    /// </exception>
+    public static T SetWebInspectorEnabled<T>(this T window, bool enabled = true) where T : class, IInfiniFrameWindow {
+        if (enabled && !window.SupportsWebInspector) {
+            throw new PlatformNotSupportedException("Web inspector mode is only supported on macOS 13.3+ in InfiniFrame.");
+        }
+
+        throw new InvalidOperationException("WebInspectorEnabled is startup-only. Configure it with builder.SetWebInspectorEnabled(...) before Build().");
+    }
     
     /// <summary>
     ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.

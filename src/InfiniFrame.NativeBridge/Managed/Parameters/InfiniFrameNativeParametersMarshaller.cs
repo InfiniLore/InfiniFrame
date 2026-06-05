@@ -69,6 +69,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal byte ContextMenuEnabled;
         internal byte ZoomEnabled;
         internal byte DevToolsEnabled;
+        internal byte WebInspectorEnabled;
         internal byte FullScreen;
         internal byte Maximized;
         internal byte Minimized;
@@ -145,6 +146,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 ContextMenuEnabled = ToByte(managed.ContextMenuEnabled),
                 ZoomEnabled = ToByte(managed.ZoomEnabled),
                 DevToolsEnabled = ToByte(managed.DevToolsEnabled),
+                WebInspectorEnabled = ToByte(managed.WebInspectorEnabled),
                 FullScreen = ToByte(managed.FullScreen),
                 Maximized = ToByte(managed.Maximized),
                 Minimized = ToByte(managed.Minimized),

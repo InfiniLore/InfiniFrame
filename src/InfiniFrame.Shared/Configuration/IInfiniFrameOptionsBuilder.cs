@@ -14,6 +14,7 @@ public interface IInfiniFrameOptionsBuilder {
     bool Transparent { get; set; }
     bool ContextMenuEnabled { get; set; }
     bool DevToolsEnabled { get; set; }
+    bool WebInspectorEnabled { get; set; }
     bool MediaAutoplayEnabled { get; set; }
     string? UserAgent { get; set; }
     bool FileSystemAccessEnabled { get; set; }

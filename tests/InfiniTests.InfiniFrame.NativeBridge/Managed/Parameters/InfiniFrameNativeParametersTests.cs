@@ -389,6 +389,7 @@ public class InfiniFrameNativeParametersTests {
                 Transparent = true,
                 ContextMenuEnabled = true,
                 DevToolsEnabled = true,
+                WebInspectorEnabled = true,
                 FullScreen = true,
                 Maximized = true,
                 Minimized = true,
@@ -448,6 +449,7 @@ public class InfiniFrameNativeParametersTests {
             await Assert.That(newParameters.Transparent).IsEqualTo(parameters.Transparent);
             await Assert.That(newParameters.ContextMenuEnabled).IsEqualTo(parameters.ContextMenuEnabled);
             await Assert.That(newParameters.DevToolsEnabled).IsEqualTo(parameters.DevToolsEnabled);
+            await Assert.That(newParameters.WebInspectorEnabled).IsEqualTo(parameters.WebInspectorEnabled);
             await Assert.That(newParameters.FullScreen).IsEqualTo(parameters.FullScreen);
             await Assert.That(newParameters.Maximized).IsEqualTo(parameters.Maximized);
             await Assert.That(newParameters.Minimized).IsEqualTo(parameters.Minimized);
