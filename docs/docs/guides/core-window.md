@@ -147,7 +147,7 @@ var window = InfiniFrameWindowBuilder.Create()
     .SetTitle("Debuggable App")
     .SetStartUrl("https://example.com")
     .SetDevToolsEnabled(true)          // local inspector
-    .SetRemoteDebuggingPort(9222)      // remote endpoint (Windows only)
+    .SetRemoteDebuggingPort(9222)      // remote endpoint (Windows and Linux)
     .Build();
 
 if (window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
@@ -167,7 +167,7 @@ if (window.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
 | Platform | `SetDevToolsEnabled` | `SetRemoteDebuggingPort` |
 |---|---|---|
 | Windows (WebView2) | Supported | Supported |
-| Linux (WebKitGTK) | Supported | Not supported (throws when enabled) |
+| Linux (WebKitGTK) | Supported | Supported |
 | macOS (WKWebView) | Supported | Not supported (throws when enabled) |
 
 - Use `window.SupportsRemoteDebugging` to query support.
@@ -183,6 +183,19 @@ If `SetBrowserControlInitParameters(...)` contains `--remote-debugging-port=...`
 - InfiniFrame binds remote debugging to loopback (`127.0.0.1`) when enabled.
 - It does not intentionally expose externally reachable debug endpoints.
 - Startup validates port availability and throws actionable `InvalidOperationException` when the port is unavailable.
+- Linux uses WebKitGTK inspector server environment variables (`WEBKIT_INSPECTOR_SERVER` and `WEBKIT_INSPECTOR_HTTP_SERVER`) at startup.
+- Linux inspector endpoints are exposed as `http://127.0.0.1:<port>/` (Windows remains `https://127.0.0.1:<port>/` in InfiniFrame's endpoint API).
+- On Linux, WebKit requires developer extras for remote inspector; InfiniFrame keeps that capability active while remote debugging is enabled.
+- Linux inspector server configuration is process-scoped (WebKitGTK environment-driven behavior), so all windows in the same process share the same remote-debugging endpoint configuration.
+
+### Linux specifics (WebKitGTK)
+
+- Remote debugging is configured before WebKit context/webview creation for deterministic startup behavior.
+- Endpoint mechanism differs by platform:
+  - Windows: WebView2 Chromium remote debugging flow.
+  - Linux: WebKitGTK inspector server flow.
+  - macOS: no remote endpoint support through `SetRemoteDebuggingPort(...)`.
+- Limitation: WebKitGTK inspector depends on developer extras in the engine; local inspector UI and remote inspector capabilities are not fully decoupled while remote debugging is active.
 
 ### URI Security Policy (Trusted Origins)
 

@@ -131,7 +131,7 @@ InfiniFrame makes this explicit and deterministic.
 | `SetDevToolsEnabled(true)` also implies remote debug endpoint | `SetDevToolsEnabled(bool)` only controls local inspector/devtools UI |
 | Remote debugging usually configured with raw Chromium args | Use `SetRemoteDebuggingPort(int? port)` (`1..65535`, `0/null` disables) |
 | Runtime mutation unclear | `RemoteDebuggingPort` is startup-only; runtime mutation throws `InvalidOperationException` |
-| Platform behavior was implicit | Windows supports remote debugging; Linux/macOS throw `PlatformNotSupportedException` when enabled |
+| Platform behavior was implicit | Windows and Linux support remote debugging; macOS throws `PlatformNotSupportedException` when enabled |
 
 ### New API surface
 
@@ -144,6 +144,8 @@ InfiniFrame makes this explicit and deterministic.
 - `SetRemoteDebuggingPort(...)` is authoritative over raw `SetBrowserControlInitParameters(...)` remote-debugging switches.
 - InfiniFrame strips raw remote-debugging flags and applies loopback-only binding (`127.0.0.1`) for the explicit API.
 - Startup fails with actionable `InvalidOperationException` when the requested port is unavailable (for example port-in-use).
+- Linux path uses WebKitGTK inspector server configuration (`WEBKIT_INSPECTOR_SERVER` / `WEBKIT_INSPECTOR_HTTP_SERVER`).
+- Linux inspector endpoint configuration is process-scoped in WebKitGTK.
 
 ## Event System
 

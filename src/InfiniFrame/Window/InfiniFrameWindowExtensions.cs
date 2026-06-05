@@ -342,25 +342,7 @@ public static class InfiniFrameWindowExtensions {
 
         return window;
     }
-
-    /// <summary>
-    ///     Remote debugging port is startup-only and cannot be changed after the native window has been created.
-    /// </summary>
-    /// <exception cref="PlatformNotSupportedException">
-    ///     Thrown when a non-null/non-zero port is requested on an unsupported platform.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    ///     Always thrown because this value is immutable at runtime.
-    /// </exception>
-    public static T SetRemoteDebuggingPort<T>(this T window, int? port) where T : class, IInfiniFrameWindow {
-        int? normalized = RemoteDebuggingUtility.NormalizePort(port);
-        if (normalized.HasValue && !window.SupportsRemoteDebugging) {
-            throw new PlatformNotSupportedException("Remote debugging is only supported on Windows in InfiniFrame.");
-        }
-
-        throw new InvalidOperationException("RemoteDebuggingPort is startup-only. Configure it with builder.SetRemoteDebuggingPort(...) before Build().");
-    }
-
+    
     /// <summary>
     ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.
     ///     By default, this is set to false.

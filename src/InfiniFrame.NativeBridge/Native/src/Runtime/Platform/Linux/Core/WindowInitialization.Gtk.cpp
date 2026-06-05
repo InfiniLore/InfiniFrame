@@ -59,6 +59,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _mediaStreamEnabled = initParams->MediaStreamEnabled;
     _smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
     _ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
+    _remoteDebuggingPort = initParams->RemoteDebuggingPort;
     _isFullScreen = initParams->FullScreen;
 
     _zoom = initParams->Zoom;

@@ -23,18 +23,21 @@ internal static partial class RemoteDebuggingUtility {
         return port;
     }
 
-    public static bool IsSupportedPlatform() => OperatingSystem.IsWindows();
+    public static bool IsSupportedPlatform() => OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
 
     public static void EnsureSupportedPlatform(int? normalizedPort) {
         if (!normalizedPort.HasValue) return;
         if (IsSupportedPlatform()) return;
 
-        throw new PlatformNotSupportedException("Remote debugging is only supported on Windows in InfiniFrame.");
+        throw new PlatformNotSupportedException("Remote debugging is only supported on Windows and Linux in InfiniFrame.");
     }
 
     public static string? ComposeBrowserControlInitParameters(string? rawParameters, int? normalizedPort) {
         string? sanitized = StripRemoteDebuggingSwitches(rawParameters);
         if (!normalizedPort.HasValue)
+            return sanitized;
+
+        if (!OperatingSystem.IsWindows())
             return sanitized;
 
         string explicitArguments = $"--remote-debugging-address={LoopbackAddress} --remote-debugging-port={normalizedPort.Value}";
@@ -43,7 +46,10 @@ internal static partial class RemoteDebuggingUtility {
             : $"{sanitized} {explicitArguments}";
     }
 
-    public static Uri CreateEndpointUri(int port) => new($"https://{LoopbackAddress}:{port}", UriKind.Absolute);
+    public static Uri CreateEndpointUri(int port) {
+        string scheme = OperatingSystem.IsLinux() ? "http" : "https";
+        return new Uri($"{scheme}://{LoopbackAddress}:{port}", UriKind.Absolute);
+    }
 
     public static void ValidatePortAvailabilityOrThrow(int? normalizedPort, ILogger logger) {
         if (!normalizedPort.HasValue)

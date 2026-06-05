@@ -372,7 +372,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public bool TryGetRemoteDebuggingEndpoint(out Uri? endpoint) {
         endpoint = null;
         if (!SupportsRemoteDebugging) {
-            throw new PlatformNotSupportedException("Remote debugging is only supported on Windows in InfiniFrame.");
+            throw new PlatformNotSupportedException("Remote debugging is only supported on Windows and Linux in InfiniFrame.");
         }
 
         int? port = RemoteDebuggingPort;
@@ -400,6 +400,12 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 Logger.LogInformation(
                     "Remote debugging requested on loopback port {RemoteDebuggingPort}.",
                     remoteDebuggingPort.Value);
+
+                if (OperatingSystem.IsLinux() && !startupParameters.DevToolsEnabled) {
+                    Logger.LogInformation(
+                        "Linux remote debugging keeps WebKit developer extras enabled while active."
+                    );
+                }
             }
             else {
                 Logger.LogDebug("Remote debugging is disabled.");

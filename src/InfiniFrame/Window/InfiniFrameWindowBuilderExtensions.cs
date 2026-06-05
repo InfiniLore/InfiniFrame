@@ -271,7 +271,7 @@ public static class InfiniFrameWindowBuilderExtensions {
     ///     A value of 0 or null disables remote debugging.
     /// </summary>
     /// <remarks>
-    ///     This API is only supported on Windows.
+    ///     This API is supported on Windows and Linux.
     ///     Any remote-debugging switches in <see cref="SetBrowserControlInitParameters{T}" /> are ignored in favor of this API.
     /// </remarks>
     public static T SetRemoteDebuggingPort<T>(this T builder, int? port) where T : IInfiniFrameWindowBuilder {

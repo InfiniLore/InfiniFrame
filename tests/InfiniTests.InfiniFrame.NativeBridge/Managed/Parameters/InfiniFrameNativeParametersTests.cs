@@ -106,6 +106,20 @@ public class InfiniFrameNativeParametersTests {
     }
 
     [Test]
+    public async Task Equals_DifferentRemoteDebuggingPort_ReturnsFalse(CancellationToken ct = default) {
+        // Arrange
+        InfiniFrameNativeParameters a = CreateDefault();
+        InfiniFrameNativeParameters b = CreateDefault();
+        b.RemoteDebuggingPort = 9222;
+
+        // Act
+        bool result = a.Equals(b);
+
+        // Assert
+        await Assert.That(result).IsFalse();
+    }
+
+    [Test]
     public async Task Equals_DifferentCustomSchemeNames_ReturnsFalse(CancellationToken ct = default) {
         // Arrange
         InfiniFrameNativeParameters a = CreateDefault();

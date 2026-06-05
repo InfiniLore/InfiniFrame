@@ -202,7 +202,7 @@ void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
     m_impl->_devToolsEnabled = enabled;
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
-    webkit_settings_set_enable_developer_extras(settings, m_impl->_devToolsEnabled);
+    webkit_settings_set_enable_developer_extras(settings, m_impl->_devToolsEnabled || m_impl->_remoteDebuggingPort > 0);
 }
 
 void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {

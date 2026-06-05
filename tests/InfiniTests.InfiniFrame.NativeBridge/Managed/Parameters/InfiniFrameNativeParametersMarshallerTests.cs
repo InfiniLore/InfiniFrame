@@ -87,6 +87,22 @@ public class InfiniFrameNativeParametersMarshallerTests {
         return nonNull;
     }
 
+    private static int MarshalRemoteDebuggingPort(int remoteDebuggingPort) {
+        var parameters = new InfiniFrameNativeParameters {
+            StartUrl = "https://example.com",
+            RemoteDebuggingPort = remoteDebuggingPort,
+            CustomSchemeNames = new IntPtr[16]
+        };
+
+        var marshaller = new InfiniFrameNativeParametersMarshaller.ManagedToUnmanagedIn();
+        marshaller.FromManaged(parameters);
+        var unmanaged = marshaller.ToUnmanaged();
+
+        int unmanagedRemoteDebuggingPort = unmanaged.RemoteDebuggingPort;
+        marshaller.Free();
+        return unmanagedRemoteDebuggingPort;
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
     // Unmanaged struct layout
     // -----------------------------------------------------------------------------------------------------------------
@@ -163,6 +179,15 @@ public class InfiniFrameNativeParametersMarshallerTests {
 
         // Assert
         await Assert.That(left).IsEqualTo(-800);
+    }
+
+    [Test]
+    public async Task FromManaged_RemoteDebuggingPort_PassesThroughDirectly(CancellationToken ct = default) {
+        // Arrange & Act
+        int unmanagedRemoteDebuggingPort = MarshalRemoteDebuggingPort(9222);
+
+        // Assert
+        await Assert.That(unmanagedRemoteDebuggingPort).IsEqualTo(9222);
     }
 
     // -----------------------------------------------------------------------------------------------------------------

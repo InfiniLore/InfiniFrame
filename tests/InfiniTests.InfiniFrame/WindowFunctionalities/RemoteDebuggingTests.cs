@@ -29,8 +29,17 @@ public class RemoteDebuggingTests {
         // Assert
         await Assert.That(enabledPort).IsEqualTo(9222);
         await Assert.That(enabled.RemoteDebuggingPort).IsEqualTo(9222);
-        await Assert.That(enabled.BrowserControlInitParameters).Contains("--remote-debugging-address=127.0.0.1");
-        await Assert.That(enabled.BrowserControlInitParameters).Contains("--remote-debugging-port=9222");
+        if (OperatingSystem.IsWindows()) {
+            await Assert.That(enabled.BrowserControlInitParameters).Contains("--remote-debugging-address=127.0.0.1");
+            await Assert.That(enabled.BrowserControlInitParameters).Contains("--remote-debugging-port=9222");
+        }
+        else if (OperatingSystem.IsLinux()) {
+            await Assert.That(enabled.BrowserControlInitParameters).IsNull();
+        }
+        else {
+            Assert.Fail("Unexpected platform for this test.");
+            return;
+        }
 
         await Assert.That(disabledPort).IsNull();
         await Assert.That(disabled.RemoteDebuggingPort).IsEqualTo(0);
@@ -58,6 +67,7 @@ public class RemoteDebuggingTests {
     [Test]
     [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Builder_OnUnsupportedPlatform_ShouldThrowPlatformNotSupportedException)}")]
     [SkipOnWindows]
+    [SkipOnLinux]
     public async Task Builder_OnUnsupportedPlatform_ShouldThrowPlatformNotSupportedException(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -74,7 +84,6 @@ public class RemoteDebuggingTests {
     [Test]
     [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Builder_Precedence_ShouldIgnoreRawRemoteDebuggingSwitches)}")]
     [SkipOnMacOs]
-    [SkipOnLinux]
     public async Task Builder_Precedence_ShouldIgnoreRawRemoteDebuggingSwitches(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
@@ -90,17 +99,26 @@ public class RemoteDebuggingTests {
         await Assert.That(withoutExplicitPort.BrowserControlInitParameters).IsEqualTo("--disable-gpu");
         await Assert.That(withoutExplicitPort.RemoteDebuggingPort).IsEqualTo(0);
 
-        await Assert.That(withExplicitPort.BrowserControlInitParameters).Contains("--disable-gpu");
-        await Assert.That(withExplicitPort.BrowserControlInitParameters).Contains("--remote-debugging-port=9222");
         await Assert.That(withExplicitPort.BrowserControlInitParameters?.Contains("--remote-debugging-port=9999")).IsFalse();
-        await Assert.That(withExplicitPort.BrowserControlInitParameters).Contains("--remote-debugging-address=127.0.0.1");
+        if (OperatingSystem.IsWindows()) {
+            await Assert.That(withExplicitPort.BrowserControlInitParameters).Contains("--disable-gpu");
+            await Assert.That(withExplicitPort.BrowserControlInitParameters).Contains("--remote-debugging-port=9222");
+            await Assert.That(withExplicitPort.BrowserControlInitParameters).Contains("--remote-debugging-address=127.0.0.1");
+        }
+        else if (OperatingSystem.IsLinux()) {
+            await Assert.That(withExplicitPort.BrowserControlInitParameters).IsEqualTo("--disable-gpu");
+        }
+        else {
+            Assert.Fail("Unexpected platform for this test.");
+            return;
+        }
+
         await Assert.That(withExplicitPort.RemoteDebuggingPort).IsEqualTo(9222);
     }
 
     [Test]
     [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_AliveAndClosed_ShouldExposeDeterministicEndpointState)}")]
     [SkipOnMacOs]
-    [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task Window_AliveAndClosed_ShouldExposeDeterministicEndpointState(CancellationToken ct = default) {
         // Arrange
@@ -116,7 +134,7 @@ public class RemoteDebuggingTests {
         await Assert.That(window.RemoteDebuggingPort).IsEqualTo(port);
         await Assert.That(aliveResult).IsTrue();
         await Assert.That(aliveEndpoint).IsNotNull();
-        await Assert.That(aliveEndpoint!.ToString()).IsEqualTo($"https://127.0.0.1:{port}/");
+        await Assert.That(aliveEndpoint!.ToString()).IsEqualTo(GetExpectedEndpointUri(port).ToString());
 
         // Act (closed)
         window.Close();
@@ -134,29 +152,8 @@ public class RemoteDebuggingTests {
     }
 
     [Test]
-    [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_RuntimeMutation_ShouldThrowDeterministicException)}")]
-    [SkipOnMacOs]
-    [SkipOnLinux]
-    [NotInParallelInfiniTests]
-    public async Task Window_RuntimeMutation_ShouldThrowDeterministicException(CancellationToken ct = default) {
-        // Arrange
-        int port = GetAvailableLoopbackPort();
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.SetRemoteDebuggingPort(port), ct);
-        IInfiniFrameWindow window = windowUtility.Window;
-
-        // Act
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => {
-            window.SetRemoteDebuggingPort(port + 1);
-        }, ct));
-
-        // Assert
-        await Assert.That(exception).IsNotNull();
-    }
-
-    [Test]
     [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_EndpointReadinessAndClose_ShouldBeDeterministic)}")]
     [SkipOnMacOs]
-    [SkipOnLinux]
     [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 50_000)]
     public async Task Window_EndpointReadinessAndClose_ShouldBeDeterministic(CancellationToken ct = default) {
@@ -174,7 +171,7 @@ public class RemoteDebuggingTests {
 
         // Assert (alive)
         if (!becameReachable) {
-            Skip.Test("Remote debugging endpoint did not become reachable in this environment. This can be controlled by local WebView2 runtime/policy settings.");
+            Skip.Test("Remote debugging endpoint did not become reachable in this environment.");
             return;
         }
 
@@ -194,7 +191,6 @@ public class RemoteDebuggingTests {
     [Test]
     [DisplayName($"{nameof(RemoteDebuggingTests)}.{nameof(Window_Collision_ShouldSurfaceActionableFailure)}")]
     [SkipOnMacOs]
-    [SkipOnLinux]
     [NotInParallelInfiniTests]
     public async Task Window_Collision_ShouldSurfaceActionableFailure(CancellationToken ct = default) {
         // Arrange
@@ -216,6 +212,11 @@ public class RemoteDebuggingTests {
         using var listener = new TcpListener(IPAddress.Loopback, 0);
         listener.Start();
         return ((IPEndPoint)listener.LocalEndpoint).Port;
+    }
+
+    private static Uri GetExpectedEndpointUri(int port) {
+        string scheme = OperatingSystem.IsLinux() ? "http" : "https";
+        return new Uri($"{scheme}://127.0.0.1:{port}/", UriKind.Absolute);
     }
 
     private static async Task<bool> WaitUntilPortIsReachable(int port, TimeSpan timeout, CancellationToken ct) {
