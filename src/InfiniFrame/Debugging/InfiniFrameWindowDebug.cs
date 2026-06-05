@@ -12,9 +12,14 @@ namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowDebug : IInfiniFrameWindowDebug {
     private readonly InfiniFrameWindow _window;
-    private readonly object _eventHandlersLock = new();
     private readonly Dictionary<EventHandler<InfiniFrameDebugEventArgs>, Action<IInfiniFrameWindow, InfiniFrameDebugEventArgs>> _eventHandlers = [];
 
+    #if NET9_0_OR_GREATER
+    private readonly Lock _eventHandlersLock = new();
+    #else
+    private readonly object _eventHandlersLock = new();
+    #endif
+    
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
