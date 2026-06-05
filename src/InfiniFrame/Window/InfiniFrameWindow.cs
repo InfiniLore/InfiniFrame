@@ -383,19 +383,16 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     public void Initialize() {
         InfiniFrameNativeParameters startupParameters = Configuration.StartupParameters;
-        int? remoteDebuggingPort = startupParameters.RemoteDebuggingPort is > 0
-            ? startupParameters.RemoteDebuggingPort
-            : null;
         bool webInspectorEnabled = startupParameters.WebInspectorEnabled;
 
         _lastDebugInitializationStatus = "Initializing";
         _lastDebugInitializationError = null;
 
         try {
-            if (remoteDebuggingPort.HasValue) {
+            if (startupParameters.RemoteDebuggingPort != 0) {
                 Logger.LogInformation(
                     "Remote debugging requested on loopback port {RemoteDebuggingPort}.",
-                    remoteDebuggingPort.Value);
+                    startupParameters.RemoteDebuggingPort);
 
                 if (OperatingSystem.IsLinux() && !startupParameters.DevToolsEnabled) {
                     Logger.LogInformation(
@@ -407,8 +404,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
                 Logger.LogDebug("Remote debugging is disabled.");
             }
 
-            RemoteDebuggingUtility.EnsureSupportedPlatform(remoteDebuggingPort);
-            RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(remoteDebuggingPort, Logger);
+            RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
+            RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(startupParameters.RemoteDebuggingPort, Logger);
             if (webInspectorEnabled) {
                 MacOsWebInspectorUtility.ThrowIfUnsupported();
             }

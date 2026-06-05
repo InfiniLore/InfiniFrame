@@ -30,18 +30,24 @@ internal static partial class RemoteDebuggingUtility {
 
     public static bool IsSupportedPlatform() => OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
 
-    public static void EnsureSupportedPlatform(int? normalizedPort) {
-        if (!normalizedPort.HasValue) return;
-        if (IsSupportedPlatform()) return;
+    public static void EnsureSupportedPlatform(int normalizedPort) {
+        switch (normalizedPort) {
+            case 0:
+                return;
+            case < MinPort or > MaxPort:
+                throw new ArgumentOutOfRangeException(nameof(normalizedPort), normalizedPort, $"Remote debugging port must be {MinPort}..{MaxPort}, or 0/null to disable.");
+        }
 
-        throw new PlatformNotSupportedException("Remote debugging is only supported on Windows and Linux in InfiniFrame.");
+        if (!IsSupportedPlatform()) {
+            throw new PlatformNotSupportedException("Remote debugging is only supported on Windows and Linux in InfiniFrame.");
+        }
     }
 
-    public static string? ComposeBrowserControlInitParameters(string? rawParameters, int? normalizedPort) {
+    public static string? ComposeBrowserControlInitParameters(string? rawParameters, int normalizedPort) {
         string? sanitized = StripRemoteDebuggingSwitches(rawParameters);
-        if (!normalizedPort.HasValue || !OperatingSystem.IsWindows()) return sanitized;
+        if (normalizedPort == 0 || !OperatingSystem.IsWindows()) return sanitized;
 
-        string explicitArguments = $"--remote-debugging-address={LoopbackAddress} --remote-debugging-port={normalizedPort.Value}";
+        string explicitArguments = $"--remote-debugging-address={LoopbackAddress} --remote-debugging-port={normalizedPort}";
         return string.IsNullOrWhiteSpace(sanitized)
             ? explicitArguments
             : $"{sanitized} {explicitArguments}";
@@ -78,21 +84,18 @@ internal static partial class RemoteDebuggingUtility {
         }
     }
 
-    public static void ValidatePortAvailabilityOrThrow(int? normalizedPort, ILogger logger) {
-        if (!normalizedPort.HasValue)
-            return;
-
-        int port = normalizedPort.Value;
+    public static void ValidatePortAvailabilityOrThrow(int normalizedPort, ILogger logger) {
+        if (normalizedPort == 0) return;
 
         try {
-            using var listener = new TcpListener(IPAddress.Loopback, port);
+            using var listener = new TcpListener(IPAddress.Loopback, normalizedPort);
             listener.Start();
-            logger.LogDebug("Remote debugging startup preflight succeeded for loopback port {RemoteDebuggingPort}.", port);
+            logger.LogDebug("Remote debugging startup preflight succeeded for loopback port {RemoteDebuggingPort}.", normalizedPort);
         }
         catch (SocketException ex) {
-            logger.LogError(ex, "Remote debugging startup preflight failed for loopback port {RemoteDebuggingPort}.", port);
+            logger.LogError(ex, "Remote debugging startup preflight failed for loopback port {RemoteDebuggingPort}.", normalizedPort);
             throw new InvalidOperationException(
-                $"Remote debugging port {port} is unavailable on loopback. Choose a different port or disable remote debugging.",
+                $"Remote debugging port {normalizedPort} is unavailable on loopback. Choose a different port or disable remote debugging.",
                 ex);
         }
     }

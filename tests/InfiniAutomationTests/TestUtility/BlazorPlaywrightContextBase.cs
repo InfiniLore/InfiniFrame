@@ -54,7 +54,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     protected virtual void ConfigureRootComponents(IInfiniFrameRootComponentList rootComponents) {}
 
     protected virtual void ConfigureWindowBuilder(IInfiniFrameWindowBuilder windowBuilder, int playwrightDevtoolsPort) {
-        windowBuilder.Debugging.SetRemoteDebuggingPort(playwrightDevtoolsPort);
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(playwrightDevtoolsPort);
         windowBuilder
             .SetTitle(DefaultDocumentTitle)
             .RegisterWindowManagementWebMessageHandler()

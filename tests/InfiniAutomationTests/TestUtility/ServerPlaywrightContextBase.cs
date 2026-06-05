@@ -52,7 +52,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
             appBuilder: serverBuilder => serverBuilder
                 .WebHost.UseUrls(ServerUrl),
             windowBuilder: windowBuilder => {
-                windowBuilder.Debugging.SetRemoteDebuggingPort(_playwrightDevtoolsPort);
+                if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(_playwrightDevtoolsPort);
                 windowBuilder
                     .SetStartUrl(ServerUrl)
                     .SetTitle(DefaultDocumentTitle)

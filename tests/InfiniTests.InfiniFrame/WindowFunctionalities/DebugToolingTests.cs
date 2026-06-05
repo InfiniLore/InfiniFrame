@@ -30,14 +30,12 @@ public class DebugToolingTests {
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
     public async Task Window_DebugDiagnostics_ShouldReflectRuntimeConfiguration(CancellationToken ct = default) {
-        int? debugPort = OperatingSystem.IsWindows() || OperatingSystem.IsLinux()
-            ? 0
-            : null;
+        const int debugPort = 0;
 
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
             builder.Debugging.SetDevToolsEnabled(false);
-            if (debugPort.HasValue) {
-                builder.Debugging.SetRemoteDebuggingPort(debugPort.Value);
+            if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) {
+                builder.Debugging.SetRemoteDebuggingPort(debugPort);
             }
         }, ct);
 

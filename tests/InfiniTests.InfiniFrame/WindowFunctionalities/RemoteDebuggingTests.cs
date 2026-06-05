@@ -15,20 +15,22 @@ public class RemoteDebuggingTests {
     [Test]
     [SkipOnMacOs]
     public async Task Builder_PortSetAndClear_ShouldPropagate(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+        
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
         builder.Debugging.SetRemoteDebuggingPort(9222);
-        int? enabledPort = builder.Debugging.RemoteDebuggingPort;
+        int enabledPort = builder.Debugging.RemoteDebuggingPort;
         InfiniFrameNativeParameters enabled = builder.Configuration.ToNativeParameters();
 
         builder.Debugging.SetRemoteDebuggingPort(0);
-        int? disabledPort = builder.Debugging.RemoteDebuggingPort;
+        int disabledPort = builder.Debugging.RemoteDebuggingPort;
         InfiniFrameNativeParameters disabled = builder.Configuration.ToNativeParameters();
 
         // Assert
-        await Assert.That(builder.Debugging.RemoteDebuggingPort).IsNull();
+        await Assert.That(builder.Debugging.RemoteDebuggingPort).IsDefault();
         await Assert.That(enabledPort).IsEqualTo(9222);
         await Assert.That(enabled.RemoteDebuggingPort).IsEqualTo(9222);
         if (OperatingSystem.IsWindows()) {
@@ -43,12 +45,13 @@ public class RemoteDebuggingTests {
             return;
         }
 
-        await Assert.That(disabledPort).IsNull();
+        await Assert.That(disabledPort).IsDefault();
         await Assert.That(disabled.RemoteDebuggingPort).IsEqualTo(0);
         await Assert.That(disabled.BrowserControlInitParameters).IsNull();
     }
 
     [Test]
+    [SkipOnMacOs]
     [Arguments(-1)]
     [Arguments(65536)]
     public async Task Builder_InvalidPort_ShouldThrowArgumentOutOfRangeException(int invalidPort, CancellationToken ct = default) {
@@ -57,6 +60,7 @@ public class RemoteDebuggingTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => Task.Run(() => {
+            if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
             builder.Debugging.SetRemoteDebuggingPort(invalidPort);
         }, ct));
 
@@ -74,7 +78,9 @@ public class RemoteDebuggingTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<PlatformNotSupportedException>(() => Task.Run(() => {
+            #pragma warning disable CA1416
             builder.Debugging.SetRemoteDebuggingPort(9222);
+            #pragma warning restore CA1416
         }, ct));
 
         // Assert
@@ -84,6 +90,8 @@ public class RemoteDebuggingTests {
     [Test]
     [SkipOnMacOs]
     public async Task Builder_Precedence_ShouldIgnoreRawRemoteDebuggingSwitches(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+        
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
@@ -121,7 +129,10 @@ public class RemoteDebuggingTests {
     public async Task Window_AliveAndClosed_ShouldExposeDeterministicEndpointState(CancellationToken ct = default) {
         // Arrange
         int port = GetAvailableLoopbackPort();
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.Debugging.SetRemoteDebuggingPort(port), ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+            if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+            builder.Debugging.SetRemoteDebuggingPort(port);
+        }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act (alive)
@@ -156,7 +167,10 @@ public class RemoteDebuggingTests {
     public async Task Window_EndpointReadinessAndClose_ShouldBeDeterministic(CancellationToken ct = default) {
         // Arrange
         int port = GetAvailableLoopbackPort();
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.Debugging.SetRemoteDebuggingPort(port), ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+            if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+            builder.Debugging.SetRemoteDebuggingPort(port);
+        }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
         bool hasEndpoint = window.Debugging.TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
 
@@ -191,7 +205,10 @@ public class RemoteDebuggingTests {
     [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 50_000)]
     public async Task Window_Debug_TryProbeEndpoint_ShouldExposeBoundedDeterministicState(CancellationToken ct = default) {
         int port = GetAvailableLoopbackPort();
-        using var windowUtility = InfiniFrameTestWindow.Create(builder => builder.Debugging.SetRemoteDebuggingPort(port), ct);
+        using var windowUtility = InfiniFrameTestWindow.Create(builder => {
+            if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+            builder.Debugging.SetRemoteDebuggingPort(port);
+        }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
         bool reachable = await WaitUntilProbeSucceeds(window, TimeSpan.FromSeconds(40), ct);
@@ -231,7 +248,10 @@ public class RemoteDebuggingTests {
 
         // Act
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => {
-            using var _ = InfiniFrameTestWindow.Create(builder => builder.Debugging.SetRemoteDebuggingPort(port), ct);
+            using var _ = InfiniFrameTestWindow.Create(builder => {
+                if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return;
+                builder.Debugging.SetRemoteDebuggingPort(port);
+            }, ct);
         }, ct));
 
         // Assert

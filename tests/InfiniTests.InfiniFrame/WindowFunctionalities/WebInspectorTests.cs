@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
+using System.Runtime.Versioning;
 
 namespace InfiniTests.InfiniFrame.WindowFunctionalities;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -14,10 +15,9 @@ public class WebInspectorTests {
     public async Task Builder_Enable_ShouldFollowPlatformSupport(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        bool isSupported = OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(13, 3);
 
         // Act
-        if (isSupported) {
+        if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(13, 3)) {
             builder.Debugging.SetWebInspectorEnabled();
             InfiniFrameNativeParameters nativeParameters = builder.Configuration.ToNativeParameters();
 
@@ -28,7 +28,9 @@ public class WebInspectorTests {
         }
 
         var exception = await Assert.ThrowsAsync<PlatformNotSupportedException>(() => Task.Run(() => {
+            #pragma warning disable CA1416
             builder.Debugging.SetWebInspectorEnabled();
+            #pragma warning restore CA1416
         }, ct));
 
         // Assert
@@ -36,8 +38,11 @@ public class WebInspectorTests {
     }
 
     [Test]
+    [OnlyRunOnMacOs]
+    [SupportedOSPlatform( "macos13.3")]
     [DisplayName($"{nameof(WebInspectorTests)}.{nameof(Builder_Disable_ShouldAlwaysPropagate)}")]
     public async Task Builder_Disable_ShouldAlwaysPropagate(CancellationToken ct = default) {
+
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
 
