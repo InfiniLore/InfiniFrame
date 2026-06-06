@@ -39,7 +39,7 @@ public class TopTests {
         }.ToNativeParameters();
 
         // Act
-        builder.Center();
+        builder.Centered();
         builder.SetUseOsDefaultLocation(true);
         builder.SetTop(Top);
 

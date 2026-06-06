@@ -14,17 +14,8 @@ namespace InfiniFrame.Debugging;
 public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
     private readonly InfiniFrameWindow _window;
     
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    internal InfiniFrameWindowDebugging(InfiniFrameWindow window) {
-        _window = window;
-    }
-
-    public bool DevToolsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(
-        _window,
-        InfiniFrameNative.GetDevToolsEnabled,
-        validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
+    public bool DevToolsEnabled => InvokeUtility.NativeInvokeWithValidation<bool>(_window.InstanceHandle, InfiniFrameNative.GetDevToolsEnabled);
+    
     public bool SupportsWebInspector => MacOsWebInspectorUtility.IsSupportedPlatform();
     public bool WebInspectorEnabled => _window.Configuration.StartupParameters.WebInspectorEnabled;
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
@@ -39,6 +30,13 @@ public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
         SupportsScriptErrorForwarding = true,
         SupportsNavigationDiagnostics = true
     };
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    internal InfiniFrameWindowDebugging(InfiniFrameWindow window) {
+        _window = window;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods

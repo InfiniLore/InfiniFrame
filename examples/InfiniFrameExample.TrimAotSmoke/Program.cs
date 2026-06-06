@@ -14,7 +14,7 @@ public static class Program {
         IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
             .SetTitle("InfiniFrame Trim/AOT Smoke")
             .SetSize(800, 600)
-            .Center()
+            .Centered()
             .UseEmbeddedWwwrootAssets()
             .Build();
 

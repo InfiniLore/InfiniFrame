@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -82,11 +83,13 @@ public partial class InfiniFrameNative {
         return status;
     }
 
-    internal static InfiniFrameNativeInteropStatus EnsureSucceeded(InfiniFrameNativeInteropStatus status, string operationName) {
-        
+    internal static bool EnsureSucceeded(InfiniFrameNativeInteropStatus status, [NotNullWhen(false)] out string? reason) {
         int fallbackLastError = Marshal.GetLastPInvokeError();
+        reason = null;
 
-        if (status is InfiniFrameNativeInteropStatus.Success && fallbackLastError is 0) return status;
+        if (status is InfiniFrameNativeInteropStatus.Success && fallbackLastError is 0) {
+            return true;
+        }
         
         const string noNativeMessage = "No native error message provided.";
         string fallbackMessage = GetLastErrorMessage() ?? noNativeMessage;
@@ -94,6 +97,25 @@ public partial class InfiniFrameNative {
             ? InfiniFrameNativeInteropStatus.OperationFailed
             : InfiniFrameNativeInteropStatus.Success;
         
-        throw new ApplicationException($"Native interop call '{operationName}' failed with unknown status state. Fallback last error {fallbackLastError}. {fallbackMessage} {fallbackStatus}");
+        reason = $"Native interop call failed with unknown status state. Fallback last error {fallbackLastError}. {fallbackMessage} {fallbackStatus}";
+        return false;   
+    }
+    
+    internal static bool EnsureSucceeded([NotNullWhen(false)] out string? reason) {
+        int fallbackLastError = Marshal.GetLastPInvokeError();
+        reason = null;
+
+        if (fallbackLastError is 0) {
+            return true;
+        }
+        
+        const string noNativeMessage = "No native error message provided.";
+        string fallbackMessage = GetLastErrorMessage() ?? noNativeMessage;
+        InfiniFrameNativeInteropStatus fallbackStatus = fallbackMessage == noNativeMessage
+            ? InfiniFrameNativeInteropStatus.OperationFailed
+            : InfiniFrameNativeInteropStatus.Success;
+        
+        reason = $"Native interop call failed with unknown status state. Fallback last error {fallbackLastError}. {fallbackMessage} {fallbackStatus}";
+        return false;   
     }
 }

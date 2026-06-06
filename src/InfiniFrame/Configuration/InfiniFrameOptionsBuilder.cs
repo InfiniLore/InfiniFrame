@@ -11,12 +11,10 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
+    public IInfiniFrameWindowDebuggingBuilder Debugging { get; } = new InfiniFrameWindowDebuggingBuilder();
+
     #region Native Parameters
-    private string? _browserControlInitParameters;
-    public string? BrowserControlInitParameters {
-        get => _browserControlInitParameters;
-        set => _browserControlInitParameters = value;
-    }
+    public string? BrowserControlInitParameters { get; set; }
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }
     public bool ContextMenuEnabled { get; set; } = true;
@@ -46,7 +44,8 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     public string? TemporaryFilesPath { get; set; } = Path.Join(
         Path.GetTempPath(),
         "infiniframe",
-        Environment.ProcessId.ToString());
+        Environment.ProcessId.ToString()
+    );
     
     private string? _title = TitleStringUtility.DefaultTitle;
     public string? Title {
@@ -77,8 +76,6 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     }
     #endregion
     
-    public IInfiniFrameWindowDebuggingBuilder Debugging { get; } = new InfiniFrameWindowDebuggingBuilder();
-
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------

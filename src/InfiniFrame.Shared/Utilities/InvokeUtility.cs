@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge;
 using System.Diagnostics;
 
 namespace InfiniFrame.Utilities;
@@ -17,46 +18,89 @@ namespace InfiniFrame.Utilities;
 ///     </para>
 /// </summary>
 internal static class InvokeUtility {
-    public static T? InvokeAndReturn<T>(IInfiniFrameWindow window, Func<IInfiniFrameWindow, T> callback) {
-        T? value = default;
-        // ReSharper disable once RedundantAssignment
+    public static void NativeInvokeWithValidation(IntPtr windowInstanceHandle, Func<IntPtr, InfiniFrameNativeInteropStatus> callback) {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(callback);
+        
+        InfiniFrameNativeInteropStatus status = default;
         bool completed = false;
-        window.Invoke(() => {
-            value = callback(window);
+        
+        InfiniFrameNative.Invoke(windowInstanceHandle, () => {
+            status = callback(windowInstanceHandle);
             completed = true;
         });
+        
         Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
+        
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (!InfiniFrameNative.EnsureSucceeded(status, out string? reason)) {
+            throw new ApplicationException($"Native interop call failed with status {status}. {reason}");
+        }
+    }
+    
+    public static void NativeInvokeWithValidation(IntPtr windowInstanceHandle, Func<InfiniFrameNativeInteropStatus> callback) {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(callback);
+        
+        InfiniFrameNativeInteropStatus status = default;
+        bool completed = false;
+        
+        InfiniFrameNative.Invoke(windowInstanceHandle, () => {
+            status = callback();
+            completed = true;
+        });
+        
+        Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
+        
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (!InfiniFrameNative.EnsureSucceeded(status, out string? reason)) {
+            throw new ApplicationException($"Native interop call failed with status {status}. {reason}");
+        }
+    }
+    
+    public static T? NativeInvokeWithValidation<T>(IntPtr windowInstanceHandle, FuncWithOut<T> callback) {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(callback);
+
+        T? value = default;
+        InfiniFrameNativeInteropStatus status = default;
+        bool completed = false;
+        
+        InfiniFrameNative.Invoke(windowInstanceHandle, () => {
+            status = callback(windowInstanceHandle, out value);
+            completed = true;
+        });
+        
+        Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
+        
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (!InfiniFrameNative.EnsureSucceeded(status, out string? reason)) {
+            throw new ApplicationException($"Native interop call failed with status {status}. {reason}");
+        }
+        
         return value;
     }
+    
+    public static void NativeInvokeWithValidation<T>(IntPtr windowInstanceHandle, FuncWithArgs<T> callback, T arg) {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(windowInstanceHandle);
+        ArgumentNullException.ThrowIfNull(callback);
 
-    public static T InvokeAndReturn<T>(IInfiniFrameWindow window, FuncWithOut<T> callback) {
-        T? value = default;
-        // ReSharper disable once RedundantAssignment
+        InfiniFrameNativeInteropStatus status = default;
         bool completed = false;
-        window.Invoke(() => {
-            callback(window.InstanceHandle, out value);
+        
+        InfiniFrameNative.Invoke(windowInstanceHandle, () => {
+            status = callback(windowInstanceHandle, arg);
             completed = true;
         });
+        
         Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
-        return value!;
-    }
-
-    public static T InvokeAndReturn<T, TResult>(IInfiniFrameWindow window, FuncWithOutResult<T, TResult> callback, Action<TResult>? validateResult = null) {
-        T? value = default;
-        TResult? result = default;
-        // ReSharper disable once RedundantAssignment
-        bool completed = false;
-        window.Invoke(() => {
-            result = callback(window.InstanceHandle, out value);
-            completed = true;
-        });
-        Debug.Assert(completed, "Invoke must be synchronous, callback did not complete before Invoke returned.");
-        if (validateResult is not null && result is not null) {
-            validateResult(result);
+        
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (!InfiniFrameNative.EnsureSucceeded(status, out string? reason)) {
+            throw new ApplicationException($"Native interop call failed with status {status}. {reason}");
         }
-        return value!;
     }
 
-    internal delegate void FuncWithOut<T>(IntPtr handle, out T value);
-    internal delegate TResult FuncWithOutResult<T, TResult>(IntPtr handle, out T value);
+    internal delegate InfiniFrameNativeInteropStatus FuncWithOut<T>(IntPtr handle, out T value);
+    internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T>(IntPtr handle, T arg);
 }

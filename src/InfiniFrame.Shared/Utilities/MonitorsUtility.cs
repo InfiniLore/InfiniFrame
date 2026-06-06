@@ -10,12 +10,14 @@ namespace InfiniFrame.Utilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class MonitorsUtility {
-    public static ImmutableArray<InfiniMonitor> GetMonitors(IInfiniFrameWindow window) {
+    public static InfiniFrameNativeInteropStatus GetMonitors(IntPtr windowHandle, out ImmutableArray<InfiniMonitor> monitors) {
         ImmutableArray<InfiniMonitor>.Builder builder = ImmutableArray.CreateBuilder<InfiniMonitor>();
 
-        InfiniFrameNative.GetAllMonitors(window.InstanceHandle, Callback);
-        return builder.ToImmutable();
+        InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetAllMonitors(windowHandle, Callback);
+        monitors = builder.ToImmutable();
 
+        return status;
+        
         int Callback(in NativeMonitor monitor) {
             builder.Add(new InfiniMonitor(monitor.Monitor, monitor.Work, monitor.Scale));
             return 1;
@@ -81,7 +83,7 @@ internal static class MonitorsUtility {
     }
 
     public static bool TryGetCurrentWindowAndMonitor(IInfiniFrameWindow window, out Rectangle windowRect, out InfiniMonitor monitor) {
-        ImmutableArray<InfiniMonitor> monitors = GetMonitors(window);
+        GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
         InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out windowRect);
         return TryGetCurrentMonitor(monitors, windowRect, out monitor);
     }

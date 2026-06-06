@@ -42,7 +42,7 @@ public class LeftTests {
         }.ToNativeParameters();
 
         // Act
-        builder.Center();
+        builder.Centered();
         builder.SetUseOsDefaultLocation(true);
         builder.SetLeft(Left);
 

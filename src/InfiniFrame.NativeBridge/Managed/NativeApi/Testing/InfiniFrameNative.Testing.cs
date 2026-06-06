@@ -32,9 +32,9 @@ public partial class InfiniFrameNativeTesting {
     ///     Ownership is transferred to managed caller, which must call <see cref="FreeInitParams" /> exactly once.
     /// </summary>
     internal static IntPtr NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters) {
-        InfiniFrameNative.EnsureSucceeded(
-            NativeParametersReturnAsIsNative(in parameters, out IntPtr newParametersPtr),
-            nameof(NativeParametersReturnAsIsNative));
+        InfiniFrameNativeInteropStatus status = NativeParametersReturnAsIsNative(in parameters, out IntPtr newParametersPtr);
+        if (!InfiniFrameNative.EnsureSucceeded(status, out string? errorMessage)) 
+            throw new InvalidOperationException($"Native function returned error: {errorMessage}");
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
@@ -45,15 +45,15 @@ public partial class InfiniFrameNativeTesting {
     internal static void FreeInitParams(IntPtr newParametersPtr) {
         if (newParametersPtr == IntPtr.Zero) return;
 
-        InfiniFrameNative.EnsureSucceeded(
-            FreeInitParamsNative(newParametersPtr),
-            nameof(FreeInitParamsNative));
+        InfiniFrameNativeInteropStatus status = FreeInitParamsNative(newParametersPtr);
+        if (!InfiniFrameNative.EnsureSucceeded(status, out string? errorMessage)) 
+            throw new InvalidOperationException($"Native function returned error: {errorMessage}");
     }
 
     internal static bool IsColorSchemeChange(IntPtr lParam) {
-        InfiniFrameNative.EnsureSucceeded(
-            IsColorSchemeChangeNative(lParam, out int result),
-            nameof(IsColorSchemeChangeNative));
+        InfiniFrameNativeInteropStatus status = IsColorSchemeChangeNative(lParam, out int result);
+        if (!InfiniFrameNative.EnsureSucceeded(status, out string? errorMessage)) 
+            throw new InvalidOperationException($"Native function returned error: {errorMessage}");
 
         return result != 0;
     }

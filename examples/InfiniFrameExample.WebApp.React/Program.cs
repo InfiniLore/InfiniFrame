@@ -24,7 +24,7 @@ public static class Program {
         appBuilder.WindowBuilder
             .SetUseOsDefaultSize(false)
             .SetResizable(true)
-            .Center()
+            .Centered()
             .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
             .SetSize(new Size(800, 600))
             .RegisterCustomSchemeHandler("app", handler: (_, _) => (
