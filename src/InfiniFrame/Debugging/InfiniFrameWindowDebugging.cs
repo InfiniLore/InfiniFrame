@@ -11,25 +11,16 @@ namespace InfiniFrame.Debugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
-    private readonly InfiniFrameWindow _window;
-    
-    // -----------------------------------------------------------------------------------------------------------------
-    // Constructors
-    // -----------------------------------------------------------------------------------------------------------------
-    internal InfiniFrameWindowDebugging(InfiniFrameWindow window) {
-        _window = window;
-    }
-
+public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebugging> logger) : IInfiniFrameWindowDebugging {
     public bool DevToolsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(
-        _window,
+        Window,
         InfiniFrameNative.GetDevToolsEnabled,
         validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
     public bool SupportsWebInspector => MacOsWebInspectorUtility.IsSupportedPlatform();
-    public bool WebInspectorEnabled => _window.Configuration.StartupParameters.WebInspectorEnabled;
+    public bool WebInspectorEnabled => Window.Configuration.StartupParameters.WebInspectorEnabled;
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
-    public int? RemoteDebuggingPort => _window.Configuration.StartupParameters.RemoteDebuggingPort > 0
-        ? _window.Configuration.StartupParameters.RemoteDebuggingPort
+    public int? RemoteDebuggingPort => Window.Configuration.StartupParameters.RemoteDebuggingPort > 0
+        ? Window.Configuration.StartupParameters.RemoteDebuggingPort
         : null;
 
     public InfiniFrameDebugCapabilities Capabilities => new() {
@@ -40,17 +31,24 @@ public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
         SupportsNavigationDiagnostics = true
     };
 
+    private IInfiniFrameWindow Window { get; set; } = null!;
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    internal void AssignToWindow(IInfiniFrameWindow window) {
+        ArgumentNullException.ThrowIfNull(window);
+        Window = window;
+    }
+    
     public void SetDevToolsEnabled(bool enabled) {
-        _window.Logger.LogDebug(".Debug.SetDevToolsEnabled({Enabled})", enabled);
+        logger.LogDebug(".Debug.SetDevToolsEnabled({Enabled})", enabled);
 
-        _window.Invoke(() => {
-            InfiniFrameNative.GetDevToolsEnabled(_window.InstanceHandle, out bool isEnabled);
+        Window.Invoke(() => {
+            InfiniFrameNative.GetDevToolsEnabled(Window.InstanceHandle, out bool isEnabled);
             if (isEnabled == enabled) return;
 
-            InfiniFrameNative.SetDevToolsEnabled(_window.InstanceHandle, enabled);
+            InfiniFrameNative.SetDevToolsEnabled(Window.InstanceHandle, enabled);
         });
     }
 
@@ -66,7 +64,7 @@ public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
         if (!SupportsRemoteDebugging) return false;
 
         int? port = RemoteDebuggingPort;
-        if (!port.HasValue || _window.IsClosedOrClosing)
+        if (!port.HasValue || Window.IsClosedOrClosing)
             return false;
 
         endpoint = RemoteDebuggingUtility.CreateEndpointUri(port.Value);
@@ -81,25 +79,25 @@ public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
 
         if (!Capabilities.SupportsRemoteDebuggingEndpoint) {
             reason = "Remote debugging endpoint probing is not supported on this platform.";
-            _window.Logger.LogDebug("Debug endpoint probe skipped: {Reason}", reason);
+            logger.LogDebug("Debug endpoint probe skipped: {Reason}", reason);
             return false;
         }
 
         if (!TryGetRemoteDebuggingEndpoint(out endpoint) || endpoint is null) {
-            reason = _window.IsClosedOrClosing
+            reason = Window.IsClosedOrClosing
                 ? "Window is closed."
                 : "Remote debugging is disabled.";
-            _window.Logger.LogDebug("Debug endpoint probe unavailable: {Reason}", reason);
+            logger.LogDebug("Debug endpoint probe unavailable: {Reason}", reason);
             return false;
         }
 
         if (RemoteDebuggingUtility.TryProbeEndpoint(endpoint, out string? probeFailure)) {
-            _window.Logger.LogDebug("Debug endpoint probe succeeded for {Endpoint}", endpoint);
+            logger.LogDebug("Debug endpoint probe succeeded for {Endpoint}", endpoint);
             return true;
         }
 
         reason = probeFailure;
-        _window.Logger.LogWarning("Debug endpoint probe failed for {Endpoint}: {Reason}", endpoint, reason);
+        logger.LogWarning("Debug endpoint probe failed for {Endpoint}: {Reason}", endpoint, reason);
         return false;
     }
 
@@ -114,7 +112,7 @@ public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
             endpointStatus = InfiniFrameDebugEndpointStatus.Disabled;
             endpointReason = "Remote debugging is disabled.";
         }
-        else if (_window.IsClosedOrClosing || !TryGetRemoteDebuggingEndpoint(out endpoint) || endpoint is null) {
+        else if (Window.IsClosedOrClosing || !TryGetRemoteDebuggingEndpoint(out endpoint) || endpoint is null) {
             endpointStatus = InfiniFrameDebugEndpointStatus.Unavailable;
             endpointReason = "Window is closed.";
         }
@@ -139,9 +137,7 @@ public sealed class InfiniFrameWindowDebugging : IInfiniFrameWindowDebugging {
             EndpointStatus = endpointStatus,
             Endpoint = endpoint,
             EndpointReason = endpointReason,
-            LastDebugInitializationStatus = _window.LastDebugInitializationStatus,
-            LastDebugInitializationError = _window.LastDebugInitializationError,
-            IsWindowClosed = _window.IsClosedOrClosing,
+            IsWindowClosed = Window.IsClosedOrClosing,
             PlatformNotes = GetPlatformDiagnosticsNotes()
         };
     }

@@ -35,6 +35,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     Rectangle CachedPreFullScreenBounds { get; internal set; }
     Rectangle CachedPreMaximizedBounds { get; internal set; }
     bool Focused { get; }
+    bool IsClosedOrClosing { get; }
 
     void Invoke(Action workItem);
     

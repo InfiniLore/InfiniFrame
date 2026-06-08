@@ -51,9 +51,9 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void AssignSender(IInfiniFrameWindow sender) {
-        ArgumentNullException.ThrowIfNull(sender);
-        Sender = sender;
+    internal void AssignToWindow(IInfiniFrameWindow window) {
+        ArgumentNullException.ThrowIfNull(window);
+        Sender = window;
     }
     
     public void AssignEventCallbacks(ref InfiniFrameNativeParameters parameters) {

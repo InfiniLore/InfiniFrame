@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
@@ -20,18 +21,21 @@ public class WebMessageReceivedHandlerTests {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
         var events = new InfiniFrameEvents(eventsStore);
+        var debugging = new InfiniFrameWindowDebugging(NullLogger<InfiniFrameWindowDebugging>.Instance);
         var builder = InfiniFrameWindowBuilder.Create(eventsStore);
         var service = new TestService();
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = new TestServiceProvider(service),
             Events = events,
+            Debugging = debugging,
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null
         };
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
-        events.AssignSender(window);
+        events.AssignToWindow(window);
+        debugging.AssignToWindow(window);
 
         var tcs = new TaskCompletionSource<(string ServiceId, string Message)>();
 
@@ -53,10 +57,12 @@ public class WebMessageReceivedHandlerTests {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
         var builder = InfiniFrameWindowBuilder.Create(eventsStore);
+        var debugging = new InfiniFrameWindowDebugging(NullLogger<InfiniFrameWindowDebugging>.Instance);
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
             Events = new InfiniFrameEvents(eventsStore),
+            Debugging = debugging,
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null
         };

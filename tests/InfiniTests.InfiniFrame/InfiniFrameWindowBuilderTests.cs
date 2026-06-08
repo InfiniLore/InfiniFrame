@@ -27,8 +27,8 @@ public class InfiniFrameWindowBuilderTests {
     [Test]
     public async Task ResolveLogger_WithoutProvider_UsesSharedFallbackLogger(CancellationToken ct = default) {
         // Act
-        ILogger<IInfiniFrameWindow> first = InfiniFrameWindowBuilder.ResolveLogger(null);
-        ILogger<IInfiniFrameWindow> second = InfiniFrameWindowBuilder.ResolveLogger(null);
+        ILogger<IInfiniFrameWindow> first = InfiniFrameWindowBuilder.ResolveLogger<IInfiniFrameWindow>(null);
+        ILogger<IInfiniFrameWindow> second = InfiniFrameWindowBuilder.ResolveLogger<IInfiniFrameWindow>(null);
 
         // Assert
         await Assert.That(first).IsSameReferenceAs(second);
@@ -44,7 +44,7 @@ public class InfiniFrameWindowBuilderTests {
             .BuildServiceProvider();
 
         // Act
-        ILogger<IInfiniFrameWindow> resolvedLogger = InfiniFrameWindowBuilder.ResolveLogger(provider);
+        ILogger<IInfiniFrameWindow> resolvedLogger = InfiniFrameWindowBuilder.ResolveLogger<IInfiniFrameWindow>(provider);
 
         // Assert
         await Assert.That(resolvedLogger).IsSameReferenceAs(expectedLogger);
@@ -58,7 +58,7 @@ public class InfiniFrameWindowBuilderTests {
             .BuildServiceProvider();
 
         // Act
-        ILogger<IInfiniFrameWindow> resolvedLogger = InfiniFrameWindowBuilder.ResolveLogger(provider);
+        ILogger<IInfiniFrameWindow> resolvedLogger = InfiniFrameWindowBuilder.ResolveLogger<IInfiniFrameWindow>(provider);
 
         // Assert
         await Assert.That(resolvedLogger).IsNotNull();

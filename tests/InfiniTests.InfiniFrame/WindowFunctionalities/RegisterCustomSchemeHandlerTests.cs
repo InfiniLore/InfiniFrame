@@ -30,7 +30,7 @@ public class RegisterCustomSchemeHandlerTests {
         var events = new InfiniFrameEvents(snapshot.EventsStore);
         IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
         events.AssignEventCallbacks(ref nativeParameters);
-        events.AssignSender(window);
+        events.AssignToWindow(window);
 
         // Assert
         await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("app")).IsTrue();
@@ -54,7 +54,7 @@ public class RegisterCustomSchemeHandlerTests {
         var events = new InfiniFrameEvents(snapshot.EventsStore);
         IInfiniFrameWindow window = new RecordingInfiniFrameWindowSubstitute().Window;
         events.AssignEventCallbacks(ref nativeParameters);
-        events.AssignSender(window);
+        events.AssignToWindow(window);
 
         // Assert
         int nativeAppCount = nativeParameters.CustomSchemeNames

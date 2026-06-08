@@ -13,7 +13,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using RemoteDebuggingUtility = InfiniFrame.Debugging.RemoteDebuggingUtility;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -26,6 +25,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public required IServiceProvider? ServiceProvider { get; init; }
     public required IInfiniFrameEvents Events { get; init; }
     public required IInfiniFrameOptions Configuration { get; init; }
+    
+    public required IInfiniFrameWindowDebugging Debugging { get; init; }
     public IInfiniFrameStaticAssets? StaticAssets { get; init; }
 
     public IInfiniFrameEventsStore EventsStore => Events.EventsStore;
@@ -38,14 +39,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
     private int _shutdownState;
-    private string _lastDebugInitializationStatus = "NotStarted";
-    private string? _lastDebugInitializationError;
-    private InfiniFrameWindowDebugging? _debug;
 
     private bool IsClosing => Volatile.Read(ref _shutdownState) != 0;
     public bool IsClosed => Volatile.Read(ref _shutdownState) == 2;
     public bool IsClosedOrClosing => IsClosing || InstanceHandle == IntPtr.Zero;
-    public IInfiniFrameWindowDebugging Debugging => _debug ??= new InfiniFrameWindowDebugging(this);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -385,9 +382,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         InfiniFrameNativeParameters startupParameters = Configuration.StartupParameters;
         bool webInspectorEnabled = startupParameters.WebInspectorEnabled;
 
-        _lastDebugInitializationStatus = "Initializing";
-        _lastDebugInitializationError = null;
-
         try {
             if (startupParameters.RemoteDebuggingPort != 0) {
                 Logger.LogInformation(
@@ -409,8 +403,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             if (webInspectorEnabled) {
                 MacOsWebInspectorUtility.ThrowIfUnsupported();
             }
-
-            _lastDebugInitializationStatus = "PreflightPassed";
 
             if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, Logger)) {
                 throw new ArgumentException("Startup Parameters Are Not Valid");
@@ -444,12 +436,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             }
 
             Events.OnWindowCreated();
-            _lastDebugInitializationStatus = "Initialized";
-        }
-        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            _lastDebugInitializationStatus = "InitializationFailed";
-            _lastDebugInitializationError ??= ex.Message;
-            throw;
         }
         finally {
             CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
@@ -938,9 +924,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ZoomEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetZoomEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetZoomEnabled)));
-
-    internal string LastDebugInitializationStatus => _lastDebugInitializationStatus;
-    internal string? LastDebugInitializationError => _lastDebugInitializationError;
 
     #endregion
 }

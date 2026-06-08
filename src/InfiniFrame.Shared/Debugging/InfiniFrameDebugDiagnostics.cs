@@ -19,9 +19,6 @@ public sealed record InfiniFrameDebugDiagnostics {
     public required InfiniFrameDebugEndpointStatus EndpointStatus { get; init; }
     public Uri? Endpoint { get; init; }
     public string? EndpointReason { get; init; }
-
-    public required string LastDebugInitializationStatus { get; init; }
-    public string? LastDebugInitializationError { get; init; }
     public required bool IsWindowClosed { get; init; }
     public string? PlatformNotes { get; init; }
 }
