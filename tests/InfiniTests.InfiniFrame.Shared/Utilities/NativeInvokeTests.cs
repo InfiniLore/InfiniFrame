@@ -36,7 +36,7 @@ public class NativeInvokeTests {
         IInfiniFrameWindow window = CreateSynchronousWindow(123456);
 
         // Act
-        string? result = NativeInvoke.InvokeWithValidation<string>(window.InstanceHandle, window.ManagedThreadId, callback: (_, out value) => {
+        string? result = NativeInvoke.InvokeSyncWithValidation<string>(window.InstanceHandle, window.ManagedThreadId, callback: (_, out value) => {
             value = "out-value";
             return InfiniFrameNativeInteropStatus.Success;
         });
@@ -53,7 +53,7 @@ public class NativeInvokeTests {
         IntPtr received = IntPtr.Zero;
 
         // Act
-        NativeInvoke.InvokeWithValidation<int>(window.InstanceHandle, window.ManagedThreadId, callback: (h, out v) => {
+        NativeInvoke.InvokeSyncWithValidation<int>(window.InstanceHandle, window.ManagedThreadId, callback: (h, out v) => {
             received = h;
             v = 0;
             return InfiniFrameNativeInteropStatus.Success;

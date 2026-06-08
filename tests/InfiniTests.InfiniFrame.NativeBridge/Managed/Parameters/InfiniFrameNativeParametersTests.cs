@@ -209,7 +209,7 @@ public class InfiniFrameNativeParametersTests {
             if (namePtr != IntPtr.Zero) Marshal.FreeHGlobal(namePtr);
 
             // Native allocates returned init params; managed side must free.
-            var status = InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
+            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
         }
     }

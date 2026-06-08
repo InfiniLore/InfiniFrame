@@ -56,7 +56,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </returns>
     /// <param name="workItem"> The delegate encapsulating a method / action to be executed in the UI thread.</param>
     public void Invoke(Action workItem) {
-        NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId, workItem);
+        NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId, workItem);
     }
 
     /// <summary>
@@ -291,7 +291,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         string? result = null;
         string[] nativeFilters = GetNativeFilters(filters);
 
-        NativeInvoke.InvokeWithValidation(
+        NativeInvoke.InvokeSyncWithValidation(
             InstanceHandle, 
             ManagedThreadId,
             handle => InfiniFrameNative.ShowSaveFile(handle, title, defaultPath, nativeFilters, filters.Length, null, out result)
@@ -333,7 +333,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info) {
         var result = InfiniFrameDialogResult.Cancel;
         
-        NativeInvoke.InvokeWithValidation(
+        NativeInvoke.InvokeSyncWithValidation(
             InstanceHandle, 
             ManagedThreadId,
             handle => InfiniFrameNative.ShowMessage(handle, title, text ?? string.Empty, buttons, icon, out result)
@@ -433,7 +433,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
         string?[] results = Array.Empty<string?>();
         string[] nativeFilters = GetNativeFilters(filters, foldersOnly);
 
-        NativeInvoke.InvokeWithValidation(
+        NativeInvoke.InvokeSyncWithValidation(
             InstanceHandle, 
             ManagedThreadId,
             handle => foldersOnly
@@ -486,9 +486,9 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             if (IsClosedOrClosing) return IntPtr.Zero;
             
             IntPtr handle;
-            if (OperatingSystem.IsWindows()) handle = NativeInvoke.InvokeWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleWin32);
-            else if (OperatingSystem.IsMacOS()) handle = NativeInvoke.InvokeWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleMac);
-            else if (OperatingSystem.IsLinux()) handle = NativeInvoke.InvokeWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleLinux);
+            if (OperatingSystem.IsWindows()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleWin32);
+            else if (OperatingSystem.IsMacOS()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleMac);
+            else if (OperatingSystem.IsLinux()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleLinux);
             else throw new PlatformNotSupportedException();
 
             return handle;
@@ -507,7 +507,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     A read-only list of Monitor objects representing information about each display monitor.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public ImmutableArray<InfiniMonitor> Monitors => NativeInvoke.InvokeWithValidation<ImmutableArray<InfiniMonitor>>(InstanceHandle, ManagedThreadId, MonitorsUtility.GetMonitors);
+    public ImmutableArray<InfiniMonitor> Monitors => NativeInvoke.InvokeSyncWithValidation<ImmutableArray<InfiniMonitor>>(InstanceHandle, ManagedThreadId, MonitorsUtility.GetMonitors);
 
     /// <summary>
     ///     Retrieves the primary monitor information from the native window instance.
@@ -518,7 +518,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     available monitors.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public InfiniMonitor MainMonitor => NativeInvoke.InvokeWithValidation<ImmutableArray<InfiniMonitor>>(InstanceHandle, ManagedThreadId, MonitorsUtility.GetMonitors).FirstOrDefault();
+    public InfiniMonitor MainMonitor => NativeInvoke.InvokeSyncWithValidation<ImmutableArray<InfiniMonitor>>(InstanceHandle, ManagedThreadId, MonitorsUtility.GetMonitors).FirstOrDefault();
 
     /// <summary>
     ///     Gets the dots per inch (DPI) for the primary display from the native window.
@@ -527,7 +527,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     An ApplicationException is thrown if the window hasn't been initialized yet.
     /// </exception>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public uint ScreenDpi => NativeInvoke.InvokeWithValidation<uint>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetScreenDpi);
+    public uint ScreenDpi => NativeInvoke.InvokeSyncWithValidation<uint>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetScreenDpi);
 
     /// <summary>
     ///     Gets a unique GUID to identify the native window.
@@ -559,43 +559,43 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool Transparent => OperatingSystem.IsWindows()
         ? Configuration.StartupParameters.Transparent // on windows it can only be set at startup
-        : NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetTransparentEnabled);
+        : NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetTransparentEnabled);
 
     /// <summary>
     ///     When true, the user can access the browser control's context menu.
     ///     By default, this is set to true.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool ContextMenuEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetContextMenuEnabled);
+    public bool ContextMenuEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetContextMenuEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool MediaAutoplayEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMediaAutoplayEnabled);
+    public bool MediaAutoplayEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMediaAutoplayEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? UserAgent => NativeInvoke.InvokeWithValidation<string?>(InstanceHandle, ManagedThreadId,
+    public string? UserAgent => NativeInvoke.InvokeSyncWithValidation<string?>(InstanceHandle, ManagedThreadId,
         InfiniFrameNative.GetUserAgent);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool FileSystemAccessEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFileSystemAccessEnabled);
+    public bool FileSystemAccessEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFileSystemAccessEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool WebSecurityEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWebSecurityEnabled);
+    public bool WebSecurityEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWebSecurityEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool JavascriptClipboardAccessEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetJavascriptClipboardAccessEnabled);
+    public bool JavascriptClipboardAccessEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetJavascriptClipboardAccessEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool MediaStreamEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMediaStreamEnabled);
+    public bool MediaStreamEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMediaStreamEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool SmoothScrollingEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetSmoothScrollingEnabled);
+    public bool SmoothScrollingEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetSmoothScrollingEnabled);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool IgnoreCertificateErrorsEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetIgnoreCertificateErrorsEnabled);
+    public bool IgnoreCertificateErrorsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetIgnoreCertificateErrorsEnabled);
 
     [SupportedOSPlatform("windows")]
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool NotificationsEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetNotificationsEnabled);
+    public bool NotificationsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetNotificationsEnabled);
 
     /// <summary>
     ///     This property returns or sets the fullscreen status of the window.
@@ -603,35 +603,35 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     By default, this is set to false.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool FullScreen => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFullScreen);
+    public bool FullScreen => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFullScreen);
 
     /// <summary>
     ///     Gets whether the native browser control grants all requests for access to local resources
     ///     such as the user's camera and microphone. By default, this is set to true.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool GrantBrowserPermissions => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetGrantBrowserPermissions);
+    public bool GrantBrowserPermissions => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetGrantBrowserPermissions);
 
     /// <summary>
     ///     Gets the Height property of the native window in pixels.
     ///     The default value is 0.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Height => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public int Height => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out _, out value));
 
     /// <summary>
     ///     Gets the icon file for the native window title bar.
     ///     The file must be located on the local machine and cannot be a URL. The default is none.
     /// </summary>
-    public string? IconFilePath => NativeInvoke.InvokeWithValidation<string?>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetIconFileName);
+    public string? IconFilePath => NativeInvoke.InvokeSyncWithValidation<string?>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetIconFileName);
 
     /// <summary>
     ///     Gets the native window Left (X) and Top coordinates (Y) in pixels.
     ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Point Location => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public Point Location => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out Point value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetPosition(handle, out int left, out int top);
             value = new Point(left, top);
@@ -644,7 +644,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Left => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public int Left => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetPosition(handle, out value, out _));
 
     /// <summary>
@@ -652,19 +652,19 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Default is false.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Maximized => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMaximized);
+    public bool Maximized => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMaximized);
 
     /// <summary>
     ///     Gets whether the native window is currently within focus
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Focused => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFocused);
+    public bool Focused => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFocused);
 
     /// <summary>
     ///     Gets the maximum size of the native window in pixels.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size MaxSize => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public Size MaxSize => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMaxSize(handle, out int width, out int height);
             value = new Size(width, height);
@@ -675,27 +675,27 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Gets the native window maximum height in pixels.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MaxHeight => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public int MaxHeight => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out _, out value));
 
     /// <summary>
     ///     Gets the native window maximum width in pixels.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MaxWidth => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public int MaxWidth => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out value, out _));
 
     /// <summary>
     ///     Gets whether the native window is minimized (hidden).
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Minimized => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMinimized);
+    public bool Minimized => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMinimized);
 
     /// <summary>
     ///     Gets the minimum size of the native window in pixels.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size MinSize => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public Size MinSize => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMinSize(handle, out int width, out int height);
             value = new Size(width, height);
@@ -706,14 +706,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Gets the native window minimum height in pixels.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MinHeight => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public int MinHeight => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out _, out value));
 
     /// <summary>
     ///     Gets the native window minimum width in pixels.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int MinWidth => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public int MinWidth => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out value, out _));
 
     /// <summary>
@@ -721,14 +721,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Default is true.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool Resizable => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetResizable);
+    public bool Resizable => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetResizable);
 
     /// <summary>
     ///     Gets the native window Size. This represents the width and the height of the window in pixels.
     ///     The default Size is 0,0.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public Size Size => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public Size Size => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetSize(handle, out int width, out int height);
             value = new Size(width, height);
@@ -809,7 +809,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     The default is "InfiniFrame".
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public string? Title => NativeInvoke.InvokeWithValidation<string?>(InstanceHandle, ManagedThreadId,
+    public string? Title => NativeInvoke.InvokeSyncWithValidation<string?>(InstanceHandle, ManagedThreadId,
         InfiniFrameNative.GetTitle);
 
     /// <summary>
@@ -817,7 +817,7 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Default is 0.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Top => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public int Top => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetPosition(handle, out _, out value));
 
     /// <summary>
@@ -825,14 +825,14 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     ///     Default is false.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool TopMost => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetTopmost);
+    public bool TopMost => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetTopmost);
 
     /// <summary>
     ///     Gets the native window width in pixels.
     ///     Default is 0.
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Width => NativeInvoke.InvokeWithValidation(InstanceHandle, ManagedThreadId,
+    public int Width => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
         callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out value, out _));
 
     /// <summary>
@@ -841,10 +841,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </summary>
     /// <example>100 = 100%, 50 = 50%</example>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public int Zoom => NativeInvoke.InvokeWithValidation<int>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetZoom);
+    public int Zoom => NativeInvoke.InvokeSyncWithValidation<int>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetZoom);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool ZoomEnabled => NativeInvoke.InvokeWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetZoomEnabled);
+    public bool ZoomEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetZoomEnabled);
 
     #endregion
 }
