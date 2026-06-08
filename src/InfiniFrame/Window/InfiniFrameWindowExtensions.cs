@@ -37,10 +37,7 @@ public static class InfiniFrameWindowExtensions {
             if (instance == IntPtr.Zero)
                 return;
 
-            InfiniFrameNative.EnsureSucceeded(
-                InfiniFrameNative.NavigateToUrl(instance, uri.ToString()),
-                nameof(InfiniFrameNative.NavigateToUrl)
-            );
+            InfiniFrameNative.NavigateToUrl(instance, uri.ToString());
         });
         return window;
     }
@@ -104,10 +101,7 @@ public static class InfiniFrameWindowExtensions {
             if (instance == IntPtr.Zero)
                 return;
 
-            InfiniFrameNative.EnsureSucceeded(
-                InfiniFrameNative.NavigateToString(instance, content),
-                nameof(InfiniFrameNative.NavigateToString)
-            );
+            InfiniFrameNative.NavigateToString(instance, content);
         });
         return window;
     }
@@ -134,7 +128,7 @@ public static class InfiniFrameWindowExtensions {
     /// </returns>
     public static T CenterOnCurrentMonitor<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
-            ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
+            MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
             InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
 
             // TODO think about proper unhappy flow here
@@ -161,7 +155,7 @@ public static class InfiniFrameWindowExtensions {
     /// </returns>
     public static T CenterOnMonitor<T>(this T window, int monitorIndex) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
-            ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
+            MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
 
             if (monitorIndex < 0 || monitorIndex >= monitors.Length) {
                 window.Logger.LogWarning("Monitor index {MonitorIndex} is out of range. Available monitors: {Monitors}", monitorIndex, monitors.Length);
@@ -364,7 +358,7 @@ public static class InfiniFrameWindowExtensions {
         if (fullScreen) {
             window.Invoke(()
                 => {
-                ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
+                MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
                 InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int top);
                 InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height);
 
@@ -759,10 +753,8 @@ public static class InfiniFrameWindowExtensions {
         window.Logger.LogDebug(".SetTitle({Title})", title);
 
         window.Invoke(() => {
-            InfiniFrameNative.EnsureSucceeded(
-                InfiniFrameNative.GetTitle(window.InstanceHandle, out string? oldTitle),
-                nameof(InfiniFrameNative.GetTitle));
-
+            InfiniFrameNative.GetTitle(window.InstanceHandle, out string? oldTitle);
+            
             if (title == oldTitle) return;
 
             InfiniFrameNative.SetTitle(

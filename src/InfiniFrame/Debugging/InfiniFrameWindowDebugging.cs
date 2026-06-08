@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
-using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -12,10 +11,7 @@ namespace InfiniFrame.Debugging;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebugging> logger) : IInfiniFrameWindowDebugging {
-    public bool DevToolsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(
-        Window,
-        InfiniFrameNative.GetDevToolsEnabled,
-        validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
+    public bool DevToolsEnabled => NativeInvoke.InvokeWithValidation<bool>(Window.InstanceHandle, InfiniFrameNative.GetDevToolsEnabled);
     public bool SupportsWebInspector => MacOsWebInspectorUtility.IsSupportedPlatform();
     public bool WebInspectorEnabled => Window.Configuration.StartupParameters.WebInspectorEnabled;
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();

@@ -49,7 +49,8 @@ public class InfiniFrameNativeParametersTests {
                 Size = Marshal.SizeOf<InfiniFrameNativeParameters>()
             };
 
-            newParametersPtr = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters);
+            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr newParameters);
+            newParametersPtr = newParameters;
 
             int lastError = Marshal.GetLastPInvokeError();
             await Assert.That(lastError).IsEqualTo(0);
@@ -140,7 +141,8 @@ public class InfiniFrameNativeParametersTests {
             };
 
             // Act
-            newParametersPtr = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters);
+            var status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr tempPtr );
+            newParametersPtr = tempPtr;
             var newParameters = Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
 
             // Assert
