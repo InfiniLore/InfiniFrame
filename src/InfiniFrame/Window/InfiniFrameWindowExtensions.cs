@@ -32,13 +32,16 @@ public static class InfiniFrameWindowExtensions {
             return window;
 
         window.Logger.LogDebug(".Load({uri})", uri);
-        
-        InvokeUtility.NativeInvokeWithValidation(
-            window.InstanceHandle,
-            InfiniFrameNative.NavigateToUrl,
-            uri.ToString()
-        );
-        
+        window.Invoke(() => {
+            IntPtr instance = window.InstanceHandle;
+            if (instance == IntPtr.Zero)
+                return;
+
+            InfiniFrameNative.EnsureSucceeded(
+                InfiniFrameNative.NavigateToUrl(instance, uri.ToString()),
+                nameof(InfiniFrameNative.NavigateToUrl)
+            );
+        });
         return window;
     }
 
@@ -96,12 +99,16 @@ public static class InfiniFrameWindowExtensions {
 
         string shortContent = content.Length > 50 ? string.Concat(content.AsSpan(0, 47), "...") : content;
         window.Logger.LogDebug(".LoadRawString({Content})", shortContent);
+        window.Invoke(() => {
+            IntPtr instance = window.InstanceHandle;
+            if (instance == IntPtr.Zero)
+                return;
 
-        InvokeUtility.NativeInvokeWithValidation(
-            window.InstanceHandle,
-            InfiniFrameNative.NavigateToString,
-            content
-        );
+            InfiniFrameNative.EnsureSucceeded(
+                InfiniFrameNative.NavigateToString(instance, content),
+                nameof(InfiniFrameNative.NavigateToString)
+            );
+        });
         return window;
     }
 
@@ -112,10 +119,9 @@ public static class InfiniFrameWindowExtensions {
     /// <returns>
     ///     Returns the current <see cref="IInfiniFrameWindow" /> instance.
     /// </returns>
-    public static T CenterOnPrimaryDisplay<T>(this T window) where T : class, IInfiniFrameWindow {
+    public static T Center<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".Center()");
-        
-        InvokeUtility.NativeInvokeWithValidation(window.InstanceHandle, InfiniFrameNative.Center);
+        window.Invoke(() => InfiniFrameNative.Center(window.InstanceHandle));
         return window;
     }
 
@@ -128,7 +134,7 @@ public static class InfiniFrameWindowExtensions {
     /// </returns>
     public static T CenterOnCurrentMonitor<T>(this T window) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
-            MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
+            ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
             InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
 
             // TODO think about proper unhappy flow here
@@ -155,7 +161,7 @@ public static class InfiniFrameWindowExtensions {
     /// </returns>
     public static T CenterOnMonitor<T>(this T window, int monitorIndex) where T : class, IInfiniFrameWindow {
         window.Invoke(() => {
-            MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
+            ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
 
             if (monitorIndex < 0 || monitorIndex >= monitors.Length) {
                 window.Logger.LogWarning("Monitor index {MonitorIndex} is out of range. Available monitors: {Monitors}", monitorIndex, monitors.Length);
@@ -358,7 +364,7 @@ public static class InfiniFrameWindowExtensions {
         if (fullScreen) {
             window.Invoke(()
                 => {
-                MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
+                ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
                 InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int top);
                 InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height);
 
@@ -752,12 +758,19 @@ public static class InfiniFrameWindowExtensions {
     public static T SetTitle<T>(this T window, string? title) where T : class, IInfiniFrameWindow {
         window.Logger.LogDebug(".SetTitle({Title})", title);
 
-        string? oldTitle = InvokeUtility.NativeInvokeWithValidation<string?>(window.InstanceHandle, InfiniFrameNative.GetTitle);
-        if (title == oldTitle) return window;
-        
-        string? correctedTitle = TitleStringUtility.Validate(title, window.Configuration.LimitLinuxWindowTitleLength);
-        InvokeUtility.NativeInvokeWithValidation(window.InstanceHandle, InfiniFrameNative.SetTitle, correctedTitle);
-        
+        window.Invoke(() => {
+            InfiniFrameNative.EnsureSucceeded(
+                InfiniFrameNative.GetTitle(window.InstanceHandle, out string? oldTitle),
+                nameof(InfiniFrameNative.GetTitle));
+
+            if (title == oldTitle) return;
+
+            InfiniFrameNative.SetTitle(
+                window.InstanceHandle,
+                TitleStringUtility.Validate(title, window.Configuration.LimitLinuxWindowTitleLength)
+            );
+        });
+
         return window;
     }
 

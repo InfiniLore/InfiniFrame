@@ -57,9 +57,8 @@ public class IconFilePathTests {
         window.SetIconFile(IconFilePath);
 
         // Assert
-        string? foundPath = window.IconFilePath;
-        await Assert.That(foundPath).IsNotNull()
-            .And.IsEqualTo(ResolvedIconFilePath);
+        string foundPath = window.IconFilePath;
+        await Assert.That(foundPath).IsEqualTo(ResolvedIconFilePath);
     }
 
     [Test]

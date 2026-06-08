@@ -19,7 +19,7 @@ public interface IHasInfiniFrameProperties {
     bool FullScreen { get; }
     bool GrantBrowserPermissions { get; }
     int Height { get; }
-    string? IconFilePath { get; }
+    string IconFilePath { get; }
     int Left { get; }
     int Top { get; }
     bool Maximized { get; }

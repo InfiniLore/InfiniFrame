@@ -425,7 +425,7 @@ public static class InfiniFrameWindowBuilderExtensions {
     /// <summary>
     ///     Sets SetCentered on the browser control at initialization.
     /// </summary>
-    public static T Centered<T>(this T builder, bool enable = true) where T : IInfiniFrameWindowBuilder {
+    public static T Center<T>(this T builder, bool enable = true) where T : IInfiniFrameWindowBuilder {
         builder.Configuration.Centered = enable;
         return builder;
     }

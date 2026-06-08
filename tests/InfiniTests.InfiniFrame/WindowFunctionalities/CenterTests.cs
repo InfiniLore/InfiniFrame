@@ -21,7 +21,7 @@ public class CenterTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        builder.Centered(state);
+        builder.Center(state);
 
         // Assert
         await Assert.That(builder.Configuration.Centered).IsEqualTo(state);
@@ -41,7 +41,7 @@ public class CenterTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        window.CenterOnPrimaryDisplay();
+        window.Center();
 
         // Assert
         int centerX = 0;
@@ -68,7 +68,7 @@ public class CenterTests {
 
         // Act
         using var windowUtility = InfiniFrameTestWindow.Create(
-            builder: builder => builder.Centered(state),
+            builder: builder => builder.Center(state),
             ct
         );
         IInfiniFrameWindow window = windowUtility.Window;

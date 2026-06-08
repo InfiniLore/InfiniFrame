@@ -21,11 +21,14 @@ internal static class InfiniFrameOptionsSectionApplier {
         SetBool(section, nameof(InfiniFrameOptionsBuilder.Chromeless), assign: value => configuration.Chromeless = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.ContextMenuEnabled), assign: value => configuration.ContextMenuEnabled = value);
         SetBool(section, nameof(IInfiniFrameWindowDebuggingBuilder.DevToolsEnabled), assign: value => configuration.Debugging.SetDevToolsEnabled(value));
+
+
         SetBool(section, nameof(IInfiniFrameWindowDebuggingBuilder.WebInspectorEnabled), assign: value => {
-            if (OperatingSystem.IsMacOSVersionAtLeast(13, 3)) {
+            if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(13, 3)) {
                 configuration.Debugging.SetWebInspectorEnabled(value);
             }
         });
+
         SetBool(section, nameof(InfiniFrameOptionsBuilder.FileSystemAccessEnabled), assign: value => configuration.FileSystemAccessEnabled = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.FullScreen), assign: value => configuration.FullScreen = value);
         SetBool(section, nameof(InfiniFrameOptionsBuilder.GrantBrowserPermissions), assign: value => configuration.GrantBrowserPermissions = value);

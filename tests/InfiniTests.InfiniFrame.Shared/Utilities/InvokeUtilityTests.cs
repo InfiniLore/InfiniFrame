@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using NSubstitute;
 
@@ -28,17 +27,71 @@ public class InvokeUtilityTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // NativeInvokeWithValidation<T>(window, FuncWithOut<T>)
+    // InvokeAndReturn<T>(window, Func<IInfiniFrameWindow, T>)
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task NativeInvokeWithValidation_FuncWithOut_ReturnsValueSetViaOutParameter(CancellationToken ct = default) {
+    public async Task InvokeAndReturn_WindowCallback_ReturnsCallbackResult(CancellationToken ct = default) {
         // Arrange
         IInfiniFrameWindow window = CreateSynchronousWindow();
 
         // Act
-        string? result = InvokeUtility.NativeInvokeWithValidation<string>(window.InstanceHandle, callback: (_, out value) => {
+        string? result = InvokeUtility.InvokeAndReturn(window, callback: _ => "hello");
+
+        // Assert
+        await Assert.That(result).IsEqualTo("hello");
+    }
+
+    [Test]
+    public async Task InvokeAndReturn_WindowCallback_PassesWindowToCallback(CancellationToken ct = default) {
+        // Arrange
+        IInfiniFrameWindow window = CreateSynchronousWindow();
+        IInfiniFrameWindow? received = null;
+
+        // Act
+        InvokeUtility.InvokeAndReturn(window, callback: w => {
+            received = w;
+            return 0;
+        });
+
+        // Assert
+        await Assert.That(received).IsEqualTo(window);
+    }
+
+    [Test]
+    public async Task InvokeAndReturn_WindowCallback_ReturnsDefaultWhenCallbackReturnsDefault(CancellationToken ct = default) {
+        // Arrange
+        IInfiniFrameWindow window = CreateSynchronousWindow();
+
+        // Act
+        string? result = InvokeUtility.InvokeAndReturn<string>(window, callback: _ => null!);
+
+        // Assert
+        await Assert.That(result).IsNull();
+    }
+
+    [Test]
+    public async Task InvokeAndReturn_WindowCallback_ValueTypeResult_ReturnedCorrectly(CancellationToken ct = default) {
+        // Arrange
+        IInfiniFrameWindow window = CreateSynchronousWindow();
+
+        // Act
+        int result = InvokeUtility.InvokeAndReturn(window, callback: _ => 42);
+
+        // Assert
+        await Assert.That(result).IsEqualTo(42);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // InvokeAndReturn<T>(window, FuncWithOut<T>)
+    // -----------------------------------------------------------------------------------------------------------------
+    [Test]
+    public async Task InvokeAndReturn_FuncWithOut_ReturnsValueSetViaOutParameter(CancellationToken ct = default) {
+        // Arrange
+        IInfiniFrameWindow window = CreateSynchronousWindow();
+
+        // Act
+        string result = InvokeUtility.InvokeAndReturn<string>(window, callback: (_, out value) => {
             value = "out-value";
-            return InfiniFrameNativeInteropStatus.Success;
         });
 
         // Assert
@@ -46,17 +99,16 @@ public class InvokeUtilityTests {
     }
 
     [Test]
-    public async Task NativeInvokeWithValidation_FuncWithOut_PassesInstanceHandleToCallback(CancellationToken ct = default) {
+    public async Task InvokeAndReturn_FuncWithOut_PassesInstanceHandleToCallback(CancellationToken ct = default) {
         // Arrange
         IntPtr expectedHandle = new(99999);
         IInfiniFrameWindow window = CreateSynchronousWindow(expectedHandle);
         IntPtr received = IntPtr.Zero;
 
         // Act
-        InvokeUtility.NativeInvokeWithValidation<int>(window.InstanceHandle, callback: (h, out v) => {
+        InvokeUtility.InvokeAndReturn<int>(window, callback: (h, out v) => {
             received = h;
             v = 0;
-            return InfiniFrameNativeInteropStatus.Success;
         });
 
         // Assert
@@ -64,19 +116,19 @@ public class InvokeUtilityTests {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    // NativeInvokeWithValidation<T, TResult>(window, FuncWithOutResult<T, TResult>, validateResult)
+    // InvokeAndReturn<T, TResult>(window, FuncWithOutResult<T, TResult>, validateResult)
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
-    public async Task NativeInvokeWithValidation_FuncWithOutResult_ReturnsValueSetViaOutParameter(CancellationToken ct = default) {
+    public async Task InvokeAndReturn_FuncWithOutResult_ReturnsValueSetViaOutParameter(CancellationToken ct = default) {
         // Arrange
         IInfiniFrameWindow window = CreateSynchronousWindow();
 
         // Act
-        string? result = InvokeUtility.NativeInvokeWithValidation<string>(
-            window.InstanceHandle,
+        string result = InvokeUtility.InvokeAndReturn<string, int>(
+            window,
             callback: (_, out value) => {
                 value = "result-value";
-                return InfiniFrameNativeInteropStatus.Success;
+                return 0;
             }
         );
 
@@ -85,20 +137,80 @@ public class InvokeUtilityTests {
     }
 
     [Test]
-    public async Task NativeInvokeWithValidation_FuncWithOutResult_CallsValidateResultWhenResultIsNonNull(CancellationToken ct = default) {
+    public async Task InvokeAndReturn_FuncWithOutResult_CallsValidateResultWhenResultIsNonNull(CancellationToken ct = default) {
         // Arrange
         IInfiniFrameWindow window = CreateSynchronousWindow();
+        int? validatedWith = null;
 
         // Act
-        int validatedWith = InvokeUtility.NativeInvokeWithValidation<int>(
-            window.InstanceHandle,
+        InvokeUtility.InvokeAndReturn<string, int>(
+            window,
             callback: (_, out value) => {
-                value = 7;
-                return InfiniFrameNativeInteropStatus.Success;
-            }
+                value = "x";
+                return 7;
+            },
+            validateResult: r => validatedWith = r
         );
 
         // Assert
         await Assert.That(validatedWith).IsEqualTo(7);
+    }
+
+    [Test]
+    public async Task InvokeAndReturn_FuncWithOutResult_SkipsValidateResultWhenValidatorIsNull(CancellationToken ct = default) {
+        // Arrange
+        IInfiniFrameWindow window = CreateSynchronousWindow();
+
+        // Act & Assert — no NullReferenceException when validateResult is null
+        await Assert.That(() =>
+            InvokeUtility.InvokeAndReturn<string, int>(
+                window,
+                callback: (_, out v) => {
+                    v = "x";
+                    return 1;
+                }
+            )
+        ).ThrowsNothing();
+    }
+
+    [Test]
+    public async Task InvokeAndReturn_FuncWithOutResult_SkipsValidateResultWhenResultIsDefault(CancellationToken ct = default) {
+        // Arrange
+        IInfiniFrameWindow window = CreateSynchronousWindow();
+        bool validatorCalled = false;
+
+        // Act — returning default(int?) = null (using nullable TResult) skips the validator
+        InvokeUtility.InvokeAndReturn<string, int?>(
+            window,
+            callback: (_, out v) => {
+                v = "x";
+                return null;
+            },
+            validateResult: _ => validatorCalled = true
+        );
+
+        // Assert
+        await Assert.That(validatorCalled).IsFalse();
+    }
+
+    [Test]
+    public async Task InvokeAndReturn_FuncWithOutResult_PassesInstanceHandleToCallback(CancellationToken ct = default) {
+        // Arrange
+        IntPtr expectedHandle = new(55555);
+        IInfiniFrameWindow window = CreateSynchronousWindow(expectedHandle);
+        IntPtr received = IntPtr.Zero;
+
+        // Act
+        InvokeUtility.InvokeAndReturn<string, int>(
+            window,
+            callback: (h, out v) => {
+                received = h;
+                v = "x";
+                return 0;
+            }
+        );
+
+        // Assert
+        await Assert.That(received).IsEqualTo(expectedHandle);
     }
 }

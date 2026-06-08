@@ -18,7 +18,7 @@ public static class Program {
         if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) appBuilder.WindowBuilder.Debugging.SetRemoteDebuggingPort(9222);
         
         appBuilder.WindowBuilder
-            .Centered()
+            .Center()
             // .SetTransparent(true)
             // .SetUseOsDefaultSize(false)
             .SetTitle("InfiniLore InfiniFrame.NET VUE Sample")
