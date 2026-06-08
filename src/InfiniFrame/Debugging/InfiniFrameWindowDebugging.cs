@@ -11,7 +11,7 @@ namespace InfiniFrame.Debugging;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebugging> logger) : IInfiniFrameWindowDebugging {
-    public bool DevToolsEnabled => NativeInvoke.InvokeWithValidation<bool>(Window.InstanceHandle, InfiniFrameNative.GetDevToolsEnabled);
+    public bool DevToolsEnabled => NativeInvoke.InvokeWithValidation<bool>(Window.InstanceHandle, Window.ManagedThreadId, InfiniFrameNative.GetDevToolsEnabled);
     public bool SupportsWebInspector => MacOsWebInspectorUtility.IsSupportedPlatform();
     public bool WebInspectorEnabled => Window.Configuration.StartupParameters.WebInspectorEnabled;
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();

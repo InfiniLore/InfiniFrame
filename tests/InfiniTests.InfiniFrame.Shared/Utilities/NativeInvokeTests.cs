@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge;
-using InfiniFrame.Utilities;
 using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.Shared.Utilities;
@@ -22,6 +21,7 @@ public class NativeInvokeTests {
     private static IInfiniFrameWindow CreateSynchronousWindow(IntPtr instanceHandle = default) {
         var window = Substitute.For<IInfiniFrameWindow>();
         window.InstanceHandle.Returns(instanceHandle);
+        window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
         window.When(w => w.Invoke(Arg.Any<Action>()))
             .Do(c => c.Arg<Action>()());
         return window;
@@ -33,10 +33,10 @@ public class NativeInvokeTests {
     [Test]
     public async Task InvokeWithValidation_FuncWithOut_ReturnsValueSetViaOutParameter(CancellationToken ct = default) {
         // Arrange
-        IInfiniFrameWindow window = CreateSynchronousWindow();
+        IInfiniFrameWindow window = CreateSynchronousWindow(123456);
 
         // Act
-        string? result = NativeInvoke.InvokeWithValidation<string>(window.InstanceHandle, callback: (_, out value) => {
+        string? result = NativeInvoke.InvokeWithValidation<string>(window.InstanceHandle, window.ManagedThreadId, callback: (_, out value) => {
             value = "out-value";
             return InfiniFrameNativeInteropStatus.Success;
         });
@@ -53,7 +53,7 @@ public class NativeInvokeTests {
         IntPtr received = IntPtr.Zero;
 
         // Act
-        NativeInvoke.InvokeWithValidation<int>(window.InstanceHandle, callback: (h, out v) => {
+        NativeInvoke.InvokeWithValidation<int>(window.InstanceHandle, window.ManagedThreadId, callback: (h, out v) => {
             received = h;
             v = 0;
             return InfiniFrameNativeInteropStatus.Success;

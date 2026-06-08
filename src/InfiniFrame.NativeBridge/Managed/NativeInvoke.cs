@@ -10,12 +10,17 @@ namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class NativeInvoke {
     #region WithValidation
-    internal static void InvokeWithValidation(IntPtr windowInstanceHandle, Action callback) {
+    internal static void InvokeWithValidation(
+        IntPtr windowInstanceHandle,
+        int managedThreadId,
+        Action callback
+    ) {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
         
         InfiniFrameNativeInteropStatus status = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback: () => {
                 callback();
                 return InfiniFrameNativeInteropStatus.Success;
@@ -26,6 +31,7 @@ internal static class NativeInvoke {
 
     internal static void InvokeWithValidation(
         IntPtr windowInstanceHandle,
+        int managedThreadId,
         Func<IntPtr, InfiniFrameNativeInteropStatus> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
@@ -33,6 +39,7 @@ internal static class NativeInvoke {
 
         InfiniFrameNativeInteropStatus status = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback: () => callback(windowInstanceHandle)
         );
 
@@ -41,6 +48,7 @@ internal static class NativeInvoke {
 
     internal static void InvokeWithValidation(
         IntPtr windowInstanceHandle,
+        int managedThreadId,
         Func<InfiniFrameNativeInteropStatus> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
@@ -48,6 +56,7 @@ internal static class NativeInvoke {
 
         InfiniFrameNativeInteropStatus status = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback);
 
         EnsureSuccess(status);
@@ -55,6 +64,7 @@ internal static class NativeInvoke {
 
     internal static T? InvokeWithValidation<T>(
         IntPtr windowInstanceHandle,
+        int managedThreadId,
         FuncWithOut<T> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
@@ -62,6 +72,7 @@ internal static class NativeInvoke {
 
         (InfiniFrameNativeInteropStatus Status, T? Value) result = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback: () => {
                 InfiniFrameNativeInteropStatus status = callback(windowInstanceHandle, out T value);
                 return (status, value);
@@ -73,6 +84,7 @@ internal static class NativeInvoke {
 
     internal static void InvokeWithValidation<T>(
         IntPtr windowInstanceHandle,
+        int managedThreadId,
         FuncWithArgs<T> callback,
         T arg
     ) {
@@ -81,19 +93,23 @@ internal static class NativeInvoke {
 
         InfiniFrameNativeInteropStatus status = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback: () => callback(windowInstanceHandle, arg)
         );
 
         EnsureSuccess(status);
     }
     #endregion
-    
     #region WithoutValidation
-    internal static void InvokeWithoutValidation(IntPtr windowInstanceHandle, Action callback) {
+    internal static void InvokeWithoutValidation(
+        IntPtr windowInstanceHandle,
+        int managedThreadId,
+        Action callback) {
         ArgumentNullException.ThrowIfNull(callback);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback: () => {
                 callback();
                 return InfiniFrameNativeInteropStatus.Success;
@@ -105,12 +121,14 @@ internal static class NativeInvoke {
 
     internal static void InvokeWithoutValidation(
         IntPtr windowInstanceHandle,
+        int managedThreadId,
         Func<IntPtr, InfiniFrameNativeInteropStatus> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback: () => callback(windowInstanceHandle)
         );
 
@@ -119,12 +137,14 @@ internal static class NativeInvoke {
 
     internal static void InvokeWithoutValidation(
         IntPtr windowInstanceHandle,
+        int managedThreadId,
         Func<InfiniFrameNativeInteropStatus> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
 
         InfiniFrameNativeInteropStatus status = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback
         );
 
@@ -133,12 +153,14 @@ internal static class NativeInvoke {
 
     internal static T? InvokeWithoutValidation<T>(
         IntPtr windowInstanceHandle,
+        int managedThreadId,
         FuncWithOut<T> callback
     ) {
         ArgumentNullException.ThrowIfNull(callback);
 
         (InfiniFrameNativeInteropStatus Status, T? Value) result = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback: () => {
                 InfiniFrameNativeInteropStatus status = callback(windowInstanceHandle, out T value);
                 return (status, value);
@@ -150,6 +172,7 @@ internal static class NativeInvoke {
 
     internal static void InvokeWithoutValidation<T>(
         IntPtr windowInstanceHandle,
+        int managedThreadId, 
         FuncWithArgs<T> callback,
         T arg
     ) {
@@ -157,6 +180,7 @@ internal static class NativeInvoke {
 
         InfiniFrameNativeInteropStatus status = ExecuteInvoke(
             windowInstanceHandle,
+            managedThreadId,
             callback: () => callback(windowInstanceHandle, arg)
         );
 
@@ -166,6 +190,7 @@ internal static class NativeInvoke {
 
     private static TResult? ExecuteInvoke<TResult>(
         IntPtr windowInstanceHandle,
+        int managedThreadId,
         Func<TResult> callback
     ) {
         TResult? result = default;
@@ -173,8 +198,9 @@ internal static class NativeInvoke {
         bool completed = false;
 
         Marshal.SetLastPInvokeError(0);
-        
-        InfiniFrameNative.Invoke(windowInstanceHandle, callback: () => {
+
+        // If the callback is being executed on the same thread, we can execute it synchronously.
+        if (Environment.CurrentManagedThreadId == managedThreadId) {
             try {
                 result = callback();
             }
@@ -184,7 +210,22 @@ internal static class NativeInvoke {
             finally {
                 completed = true;
             }
-        });
+        }
+        
+        // Otherwise, we need to execute it on the window thread.
+        else {
+            InfiniFrameNative.Invoke(windowInstanceHandle, callback: () => {
+                try {
+                    result = callback();
+                }
+                catch (Exception ex) {
+                    callbackException = ex;
+                }
+                finally {
+                    completed = true;
+                }
+            });   
+        }
 
         if (!completed) throw new InvalidOperationException("InfiniFrameNative.Invoke must execute synchronously. The callback did not complete before Invoke returned.");
         if (callbackException is not null) ExceptionDispatchInfo.Capture(callbackException).Throw();
@@ -206,6 +247,6 @@ internal static class NativeInvoke {
         throw new ApplicationException($"Native interop call failed with unknown status state. Fallback last error {fallbackLastError}. {fallbackMessage} {fallbackStatus}");
     }
 
-    internal delegate InfiniFrameNativeInteropStatus FuncWithOut<T>( IntPtr handle, out T value);
+    internal delegate InfiniFrameNativeInteropStatus FuncWithOut<T>(IntPtr handle, out T value);
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T>(IntPtr handle, T arg);
 }
