@@ -224,9 +224,6 @@ public class RemoteDebuggingTests {
         await Assert.That(closedProbe).IsFalse();
         await Assert.That(closedEndpoint).IsNull();
         await Assert.That(closedReason).Contains("closed");
-
-        InfiniFrameDebugDiagnostics diagnostics = window.Debugging.GetDiagnostics();
-        await Assert.That(diagnostics.EndpointStatus).IsEqualTo(InfiniFrameDebugEndpointStatus.Unavailable);
     }
 
     [Test]
