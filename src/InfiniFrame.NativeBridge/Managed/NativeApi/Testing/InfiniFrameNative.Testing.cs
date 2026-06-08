@@ -43,9 +43,10 @@ public partial class InfiniFrameNativeTesting {
     internal static InfiniFrameNativeInteropStatus FreeInitParams(IntPtr newParametersPtr) 
         => FreeInitParamsNative(newParametersPtr);
 
-    internal static bool IsColorSchemeChange(IntPtr lParam) {
-        IsColorSchemeChangeNative(lParam, out int result);
+    internal static InfiniFrameNativeInteropStatus IsColorSchemeChange(IntPtr lParam, out bool result) {
+        InfiniFrameNativeInteropStatus status = IsColorSchemeChangeNative(lParam, out int resultInt);
 
-        return result != 0;
+        result = resultInt != 0;
+        return status;
     }
 }

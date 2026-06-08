@@ -50,13 +50,15 @@ public class InfiniFrameNativeParametersTests {
             };
 
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr newParameters);
+            await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
             newParametersPtr = newParameters;
 
             int lastError = Marshal.GetLastPInvokeError();
             await Assert.That(lastError).IsEqualTo(0);
         }
         finally {
-            InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
+            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
+            await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
         }
     }
 
@@ -142,6 +144,8 @@ public class InfiniFrameNativeParametersTests {
 
             // Act
             var status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr tempPtr );
+            await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
+
             newParametersPtr = tempPtr;
             var newParameters = Marshal.PtrToStructure<InfiniFrameNativeParameters>(newParametersPtr);
 
@@ -205,7 +209,8 @@ public class InfiniFrameNativeParametersTests {
             if (namePtr != IntPtr.Zero) Marshal.FreeHGlobal(namePtr);
 
             // Native allocates returned init params; managed side must free.
-            InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
+            var status = InfiniFrameNativeTesting.FreeInitParams(newParametersPtr);
+            await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
         }
     }
 }
