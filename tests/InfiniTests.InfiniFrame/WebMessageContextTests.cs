@@ -24,7 +24,7 @@ public class WebMessageContextTests {
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
-        events.AssignSender(window.Window);
+        events.AssignToWindow(window.Window);
 
         string? observedMessage = null;
         eventsStore.WebMessagePostData.Add(TestMessageCommand, handler: (_, message) => {
@@ -46,7 +46,7 @@ public class WebMessageContextTests {
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
-        events.AssignSender(window.Window);
+        events.AssignToWindow(window.Window);
 
         string? observedMessage = null;
         string? observedOrigin = null;

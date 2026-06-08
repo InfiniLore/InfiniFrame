@@ -44,6 +44,7 @@
 
 - (void)windowWillClose:(NSNotification*)notification
 {
+    infiniFrame->CloseWebView();
     infiniFrame->InvokeClosed();
 }
 @end

@@ -95,11 +95,21 @@ void InfiniFrameWindow::GetZoom(int* zoom) const {
 }
 
 void InfiniFrameWindow::NavigateToString(AutoString content) {
+    if (!m_impl->_hWnd || !IsWindow(m_impl->_hWnd) || m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+        return;
+    if (!m_impl->_webviewWindow)
+        return;
+
     std::wstring wideContent = ToUTF16String(content);
     m_impl->_webviewWindow->NavigateToString(wideContent.c_str());
 }
 
 void InfiniFrameWindow::NavigateToUrl(AutoString url) {
+    if (!m_impl->_hWnd || !IsWindow(m_impl->_hWnd) || m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+        return;
+    if (!m_impl->_webviewWindow)
+        return;
+
     std::wstring wideUrl = ToUTF16String(url);
     m_impl->_webviewWindow->Navigate(wideUrl.c_str());
 }

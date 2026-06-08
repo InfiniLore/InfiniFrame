@@ -41,6 +41,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->UserAgent = DuplicateString(params->UserAgent);
         (*new_params)->BrowserControlInitParameters = DuplicateString(params->BrowserControlInitParameters);
         (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
+        (*new_params)->RemoteDebuggingPort = params->RemoteDebuggingPort;
 
         (*new_params)->ParentInstance = params->ParentInstance;
         (*new_params)->ClosingHandler = params->ClosingHandler;
@@ -53,6 +54,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->MinimizedHandler = params->MinimizedHandler;
         (*new_params)->MovedHandler = params->MovedHandler;
         (*new_params)->WebMessageReceivedHandler = params->WebMessageReceivedHandler;
+        (*new_params)->DebugEventHandler = params->DebugEventHandler;
         (*new_params)->CustomSchemeHandler = params->CustomSchemeHandler;
         memcpy((*new_params)->CustomSchemeNames, params->CustomSchemeNames, sizeof(params->CustomSchemeNames));
 
@@ -71,6 +73,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->ContextMenuEnabled = params->ContextMenuEnabled;
         (*new_params)->ZoomEnabled = params->ZoomEnabled;
         (*new_params)->DevToolsEnabled = params->DevToolsEnabled;
+        (*new_params)->WebInspectorEnabled = params->WebInspectorEnabled;
         (*new_params)->FullScreen = params->FullScreen;
         (*new_params)->Maximized = params->Maximized;
         (*new_params)->Minimized = params->Minimized;

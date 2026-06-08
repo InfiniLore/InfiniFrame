@@ -26,6 +26,7 @@ struct InfiniFrameInitParams {
     AutoString UserAgent;
     AutoString BrowserControlInitParameters;
     AutoString NotificationRegistrationId;
+    int RemoteDebuggingPort;
 
     // Parent window
     InfiniFrameWindow* ParentInstance;
@@ -41,6 +42,7 @@ struct InfiniFrameInitParams {
     MinimizedCallback MinimizedHandler;
     MovedCallback MovedHandler;
     WebMessageReceivedCallback WebMessageReceivedHandler;
+    DebugEventCallback DebugEventHandler;
     AutoString CustomSchemeNames[MaxCustomSchemeNames]; // NOLINT(*-avoid-c-arrays)
     WebResourceRequestedCallback CustomSchemeHandler;
 
@@ -62,6 +64,7 @@ struct InfiniFrameInitParams {
     bool ContextMenuEnabled;
     bool ZoomEnabled;
     bool DevToolsEnabled;
+    bool WebInspectorEnabled;
     bool FullScreen;
     bool Maximized;
     bool Minimized;

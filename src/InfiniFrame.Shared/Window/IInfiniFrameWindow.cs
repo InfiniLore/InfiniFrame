@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Dialogs;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
@@ -14,6 +15,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     ILogger<IInfiniFrameWindow> Logger { get; }
     IServiceProvider? ServiceProvider { get; }
     IInfiniFrameEvents Events { get; }
+    IInfiniFrameWindowDebugging Debugging { get; }
     
     IInfiniFrameOptions Configuration { get; }
     
@@ -33,6 +35,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     Rectangle CachedPreFullScreenBounds { get; internal set; }
     Rectangle CachedPreMaximizedBounds { get; internal set; }
     bool Focused { get; }
+    bool IsClosedOrClosing { get; }
 
     void Invoke(Action workItem);
     
@@ -52,7 +55,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
     Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default);
     InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
-
+   
     bool TryResolveStaticAssetUri(string path, out Uri uri);
     internal void MarkClosedFromNativeCallback();
 }

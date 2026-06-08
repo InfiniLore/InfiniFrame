@@ -25,6 +25,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr UserAgent;
         internal IntPtr BrowserControlInitParameters;
         internal IntPtr NotificationRegistrationId;
+        internal int RemoteDebuggingPort;
         internal IntPtr NativeParent;
         internal IntPtr ClosingHandler;
         internal IntPtr ClosedHandler;
@@ -36,6 +37,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr MinimizedHandler;
         internal IntPtr MovedHandler;
         internal IntPtr WebMessageReceivedHandler;
+        internal IntPtr DebugEventHandler;
         internal IntPtr CustomSchemeNames0;
         internal IntPtr CustomSchemeNames1;
         internal IntPtr CustomSchemeNames2;
@@ -68,6 +70,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal byte ContextMenuEnabled;
         internal byte ZoomEnabled;
         internal byte DevToolsEnabled;
+        internal byte WebInspectorEnabled;
         internal byte FullScreen;
         internal byte Maximized;
         internal byte Minimized;
@@ -100,6 +103,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 UserAgent = ToUtf8Ptr(managed.UserAgent),
                 BrowserControlInitParameters = ToUtf8Ptr(managed.BrowserControlInitParameters),
                 NotificationRegistrationId = ToUtf8Ptr(managed.NotificationRegistrationId),
+                RemoteDebuggingPort = managed.RemoteDebuggingPort,
                 NativeParent = managed.NativeParent,
                 ClosingHandler = ToFunctionPtr(managed.ClosingHandler),
                 ClosedHandler = ToFunctionPtr(managed.ClosedHandler),
@@ -111,6 +115,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 MinimizedHandler = ToFunctionPtr(managed.MinimizedHandler),
                 MovedHandler = ToFunctionPtr(managed.MovedHandler),
                 WebMessageReceivedHandler = ToFunctionPtr(managed.WebMessageReceivedHandler),
+                DebugEventHandler = ToFunctionPtr(managed.DebugEventHandler),
                 CustomSchemeNames0 = GetCustomSchemeName(managed.CustomSchemeNames, 0),
                 CustomSchemeNames1 = GetCustomSchemeName(managed.CustomSchemeNames, 1),
                 CustomSchemeNames2 = GetCustomSchemeName(managed.CustomSchemeNames, 2),
@@ -143,6 +148,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 ContextMenuEnabled = ToByte(managed.ContextMenuEnabled),
                 ZoomEnabled = ToByte(managed.ZoomEnabled),
                 DevToolsEnabled = ToByte(managed.DevToolsEnabled),
+                WebInspectorEnabled = ToByte(managed.WebInspectorEnabled),
                 FullScreen = ToByte(managed.FullScreen),
                 Maximized = ToByte(managed.Maximized),
                 Minimized = ToByte(managed.Minimized),
@@ -202,6 +208,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
             CppResizedDelegate resized => Marshal.GetFunctionPointerForDelegate(resized),
             CppRestoredDelegate restored => Marshal.GetFunctionPointerForDelegate(restored),
             CppWebMessageReceivedDelegate webMessageReceived => Marshal.GetFunctionPointerForDelegate(webMessageReceived),
+            CppDebugEventDelegate debugEvent => Marshal.GetFunctionPointerForDelegate(debugEvent),
             CppWebResourceRequestedDelegate webResourceRequested => Marshal.GetFunctionPointerForDelegate(webResourceRequested),
             _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
         };

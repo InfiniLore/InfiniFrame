@@ -21,6 +21,8 @@ void InfiniFrameWindow::ClearBrowserAutoFill()
 
 void InfiniFrameWindow::Close()
 {
+    m_impl->_isClosingOrClosed = true;
+
     if (m_impl->_parentWillCloseObserver != nil) {
         [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
         m_impl->_parentWillCloseObserver = nil;
@@ -63,5 +65,7 @@ void InfiniFrameWindow::WaitForExit()
 
 void InfiniFrameWindow::CloseWebView()
 {
-    // Not implemented on macOS
+    m_impl->_isClosingOrClosed = true;
+    m_impl->_webviewReady = false;
+    m_impl->_pendingWebMessages.clear();
 }

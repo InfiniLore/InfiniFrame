@@ -100,6 +100,7 @@ set(LINUX_SOURCES
         src/Runtime/Platform/Linux/Notifications.LibNotify.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitCustomSchemes.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitHost.Gtk.cpp
+        src/Runtime/Platform/Linux/WebKit/WebKitInspector.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitMessaging.Gtk.cpp
         src/Runtime/Platform/Linux/WebKit/WebKitSettings.Gtk.cpp
 )

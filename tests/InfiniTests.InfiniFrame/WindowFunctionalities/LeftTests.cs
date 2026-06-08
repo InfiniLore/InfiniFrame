@@ -52,7 +52,7 @@ public class LeftTests {
         await Assert.That(builder.Configuration.Centered).IsFalse();
 
         InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
-        await Assert.That(configParameters).IsEqualTo(expectedConfigParameters);
+        await Assert.That(configParameters).IsEqualTo(expectedConfigParameters, InfiniFrameNativeParametersEqualityComparer.Instance);
     }
 
     [Test]

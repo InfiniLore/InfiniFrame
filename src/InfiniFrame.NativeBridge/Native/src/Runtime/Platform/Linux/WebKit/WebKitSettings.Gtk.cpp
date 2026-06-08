@@ -8,6 +8,9 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::Impl::set_webkit_settings() {
+    // WebKitGTK remote inspector requires developer extras to be enabled.
+    const bool enableDeveloperExtras = _devToolsEnabled || _remoteDebuggingPort > 0;
+
     WebKitSettings* settings = webkit_settings_new_with_settings(
         "allow_modal_dialogs", TRUE, "allow_top_navigation_to_data_urls", TRUE, "allow_universal_access_from_file_urls",
         TRUE, "enable_back_forward_navigation_gestures", TRUE, "enable_media_capabilities", TRUE,
@@ -15,7 +18,7 @@ void InfiniFrameWindow::Impl::set_webkit_settings() {
         "javascript_can_open_windows_automatically", TRUE,
 
         "allow_file_access_from_file_urls", _fileSystemAccessEnabled, "disable_web_security", !_webSecurityEnabled,
-        "enable_developer_extras", _devToolsEnabled, "enable_media_stream", _mediaStreamEnabled,
+        "enable_developer_extras", enableDeveloperExtras, "enable_media_stream", _mediaStreamEnabled,
         "enable_smooth_scrolling", _smoothScrollingEnabled, "javascript_can_access_clipboard",
         _javascriptClipboardAccessEnabled, "media_playback_requires_user_gesture", !_mediaAutoplayEnabled, "user_agent",
         _userAgent.c_str(),

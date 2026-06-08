@@ -15,6 +15,8 @@ public static class Program {
         InfiniFrameWebApplicationBuilder appBuilder = InfiniFrameWebApplication.CreateBuilder(args);
         // WebApplicationBuilder appBuilder = builder.WebApp;
 
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) appBuilder.WindowBuilder.Debugging.SetRemoteDebuggingPort(9222);
+        
         appBuilder.WindowBuilder
             .Center()
             // .SetTransparent(true)
@@ -22,7 +24,6 @@ public static class Program {
             .SetTitle("InfiniLore InfiniFrame.NET VUE Sample")
             .SetSize(new Size(800, 600))
             .SetLocation(1000, 0)
-            .SetBrowserControlInitParameters("--remote-debugging-port=9222")
             .RegisterFullScreenWebMessageHandler()
             .RegisterOpenExternalTargetWebMessageHandler()
             .RegisterTitleChangedWebMessageHandler()

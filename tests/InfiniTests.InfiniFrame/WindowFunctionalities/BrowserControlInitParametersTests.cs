@@ -17,7 +17,7 @@ public class BrowserControlInitParametersTests {
     public async Task Builder(CancellationToken ct = default) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        const string parameter = "--remote-debugging-port=9222";
+        const string parameter = "--disable-gpu --no-sandbox";
 
         // Act
         builder.SetBrowserControlInitParameters(parameter);

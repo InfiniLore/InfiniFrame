@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Dialogs;
 using InfiniFrame.NativeBridge.Parameters;
@@ -24,6 +25,8 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public required IServiceProvider? ServiceProvider { get; init; }
     public required IInfiniFrameEvents Events { get; init; }
     public required IInfiniFrameOptions Configuration { get; init; }
+    
+    public required IInfiniFrameWindowDebugging Debugging { get; init; }
     public IInfiniFrameStaticAssets? StaticAssets { get; init; }
 
     public IInfiniFrameEventsStore EventsStore => Events.EventsStore;
@@ -377,8 +380,30 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     public void Initialize() {
         InfiniFrameNativeParameters startupParameters = Configuration.StartupParameters;
+        bool webInspectorEnabled = startupParameters.WebInspectorEnabled;
 
         try {
+            if (startupParameters.RemoteDebuggingPort != 0) {
+                Logger.LogInformation(
+                    "Remote debugging requested on loopback port {RemoteDebuggingPort}.",
+                    startupParameters.RemoteDebuggingPort);
+
+                if (OperatingSystem.IsLinux() && !startupParameters.DevToolsEnabled) {
+                    Logger.LogInformation(
+                        "Linux remote debugging keeps WebKit developer extras enabled while active."
+                    );
+                }
+            }
+            else {
+                Logger.LogDebug("Remote debugging is disabled.");
+            }
+
+            RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
+            RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(startupParameters.RemoteDebuggingPort, Logger);
+            if (webInspectorEnabled) {
+                MacOsWebInspectorUtility.ThrowIfUnsupported();
+            }
+
             if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, Logger)) {
                 throw new ArgumentException("Startup Parameters Are Not Valid");
             }
@@ -590,13 +615,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     /// </summary>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ContextMenuEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetContextMenuEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetContextMenuEnabled)));
-
-    /// <summary>
-    ///     When true, the user can access the browser control's developer tools.
-    ///     By default, this is set to true.
-    /// </summary>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public bool DevToolsEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetDevToolsEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetDevToolsEnabled)));
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool MediaAutoplayEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetMediaAutoplayEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetMediaAutoplayEnabled)));
@@ -906,5 +924,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool ZoomEnabled => InvokeUtility.InvokeAndReturn<bool, InfiniFrameNativeInteropStatus>(this, InfiniFrameNative.GetZoomEnabled, validateResult: s => InfiniFrameNative.EnsureSucceeded(s, nameof(InfiniFrameNative.GetZoomEnabled)));
+
     #endregion
 }

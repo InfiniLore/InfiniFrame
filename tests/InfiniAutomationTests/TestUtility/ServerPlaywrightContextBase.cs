@@ -51,18 +51,20 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
         _utility = InfiniFrameTestServer.Create(
             appBuilder: serverBuilder => serverBuilder
                 .WebHost.UseUrls(ServerUrl),
-            windowBuilder: windowBuilder => windowBuilder
-                .SetStartUrl(ServerUrl)
-                .SetTitle(DefaultDocumentTitle)
-                .SetBrowserControlInitParameters($"--remote-debugging-port={_playwrightDevtoolsPort}")
-                .RegisterWindowManagementWebMessageHandler()
-                .RegisterFullScreenWebMessageHandler()
-                .RegisterOpenExternalTargetWebMessageHandler()
-                .RegisterTitleChangedWebMessageHandler()
-                .RegisterWindowClosingHandler((_, _) => {
-                    bool suppressClose = OnWindowClosingRequested();
-                    return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
-                }),
+            windowBuilder: windowBuilder => {
+                if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(_playwrightDevtoolsPort);
+                windowBuilder
+                    .SetStartUrl(ServerUrl)
+                    .SetTitle(DefaultDocumentTitle)
+                    .RegisterWindowManagementWebMessageHandler()
+                    .RegisterFullScreenWebMessageHandler()
+                    .RegisterOpenExternalTargetWebMessageHandler()
+                    .RegisterTitleChangedWebMessageHandler()
+                    .RegisterWindowClosingHandler((_, _) => {
+                        bool suppressClose = OnWindowClosingRequested();
+                        return suppressClose ? WindowClosingResult.Cancel : WindowClosingResult.Close;
+                    });
+            },
             startupCancellation.Token
         );
         Console.WriteLine("[PlaywrightSetup] Assembly setup completed.");

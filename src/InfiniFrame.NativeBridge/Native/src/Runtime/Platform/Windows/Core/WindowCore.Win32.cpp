@@ -137,6 +137,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
 
     if (initParams->NotificationRegistrationId != nullptr)
         m_impl->_notificationRegistrationId = ToUTF16String(initParams->NotificationRegistrationId);
+    m_impl->_remoteDebuggingPort = initParams->RemoteDebuggingPort;
 
     m_impl->_transparentEnabled = initParams->Transparent;
     m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
@@ -168,6 +169,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     m_impl->_closedCallback = initParams->ClosedHandler;
     m_impl->_focusInCallback = initParams->FocusInHandler;
     m_impl->_focusOutCallback = initParams->FocusOutHandler;
+    m_impl->_debugEventCallback = initParams->DebugEventHandler;
     m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
 
     for (int i = 0; i < 16; ++i) {
@@ -236,6 +238,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         initParams->Chromeless || initParams->FullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW, normalizedLeft,
         normalizedTop, normalizedWidth, normalizedHeight, nullptr, nullptr, windowInstance, this
     );
+    SetWindowTextW(m_impl->_hWnd, m_impl->_windowTitle.c_str());
 
     ApplyPendingOwnerWindow(m_impl.get(), L"ctor");
 

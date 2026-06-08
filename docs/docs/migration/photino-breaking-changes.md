@@ -9,6 +9,7 @@ This document walks through what changed to help you migrate.
 - [Package and Namespace](#package-and-namespace)
 - [Entry Point and Builder API](#entry-point-and-builder-api)
 - [Runtime Window API](#runtime-window-api)
+- [Javascript Debugging](#javascript-debugging)
 - [Event System](#event-system)
 - [Web Messaging and Message Routing](#web-messaging-and-message-routing)
 - [Web Security, CORS, and Trusted Origins](#web-security-cors-and-trusted-origins)
@@ -117,6 +118,41 @@ InfiniFrame can pull window configuration from `IConfiguration` under an `"Infin
 | `IInfiniFrameWindow.CachedPreFullScreenBounds` / `CachedPreMaximizedBounds` | Saved geometry for restore                                                          |
 | `RegisterCustomSchemeHandler()`                                             | Returns `IInfiniFrameWindow` (fluent); in Photino it returned void                  |
 | `ZoomEnabled`                                                               | Separate bool controlling whether the user can zoom, distinct from the `Zoom` level |
+
+## Javascript Debugging
+
+Photino users often configured JavaScript debugging through a mix of devtools flags and raw browser startup arguments.
+InfiniFrame makes this explicit and deterministic.
+
+### What changed
+
+| Photino expectation | InfiniFrame behavior |
+|---|---|
+| `SetDevToolsEnabled(true)` also implies remote debug endpoint | `SetDevToolsEnabled(bool)` only controls local inspector/devtools UI |
+| Remote debugging usually configured with raw Chromium args | Use `SetRemoteDebuggingPort(int? port)` (`1..65535`, `0/null` disables) |
+| macOS inspector attachability was implicit via Safari Develop tools | Use explicit `SetWebInspectorEnabled(bool)` on macOS 13.3+ |
+| Runtime mutation unclear | `Debug.RemoteDebuggingPort` is startup-only; runtime mutation throws `InvalidOperationException` |
+| Platform behavior was implicit | Windows and Linux support remote debugging; macOS throws `PlatformNotSupportedException` when enabled |
+
+### New API surface
+
+- Builder: `SetRemoteDebuggingPort(int? port)`
+- Builder: `SetWebInspectorEnabled(bool)` (macOS 13.3+)
+- Runtime properties: `window.Debug.SupportsRemoteDebugging`, `window.Debug.RemoteDebuggingPort`
+- Endpoint lookup: `window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint)`
+- Capability matrix: `window.Debug.Capabilities`
+- Runtime diagnostics snapshot: `window.Debug.GetDiagnostics()`
+- Endpoint probe helper: `window.Debug.TryProbeEndpoint(out Uri? endpoint, out string? reason)`
+- Unified debug event stream: `window.Debug.Event`
+
+### Precedence and security
+
+- `SetRemoteDebuggingPort(...)` is authoritative over raw `SetBrowserControlInitParameters(...)` remote-debugging switches.
+- InfiniFrame strips raw remote-debugging flags and applies loopback-only binding (`127.0.0.1`) for the explicit API.
+- Startup fails with actionable `InvalidOperationException` when the requested port is unavailable (for example port-in-use).
+- Linux path uses WebKitGTK inspector server configuration (`WEBKIT_INSPECTOR_SERVER` / `WEBKIT_INSPECTOR_HTTP_SERVER`).
+- Linux inspector endpoint configuration is process-scoped in WebKitGTK.
+- Remote endpoint parity is intentionally not universal. Always check capabilities before assuming endpoint or event support.
 
 ## Event System
 

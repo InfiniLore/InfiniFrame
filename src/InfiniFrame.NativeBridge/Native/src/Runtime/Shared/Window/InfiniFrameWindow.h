@@ -474,6 +474,11 @@ class InfiniFrameWindow {
     void SetMinimizedCallback(MinimizedCallback callback);
 
     /**
+         * @brief Set callback invoked when a debug diagnostics event is emitted by the platform web runtime.
+         */
+    void SetDebugEventCallback(DebugEventCallback callback);
+
+    /**
          * @brief Marshal a callback onto the UI thread and execute it synchronously
          * @param callback Action to invoke on the UI thread
          */
@@ -516,6 +521,19 @@ class InfiniFrameWindow {
 
     /** @brief Fire the minimized callback */
     void InvokeMinimized() const noexcept;
+
+    /**
+         * @brief Fire a debug diagnostics callback event.
+         */
+    void InvokeDebugEvent(
+        AutoStringConst kind,
+        AutoStringConst message,
+        AutoStringConst level,
+        AutoStringConst uri,
+        int statusCode,
+        int64_t timestampUnixMillisecondsUtc,
+        AutoStringConst platformPayload
+    ) const noexcept;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Platform-specific

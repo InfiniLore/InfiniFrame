@@ -41,5 +41,21 @@ EXPORTED InteropStatus InfiniFrameNative_GetNotificationsEnabled(InfiniFrameWind
         window->GetNotificationsEnabled(enabled);
     });
 }
+
+EXPORTED InteropStatus InfiniFrameNative_getWebView2RuntimeVersion_win32(AutoString* value) {
+    ResetOut(value, static_cast<AutoString>(nullptr));
+    return RunExportStatus([&] {
+        if (!EnsureOutNotNull(value, "value"))
+            return;
+
+        LPWSTR versionInfo = nullptr;
+        const HRESULT hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &versionInfo);
+        if (FAILED(hr) || versionInfo == nullptr)
+            return;
+
+        *value = DuplicateString(versionInfo);
+        CoTaskMemFree(versionInfo);
+    });
+}
 #endif
 }

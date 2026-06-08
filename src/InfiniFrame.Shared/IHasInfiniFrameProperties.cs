@@ -9,7 +9,6 @@ public interface IHasInfiniFrameProperties {
     bool Chromeless { get; }
     bool Transparent { get; }
     bool ContextMenuEnabled { get; }
-    bool DevToolsEnabled { get; }
     bool FileSystemAccessEnabled { get; }
     bool WebSecurityEnabled { get; }
     bool JavascriptClipboardAccessEnabled { get; }

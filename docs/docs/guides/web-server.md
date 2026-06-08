@@ -62,7 +62,8 @@ builder.Window
     .SetTitle("My Desktop App")
     .SetSize(1280, 720)
     .Center()
-    .SetDevToolsEnabled(true);
+    .SetDevToolsEnabled(true)
+    .SetRemoteDebuggingPort(9222); // Windows and Linux
 
 builder.WebApp.Services.AddControllers();
 builder.WebApp.Services.AddSignalR();
@@ -73,6 +74,11 @@ app.WebApp.MapHub<MyHub>("/hub");
 
 app.Run();
 ```
+
+Remote debugging notes:
+- `SetRemoteDebuggingPort(...)` is startup-only and validates `1..65535` (`0/null` disables).
+- Linux and Windows are supported. On unsupported platforms (macOS), enabling it throws `PlatformNotSupportedException`.
+- Use `app.Window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint)` after startup to retrieve the endpoint when available.
 
 ## Start URL
 

@@ -484,21 +484,6 @@ public static class InfiniFrameWindowBuilderExtensions {
     }
 
     /// <summary>
-    ///     Enables or disables the DevTools functionality for the browser control.
-    /// </summary>
-    /// <param name="builder">The builder of the window</param>
-    /// <param name="enabled">
-    ///     Indicates whether the DevTools should be enabled. Pass true to enable DevTools, or false to disable them.
-    /// </param>
-    /// <return>
-    ///     Returns the modified builder instance to allow for method chaining.
-    /// </return>
-    public static T SetDevToolsEnabled<T>(this T builder, bool enabled) where T : IInfiniFrameWindowBuilder {
-        builder.Configuration.DevToolsEnabled = enabled;
-        return builder;
-    }
-
-    /// <summary>
     ///     Sets the maximum size of the window by specifying the width and height.
     /// </summary>
     /// <param name="builder">The builder of the window</param>

@@ -99,10 +99,16 @@ void InfiniFrameWindow::GetFocused(bool* isFocused) const {
 }
 
 void InfiniFrameWindow::NavigateToString(const AutoString content) {
+    if (m_impl->_webviewClosed || m_impl->_webview == nullptr)
+        return;
+
     webkit_web_view_load_html(WEBKIT_WEB_VIEW(m_impl->_webview), content, nullptr);
 }
 
 void InfiniFrameWindow::NavigateToUrl(const AutoString url) {
+    if (m_impl->_webviewClosed || m_impl->_webview == nullptr)
+        return;
+
     webkit_web_view_load_uri(WEBKIT_WEB_VIEW(m_impl->_webview), url);
 }
 
@@ -202,7 +208,7 @@ void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
 void InfiniFrameWindow::SetDevToolsEnabled(const bool enabled) {
     m_impl->_devToolsEnabled = enabled;
     WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
-    webkit_settings_set_enable_developer_extras(settings, m_impl->_devToolsEnabled);
+    webkit_settings_set_enable_developer_extras(settings, m_impl->_devToolsEnabled || m_impl->_remoteDebuggingPort > 0);
 }
 
 void InfiniFrameWindow::SetFullScreen(const bool fullScreen) {

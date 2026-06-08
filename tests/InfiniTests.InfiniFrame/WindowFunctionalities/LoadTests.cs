@@ -81,7 +81,52 @@ public class LoadTests {
         }
     }
 
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
+    public async Task Window_Load_AfterClose_ShouldNotThrowAndShouldNoOp(CancellationToken ct = default) {
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        window.Close();
+        await WaitUntilClosed(window, ct);
+
+        await Assert.That(window.IsClosed).IsTrue();
+
+        window.Load(new Uri("https://example.com", UriKind.Absolute));
+        window.LoadRawString("<html><body>closed</body></html>");
+
+        await Assert.That(window.IsClosed).IsTrue();
+    }
+
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
+    public async Task Window_LoadRawString_DuringClosingRequested_ShouldNotThrow(CancellationToken ct = default) {
+        using var windowUtility = InfiniFrameTestWindow.Create(
+            builder: builder => builder.RegisterWindowClosingRequestedHandler(window => {
+                window.LoadRawString("<html><body>closing</body></html>");
+            }),
+            ct
+        );
+
+        IInfiniFrameWindow window = windowUtility.Window;
+        window.Close();
+        await WaitUntilClosed(window, ct);
+
+        await Assert.That(window.IsClosed).IsTrue();
+    }
+
     private static int CountMethodCalls(IInfiniFrameWindow window, string methodName) {
         return window.ReceivedCalls().Count(call => string.Equals(call.GetMethodInfo().Name, methodName, StringComparison.Ordinal));
+    }
+
+    private static async Task WaitUntilClosed(IInfiniFrameWindow window, CancellationToken ct) {
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (!window.IsClosed && DateTime.UtcNow < timeoutAt && !ct.IsCancellationRequested) {
+            await Task.Delay(50, ct);
+        }
     }
 }

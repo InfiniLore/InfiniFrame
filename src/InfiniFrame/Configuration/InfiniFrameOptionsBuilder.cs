@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 using System.Runtime.InteropServices;
@@ -11,12 +12,15 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     #region Native Parameters
-    public string? BrowserControlInitParameters { get; set; }
+    private string? _browserControlInitParameters;
+    public string? BrowserControlInitParameters {
+        get => _browserControlInitParameters;
+        set => _browserControlInitParameters = value;
+    }
     public bool Centered { get; set; }
     public bool Chromeless { get; set; }
     public bool ContextMenuEnabled { get; set; } = true;
     public List<string> CustomSchemeNames { get; set; } = new(16);
-    public bool DevToolsEnabled { get; set; } = true;
     public bool FileSystemAccessEnabled { get; set; } = true;
     public bool FullScreen { get; set; }
     public bool GrantBrowserPermissions { get; set; } = true;
@@ -73,6 +77,8 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
     }
     #endregion
     
+    public IInfiniFrameWindowDebuggingBuilder Debugging { get; } = new InfiniFrameWindowDebuggingBuilder();
+
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
@@ -85,12 +91,14 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
         IntPtr[] customSchemeNameArray = CustomSchemeNameMemory.Allocate(CustomSchemeNames);
 
         return new InfiniFrameNativeParameters {
-            BrowserControlInitParameters = BrowserControlInitParameters,
+            BrowserControlInitParameters = RemoteDebuggingUtility.ComposeBrowserControlInitParameters(
+                BrowserControlInitParameters,
+                Debugging.RemoteDebuggingPort
+            ),
             CenterOnInitialize = Centered,
             Chromeless = Chromeless,
             ContextMenuEnabled = ContextMenuEnabled,
             CustomSchemeNames = customSchemeNameArray,
-            DevToolsEnabled = DevToolsEnabled,
             FileSystemAccessEnabled = FileSystemAccessEnabled,
             FullScreen = FullScreen,
             GrantBrowserPermissions = GrantBrowserPermissions,
@@ -126,7 +134,12 @@ public class InfiniFrameOptionsBuilder : IInfiniFrameOptionsBuilder {
             Width = Width,
             WindowIconFile = resolvedIconFilePath,
             Zoom = Zoom,
-            ZoomEnabled = ZoomEnabled
+            ZoomEnabled = ZoomEnabled,
+            
+            // Debug options
+            RemoteDebuggingPort = Debugging.RemoteDebuggingPort,
+            DevToolsEnabled = Debugging.DevToolsEnabled,
+            WebInspectorEnabled = Debugging.WebInspectorEnabled
         };
     }
 }

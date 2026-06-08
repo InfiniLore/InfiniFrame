@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 
 namespace InfiniFrame;
@@ -13,7 +14,6 @@ public interface IInfiniFrameOptionsBuilder {
     bool Chromeless { get; set; }
     bool Transparent { get; set; }
     bool ContextMenuEnabled { get; set; }
-    bool DevToolsEnabled { get; set; }
     bool MediaAutoplayEnabled { get; set; }
     string? UserAgent { get; set; }
     bool FileSystemAccessEnabled { get; set; }
@@ -56,6 +56,8 @@ public interface IInfiniFrameOptionsBuilder {
     IInfiniFrameWindow? ParentWindow { get; set; }
     IEnumerable<IInfiniFrameWindow> ChildWindows { get; set; }
     #endregion
+    
+    IInfiniFrameWindowDebuggingBuilder Debugging { get; }
     
     InfiniFrameNativeParameters ToNativeParameters();
 }

@@ -42,6 +42,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::vector<std::string> _pendingWebMessages;
 
     void set_webkit_settings();
+    void configure_webkit_remote_debugging() const;
     void set_webkit_customsettings(WebKitSettings* settings);
     void AddCustomSchemeHandlers();
     void InitializeFromParams(const InfiniFrameInitParams* initParams);

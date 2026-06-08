@@ -59,6 +59,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _mediaStreamEnabled = initParams->MediaStreamEnabled;
     _smoothScrollingEnabled = initParams->SmoothScrollingEnabled;
     _ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
+    _remoteDebuggingPort = initParams->RemoteDebuggingPort;
     _isFullScreen = initParams->FullScreen;
 
     _zoom = initParams->Zoom;
@@ -77,6 +78,7 @@ void InfiniFrameWindow::Impl::InitializeFromParams(const InfiniFrameInitParams* 
     _maximizedCallback = initParams->MaximizedHandler;
     _minimizedCallback = initParams->MinimizedHandler;
     _restoredCallback = initParams->RestoredHandler;
+    _debugEventCallback = initParams->DebugEventHandler;
     _customSchemeCallback = initParams->CustomSchemeHandler;
 
     _customSchemeNames.clear();

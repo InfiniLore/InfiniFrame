@@ -29,6 +29,7 @@ struct InfiniFrameWindowImpl {
     ClosedCallback _closedCallback = nullptr;
     FocusInCallback _focusInCallback = nullptr;
     FocusOutCallback _focusOutCallback = nullptr;
+    DebugEventCallback _debugEventCallback = nullptr;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Feature flags
@@ -37,6 +38,7 @@ struct InfiniFrameWindowImpl {
     bool _contextMenuEnabled = true;
     bool _zoomEnabled = true;
     bool _devToolsEnabled = false;
+    bool _webInspectorEnabled = false;
     bool _grantBrowserPermissions = false;
     bool _mediaAutoplayEnabled = false;
     bool _fileSystemAccessEnabled = false;
@@ -45,6 +47,7 @@ struct InfiniFrameWindowImpl {
     bool _mediaStreamEnabled = false;
     bool _smoothScrollingEnabled = true;
     bool _ignoreCertificateErrorsEnabled = false;
+    int _remoteDebuggingPort = 0;
 
     // -----------------------------------------------------------------------------------------------------------------
     // String state

@@ -4,6 +4,7 @@
 #include <WebView2EnvironmentOptions.h>
 #include <comdef.h>
 
+#include <chrono>
 #include <format>
 #include <stdexcept>
 
@@ -13,6 +14,15 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 using namespace Microsoft::WRL;
+
+namespace {
+    int64_t unix_timestamp_milliseconds_utc() {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()
+               )
+            .count();
+    }
+}
 
 void InfiniFrameWindow::Show(const bool isAlreadyShown) {
     if (!isAlreadyShown)
@@ -91,6 +101,11 @@ void InfiniFrameWindow::AttachWebView() {
         startupString += L"--ignore-certificate-errors ";
     if (!m_impl->_browserControlInitParameters.empty())
         startupString += m_impl->_browserControlInitParameters; //e.g.--hide-scrollbars
+    if (m_impl->_remoteDebuggingPort > 0) {
+        startupString += std::format(
+            L" --remote-debugging-address=127.0.0.1 --remote-debugging-port={}",
+            m_impl->_remoteDebuggingPort);
+    }
 
     auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
     if (startupString.length() > 0)
@@ -256,9 +271,57 @@ void InfiniFrameWindow::AttachWebView() {
                             EventRegistrationToken navigationCompletedToken;
                             m_impl->_webviewWindow->add_NavigationCompleted(
                                 Callback<ICoreWebView2NavigationCompletedEventHandler>(
-                                    [this](ICoreWebView2*, ICoreWebView2NavigationCompletedEventArgs*) -> HRESULT {
+                                    [this](ICoreWebView2*, ICoreWebView2NavigationCompletedEventArgs* args) -> HRESULT {
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
                                             return S_OK;
+
+                                        BOOL isSuccess = TRUE;
+                                        COREWEBVIEW2_WEB_ERROR_STATUS webErrorStatus =
+                                            COREWEBVIEW2_WEB_ERROR_STATUS_UNKNOWN;
+                                        if (args != nullptr) {
+                                            args->get_IsSuccess(&isSuccess);
+                                            args->get_WebErrorStatus(&webErrorStatus);
+                                        }
+
+                                        wil::unique_cotaskmem_string source;
+                                        if (m_impl->_webviewWindow != nullptr)
+                                            m_impl->_webviewWindow->get_Source(&source);
+
+                                        if (isSuccess) {
+                                            InvokeDebugEvent(
+                                                L"Navigation",
+                                                L"Navigation completed",
+                                                L"Info",
+                                                source.get(),
+                                                0,
+                                                unix_timestamp_milliseconds_utc(),
+                                                nullptr
+                                            );
+                                        } else {
+                                            const std::wstring payload = std::format(
+                                                L"{{\"webErrorStatus\":{}}}",
+                                                static_cast<int>(webErrorStatus)
+                                            );
+                                            InvokeDebugEvent(
+                                                L"Navigation",
+                                                L"Navigation failed",
+                                                L"Error",
+                                                source.get(),
+                                                static_cast<int>(webErrorStatus),
+                                                unix_timestamp_milliseconds_utc(),
+                                                payload.c_str()
+                                            );
+                                            InvokeDebugEvent(
+                                                L"ScriptError",
+                                                L"Navigation failed",
+                                                L"Error",
+                                                source.get(),
+                                                static_cast<int>(webErrorStatus),
+                                                unix_timestamp_milliseconds_utc(),
+                                                payload.c_str()
+                                            );
+                                        }
+
                                         if (m_impl->_pendingWebMessages.empty() || !m_impl->_webviewWindow)
                                             return S_OK;
                                         for (const auto& msg : m_impl->_pendingWebMessages)
@@ -271,6 +334,41 @@ void InfiniFrameWindow::AttachWebView() {
                             );
                             m_impl->_navigationCompletedToken = navigationCompletedToken;
                             m_impl->_hasNavigationCompletedToken = true;
+
+                            if (auto webview2_2 = m_impl->_webviewWindow.try_query<ICoreWebView2_2>()) {
+                                EventRegistrationToken processFailedToken;
+                                webview2_2->add_ProcessFailed(
+                                    Callback<ICoreWebView2ProcessFailedEventHandler>(
+                                        [this](ICoreWebView2*, ICoreWebView2ProcessFailedEventArgs* args) -> HRESULT {
+                                            if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
+                                                return S_OK;
+
+                                            COREWEBVIEW2_PROCESS_FAILED_KIND processFailedKind =
+                                                COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED;
+                                            if (args != nullptr)
+                                                args->get_ProcessFailedKind(&processFailedKind);
+
+                                            const std::wstring payload = std::format(
+                                                L"{{\"processFailedKind\":{}}}",
+                                                static_cast<int>(processFailedKind)
+                                            );
+                                            InvokeDebugEvent(
+                                                L"Process",
+                                                L"WebView2 process failed",
+                                                L"Error",
+                                                nullptr,
+                                                static_cast<int>(processFailedKind),
+                                                unix_timestamp_milliseconds_utc(),
+                                                payload.c_str()
+                                            );
+                                            return S_OK;
+                                        }
+                                    ).Get(),
+                                    &processFailedToken
+                                );
+                                m_impl->_processFailedToken = processFailedToken;
+                                m_impl->_hasProcessFailedToken = true;
+                            }
 
                             HRESULT addScriptHr = m_impl->_webviewWindow->AddScriptToExecuteOnDocumentCreated(
                                 js_wide.c_str(),

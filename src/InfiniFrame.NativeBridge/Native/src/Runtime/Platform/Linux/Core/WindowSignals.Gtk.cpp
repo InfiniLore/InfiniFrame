@@ -1,6 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include <chrono>
+#include <string>
+
 #include <webkit2/webkit2.h>
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
@@ -39,6 +42,13 @@ namespace {
             default:
                 return "unknown";
         }
+    }
+
+    int64_t unix_timestamp_milliseconds_utc() {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()
+               )
+            .count();
     }
 } 
 
@@ -155,8 +165,20 @@ gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest*
 }
 
 void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+    const char* uri = webkit_web_view_get_uri(web_view);
+    std::string payload = std::string{"{\"loadEvent\":\""} + webkit_load_event_to_string(load_event) + "\"}";
+    instance->InvokeDebugEvent(
+        "Navigation",
+        webkit_load_event_to_string(load_event),
+        "Info",
+        uri,
+        0,
+        unix_timestamp_milliseconds_utc(),
+        payload.c_str()
+    );
+
     if (linux_webview_diagnostics_enabled()) {
-        const char* uri = webkit_web_view_get_uri(web_view);
         g_message(
             "[InfiniFrame/Linux] WebKit load-changed: event=%s uri=%s", webkit_load_event_to_string(load_event),
             uri ? uri : "<null>"
@@ -164,7 +186,6 @@ void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event
     }
 
     if (load_event == WEBKIT_LOAD_FINISHED) {
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
         instance->FlushPendingWebMessages();
     }
 }
@@ -172,6 +193,18 @@ void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event
 gboolean on_webview_load_failed(
     WebKitWebView* web_view, WebKitLoadEvent load_event, gchar* failing_uri, GError* error, gpointer user_data
 ) {
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+    std::string payload = std::string{"{\"loadEvent\":\""} + webkit_load_event_to_string(load_event) + "\"}";
+    instance->InvokeDebugEvent(
+        "ScriptError",
+        error ? error->message : "WebKit load failed",
+        "Error",
+        failing_uri,
+        error ? error->code : 0,
+        unix_timestamp_milliseconds_utc(),
+        payload.c_str()
+    );
+
     if (!linux_webview_diagnostics_enabled())
         return FALSE;
 
@@ -185,6 +218,18 @@ gboolean on_webview_load_failed(
 void on_webview_process_terminated(
     WebKitWebView* web_view, WebKitWebProcessTerminationReason reason, gpointer user_data
 ) {
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+    std::string payload = std::string{"{\"terminationReason\":\""} + webkit_termination_reason_to_string(reason) + "\"}";
+    instance->InvokeDebugEvent(
+        "Process",
+        "WebKit web process terminated",
+        "Error",
+        nullptr,
+        static_cast<int>(reason),
+        unix_timestamp_milliseconds_utc(),
+        payload.c_str()
+    );
+
     g_warning(
         "[InfiniFrame/Linux] WebKit web process terminated: reason=%s", webkit_termination_reason_to_string(reason)
     );

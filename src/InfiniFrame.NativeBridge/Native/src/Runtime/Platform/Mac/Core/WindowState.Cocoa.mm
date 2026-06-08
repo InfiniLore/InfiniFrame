@@ -129,11 +129,17 @@ void InfiniFrameWindow::GetZoom(int* zoom) const
 
 void InfiniFrameWindow::NavigateToString(AutoString content)
 {
+    if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
+        return;
+
     [m_impl->_webview loadHTMLString: [NSString stringWithUTF8String: content] baseURL: nil];
 }
 
 void InfiniFrameWindow::NavigateToUrl(AutoString url)
 {
+    if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
+        return;
+
     NSString* nsurlstring = [NSString stringWithUTF8String: url];
     NSURL *nsurl = [NSURL URLWithString: nsurlstring];
     NSURLRequest *nsrequest = [NSURLRequest requestWithURL: nsurl];
@@ -189,6 +195,9 @@ void InfiniFrameWindow::FlushPendingWebMessages() {
 
 void InfiniFrameWindow::SendWebMessage(AutoString message)
 {
+    if (m_impl->_isClosingOrClosed || m_impl->_webview == nil)
+        return;
+
     if (!m_impl->_webviewReady) {
         // WKWebView is still loading (e.g. message sent from WindowCreated handler).
         // Queue the message; it will be flushed on the first didFinishNavigation callback.

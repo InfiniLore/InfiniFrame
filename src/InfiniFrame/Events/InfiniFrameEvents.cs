@@ -23,6 +23,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     private CppResizedDelegate ResizedHandler  { get; }
     private CppRestoredDelegate RestoredHandler  { get; }
     private CppWebMessageReceivedDelegate WebMessageReceivedHandler  { get; }
+    private CppDebugEventDelegate DebugEventHandler  { get; }
     private CppWebResourceRequestedDelegate CustomSchemeHandler  { get; }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -44,14 +45,15 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         ResizedHandler = OnSizeChanged;
         RestoredHandler = OnRestored;
         WebMessageReceivedHandler = OnWebMessageReceived;
+        DebugEventHandler = OnDebugEvent;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void AssignSender(IInfiniFrameWindow sender) {
-        ArgumentNullException.ThrowIfNull(sender);
-        Sender = sender;
+    internal void AssignToWindow(IInfiniFrameWindow window) {
+        ArgumentNullException.ThrowIfNull(window);
+        Sender = window;
     }
     
     public void AssignEventCallbacks(ref InfiniFrameNativeParameters parameters) {
@@ -67,6 +69,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         parameters.ResizedHandler = ResizedHandler;
         parameters.RestoredHandler = RestoredHandler;
         parameters.WebMessageReceivedHandler = WebMessageReceivedHandler;
+        parameters.DebugEventHandler = DebugEventHandler;
         
         ApplyCustomSchemeNames(ref parameters);
     }

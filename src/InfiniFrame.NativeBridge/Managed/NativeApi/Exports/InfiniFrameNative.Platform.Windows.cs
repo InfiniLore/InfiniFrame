@@ -30,4 +30,25 @@ public partial class InfiniFrameNative {
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     internal static partial InfiniFrameNativeInteropStatus GetNotificationsEnabled(IntPtr instance, [MarshalAs(UnmanagedType.I1)] out bool enabled);
 
+    [SupportedOSPlatform("windows")]
+    [LibraryImport(ArtifactManifest.NativeLibraryName, EntryPoint = "InfiniFrameNative_getWebView2RuntimeVersion_win32", SetLastError = true)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial InfiniFrameNativeInteropStatus GetWebView2RuntimeVersionPtr(out IntPtr value);
+
+    [SupportedOSPlatform("windows")]
+    internal static string? GetWebView2RuntimeVersion() {
+        if (!OperatingSystem.IsWindows()) return null;
+
+        InfiniFrameNativeInteropStatus status = GetWebView2RuntimeVersionPtr(out IntPtr ptr);
+        if (status != InfiniFrameNativeInteropStatus.Success || ptr == IntPtr.Zero)
+            return null;
+
+        try {
+            return PtrToNativeString(ptr);
+        }
+        finally {
+            FreeString(ptr);
+        }
+    }
+
 }

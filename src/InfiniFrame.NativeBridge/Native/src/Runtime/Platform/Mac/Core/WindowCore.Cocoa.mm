@@ -93,6 +93,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
     m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
     m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
     m_impl->_zoomEnabled = initParams->ZoomEnabled;
+    m_impl->_webInspectorEnabled = initParams->WebInspectorEnabled;
     m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
 
     m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
@@ -105,6 +106,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
     m_impl->_maximizedCallback = initParams->MaximizedHandler;
     m_impl->_minimizedCallback = initParams->MinimizedHandler;
     m_impl->_restoredCallback = initParams->RestoredHandler;
+    m_impl->_debugEventCallback = initParams->DebugEventHandler;
     m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
 
     for (int i = 0; i < 16; ++i)

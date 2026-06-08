@@ -11,7 +11,7 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // These are the parameter names that are passed to InfiniFrame.Native.
 // DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential)]
-public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParameters> {
+public struct InfiniFrameNativeParameters {
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
     ///     initialized. Default is none.
@@ -65,6 +65,10 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     internal string? NotificationRegistrationId;
 
+    ///<summary>OPTIONAL: Windows-only remote debugging port for loopback endpoint. 0 disables remote debugging.</summary>
+    [MarshalAs(UnmanagedType.I4)]
+    internal int RemoteDebuggingPort;
+
     /// <summary>
     ///     OPTIONAL: If native window is created from another native window, this is the pointer to the parent window.
     /// </summary>
@@ -109,6 +113,10 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
     internal CppWebMessageReceivedDelegate? WebMessageReceivedHandler;
+
+    ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
+    [MarshalAs(UnmanagedType.FunctionPtr)]
+    internal CppDebugEventDelegate? DebugEventHandler;
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
@@ -188,6 +196,10 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     ///<summary>OPTIONAL: If true, the user can access the browser control's dev tools. Default is true.</summary>
     [MarshalAs(UnmanagedType.I1)]
     internal bool DevToolsEnabled;
+
+    ///<summary>OPTIONAL: If true, macOS WKWebView is marked inspectable for Safari Web Inspector. Default is false.</summary>
+    [MarshalAs(UnmanagedType.I1)]
+    internal bool WebInspectorEnabled;
 
     /// <summary>
     ///     OPTIONAL: If true, native browser control covers the entire screen. Useful for kiosks for example.
@@ -302,131 +314,4 @@ public struct InfiniFrameNativeParameters : IEquatable<InfiniFrameNativeParamete
     /// </summary>
     [MarshalAs(UnmanagedType.I4)]
     internal int Size;
-
-    // ReSharper disable once ConvertIfStatementToReturnStatement
-    public bool Equals(InfiniFrameNativeParameters other) {
-        // Handlers are not checked because they are set by the constructor and are not user-configurable.
-        // && ClosingHandler.Equals(other.ClosingHandler)
-        // && FocusInHandler.Equals(other.FocusInHandler)
-        // && FocusOutHandler.Equals(other.FocusOutHandler)
-        // && ResizedHandler.Equals(other.ResizedHandler)
-        // && MaximizedHandler.Equals(other.MaximizedHandler)
-        // && RestoredHandler.Equals(other.RestoredHandler)
-        // && MinimizedHandler.Equals(other.MinimizedHandler)
-        // && MovedHandler.Equals(other.MovedHandler)
-        // && WebMessageReceivedHandler.Equals(other.WebMessageReceivedHandler)
-        // && CustomSchemeHandler.Equals(other.CustomSchemeHandler)
-
-        if (!CustomSchemeNames.AsSpan().SequenceEqual(other.CustomSchemeNames.AsSpan())) return false;
-        if (StartString != other.StartString) return false;
-        if (StartUrl != other.StartUrl) return false;
-        if (Title != other.Title) return false;
-        if (WindowIconFile != other.WindowIconFile) return false;
-        if (TemporaryFilesPath != other.TemporaryFilesPath) return false;
-        if (UserAgent != other.UserAgent) return false;
-        if (BrowserControlInitParameters != other.BrowserControlInitParameters) return false;
-        if (NotificationRegistrationId != other.NotificationRegistrationId) return false;
-        if (NativeParent != other.NativeParent) return false;
-        if (Left != other.Left) return false;
-        if (Top != other.Top) return false;
-        if (Width != other.Width) return false;
-        if (Height != other.Height) return false;
-        if (Zoom != other.Zoom) return false;
-        if (MinWidth != other.MinWidth) return false;
-        if (MinHeight != other.MinHeight) return false;
-        if (MaxWidth != other.MaxWidth) return false;
-        if (MaxHeight != other.MaxHeight) return false;
-        if (CenterOnInitialize != other.CenterOnInitialize) return false;
-        if (Chromeless != other.Chromeless) return false;
-        if (Transparent != other.Transparent) return false;
-        if (ContextMenuEnabled != other.ContextMenuEnabled) return false;
-        if (DevToolsEnabled != other.DevToolsEnabled) return false;
-        if (FullScreen != other.FullScreen) return false;
-        if (Maximized != other.Maximized) return false;
-        if (Minimized != other.Minimized) return false;
-        if (Resizable != other.Resizable) return false;
-        if (Topmost != other.Topmost) return false;
-        if (UseOsDefaultLocation != other.UseOsDefaultLocation) return false;
-        if (UseOsDefaultSize != other.UseOsDefaultSize) return false;
-        if (GrantBrowserPermissions != other.GrantBrowserPermissions) return false;
-        if (MediaAutoplayEnabled != other.MediaAutoplayEnabled) return false;
-        if (FileSystemAccessEnabled != other.FileSystemAccessEnabled) return false;
-        if (WebSecurityEnabled != other.WebSecurityEnabled) return false;
-        if (JavascriptClipboardAccessEnabled != other.JavascriptClipboardAccessEnabled) return false;
-        if (MediaStreamEnabled != other.MediaStreamEnabled) return false;
-        if (SmoothScrollingEnabled != other.SmoothScrollingEnabled) return false;
-        if (IgnoreCertificateErrorsEnabled != other.IgnoreCertificateErrorsEnabled) return false;
-        if (NotificationsEnabled != other.NotificationsEnabled) return false;
-        if (Size != other.Size) return false;
-        if (ZoomEnabled != other.ZoomEnabled) return false;
-
-        return true;
-    }
-
-    public override bool Equals(object? obj) => obj is InfiniFrameNativeParameters other && Equals(other);
-
-    public override int GetHashCode() {
-        var hashCode = new HashCode();
-        hashCode.Add(StartString);
-        hashCode.Add(StartUrl);
-        hashCode.Add(Title);
-        hashCode.Add(WindowIconFile);
-        hashCode.Add(TemporaryFilesPath);
-        hashCode.Add(UserAgent);
-        hashCode.Add(BrowserControlInitParameters);
-        hashCode.Add(NotificationRegistrationId);
-        hashCode.Add(NativeParent);
-        hashCode.Add(ClosingHandler);
-        hashCode.Add(FocusInHandler);
-        hashCode.Add(FocusOutHandler);
-        hashCode.Add(ResizedHandler);
-        hashCode.Add(MaximizedHandler);
-        hashCode.Add(RestoredHandler);
-        hashCode.Add(MinimizedHandler);
-        hashCode.Add(MovedHandler);
-        hashCode.Add(WebMessageReceivedHandler);
-
-        if (CustomSchemeNames is not null) {
-            foreach (IntPtr ptr in CustomSchemeNames) {
-                hashCode.Add(ptr);
-            }
-        }
-
-        hashCode.Add(CustomSchemeHandler);
-        hashCode.Add(Left);
-        hashCode.Add(Top);
-        hashCode.Add(Width);
-        hashCode.Add(Height);
-        hashCode.Add(Zoom);
-        hashCode.Add(MinWidth);
-        hashCode.Add(MinHeight);
-        hashCode.Add(MaxWidth);
-        hashCode.Add(MaxHeight);
-        hashCode.Add(CenterOnInitialize);
-        hashCode.Add(Chromeless);
-        hashCode.Add(Transparent);
-        hashCode.Add(ContextMenuEnabled);
-        hashCode.Add(DevToolsEnabled);
-        hashCode.Add(FullScreen);
-        hashCode.Add(Maximized);
-        hashCode.Add(Minimized);
-        hashCode.Add(Resizable);
-        hashCode.Add(Topmost);
-        hashCode.Add(UseOsDefaultLocation);
-        hashCode.Add(UseOsDefaultSize);
-        hashCode.Add(GrantBrowserPermissions);
-        hashCode.Add(MediaAutoplayEnabled);
-        hashCode.Add(FileSystemAccessEnabled);
-        hashCode.Add(WebSecurityEnabled);
-        hashCode.Add(JavascriptClipboardAccessEnabled);
-        hashCode.Add(MediaStreamEnabled);
-        hashCode.Add(SmoothScrollingEnabled);
-        hashCode.Add(IgnoreCertificateErrorsEnabled);
-        hashCode.Add(NotificationsEnabled);
-        hashCode.Add(Size);
-        return hashCode.ToHashCode();
-    }
-    public static bool operator ==(InfiniFrameNativeParameters left, InfiniFrameNativeParameters right) => left.Equals(right);
-
-    public static bool operator !=(InfiniFrameNativeParameters left, InfiniFrameNativeParameters right) => !(left == right);
 }
