@@ -163,7 +163,6 @@ public class RemoteDebuggingTests {
     [Test]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 50_000)]
     public async Task Window_EndpointReadinessAndClose_ShouldBeDeterministic(CancellationToken ct = default) {
         // Arrange
         int port = GetAvailableLoopbackPort();
@@ -178,13 +177,10 @@ public class RemoteDebuggingTests {
         await Assert.That(endpoint).IsNotNull();
 
         // Act (ready while alive)
-        bool becameReachable = await WaitUntilPortIsReachable(port, TimeSpan.FromSeconds(40), ct);
+        bool becameReachable = await WaitUntilPortIsReachable(port, TimeSpan.FromSeconds(5), ct);
 
         // Assert (alive)
-        if (!becameReachable) {
-            Skip.Test("Remote debugging endpoint did not become reachable in this environment.");
-            return;
-        }
+        await Assert.That(becameReachable).IsTrue();
 
         // Act (close)
         window.Close();
@@ -202,7 +198,6 @@ public class RemoteDebuggingTests {
     [Test]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
-    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 50_000)]
     public async Task Window_Debug_TryProbeEndpoint_ShouldExposeBoundedDeterministicState(CancellationToken ct = default) {
         int port = GetAvailableLoopbackPort();
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
@@ -211,11 +206,8 @@ public class RemoteDebuggingTests {
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
-        bool reachable = await WaitUntilProbeSucceeds(window, TimeSpan.FromSeconds(40), ct);
-        if (!reachable) {
-            Skip.Test("Debug endpoint probe did not succeed in this environment.");
-            return;
-        }
+        bool reachable = await WaitUntilProbeSucceeds(window, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(reachable).IsTrue();
 
         bool probed = window.Debugging.TryProbeEndpoint(out Uri? endpoint, out string? reason);
         await Assert.That(probed).IsTrue();

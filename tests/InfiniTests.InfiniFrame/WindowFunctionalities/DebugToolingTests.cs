@@ -69,7 +69,7 @@ public class DebugToolingTests {
         try {
             window.Close();
 
-            DateTime timeoutAt = DateTime.UtcNow.AddSeconds(10);
+            DateTime timeoutAt = DateTime.UtcNow.AddSeconds(8);
             while (DateTime.UtcNow < timeoutAt && !ct.IsCancellationRequested) {
                 if (eventReceived.WaitOne(150))
                     break;
@@ -82,10 +82,7 @@ public class DebugToolingTests {
             window.EventsStore.DebuggingEvent.Remove(onDebugEvent);
         }
 
-        if (!kinds.Any()) {
-            Skip.Test("No debug events were emitted in this environment.");
-            return;
-        }
+        Skip.When(kinds.IsEmpty, "No debug events were emitted in this environment.");
 
         bool hasSupportedKind = kinds.Any(kind => kind is InfiniFrameDebugEventKind.Navigation or InfiniFrameDebugEventKind.ScriptError or InfiniFrameDebugEventKind.Process);
         await Assert.That(hasSupportedKind).IsTrue();
