@@ -18,10 +18,11 @@ public class ColorSchemeChangeTests {
         IntPtr inputPtr = input;
 
         // Act
-        bool result = InfiniFrameNativeTesting.IsColorSchemeChange(inputPtr);
+        InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.IsColorSchemeChange(inputPtr, out bool result);
 
         // Assert
         await Assert.That(result).IsFalse();
+        await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
     }
 
     [Test]
@@ -33,9 +34,10 @@ public class ColorSchemeChangeTests {
         try {
             pointer = Marshal.StringToHGlobalUni("ImmersiveColorSet");
 
-            bool result = InfiniFrameNativeTesting.IsColorSchemeChange(pointer);
+            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.IsColorSchemeChange(pointer, out bool result);
 
             await Assert.That(result).IsTrue();
+            await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
         }
         finally {
             if (pointer != IntPtr.Zero) Marshal.FreeHGlobal(pointer);

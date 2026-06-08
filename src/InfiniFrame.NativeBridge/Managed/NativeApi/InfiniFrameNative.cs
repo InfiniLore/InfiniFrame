@@ -81,19 +81,4 @@ public partial class InfiniFrameNative {
         rectangle = new Rectangle(x, y, width, height);
         return status;
     }
-
-    internal static InfiniFrameNativeInteropStatus EnsureSucceeded(InfiniFrameNativeInteropStatus status, string operationName) {
-        
-        int fallbackLastError = Marshal.GetLastPInvokeError();
-
-        if (status is InfiniFrameNativeInteropStatus.Success && fallbackLastError is 0) return status;
-        
-        const string noNativeMessage = "No native error message provided.";
-        string fallbackMessage = GetLastErrorMessage() ?? noNativeMessage;
-        InfiniFrameNativeInteropStatus fallbackStatus = fallbackMessage == noNativeMessage
-            ? InfiniFrameNativeInteropStatus.OperationFailed
-            : InfiniFrameNativeInteropStatus.Success;
-        
-        throw new ApplicationException($"Native interop call '{operationName}' failed with unknown status state. Fallback last error {fallbackLastError}. {fallbackMessage} {fallbackStatus}");
-    }
 }

@@ -31,30 +31,22 @@ public partial class InfiniFrameNativeTesting {
     ///     Returns a native pointer to a newly allocated InfiniFrameInitParams clone.
     ///     Ownership is transferred to managed caller, which must call <see cref="FreeInitParams" /> exactly once.
     /// </summary>
-    internal static IntPtr NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters) {
-        InfiniFrameNative.EnsureSucceeded(
-            NativeParametersReturnAsIsNative(in parameters, out IntPtr newParametersPtr),
-            nameof(NativeParametersReturnAsIsNative));
+    internal static InfiniFrameNativeInteropStatus NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters, out IntPtr newParametersPtr) {
+        var status = NativeParametersReturnAsIsNative(in parameters, out newParametersPtr);
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
 
-        return newParametersPtr;
+        return status;
     }
 
-    internal static void FreeInitParams(IntPtr newParametersPtr) {
-        if (newParametersPtr == IntPtr.Zero) return;
+    internal static InfiniFrameNativeInteropStatus FreeInitParams(IntPtr newParametersPtr) 
+        => FreeInitParamsNative(newParametersPtr);
 
-        InfiniFrameNative.EnsureSucceeded(
-            FreeInitParamsNative(newParametersPtr),
-            nameof(FreeInitParamsNative));
-    }
+    internal static InfiniFrameNativeInteropStatus IsColorSchemeChange(IntPtr lParam, out bool result) {
+        InfiniFrameNativeInteropStatus status = IsColorSchemeChangeNative(lParam, out int resultInt);
 
-    internal static bool IsColorSchemeChange(IntPtr lParam) {
-        InfiniFrameNative.EnsureSucceeded(
-            IsColorSchemeChangeNative(lParam, out int result),
-            nameof(IsColorSchemeChangeNative));
-
-        return result != 0;
+        result = resultInt != 0;
+        return status;
     }
 }
