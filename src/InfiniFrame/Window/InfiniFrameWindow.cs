@@ -95,19 +95,6 @@ public sealed class InfiniFrameWindow(
         }
     }
 
-    /// <summary>
-    ///     Gets a list of information for each monitor from the native window.
-    ///     This property represents a list of Monitor objects associated with each display monitor.
-    /// </summary>
-    /// <remarks>
-    ///     If called when the native instance of the window is not initialized, it will throw an ApplicationException.
-    /// </remarks>
-    /// <exception cref="ApplicationException">Thrown when the native instance of the window is not initialized.</exception>
-    /// <returns>
-    ///     A read-only list of Monitor objects representing information about each display monitor.
-    /// </returns>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public ImmutableArray<InfiniMonitor> Monitors => NativeInvoke.InvokeSyncWithValidation<ImmutableArray<InfiniMonitor>>(InstanceHandle, ManagedThreadId, MonitorsUtility.GetMonitors);
 
     /// <summary>
     ///     Retrieves the primary monitor information from the native window instance.
@@ -118,17 +105,6 @@ public sealed class InfiniFrameWindow(
     ///     available monitors.
     /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public InfiniMonitor MainMonitor => NativeInvoke.InvokeSyncWithValidation<ImmutableArray<InfiniMonitor>>(InstanceHandle, ManagedThreadId, MonitorsUtility.GetMonitors).FirstOrDefault();
-
-    /// <summary>
-    ///     Gets the dots per inch (DPI) for the primary display from the native window.
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     An ApplicationException is thrown if the window hasn't been initialized yet.
-    /// </exception>
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    public uint ScreenDpi => NativeInvoke.InvokeSyncWithValidation<uint>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetScreenDpi);
-
     /// <summary>
     ///     Gets a unique GUID to identify the native window.
     /// </summary>

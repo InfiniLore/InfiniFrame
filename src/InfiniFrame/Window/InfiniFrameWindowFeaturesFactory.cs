@@ -17,6 +17,7 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             Invoke: new InfiniFrameWindowFeatureInvoke(window, GetLogger<InfiniFrameWindowFeatureInvoke>(provider)),
             WebMessaging: new InfiniFrameWindowFeatureWebMessaging(window, GetLogger<InfiniFrameWindowFeatureWebMessaging>(provider)),
             Notifications: new InfiniFrameWindowFeatureNotifications(window, GetLogger<InfiniFrameWindowFeatureNotifications>(provider)),
-            FilePickerDialogs: new InfiniFrameWindowFeatureFilePickerDialogs(window, GetLogger<InfiniFrameWindowFeatureFilePickerDialogs>(provider))
+            FilePickerDialogs: new InfiniFrameWindowFeatureFilePickerDialogs(window, GetLogger<InfiniFrameWindowFeatureFilePickerDialogs>(provider)),
+            Monitors: new InfiniFrameWindowFeatureMonitors(window, GetLogger<InfiniFrameWindowFeatureMonitors>(provider))
         );
 }
