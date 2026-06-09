@@ -1,0 +1,22 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+namespace InfiniFrame;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
+    private static ILogger<T> GetLogger<T>(IServiceProvider provider) => provider.GetRequiredService<ILogger<T>>();
+        
+    public IInfiniFrameWindowFeatures Create(IInfiniFrameWindow window) 
+        => new InfiniFrameWindowFeatures(
+            Lifecycle: new InfiniFrameWindowFeatureLifecycle(window, GetLogger<InfiniFrameWindowFeatureLifecycle>(provider)),
+            Invoke: new InfiniFrameWindowFeatureInvoke(window, GetLogger<InfiniFrameWindowFeatureInvoke>(provider)),
+            WebMessaging: new InfiniFrameWindowFeatureWebMessaging(window, GetLogger<InfiniFrameWindowFeatureWebMessaging>(provider)),
+            Notifications: new InfiniFrameWindowFeatureNotifications(window, GetLogger<InfiniFrameWindowFeatureNotifications>(provider)),
+            FilePickerDialogs: new InfiniFrameWindowFeatureFilePickerDialogs(window, GetLogger<InfiniFrameWindowFeatureFilePickerDialogs>(provider))
+        );
+}

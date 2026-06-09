@@ -7,6 +7,7 @@ using InfiniFrame.NativeBridge.Dialogs;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.StaticAssets;
 using InfiniFrame.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -18,16 +19,21 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class InfiniFrameWindow : IInfiniFrameWindow {
+public sealed class InfiniFrameWindow(
+    ILogger<InfiniFrameWindow> logger,
+    IInfiniFrameOptions configuration,
+    IInfiniFrameWindowDebugging debugging,
+    IInfiniFrameEvents events,
+    IInfiniFrameWindowFeatures features,
+    IInfiniFrameStaticAssets? staticAssets
+) : IInfiniFrameWindow {
     private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
 
-    public required ILogger<IInfiniFrameWindow> Logger { get; init; }
-    public required IServiceProvider? ServiceProvider { get; init; }
-    public required IInfiniFrameEvents Events { get; init; }
-    public required IInfiniFrameOptions Configuration { get; init; }
-    
-    public required IInfiniFrameWindowDebugging Debugging { get; init; }
-    public IInfiniFrameStaticAssets? StaticAssets { get; init; }
+    public IInfiniFrameOptions Configuration { get; } = configuration;
+    public IInfiniFrameWindowDebugging Debugging { get; } = debugging;
+    public IInfiniFrameEvents Events { get; } = events;
+    public IInfiniFrameWindowFeatures Features { get; } = features;
+    public IInfiniFrameStaticAssets? StaticAssets { get; } = staticAssets;
 
     public IInfiniFrameEventsStore EventsStore => Events.EventsStore;
 
@@ -38,309 +44,10 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
     public Rectangle CachedPreFullScreenBounds { get; set; } = Rectangle.Empty;
     public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
 
-    private int _shutdownState;
-
-    private bool IsClosing => Volatile.Read(ref _shutdownState) != 0;
-    public bool IsClosed => Volatile.Read(ref _shutdownState) == 2;
-    public bool IsClosedOrClosing => IsClosing || InstanceHandle == IntPtr.Zero;
-
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-
-    /// <summary>
-    ///     Dispatches an Action to the UI thread if called from another thread.
-    /// </summary>
-    /// <returns>
-    ///     Returns the current <see cref="InfiniFrameWindow" /> instance.
-    /// </returns>
-    /// <param name="workItem"> The delegate encapsulating a method / action to be executed in the UI thread.</param>
-    public void Invoke(Action workItem) {
-        NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId, workItem);
-    }
-
-    /// <summary>
-    ///     Responsible for the initialization of the primary native window and remains in operation until the window is
-    ///     closed.
-    ///     This method is also applicable for initializing child windows, but in this case, it does not inhibit operation.
-    /// </summary>
-    /// <remarks>
-    ///     The operation of the message loop is exclusive to the main native window only.
-    /// </remarks>
-    public void WaitForClose() {
-        if (IsClosing || IsClosed) {
-            Logger.LogDebug("Skipping WaitForClose during shutdown");
-            return;
-        }
-
-        try {
-            Logger.LogDebug("Starting message loop for window.");
-
-            IntPtr handle = InstanceHandle;
-            if (handle == IntPtr.Zero)
-                return;
-
-            Invoke(() => InfiniFrameNative.WaitForExit(handle));
-        }
-        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            int lastError = OperatingSystem.IsWindows()
-                ? Marshal.GetLastWin32Error()
-                : 0;
-
-            Logger.LogError(ex, "Error #{LastErrorCode} while running message loop", lastError);
-            throw new ApplicationException(
-                $"Native code exception. Error # {lastError}",
-                ex);
-        }
-        finally {
-            InstanceHandle = IntPtr.Zero;
-            Interlocked.Exchange(ref _shutdownState, 2);
-        }
-    }
-
-    public ValueTask WaitForCloseAsync(CancellationToken ct = default) {
-        if (ct.IsCancellationRequested)
-            return ValueTask.FromCanceled(ct);
-
-        WaitForClose();
-        return ValueTask.CompletedTask;
-    }
-
-    void IInfiniFrameWindow.MarkClosedFromNativeCallback() {
-        InstanceHandle = IntPtr.Zero;
-        Interlocked.Exchange(ref _shutdownState, 2);
-    }
-
-    /// <summary>
-    ///     Closes the native window.
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    public void Close() {
-        if (Interlocked.Exchange(ref _shutdownState, 1) != 0) {
-            Logger.LogDebug("Skipping Close during shutdown");
-            return;
-        }
-
-        Logger.LogDebug(".Close()");
-        Events.OnWindowClosingRequested();
-
-        IntPtr handle = InstanceHandle;
-        if (handle == IntPtr.Zero)
-            return;
-
-        Invoke(() => {
-            IntPtr h = InstanceHandle;
-            if (h == IntPtr.Zero)
-                return;
-
-            InfiniFrameNative.Close(h);
-
-            InstanceHandle = IntPtr.Zero;
-            Interlocked.Exchange(ref _shutdownState, 2);
-        });
-    }
-
-    public ValueTask CloseAsync(CancellationToken ct = default) {
-        if (ct.IsCancellationRequested)
-            return ValueTask.FromCanceled(ct);
-
-        Close();
-        return ValueTask.CompletedTask;
-    }
-
-    /// <summary>
-    ///     Send a message to the native window's native browser control's JavaScript context.
-    /// </summary>
-    /// <remarks>
-    ///     In JavaScript, messages can be received via <code>window.infiniframe.host.receiveCallback(callback)</code>.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="message">Message as string</param>
-    public void SendWebMessage(string message) {
-        if (IsClosedOrClosing)
-            return;
-
-        IntPtr handle = InstanceHandle;
-        if (handle == IntPtr.Zero)
-            return;
-
-        Invoke(() => {
-            if (InstanceHandle == IntPtr.Zero)
-                return;
-
-            InfiniFrameNative.SendWebMessage(handle, message);
-        });
-    }
-
-    public Task SendWebMessageAsync(string message, CancellationToken ct = default)
-        => ct.IsCancellationRequested
-            ? Task.FromCanceled(ct)
-            : Task.Run(action: () => SendWebMessage(message), ct);
-
-    /// <summary>
-    ///     Sends a native notification to the OS.
-    ///     Sometimes referred to as Toast notifications.
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="title">The title of the notification</param>
-    /// <param name="body">The text of the notification</param>
-    public void SendNotification(string title, string body) {
-        if (IsClosedOrClosing)
-            return;
-
-        IntPtr handle = InstanceHandle;
-        if (handle == IntPtr.Zero)
-            return;
-
-        Invoke(() => {
-            if (InstanceHandle == IntPtr.Zero)
-                return;
-
-            InfiniFrameNative.ShowNotification(handle, title, body);
-        });
-    }
-
-
-    /// <summary>
-    ///     Show an open file dialog native to the OS.
-    /// </summary>
-    /// <remarks>
-    ///     Filter names are not used on macOS. Use async version for InfiniFrame.Blazor as the synchronous version
-    ///     crashes.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="title">Title of the dialog</param>
-    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
-    /// <param name="multiSelect">Whether multiple selections are allowed</param>
-    /// <param name="filters">Array of Extensions for filtering.</param>
-    /// <returns>Array of file paths as strings</returns>
-    public string?[] ShowOpenFile(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
-        => ShowOpenDialog(false, title, defaultPath, multiSelect, filters);
-
-    /// <summary>
-    ///     Async version is required for InfiniFrame.Blazor
-    /// </summary>
-    /// <remarks>
-    ///     Filter names are not used on macOS. Use async version for InfiniFrame.Blazor as the synchronous version
-    ///     crashes.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="title">Title of the dialog</param>
-    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
-    /// <param name="multiSelect">Whether multiple selections are allowed</param>
-    /// <param name="filters">Array of Extensions for filtering.</param>
-    /// <param name="ct">Cancellation token for the operation</param>
-    /// <returns>Array of file paths as strings</returns>
-    public Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
-        => RunDialogAsync(workItem: () => ShowOpenFile(title, defaultPath, multiSelect, filters), ct);
-
-    /// <summary>
-    ///     Show an open folder dialog native to the OS.
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="title">Title of the dialog</param>
-    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
-    /// <param name="multiSelect">Whether multiple selections are allowed</param>
-    /// <returns>Array of folder paths as strings</returns>
-    public string?[] ShowOpenFolder(string title = "Select folder", string? defaultPath = null, bool multiSelect = false)
-        => ShowOpenDialog(true, title, defaultPath, multiSelect, null);
-
-    /// <summary>
-    ///     Async version is required for InfiniFrame.Blazor
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="title">Title of the dialog</param>
-    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
-    /// <param name="multiSelect">Whether multiple selections are allowed</param>
-    /// <param name="ct">Cancellation token for the operation</param>
-    /// <returns>Array of folder paths as strings</returns>
-    public Task<string?[]> ShowOpenFolderAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default)
-        => RunDialogAsync(workItem: () => ShowOpenFolder(title, defaultPath, multiSelect), ct);
-
-    /// <summary>
-    ///     Show a save folder dialog native to the OS.
-    /// </summary>
-    /// <remarks>
-    ///     Filter names are not used on macOS.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="title">Title of the dialog</param>
-    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
-    /// <param name="filters">Array of Extensions for filtering.</param>
-    /// <returns></returns>
-    public string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null) {
-        defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        filters ??= [];
-
-        string? result = null;
-        string[] nativeFilters = GetNativeFilters(filters);
-
-        NativeInvoke.InvokeSyncWithValidation(
-            InstanceHandle, 
-            ManagedThreadId,
-            handle => InfiniFrameNative.ShowSaveFile(handle, title, defaultPath, nativeFilters, filters.Length, null, out result)
-        );
-
-        return result;
-    }
-
-    /// <summary>
-    ///     Async version is required for InfiniFrame.Blazor
-    /// </summary>
-    /// <remarks>
-    ///     Filter names are not used on macOS.
-    /// </remarks>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="title">Title of the dialog</param>
-    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
-    /// <param name="filters">Array of Extensions for filtering.</param>
-    /// <param name="ct">Cancellation token for the operation</param>
-    /// <returns></returns>
-    public Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
-        => RunDialogAsync(workItem: () => ShowSaveFile(title, defaultPath, filters), ct);
-
-    /// <summary>
-    ///     Show a message dialog native to the OS.
-    /// </summary>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the window is not initialized.
-    /// </exception>
-    /// <param name="title">Title of the dialog</param>
-    /// <param name="text">Text of the dialog</param>
-    /// <param name="buttons">Available interaction buttons <see cref="InfiniFrameDialogButtons" /></param>
-    /// <param name="icon">Icon of the dialog <see cref="InfiniFrameDialogButtons" /></param>
-    /// <returns>
-    ///     <see cref="InfiniFrameDialogResult" />
-    /// </returns>
-    public InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info) {
-        var result = InfiniFrameDialogResult.Cancel;
-        
-        NativeInvoke.InvokeSyncWithValidation(
-            InstanceHandle, 
-            ManagedThreadId,
-            handle => InfiniFrameNative.ShowMessage(handle, title, text ?? string.Empty, buttons, icon, out result)
-        );
-        
-        return result;
-    }
+    
 
     public bool TryResolveStaticAssetUri(string path, out Uri uri) {
         uri = null!;
@@ -352,113 +59,6 @@ public sealed class InfiniFrameWindow : IInfiniFrameWindow {
             StaticAssets.BaseUri,
             StaticAssets.DefaultDocument,
             out uri);
-    }
-
-    private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) =>
-        ct.IsCancellationRequested
-            ? Task.FromCanceled<TResult>(ct)
-            // Dialog calls are intentionally offloaded for Blazor flows where synchronous dialog invocation is unsafe.
-            : Task.Run(workItem, ct);
-
-    public void Initialize() {
-        InfiniFrameNativeParameters startupParameters = Configuration.StartupParameters;
-        bool webInspectorEnabled = startupParameters.WebInspectorEnabled;
-
-        try {
-            if (startupParameters.RemoteDebuggingPort != 0) {
-                Logger.LogInformation(
-                    "Remote debugging requested on loopback port {RemoteDebuggingPort}.",
-                    startupParameters.RemoteDebuggingPort);
-
-                if (OperatingSystem.IsLinux() && !startupParameters.DevToolsEnabled) {
-                    Logger.LogInformation(
-                        "Linux remote debugging keeps WebKit developer extras enabled while active."
-                    );
-                }
-            }
-            else {
-                Logger.LogDebug("Remote debugging is disabled.");
-            }
-
-            RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
-            RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(startupParameters.RemoteDebuggingPort, Logger);
-            if (webInspectorEnabled) {
-                MacOsWebInspectorUtility.ThrowIfUnsupported();
-            }
-
-            if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, Logger)) {
-                throw new ArgumentException("Startup Parameters Are Not Valid");
-            }
-
-            Events.OnWindowCreating();
-
-            try {
-                if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(NativeType);
-                else if (OperatingSystem.IsMacOS()) InfiniFrameNative.RegisterMac();
-                else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
-                else throw new PlatformNotSupportedException();
-
-                InfiniFrameNative.Constructor(in startupParameters, out IntPtr handle);
-                InstanceHandle = handle;
-            }
-            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                int lastError = OperatingSystem.IsWindows()
-                    ? Marshal.GetLastWin32Error()
-                    : 0;
-
-                Logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
-                throw new ApplicationException($"Native code exception. Error #{lastError}", ex);
-            }
-
-            Events.OnWindowCreated();
-        }
-        finally {
-            CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
-        }
-    }
-
-    /// <summary>
-    ///     Show a native open dialog
-    /// </summary>
-    /// <param name="foldersOnly">Whether files are hidden</param>
-    /// <param name="title">Title of the dialog</param>
-    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
-    /// <param name="multiSelect">Whether multiple selections are allowed</param>
-    /// <param name="filters">Array of Extensions for filtering.</param>
-    /// <returns>Array of paths</returns>
-    private string?[] ShowOpenDialog(bool foldersOnly, string title, string? defaultPath, bool multiSelect, (string Name, string[] Extensions)[]? filters) {
-        defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        filters ??= Array.Empty<(string, string[])>();
-
-        string?[] results = Array.Empty<string?>();
-        string[] nativeFilters = GetNativeFilters(filters, foldersOnly);
-
-        NativeInvoke.InvokeSyncWithValidation(
-            InstanceHandle, 
-            ManagedThreadId,
-            handle => foldersOnly
-                ? InfiniFrameNative.ShowOpenFolder(handle, title, defaultPath, multiSelect, out results)
-                : InfiniFrameNative.ShowOpenFile(handle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out results)
-        );
-
-        return results;
-    }
-
-    /// <summary>
-    ///     Returns an array of strings for native filters
-    /// </summary>
-    /// <param name="filters"></param>
-    /// <param name="empty"></param>
-    /// <returns>String array of filters</returns>
-    private static string[] GetNativeFilters((string Name, string[] Extensions)[] filters, bool empty = false) {
-        string[] nativeFilters = Array.Empty<string>();
-        if (!empty && filters is { Length: > 0 }) {
-            nativeFilters = OperatingSystem.IsMacOS()
-                ? filters.SelectMany(t => t.Extensions.Select(s => s == "*" ? s : s.TrimStart('*', '.'))).ToArray()
-                : filters.Select(t => $"{t.Name}|{t.Extensions.Select(s => s.StartsWith('.') ? $"*{s}" : !s.StartsWith("*.") ? $"*.{s}" : s).Aggregate((e1, e2) => $"{e1};{e2}")}").ToArray();
-        }
-
-        return nativeFilters;
     }
 
     #region PROPERTIES

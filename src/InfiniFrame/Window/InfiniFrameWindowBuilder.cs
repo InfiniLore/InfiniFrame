@@ -19,14 +19,17 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
     
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
+    
+    public IServiceCollection Services { get; private init; } = new ServiceCollection().AddInfiniFrame();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     
-    public static InfiniFrameWindowBuilder Create(InfiniFrameEventsStore? events = null) {
+    public static InfiniFrameWindowBuilder Create(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null) {
         var builder = new InfiniFrameWindowBuilder {
-            EventsStore = events ?? new InfiniFrameEventsStore()
+            EventsStore = events ?? new InfiniFrameEventsStore(),
+            Services = (collection ?? new ServiceCollection()).AddInfiniFrame(),
         };
 
         return builder;
@@ -36,6 +39,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
+        IServiceProvider actualProvider = provider ?? Services.BuildServiceProvider();
+        
         // ReSharper disable once UseDeconstruction
         InfiniFrameWindowBuilderSnapshot snapshot = CreateSnapshot(provider);
         
