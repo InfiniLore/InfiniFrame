@@ -10,5 +10,6 @@ public sealed record InfiniFrameWindowFeatures(
     IInfiniFrameWindowFeatureInvoke Invoke,
     IInfiniFrameWindowFeatureWebMessaging WebMessaging,
     IInfiniFrameWindowFeatureNotifications Notifications,
-    IInfiniFrameWindowFeatureFilePickerDialogs FilePickerDialogs
+    IInfiniFrameWindowFeatureFilePickerDialogs FilePickerDialogs,
+    IInfiniFrameWindowFeatureMonitors Monitors
 ) : IInfiniFrameWindowFeatures;
