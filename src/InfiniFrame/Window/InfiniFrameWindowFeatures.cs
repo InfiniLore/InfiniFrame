@@ -11,5 +11,8 @@ public sealed record InfiniFrameWindowFeatures(
     IInfiniFrameWindowFeatureWebMessaging WebMessaging,
     IInfiniFrameWindowFeatureNotifications Notifications,
     IInfiniFrameWindowFeatureFilePickerDialogs FilePickerDialogs,
-    IInfiniFrameWindowFeatureMonitors Monitors
+    IInfiniFrameWindowFeatureMonitors Monitors,
+    IInfiniFrameWindowFeaturePageNavigation PageNavigation,
+    IInfiniFrameWindowFeaturePosition Position,
+    IInfiniFrameWindowFeatureSize Size
 ) : IInfiniFrameWindowFeatures;

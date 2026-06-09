@@ -5,8 +5,6 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowFeatureMonitors {
-    IEnumerable<InfiniMonitor> GetMonitors();
-    InfiniMonitor GetMainMonitor();
-    int GetMainMonitorScreenDpi();
+public interface IInfiniFrameWindowFeaturePageNavigation {
+    
 }
