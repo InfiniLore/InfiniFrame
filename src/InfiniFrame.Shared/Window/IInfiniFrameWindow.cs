@@ -19,11 +19,9 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     IInfiniFrameOptions Configuration { get; }
     
     IntPtr InstanceHandle { get; internal set; }
-    bool IsClosed { get; }
+
     IntPtr WindowHandle { get; }
     IntPtr NativeType { get; }
-    ImmutableArray<InfiniMonitor> Monitors { get; }
-    InfiniMonitor MainMonitor { get; }
     uint ScreenDpi { get; }
     Guid Id { get; }
     Point Location { get; }
@@ -41,8 +39,6 @@ public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrame
     Task<string?[]> ShowOpenFolderAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default);
     string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
     Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default);
-    InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
    
-    bool TryResolveStaticAssetUri(string path, out Uri uri);
     internal void MarkClosedFromNativeCallback();
 }

@@ -12,4 +12,5 @@ public interface IInfiniFrameWindowFeatures {
     IInfiniFrameWindowFeatureNotifications Notifications { get; }
     IInfiniFrameWindowFeatureFilePickerDialogs FilePickerDialogs { get; }
     IInfiniFrameWindowFeatureMonitors Monitors { get; }
+    IInfiniFrameWindowFeaturePageNavigation PageNavigation { get; }
 }

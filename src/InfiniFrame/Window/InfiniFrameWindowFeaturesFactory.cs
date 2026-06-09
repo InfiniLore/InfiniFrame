@@ -13,11 +13,42 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
         
     public IInfiniFrameWindowFeatures Create(IInfiniFrameWindow window) 
         => new InfiniFrameWindowFeatures(
-            Lifecycle: new InfiniFrameWindowFeatureLifecycle(window, GetLogger<InfiniFrameWindowFeatureLifecycle>(provider)),
-            Invoke: new InfiniFrameWindowFeatureInvoke(window, GetLogger<InfiniFrameWindowFeatureInvoke>(provider)),
-            WebMessaging: new InfiniFrameWindowFeatureWebMessaging(window, GetLogger<InfiniFrameWindowFeatureWebMessaging>(provider)),
-            Notifications: new InfiniFrameWindowFeatureNotifications(window, GetLogger<InfiniFrameWindowFeatureNotifications>(provider)),
-            FilePickerDialogs: new InfiniFrameWindowFeatureFilePickerDialogs(window, GetLogger<InfiniFrameWindowFeatureFilePickerDialogs>(provider)),
-            Monitors: new InfiniFrameWindowFeatureMonitors(window, GetLogger<InfiniFrameWindowFeatureMonitors>(provider))
+            Lifecycle: new InfiniFrameWindowFeatureLifecycle(
+                window,
+                GetLogger<InfiniFrameWindowFeatureLifecycle>(provider)
+            ),
+            Invoke: new InfiniFrameWindowFeatureInvoke(
+                window,
+                GetLogger<InfiniFrameWindowFeatureInvoke>(provider)
+            ),
+            WebMessaging: new InfiniFrameWindowFeatureWebMessaging(
+                window,
+                GetLogger<InfiniFrameWindowFeatureWebMessaging>(provider)
+            ),
+            Notifications: new InfiniFrameWindowFeatureNotifications(
+                window,
+                GetLogger<InfiniFrameWindowFeatureNotifications>(provider)
+            ),
+            FilePickerDialogs: new InfiniFrameWindowFeatureFilePickerDialogs(
+                window,
+                GetLogger<InfiniFrameWindowFeatureFilePickerDialogs>(provider)
+            ),
+            Monitors: new InfiniFrameWindowFeatureMonitors(
+                window,
+                GetLogger<InfiniFrameWindowFeatureMonitors>(provider)
+            ),
+            PageNavigation: new InfiniFrameWindowFeaturePageNavigation(
+                window,
+                GetLogger<InfiniFrameWindowFeaturePageNavigation>(provider),
+                provider.GetService<IInfiniFrameStaticAssets>()
+            ),
+            Position: new InfiniFrameWindowFeaturePosition(
+                window,
+                GetLogger<InfiniFrameWindowFeaturePosition>(provider)
+            ),
+            Size: new InfiniFrameWindowFeatureSize(
+                window,
+                GetLogger<InfiniFrameWindowFeatureSize>(provider)
+            )
         );
 }
