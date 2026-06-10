@@ -49,6 +49,18 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             Size: new InfiniFrameWindowFeatureSize(
                 window,
                 GetLogger<InfiniFrameWindowFeatureSize>(provider)
+            ), 
+            Decorations: new InfiniFrameWindowFeatureDecorations(
+                window,
+                GetLogger<InfiniFrameWindowFeatureDecorations>(provider)
+            ),
+            State: new InfiniFrameWindowFeatureState(
+                window,
+                GetLogger<InfiniFrameWindowFeatureState>(provider)
+            ),
+            Browser: new InfiniFrameWindowFeatureBrowser(
+                window,
+                GetLogger<InfiniFrameWindowFeatureBrowser>(provider)
             )
         );
 }

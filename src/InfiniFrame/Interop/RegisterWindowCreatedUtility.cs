@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Utilities;
-using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 namespace InfiniFrame.Interop;
@@ -57,11 +56,11 @@ public static class RegisterWindowCreatedUtility {
                 registrationMessages = state.RegistrationMessageIds.ToArray();
             }
 
-            window.Logger.LogDebug(
-                "Received '{ReadyMessageId}' handshake. Sending {RegistrationCount} registration messages before acknowledgement.",
-                JsHandlerNames.WindowReady,
-                registrationMessages.Length
-            );
+            // window.Logger.LogDebug(
+            //     "Received '{ReadyMessageId}' handshake. Sending {RegistrationCount} registration messages before acknowledgement.",
+            //     JsHandlerNames.WindowReady,
+            //     registrationMessages.Length
+            // );
 
             _ = SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages);
         });
@@ -78,7 +77,7 @@ public static class RegisterWindowCreatedUtility {
             allMessagesSent = await SendRegistrationsAndAckAsync(window, registrationMessages);
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
+            // window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
         }
         finally {
             lock (state.Lock) {
@@ -94,7 +93,7 @@ public static class RegisterWindowCreatedUtility {
         }
 
         await window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowReadyAck));
-        window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", JsHandlerNames.WindowReadyAck);
+        // window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", JsHandlerNames.WindowReadyAck);
         return true;
     }
 }

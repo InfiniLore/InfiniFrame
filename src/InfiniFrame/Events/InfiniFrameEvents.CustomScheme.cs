@@ -45,7 +45,7 @@ public partial class InfiniFrameEvents {
 
         contentType = null;
         numBytes = 0;
-        Sender.Logger.LogDebug("Custom scheme request: {Url}", url);
+        Logger.LogDebug("Custom scheme request: {Url}", url);
         int colonPos = url.IndexOf(':');
 
         if (colonPos < 0)
@@ -54,12 +54,12 @@ public partial class InfiniFrameEvents {
         string scheme = url[..colonPos].ToLower();
 
         if (!EventsStore.CustomScheme.TryInvoke(scheme, Sender, url, out (Stream? Data, string? ContentType) result)) {
-            Sender.Logger.LogDebug("Custom scheme could not be found for `{Scheme}`", scheme);
+            Logger.LogDebug("Custom scheme could not be found for `{Scheme}`", scheme);
             return 0;
         }
 
         if (result.Data is null) {
-            Sender.Logger.LogDebug("Custom scheme handler returned null content for URL '{Url}'", url);
+            Logger.LogDebug("Custom scheme handler returned null content for URL '{Url}'", url);
             return 0;
         }
         
@@ -71,7 +71,7 @@ public partial class InfiniFrameEvents {
         contentType = result.ContentType;
         
         numBytes = (int)ms.Position;
-        Sender.Logger.LogDebug("Custom scheme response for {Url}. {NumBytes} bytes, ContentType={ContentType}", url, numBytes, contentType ?? "<null>");
+        Logger.LogDebug("Custom scheme response for {Url}. {NumBytes} bytes, ContentType={ContentType}", url, numBytes, contentType ?? "<null>");
         IntPtr buffer = Marshal.AllocCoTaskMem(numBytes);
         Marshal.Copy(ms.GetBuffer(), 0, buffer, numBytes);
         return buffer;

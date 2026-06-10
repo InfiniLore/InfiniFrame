@@ -10,6 +10,7 @@ namespace InfiniFrame.WebServer;
 public class InfiniFrameWebApplication {
     private int _shutdownStarted;
     
+    public required ILogger<InfiniFrameWebApplication> Logger { get; init; }
     public required WebApplication WebApp { get; init; }
     public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
     public IInfiniFrameWindow Window => LazyWindow.Value;
@@ -92,7 +93,7 @@ public class InfiniFrameWebApplication {
             await WebApp.StopAsync(ct);
         }
         catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
-            Window.Logger.LogError(e, "Error stopping web app");
+            Logger.LogError(e, "Error stopping web app");
         }
     }
 

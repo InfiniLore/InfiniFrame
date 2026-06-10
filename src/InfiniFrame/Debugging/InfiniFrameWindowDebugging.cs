@@ -11,7 +11,13 @@ namespace InfiniFrame.Debugging;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebugging> logger) : IInfiniFrameWindowDebugging {
-    public bool DevToolsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(Window.InstanceHandle, Window.ManagedThreadId, InfiniFrameNative.GetDevToolsEnabled);
+    public bool DevToolsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
+        logger,
+        Window.InstanceHandle,
+        Window.ManagedThreadId,
+        InfiniFrameNative.GetDevToolsEnabled
+    );
+    
     public bool SupportsWebInspector => MacOsWebInspectorUtility.IsSupportedPlatform();
     public bool WebInspectorEnabled => Window.Configuration.StartupParameters.WebInspectorEnabled;
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
@@ -60,7 +66,7 @@ public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebuggin
         if (!SupportsRemoteDebugging) return false;
 
         int? port = RemoteDebuggingPort;
-        if (!port.HasValue || Window.IsClosedOrClosing)
+        if (!port.HasValue || Window.IsClosedOrClosing())
             return false;
 
         endpoint = RemoteDebuggingUtility.CreateEndpointUri(port.Value);
@@ -80,7 +86,7 @@ public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebuggin
         }
 
         if (!TryGetRemoteDebuggingEndpoint(out endpoint) || endpoint is null) {
-            reason = Window.IsClosedOrClosing
+            reason = Window.IsClosedOrClosing()
                 ? "Window is closed."
                 : "Remote debugging is disabled.";
             logger.LogDebug("Debug endpoint probe unavailable: {Reason}", reason);
@@ -108,7 +114,7 @@ public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebuggin
             endpointStatus = InfiniFrameDebugEndpointStatus.Disabled;
             endpointReason = "Remote debugging is disabled.";
         }
-        else if (Window.IsClosedOrClosing || !TryGetRemoteDebuggingEndpoint(out endpoint) || endpoint is null) {
+        else if (Window.IsClosedOrClosing() || !TryGetRemoteDebuggingEndpoint(out endpoint) || endpoint is null) {
             endpointStatus = InfiniFrameDebugEndpointStatus.Unavailable;
             endpointReason = "Window is closed.";
         }
@@ -133,7 +139,7 @@ public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebuggin
             EndpointStatus = endpointStatus,
             Endpoint = endpoint,
             EndpointReason = endpointReason,
-            IsWindowClosed = Window.IsClosedOrClosing,
+            IsWindowClosed = Window.IsClosedOrClosing(),
             PlatformNotes = GetPlatformDiagnosticsNotes()
         };
     }

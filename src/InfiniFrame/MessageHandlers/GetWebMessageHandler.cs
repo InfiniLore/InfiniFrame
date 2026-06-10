@@ -22,17 +22,17 @@ public static class GetWebMessageHandler {
             return null;
 
         return command switch {
-            "title" => window.Title,
-            "width" => window.Width.ToString(CultureInfo.InvariantCulture),
-            "height" => window.Height.ToString(CultureInfo.InvariantCulture),
-            "left" => window.Left.ToString(CultureInfo.InvariantCulture),
-            "top" => window.Top.ToString(CultureInfo.InvariantCulture),
-            "maximized" => window.Maximized.ToString(),
-            "minimized" => window.Minimized.ToString(),
-            "fullscreen" => window.FullScreen.ToString(),
-            "focused" => window.Focused.ToString(),
-            "resizable" => window.Resizable.ToString(),
-            "zoom" => window.Zoom.ToString(CultureInfo.InvariantCulture),
+            "title" => window.Features.Decorations.Title,
+            "width" => window.Features.Size.Width.ToString(CultureInfo.InvariantCulture),
+            "height" => window.Features.Size.Height.ToString(CultureInfo.InvariantCulture),
+            "left" => window.Features.Position.Left.ToString(CultureInfo.InvariantCulture),
+            "top" => window.Features.Position.Top.ToString(CultureInfo.InvariantCulture),
+            "maximized" => window.Features.State.IsMaximized.ToString(),
+            "minimized" => window.Features.State.IsMinimized.ToString(),
+            "fullscreen" => window.Features.State.IsFullScreen.ToString(),
+            "focused" => window.Features.State.IsFocused.ToString(),
+            "resizable" => window.Features.Size.IsResizable.ToString(),
+            "zoom" => window.Features.State.ZoomFactor.ToString(CultureInfo.InvariantCulture),
             _ => null
         };
     }

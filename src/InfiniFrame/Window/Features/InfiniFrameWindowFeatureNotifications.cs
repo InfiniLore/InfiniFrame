@@ -4,6 +4,8 @@
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Dialogs;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Runtime.Versioning;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,6 +15,22 @@ public class InfiniFrameWindowFeatureNotifications(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeatureNotifications> logger
 ) : IInfiniFrameWindowFeatureNotifications {
+    
+    public string? NotificationRegistrationId => window.Configuration.StartupParameters.NotificationRegistrationId;
+
+    [SupportedOSPlatform("windows")]
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool NotificationsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
+        logger,
+        window.InstanceHandle,
+        window.ManagedThreadId,
+        InfiniFrameNative.GetNotificationsEnabled
+    );
+
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     /// <summary>
     /// Displays a notification with the specified title and body text.
     /// </summary>

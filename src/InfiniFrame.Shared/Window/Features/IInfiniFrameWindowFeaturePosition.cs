@@ -8,6 +8,10 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowFeaturePosition {
+    Point Location { get; }
+    int Top { get; }
+    int Left { get; }
+    
     IInfiniFrameWindow SetLocation(int left, int top);
     IInfiniFrameWindow SetLocation(Point location);
     IInfiniFrameWindow SetLeft(int left);

@@ -77,7 +77,7 @@ public class InfiniFrameWindowFeatureLifecycle(
             window.Events.OnWindowCreating();
 
             try {
-                if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(window.NativeType);
+                if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
                 else if (OperatingSystem.IsMacOS()) InfiniFrameNative.RegisterMac();
                 else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
                 else throw new PlatformNotSupportedException();

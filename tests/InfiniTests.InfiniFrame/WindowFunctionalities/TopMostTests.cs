@@ -44,7 +44,7 @@ public class TopMostTests {
         window.SetTopMost(state);
 
         // Assert
-        await Assert.That(window.TopMost).IsEqualTo(state);
+        await Assert.That(window.IsTopMost).IsEqualTo(state);
     }
 
     [Test]
@@ -65,6 +65,6 @@ public class TopMostTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        await Assert.That(window.TopMost).IsEqualTo(state);
+        await Assert.That(window.IsTopMost).IsEqualTo(state);
     }
 }

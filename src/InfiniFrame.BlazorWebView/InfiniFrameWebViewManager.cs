@@ -206,7 +206,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // Navigation
     // -----------------------------------------------------------------------------------------------------------------
     protected override void NavigateCore(Uri absoluteUri) {
-        LazyWindow.Value.Load(absoluteUri);
+        LazyWindow.Value.Features.PageNavigation.Load(absoluteUri);
     }
 
     protected override void SendMessage(string message) {
