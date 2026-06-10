@@ -20,4 +20,8 @@ public class InfiniFrameWindowBuilderFeaturePageNavigation : IInfiniFrameWindowB
         StartUrl = startUrl;
     }
     
+    public void SetStartUrl(Uri? startUrl) {
+        StartUrl = startUrl?.ToString();
+    }
+    
 }
