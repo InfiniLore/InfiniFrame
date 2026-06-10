@@ -39,13 +39,13 @@ public class TransparentTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
-
+        
         // Act
         window.SetTransparent(true);
 
         // Assert
         if (OperatingSystem.IsWindows()) state = false;// Windows does not support transparency after initialization
-        await Assert.That(window.Transparent).IsEqualTo(state);
+        await Assert.That(window.IsTransparent).IsEqualTo(state);
     }
 
     [Test]
