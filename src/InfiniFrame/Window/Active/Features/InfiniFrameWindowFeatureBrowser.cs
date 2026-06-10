@@ -15,6 +15,12 @@ public class InfiniFrameWindowFeatureBrowser(
     ILogger<InfiniFrameWindowFeatureBrowser> logger
 ) : IInfiniFrameWindowFeatureBrowser {
 
+    public string? BrowserControlInitParameters => window.Configuration.StartupParameters.BrowserControlInitParameters;
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsContextMenuEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
@@ -97,8 +103,8 @@ public class InfiniFrameWindowFeatureBrowser(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IInfiniFrameWindow SetContextMenuEnabled(bool enabled) {
-        logger.LogDebug(".SetContextMenuEnabled({Enabled})", enabled);
+    public IInfiniFrameWindow EnableContextMenu(bool enabled) {
+        logger.LogDebug(".EnableContextMenu({Enabled})", enabled);
 
         window.Invoke(() => {
             InfiniFrameNative.GetContextMenuEnabled(window.InstanceHandle, out bool isEnabled);

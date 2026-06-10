@@ -89,12 +89,6 @@ public class InfiniFrameWindowFeaturePosition(
         return window;
     }
     
-    public IInfiniFrameWindow SetTopMost(bool topMost) {
-        logger.LogDebug(".SetTopMost({TopMost})", topMost);
-        window.Invoke(() => InfiniFrameNative.SetTopmost(window.InstanceHandle, topMost));
-        return window;
-    }
-    
     public IInfiniFrameWindow Offset(int left, int top) {
         logger.LogDebug(".Offset({left}, {top})", left, top);
         window.Invoke(() => {

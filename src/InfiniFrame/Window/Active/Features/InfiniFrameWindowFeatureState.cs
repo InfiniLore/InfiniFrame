@@ -231,4 +231,10 @@ public class InfiniFrameWindowFeatureState(
 
         return window;
     }
+    
+    public IInfiniFrameWindow SetTopMost(bool topMost) {
+        logger.LogDebug(".SetTopMost({TopMost})", topMost);
+        window.Invoke(() => InfiniFrameNative.SetTopmost(window.InstanceHandle, topMost));
+        return window;
+    }
 }

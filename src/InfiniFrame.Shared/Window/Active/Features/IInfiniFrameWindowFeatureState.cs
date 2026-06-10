@@ -25,4 +25,5 @@ public interface IInfiniFrameWindowFeatureState {
     IInfiniFrameWindow SetFocused();
     IInfiniFrameWindow SetZoom(int zoom);
     IInfiniFrameWindow SetZoomEnabled(bool zoomEnabled);
+    IInfiniFrameWindow SetTopMost(bool topMost);
 }

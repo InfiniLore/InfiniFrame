@@ -16,7 +16,6 @@ public interface IInfiniFrameWindowFeaturePosition {
     IInfiniFrameWindow SetLocation(Point location);
     IInfiniFrameWindow SetLeft(int left);
     IInfiniFrameWindow SetTop(int top);
-    IInfiniFrameWindow SetTopMost(bool topMost);
     IInfiniFrameWindow Offset(int left, int top);
     IInfiniFrameWindow Offset(Point offset);
     IInfiniFrameWindow Offset(double left, double top);
