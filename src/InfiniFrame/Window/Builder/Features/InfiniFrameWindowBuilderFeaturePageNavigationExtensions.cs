@@ -15,4 +15,9 @@ public static class InfiniFrameWindowBuilderFeaturePageNavigationExtensions {
         builder.Features.PageNavigation.SetStartUrl(startUrl);
         return builder;
     }
+    
+    public static IInfiniFrameWindowBuilder SetStartUrl(this IInfiniFrameWindowBuilder builder, Uri? startUrl) {
+        builder.Features.PageNavigation.SetStartUrl(startUrl);
+        return builder;
+    }
 }

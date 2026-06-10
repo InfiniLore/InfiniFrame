@@ -11,4 +11,5 @@ public interface IInfiniFrameWindowBuilderFeaturePageNavigation {
     
     void SetStartString(string? startString);
     void SetStartUrl(string? startUrl);
+    void SetStartUrl(Uri? startUrl);
 }
