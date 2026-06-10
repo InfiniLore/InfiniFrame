@@ -5,6 +5,8 @@ using InfiniFrame;
 using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniTests.Substitutes;
+using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame.MessageHandlers;
@@ -19,7 +21,7 @@ public class GetMessageWebMessageHandlerTests {
             = CreateWindowHarness();
 
         builder.RegisterGetWebMessageHandler();
-        window.Window.Title.Returns("Native Test Title");
+        window.Window.Features.Decorations.Title.Returns("Native Test Title");
 
         string inboundMessage = InteropEnvelopeProtocol.CreateEnvelopeMessage(
             JsHandlerNames.GetRequest,
@@ -138,7 +140,7 @@ public class GetMessageWebMessageHandlerTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        var events = new InfiniFrameEvents(eventsStore);
+        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignToWindow(window.Window);

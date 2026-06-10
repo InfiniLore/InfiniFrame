@@ -4,6 +4,7 @@
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniTests.Substitutes;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame;
@@ -20,7 +21,7 @@ public class WebMessageContextTests {
     public async Task OnWebMessageReceived_WithOrigin_PublishesOriginViaEventPayload(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var events = new InfiniFrameEvents(eventsStore);
+        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
@@ -42,7 +43,7 @@ public class WebMessageContextTests {
     public async Task OnWebMessageReceived_WithBlazorWebViewMessage_PublishesRawMessage(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var events = new InfiniFrameEvents(eventsStore);
+        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);

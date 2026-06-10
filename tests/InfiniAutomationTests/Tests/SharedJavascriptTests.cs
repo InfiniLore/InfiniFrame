@@ -45,7 +45,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
     [NotInParallelInfiniAutomationTests]
     public async Task DynamicallyUpdateTitleFromJs(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
-        string? originalTitle = RuntimeContext.Window.Title;
+        string? originalTitle = RuntimeContext.Window.Features.Decorations.Title;
 
         await EvaluateWhenPageReadyAsync(
             page,
@@ -54,12 +54,12 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
         );
         string? updatedTitle = await WaitForStateChangeAsync(
             originalTitle,
-            stateProvider: () => RuntimeContext.Window.Title
+            stateProvider: () => RuntimeContext.Window.Features.Decorations.Title
         );
 
         await Assert.That(updatedTitle).IsEqualTo(NewTitleFromHostMessage);
 
-        RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
+        RuntimeContext.Window.Features.Decorations.SetTitle(RuntimeContext.DefaultDocumentTitle);
     }
 
     [Test]

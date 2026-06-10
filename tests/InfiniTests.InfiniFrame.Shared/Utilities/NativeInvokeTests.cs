@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.NativeBridge;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.Shared.Utilities;
@@ -22,7 +23,7 @@ public class NativeInvokeTests {
         var window = Substitute.For<IInfiniFrameWindow>();
         window.InstanceHandle.Returns(instanceHandle);
         window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
-        window.When(w => w.Invoke(Arg.Any<Action>()))
+        window.When(w => w.Features.Invoke.Invoke(Arg.Any<Action>()))
             .Do(c => c.Arg<Action>()());
         return window;
     }
@@ -36,10 +37,14 @@ public class NativeInvokeTests {
         IInfiniFrameWindow window = CreateSynchronousWindow(123456);
 
         // Act
-        string? result = NativeInvoke.InvokeSyncWithValidation<string>(window.InstanceHandle, window.ManagedThreadId, callback: (_, out value) => {
-            value = "out-value";
-            return InfiniFrameNativeInteropStatus.Success;
-        });
+        string? result = NativeInvoke.InvokeSyncWithValidation<string>(
+            NullLogger.Instance,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            callback: (_, out value) => {
+                value = "out-value";
+                return InfiniFrameNativeInteropStatus.Success;
+            });
 
         // Assert
         await Assert.That(result).IsEqualTo("out-value");
@@ -53,8 +58,12 @@ public class NativeInvokeTests {
         IntPtr received = IntPtr.Zero;
 
         // Act
-        NativeInvoke.InvokeSyncWithValidation<int>(window.InstanceHandle, window.ManagedThreadId, callback: (h, out v) => {
-            received = h;
+        NativeInvoke.InvokeSyncWithValidation<int>(
+            NullLogger.Instance,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            (h, out v) => {
+                received = h;
             v = 0;
             return InfiniFrameNativeInteropStatus.Success;
         });

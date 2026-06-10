@@ -5,6 +5,7 @@ using InfiniFrame;
 using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniTests.Substitutes;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace InfiniTests.InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -18,7 +19,7 @@ public class RegisterWindowCreatedUtilityTests {
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
-        var events = new InfiniFrameEvents(eventsStore);
+        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
@@ -55,7 +56,7 @@ public class RegisterWindowCreatedUtilityTests {
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
-        var events = new InfiniFrameEvents(eventsStore);
+        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
@@ -82,7 +83,7 @@ public class RegisterWindowCreatedUtilityTests {
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
-        var events = new InfiniFrameEvents(eventsStore);
+        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
