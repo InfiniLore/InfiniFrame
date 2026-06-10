@@ -20,9 +20,9 @@ public class WebMessageReceivedHandlerTests {
     public async Task Handler_ResolvesServiceFromProvider(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var events = new InfiniFrameEvents(eventsStore);
+        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
         var debugging = new InfiniFrameWindowDebugging(NullLogger<InfiniFrameWindowDebugging>.Instance);
-        var builder = InfiniFrameWindowBuilder.Create(eventsStore);
+        var builder = InfiniFrameWindowBuilder.Create(null, eventsStore);
         var service = new TestService();
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
@@ -61,7 +61,7 @@ public class WebMessageReceivedHandlerTests {
         var window = new InfiniFrameWindow {
             Logger = NullLogger<IInfiniFrameWindow>.Instance,
             ServiceProvider = null,
-            Events = new InfiniFrameEvents(eventsStore),
+            Events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore),
             Debugging = debugging,
             Configuration = Substitute.For<IInfiniFrameOptions>(),
             StaticAssets = null

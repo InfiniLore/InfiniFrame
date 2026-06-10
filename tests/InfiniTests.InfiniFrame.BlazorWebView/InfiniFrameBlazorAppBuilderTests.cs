@@ -270,7 +270,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         // Assert
         await Assert.That(window).IsNotNull();
-        await Assert.That(window.BrowserControlInitParameters).IsEqualTo(
+        await Assert.That(window.Configuration.StartupParameters.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }
@@ -301,7 +301,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         // Assert
         await Assert.That(window).IsNotNull();
-        await Assert.That(window.BrowserControlInitParameters).IsEqualTo(
+        await Assert.That(window.Configuration.StartupParameters.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }

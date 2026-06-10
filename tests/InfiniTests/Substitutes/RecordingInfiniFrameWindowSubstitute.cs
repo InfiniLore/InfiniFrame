@@ -26,10 +26,9 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
     public RecordingInfiniFrameWindowSubstitute() {
         Window = Substitute.For<IInfiniFrameWindow>();
         Window.InstanceHandle.Returns(IntPtr.MaxValue);
-        Window.Logger.Returns(NullLogger<IInfiniFrameWindow>.Instance);
         Window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
         Window.SendWebMessageAsync(Arg.Any<string>())
-            .Returns(Task.CompletedTask)
+            .Returns(ValueTask.CompletedTask)
             .AndDoes(callInfo => {
                 lock (_sentWebMessagesLock) {
                     _sentWebMessages.Add(callInfo.Arg<string>());
@@ -44,7 +43,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
 
         // Default wiring for simple tests that don't need explicit builder binding.
         var eventsStore = new InfiniFrameEventsStore();
-        Window.Events.Returns(new InfiniFrameEvents(eventsStore));
+        Window.Events.Returns(new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore));
         Window.EventsStore.Returns(eventsStore);
     }
 
@@ -52,7 +51,7 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public RecordingInfiniFrameWindowSubstitute BindToBuilder(IInfiniFrameWindowBuilder builder) {
-        Window.Events.Returns(new InfiniFrameEvents(builder.EventsStore));
+        Window.Events.Returns(new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, builder.EventsStore));
         Window.EventsStore.Returns(builder.EventsStore);
         return this;
     }

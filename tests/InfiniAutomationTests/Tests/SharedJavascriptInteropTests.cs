@@ -19,19 +19,19 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
     [Test]
     [NotInParallelInfiniAutomationTests]
     public async Task FullscreenHtmlButton_ShouldToggleInfiniFrameFullscreen(CancellationToken ct = default) {
-        bool originalFullscreenState = RuntimeContext.Window.FullScreen;
+        bool originalFullscreenState = RuntimeContext.Window.Features.State.IsFullScreen;
         IPage page = await GetRootPageAsync();
 
         await page.ClickAsync(FullscreenToggleButtonSelector);
         bool newFullscreenState = await WaitForStateChangeAsync(
             originalFullscreenState,
-            stateProvider: () => RuntimeContext.Window.FullScreen
+            stateProvider: () => RuntimeContext.Window.Features.State.IsFullScreen
         );
 
         await page.ClickAsync(FullscreenToggleButtonSelector);
         bool finalFullscreenState = await WaitForStateChangeAsync(
             newFullscreenState,
-            stateProvider: () => RuntimeContext.Window.FullScreen
+            stateProvider: () => RuntimeContext.Window.Features.State.IsFullScreen
         );
 
         await Assert.That(originalFullscreenState).IsFalse();
@@ -43,19 +43,19 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
     [NotInParallelInfiniAutomationTests]
     public async Task TitleHtmlButton_ShouldToggleInfiniFrameTitle(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
-        string? originalTitleState = RuntimeContext.Window.Title;
+        string? originalTitleState = RuntimeContext.Window.Features.Decorations.Title;
 
         try {
             await page.ClickAsync(TitleToggleButtonSelector);
             string? newTitleState = await WaitForStateChangeAsync(
                 originalTitleState,
-                stateProvider: () => RuntimeContext.Window.Title
+                stateProvider: () => RuntimeContext.Window.Features.Decorations.Title
             );
 
             await page.ClickAsync(TitleToggleButtonSelector);
             string? finalTitleState = await WaitForStateChangeAsync(
                 newTitleState,
-                stateProvider: () => RuntimeContext.Window.Title
+                stateProvider: () => RuntimeContext.Window.Features.Decorations.Title
             );
 
             await Assert.That(originalTitleState).IsEqualTo(RuntimeContext.DefaultDocumentTitle);
@@ -63,7 +63,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
             await Assert.That(finalTitleState).IsEqualTo(RuntimeContext.DefaultDocumentTitle);
         }
         finally {
-            RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
+            RuntimeContext.Window.Features.Decorations.SetTitle(RuntimeContext.DefaultDocumentTitle);
             await EvaluateWhenPageReadyAsync(
                 page,
                 // lang=javascript
@@ -77,7 +77,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
     public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle(CancellationToken ct = default) {
         // Arrange
         IPage page = await GetRootPageAsync();
-        string? originalTitleState = RuntimeContext.Window.Title;
+        string? originalTitleState = RuntimeContext.Window.Features.Decorations.Title;
 
         // Act
         string titleFromJsInitially = await EvaluateWhenPageReadyAsync<string>(
@@ -94,7 +94,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
     [NotInParallelInfiniAutomationTests]
     public async Task GetTitleAsyncFromJs_ShouldReturnNativeWindowTitle_AndShouldReturnCorrectTitle(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
-        string? originalTitleState = RuntimeContext.Window.Title;
+        string? originalTitleState = RuntimeContext.Window.Features.Decorations.Title;
 
         string? titleFromJsInitially = await EvaluateWhenPageReadyAsync<string?>(
             page,
@@ -107,7 +107,7 @@ public abstract class SharedJavascriptInteropTests : InfiniFramePlaywrightTestBa
         await page.ClickAsync(TitleToggleButtonSelector);
         string? toggledTitle = await WaitForStateChangeAsync(
             originalTitleState,
-            stateProvider: () => RuntimeContext.Window.Title
+            stateProvider: () => RuntimeContext.Window.Features.Decorations.Title
         );
 
         string? titleFromJs = await EvaluateWhenPageReadyAsync<string?>(

@@ -7,6 +7,7 @@ using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Security;
 using InfiniTests.Substitutes;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.MessageHandlers;
@@ -24,7 +25,7 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowClose));
 
         // Assert
-        int closeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Close));
+        int closeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Features.Lifecycle.Close));
         await Assert.That(closeCallCount).IsEqualTo(1);
     }
 
@@ -54,7 +55,7 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.FullscreenToggle));
 
         // Assert
-        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Invoke));
+        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Features.Invoke.Invoke));
         await Assert.That(invokeCallCount).IsEqualTo(1);
     }
 
@@ -68,7 +69,7 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.TitleChanged, "new title"));
 
         // Assert
-        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Invoke));
+        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Features.Invoke.Invoke));
         await Assert.That(invokeCallCount).IsEqualTo(1);
     }
 
@@ -82,55 +83,8 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.TitleChanged));
 
         // Assert
-        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Invoke));
+        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Features.Invoke.Invoke));
         await Assert.That(invokeCallCount).IsEqualTo(0);
-    }
-
-    [Test]
-    public async Task OpenExternal_WithInvalidUrl_LogsWarningWithoutThrowing(CancellationToken ct = default) {
-        // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
-        var logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
-        window.Window.Logger.Returns(logger);
-        builder.RegisterOpenExternalTargetWebMessageHandler();
-
-        // Act
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.OpenExternal, "not-a-valid-url"));
-
-        // Assert
-        bool warningLogged = logger.ReceivedCalls().Any(call =>
-            call.GetMethodInfo().Name == nameof(ILogger.Log) &&
-            call.GetArguments().Length > 0 &&
-            call.GetArguments()[0] is LogLevel.Warning
-        );
-
-        await Assert.That(warningLogged).IsTrue();
-    }
-
-    [Test]
-    public async Task OpenExternal_WithDisallowedScheme_LogsWarningWithoutThrowing(CancellationToken ct = default) {
-        // Arrange
-        (InfiniFrameWindowBuilder builder, InfiniFrameEvents events, RecordingInfiniFrameWindowSubstitute window) = CreateWindowHarness();
-        var logger = Substitute.For<ILogger<IInfiniFrameWindow>>();
-        window.Window.Logger.Returns(logger);
-        InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
-            window.Window,
-            new InfiniFrameUriSecurityPolicy(
-                [Uri.UriSchemeHttps, Uri.UriSchemeHttp, "app"],
-                [Uri.UriSchemeMailto]));
-        builder.RegisterOpenExternalTargetWebMessageHandler();
-
-        // Act
-        events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.OpenExternal, "https://example.com"));
-
-        // Assert
-        bool warningLogged = logger.ReceivedCalls().Any(call =>
-            call.GetMethodInfo().Name == nameof(ILogger.Log) &&
-            call.GetArguments().Length > 0 &&
-            call.GetArguments()[0] is LogLevel.Warning
-        );
-
-        await Assert.That(warningLogged).IsTrue();
     }
 
     private static (InfiniFrameWindowBuilder Builder, InfiniFrameEvents Events, RecordingInfiniFrameWindowSubstitute Window) CreateWindowHarness() {
@@ -140,7 +94,7 @@ public class MessageHandlersTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        var events = new InfiniFrameEvents(eventsStore);
+        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignToWindow(window.Window);

@@ -56,7 +56,7 @@
     private void ToggleFullscreen() {
         bool targetFullscreen = !_isFullscreen;
         _isFullscreen = targetFullscreen;
-        _ = Task.Run(() => Window.SetFullScreen(targetFullscreen));
+        _ = Task.Run(() => Window.Features.State.SetFullScreen(targetFullscreen));
         StateHasChanged();
     }
 
@@ -64,13 +64,13 @@
     private void ToggleTitle() {
         if (!_isToggledToNewTitle) {
             _isToggledToNewTitle = true;
-            _ = Task.Run(() => Window.SetTitle(NewTitle));
+            _ = Task.Run(() => Window.Features.Decorations.SetTitle(NewTitle));
             StateHasChanged();
             return;
         }
 
         _isToggledToNewTitle = false;
-        _ = Task.Run(() => Window.SetTitle(DefaultTitle));
+        _ = Task.Run(() => Window.Features.Decorations.SetTitle(DefaultTitle));
         StateHasChanged();
     }
 }
