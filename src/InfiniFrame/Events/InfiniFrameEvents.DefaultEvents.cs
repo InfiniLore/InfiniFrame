@@ -15,7 +15,7 @@ public partial class InfiniFrameEvents {
         EventsStore.WindowClosingRequested.Add(CloseChildWindows);
     }
     
-    private static void CloseChildWindows(IInfiniFrameWindow window) {
+    private void CloseChildWindows(IInfiniFrameWindow window) {
         if (window.InstanceHandle == IntPtr.Zero) return; // Window already closed
 
         IInfiniFrameWindow[] childWindows;
@@ -25,7 +25,7 @@ public partial class InfiniFrameEvents {
             window.Configuration.ChildWindows.Clear();
         }
 
-        window.Logger.LogDebug("Lifecycle child windows");
+        Logger.LogDebug("Lifecycle child windows");
         foreach (IInfiniFrameWindow childWindow in childWindows) {
             childWindow.Close();
 
@@ -34,12 +34,12 @@ public partial class InfiniFrameEvents {
             if (childWindow.ManagedThreadId == window.ManagedThreadId) continue;
 
             var timeout = Stopwatch.StartNew();
-            while (!childWindow.IsClosed && timeout.Elapsed < TimeSpan.FromSeconds(5)) {
+            while (!childWindow.Features.Lifecycle.IsClosedOrClosing() && timeout.Elapsed < TimeSpan.FromSeconds(5)) {
                 Thread.Sleep(25);
             }
 
-            if (!childWindow.IsClosed) {
-                window.Logger.LogWarning(
+            if (!childWindow.Features.Lifecycle.IsClosedOrClosing()) {
+                Logger.LogWarning(
                     "Timed out waiting for child window close. Parent={ParentWindowId}, Child={ChildWindowId}",
                     window.Id,
                     childWindow.Id);

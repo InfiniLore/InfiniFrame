@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
+using Microsoft.Extensions.Logging;
 using System.Drawing;
 
 namespace InfiniFrame;
@@ -11,6 +12,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
     public IInfiniFrameEventsStore EventsStore { get; }
+    private ILogger<InfiniFrameEvents> Logger { get; }
     private IInfiniFrameWindow? Sender { get; set; }
     
     private CppClosedDelegate ClosedHandler  { get; }
@@ -29,9 +31,10 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
-    public InfiniFrameEvents(IInfiniFrameEventsStore store) {
+    internal InfiniFrameEvents(ILogger<InfiniFrameEvents> logger, IInfiniFrameEventsStore store) {
         EventsStore = store;
-
+        Logger = logger;
+        
         // Root stable delegate instances for native callback lifetime.
         //      This has to be done to ensure GC lifetime management on Windows ARM64
         ClosedHandler = OnWindowClosed;
@@ -139,7 +142,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     public void OnWindowClosed() {
         ArgumentNullException.ThrowIfNull(Sender);
 
-        Sender.MarkClosedFromNativeCallback();
+        Sender.Features.Lifecycle.MarkAsClosed();
         EventsStore.WindowClosed.Invoke(Sender);
     }
 

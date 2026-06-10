@@ -53,7 +53,7 @@ public class WindowTests {
         // Act
 
         // Assert
-        await Assert.That(window.NativeType).IsNotDefault();
+        await Assert.That(window.MainProgramHandle).IsNotDefault();
     }
 
     [Test]

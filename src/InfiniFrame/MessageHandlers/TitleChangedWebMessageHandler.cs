@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Interop;
-using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace InfiniFrame;
@@ -19,7 +18,7 @@ public static class TitleChangedWebMessageHandler {
     private static void HandleWebMessage(IInfiniFrameWindow window, string? payload) {
         if (string.IsNullOrWhiteSpace(payload)) return;
 
-        window.Logger.LogInformation("title:change {payload}", payload);
-        window.SetTitle(payload);
+        // window.Logger.LogInformation("title:change {payload}", payload);
+        window.Features.Decorations.SetTitle(payload);
     }
 }

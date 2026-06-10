@@ -47,7 +47,7 @@ public class ZoomTests {
         window.SetZoom(zoom);
 
         // Assert
-        await Assert.That(window.Zoom).IsEqualTo(zoom);
+        await Assert.That(window.ZoomFactor).IsEqualTo(zoom);
     }
 
     [Test]
@@ -69,6 +69,6 @@ public class ZoomTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Assert
-        await Assert.That(window.Zoom).IsEqualTo(zoom);
+        await Assert.That(window.ZoomFactor).IsEqualTo(zoom);
     }
 }

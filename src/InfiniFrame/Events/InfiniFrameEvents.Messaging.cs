@@ -23,12 +23,12 @@ public partial class InfiniFrameEvents {
         ArgumentNullException.ThrowIfNull(message);
 
         if (Sender.InstanceHandle == IntPtr.Zero) {
-            Sender.Logger.LogDebug("Skipping web message handling because window is closed.");
+            Logger.LogDebug("Skipping web message handling because window is closed.");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(message)) {
-            Sender.Logger.LogDebug("Rejected empty web message.");
+            Logger.LogDebug("Rejected empty web message.");
             return;
         }
 
@@ -43,7 +43,7 @@ public partial class InfiniFrameEvents {
                 return;
 
             case { IsIgnored: true }:
-                Sender.Logger.LogDebug(
+                Logger.LogDebug(
                     "Ignored web message with ID '{messageId}' due to parsing rules. Defaulting to WebMessageReceived",
                     parseResult.MessageId
                 );
@@ -54,7 +54,7 @@ public partial class InfiniFrameEvents {
                 return;
 
             case { IsSuccess: false }:
-                Sender.Logger.LogWarning(
+                Logger.LogWarning(
                     "Rejected invalid web message: {Reason}",
                     parseResult.Error ?? "Unknown error"
                 );
@@ -68,14 +68,14 @@ public partial class InfiniFrameEvents {
             case InteropEnvelopeProtocol.PostCommand:
                 try {
                     if (!EventsStore.WebMessagePostData.TryInvoke(messageId, Sender!, payload)) {
-                        Sender.Logger.LogWarning(
+                        Logger.LogWarning(
                             "Failed to handle post data request for message ID '{messageId}'",
                             messageId
                         );
                     }
                 }
                 catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                    Sender.Logger.LogError(
+                    Logger.LogError(
                         ex,
                         "Unhandled exception while processing postMessage '{MessageId}'",
                         messageId
@@ -95,7 +95,7 @@ public partial class InfiniFrameEvents {
                     SendSuccess(Sender, parseResult.RequestId, response);
                 }
                 catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                    Sender.Logger.LogError(
+                    Logger.LogError(
                         ex,
                         "Unhandled exception while processing getMessage '{MessageId}'",
                         messageId
@@ -108,7 +108,7 @@ public partial class InfiniFrameEvents {
                 return;
 
             default:
-                Sender.Logger.LogWarning(
+                Logger.LogWarning(
                     "Unhandled command '{command}' for message ID '{messageId}'",
                     parseResult.Command,
                     messageId

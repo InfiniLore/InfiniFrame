@@ -5,7 +5,6 @@ using InfiniFrame;
 using InfiniFrame.Interop;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniTests.Substitutes;
-using NSubstitute;
 using System.Text.Json;
 
 namespace InfiniTests.InfiniFrame.MessageHandlers;

@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
 
 namespace InfiniFrame.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -10,21 +9,17 @@ namespace InfiniFrame.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class StaticAssetSchemeHandler {
     public static Func<IInfiniFrameWindow, string, (Stream? Data, string? ContentType)> Create(IFileProvider fileProvider, string defaultDocument) {
-        return (sender, url) => {
+        return (_, url) => {
             if (!TryGetAssetPath(url, defaultDocument, out string assetPath)) {
-                sender.Logger.LogDebug("Rejected custom scheme path for: {Url}", url);
                 return default;
             }
 
             IFileInfo file = fileProvider.GetFileInfo(assetPath);
             if (!file.Exists || file.IsDirectory) {
-                sender.Logger.LogDebug("Custom scheme miss for: {AssetPath} (from {Url})", assetPath,
-                    url);
                 return default;
             }
 
             string contentType = GetContentType(assetPath);
-            sender.Logger.LogDebug("Custom scheme hit for: {AssetPath} ({ContentType})", assetPath, contentType);
             return ( file.CreateReadStream(), contentType);
         };
     }

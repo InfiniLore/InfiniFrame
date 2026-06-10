@@ -5,6 +5,7 @@ using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace InfiniFrame;
@@ -15,6 +16,39 @@ public class InfiniFrameWindowFeaturePosition(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeaturePosition> logger
 ) : IInfiniFrameWindowFeaturePosition {
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Point Location => NativeInvoke.InvokeSyncWithValidation(
+        logger,
+        window.InstanceHandle, 
+        window.ManagedThreadId,
+        (IntPtr handle, out Point value) => {
+            InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetPosition(handle, out int left, out int top);
+            value = new Point(left, top);
+            return status;
+        }
+    );
+    
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Top => NativeInvoke.InvokeSyncWithValidation(
+        logger,
+        window.InstanceHandle, 
+        window.ManagedThreadId,
+        (IntPtr handle, out int value) => InfiniFrameNative.GetPosition(handle, out _, out value)
+    );
+
+    
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Left => NativeInvoke.InvokeSyncWithValidation(
+        logger,
+        window.InstanceHandle, 
+        window.ManagedThreadId,
+        (IntPtr handle, out int value) => InfiniFrameNative.GetPosition(handle, out value, out _)
+    );
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     
     public IInfiniFrameWindow SetLocation(int left, int top) {
         logger.LogDebug(".SetLocation({left}, {right})", left, top);
@@ -130,10 +164,10 @@ public class InfiniFrameWindowFeaturePosition(
             int bottomBound = monitor.WorkArea.Y + monitor.WorkArea.Height;
 
             left = horizontalWindowEdge > rightBound
-                ? Math.Max(rightBound - window.Width, leftBound)
+                ? Math.Max(rightBound - window.Features.Size.Width, leftBound)
                 : Math.Max(left, leftBound);
             top = verticalWindowEdge > bottomBound
-                ? Math.Max(bottomBound - window.Height, topBound)
+                ? Math.Max(bottomBound - window.Features.Size.Height, topBound)
                 : Math.Max(top, topBound);
 
             // Bug:
@@ -152,7 +186,7 @@ public class InfiniFrameWindowFeaturePosition(
             // Therefore, we determine the version of macOS and only apply the
             // workaround for older versions.
             if (OperatingSystem.IsMacOS() && OperatingSystem.IsMacOSVersionAtLeast(23)) {
-                Size workArea = window.Features.Monitors.GetMainMonitor().WorkArea.Size;
+                var workArea = window.Features.Monitors.GetMainMonitor().WorkArea.Size;
                 top = top >= 0
                     ? top - workArea.Height
                     : top;

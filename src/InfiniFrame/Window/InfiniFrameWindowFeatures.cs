@@ -14,5 +14,8 @@ public sealed record InfiniFrameWindowFeatures(
     IInfiniFrameWindowFeatureMonitors Monitors,
     IInfiniFrameWindowFeaturePageNavigation PageNavigation,
     IInfiniFrameWindowFeaturePosition Position,
-    IInfiniFrameWindowFeatureSize Size
+    IInfiniFrameWindowFeatureSize Size,
+    IInfiniFrameWindowFeatureDecorations Decorations,
+    IInfiniFrameWindowFeatureState State,
+    IInfiniFrameWindowFeatureBrowser Browser
 ) : IInfiniFrameWindowFeatures;

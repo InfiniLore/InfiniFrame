@@ -45,7 +45,10 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         InfiniFrameWindowBuilderSnapshot snapshot = CreateSnapshot(provider);
         
         InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
-        var events = new InfiniFrameEvents(snapshot.EventsStore);
+        var events = new InfiniFrameEvents(
+            ResolveLogger<InfiniFrameEvents>(actualProvider),
+            snapshot.EventsStore
+        );
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignDefaultEventCallbacks();
 
@@ -53,21 +56,21 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         var debugging = new InfiniFrameWindowDebugging(
             ResolveLogger<InfiniFrameWindowDebugging>(provider)
         );
-        
-        var window = new InfiniFrameWindow {
-            ServiceProvider = provider,
-            Logger = ResolveLogger<InfiniFrameWindow>(provider),
-            Events = events,
-            Debugging = debugging,
-            StaticAssets = snapshot.StaticAssets,
-            Configuration = configuration
-        };
+
+        var window = new InfiniFrameWindow(
+            logger: ResolveLogger<InfiniFrameWindow>(actualProvider),
+            configuration: configuration,
+            events: events,
+            debugging: debugging,
+            serviceProvider:actualProvider
+        );
+        window.AssignFeatures(actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>().Create(window));
         
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(window, snapshot.UriSecurityPolicy);
         
         events.AssignToWindow(window);
         debugging.AssignToWindow(window);
-        window.Initialize();
+        window.Features.Lifecycle.Initialize();
         
         return window;
 
