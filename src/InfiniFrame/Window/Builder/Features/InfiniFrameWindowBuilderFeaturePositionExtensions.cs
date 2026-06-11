@@ -11,33 +11,33 @@ public static class InfiniFrameWindowBuilderFeaturePositionExtensions {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public static IInfiniFrameWindowBuilder SetStartLocation(this IInfiniFrameWindowBuilder builder, int left, int top) {
-        builder.Features.Position.SetStartLocation(left, top);
+    public static IInfiniFrameWindowBuilder SetLocation(this IInfiniFrameWindowBuilder builder, int left, int top) {
+        builder.Features.Position.SetLocation(left, top);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetStartLocation(this IInfiniFrameWindowBuilder builder, Point location) {
-        builder.Features.Position.SetStartLocation(location);
+    public static IInfiniFrameWindowBuilder SetLocation(this IInfiniFrameWindowBuilder builder, Point location) {
+        builder.Features.Position.SetLocation(location);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetStartLeft(this IInfiniFrameWindowBuilder builder, int left) {
-        builder.Features.Position.SetStartLeft(left);
+    public static IInfiniFrameWindowBuilder SetLeft(this IInfiniFrameWindowBuilder builder, int left) {
+        builder.Features.Position.SetLeft(left);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetStartTop(this IInfiniFrameWindowBuilder builder, int top) {
-        builder.Features.Position.SetStartTop(top);
+    public static IInfiniFrameWindowBuilder SetTop(this IInfiniFrameWindowBuilder builder, int top) {
+        builder.Features.Position.SetTop(top);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder UseOsDefaultLocation(this IInfiniFrameWindowBuilder builder, bool enabled) {
+    public static IInfiniFrameWindowBuilder UseOsDefaultLocation(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
         builder.Features.Position.UseOsDefaultLocation(enabled);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder StartCenteredOnMainMonitor(this IInfiniFrameWindowBuilder builder, bool enabled) {
-        builder.Features.Position.StartCenteredOnMainMonitor(enabled);
+    public static IInfiniFrameWindowBuilder CenteredOnMainMonitor(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
+        builder.Features.Position.CenteredOnMainMonitor(enabled);
         return builder;
     }
 }

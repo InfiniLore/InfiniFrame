@@ -6,18 +6,18 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniFrameWindowBuilderFeaturePageNavigationExtensions {
-    public static IInfiniFrameWindowBuilder SetStartString(this IInfiniFrameWindowBuilder builder, string? startString) {
-        builder.Features.PageNavigation.SetStartString(startString);
+    public static IInfiniFrameWindowBuilder SetString(this IInfiniFrameWindowBuilder builder, string? startString) {
+        builder.Features.PageNavigation.SetString(startString);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetStartUrl(this IInfiniFrameWindowBuilder builder, string? startUrl) {
-        builder.Features.PageNavigation.SetStartUrl(startUrl);
+    public static IInfiniFrameWindowBuilder SetUrl(this IInfiniFrameWindowBuilder builder, string? startUrl) {
+        builder.Features.PageNavigation.SetUrl(startUrl);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetStartUrl(this IInfiniFrameWindowBuilder builder, Uri? startUrl) {
-        builder.Features.PageNavigation.SetStartUrl(startUrl);
+    public static IInfiniFrameWindowBuilder SetUrl(this IInfiniFrameWindowBuilder builder, Uri? startUrl) {
+        builder.Features.PageNavigation.SetUrl(startUrl);
         return builder;
     }
 }

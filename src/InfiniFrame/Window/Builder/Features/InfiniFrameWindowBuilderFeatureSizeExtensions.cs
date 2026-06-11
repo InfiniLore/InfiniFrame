@@ -8,23 +8,23 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class InfiniFrameWindowBuilderFeatureSizeExtensions {
-    public static IInfiniFrameWindowBuilder SetStartSize(this IInfiniFrameWindowBuilder builder, int width, int height) {
-        builder.Features.Size.SetStartSize(width, height);
+    public static IInfiniFrameWindowBuilder SetSize(this IInfiniFrameWindowBuilder builder, int width, int height) {
+        builder.Features.Size.SetSize(width, height);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetStartSize(this IInfiniFrameWindowBuilder builder, Size size) {
-        builder.Features.Size.SetStartSize(size);
+    public static IInfiniFrameWindowBuilder SetSize(this IInfiniFrameWindowBuilder builder, Size size) {
+        builder.Features.Size.SetSize(size);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetStartHeight(this IInfiniFrameWindowBuilder builder, int height) {
-        builder.Features.Size.SetStartHeight(height);
+    public static IInfiniFrameWindowBuilder SetHeight(this IInfiniFrameWindowBuilder builder, int height) {
+        builder.Features.Size.SetHeight(height);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetStartWidth(this IInfiniFrameWindowBuilder builder, int width) {
-        builder.Features.Size.SetStartWidth(width);
+    public static IInfiniFrameWindowBuilder SetWidth(this IInfiniFrameWindowBuilder builder, int width) {
+        builder.Features.Size.SetWidth(width);
         return builder;
     }
     
@@ -68,12 +68,12 @@ public static class InfiniFrameWindowBuilderFeatureSizeExtensions {
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder UseOsDefaultSize(this IInfiniFrameWindowBuilder builder, bool enabled) {
+    public static IInfiniFrameWindowBuilder UseOsDefaultSize(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
         builder.Features.Size.UseOsDefaultSize(enabled);
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetResizable(this IInfiniFrameWindowBuilder builder, bool enabled) {
+    public static IInfiniFrameWindowBuilder SetResizable(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
         builder.Features.Size.SetResizable(enabled);
         return builder;
     }

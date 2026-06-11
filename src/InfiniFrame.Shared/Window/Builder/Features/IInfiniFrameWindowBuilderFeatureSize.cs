@@ -17,10 +17,10 @@ public interface IInfiniFrameWindowBuilderFeatureSize{
     bool IsResizable { get; }
     bool StartWithOsDefaultSize { get; }
     
-    void SetStartSize(int width, int height);
-    void SetStartSize(Size size);
-    void SetStartHeight(int height);
-    void SetStartWidth(int width);
+    void SetSize(int width, int height);
+    void SetSize(Size size);
+    void SetHeight(int height);
+    void SetWidth(int width);
     void SetMaxSize(int maxWidth, int maxHeight);
     void SetMaxSize(Size size);
     void SetMaxHeight(int maxHeight);
@@ -29,6 +29,6 @@ public interface IInfiniFrameWindowBuilderFeatureSize{
     void SetMinSize(Size size);
     void SetMinHeight(int minHeight);
     void SetMinWidth(int minWidth);
-    void UseOsDefaultSize(bool enabled);
-    void SetResizable(bool resizable);
+    void UseOsDefaultSize(bool enabled = true);
+    void SetResizable(bool resizable = true);
 }

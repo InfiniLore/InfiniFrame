@@ -132,7 +132,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
 
         WindowBuilder
             .RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest)
-            .SetStartUrl(InfiniFrameWebViewManager.AppBaseUri);
+            .SetUrl(InfiniFrameWebViewManager.AppBaseUri);
 
         bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
             .Value.EnableGlobalUnhandledExceptionHandler ?? true;

@@ -37,7 +37,7 @@ public sealed partial class InfiniFrameTestWindow {
             var thread = new Thread(() => {
                 try {
                     var hostBuilder = InfiniFrameWindowBuilder.Create();
-                    hostBuilder.SetStartString(StartString);
+                    hostBuilder.SetString(StartString);
 
                     IInfiniFrameWindow host = hostBuilder.Build();
 

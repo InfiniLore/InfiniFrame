@@ -84,7 +84,7 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
         ct.ThrowIfCancellationRequested();
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
-        windowBuilder.SetStartString(StartString);
+        windowBuilder.SetString(StartString);
 
         builder?.Invoke(windowBuilder);
 

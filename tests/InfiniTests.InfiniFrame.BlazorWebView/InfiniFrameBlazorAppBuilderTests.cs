@@ -208,7 +208,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetSize(100, 100)
             .SetResizable(false)
             .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false)
+            .EnableSmoothScrolling(false)
         );
 
         // Assert
@@ -235,7 +235,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetSize(100, 100)
             .SetResizable(false)
             .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false);
+            .EnableSmoothScrolling(false);
 
         // Assert
         await Assert.That(appbuilder).IsNotNull();
@@ -262,7 +262,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetSize(100, 100)
             .SetResizable(false)
             .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false)
+            .EnableSmoothScrolling(false)
         );
 
         InfiniFrameBlazorApp app = appbuilder.Build();
@@ -294,7 +294,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetSize(100, 100)
             .SetResizable(false)
             .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false);
+            .EnableSmoothScrolling(false);
 
         InfiniFrameBlazorApp app = appbuilder.Build();
         var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();

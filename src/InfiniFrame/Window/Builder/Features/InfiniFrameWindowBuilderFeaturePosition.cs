@@ -16,28 +16,28 @@ public class InfiniFrameWindowBuilderFeaturePosition : IInfiniFrameWindowBuilder
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void SetStartLocation(int left, int top) {
+    public void SetLocation(int left, int top) {
         StartAtOsDefaultLocation = false;
         Top = top;
         Left = left;
     }
-    public void SetStartLocation(Point location) {
+    public void SetLocation(Point location) {
         StartAtOsDefaultLocation = false;
         Top = location.Y;
         Left = location.X;
     }
-    public void SetStartLeft(int left) {
+    public void SetLeft(int left) {
         StartAtOsDefaultLocation = false;
         Left = left;
     }
-    public void SetStartTop(int top) {
+    public void SetTop(int top) {
         StartAtOsDefaultLocation = false;
         Top = top;   
     }
     public void UseOsDefaultLocation(bool enabled) {
         StartAtOsDefaultLocation = enabled;
     }
-    public void StartCenteredOnMainMonitor(bool enabled) {
+    public void CenteredOnMainMonitor(bool enabled) {
         if (enabled) StartAtOsDefaultLocation = false;
         StartCentered = enabled;
     }
