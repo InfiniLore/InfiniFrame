@@ -20,21 +20,21 @@ public class InfiniFrameWindowBuilderFeatureSize : IInfiniFrameWindowBuilderFeat
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void SetStartSize(int width, int height) {
+    public void SetSize(int width, int height) {
         StartWithOsDefaultSize = false;
         Width = width;
         Height = height;
     }
-    public void SetStartSize(Size size) {
+    public void SetSize(Size size) {
         StartWithOsDefaultSize = false;
         Width = size.Width;
         Height = size.Height;
     }
-    public void SetStartHeight(int height) {
+    public void SetHeight(int height) {
         StartWithOsDefaultSize = false;
         Height = height;
     }
-    public void SetStartWidth(int width) {
+    public void SetWidth(int width) {
         StartWithOsDefaultSize = false;
         Width = width;
     }
@@ -66,10 +66,10 @@ public class InfiniFrameWindowBuilderFeatureSize : IInfiniFrameWindowBuilderFeat
     public void SetMinWidth(int minWidth) {
         MinWidth = minWidth;
     }
-    public void UseOsDefaultSize(bool enabled) {
+    public void UseOsDefaultSize(bool enabled = true) {
         StartWithOsDefaultSize = enabled;
     }
-    public void SetResizable(bool enabled) {
+    public void SetResizable(bool enabled = true) {
         IsResizable = enabled;
     }
 }

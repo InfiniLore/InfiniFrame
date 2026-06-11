@@ -13,5 +13,4 @@ public interface IInfiniFrameWindowBuilderFeatures {
     IInfiniFrameWindowBuilderFeaturePosition Position { get; }
     IInfiniFrameWindowBuilderFeatureSize Size { get; }
     IInfiniFrameWindowBuilderFeatureState State { get; }
-    IInfiniFrameWindowBuilderFeatureWebMessaging WebMessaging { get; }
 }

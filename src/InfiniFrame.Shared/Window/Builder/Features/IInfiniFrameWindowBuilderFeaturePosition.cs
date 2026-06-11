@@ -13,10 +13,10 @@ public interface IInfiniFrameWindowBuilderFeaturePosition {
     bool StartAtOsDefaultLocation { get; }
     bool StartCentered { get; }
     
-    void SetStartLocation(int left, int top);
-    void SetStartLocation(Point location);
-    void SetStartLeft(int left);
-    void SetStartTop(int top);
+    void SetLocation(int left, int top);
+    void SetLocation(Point location);
+    void SetLeft(int left);
+    void SetTop(int top);
     void UseOsDefaultLocation(bool enabled);
-    void StartCenteredOnMainMonitor(bool enabled);
+    void CenteredOnMainMonitor(bool enabled);
 }

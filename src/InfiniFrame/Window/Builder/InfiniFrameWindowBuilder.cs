@@ -16,6 +16,7 @@ namespace InfiniFrame;
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public IInfiniFrameOptionsBuilder Configuration { get; } = new InfiniFrameOptionsBuilder();
     public IInfiniFrameWindowDebuggingBuilder Debugging => Configuration.Debugging;
+    public IInfiniFrameWindowBuilderFeatures Features { get; } = new InfiniFrameWindowBuilderFeatures();
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
     
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }

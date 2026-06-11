@@ -54,7 +54,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
             windowBuilder: windowBuilder => {
                 if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(_playwrightDevtoolsPort);
                 windowBuilder
-                    .SetStartUrl(ServerUrl)
+                    .SetUrl(ServerUrl)
                     .SetTitle(DefaultDocumentTitle)
                     .RegisterWindowManagementWebMessageHandler()
                     .RegisterFullScreenWebMessageHandler()
