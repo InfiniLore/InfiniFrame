@@ -83,6 +83,7 @@ public class InfiniFrameWindowFeatureLifecycle(
                 else throw new PlatformNotSupportedException();
 
                 InfiniFrameNative.Constructor(in startupParameters, out IntPtr handle);
+                ArgumentOutOfRangeException.ThrowIfZero(handle);
                 window.InstanceHandle = handle;
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {

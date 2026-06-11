@@ -29,7 +29,9 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public static InfiniFrameWindowBuilder Create(IServiceCollection? collection = null, InfiniFrameEventsStore? events = null) {
         var builder = new InfiniFrameWindowBuilder {
             EventsStore = events ?? new InfiniFrameEventsStore(),
-            Services = (collection ?? new ServiceCollection()).AddInfiniFrame(),
+            Services = (collection ?? new ServiceCollection())
+                .AddLogging()
+                .AddInfiniFrame(),
         };
 
         return builder;
@@ -43,8 +45,8 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         
         // ReSharper disable once UseDeconstruction
         InfiniFrameWindowBuilderSnapshot snapshot = CreateSnapshot(provider);
+        InfiniFrameNativeParameters nativeParameters = CollectNativeParameters();
         
-        InfiniFrameNativeParameters nativeParameters = snapshot.StartupParameters;
         var events = new InfiniFrameEvents(
             ResolveLogger<InfiniFrameEvents>(actualProvider),
             snapshot.EventsStore
@@ -52,7 +54,9 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignDefaultEventCallbacks();
 
-        var configuration = new InfiniFrameWindowConfiguration();
+        var configuration = new InfiniFrameWindowConfiguration() {
+            StartupParameters = nativeParameters,
+        };
         var debugging = new InfiniFrameWindowDebugging(
             ResolveLogger<InfiniFrameWindowDebugging>(provider)
         );
@@ -79,6 +83,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     internal InfiniFrameNativeParameters CollectNativeParameters() {
         var parameters = new InfiniFrameNativeParameters();
         Configuration.ApplyToNativeParameters(ref parameters);
+        Features.ApplyToNativeParameters(ref parameters);
         return parameters;
     }
 
@@ -92,7 +97,6 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     internal InfiniFrameWindowBuilderSnapshot CreateSnapshot(IServiceProvider? provider = null) 
         => new(
-            CollectNativeParameters(),
             EventsStore.DeepCopy(),
             StaticAssets?.DeepCopy(),
             InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this)
