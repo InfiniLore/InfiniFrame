@@ -1,8 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Debugging;
-
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -11,7 +9,7 @@ public interface IInfiniFrameWindowBuilder : IHasInfiniFrameEventsStore {
     IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
     IInfiniFrameWindowBuilderConfiguration Configuration { get; }
-    IInfiniFrameWindowDebuggingBuilder Debugging { get; }
+    IInfiniFrameWindowBuilderFeatureDebugging Debugging { get; }
 
     IInfiniFrameWindowBuilderFeatures Features { get; }
     

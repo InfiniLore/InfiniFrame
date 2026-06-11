@@ -8,6 +8,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class InfiniFrameWindowBuilderFeatures : IInfiniFrameWindowBuilderFeatures {
+    public IInfiniFrameWindowBuilderFeatureDebugging Debugging { get; } = new InfiniFrameWindowBuilderFeatureDebugging();
     public IInfiniFrameWindowBuilderFeatureBrowser Browser { get; } = new InfiniFrameWindowBuilderFeatureBrowser();
     public IInfiniFrameWindowBuilderFeatureDecorations Decorations { get; } = new InfiniFrameWindowBuilderFeatureDecorations();
     public IInfiniFrameWindowBuilderFeatureNotifications Notifications { get; } = new InfiniFrameWindowBuilderFeatureNotifications();
@@ -21,6 +22,7 @@ public sealed class InfiniFrameWindowBuilderFeatures : IInfiniFrameWindowBuilder
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+        Debugging.ApplyToNativeParameters(ref parameters);
         Browser.ApplyToNativeParameters(ref parameters);
         Decorations.ApplyToNativeParameters(ref parameters);
         Notifications.ApplyToNativeParameters(ref parameters);

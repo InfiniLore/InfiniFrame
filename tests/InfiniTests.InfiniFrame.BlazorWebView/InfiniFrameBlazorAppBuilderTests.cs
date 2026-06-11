@@ -3,11 +3,13 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
+using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
+using System.Reflection;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -312,7 +314,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    public async Task Build_SetsStartupUrlToConfiguredHostPage(CancellationToken ct = default) {
+    public async Task Build_SetsStartupUrlToAppBaseForDefaultHostPage(CancellationToken ct = default) {
         // Arrange
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
 
@@ -321,7 +323,25 @@ public class InfiniFrameBlazorAppBuilderTests {
         var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
         // Assert
-        await Assert.That(window.Configuration.StartupParameters.StartUrl).IsEqualTo("app://localhost/index.html");
+        await Assert.That(window.Configuration.StartupParameters.StartUrl).IsEqualTo("app://localhost/");
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_SetsStartupUrlToConfiguredNonDefaultHostPage(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        appBuilder.Services.Configure<InfiniFrameBlazorAppConfiguration>(options => {
+            options.HostPage = "shell/host.html";
+        });
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+
+        // Assert
+        await Assert.That(window.Configuration.StartupParameters.StartUrl).IsEqualTo("app://localhost/shell/host.html");
         await app.DisposeAsync();
     }
 
@@ -338,6 +358,41 @@ public class InfiniFrameBlazorAppBuilderTests {
         await Assert.That(appBuilder.WindowBuilder.StaticAssets).IsNotNull();
         await Assert.That(appBuilder.WindowBuilder.StaticAssets!.BaseUri).IsEqualTo("app://localhost/");
         await Assert.That(appBuilder.WindowBuilder.StaticAssets.DefaultDocument).IsEqualTo("index.html");
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_PopulatesNativeStartupCustomSchemeCallback(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+        InfiniFrameNativeParameters startupParameters = window.Configuration.StartupParameters;
+
+        FieldInfo? callbackField = typeof(InfiniFrameNativeParameters)
+            .GetField("CustomSchemeHandler", BindingFlags.Instance | BindingFlags.NonPublic);
+        var callback = callbackField?.GetValue(startupParameters);
+
+        // Assert
+        await Assert.That(callback).IsNotNull();
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+
+        // Assert
+        await Assert.That(window.Debugging).IsSameReferenceAs(window.Features.Debugging);
         await app.DisposeAsync();
     }
 

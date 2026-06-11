@@ -6,6 +6,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed record InfiniFrameWindowFeatures(
+    IInfiniFrameWindowFeatureDebugging Debugging,
     IInfiniFrameWindowFeatureLifecycle Lifecycle,
     IInfiniFrameWindowFeatureInvoke Invoke,
     IInfiniFrameWindowFeatureWebMessaging WebMessaging,

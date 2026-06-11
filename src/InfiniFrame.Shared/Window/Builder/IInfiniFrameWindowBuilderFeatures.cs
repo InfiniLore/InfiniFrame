@@ -8,6 +8,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowBuilderFeatures {
+    IInfiniFrameWindowBuilderFeatureDebugging Debugging { get; }
     IInfiniFrameWindowBuilderFeatureBrowser Browser { get; }
     IInfiniFrameWindowBuilderFeatureDecorations Decorations { get; }
     IInfiniFrameWindowBuilderFeatureNotifications Notifications { get; }

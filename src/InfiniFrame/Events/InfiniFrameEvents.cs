@@ -11,24 +11,42 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public partial class InfiniFrameEvents(IInfiniFrameEventsStore eventsStore, ILogger<InfiniFrameEvents> logger)
-    : IInfiniFrameEvents {
-    public IInfiniFrameEventsStore EventsStore { get; } = eventsStore;
-    private ILogger<InfiniFrameEvents> Logger { get; } = logger;
+public partial class InfiniFrameEvents : IInfiniFrameEvents {
+    public IInfiniFrameEventsStore EventsStore { get; }
+    private ILogger<InfiniFrameEvents> Logger { get; }
     private IInfiniFrameWindow? Sender { get; set; }
 
-    private CppClosedDelegate ClosedHandler => OnWindowClosed;
-    private CppClosingDelegate ClosingHandler => OnWindowClosing;
-    private CppDebugEventDelegate DebugEventHandler => OnDebugEvent;
-    private CppFocusInDelegate FocusInHandler => OnFocusIn;
-    private CppFocusOutDelegate FocusOutHandler => OnFocusIn;
-    private CppMaximizedDelegate MaximizedHandler => OnMaximized;
-    private CppMinimizedDelegate MinimizedHandler => OnMinimized;
-    private CppMovedDelegate MovedHandler => OnLocationChanged;
-    private CppResizedDelegate ResizedHandler => OnSizeChanged;
-    private CppRestoredDelegate RestoredHandler => OnRestored;
-    private CppWebMessageReceivedDelegate WebMessageReceivedHandler => OnWebMessageReceived;
-    private CppWebResourceRequestedDelegate CustomSchemeHandler => OnCustomScheme;
+    // Keep callback delegates rooted for the native callback lifetime.
+    private CppClosedDelegate ClosedHandler { get; }
+    private CppClosingDelegate ClosingHandler { get; }
+    private CppDebugEventDelegate DebugEventHandler { get; }
+    private CppFocusInDelegate FocusInHandler { get; }
+    private CppFocusOutDelegate FocusOutHandler { get; }
+    private CppMaximizedDelegate MaximizedHandler { get; }
+    private CppMinimizedDelegate MinimizedHandler { get; }
+    private CppMovedDelegate MovedHandler { get; }
+    private CppResizedDelegate ResizedHandler { get; }
+    private CppRestoredDelegate RestoredHandler { get; }
+    private CppWebMessageReceivedDelegate WebMessageReceivedHandler { get; }
+    private CppWebResourceRequestedDelegate CustomSchemeHandler { get; }
+
+    public InfiniFrameEvents(IInfiniFrameEventsStore eventsStore, ILogger<InfiniFrameEvents> logger) {
+        EventsStore = eventsStore;
+        Logger = logger;
+
+        ClosedHandler = OnWindowClosed;
+        ClosingHandler = OnWindowClosing;
+        DebugEventHandler = OnDebugEvent;
+        FocusInHandler = OnFocusIn;
+        FocusOutHandler = OnFocusOut;
+        MaximizedHandler = OnMaximized;
+        MinimizedHandler = OnMinimized;
+        MovedHandler = OnLocationChanged;
+        ResizedHandler = OnSizeChanged;
+        RestoredHandler = OnRestored;
+        WebMessageReceivedHandler = OnWebMessageReceived;
+        CustomSchemeHandler = OnCustomScheme;
+    }
     
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
