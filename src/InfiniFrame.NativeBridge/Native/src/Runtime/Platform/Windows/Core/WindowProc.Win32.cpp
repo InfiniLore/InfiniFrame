@@ -107,6 +107,8 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
                 }
 
                 if (wParam != SIZE_MINIMIZED) {
+                    instance->RefitContent();
+
                     int width = 0, height = 0;
                     instance->GetSize(&width, &height);
                     if (instance->m_impl->_lastWidth != width || instance->m_impl->_lastHeight != height) {

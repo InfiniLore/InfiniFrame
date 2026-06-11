@@ -14,11 +14,11 @@ public class InfiniFrameWindowBuilderFeaturePageNavigation : IInfiniFrameWindowB
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void SetString(string? startString) {
+    public void SetStartPageContent(string? startString) {
         StartString = startString;
     }
     
-    public void SetUrl(string? startUrl) {
+    public void SetStartPageUrl(string? startUrl) {
         StartUrl = startUrl;
     }
     

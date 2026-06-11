@@ -51,8 +51,7 @@ public class InfiniFrameWindowFeatureWebMessaging(
     public ValueTask SendWebMessageAsync(string message, CancellationToken ct = default) {
         if (window.IsClosedOrClosing()) return ValueTask.CompletedTask;
         if (ct.IsCancellationRequested) return ValueTask.FromCanceled(ct);
-        
-        Task.Run(action: () => SendWebMessage(message), ct);
-        return ValueTask.CompletedTask; 
+
+        return new ValueTask(Task.Run(action: () => SendWebMessage(message), ct));
     }
 }
