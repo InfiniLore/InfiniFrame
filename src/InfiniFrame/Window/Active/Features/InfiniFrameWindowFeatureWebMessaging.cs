@@ -34,6 +34,7 @@ public class InfiniFrameWindowFeatureWebMessaging(
         );
     }
 
+    // ReSharper disable once ConvertIfStatementToReturnStatement
     /// <summary>
     /// Sends a message asynchronously to the native window's native browser control's JavaScript context.
     /// </summary>
