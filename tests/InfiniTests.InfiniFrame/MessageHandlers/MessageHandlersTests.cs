@@ -23,7 +23,8 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowClose));
 
         // Assert
-        int closeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Features.Lifecycle.Close));
+        int closeCallCount = window.Window.Features.Lifecycle.ReceivedCalls()
+            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IInfiniFrameWindowFeatureLifecycle.Close), StringComparison.Ordinal));
         await Assert.That(closeCallCount).IsEqualTo(1);
     }
 
@@ -53,7 +54,8 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.FullscreenToggle));
 
         // Assert
-        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Features.Invoke.Invoke));
+        int invokeCallCount = window.Window.Features.State.ReceivedCalls()
+            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IInfiniFrameWindowFeatureState.SetFullScreen), StringComparison.Ordinal));
         await Assert.That(invokeCallCount).IsEqualTo(1);
     }
 
@@ -67,7 +69,8 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.TitleChanged, "new title"));
 
         // Assert
-        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Features.Invoke.Invoke));
+        int invokeCallCount = window.Window.Features.Decorations.ReceivedCalls()
+            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IInfiniFrameWindowFeatureDecorations.SetTitle), StringComparison.Ordinal));
         await Assert.That(invokeCallCount).IsEqualTo(1);
     }
 
@@ -81,7 +84,8 @@ public class MessageHandlersTests {
         events.OnWebMessageReceived(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.TitleChanged));
 
         // Assert
-        int invokeCallCount = CountMethodCalls(window.Window, nameof(IInfiniFrameWindow.Features.Invoke.Invoke));
+        int invokeCallCount = window.Window.Features.Decorations.ReceivedCalls()
+            .Count(call => string.Equals(call.GetMethodInfo().Name, nameof(IInfiniFrameWindowFeatureDecorations.SetTitle), StringComparison.Ordinal));
         await Assert.That(invokeCallCount).IsEqualTo(0);
     }
 
@@ -100,7 +104,4 @@ public class MessageHandlersTests {
         return (builder, events, window);
     }
 
-    private static int CountMethodCalls(IInfiniFrameWindow window, string methodName) {
-        return window.ReceivedCalls().Count(call => string.Equals(call.GetMethodInfo().Name, methodName, StringComparison.Ordinal));
-    }
 }

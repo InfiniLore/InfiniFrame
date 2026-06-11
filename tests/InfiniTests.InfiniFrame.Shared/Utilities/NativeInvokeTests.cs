@@ -21,9 +21,15 @@ public class NativeInvokeTests {
     /// </summary>
     private static IInfiniFrameWindow CreateSynchronousWindow(IntPtr instanceHandle = default) {
         var window = Substitute.For<IInfiniFrameWindow>();
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var invokeFeature = Substitute.For<IInfiniFrameWindowFeatureInvoke>();
+
+        window.Features.Returns(features);
+        features.Invoke.Returns(invokeFeature);
+
         window.InstanceHandle.Returns(instanceHandle);
         window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
-        window.When(w => w.Features.Invoke.Invoke(Arg.Any<Action>()))
+        invokeFeature.When(i => i.Invoke(Arg.Any<Action>()))
             .Do(c => c.Arg<Action>()());
         return window;
     }

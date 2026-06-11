@@ -19,7 +19,6 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
     public bool GrantBrowserPermissions { get; private set; } = true;
     public bool IsSmoothScrollingEnabled { get; private set; } = true;
     public string? BrowserControlInitParameters { get; private set; }
-    
     public string TemporaryFilesPath { get; private set; } = Path.Join(
         Path.GetTempPath(),
         "infiniframe",
@@ -89,5 +88,6 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
         parameters.GrantBrowserPermissions = GrantBrowserPermissions;
         parameters.SmoothScrollingEnabled = IsSmoothScrollingEnabled;
         parameters.BrowserControlInitParameters = BrowserControlInitParameters;
+        parameters.TemporaryFilesPath = TemporaryFilesPath;
     }
 }

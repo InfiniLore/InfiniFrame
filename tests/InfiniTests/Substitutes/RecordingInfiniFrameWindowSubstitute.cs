@@ -27,14 +27,14 @@ public sealed class RecordingInfiniFrameWindowSubstitute {
         Window = Substitute.For<IInfiniFrameWindow>();
         Window.InstanceHandle.Returns(IntPtr.MaxValue);
         Window.ManagedThreadId.Returns(Environment.CurrentManagedThreadId);
-        Window.SendWebMessageAsync(Arg.Any<string>())
+        Window.Features.WebMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(ValueTask.CompletedTask)
             .AndDoes(callInfo => {
                 lock (_sentWebMessagesLock) {
                     _sentWebMessages.Add(callInfo.Arg<string>());
                 }
             });
-        Window.When(window => window.SendWebMessage(Arg.Any<string>()))
+        Window.Features.WebMessaging.When(webMessaging => webMessaging.SendWebMessage(Arg.Any<string>()))
             .Do(callInfo => {
                 lock (_sentWebMessagesLock) {
                     _sentWebMessages.Add(callInfo.Arg<string>());

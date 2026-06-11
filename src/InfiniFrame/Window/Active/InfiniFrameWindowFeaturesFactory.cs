@@ -44,6 +44,7 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
                 window,
                 GetLogger<InfiniFrameWindowFeaturePageNavigation>(provider),
                 provider.GetService<IInfiniFrameStaticAssets>()
+                ?? originalBuilder.StaticAssets?.DeepCopy()
             ),
             Position: new InfiniFrameWindowFeaturePosition(
                 window,
