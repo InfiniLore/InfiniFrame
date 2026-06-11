@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class InfiniFrameWindowBuilderFeaturePageNavigationExtensions {
+public static class IInfiniFrameWindowBuilderFeaturePageNavigationExtensions {
     public static IInfiniFrameWindowBuilder SetString(this IInfiniFrameWindowBuilder builder, string? startString) {
         builder.Features.PageNavigation.SetString(startString);
         return builder;

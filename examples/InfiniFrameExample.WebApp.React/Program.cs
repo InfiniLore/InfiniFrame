@@ -23,7 +23,7 @@ public static class Program {
         
         appBuilder.WindowBuilder
             .UseOsDefaultSize(false)
-            .SetResizable(true)
+            .SetResizable()
             .CenteredOnMainMonitor()
             .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
             .SetSize(new Size(800, 600))

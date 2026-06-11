@@ -112,17 +112,16 @@ public class InfiniFrameWindowFeatureSize(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IInfiniFrameWindow SetSize(int width, int height) {
+    public void SetSize(int width, int height) {
         logger.LogDebug(".SetSize({Width}, {Height})", width, height);
 
         window.Invoke(() => InfiniFrameNative.SetSize(window.InstanceHandle, width, height));
-        return window;
     }
 
-    public IInfiniFrameWindow SetSize(Size size)
+    public void SetSize(Size size)
         => SetSize(size.Width, size.Height);
 
-    public IInfiniFrameWindow SetHeight(int height) {
+    public void SetHeight(int height) {
         logger.LogDebug(".SetHeight({Height})", height);
 
         window.Invoke(() => {
@@ -130,44 +129,41 @@ public class InfiniFrameWindowFeatureSize(
             InfiniFrameNative.SetSize(window.InstanceHandle, width, height);
         });
 
-        return window;
     }
 
-    public IInfiniFrameWindow SetMaxSize(int maxWidth, int maxHeight) {
+    public void SetMaxSize(int maxWidth, int maxHeight) {
         logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
         window.Invoke(() => InfiniFrameNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight));
-        return window;
     }
 
-    public IInfiniFrameWindow SetMaxSize(Size size)
+    public void SetMaxSize(Size size)
         => SetMaxSize(size.Width, size.Height);
 
-    public IInfiniFrameWindow SetMaxHeight(int maxHeight)
+    public void SetMaxHeight(int maxHeight)
         => SetMaxSize(MaxWidth, maxHeight);
 
-    public IInfiniFrameWindow SetMaxWidth(int maxWidth)
+    public void SetMaxWidth(int maxWidth)
         => SetMaxSize(maxWidth, MaxHeight);
 
 
 
-    public IInfiniFrameWindow SetMinSize(int minWidth, int minHeight) {
+    public void SetMinSize(int minWidth, int minHeight) {
         logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
         window.Invoke(() => InfiniFrameNative.SetMinSize(window.InstanceHandle, minWidth, minHeight));
-        return window;
     }
 
-    public IInfiniFrameWindow SetMinSize(Size size)
+    public void SetMinSize(Size size)
         => SetMinSize(size.Width, size.Height);
 
-    public IInfiniFrameWindow SetMinHeight(int minHeight)
+    public void SetMinHeight(int minHeight)
         => SetMinSize(MinWidth, minHeight);
 
-    public IInfiniFrameWindow SetMinWidth(int minWidth)
+    public void SetMinWidth(int minWidth)
         => SetMinSize(minWidth, MinHeight);
 
     
 
-    public IInfiniFrameWindow SetWidth(int width) {
+    public void SetWidth(int width) {
         logger.LogDebug(".SetWidth({Width})", width);
 
         window.Invoke(() => {
@@ -175,10 +171,9 @@ public class InfiniFrameWindowFeatureSize(
             InfiniFrameNative.SetSize(window.InstanceHandle, width, height);
         });
 
-        return window;
     }
 
-    public IInfiniFrameWindow Resize(int widthOffset, int heightOffset, ResizeOrigin origin) {
+    public void Resize(int widthOffset, int heightOffset, ResizeOrigin origin) {
         window.Invoke(() => {
             InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height);
             InfiniFrameNative.GetPosition(window.InstanceHandle, out int originalX, out int originalY);
@@ -267,10 +262,9 @@ public class InfiniFrameWindowFeatureSize(
             InfiniFrameNative.SetPosition(window.InstanceHandle, x, y);
 
         });
-        return window;
     }
     
-    public IInfiniFrameWindow SetResizable(bool resizable) {
+    public void SetResizable(bool resizable) {
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window.InstanceHandle,
@@ -278,6 +272,5 @@ public class InfiniFrameWindowFeatureSize(
             InfiniFrameNative.SetResizable,
             resizable
         );
-        return window;
     }
 }

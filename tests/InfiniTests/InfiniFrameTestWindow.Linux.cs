@@ -83,6 +83,7 @@ public sealed partial class InfiniFrameTestWindow {
 
         return new InfiniFrameTestWindow {
             Window = built!,
+            BuilderSnapshot = windowBuilder,
             _windowThread = null
         };
     }

@@ -1,6 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -23,5 +25,9 @@ public class InfiniFrameWindowBuilderFeaturePageNavigation : IInfiniFrameWindowB
     public void SetUrl(Uri? startUrl) {
         StartUrl = startUrl?.ToString();
     }
-    
+
+    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+        parameters.StartUrl = StartUrl;
+        parameters.StartString = StartString;
+    }
 }

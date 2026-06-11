@@ -103,7 +103,7 @@ public class InfiniFrameWindowFeatureBrowser(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IInfiniFrameWindow EnableContextMenu(bool enabled) {
+    public void EnableContextMenu(bool enabled = true) {
         logger.LogDebug(".EnableContextMenu({Enabled})", enabled);
 
         window.Invoke(() => {
@@ -114,18 +114,16 @@ public class InfiniFrameWindowFeatureBrowser(
 
             InfiniFrameNative.SetContextMenuEnabled(window.InstanceHandle, enabled);
         });
-
-        return window;
     }
 
     [SupportedOSPlatform("windows")]
-    public IInfiniFrameWindow Win32SetWebView2Path(string data) {
+    public void Win32SetWebView2Path(string data) {
         if (!OperatingSystem.IsWindows()) {
             logger.LogDebug("Win32SetWebView2Path is only supported on the Windows platform");
-            return window;
+            return;
         }
 
-        if (window.Features.Lifecycle.IsClosedOrClosing()) return window;
+        if (window.Features.Lifecycle.IsClosedOrClosing()) return;
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -133,20 +131,16 @@ public class InfiniFrameWindowFeatureBrowser(
             window.ManagedThreadId,
             callback: () => InfiniFrameNative.SetWebView2RuntimePath_win32(window.MainProgramHandle, data)
         );
-
-        return window;
     }
 
     [SupportedOSPlatform("windows")]
-    public IInfiniFrameWindow ClearBrowserAutoFill() {
+    public void ClearBrowserAutoFill() {
         if (!OperatingSystem.IsWindows()) {
             logger.LogWarning("ClearBrowserAutoFill is only supported on the Windows platform");
-            return window;
+            return;
         }
 
-        if (window.Features.Lifecycle.IsClosedOrClosing()) {
-            return window;
-        }
+        if (window.Features.Lifecycle.IsClosedOrClosing()) return;
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -154,7 +148,5 @@ public class InfiniFrameWindowFeatureBrowser(
             window.ManagedThreadId,
             InfiniFrameNative.ClearBrowserAutoFill
         );
-
-        return window;
     }
 }

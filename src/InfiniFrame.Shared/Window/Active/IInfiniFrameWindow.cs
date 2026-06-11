@@ -11,7 +11,7 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore {
     internal IServiceProvider? ServiceProvider { get; }
     IInfiniFrameEvents Events { get; }
     IInfiniFrameWindowDebugging Debugging { get; }
-    IInfiniFrameOptions Configuration { get; }
+    IInfiniFrameWindowConfiguration Configuration { get; }
     IInfiniFrameWindowFeatures Features { get; }
     
     IntPtr MainProgramHandle { get; }

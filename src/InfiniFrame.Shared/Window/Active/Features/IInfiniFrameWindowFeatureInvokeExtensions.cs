@@ -5,16 +5,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeatureLifecycle {
-    internal void Initialize();
-    
-    void WaitForClose();
-    ValueTask WaitForCloseAsync(CancellationToken ct = default);
-    
-    void Close();
-    ValueTask CloseAsync(CancellationToken ct = default);
-    
-    internal void MarkAsClosed();
-    
-    bool IsClosedOrClosing();
+public static class IInfiniFrameWindowFeatureInvokeExtensions {
+    public static IInfiniFrameWindow Invoke(this IInfiniFrameWindow window, Action callback) {
+        window.Features.Invoke.Invoke(callback);
+        return window;
+    }
 }

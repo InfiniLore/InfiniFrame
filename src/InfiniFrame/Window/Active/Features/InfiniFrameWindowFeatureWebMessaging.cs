@@ -56,14 +56,3 @@ public class InfiniFrameWindowFeatureWebMessaging(
         return ValueTask.CompletedTask; 
     }
 }
-
-// ReSharper disable once ConvertToExtensionBlock
-public static class InfiniFrameWindowFeatureWebMessagingExtensions {
-    /// <inheritdoc cref="InfiniFrameWindowFeatureWebMessaging.SendWebMessage"/>
-    public static void SendWebMessage(this IInfiniFrameWindow window, string message) 
-        => window.Features.WebMessaging.SendWebMessage(message);
-    
-    /// <inheritdoc cref="InfiniFrameWindowFeatureWebMessaging.SendWebMessageAsync"/>
-    public static ValueTask SendWebMessageAsync(this IInfiniFrameWindow window, string message, CancellationToken ct = default) 
-        => window.Features.WebMessaging.SendWebMessageAsync(message, ct);
-}

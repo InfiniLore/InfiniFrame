@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeatureDecorations {
+public interface IInfiniFrameWindowBuilderFeatureDecorations : IInfiniFrameWindowBuilderFeature {
     bool IsChromeless { get; }
     bool IsTransparent { get; }
     string? Title { get; }

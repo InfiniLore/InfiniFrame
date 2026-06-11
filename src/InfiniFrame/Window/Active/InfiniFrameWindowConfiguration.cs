@@ -1,11 +1,14 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeatureWebMessaging {
-    void SendWebMessage(string message);
-    ValueTask SendWebMessageAsync(string message, CancellationToken ct = default);
+public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
+    public InfiniFrameNativeParameters StartupParameters { get; init; }
+    public IInfiniFrameWindow? ParentWindow { get; init; }
+    public List<IInfiniFrameWindow> ChildWindows { get; init; } = [];
 }

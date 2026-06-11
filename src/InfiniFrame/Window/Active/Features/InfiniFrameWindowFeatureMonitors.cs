@@ -62,17 +62,3 @@ public class InfiniFrameWindowFeatureMonitors(
         );
     }
 }
-
-public static class InfiniFrameWindowFeatureMonitorsExtensions {
-    /// <inheritdoc cref="InfiniFrameWindowFeatureMonitors.GetMonitors"/>
-    public static IEnumerable<InfiniMonitor> GetMonitors(this IInfiniFrameWindow window) 
-        => window.Features.Monitors.GetMonitors();
-    
-    /// <inheritdoc cref="InfiniFrameWindowFeatureMonitors.GetMainMonitor"/>
-    public static InfiniMonitor GetMainMonitor(this IInfiniFrameWindow window) 
-        => window.Features.Monitors.GetMainMonitor();
-    
-    /// <inheritdoc cref="InfiniFrameWindowFeatureMonitors.GetMainMonitorScreenDpi"/>
-    public static int GetMainMonitorScreenDpi(this IInfiniFrameWindow window) 
-        => window.Features.Monitors.GetMainMonitorScreenDpi();
-}

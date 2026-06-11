@@ -12,7 +12,7 @@ public static class FullScreenWebMessageHandler {
     public static T RegisterFullScreenWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(
             JsHandlerNames.FullscreenEnter,
-            (window, _) => window.Features.State.SetFullScreen(true)
+            (window, _) => window.Features.State.SetFullScreen()
         );
         
         builder.RegisterWebMessagePostHandler(

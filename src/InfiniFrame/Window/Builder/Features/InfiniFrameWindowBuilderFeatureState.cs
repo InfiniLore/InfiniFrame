@@ -1,6 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -39,5 +41,14 @@ public class InfiniFrameWindowBuilderFeatureState : IInfiniFrameWindowBuilderFea
     }
     public void SetZoomEnabled(bool zoomEnabled) {
         IsZoomEnabled = zoomEnabled;
+    }
+    
+    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+        parameters.FullScreen = StartFullScreen;
+        parameters.Maximized = StartMaximized;
+        parameters.Minimized = StartMinimized;
+        parameters.Topmost = StartTopMost;
+        parameters.Zoom = ZoomFactor;
+        parameters.ZoomEnabled = IsZoomEnabled;
     }
 }

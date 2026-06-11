@@ -7,7 +7,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeaturePosition {
+public interface IInfiniFrameWindowBuilderFeaturePosition : IInfiniFrameWindowBuilderFeature{
     int Top { get; }
     int Left { get; }
     bool StartAtOsDefaultLocation { get; }

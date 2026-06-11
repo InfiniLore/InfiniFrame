@@ -12,17 +12,17 @@ public interface IInfiniFrameWindowFeaturePosition {
     int Top { get; }
     int Left { get; }
     
-    IInfiniFrameWindow SetLocation(int left, int top);
-    IInfiniFrameWindow SetLocation(Point location);
-    IInfiniFrameWindow SetLeft(int left);
-    IInfiniFrameWindow SetTop(int top);
-    IInfiniFrameWindow Offset(int left, int top);
-    IInfiniFrameWindow Offset(Point offset);
-    IInfiniFrameWindow Offset(double left, double top);
-    IInfiniFrameWindow Center();
-    IInfiniFrameWindow CenterOnCurrentMonitor();
-    IInfiniFrameWindow CenterOnMonitor(int monitorIndex);
-    IInfiniFrameWindow MoveWithinCurrentMonitorArea(int left, int top);
-    IInfiniFrameWindow MoveWithinCurrentMonitorArea(Point location);
-    IInfiniFrameWindow MoveWithinCurrentMonitorArea(double left, double top);
+    void SetLocation(int left, int top);
+    void SetLocation(Point location);
+    void SetLeft(int left);
+    void SetTop(int top);
+    void Offset(int left, int top);
+    void Offset(Point offset);
+    void Offset(double left, double top);
+    void Center();
+    void CenterOnCurrentMonitor();
+    void CenterOnMonitor(int monitorIndex);
+    void MoveWithinCurrentMonitorArea(int left, int top);
+    void MoveWithinCurrentMonitorArea(Point location);
+    void MoveWithinCurrentMonitorArea(double left, double top);
 }

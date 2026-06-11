@@ -12,11 +12,11 @@ public static class WindowManagementWebMessageHandler {
     public static T RegisterWindowManagementWebMessageHandler<T>(this T builder) where T : class, IInfiniFrameWindowBuilder {
         builder.RegisterWebMessagePostHandler(
             JsHandlerNames.WindowMinimize,
-            (window, _) => window.Features.State.SetMinimized(true));
+            (window, _) => window.Features.State.SetMinimized());
 
         builder.RegisterWebMessagePostHandler(
             JsHandlerNames.WindowMaximize,
-            (window, _) => window.Features.State.SetMaximized(true));
+            (window, _) => window.Features.State.SetMaximized());
 
         builder.RegisterWebMessagePostHandler(
             JsHandlerNames.WindowClose,
