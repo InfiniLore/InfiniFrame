@@ -1,6 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using FluentValidation;
+using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +17,8 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
         => new InfiniFrameWindowFeatures(
             Lifecycle: new InfiniFrameWindowFeatureLifecycle(
                 window,
-                GetLogger<InfiniFrameWindowFeatureLifecycle>(provider)
+                GetLogger<InfiniFrameWindowFeatureLifecycle>(provider),
+                provider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>()
             ),
             Invoke: new InfiniFrameWindowFeatureInvoke(
                 window,

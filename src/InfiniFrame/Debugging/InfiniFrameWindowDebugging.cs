@@ -38,7 +38,7 @@ public sealed class InfiniFrameWindowDebugging(ILogger<InfiniFrameWindowDebuggin
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    internal void AssignToWindow(IInfiniFrameWindow window) {
+    public void AssignToWindow(IInfiniFrameWindow window) {
         ArgumentNullException.ThrowIfNull(window);
         Window = window;
     }

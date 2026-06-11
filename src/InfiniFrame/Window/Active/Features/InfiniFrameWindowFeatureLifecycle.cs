@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using FluentValidation;
 using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge;
 using InfiniFrame.NativeBridge.Parameters;
@@ -14,7 +15,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowFeatureLifecycle(
     IInfiniFrameWindow window,
-    ILogger<InfiniFrameWindowFeatureLifecycle> logger
+    ILogger<InfiniFrameWindowFeatureLifecycle> logger,
+    IValidator<InfiniFrameNativeParameters> validator
 ) : IInfiniFrameWindowFeatureLifecycle {
     private enum LifecycleStatus {
         Undefined = 0,
@@ -70,10 +72,8 @@ public class InfiniFrameWindowFeatureLifecycle(
                 MacOsWebInspectorUtility.ThrowIfUnsupported();
             }
 
-            if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, logger)) {
-                throw new ArgumentException("Startup Parameters Are Not Valid");
-            }
-
+            validator.ValidateAndThrow(startupParameters);
+            
             window.Events.OnWindowCreating();
 
             try {

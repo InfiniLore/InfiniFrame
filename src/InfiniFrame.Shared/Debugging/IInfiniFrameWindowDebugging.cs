@@ -15,4 +15,5 @@ public interface IInfiniFrameWindowDebugging {
     InfiniFrameDebugDiagnostics GetDiagnostics();
     bool TryGetRemoteDebuggingEndpoint(out Uri? endpoint);
     bool TryProbeEndpoint(out Uri? endpoint, out string? reason);
+    internal void AssignToWindow(IInfiniFrameWindow window);
 }

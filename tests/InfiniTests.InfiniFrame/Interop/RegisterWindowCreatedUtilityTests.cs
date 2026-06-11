@@ -19,12 +19,12 @@ public class RegisterWindowCreatedUtilityTests {
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
-        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
+        var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
@@ -56,12 +56,12 @@ public class RegisterWindowCreatedUtilityTests {
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
-        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
+        var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);
@@ -83,12 +83,12 @@ public class RegisterWindowCreatedUtilityTests {
         string readyEnvelope = InteropEnvelopeProtocol.CreateEnvelopeMessage("__infiniframe:ready");
         var builder = InfiniFrameWindowBuilder.Create();
         var eventsStore = (InfiniFrameEventsStore)builder.EventsStore;
-        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
+        var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
         RegisterWindowCreatedUtility.RegisterWindowCreatedWebMessage(builder, registrationMessageId);

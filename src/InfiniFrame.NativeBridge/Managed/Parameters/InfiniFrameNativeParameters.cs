@@ -11,7 +11,7 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // These are the parameter names that are passed to InfiniFrame.Native.
 // DO NOT CHANGE THEM.
 [StructLayout(LayoutKind.Sequential)]
-public struct InfiniFrameNativeParameters {
+public struct InfiniFrameNativeParameters() {
     /// <summary>
     ///     EITHER StartString or StartUrl Must be specified: Browser control will render this HTML string when
     ///     initialized. Default is none.
@@ -120,7 +120,7 @@ public struct InfiniFrameNativeParameters {
 
     ///<summary>OPTIONAL: Names of custom URL Schemes. e.g. 'app', 'custom'. Array length must be 16. Default is none.</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-    internal IntPtr[] CustomSchemeNames;
+    internal IntPtr[] CustomSchemeNames = new IntPtr[16];
 
     ///<summary>SET BY InfiniFrameOptionsBuilder</summary>
     [MarshalAs(UnmanagedType.FunctionPtr)]
@@ -313,5 +313,5 @@ public struct InfiniFrameNativeParameters {
     ///     struct matches what C++ is expecting.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)]
-    internal int Size;
+    internal int Size = Marshal.SizeOf<InfiniFrameNativeParameters>();
 }

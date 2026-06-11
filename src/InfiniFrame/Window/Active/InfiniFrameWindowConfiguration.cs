@@ -8,7 +8,11 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
-    public InfiniFrameNativeParameters StartupParameters { get; init; }
-    public IInfiniFrameWindow? ParentWindow { get; init; }
-    public List<IInfiniFrameWindow> ChildWindows { get; init; } = [];
+    public InfiniFrameNativeParameters StartupParameters { get; private set; }
+    public IInfiniFrameWindow? ParentWindow { get; set; }
+    public List<IInfiniFrameWindow> ChildWindows { get; } = [];
+    
+    public void AssignNativeParameters(InfiniFrameNativeParameters nativeParameters) {
+        StartupParameters = nativeParameters;
+    }
 }

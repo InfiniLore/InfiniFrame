@@ -140,9 +140,9 @@ public class GetMessageWebMessageHandlerTests {
         RecordingInfiniFrameWindowSubstitute window = new RecordingInfiniFrameWindowSubstitute()
             .BindToBuilder(builder);
 
-        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
+        var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
         return (builder, events, window);
