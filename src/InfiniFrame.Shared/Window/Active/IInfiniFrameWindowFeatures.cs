@@ -6,6 +6,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowFeatures {
+    IInfiniFrameWindowFeatureDebugging Debugging { get; }
     IInfiniFrameWindowFeatureLifecycle Lifecycle { get; }
     IInfiniFrameWindowFeatureInvoke Invoke { get; }
     IInfiniFrameWindowFeatureWebMessaging WebMessaging { get; }

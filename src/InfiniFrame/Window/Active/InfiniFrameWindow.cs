@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -14,7 +13,6 @@ namespace InfiniFrame;
 public sealed class InfiniFrameWindow(
     ILogger<InfiniFrameWindow> logger,
     IInfiniFrameEvents events,
-    IInfiniFrameWindowDebugging debugging,
     IInfiniFrameWindowConfiguration configuration,
     IServiceProvider? serviceProvider
 ) : IInfiniFrameWindow {
@@ -47,7 +45,7 @@ public sealed class InfiniFrameWindow(
     public Guid Id { get; } = Guid.NewGuid();
     
     public IInfiniFrameWindowConfiguration Configuration { get; } = configuration;
-    public IInfiniFrameWindowDebugging Debugging { get; } = debugging;
+    public IInfiniFrameWindowFeatureDebugging Debugging => Features.Debugging;
     public IServiceProvider? ServiceProvider { get; } = serviceProvider;
     public IInfiniFrameEvents Events { get; } = events;
     public IInfiniFrameWindowFeatures Features { get; private set; } = null!;

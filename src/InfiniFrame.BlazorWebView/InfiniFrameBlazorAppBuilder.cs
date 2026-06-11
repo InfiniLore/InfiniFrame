@@ -104,9 +104,6 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
             : null;
         if (physicalWwwrootProvider is not null) providers.Add(physicalWwwrootProvider);
 
-        IFileProvider? frameworkProvider = BlazorWebViewFrameworkFileProviderFactory.TryCreate();
-        if (frameworkProvider is not null) providers.Add(frameworkProvider);
-
         if (providers.Count == 0) return new NullFileProvider();
         if (providers.Count == 1) return providers[0];
 
@@ -173,6 +170,10 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     internal static string BuildStartupUrl(InfiniFrameBlazorAppConfiguration configuration) {
         Uri appBaseUri = configuration.AppBaseUri;
         string hostPage = NormalizeHostPage(configuration.HostPage);
+
+        if (string.Equals(hostPage, "index.html", StringComparison.OrdinalIgnoreCase)) {
+            return appBaseUri.ToString();
+        }
 
         return new Uri(appBaseUri, hostPage).ToString();
     }

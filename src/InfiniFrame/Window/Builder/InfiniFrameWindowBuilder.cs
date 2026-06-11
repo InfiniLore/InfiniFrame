@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using FluentValidation;
-using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Security;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +12,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
-    public IInfiniFrameWindowDebuggingBuilder Debugging { get; } = new InfiniFrameWindowDebuggingBuilder();
     public IInfiniFrameWindowBuilderFeatures Features { get; } = new InfiniFrameWindowBuilderFeatures();
+    public IInfiniFrameWindowBuilderFeatureDebugging Debugging => Features.Debugging;
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
 
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
@@ -49,15 +48,13 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
         window.AssignFeatures(featureFactory.Create(window, this));
 
-        window.Debugging.AssignToWindow(window);
-
-        window.Configuration.ParentWindow = Configuration.ParentWindow;
-        window.Configuration.AssignNativeParameters(nativeParameters);
-
         window.Events.PopulateFromBuilderEventStore(EventsStore);
         window.Events.AssignToNativeParameters(ref nativeParameters);
         window.Events.AssignDefaultEventCallbacks();
         window.Events.AssignToWindow(window);
+
+        window.Configuration.ParentWindow = Configuration.ParentWindow;
+        window.Configuration.AssignNativeParameters(nativeParameters);
 
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(
             window,
@@ -77,9 +74,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         
         Configuration.ApplyToNativeParameters(ref parameters);
         Features.ApplyToNativeParameters(ref parameters);
-        
-        
-        
+
         return parameters;
     }
 }

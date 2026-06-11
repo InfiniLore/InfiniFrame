@@ -1,8 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Debugging;
-
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -10,7 +8,7 @@ namespace InfiniFrame;
 public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore {
     internal IServiceProvider? ServiceProvider { get; }
     IInfiniFrameEvents Events { get; }
-    IInfiniFrameWindowDebugging Debugging { get; }
+    IInfiniFrameWindowFeatureDebugging Debugging { get; }
     IInfiniFrameWindowConfiguration Configuration { get; }
     IInfiniFrameWindowFeatures Features { get; }
     

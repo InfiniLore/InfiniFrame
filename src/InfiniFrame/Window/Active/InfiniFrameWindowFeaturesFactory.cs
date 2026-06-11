@@ -15,6 +15,10 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
         
     public IInfiniFrameWindowFeatures Create(IInfiniFrameWindow window, IInfiniFrameWindowBuilder originalBuilder) 
         => new InfiniFrameWindowFeatures(
+            Debugging: new InfiniFrameWindowFeatureDebugging(
+                window,
+                GetLogger<InfiniFrameWindowFeatureDebugging>(provider)
+            ),
             Lifecycle: new InfiniFrameWindowFeatureLifecycle(
                 window,
                 GetLogger<InfiniFrameWindowFeatureLifecycle>(provider),

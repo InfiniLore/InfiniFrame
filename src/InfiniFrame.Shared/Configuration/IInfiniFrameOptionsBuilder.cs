@@ -1,7 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 
 namespace InfiniFrame;
@@ -57,7 +56,7 @@ public interface IInfiniFrameOptionsBuilder {
     IEnumerable<IInfiniFrameWindow> ChildWindows { get; set; }
     #endregion
     
-    IInfiniFrameWindowDebuggingBuilder Debugging { get; }
+    IInfiniFrameWindowBuilderFeatureDebugging Debugging { get; }
     
     InfiniFrameNativeParameters ToNativeParameters();
 }

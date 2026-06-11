@@ -110,6 +110,47 @@ public class StaticWebAssetsRuntimeFileProviderTests {
 
     [Test]
     [Retry(5)]
+    public async Task TryCreate_WhenManifestContainsFrameworkScript_ShouldResolveBlazorWebViewFrameworkScript(CancellationToken ct = default) {
+        // Arrange
+        using var fixture = new TempStaticWebAssetsFixture();
+        string frameworkScriptPath = Path.Join(fixture.ContentRoot, "_framework", "blazor.webview.js");
+        Directory.CreateDirectory(Path.GetDirectoryName(frameworkScriptPath)!);
+        await File.WriteAllTextAsync(frameworkScriptPath, "window.__bwv = true;", ct);
+
+        await fixture.WriteManifestAsync(new {
+            ContentRoots = new[] { $"{fixture.ContentRoot}{Path.DirectorySeparatorChar}" },
+            Root = new {
+                Children = new Dictionary<string, object?> {
+                    ["_framework"] = new {
+                        Children = new Dictionary<string, object?> {
+                            ["blazor.webview.js"] = new {
+                                Children = (object?)null,
+                                Asset = new { ContentRootIndex = 0, SubPath = "_framework/blazor.webview.js" },
+                                Patterns = (object?)null
+                            }
+                        },
+                        Asset = (object?)null,
+                        Patterns = (object?)null
+                    }
+                },
+                Asset = (object?)null,
+                Patterns = (object?)null
+            }
+        }, ct: ct);
+
+        // Act
+        IFileProvider? provider = StaticWebAssetsRuntimeFileProvider.TryCreate(fixture.BaseDirectory);
+        IFileInfo? frameworkScript = provider?.GetFileInfo("_framework/blazor.webview.js");
+
+        // Assert
+        await Assert.That(provider).IsNotNull();
+        await Assert.That(frameworkScript).IsNotNull();
+        await Assert.That(frameworkScript!.Exists).IsTrue();
+        await Assert.That(frameworkScript.Name).IsEqualTo("blazor.webview.js");
+    }
+
+    [Test]
+    [Retry(5)]
     public async Task TryCreate_WhenManifestContainsWildcardPattern_ShouldResolveFileFromPattern(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
