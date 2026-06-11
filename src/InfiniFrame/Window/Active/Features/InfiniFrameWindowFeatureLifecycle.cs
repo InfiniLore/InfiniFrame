@@ -188,16 +188,13 @@ public class InfiniFrameWindowFeatureLifecycle(
             return;
         }
 
-        window.Invoke(() => {
-            IntPtr h = window.InstanceHandle;
-            if (h == IntPtr.Zero) {
-                logger.LogDebug("Skipping Close because window is not initialized");
-                return;
-            }
-
-            InfiniFrameNative.Close(h);
-            MarkAsClosed();
-        });
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle, 
+            window.ManagedThreadId,
+            InfiniFrameNative.Close
+        );
+        MarkAsClosed();
     }
 
     /// <summary>

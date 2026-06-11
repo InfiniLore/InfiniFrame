@@ -76,7 +76,7 @@ public class InfiniFrameWindowFeatureDecorations(
     public void SetTitle(string? title) {
         if (window.Features.Lifecycle.IsClosedOrClosing()) return;
         
-        var oldTitle = NativeInvoke.InvokeSyncWithValidation<string?>(
+        string? oldTitle = NativeInvoke.InvokeSyncWithValidation<string?>(
             logger,
             window.InstanceHandle,
             window.ManagedThreadId,

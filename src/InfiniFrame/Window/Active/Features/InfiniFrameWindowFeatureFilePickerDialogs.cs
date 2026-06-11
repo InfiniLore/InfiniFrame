@@ -40,7 +40,7 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
 
         string[] nativeFilters = GetNativeFilters(filters);
 
-        NativeInvoke.InvokeSyncWithValidation<string, string, string[], int, string?, string>(
+        string? result = NativeInvoke.InvokeSyncWithValidation<string, string, string[], int, string?, string>(
             logger,
             window.InstanceHandle, 
             window.ManagedThreadId,
@@ -49,8 +49,7 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
             defaultPath,
             nativeFilters,
             filters.Length,
-            null, // TODO actually assign this
-            out string? result
+            null // TODO actually assign this
         );
 
         return result;
@@ -69,19 +68,18 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
         string[] nativeFilters = GetNativeFilters(filters, foldersOnly);
 
         if (foldersOnly) {
-            NativeInvoke.InvokeSyncWithValidation(
+            results = NativeInvoke.InvokeSyncWithValidation<string, string, bool, string?[]>(
                 logger,
                 window.InstanceHandle, 
                 window.ManagedThreadId,
                 InfiniFrameNative.ShowOpenFolder,
                 title,
                 defaultPath,
-                multiSelect,
-                out results
+                multiSelect
             );
         }
         else {
-            NativeInvoke.InvokeSyncWithValidation(
+            results = NativeInvoke.InvokeSyncWithValidation<string, string, bool, string[], int, string?[]>(
                 logger,
                 window.InstanceHandle,
                 window.ManagedThreadId,
@@ -90,8 +88,7 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
                 defaultPath,
                 multiSelect,
                 nativeFilters,
-                nativeFilters.Length,
-                out results
+                nativeFilters.Length
             );
         }
 

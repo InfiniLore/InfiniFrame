@@ -12,6 +12,21 @@
 
 static const int MAX_WINDOW_DIMENSION = 10000;
 
+static void ApplyMediaAutoplayConfiguration(InfiniFrameWindow::Impl* impl)
+{
+    if (impl == nullptr || impl->_webviewConfiguration == nil)
+        return;
+
+    SEL selector = NSSelectorFromString(@"setMediaTypesRequiringUserActionForPlayback:");
+    if (![impl->_webviewConfiguration respondsToSelector: selector])
+        return;
+
+    using SetMediaTypesFn = void (*)(id, SEL, NSUInteger);
+    auto setter = reinterpret_cast<SetMediaTypesFn>([impl->_webviewConfiguration methodForSelector: selector]);
+    const NSUInteger mediaTypesMask = impl->_mediaAutoplayEnabled ? 0u : NSUIntegerMax;
+    setter(impl->_webviewConfiguration, selector, mediaTypesMask);
+}
+
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 {
     *enabled = false;
@@ -242,6 +257,15 @@ void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
 void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 {
     (void)enabled;
+}
+
+void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
+{
+    m_impl->_mediaAutoplayEnabled = enabled;
+    ApplyMediaAutoplayConfiguration(m_impl.get());
+
+    if (m_impl->_webview != nil)
+        [m_impl->_webview reload];
 }
 
 void InfiniFrameWindow::SetZoomEnabled(bool enabled)

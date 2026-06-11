@@ -86,7 +86,7 @@ public partial class InfiniFrameEvents {
 
             case InteropEnvelopeProtocol.GetCommand:
                 try {
-                    if (!EventsStore.WebMessageGetData.TryInvoke(messageId, Sender!, payload, out var response)) {
+                    if (!EventsStore.WebMessageGetData.TryInvoke(messageId, Sender!, payload, out string? response)) {
                         SendError(Sender, parseResult.RequestId,
                             $"No getMessage handler is registered for message ID '{messageId}'.");
                         return;

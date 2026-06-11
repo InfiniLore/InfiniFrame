@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Delegates;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections.Immutable;
 using System.Drawing;
 
@@ -10,19 +12,24 @@ namespace InfiniFrame.Utilities;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class MonitorsUtility {
-    public static InfiniFrameNativeInteropStatus GetMonitors(IntPtr instanceHandle, out ImmutableArray<InfiniMonitor> monitors) {
+    public static ImmutableArray<InfiniMonitor> GetMonitors(IInfiniFrameWindow window) {
         ImmutableArray<InfiniMonitor>.Builder builder = ImmutableArray.CreateBuilder<InfiniMonitor>();
 
-        InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetAllMonitors(instanceHandle, Callback);
-        monitors = builder.ToImmutable();
-        return status;
+        NativeInvoke.InvokeSyncWithValidation(
+            NullLogger<IInfiniFrameWindow>.Instance,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetAllMonitors,
+            (CppGetAllMonitorsDelegate) Callback
+        );
+        return builder.ToImmutable();
 
         int Callback(in NativeMonitor monitor) {
             builder.Add(new InfiniMonitor(monitor.Monitor, monitor.Work, monitor.Scale));
             return 1;
         }
     }
-
+    
     public static bool TryGetCurrentMonitor(ImmutableArray<InfiniMonitor> monitors, Rectangle windowBounds, out InfiniMonitor monitor) {
         monitor = default;
         if (monitors.IsDefaultOrEmpty) return false;
@@ -82,20 +89,25 @@ internal static class MonitorsUtility {
     }
 
     public static bool TryGetCurrentWindowAndMonitor(IInfiniFrameWindow window, out Rectangle windowRect, out InfiniMonitor monitor) {
-        InfiniFrameNativeInteropStatus status = GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
-        if (status != InfiniFrameNativeInteropStatus.Success) {
-            windowRect = default;
-            monitor = default;
-            return false;
-        }
+        ImmutableArray<InfiniMonitor> monitors = GetMonitors(window);
 
-        status = InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out windowRect);
+        (int x, int y) = NativeInvoke.InvokeSyncWithValidation<int, int>(
+            NullLogger<IInfiniFrameWindow>.Instance, 
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetPosition
+        );
+        
+        (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
+            NullLogger<IInfiniFrameWindow>.Instance, 
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetSize
+        );
+        
+        windowRect = new Rectangle(x, y, width, height);
         
         // ReSharper disable once InvertIf
-        if (status != InfiniFrameNativeInteropStatus.Success) {
-            monitor = default;
-            return false;
-        }
 
         return TryGetCurrentMonitor(monitors, windowRect, out monitor);
     }

@@ -102,14 +102,32 @@ public class InfiniFrameWindowFeatureBrowser(
     public void EnableContextMenu(bool enabled = true) {
         logger.LogDebug(".EnableContextMenu({Enabled})", enabled);
 
-        window.Invoke(() => {
-            InfiniFrameNative.GetContextMenuEnabled(window.InstanceHandle, out bool isEnabled);
-            if (isEnabled == enabled) {
-                return;
-            }
+        bool originalValue = NativeInvoke.InvokeSyncWithValidation<bool>(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetContextMenuEnabled
+        );
+        
+        if (originalValue == enabled) return;
+        
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetContextMenuEnabled,
+            enabled
+        );
+    }
 
-            InfiniFrameNative.SetContextMenuEnabled(window.InstanceHandle, enabled);
-        });
+    public void EnableMediaAutoplay(bool enabled = true) {
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetMediaAutoplayEnabled,
+            enabled
+        );
     }
 
     [SupportedOSPlatform("windows")]

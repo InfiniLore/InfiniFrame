@@ -14,7 +14,7 @@ public class InfiniFrameWindowFeatureSize(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeatureSize> logger
 ) : IInfiniFrameWindowFeatureSize {
-    
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public Size Size => NativeInvoke.InvokeSyncWithValidation(
         logger,
@@ -26,13 +26,13 @@ public class InfiniFrameWindowFeatureSize(
             return status;
         }
     );
-       
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public int Height => NativeInvoke.InvokeSyncWithValidation(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
-        (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out _, out value)
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out _, out value)
     );
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -40,7 +40,7 @@ public class InfiniFrameWindowFeatureSize(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
-        (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out value, out _)
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out value, out _)
     );
 
 
@@ -49,7 +49,7 @@ public class InfiniFrameWindowFeatureSize(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
-        (IntPtr handle, out Size value) => {
+        callback: (IntPtr handle, out Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMaxSize(handle, out int width, out int height);
             value = new Size(width, height);
             return status;
@@ -61,7 +61,7 @@ public class InfiniFrameWindowFeatureSize(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
-        (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out _, out value)
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out _, out value)
     );
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -69,7 +69,7 @@ public class InfiniFrameWindowFeatureSize(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
-        (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out value, out _)
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out value, out _)
     );
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -77,7 +77,7 @@ public class InfiniFrameWindowFeatureSize(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
-        (IntPtr handle, out Size value) => {
+        callback: (IntPtr handle, out Size value) => {
             InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMinSize(handle, out int width, out int height);
             value = new Size(width, height);
             return status;
@@ -89,7 +89,7 @@ public class InfiniFrameWindowFeatureSize(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
-        (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out _, out value)
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out _, out value)
     );
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -97,13 +97,13 @@ public class InfiniFrameWindowFeatureSize(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
-        (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out value, out _)
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out value, out _)
     );
-    
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsResizable => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
-        window.InstanceHandle, 
+        window.InstanceHandle,
         window.ManagedThreadId,
         InfiniFrameNative.GetResizable
     );
@@ -115,7 +115,14 @@ public class InfiniFrameWindowFeatureSize(
     public void SetSize(int width, int height) {
         logger.LogDebug(".SetSize({Width}, {Height})", width, height);
 
-        window.Invoke(() => InfiniFrameNative.SetSize(window.InstanceHandle, width, height));
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetSize,
+            width,
+            height
+        );
     }
 
     public void SetSize(Size size)
@@ -124,16 +131,34 @@ public class InfiniFrameWindowFeatureSize(
     public void SetHeight(int height) {
         logger.LogDebug(".SetHeight({Height})", height);
 
-        window.Invoke(() => {
-            InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out _);
-            InfiniFrameNative.SetSize(window.InstanceHandle, width, height);
-        });
+        (int width, int _) = NativeInvoke.InvokeSyncWithValidation<int, int>(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetSize
+        );
 
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetSize,
+            width,
+            height
+        );
     }
 
     public void SetMaxSize(int maxWidth, int maxHeight) {
         logger.LogDebug(".SetMaxSize({MaxWidth}, {MaxHeight})", maxWidth, maxHeight);
-        window.Invoke(() => InfiniFrameNative.SetMaxSize(window.InstanceHandle, maxWidth, maxHeight));
+
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetMaxSize,
+            maxWidth,
+            maxHeight
+        );
     }
 
     public void SetMaxSize(Size size)
@@ -145,11 +170,17 @@ public class InfiniFrameWindowFeatureSize(
     public void SetMaxWidth(int maxWidth)
         => SetMaxSize(maxWidth, MaxHeight);
 
-
-
     public void SetMinSize(int minWidth, int minHeight) {
         logger.LogDebug(".SetMinSize({MinWidth}, {MinHeight})", minWidth, minHeight);
-        window.Invoke(() => InfiniFrameNative.SetMinSize(window.InstanceHandle, minWidth, minHeight));
+
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetMinSize,
+            minWidth,
+            minHeight
+        );
     }
 
     public void SetMinSize(Size size)
@@ -161,110 +192,142 @@ public class InfiniFrameWindowFeatureSize(
     public void SetMinWidth(int minWidth)
         => SetMinSize(minWidth, MinHeight);
 
-    
+
 
     public void SetWidth(int width) {
         logger.LogDebug(".SetWidth({Width})", width);
 
-        window.Invoke(() => {
-            InfiniFrameNative.GetSize(window.InstanceHandle, out _, out int height);
-            InfiniFrameNative.SetSize(window.InstanceHandle, width, height);
-        });
+        (int _, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetSize
+        );
 
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetSize,
+            width,
+            height
+        );
     }
 
     public void Resize(int widthOffset, int heightOffset, ResizeOrigin origin) {
-        window.Invoke(() => {
-            InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height);
-            InfiniFrameNative.GetPosition(window.InstanceHandle, out int originalX, out int originalY);
 
-            int x = originalX;
-            int y = originalY;
-            switch (origin) {
-                case ResizeOrigin.TopLeft: {
-                    x += widthOffset;
-                    y += heightOffset;
-                    width -= widthOffset;
-                    height -= heightOffset;
-                    break;
-                }
+        (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetSize
+        );
+        (int originalX, int originalY) = NativeInvoke.InvokeSyncWithValidation<int, int>(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetPosition
+        );
 
-                case ResizeOrigin.Top: {
-                    y += heightOffset;
-                    height -= heightOffset;
-                    break;
-                }
-
-                case ResizeOrigin.TopRight: {
-                    y += heightOffset;
-                    width += widthOffset;
-                    height -= heightOffset;
-                    break;
-                }
-
-                case ResizeOrigin.Right: {
-                    width += widthOffset;
-                    break;
-                }
-
-                case ResizeOrigin.BottomRight: {
-                    width += widthOffset;
-                    height += heightOffset;
-                    break;
-                }
-
-                case ResizeOrigin.Bottom: {
-                    height += heightOffset;
-                    break;
-                }
-
-                case ResizeOrigin.BottomLeft: {
-                    x += widthOffset;
-                    width -= widthOffset;
-                    height += heightOffset;
-                    break;
-                }
-
-                case ResizeOrigin.Left: {
-                    x += widthOffset;
-                    width -= widthOffset;
-                    break;
-                }
-
-                default: throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
+        int x = originalX;
+        int y = originalY;
+        switch (origin) {
+            case ResizeOrigin.TopLeft: {
+                x += widthOffset;
+                y += heightOffset;
+                width -= widthOffset;
+                height -= heightOffset;
+                break;
             }
 
-            // Clamping between min and max size
-            Size max = MaxSize;
-            Size min = MinSize;
-
-            if (width >= max.Width) {
-                width = max.Width;
-                x = originalX;
+            case ResizeOrigin.Top: {
+                y += heightOffset;
+                height -= heightOffset;
+                break;
             }
 
-            if (height >= max.Height) {
-                height = max.Height;
-                y = originalY;
+            case ResizeOrigin.TopRight: {
+                y += heightOffset;
+                width += widthOffset;
+                height -= heightOffset;
+                break;
             }
 
-            if (width <= min.Width) {
-                width = min.Width;
-                x = originalX;
+            case ResizeOrigin.Right: {
+                width += widthOffset;
+                break;
             }
 
-            if (height <= min.Height) {
-                height = min.Height;
-                y = originalY;
+            case ResizeOrigin.BottomRight: {
+                width += widthOffset;
+                height += heightOffset;
+                break;
             }
 
-            InfiniFrameNative.SetSize(window.InstanceHandle, width, height);
-            InfiniFrameNative.SetPosition(window.InstanceHandle, x, y);
+            case ResizeOrigin.Bottom: {
+                height += heightOffset;
+                break;
+            }
 
-        });
+            case ResizeOrigin.BottomLeft: {
+                x += widthOffset;
+                width -= widthOffset;
+                height += heightOffset;
+                break;
+            }
+
+            case ResizeOrigin.Left: {
+                x += widthOffset;
+                width -= widthOffset;
+                break;
+            }
+
+            default: throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
+        }
+
+        // Clamping between min and max size
+        Size max = MaxSize;
+        Size min = MinSize;
+
+        if (width >= max.Width) {
+            width = max.Width;
+            x = originalX;
+        }
+
+        if (height >= max.Height) {
+            height = max.Height;
+            y = originalY;
+        }
+
+        if (width <= min.Width) {
+            width = min.Width;
+            x = originalX;
+        }
+
+        if (height <= min.Height) {
+            height = min.Height;
+            y = originalY;
+        }
+
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetSize,
+            width,
+            height
+        );
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetPosition,
+            x,
+            y
+        );
     }
-    
-    public void SetResizable(bool resizable) {
+
+    public void SetResizable(bool resizable = true) {
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window.InstanceHandle,

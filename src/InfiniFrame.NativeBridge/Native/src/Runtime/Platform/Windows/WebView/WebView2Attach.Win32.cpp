@@ -254,6 +254,21 @@ void InfiniFrameWindow::AttachWebView() {
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
                                             return S_OK;
 
+#ifdef COREWEBVIEW2_PERMISSION_KIND_AUTOPLAY
+                                        COREWEBVIEW2_PERMISSION_KIND permissionKind =
+                                            COREWEBVIEW2_PERMISSION_KIND_UNKNOWN_PERMISSION;
+                                        if (args != nullptr)
+                                            args->get_PermissionKind(&permissionKind);
+                                        if (permissionKind == COREWEBVIEW2_PERMISSION_KIND_AUTOPLAY) {
+                                            args->put_State(
+                                                m_impl->_mediaAutoplayEnabled
+                                                    ? COREWEBVIEW2_PERMISSION_STATE_ALLOW
+                                                    : COREWEBVIEW2_PERMISSION_STATE_DENY
+                                            );
+                                            return S_OK;
+                                        }
+#endif
+
                                         if (m_impl->_grantBrowserPermissions)
                                             args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);
                                         return S_OK;

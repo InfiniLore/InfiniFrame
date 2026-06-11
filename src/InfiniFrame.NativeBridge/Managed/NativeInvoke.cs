@@ -137,6 +137,29 @@ internal static class NativeInvoke {
         EnsureSuccess(logger, status);
     }
 
+    internal static (T1?, T2?) InvokeSyncWithValidation<T1, T2>(
+        ILogger logger,
+        IntPtr windowInstanceHandle,
+        int managedThreadId,
+        GetSizeFunc<T1, T2> callback
+    ) {
+        ArgumentNullException.ThrowIfNull(callback);
+        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+
+        T1? arg1 = default;
+        T2? arg2 = default;
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
+            logger,
+            windowInstanceHandle,
+            managedThreadId,
+            callback: () => callback(windowInstanceHandle, out arg1, out arg2)
+        );
+
+        EnsureSuccess(logger, status);
+
+        return (arg1, arg2);
+    }
+
     internal static void InvokeSyncWithValidation<T1, T2, T3>(
         ILogger logger,
         IntPtr windowInstanceHandle,
@@ -182,31 +205,54 @@ internal static class NativeInvoke {
         EnsureSuccess(logger, status);
     }
     
-    internal static void InvokeSyncWithValidation<T1, T2, T3, T4>(
+    internal static T4? InvokeSyncWithValidation<T1, T2, T3, T4>(
         ILogger logger,
         IntPtr windowInstanceHandle,
         int managedThreadId,
         ShowOpenDialogFoldersFunc<T1, T2, T3, T4> callback,
         T1 arg1,
         T2 arg2,
-        T3 arg3,
-        out T4? arg4
+        T3 arg3
     ) {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
 
-        arg4 = default;
-        T4? arg4Temp = default;
+        T4? arg4 = default;
         
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
             windowInstanceHandle,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, out arg4Temp)
+            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, out arg4)
         );
         
-        arg4 = arg4Temp;
         EnsureSuccess(logger, status);
+        return arg4;
+    }
+    
+    internal static (T1?, T2?, T3?, T4?) InvokeSyncWithValidation<T1, T2, T3, T4>(
+        ILogger logger,
+        IntPtr windowInstanceHandle,
+        int managedThreadId,
+        GetWindowRectangleFunc<T1, T2, T3, T4> callback
+    ) {
+        ArgumentNullException.ThrowIfNull(callback);
+        ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
+        
+        T1? arg1 = default;
+        T2? arg2 = default;
+        T3? arg3 = default;
+        T4? arg4 = default;
+        
+        InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
+            logger,
+            windowInstanceHandle,
+            managedThreadId,
+            callback: () => callback(windowInstanceHandle, out arg1, out arg2, out arg3, out arg4)
+        );
+
+        EnsureSuccess(logger, status);
+        return (arg1, arg2, arg3, arg4);
     }
 
     internal static void InvokeSyncWithValidation<T1, T2, T3, T4, T5>(
@@ -286,7 +332,7 @@ internal static class NativeInvoke {
         EnsureSuccess(logger, status);
     }
 
-    internal static void InvokeSyncWithValidation<T1, T2, T3, T4, T5, T6>(
+    internal static T6? InvokeSyncWithValidation<T1, T2, T3, T4, T5, T6>(
         ILogger logger,
         IntPtr windowInstanceHandle,
         int managedThreadId,
@@ -295,23 +341,20 @@ internal static class NativeInvoke {
         T2 arg2,
         T3 arg3,
         T4 arg4,
-        T5 arg5,
-        out T6? arg6
+        T5 arg5
     ) {
         ArgumentNullException.ThrowIfNull(callback);
         ArgumentOutOfRangeException.ThrowIfZero(windowInstanceHandle);
         
-        arg6 = default;
-        T6? arg6Temp = default;
+        T6? arg6 = default;
         InfiniFrameNativeInteropStatus status = ExecuteInvokeSync(
             logger,
             windowInstanceHandle,
             managedThreadId,
-            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, arg4, arg5, out arg6Temp));
-        
-        arg6 = arg6Temp;
+            callback: () => callback(windowInstanceHandle, arg1, arg2, arg3, arg4, arg5, out arg6));
         
         EnsureSuccess(logger, status);
+        return arg6;
     }
 
     internal static void InvokeSyncWithValidation<T1, T2, T3, T4, T5, T6, T7>(
@@ -561,12 +604,16 @@ internal static class NativeInvoke {
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T>(IntPtr handle, T arg);
 
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2>(IntPtr handle, T1 arg, T2 arg2);
+    
+    internal delegate InfiniFrameNativeInteropStatus GetSizeFunc<T1, T2>(IntPtr handle, out T1 arg, out T2 arg2);
 
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2, in T3>(IntPtr handle, T1 arg, T2 arg2, T3 arg3);
 
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2, in T3, in T4>(IntPtr handle, T1 arg, T2 arg2, T3 arg3, T4 arg4);
     
     internal delegate InfiniFrameNativeInteropStatus ShowOpenDialogFoldersFunc<in T1, in T2, in T3, T4>(IntPtr handle, T1 arg, T2 arg2, T3 arg3, out T4? arg4);
+    
+    internal delegate InfiniFrameNativeInteropStatus GetWindowRectangleFunc<T1, T2, T3, T4>(IntPtr handle, out T1? arg, out T2? arg2, out T3? arg3, out T4? arg4);
 
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2, in T3, in T4, in T5>(IntPtr handle, T1 arg, T2 arg2, T3 arg3, T4 arg4, T5 arg5);
     

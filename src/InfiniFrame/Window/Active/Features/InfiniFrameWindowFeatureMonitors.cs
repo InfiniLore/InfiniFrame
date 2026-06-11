@@ -4,7 +4,6 @@
 using InfiniFrame.NativeBridge;
 using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
-using System.Collections.Immutable;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,12 +27,7 @@ public class InfiniFrameWindowFeatureMonitors(
     public IEnumerable<InfiniMonitor> GetMonitors() {
         if (window.IsClosedOrClosing()) return [];
 
-        return NativeInvoke.InvokeSyncWithValidation<ImmutableArray<InfiniMonitor>>(
-            logger,
-            window.InstanceHandle,
-            window.ManagedThreadId,
-            MonitorsUtility.GetMonitors
-        );
+        return MonitorsUtility.GetMonitors(window);
     }
 
     /// <summary>

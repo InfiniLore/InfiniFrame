@@ -53,7 +53,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
             .AddBlazorWebView()
             .AddSingleton(resolvedFileProvider)
             .AddSingleton<IInfiniFrameStaticAssets>(static provider => {
-                var config = provider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
+                InfiniFrameBlazorAppConfiguration config = provider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
                     ?? new InfiniFrameBlazorAppConfiguration();
 
                 return new InfiniFrameStaticAssets {
@@ -141,7 +141,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
         var manager = serviceProvider.GetRequiredService<IInfiniFrameWebViewManager>();
-        var appConfig = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
+        InfiniFrameBlazorAppConfiguration appConfig = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
             ?? new InfiniFrameBlazorAppConfiguration();
         string startupUrl = BuildStartupUrl(appConfig);
         var staticAssets = serviceProvider.GetRequiredService<IInfiniFrameStaticAssets>();
