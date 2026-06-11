@@ -16,6 +16,7 @@ public interface IInfiniFrameWindowFeatureBrowser {
     bool IsIgnoreCertificateErrorsEnabled { get; }
     bool GrantBrowserPermissions { get; }
     bool IsSmoothScrollingEnabled { get; }
+    string? BrowserControlInitParameters { get; }
     
     void EnableContextMenu(bool enabled = true);
     void Win32SetWebView2Path(string data);
