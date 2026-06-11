@@ -54,6 +54,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
             windowBuilder: windowBuilder => {
                 if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(_playwrightDevtoolsPort);
                 windowBuilder
+                    .SetIconFile("favicon.ico")
                     .SetStartPageUrl(ServerUrl)
                     .SetTitle(DefaultDocumentTitle)
                     .RegisterWindowManagementWebMessageHandler()

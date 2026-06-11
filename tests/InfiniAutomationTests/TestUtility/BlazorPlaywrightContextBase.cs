@@ -56,6 +56,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     protected virtual void ConfigureWindowBuilder(IInfiniFrameWindowBuilder windowBuilder, int playwrightDevtoolsPort) {
         if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(playwrightDevtoolsPort);
         windowBuilder
+            .SetIconFile("favicon.ico")
             .SetTitle(DefaultDocumentTitle)
             .RegisterWindowManagementWebMessageHandler()
             .RegisterFullScreenWebMessageHandler()
