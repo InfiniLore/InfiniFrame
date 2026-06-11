@@ -25,12 +25,10 @@ public class WebMessageReceivedHandlerTests {
         var builder = InfiniFrameWindowBuilder.Create(null, eventsStore);
         var service = new TestService();
         var window = new InfiniFrameWindow {
-            Logger = NullLogger<IInfiniFrameWindow>.Instance,
-            ServiceProvider = new TestServiceProvider(service),
+            ServiceProvider = new TestServiceProvider(service), 
             Events = events,
             Debugging = debugging,
-            Configuration = Substitute.For<IInfiniFrameOptions>(),
-            StaticAssets = null
+            Configuration = Substitute.For<IInfiniFrameWindowConfiguration>()
         };
         var nativeParameters = default(InfiniFrameNativeParameters);
         events.AssignEventCallbacks(ref nativeParameters);
@@ -63,7 +61,7 @@ public class WebMessageReceivedHandlerTests {
             ServiceProvider = null,
             Events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore),
             Debugging = debugging,
-            Configuration = Substitute.For<IInfiniFrameOptions>(),
+            Configuration = Substitute.For<IInfiniFrameWindowConfiguration>(),
             StaticAssets = null
         };
 

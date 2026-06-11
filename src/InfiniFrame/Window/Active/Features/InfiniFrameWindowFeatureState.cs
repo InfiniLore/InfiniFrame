@@ -79,7 +79,7 @@ public class InfiniFrameWindowFeatureState(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IInfiniFrameWindow SetMaximized(bool maximized) {
+    public void SetMaximized(bool maximized = true) {
         logger.LogDebug(".SetMaximized({Maximized})", maximized);
         window.Invoke(() => {
             if (!window.Features.Decorations.IsChromeless) {
@@ -108,10 +108,9 @@ public class InfiniFrameWindowFeatureState(
                 window.Events.OnRestored();
             }
         });
-        return window;
     }
 
-    public IInfiniFrameWindow ToggleMaximized() {
+    public void ToggleMaximized() {
         logger.LogDebug(".ToggleMaximized()");
         window.Invoke(() => {
             InfiniFrameNative.GetMaximized(window.InstanceHandle, out bool maximized);
@@ -142,20 +141,18 @@ public class InfiniFrameWindowFeatureState(
                 window.Events.OnRestored();
             }
         });
-        return window;
     }
 
-    public IInfiniFrameWindow SetMinimized(bool minimized) {
+    public void SetMinimized(bool minimized = true) {
         logger.LogDebug(".SetMinimized({Minimized})", minimized);
         window.Invoke(() => InfiniFrameNative.SetMinimized(window.InstanceHandle, minimized));
-        return window;
     }
 
-    public IInfiniFrameWindow SetFullScreen(bool fullScreen) {
+    public void SetFullScreen(bool fullScreen = true) {
         logger.LogDebug(".SetFullScreen({FullScreen})", fullScreen);
         if (IsFullScreen == fullScreen) {
             logger.LogDebug("Window is already of the same fullscreen state of {fullscreen}", fullScreen);
-            return window;
+            return;
         }
 
         if (fullScreen) {
@@ -179,7 +176,7 @@ public class InfiniFrameWindowFeatureState(
                 InfiniFrameNative.SetSize(window.InstanceHandle, currentMonitorArea.Width, currentMonitorArea.Height);
             });
 
-            return window;
+            return;
         }
 
         // Set Fullscreen to false => Restore to previous state
@@ -189,11 +186,10 @@ public class InfiniFrameWindowFeatureState(
             InfiniFrameNative.SetSize(window.InstanceHandle, CachedPreFullScreenBounds.Width, CachedPreFullScreenBounds.Height);
         });
 
-        return window;
     }
 
-    public IInfiniFrameWindow SetFocused() {
-        if (window.Features.Lifecycle.IsClosedOrClosing()) return window;
+    public void SetFocused() {
+        if (window.Features.Lifecycle.IsClosedOrClosing()) return;
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -201,11 +197,10 @@ public class InfiniFrameWindowFeatureState(
             window.ManagedThreadId,
             InfiniFrameNative.SetFocused
         );
-        return window;
     }   
     
-    public IInfiniFrameWindow SetZoom(int zoom) {
-        if (window.Features.Lifecycle.IsClosedOrClosing()) return window;
+    public void SetZoom(int zoom) {
+        if (window.Features.Lifecycle.IsClosedOrClosing()) return;
         
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -214,12 +209,11 @@ public class InfiniFrameWindowFeatureState(
             InfiniFrameNative.SetZoom,
             zoom
         );
-        
-        return window;
+
     }
 
-    public IInfiniFrameWindow SetZoomEnabled(bool zoomEnabled) {
-        if (window.Features.Lifecycle.IsClosedOrClosing()) return window;
+    public void SetZoomEnabled(bool zoomEnabled = true) {
+        if (window.Features.Lifecycle.IsClosedOrClosing()) return;
 
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -229,12 +223,10 @@ public class InfiniFrameWindowFeatureState(
             zoomEnabled
         );
 
-        return window;
     }
     
-    public IInfiniFrameWindow SetTopMost(bool topMost) {
+    public void SetTopMost(bool topMost = true) {
         logger.LogDebug(".SetTopMost({TopMost})", topMost);
         window.Invoke(() => InfiniFrameNative.SetTopmost(window.InstanceHandle, topMost));
-        return window;
     }
 }

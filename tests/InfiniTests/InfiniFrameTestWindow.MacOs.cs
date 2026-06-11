@@ -16,6 +16,7 @@ public sealed partial class InfiniFrameTestWindow {
         IInfiniFrameWindow window = windowBuilder.Build();
 
         var utility = new InfiniFrameTestWindow {
+            BuilderSnapshot = windowBuilder,
             Window = window
         };
 

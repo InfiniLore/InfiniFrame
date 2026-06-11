@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class InfiniFrameWindowBuilderFeatureStateExtensions {
+public static class IInfiniFrameWindowBuilderFeatureStateExtensions {
     public static IInfiniFrameWindowBuilder SetFullScreen(this IInfiniFrameWindowBuilder builder, bool fullScreen) {
         builder.Features.State.SetFullScreen(fullScreen);
         return builder;

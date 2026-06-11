@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace InfiniTests.InfiniFrame;
@@ -36,7 +35,7 @@ public class WindowTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        ImmutableArray<InfiniMonitor> monitors = window.Monitors;
+        IEnumerable<InfiniMonitor> monitors = window.GetMonitors();
 
         // Assert
         await Assert.That(monitors).IsNotEmpty();
@@ -92,14 +91,14 @@ public class WindowTests {
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
 
-        await Assert.That(window.IsClosed).IsFalse();
+        await Assert.That(window.IsClosedOrClosing()).IsFalse();
 
         window.Close();
         DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
-        while (!window.IsClosed && DateTime.UtcNow < timeoutAt) {
+        while (!window.IsClosedOrClosing() && DateTime.UtcNow < timeoutAt) {
             await Task.Delay(50, ct);
         }
 
-        await Assert.That(window.IsClosed).IsTrue();
+        await Assert.That(window.IsClosedOrClosing()).IsTrue();
     }
 }

@@ -50,7 +50,7 @@ public class InfiniFrameWindowFeaturePosition(
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     
-    public IInfiniFrameWindow SetLocation(int left, int top) {
+    public void SetLocation(int left, int top) {
         logger.LogDebug(".SetLocation({left}, {right})", left, top);
         window.Invoke(() => {
             InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
@@ -59,13 +59,12 @@ public class InfiniFrameWindowFeaturePosition(
             InfiniFrameNative.SetPosition(window.InstanceHandle, left, top);
         });
 
-        return window;
     }
     
-    public IInfiniFrameWindow SetLocation(Point location)
+    public void SetLocation(Point location)
         => SetLocation(location.X, location.Y);
     
-    public IInfiniFrameWindow SetLeft(int left) {
+    public void SetLeft(int left) {
         logger.LogDebug(".SetLeft({Left})", left);
 
         window.Invoke(() => {
@@ -75,9 +74,8 @@ public class InfiniFrameWindowFeaturePosition(
             InfiniFrameNative.SetPosition(window.InstanceHandle, left, top);
         });
 
-        return window;
     }    
-    public IInfiniFrameWindow SetTop(int top) {
+    public void SetTop(int top) {
         logger.LogDebug(".SetTop({Top})", top);
         window.Invoke(() => {
             InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int oldTop);
@@ -86,31 +84,28 @@ public class InfiniFrameWindowFeaturePosition(
             InfiniFrameNative.SetPosition(window.InstanceHandle, left, top);
         });
 
-        return window;
     }
     
-    public IInfiniFrameWindow Offset(int left, int top) {
+    public void Offset(int left, int top) {
         logger.LogDebug(".Offset({left}, {top})", left, top);
         window.Invoke(() => {
             InfiniFrameNative.GetPosition(window.InstanceHandle, out int oldLeft, out int oldTop);
             InfiniFrameNative.SetPosition(window.InstanceHandle, oldLeft + left, oldTop + top);
         });
-        return window;
     }
     
-    public IInfiniFrameWindow Offset(Point offset)
+    public void Offset(Point offset)
         => Offset(offset.X, offset.Y);
     
-    public IInfiniFrameWindow Offset(double left, double top)
+    public void Offset(double left, double top)
         => Offset((int)left, (int)top);
     
-    public IInfiniFrameWindow Center() {
+    public void Center() {
         logger.LogDebug(".Center()");
         window.Invoke(() => InfiniFrameNative.Center(window.InstanceHandle));
-        return window;
     }
     
-    public IInfiniFrameWindow CenterOnCurrentMonitor() {
+    public void CenterOnCurrentMonitor() {
         window.Invoke(() => {
             MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
             InfiniFrameNative.GetWindowRectangle(window.InstanceHandle, out Rectangle rectangle);
@@ -124,10 +119,9 @@ public class InfiniFrameWindowFeaturePosition(
             InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
         });
 
-        return window;
     }
     
-    public IInfiniFrameWindow CenterOnMonitor(int monitorIndex) {
+    public void CenterOnMonitor(int monitorIndex) {
         window.Invoke(() => {
             MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
 
@@ -143,10 +137,9 @@ public class InfiniFrameWindowFeaturePosition(
             InfiniFrameNative.SetPosition(window.InstanceHandle, newLocation.X, newLocation.Y);
         });
 
-        return window;
     }
     
-    public IInfiniFrameWindow MoveWithinCurrentMonitorArea(int left, int top) {
+    public void MoveWithinCurrentMonitorArea(int left, int top) {
         window.Invoke(() => {
             MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor);
             int horizontalWindowEdge = left + windowRect.Width;
@@ -188,13 +181,12 @@ public class InfiniFrameWindowFeaturePosition(
 
             InfiniFrameNative.SetPosition(window.InstanceHandle, left, top);
         });
-        return window;
     }
     
-    public IInfiniFrameWindow MoveWithinCurrentMonitorArea(Point location)
+    public void MoveWithinCurrentMonitorArea(Point location)
         => MoveWithinCurrentMonitorArea(location.X, location.Y);
     
-    public IInfiniFrameWindow MoveWithinCurrentMonitorArea(double left, double top)
+    public void MoveWithinCurrentMonitorArea(double left, double top)
         => MoveWithinCurrentMonitorArea((int)left, (int)top);
 
 

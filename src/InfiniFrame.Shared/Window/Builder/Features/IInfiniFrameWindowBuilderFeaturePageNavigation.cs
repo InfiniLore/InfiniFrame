@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeaturePageNavigation {
+public interface IInfiniFrameWindowBuilderFeaturePageNavigation : IInfiniFrameWindowBuilderFeature{
     string? StartString { get; }
     string? StartUrl { get; }
     

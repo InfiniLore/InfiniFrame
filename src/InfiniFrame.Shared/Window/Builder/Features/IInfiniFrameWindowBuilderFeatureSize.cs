@@ -7,7 +7,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeatureSize{
+public interface IInfiniFrameWindowBuilderFeatureSize : IInfiniFrameWindowBuilderFeature{
     int Height { get; } 
     int Width { get; }
     int MaxHeight { get; }

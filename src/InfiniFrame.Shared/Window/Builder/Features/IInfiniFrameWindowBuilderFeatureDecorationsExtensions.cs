@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class InfiniFrameWindowBuilderFeatureDecorationsExtensions {
+public static class IInfiniFrameWindowBuilderFeatureDecorationsExtensions {
     public static IInfiniFrameWindowBuilder SetChromeless(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
         builder.Features.Decorations.SetChromeless(enabled);
         return builder;

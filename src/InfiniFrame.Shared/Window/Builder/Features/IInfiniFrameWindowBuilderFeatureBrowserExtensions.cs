@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class InfiniFrameWindowBuilderFeatureBrowserExtensions {
+public static class IInfiniFrameWindowBuilderFeatureBrowserExtensions {
     public static IInfiniFrameWindowBuilder EnableContextMenu(this IInfiniFrameWindowBuilder builder, bool enabled = true) {
         builder.Features.Browser.EnableContextMenu(enabled);
         return builder;

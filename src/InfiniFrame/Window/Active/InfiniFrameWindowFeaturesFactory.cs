@@ -11,7 +11,7 @@ namespace InfiniFrame;
 public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
     private static ILogger<T> GetLogger<T>(IServiceProvider provider) => provider.GetRequiredService<ILogger<T>>();
         
-    public IInfiniFrameWindowFeatures Create(IInfiniFrameWindow window) 
+    public IInfiniFrameWindowFeatures Create(IInfiniFrameWindow window, IInfiniFrameWindowBuilder originalBuilder) 
         => new InfiniFrameWindowFeatures(
             Lifecycle: new InfiniFrameWindowFeatureLifecycle(
                 window,
@@ -52,6 +52,7 @@ public class InfiniFrameWindowFeaturesFactory(IServiceProvider provider) {
             ), 
             Decorations: new InfiniFrameWindowFeatureDecorations(
                 window,
+                originalBuilder,
                 GetLogger<InfiniFrameWindowFeatureDecorations>(provider)
             ),
             State: new InfiniFrameWindowFeatureState(

@@ -207,13 +207,13 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetTop(0)
             .SetSize(100, 100)
             .SetResizable(false)
-            .SetChromeless(true)
+            .SetChromeless()
             .EnableSmoothScrolling(false)
         );
 
         // Assert
         await Assert.That(appbuilder).IsNotNull();
-        await Assert.That(appbuilder.WindowBuilder.Configuration.BrowserControlInitParameters).IsEqualTo(
+        await Assert.That(appbuilder.WindowBuilder.Features.Browser.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }
@@ -234,12 +234,12 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetTop(0)
             .SetSize(100, 100)
             .SetResizable(false)
-            .SetChromeless(true)
+            .SetChromeless()
             .EnableSmoothScrolling(false);
 
         // Assert
         await Assert.That(appbuilder).IsNotNull();
-        await Assert.That(appbuilder.WindowBuilder.Configuration.BrowserControlInitParameters).IsEqualTo(
+        await Assert.That(appbuilder.WindowBuilder.Features.Browser.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }
@@ -261,7 +261,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetTop(0)
             .SetSize(100, 100)
             .SetResizable(false)
-            .SetChromeless(true)
+            .SetChromeless()
             .EnableSmoothScrolling(false)
         );
 
@@ -293,7 +293,7 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetTop(0)
             .SetSize(100, 100)
             .SetResizable(false)
-            .SetChromeless(true)
+            .SetChromeless()
             .EnableSmoothScrolling(false);
 
         InfiniFrameBlazorApp app = appbuilder.Build();

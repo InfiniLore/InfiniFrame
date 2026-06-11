@@ -12,10 +12,12 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowFeatureDecorations(
     IInfiniFrameWindow window,
+    IInfiniFrameWindowBuilder originalBuilder,
     ILogger<InfiniFrameWindowFeatureDecorations> logger
 ) : IInfiniFrameWindowFeatureDecorations {
     
     public bool IsChromeless => window.Configuration.StartupParameters.Chromeless;
+    public bool LimitLinuxWindowTitleLength { get; set; } = originalBuilder.Features.Decorations.LimitLinuxWindowTitleLength;
     
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsTransparent {
@@ -55,10 +57,10 @@ public class InfiniFrameWindowFeatureDecorations(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IInfiniFrameWindow SetTransparent(bool enabled) {
+    public void SetTransparent(bool enabled) {
         if (OperatingSystem.IsWindows()) {
             logger.LogWarning("Transparent can only be set on Windows before the native window is instantiated.");
-            return window;
+            return;
         }
 
         logger.LogDebug("Invoking InfiniFrameNative.SetTransparentEnabled({value})", enabled);
@@ -69,11 +71,10 @@ public class InfiniFrameWindowFeatureDecorations(
             InfiniFrameNative.SetTransparentEnabled,
             enabled
         );
-        return window;
     }
     
-    public IInfiniFrameWindow SetTitle(string? title) {
-        if (window.Features.Lifecycle.IsClosedOrClosing()) return window;
+    public void SetTitle(string? title) {
+        if (window.Features.Lifecycle.IsClosedOrClosing()) return;
         
         var oldTitle = NativeInvoke.InvokeSyncWithValidation<string?>(
             logger,
@@ -82,10 +83,10 @@ public class InfiniFrameWindowFeatureDecorations(
             InfiniFrameNative.GetTitle
         );
         
-        if (title == oldTitle) return window;
+        if (title == oldTitle) return;
         
         logger.LogDebug("Invoking InfiniFrameNative.SetTitle({title})", title);
-        string? newTitle = TitleStringUtility.Validate(title, window.Configuration.LimitLinuxWindowTitleLength);
+        string? newTitle = TitleStringUtility.Validate(title, LimitLinuxWindowTitleLength);
         
         NativeInvoke.InvokeSyncWithValidation(
             logger,
@@ -94,21 +95,20 @@ public class InfiniFrameWindowFeatureDecorations(
             InfiniFrameNative.SetTitle,
             newTitle
         );
-        
-        return window;
+
     }
 
-    public IInfiniFrameWindow SetIconFile(string iconFilePath) {
+    public void SetIconFile(string iconFilePath) {
         logger.LogDebug(".SetIconFile({IconFile})", iconFilePath);
 
         if (!IconFileUtility.TryResolveIconFilePath(iconFilePath, out string? resolvedIconFilePath)) {
             logger.LogWarning("Icon file {IconFile} does not exist or is an invalid file path.", iconFilePath);
-            return window;
+            return;
         }
 
         if (IconFilePath == resolvedIconFilePath) {
             logger.LogDebug("Icon file is already set to {IconFile}, skipping assignment", resolvedIconFilePath);
-            return window;
+            return;
         }
 
         NativeInvoke.InvokeSyncWithValidation(
@@ -118,8 +118,11 @@ public class InfiniFrameWindowFeatureDecorations(
             InfiniFrameNative.SetIconFile,
             resolvedIconFilePath
         );
-        
-        return window;
+
     }
+
+    public void SetLimitLinuxWindowTitleLength(bool enabled = true) {
+        LimitLinuxWindowTitleLength = enabled;
+    } 
 
 }

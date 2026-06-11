@@ -19,17 +19,17 @@ public interface IInfiniFrameWindowFeatureSize{
     int MinWidth { get; }
     bool IsResizable { get; }
     
-    IInfiniFrameWindow SetSize(int width, int height);
-    IInfiniFrameWindow SetSize(Size size);
-    IInfiniFrameWindow SetHeight(int height);
-    IInfiniFrameWindow SetMaxSize(int maxWidth, int maxHeight);
-    IInfiniFrameWindow SetMaxSize(Size size);
-    IInfiniFrameWindow SetMaxHeight(int maxHeight);
-    IInfiniFrameWindow SetMaxWidth(int maxWidth);
-    IInfiniFrameWindow SetMinSize(int minWidth, int minHeight);
-    IInfiniFrameWindow SetMinSize(Size size);
-    IInfiniFrameWindow SetMinHeight(int minHeight);
-    IInfiniFrameWindow SetMinWidth(int minWidth);
-    IInfiniFrameWindow SetWidth(int width);
-    IInfiniFrameWindow Resize(int widthOffset, int heightOffset, ResizeOrigin origin);
+    void SetSize(int width, int height);
+    void SetSize(Size size);
+    void SetHeight(int height);
+    void SetMaxSize(int maxWidth, int maxHeight);
+    void SetMaxSize(Size size);
+    void SetMaxHeight(int maxHeight);
+    void SetMaxWidth(int maxWidth);
+    void SetMinSize(int minWidth, int minHeight);
+    void SetMinSize(Size size);
+    void SetMinHeight(int minHeight);
+    void SetMinWidth(int minWidth);
+    void SetWidth(int width);
+    void Resize(int widthOffset, int heightOffset, ResizeOrigin origin);
 }

@@ -7,7 +7,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public static class InfiniFrameWindowBuilderFeatureSizeExtensions {
+public static class IInfiniFrameWindowBuilderFeatureSizeExtensions {
     public static IInfiniFrameWindowBuilder SetSize(this IInfiniFrameWindowBuilder builder, int width, int height) {
         builder.Features.Size.SetSize(width, height);
         return builder;

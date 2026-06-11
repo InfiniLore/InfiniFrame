@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
 using System.Drawing;
 
 namespace InfiniFrame;
@@ -71,5 +72,16 @@ public class InfiniFrameWindowBuilderFeatureSize : IInfiniFrameWindowBuilderFeat
     }
     public void SetResizable(bool enabled = true) {
         IsResizable = enabled;
+    }
+    
+    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+        parameters.Height = Height;
+        parameters.Width = Width;
+        parameters.MaxHeight = MaxHeight;
+        parameters.MaxWidth = MaxWidth;
+        parameters.MinHeight = MinHeight;
+        parameters.MinWidth = MinWidth;
+        parameters.Resizable = IsResizable;
+        parameters.UseOsDefaultSize = StartWithOsDefaultSize;
     }
 }

@@ -15,7 +15,7 @@ public sealed class InfiniFrameWindow(
     ILogger<InfiniFrameWindow> logger,
     IInfiniFrameEvents events,
     IInfiniFrameWindowDebugging debugging,
-    IInfiniFrameOptions configuration,
+    IInfiniFrameWindowConfiguration configuration,
     IServiceProvider? serviceProvider
 ) : IInfiniFrameWindow {
     private static readonly Lazy<IntPtr> LazyMainProgramHandle = new(NativeLibrary.GetMainProgramHandle);
@@ -46,7 +46,7 @@ public sealed class InfiniFrameWindow(
     
     public Guid Id { get; } = Guid.NewGuid();
     
-    public IInfiniFrameOptions Configuration { get; } = configuration;
+    public IInfiniFrameWindowConfiguration Configuration { get; } = configuration;
     public IInfiniFrameWindowDebugging Debugging { get; } = debugging;
     public IServiceProvider? ServiceProvider { get; } = serviceProvider;
     public IInfiniFrameEvents Events { get; } = events;

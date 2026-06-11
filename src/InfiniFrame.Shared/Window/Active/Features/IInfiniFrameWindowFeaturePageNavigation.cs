@@ -6,7 +6,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowFeaturePageNavigation {
-    IInfiniFrameWindow Load(Uri uri);
-    IInfiniFrameWindow Load(string path);
-    IInfiniFrameWindow LoadRawString( string content);
+    void Load(Uri uri);
+    void Load(string path);
+    void LoadRawString(string content);
 }

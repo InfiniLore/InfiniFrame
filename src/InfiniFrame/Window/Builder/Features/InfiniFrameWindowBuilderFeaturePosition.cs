@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
 using System.Drawing;
 
 namespace InfiniFrame;
@@ -40,5 +41,12 @@ public class InfiniFrameWindowBuilderFeaturePosition : IInfiniFrameWindowBuilder
     public void CenteredOnMainMonitor(bool enabled) {
         if (enabled) StartAtOsDefaultLocation = false;
         StartCentered = enabled;
+    }
+    
+    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+        parameters.Top = Top;
+        parameters.Left = Left;
+        parameters.CenterOnInitialize = StartCentered;
+        parameters.UseOsDefaultLocation = StartAtOsDefaultLocation;        
     }
 }

@@ -10,8 +10,10 @@ public interface IInfiniFrameWindowFeatureDecorations {
     bool IsTransparent { get; }
     string? Title { get; }
     string? IconFilePath { get; }
-    
-    IInfiniFrameWindow SetTransparent(bool enabled);
-    IInfiniFrameWindow SetTitle(string? title);
-    IInfiniFrameWindow SetIconFile(string iconFilePath);
+    bool LimitLinuxWindowTitleLength { get; }
+
+    void SetTransparent(bool enabled = true);
+    void SetTitle(string? title);
+    void SetIconFile(string iconFilePath);
+    void SetLimitLinuxWindowTitleLength(bool enabled = true);
 }

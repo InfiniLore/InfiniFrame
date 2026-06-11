@@ -31,6 +31,7 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameTestWindow() {}
     public required IInfiniFrameWindow Window { get; init; }
+    public required IInfiniFrameWindowBuilder BuilderSnapshot { get; init; }
 
     public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0)

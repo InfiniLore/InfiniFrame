@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Utilities;
 
 namespace InfiniFrame;
@@ -13,7 +14,7 @@ public class InfiniFrameWindowBuilderFeatureDecorations : IInfiniFrameWindowBuil
     public string? Title { get; private set; } = TitleStringUtility.DefaultTitle;
     public string? IconFilePath { get; private set; }
 
-    public bool LimitLinuxWindowTitleLength { get; private set; } = false;
+    public bool LimitLinuxWindowTitleLength { get; private set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -25,16 +26,24 @@ public class InfiniFrameWindowBuilderFeatureDecorations : IInfiniFrameWindowBuil
     public void SetTransparent(bool enabled) {
         IsTransparent = enabled;
     }
-    
+
     public void SetTitle(string? title) {
         Title = TitleStringUtility.Validate(title, LimitLinuxWindowTitleLength);
     }
-    
+
     public void SetIconFile(string iconFilePath) {
         IconFilePath = iconFilePath;
     }
-    
+
     public void SetLimitLinuxWindowTitleLength(bool enabled) {
         LimitLinuxWindowTitleLength = enabled;
+    }
+
+    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+        parameters.Chromeless = IsChromeless;
+        parameters.Transparent = IsTransparent;
+        parameters.Title = Title;
+        parameters.WindowIconFile = IconFilePath;
+        // parameters.LimitLinuxWindowTitleLength = LimitLinuxWindowTitleLength; // Not a C++ parameter.
     }
 }

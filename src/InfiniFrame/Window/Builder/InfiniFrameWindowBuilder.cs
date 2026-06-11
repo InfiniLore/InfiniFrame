@@ -4,7 +4,6 @@
 using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Security;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -14,8 +13,8 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
-    public IInfiniFrameOptionsBuilder Configuration { get; } = new InfiniFrameOptionsBuilder();
-    public IInfiniFrameWindowDebuggingBuilder Debugging => Configuration.Debugging;
+    public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
+    public IInfiniFrameWindowDebuggingBuilder Debugging { get; } = new InfiniFrameWindowDebuggingBuilder();
     public IInfiniFrameWindowBuilderFeatures Features { get; } = new InfiniFrameWindowBuilderFeatures();
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
     
@@ -53,7 +52,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         events.AssignEventCallbacks(ref nativeParameters);
         events.AssignDefaultEventCallbacks();
 
-        var configuration = new InfiniFrameOptions(Configuration, ref nativeParameters);
+        var configuration = new InfiniFrameWindowConfiguration();
         var debugging = new InfiniFrameWindowDebugging(
             ResolveLogger<InfiniFrameWindowDebugging>(provider)
         );
@@ -65,7 +64,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             debugging: debugging,
             serviceProvider:actualProvider
         );
-        window.AssignFeatures(actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>().Create(window));
+        window.AssignFeatures(actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>().Create(window, this));
         
         InfiniFrameUriSecurityPolicyRegistry.BindToWindow(window, snapshot.UriSecurityPolicy);
         
@@ -77,16 +76,10 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     }
 
-    private InfiniFrameNativeParameters GetNativeParameters(IServiceProvider? provider = null) {
-        if (provider is not null) {
-            var config = provider.GetService<IConfiguration>();
-            IConfigurationSection? section = config?.GetSection("InfiniFrame");
-
-            if (section is not null && section.Exists()) {
-                InfiniFrameOptionsSectionApplier.Apply(section, Configuration);
-            }
-        }
-        return Configuration.ToNativeParameters();
+    internal InfiniFrameNativeParameters CollectNativeParameters() {
+        var parameters = new InfiniFrameNativeParameters();
+        Configuration.ApplyToNativeParameters(ref parameters);
+        return parameters;
     }
 
     internal static ILogger<T> ResolveLogger<T>(IServiceProvider? provider) {
@@ -99,7 +92,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     internal InfiniFrameWindowBuilderSnapshot CreateSnapshot(IServiceProvider? provider = null) 
         => new(
-            GetNativeParameters(provider),
+            CollectNativeParameters(),
             EventsStore.DeepCopy(),
             StaticAssets?.DeepCopy(),
             InfiniFrameUriSecurityPolicyRegistry.GetForBuilder(this)

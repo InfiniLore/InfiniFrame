@@ -32,10 +32,3 @@ public class InfiniFrameWindowFeatureInvoke(
         NativeInvoke.InvokeSyncWithValidation(logger, window.InstanceHandle, window.ManagedThreadId, callback);
     }
 }
-
-// ReSharper disable once ConvertToExtensionBlock
-public static class InfiniFrameWindowFeatureInvokeExtensions {
-    /// <inheritdoc cref="InfiniFrameWindowFeatureInvoke.Invoke" />
-    public static void Invoke(this IInfiniFrameWindow window, Action callback) 
-        => window.Features.Invoke.Invoke(callback);
-}

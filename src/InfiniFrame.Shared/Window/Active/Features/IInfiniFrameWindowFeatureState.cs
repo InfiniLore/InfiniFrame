@@ -17,13 +17,13 @@ public interface IInfiniFrameWindowFeatureState {
     bool IsZoomEnabled { get; }
     Rectangle CachedPreFullScreenBounds { get; set; }
     Rectangle CachedPreMaximizedBounds { get; set; }
-    
-    IInfiniFrameWindow SetMaximized(bool maximized);
-    IInfiniFrameWindow ToggleMaximized();
-    IInfiniFrameWindow SetMinimized(bool minimized);
-    IInfiniFrameWindow SetFullScreen(bool fullScreen);
-    IInfiniFrameWindow SetFocused();
-    IInfiniFrameWindow SetZoom(int zoom);
-    IInfiniFrameWindow SetZoomEnabled(bool zoomEnabled);
-    IInfiniFrameWindow SetTopMost(bool topMost);
+
+    void SetMaximized(bool maximized = true);
+    void ToggleMaximized();
+    void SetMinimized(bool minimized = true);
+    void SetFullScreen(bool fullScreen = true);
+    void SetFocused();
+    void SetZoom(int zoom);
+    void SetZoomEnabled(bool zoomEnabled = true);
+    void SetTopMost(bool topMost = true);
 }

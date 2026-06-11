@@ -1,17 +1,17 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.NativeBridge.Parameters;
-
 namespace InfiniFrame;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameOptions {
-    InfiniFrameNativeParameters StartupParameters { get; }
+public static class IInfiniFrameWindowFeatureMonitorsExtensions {
+    public static IEnumerable<InfiniMonitor> GetMonitors(this IInfiniFrameWindow window)
+        => window.Features.Monitors.GetMonitors();
     
-    bool LimitLinuxWindowTitleLength { get; set; }
-    IInfiniFrameWindow? ParentWindow { get; }
-    List<IInfiniFrameWindow> ChildWindows { get; }
+    public static InfiniMonitor GetMainMonitor(this IInfiniFrameWindow window)
+        => window.Features.Monitors.GetMainMonitor();
+    
+    public static int GetMainMonitorScreenDpi(this IInfiniFrameWindow window)
+        => window.Features.Monitors.GetMainMonitorScreenDpi();
 }

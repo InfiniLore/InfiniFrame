@@ -75,14 +75,3 @@ public class InfiniFrameWindowFeatureNotifications(
         return result;
     }
 }
-
-// ReSharper disable once ConvertToExtensionBlock
-public static class InfiniFrameWindowFeatureNotificationsExtensions {
-    /// <inheritdoc cref="InfiniFrameWindowFeatureNotifications.ShowNotification" />
-    public static void ShowNotification(this IInfiniFrameWindow window, string title, string body) 
-        => window.Features.Notifications.ShowNotification(title, body);
-    
-    /// <inheritdoc cref="InfiniFrameWindowFeatureNotifications.ShowMessage" />
-    public static InfiniFrameDialogResult ShowMessage(this IInfiniFrameWindow window, string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info) 
-        => window.Features.Notifications.ShowMessage(title, text, buttons, icon);
-}

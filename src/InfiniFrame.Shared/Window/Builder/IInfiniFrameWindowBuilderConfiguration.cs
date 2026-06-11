@@ -1,16 +1,16 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
+
 namespace InfiniFrame;
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeatures {
-    IInfiniFrameWindowBuilderFeatureBrowser Browser { get; }
-    IInfiniFrameWindowBuilderFeatureDecorations Decorations { get; }
-    IInfiniFrameWindowBuilderFeatureNotifications Notifications { get; }
-    IInfiniFrameWindowBuilderFeaturePageNavigation PageNavigation { get; }
-    IInfiniFrameWindowBuilderFeaturePosition Position { get; }
-    IInfiniFrameWindowBuilderFeatureSize Size { get; }
-    IInfiniFrameWindowBuilderFeatureState State { get; }
+public interface IInfiniFrameWindowBuilderConfiguration {
+    IInfiniFrameWindow? ParentWindow { get; }
+    List<IInfiniFrameWindow> ChildWindows { get; }
+    
+    void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters);
 }

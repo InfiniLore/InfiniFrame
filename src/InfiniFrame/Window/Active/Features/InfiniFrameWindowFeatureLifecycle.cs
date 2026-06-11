@@ -247,24 +247,3 @@ public class InfiniFrameWindowFeatureLifecycle(
         return window.InstanceHandle == IntPtr.Zero;
     }
 }
-
-// ReSharper disable once ConvertToExtensionBlock
-public static class InfiniFrameWindowFeatureLifecycleExtensions {
-    /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.WaitForClose"/>
-    public static void WaitForClose(this IInfiniFrameWindow window) 
-        => window.Features.Lifecycle.WaitForClose();
-    /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.WaitForCloseAsync"/>
-    public static ValueTask WaitForCloseAsync(this IInfiniFrameWindow window, CancellationToken ct = default) 
-        => window.Features.Lifecycle.WaitForCloseAsync(ct);
-    
-    /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.Close"/>
-    public static void Close(this IInfiniFrameWindow window) 
-        => window.Features.Lifecycle.Close();
-    /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.CloseAsync"/>
-    public static ValueTask CloseAsync(this IInfiniFrameWindow window, CancellationToken ct = default) 
-        => window.Features.Lifecycle.CloseAsync(ct);
-    
-    /// <inheritdoc cref="InfiniFrameWindowFeatureLifecycle.IsClosedOrClosing"/>
-    public static bool IsClosedOrClosing(this IInfiniFrameWindow window) 
-        => window.Features.Lifecycle.IsClosedOrClosing();
-}

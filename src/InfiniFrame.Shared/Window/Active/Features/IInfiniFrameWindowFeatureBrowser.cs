@@ -17,7 +17,7 @@ public interface IInfiniFrameWindowFeatureBrowser {
     bool GrantBrowserPermissions { get; }
     bool IsSmoothScrollingEnabled { get; }
     
-    IInfiniFrameWindow EnableContextMenu(bool enabled);
-    IInfiniFrameWindow Win32SetWebView2Path(string data);
-    IInfiniFrameWindow ClearBrowserAutoFill();
+    void EnableContextMenu(bool enabled = true);
+    void Win32SetWebView2Path(string data);
+    void ClearBrowserAutoFill();
 }

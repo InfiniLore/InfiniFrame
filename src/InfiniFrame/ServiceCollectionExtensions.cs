@@ -12,12 +12,6 @@ public static class ServiceCollectionExtensions {
 
         services.AddSingleton<InfiniFrameWindowFeaturesFactory>();
         
-        services.AddTransient<IInfiniFrameWindowFeatures>(sp => {
-            var window = sp.GetRequiredService<IInfiniFrameWindow>();
-            var factory = sp.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
-            return factory.Create(window);
-        });
-        
         return services;
     }
 }

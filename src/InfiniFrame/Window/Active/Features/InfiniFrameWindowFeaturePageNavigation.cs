@@ -18,14 +18,12 @@ public class InfiniFrameWindowFeaturePageNavigation(
     IInfiniFrameStaticAssets? staticAssets
 ) : IInfiniFrameWindowFeaturePageNavigation {
     
-    public IInfiniFrameWindow Load(Uri uri) {
+    public void Load(Uri uri) {
         if (TryLoadUri(uri) || TryLoadPath(uri.ToString())) {}
-        return window;
     }
 
-    public IInfiniFrameWindow Load(string path) {
+    public void Load(string path) {
         TryLoadPath(path);
-        return window;
     }
 
     private bool TryLoadUri(Uri uri) {
@@ -79,10 +77,10 @@ public class InfiniFrameWindowFeaturePageNavigation(
         return false;
     }
     
-    public IInfiniFrameWindow LoadRawString( string content) {
+    public void LoadRawString( string content) {
         if (window.IsClosedOrClosing()) {
             logger.LogDebug("Skipping navigation because window is closing");
-            return window;
+            return;
         }
         
         NativeInvoke.InvokeSyncWithValidation(
@@ -92,8 +90,7 @@ public class InfiniFrameWindowFeaturePageNavigation(
             InfiniFrameNative.NavigateToString,
             content
         );
-        
-        return window;
+
     }
 
     private bool TryResolveStaticAssetUri(string path, [NotNullWhen(true)] out Uri? uri) {

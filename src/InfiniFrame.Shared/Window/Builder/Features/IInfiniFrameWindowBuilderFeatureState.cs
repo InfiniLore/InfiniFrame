@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeatureState {
+public interface IInfiniFrameWindowBuilderFeatureState : IInfiniFrameWindowBuilderFeature {
     bool StartFullScreen { get; }
     bool StartMaximized { get; }
     bool StartMinimized { get; }

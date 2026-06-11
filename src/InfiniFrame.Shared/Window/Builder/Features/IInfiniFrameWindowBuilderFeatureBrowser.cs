@@ -5,7 +5,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindowBuilderFeatureBrowser {
+public interface IInfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderFeature {
     bool IsContextMenuEnabled { get; }
     bool IsMediaAutoplayEnabled { get; }
     string? UserAgent { get; }

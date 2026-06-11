@@ -1,6 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -73,5 +75,19 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
 
     public void SetTemporaryFilesPath(string path) {
         TemporaryFilesPath = path;
+    }
+    
+    public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
+        parameters.ContextMenuEnabled = IsContextMenuEnabled;
+        parameters.MediaAutoplayEnabled = IsMediaAutoplayEnabled;
+        parameters.UserAgent = UserAgent;
+        parameters.FileSystemAccessEnabled = IsFileSystemAccessEnabled;
+        parameters.WebSecurityEnabled = IsWebSecurityEnabled;
+        parameters.JavascriptClipboardAccessEnabled = IsJavascriptClipboardAccessEnabled;
+        parameters.MediaStreamEnabled = IsMediaStreamEnabled;
+        parameters.IgnoreCertificateErrorsEnabled = IsIgnoreCertificateErrorsEnabled;
+        parameters.GrantBrowserPermissions = GrantBrowserPermissions;
+        parameters.SmoothScrollingEnabled = IsSmoothScrollingEnabled;
+        parameters.BrowserControlInitParameters = BrowserControlInitParameters;
     }
 }
