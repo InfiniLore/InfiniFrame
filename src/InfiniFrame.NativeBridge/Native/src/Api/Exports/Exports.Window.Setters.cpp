@@ -14,6 +14,10 @@ EXPORTED InteropStatus InfiniFrameNative_SetContextMenuEnabled(InfiniFrameWindow
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetContextMenuEnabled(enabled); });
 }
 
+EXPORTED InteropStatus InfiniFrameNative_SetMediaAutoplayEnabled(InfiniFrameWindow* instance, const bool enabled) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetMediaAutoplayEnabled(enabled); });
+}
+
 EXPORTED InteropStatus InfiniFrameNative_SetZoomEnabled(InfiniFrameWindow* instance, const bool enabled) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetZoomEnabled(enabled); });
 }

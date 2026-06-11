@@ -95,6 +95,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
     m_impl->_zoomEnabled = initParams->ZoomEnabled;
     m_impl->_webInspectorEnabled = initParams->WebInspectorEnabled;
     m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
+    m_impl->_mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
 
     m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
     m_impl->_resizedCallback = initParams->ResizedHandler;
@@ -208,6 +209,7 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         Center();
 
     m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
+    SetMediaAutoplayEnabled(m_impl->_mediaAutoplayEnabled);
 
     for (const auto & scheme : m_impl->_customSchemeNames)
     {

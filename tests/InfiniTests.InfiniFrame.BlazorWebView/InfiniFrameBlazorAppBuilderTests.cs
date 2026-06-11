@@ -374,7 +374,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         FieldInfo? callbackField = typeof(InfiniFrameNativeParameters)
             .GetField("CustomSchemeHandler", BindingFlags.Instance | BindingFlags.NonPublic);
-        var callback = callbackField?.GetValue(startupParameters);
+        object? callback = callbackField?.GetValue(startupParameters);
 
         // Assert
         await Assert.That(callback).IsNotNull();

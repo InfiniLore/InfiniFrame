@@ -81,71 +81,146 @@ public class InfiniFrameWindowFeatureState(
     // -----------------------------------------------------------------------------------------------------------------
     public void SetMaximized(bool maximized = true) {
         logger.LogDebug(".SetMaximized({Maximized})", maximized);
-        window.Invoke(() => {
-            if (!window.Features.Decorations.IsChromeless) {
-                InfiniFrameNative.SetMaximized(window.InstanceHandle, maximized);
-                return;
-            }
+        if (!window.Features.Decorations.IsChromeless) {
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetMaximized,
+                maximized
+            );
+            return;
+        }
 
-            if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor)) {
-                logger.LogWarning("Monitor {Monitor} not found", monitor);
-                return;
-            }
+        if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor)) {
+            logger.LogWarning("Monitor {Monitor} not found", monitor);
+            return;
+        }
 
-            Rectangle workArea = monitor.WorkArea;
-            if (maximized) {
-                CachedPreMaximizedBounds = windowRect;
-                InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
-                InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
-                window.Events.OnMaximized();
-            }
+        Rectangle workArea = monitor.WorkArea;
+        if (maximized) {
+            CachedPreMaximizedBounds = windowRect;
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetPosition,
+                workArea.Left,
+                workArea.Top
+            );
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetSize,
+                workArea.Width,
+                workArea.Height
+            );
+            window.Events.OnMaximized();
+        }
 
-            else if (CachedPreMaximizedBounds != Rectangle.Empty) {
-                Rectangle oldRect = CachedPreMaximizedBounds;
-                InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
-                InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
-                CachedPreMaximizedBounds = Rectangle.Empty;
-                window.Events.OnRestored();
-            }
-        });
+        else if (CachedPreMaximizedBounds != Rectangle.Empty) {
+            Rectangle oldRect = CachedPreMaximizedBounds;
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetPosition,
+                oldRect.Left,
+                oldRect.Top
+            );
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetSize,
+                oldRect.Width,
+                oldRect.Height
+            );
+            CachedPreMaximizedBounds = Rectangle.Empty;
+            window.Events.OnRestored();
+        }
     }
 
     public void ToggleMaximized() {
         logger.LogDebug(".ToggleMaximized()");
-        window.Invoke(() => {
-            InfiniFrameNative.GetMaximized(window.InstanceHandle, out bool maximized);
-            if (!window.Features.Decorations.IsChromeless) {
-                InfiniFrameNative.SetMaximized(window.InstanceHandle, !maximized);
-                return;
-            }
+        bool maximized = NativeInvoke.InvokeSyncWithValidation<bool>(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetMaximized
+        );
+        if (!window.Features.Decorations.IsChromeless) {
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetMaximized,
+                !maximized
+            );
+            return;
+        }
 
-            // TODO test on other OS?
-            // If the window is chromeless then we need to manually register the maximize size else it will just fullscreen
-            if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor)) {
-                logger.LogWarning("Monitor {Monitor} not found", monitor);
-                return;
-            }
+        // TODO test on other OS?
+        // If the window is chromeless then we need to manually register the maximize size else it will just fullscreen
+        if (!MonitorsUtility.TryGetCurrentWindowAndMonitor(window, out Rectangle windowRect, out InfiniMonitor monitor)) {
+            logger.LogWarning("Monitor {Monitor} not found", monitor);
+            return;
+        }
 
-            Rectangle workArea = monitor.WorkArea;
-            if (CachedPreMaximizedBounds == Rectangle.Empty) {
-                CachedPreMaximizedBounds = windowRect;
-                InfiniFrameNative.SetPosition(window.InstanceHandle, workArea.Left, workArea.Top);
-                InfiniFrameNative.SetSize(window.InstanceHandle, workArea.Width, workArea.Height);
-                window.Events.OnMaximized();
-            }
-            else {
-                Rectangle oldRect = CachedPreMaximizedBounds;
-                InfiniFrameNative.SetPosition(window.InstanceHandle, oldRect.Left, oldRect.Top);
-                InfiniFrameNative.SetSize(window.InstanceHandle, oldRect.Width, oldRect.Height);
-                CachedPreMaximizedBounds = Rectangle.Empty;
-                window.Events.OnRestored();
-            }
-        });
+        Rectangle workArea = monitor.WorkArea;
+        if (CachedPreMaximizedBounds == Rectangle.Empty) {
+            CachedPreMaximizedBounds = windowRect;
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetPosition,
+                workArea.X,
+                workArea.Y
+            );
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetSize,
+                workArea.Width,
+                workArea.Height
+            );
+            window.Events.OnMaximized();
+        }
+        else {
+            Rectangle oldRect = CachedPreMaximizedBounds;
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetPosition,
+                oldRect.X,
+                oldRect.Y
+            );
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.SetSize,
+                oldRect.Width,
+                oldRect.Height
+            );
+            CachedPreMaximizedBounds = Rectangle.Empty;
+            window.Events.OnRestored();
+        }
     }
 
     public void SetMinimized(bool minimized = true) {
         logger.LogDebug(".SetMinimized({Minimized})", minimized);
-        window.Invoke(() => InfiniFrameNative.SetMinimized(window.InstanceHandle, minimized));
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetMinimized,
+            minimized
+        );
     }
 
     public void SetFullScreen(bool fullScreen = true) {
@@ -156,36 +231,85 @@ public class InfiniFrameWindowFeatureState(
         }
 
         if (fullScreen) {
-            window.Invoke(()
-                => {
-                MonitorsUtility.GetMonitors(window.InstanceHandle, out ImmutableArray<InfiniMonitor> monitors);
-                InfiniFrameNative.GetPosition(window.InstanceHandle, out int left, out int top);
-                InfiniFrameNative.GetSize(window.InstanceHandle, out int width, out int height);
+            ImmutableArray<InfiniMonitor> monitors = MonitorsUtility.GetMonitors(window);
 
-                CachedPreFullScreenBounds = new Rectangle(left, top, width, height);
-                if (!MonitorsUtility.TryGetCurrentMonitor(monitors, CachedPreFullScreenBounds, out InfiniMonitor currentMonitor)) {
-                    logger.LogError("Failed to get current monitor, defaulting to simple fullscreen call");
-                    InfiniFrameNative.SetFullScreen(window.InstanceHandle, true);
-                    return;
-                }
+            (int left, int top) = NativeInvoke.InvokeSyncWithValidation<int, int>(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.GetPosition
+            );
 
+            (int width, int height) = NativeInvoke.InvokeSyncWithValidation<int, int>(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.GetSize
+            );
+
+            CachedPreFullScreenBounds = new Rectangle(left, top, width, height);
+            if (!MonitorsUtility.TryGetCurrentMonitor(monitors, CachedPreFullScreenBounds, out InfiniMonitor currentMonitor)) {
+                logger.LogError("Failed to get current monitor, defaulting to simple fullscreen call");
+                NativeInvoke.InvokeSyncWithValidation(
+                    logger,
+                    window.InstanceHandle,
+                    window.ManagedThreadId,
+                    InfiniFrameNative.SetFullScreen,
+                    true
+                );
+            }
+            else {
                 Rectangle currentMonitorArea = currentMonitor.MonitorArea;
-
-                InfiniFrameNative.SetFullScreen(window.InstanceHandle, true);
-                InfiniFrameNative.SetPosition(window.InstanceHandle, currentMonitorArea.X, currentMonitorArea.Y);
-                InfiniFrameNative.SetSize(window.InstanceHandle, currentMonitorArea.Width, currentMonitorArea.Height);
-            });
-
-            return;
+                NativeInvoke.InvokeSyncWithValidation(
+                    logger,
+                    window.InstanceHandle,
+                    window.ManagedThreadId,
+                    InfiniFrameNative.SetFullScreen,
+                    true
+                );
+                NativeInvoke.InvokeSyncWithValidation(
+                    logger,
+                    window.InstanceHandle,
+                    window.ManagedThreadId,
+                    InfiniFrameNative.SetPosition,
+                    currentMonitorArea.X,
+                    currentMonitorArea.Y
+                );
+                NativeInvoke.InvokeSyncWithValidation(
+                    logger,
+                    window.InstanceHandle,
+                    window.ManagedThreadId,
+                    InfiniFrameNative.SetSize,
+                    currentMonitorArea.Width,
+                    currentMonitorArea.Height
+                );
+            }
         }
 
         // Set Fullscreen to false => Restore to previous state
-        window.Invoke(() => {
-            InfiniFrameNative.SetFullScreen(window.InstanceHandle, false);
-            InfiniFrameNative.SetPosition(window.InstanceHandle, CachedPreFullScreenBounds.X, CachedPreFullScreenBounds.Y);
-            InfiniFrameNative.SetSize(window.InstanceHandle, CachedPreFullScreenBounds.Width, CachedPreFullScreenBounds.Height);
-        });
-
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetFullScreen,
+            false
+        );
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetPosition,
+            CachedPreFullScreenBounds.X,
+            CachedPreFullScreenBounds.Y
+        );
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetSize,
+            CachedPreFullScreenBounds.Width,
+            CachedPreFullScreenBounds.Height
+        );
     }
 
     public void SetFocused() {
@@ -197,11 +321,11 @@ public class InfiniFrameWindowFeatureState(
             window.ManagedThreadId,
             InfiniFrameNative.SetFocused
         );
-    }   
-    
+    }
+
     public void SetZoom(int zoom) {
         if (window.Features.Lifecycle.IsClosedOrClosing()) return;
-        
+
         NativeInvoke.InvokeSyncWithValidation(
             logger,
             window.InstanceHandle,
@@ -224,9 +348,16 @@ public class InfiniFrameWindowFeatureState(
         );
 
     }
-    
+
     public void SetTopMost(bool topMost = true) {
         logger.LogDebug(".SetTopMost({TopMost})", topMost);
-        window.Invoke(() => InfiniFrameNative.SetTopmost(window.InstanceHandle, topMost));
+
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetTopmost,
+            topMost
+        );
     }
 }

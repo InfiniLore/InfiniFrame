@@ -299,6 +299,12 @@ class InfiniFrameWindow {
     void SetZoomEnabled(bool enabled);
 
     /**
+         * @brief Enable or disable media autoplay
+         * @param enabled true to allow audio/video autoplay without user interaction
+         */
+    void SetMediaAutoplayEnabled(bool enabled);
+
+    /**
          * @brief Enable or disable the browser DevTools panel
          * @param enabled true to make DevTools accessible
          */

@@ -143,7 +143,7 @@ public class InfiniFrameNativeParametersTests {
             };
 
             // Act
-            var status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr tempPtr );
+            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr tempPtr );
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
 
             newParametersPtr = tempPtr;

@@ -58,14 +58,14 @@ public sealed class WindowResizeViewportTests {
                     </html>
                     """)
                 .RegisterWebMessagePostHandler("vp", (_, payload) => {
-                    if (!TryParseViewport(payload, out var viewport)) return;
+                    if (!TryParseViewport(payload, out (int Width, int Height) viewport)) return;
 
                     if (!firstViewport.Task.IsCompleted) {
                         firstViewport.TrySetResult(viewport);
                         return;
                     }
 
-                    var initial = firstViewport.Task.Result;
+                    (int Width, int Height) initial = firstViewport.Task.Result;
                     if (viewport.Width != initial.Width || viewport.Height != initial.Height) {
                         resizedViewport.TrySetResult(viewport);
                     }

@@ -32,4 +32,5 @@ public interface IInfiniFrameWindowFeatureSize{
     void SetMinWidth(int minWidth);
     void SetWidth(int width);
     void Resize(int widthOffset, int heightOffset, ResizeOrigin origin);
+    void SetResizable(bool resizable = true);
 }

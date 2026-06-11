@@ -44,12 +44,22 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     public void SetDevToolsEnabled(bool enabled) {
         logger.LogDebug(".Debug.SetDevToolsEnabled({Enabled})", enabled);
 
-        window.Invoke(() => {
-            InfiniFrameNative.GetDevToolsEnabled(window.InstanceHandle, out bool isEnabled);
-            if (isEnabled == enabled) return;
-
-            InfiniFrameNative.SetDevToolsEnabled(window.InstanceHandle, enabled);
-        });
+        bool originalValue = NativeInvoke.InvokeSyncWithValidation<bool>(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.GetDevToolsEnabled
+        );
+        
+        if (originalValue == enabled) return;
+        
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetDevToolsEnabled,
+            enabled
+        );
     }
 
     [SupportedOSPlatform("macos13.3")]

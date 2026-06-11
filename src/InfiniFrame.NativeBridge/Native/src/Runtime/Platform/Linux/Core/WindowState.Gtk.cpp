@@ -201,6 +201,16 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
     m_impl->_contextMenuEnabled = enabled;
 }
 
+void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
+    m_impl->_mediaAutoplayEnabled = enabled;
+    if (m_impl->_webview == nullptr)
+        return;
+
+    WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
+    webkit_settings_set_media_playback_requires_user_gesture(settings, !enabled);
+    webkit_web_view_reload(WEBKIT_WEB_VIEW(m_impl->_webview));
+}
+
 void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
     (void)enabled;
 }
