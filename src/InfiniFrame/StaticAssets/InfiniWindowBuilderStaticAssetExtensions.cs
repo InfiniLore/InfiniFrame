@@ -51,7 +51,7 @@ public static class InfiniWindowBuilderStaticAssetExtensions {
             StaticAssetSchemeHandler.Create(provider, normalizedDefaultDocument));
 
         if (setStartUrl) {
-            builder.SetUrl($"{baseUri}{normalizedDefaultDocument}");
+            builder.SetStartPageUrl($"{baseUri}{normalizedDefaultDocument}");
         }
 
         return builder;

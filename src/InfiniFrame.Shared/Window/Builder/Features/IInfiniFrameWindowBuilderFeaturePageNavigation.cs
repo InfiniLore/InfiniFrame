@@ -9,7 +9,7 @@ public interface IInfiniFrameWindowBuilderFeaturePageNavigation : IInfiniFrameWi
     string? StartString { get; }
     string? StartUrl { get; }
     
-    void SetString(string? startString);
-    void SetUrl(string? startUrl);
+    void SetStartPageContent(string? content);
+    void SetStartPageUrl(string? startUrl);
     void SetUrl(Uri? startUrl);
 }

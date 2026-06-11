@@ -33,7 +33,7 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .FirstOrDefault();
 
-        if (startUrl is not null) WindowBuilder.SetUrl(startUrl);
+        if (startUrl is not null) WindowBuilder.SetStartPageUrl(startUrl);
 
         WindowBuilder.RegisterGetWebMessageHandler();
         
