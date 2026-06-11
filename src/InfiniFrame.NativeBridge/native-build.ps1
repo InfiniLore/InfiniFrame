@@ -100,6 +100,9 @@ try {
     }
 
     if ($Platform -eq "windows") {
+        $CMakeArgs += "-G"
+        $CMakeArgs += "Visual Studio 18 2026"
+        
         if ($Arch -eq "arm64") {
             $CMakeArgs += "-A"
             $CMakeArgs += "ARM64"
