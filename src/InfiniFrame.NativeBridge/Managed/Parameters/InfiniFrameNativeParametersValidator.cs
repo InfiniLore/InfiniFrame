@@ -16,8 +16,6 @@ public sealed class InfiniFrameNativeParametersValidator
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameNativeParametersValidator() {
-        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
         RuleFor(p => p.Size)
             .Equal(Marshal.SizeOf<InfiniFrameNativeParameters>());
 
@@ -36,15 +34,13 @@ public sealed class InfiniFrameNativeParametersValidator
             .Must(p => !(p.FullScreen && (p.Maximized || p.Minimized)))
             .WithMessage("FullScreen cannot be set to true at the same time as Maximized or Minimized.");
 
-        if (isWindows) {
-            RuleFor(p => p)
-                .Must(p =>
-                    !p.Chromeless 
-                    || p is { UseOsDefaultLocation: false, UseOsDefaultSize: false }
-                )
-                .When(_ => OperatingSystem.IsWindows())
-                .WithMessage("Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize on Windows. Size and location must be specified.");
-        }
+        RuleFor(p => p)
+            .Must(p =>
+                !p.Chromeless 
+                || p is { UseOsDefaultLocation: false, UseOsDefaultSize: false }
+            )
+            .When(_ => RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            .WithMessage("Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize on Windows. Size and location must be specified.");
 
         RuleFor(p => p.TemporaryFilesPath)
             .Must(CanAccessTemporaryFilesPath)

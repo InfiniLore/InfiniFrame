@@ -23,7 +23,11 @@ public class InfiniFrameWebViewManagerTests {
     public async Task SendMessage_AfterDispose_ShouldReturnPromptly(CancellationToken ct = default) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
-        window.Features.WebMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var webMessaging = Substitute.For<IInfiniFrameWindowFeatureWebMessaging>();
+        window.Features.Returns(features);
+        features.WebMessaging.Returns(webMessaging);
+        webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(ValueTask.CompletedTask);
 
         await using ServiceProvider provider = new ServiceCollection()
@@ -47,7 +51,7 @@ public class InfiniFrameWebViewManagerTests {
 
         // Assert
         await sendTask.WaitAsync(TimeSpan.FromSeconds(1), ct);
-        await window.DidNotReceive().SendWebMessageAsync("late-dispose-message", Arg.Any<CancellationToken>());
+        await webMessaging.DidNotReceive().SendWebMessageAsync("late-dispose-message", Arg.Any<CancellationToken>());
     }
 
     private sealed class TestableInfiniFrameWebViewManager(

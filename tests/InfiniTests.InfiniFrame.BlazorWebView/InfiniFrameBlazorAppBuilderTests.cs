@@ -170,7 +170,11 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
-        window.When(x => x.Invoke(Arg.Any<Action>()))
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var invokeFeature = Substitute.For<IInfiniFrameWindowFeatureInvoke>();
+        window.Features.Returns(features);
+        features.Invoke.Returns(invokeFeature);
+        invokeFeature.When(x => x.Invoke(Arg.Any<Action>()))
             .Do(_ => throw new InvalidOperationException("Invoke should not be used during Run() shutdown."));
 
         ServiceProvider services = new ServiceCollection()
@@ -188,7 +192,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         // Assert
         window.Received(1).WaitForClose();
-        window.DidNotReceive().Invoke(Arg.Any<Action>());
+        invokeFeature.DidNotReceive().Invoke(Arg.Any<Action>());
         await Assert.That(disposeProbe.IsDisposed).IsTrue();
     }
 
@@ -304,6 +308,37 @@ public class InfiniFrameBlazorAppBuilderTests {
         await Assert.That(window.Configuration.StartupParameters.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_SetsStartupUrlToConfiguredHostPage(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+
+        // Assert
+        await Assert.That(window.Configuration.StartupParameters.StartUrl).IsEqualTo("app://localhost/index.html");
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_SetsWindowBuilderStaticAssets(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+
+        // Assert
+        await Assert.That(appBuilder.WindowBuilder.StaticAssets).IsNotNull();
+        await Assert.That(appBuilder.WindowBuilder.StaticAssets!.BaseUri).IsEqualTo("app://localhost/");
+        await Assert.That(appBuilder.WindowBuilder.StaticAssets.DefaultDocument).IsEqualTo("index.html");
+        await app.DisposeAsync();
     }
 
     private sealed class TestJsComponent : IComponent {
