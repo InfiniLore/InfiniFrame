@@ -20,7 +20,7 @@ public class InfiniFrameWebApplicationTests {
     private static IInfiniFrameWindow CreateMockWindow() {
         var mockWindow = Substitute.For<IInfiniFrameWindow>();
         var eventsStore = new InfiniFrameEventsStore();
-        mockWindow.Events.Returns(new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore));
+        mockWindow.Events.Returns(new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance));
         mockWindow.EventsStore.Returns(eventsStore);
         return mockWindow;
     }

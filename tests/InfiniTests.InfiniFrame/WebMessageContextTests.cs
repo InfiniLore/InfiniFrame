@@ -21,10 +21,10 @@ public class WebMessageContextTests {
     public async Task OnWebMessageReceived_WithOrigin_PublishesOriginViaEventPayload(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
+        var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
         string? observedMessage = null;
@@ -43,10 +43,10 @@ public class WebMessageContextTests {
     public async Task OnWebMessageReceived_WithBlazorWebViewMessage_PublishesRawMessage(CancellationToken ct = default) {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
-        var events = new InfiniFrameEvents(NullLogger<InfiniFrameEvents>.Instance, eventsStore);
+        var events = new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance);
         var window = new RecordingInfiniFrameWindowSubstitute();
         var nativeParameters = default(InfiniFrameNativeParameters);
-        events.AssignEventCallbacks(ref nativeParameters);
+        events.AssignToNativeParameters(ref nativeParameters);
         events.AssignToWindow(window.Window);
 
         string? observedMessage = null;

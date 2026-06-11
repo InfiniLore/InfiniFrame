@@ -38,6 +38,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentValidation" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Web.WebView2"
                           Condition="$([MSBuild]::IsOSPlatform('Windows'))"

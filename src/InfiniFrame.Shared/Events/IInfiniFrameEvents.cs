@@ -1,6 +1,8 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.NativeBridge.Parameters;
+
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -20,4 +22,9 @@ public interface IInfiniFrameEvents : IHasInfiniFrameEventsStore {
     void OnWindowCreated();
     void OnWindowCreating();
     IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType);
+    
+    internal void PopulateFromBuilderEventStore(IInfiniFrameEventsStore builder);
+    internal void AssignToNativeParameters(ref InfiniFrameNativeParameters nativeParameters);
+    internal void AssignToWindow(IInfiniFrameWindow window);
+    internal void AssignDefaultEventCallbacks();
 }

@@ -10,6 +10,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowConfiguration {
     InfiniFrameNativeParameters StartupParameters { get; }
-    IInfiniFrameWindow? ParentWindow { get; }
+    IInfiniFrameWindow? ParentWindow { get; internal set; }
     List<IInfiniFrameWindow> ChildWindows { get; }
+    
+    internal void AssignNativeParameters(InfiniFrameNativeParameters nativeParameters);
 }

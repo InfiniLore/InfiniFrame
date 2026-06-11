@@ -80,7 +80,7 @@ public class ContextMenuTests {
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
-    public async Task AtBuilderAndWindowStage(bool value, CancellationToken ct) {
+    public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
             builder.Features.Browser.EnableContextMenu(value);

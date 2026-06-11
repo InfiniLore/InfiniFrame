@@ -28,6 +28,6 @@ public interface IInfiniFrameEventsStore {
     OrderedEvent WindowCreating { get; }
     OrderedEvent WindowCreated { get; }
     KeyedResultEvent<string, string, (Stream? Data, string? ContentType)> CustomScheme { get; }
-
-    IInfiniFrameEventsStore DeepCopy();
+    
+    void CopyTo(IInfiniFrameEventsStore eventsStore);
 }
