@@ -284,6 +284,8 @@ public class InfiniFrameWindowFeatureState(
                     currentMonitorArea.Height
                 );
             }
+
+            return;
         }
 
         // Set Fullscreen to false => Restore to previous state
