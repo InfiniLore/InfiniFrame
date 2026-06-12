@@ -19,6 +19,7 @@ $ArtifactsDir = Join-Path $RootDir "artifacts/native"
 # ENSURE DIRECTORIES EXIST
 # -----------------------------------------------------------------------------------------------------------------
 New-Item -ItemType Directory -Force -Path $NativeDir | Out-Null
+New-Item -ItemType Directory -Force -Path $BuildDir | Out-Null
 New-Item -ItemType Directory -Force -Path $ArtifactsDir | Out-Null
 
 $Platform = if ($IsWindows) { "windows" }
@@ -32,6 +33,31 @@ if ([string]::IsNullOrWhiteSpace($EnableTestExports)) {
 }
 
 $EnableTestExportsCMakeValue = if ($EnableTestExports -ieq "true") { "ON" } else { "OFF" }
+
+function Test-VisualStudioGeneratorAvailable {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Generator
+    )
+
+    $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+    if (-not (Test-Path -LiteralPath $vswherePath)) {
+        return $false
+    }
+
+    $versionRange = switch -Regex ($Generator) {
+        "Visual Studio 18 2026" { "[18.0,19.0)" }
+        "Visual Studio 17 2022" { "[17.0,18.0)" }
+        default { $null }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($versionRange)) {
+        return $false
+    }
+
+    $installationPath = & $vswherePath -latest -products * -requires Microsoft.Component.MSBuild -version $versionRange -property installationPath
+    return -not [string]::IsNullOrWhiteSpace($installationPath)
+}
 
 # -----------------------------------------------------------------------------------------------------------------
 # LOCK (blocking, CI-safe, race-free)
@@ -108,29 +134,31 @@ try {
     }
 
     if ($Platform -eq "windows") {
-        if ($Arch -eq "arm64") {
-            $Generator = "Visual Studio 17 2022"
+        $CMakeArchitecture = switch ($Arch) {
+            "x64" { "x64" }
+            "arm64" { "ARM64" }
+            default { throw "Unsupported Windows architecture '$Arch'. Expected 'x64' or 'arm64'." }
         }
-        else {
-            $Generator = "Visual Studio 18 2026"
+
+        $generatorCandidates = @("Visual Studio 18 2026", "Visual Studio 17 2022")
+        $selectedGenerator = $null
+
+        foreach ($candidate in $generatorCandidates) {
+            if (Test-VisualStudioGeneratorAvailable -Generator $candidate) {
+                $selectedGenerator = $candidate
+                break
+            }
+        }
+
+        if ([string]::IsNullOrWhiteSpace($selectedGenerator)) {
+            $selectedGenerator = "Visual Studio 17 2022"
+            Write-Warning "Could not detect an installed Visual Studio instance via vswhere. Falling back to generator '$selectedGenerator'."
         }
 
         $CMakeArgs += "-G"
-        $CMakeArgs += $Generator
-
-        switch ($Arch) {
-            "x64" {
-                $CMakeArgs += "-A"
-                $CMakeArgs += "x64"
-            }
-            "arm64" {
-                $CMakeArgs += "-A"
-                $CMakeArgs += "ARM64"
-            }
-            default {
-                throw "Unsupported Windows architecture '$Arch'. Expected 'x64' or 'arm64'."
-            }
-        }
+        $CMakeArgs += $selectedGenerator
+        $CMakeArgs += "-A"
+        $CMakeArgs += $CMakeArchitecture
     }
 
     $CMakeArgs += "-DINFINIFRAME_BUILD_TEST_EXPORTS=$EnableTestExportsCMakeValue"

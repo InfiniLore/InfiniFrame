@@ -18,6 +18,10 @@ EXPORTED InteropStatus InfiniFrameNative_SetMediaAutoplayEnabled(InfiniFrameWind
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetMediaAutoplayEnabled(enabled); });
 }
 
+EXPORTED InteropStatus InfiniFrameNative_SetUserAgent(InfiniFrameWindow* instance, const AutoString userAgent) {
+    return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetUserAgent(userAgent); });
+}
+
 EXPORTED InteropStatus InfiniFrameNative_SetZoomEnabled(InfiniFrameWindow* instance, const bool enabled) {
     return RunWindowExportStatus(instance, [&](InfiniFrameWindow* window) { window->SetZoomEnabled(enabled); });
 }

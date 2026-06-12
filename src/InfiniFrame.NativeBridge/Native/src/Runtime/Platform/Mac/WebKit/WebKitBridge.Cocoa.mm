@@ -47,6 +47,7 @@ void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
     else
     {
         _userAgent.clear();
+        [_webview setCustomUserAgent: nil];
     }
 }
 

@@ -20,6 +20,7 @@ public interface IInfiniFrameWindowFeatureBrowser {
     
     void EnableContextMenu(bool enabled = true);
     void EnableMediaAutoplay(bool enabled = true);
+    void SetUserAgent(string? userAgent);
     void Win32SetWebView2Path(string data);
     void ClearBrowserAutoFill();
 }

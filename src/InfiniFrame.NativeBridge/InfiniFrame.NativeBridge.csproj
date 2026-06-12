@@ -7,6 +7,12 @@
 
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
+        <NativeArch Condition="'$(NativeArch)'=='' and $([System.String]::Copy('$(RuntimeIdentifier)').EndsWith('-arm64'))">arm64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and $([System.String]::Copy('$(RuntimeIdentifier)').EndsWith('-x64'))">x64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(PlatformTarget)'=='ARM64'">arm64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(PlatformTarget)'=='arm64'">arm64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(PlatformTarget)'=='X64'">x64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(PlatformTarget)'=='x64'">x64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU'">x64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='X64'">x64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='x64'">x64</NativeArch>
