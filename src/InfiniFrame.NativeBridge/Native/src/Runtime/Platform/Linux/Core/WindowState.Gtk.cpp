@@ -211,6 +211,19 @@ void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
     webkit_web_view_reload(WEBKIT_WEB_VIEW(m_impl->_webview));
 }
 
+void InfiniFrameWindow::SetUserAgent(const AutoString userAgent) {
+    m_impl->_userAgent = userAgent != nullptr ? userAgent : "";
+    if (m_impl->_webview == nullptr)
+        return;
+
+    WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_impl->_webview));
+    webkit_settings_set_user_agent(
+        settings,
+        m_impl->_userAgent.empty() ? nullptr : m_impl->_userAgent.c_str()
+    );
+    webkit_web_view_reload(WEBKIT_WEB_VIEW(m_impl->_webview));
+}
+
 void InfiniFrameWindow::SetZoomEnabled(bool enabled) {
     (void)enabled;
 }

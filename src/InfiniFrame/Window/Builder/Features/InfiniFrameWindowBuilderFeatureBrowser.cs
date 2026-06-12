@@ -37,6 +37,7 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
     }
     
     public void SetUserAgent(string? userAgent) {
+        if (string.IsNullOrWhiteSpace(userAgent)) userAgent = string.Empty;
         UserAgent = userAgent;
     }
     

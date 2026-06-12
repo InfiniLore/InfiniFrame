@@ -272,6 +272,14 @@ void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
         [m_impl->_webview reload];
 }
 
+void InfiniFrameWindow::SetUserAgent(AutoString userAgent)
+{
+    m_impl->SetUserAgent(userAgent);
+
+    if (m_impl->_webview != nil)
+        [m_impl->_webview reload];
+}
+
 void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 {
     (void)enabled;

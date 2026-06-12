@@ -129,6 +129,18 @@ public class InfiniFrameWindowFeatureBrowser(
             enabled
         );
     }
+    
+    public void SetUserAgent(string? userAgent) {
+        if (string.IsNullOrWhiteSpace(userAgent)) userAgent = string.Empty;
+        
+        NativeInvoke.InvokeSyncWithValidation(
+            logger,
+            window.InstanceHandle,
+            window.ManagedThreadId,
+            InfiniFrameNative.SetUserAgent,
+            userAgent
+        );
+    }
 
     [SupportedOSPlatform("windows")]
     public void Win32SetWebView2Path(string data) {

@@ -15,6 +15,11 @@ public static class IInfiniFrameWindowFeatureBrowserExtensions {
         window.Features.Browser.EnableMediaAutoplay(enabled);
         return window;
     }
+
+    public static IInfiniFrameWindow SetUserAgent(this IInfiniFrameWindow window, string? userAgent) {
+        window.Features.Browser.SetUserAgent(userAgent);
+        return window;
+    }
     
     public static IInfiniFrameWindow Win32SetWebView2Path(this IInfiniFrameWindow window, string data) {
         window.Features.Browser.Win32SetWebView2Path(data);

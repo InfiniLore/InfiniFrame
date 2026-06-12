@@ -305,6 +305,12 @@ class InfiniFrameWindow {
     void SetMediaAutoplayEnabled(bool enabled);
 
     /**
+         * @brief Set the browser user-agent string
+         * @param userAgent UTF-8 user-agent string; empty/null clears custom override
+         */
+    void SetUserAgent(AutoString userAgent);
+
+    /**
          * @brief Enable or disable the browser DevTools panel
          * @param enabled true to make DevTools accessible
          */
