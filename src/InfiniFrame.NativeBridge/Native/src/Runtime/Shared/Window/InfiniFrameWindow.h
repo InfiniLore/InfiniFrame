@@ -611,6 +611,7 @@ class InfiniFrameWindow {
     static void Register();
 
     void FlushPendingWebMessages();
+    void ApplyMediaAutoplayConfiguration();
 
     /**
          * @brief Get the native NSWindow pointer for this window
