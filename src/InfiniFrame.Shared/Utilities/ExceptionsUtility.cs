@@ -8,5 +8,5 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class ExceptionsUtility {
     public static bool IsNonFatalException(Exception exception)
-        => exception is not (OutOfMemoryException or AccessViolationException);
+        => exception is not (ApplicationException or OutOfMemoryException or AccessViolationException);
 }

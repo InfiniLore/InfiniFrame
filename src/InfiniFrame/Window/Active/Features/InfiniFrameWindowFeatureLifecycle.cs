@@ -81,7 +81,15 @@ public class InfiniFrameWindowFeatureLifecycle(
                 else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
                 else throw new PlatformNotSupportedException();
 
-                InfiniFrameNative.Constructor(in startupParameters, out IntPtr handle);
+                InfiniFrameNativeInteropStatus status = InfiniFrameNative.Constructor(in startupParameters, out IntPtr handle);
+                if (status != InfiniFrameNativeInteropStatus.Success) {
+                    int lastError = Marshal.GetLastPInvokeError();
+                    string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
+                    
+                    throw new ApplicationException(
+                        $"Native constructor failed with status {status}. Error #{lastError}. {nativeMessage}");
+                }
+                
                 ArgumentOutOfRangeException.ThrowIfZero(handle);
                 window.InstanceHandle = handle;
             }
