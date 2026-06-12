@@ -12,19 +12,23 @@
 
 static const int MAX_WINDOW_DIMENSION = 10000;
 
-static void ApplyMediaAutoplayConfiguration(InfiniFrameWindow::Impl* impl)
+void InfiniFrameWindow::ApplyMediaAutoplayConfiguration()
 {
-    if (impl == nullptr || impl->_webviewConfiguration == nil)
+    if (m_impl == nullptr || m_impl->_webviewConfiguration == nil)
         return;
 
     SEL selector = NSSelectorFromString(@"setMediaTypesRequiringUserActionForPlayback:");
-    if (![impl->_webviewConfiguration respondsToSelector: selector])
+    if (![m_impl->_webviewConfiguration respondsToSelector: selector])
         return;
 
     using SetMediaTypesFn = void (*)(id, SEL, NSUInteger);
-    auto setter = reinterpret_cast<SetMediaTypesFn>([impl->_webviewConfiguration methodForSelector: selector]);
-    const NSUInteger mediaTypesMask = impl->_mediaAutoplayEnabled ? 0u : NSUIntegerMax;
-    setter(impl->_webviewConfiguration, selector, mediaTypesMask);
+    auto setter = reinterpret_cast<SetMediaTypesFn>(
+        [m_impl->_webviewConfiguration methodForSelector: selector]);
+
+    const NSUInteger mediaTypesMask =
+        m_impl->_mediaAutoplayEnabled ? 0u : NSUIntegerMax;
+
+    setter(m_impl->_webviewConfiguration, selector, mediaTypesMask);
 }
 
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
@@ -262,7 +266,7 @@ void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
 {
     m_impl->_mediaAutoplayEnabled = enabled;
-    ApplyMediaAutoplayConfiguration(m_impl.get());
+    ApplyMediaAutoplayConfiguration();
 
     if (m_impl->_webview != nil)
         [m_impl->_webview reload];
