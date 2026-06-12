@@ -108,20 +108,12 @@ try {
     }
 
     if ($Platform -eq "windows") {
-
-        $AvailableGenerators = cmake --help | Out-String
-
-        if ($AvailableGenerators -match "Visual Studio 18 2026") {
-            $Generator = "Visual Studio 18 2026"
-        }
-        elseif ($AvailableGenerators -match "Visual Studio 17 2022") {
+        if ($Arch -eq "arm64") {
             $Generator = "Visual Studio 17 2022"
         }
         else {
-            throw "No supported Visual Studio generator found. Expected VS2022 or VS2026."
+            $Generator = "Visual Studio 18 2026"
         }
-
-        Write-Host "Using CMake generator: $Generator"
 
         $CMakeArgs += "-G"
         $CMakeArgs += $Generator
