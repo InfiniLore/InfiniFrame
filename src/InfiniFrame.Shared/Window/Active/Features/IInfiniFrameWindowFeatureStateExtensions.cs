@@ -31,8 +31,8 @@ public static class IInfiniFrameWindowFeatureStateExtension {
         return window;
     }
     
-    public static IInfiniFrameWindow SetZoom(this IInfiniFrameWindow window, int zoom) {
-        window.Features.State.SetZoom(zoom);
+    public static IInfiniFrameWindow SetZoomFactor(this IInfiniFrameWindow window, int zoom) {
+        window.Features.State.SetZoomFactor(zoom);
         return window;
     }
     
