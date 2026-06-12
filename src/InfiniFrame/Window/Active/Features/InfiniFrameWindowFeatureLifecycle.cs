@@ -86,9 +86,7 @@ public class InfiniFrameWindowFeatureLifecycle(
                 window.InstanceHandle = handle;
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-                int lastError = OperatingSystem.IsWindows()
-                    ? Marshal.GetLastWin32Error()
-                    : 0;
+                int lastError = Marshal.GetLastPInvokeError();
 
                 logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
                 throw new ApplicationException($"Native code exception. Error #{lastError}", ex);
@@ -127,13 +125,11 @@ public class InfiniFrameWindowFeatureLifecycle(
             });
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            int lastError = OperatingSystem.IsWindows()
-                ? Marshal.GetLastWin32Error()
-                : 0;
+            int lastError = Marshal.GetLastPInvokeError();
 
             logger.LogError(ex, "Error #{LastErrorCode} while running message loop", lastError);
             throw new ApplicationException(
-                $"Native code exception. Error # {lastError}",
+                $"Native code exception. Error #{lastError}",
                 ex);
         }
         finally {
