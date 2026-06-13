@@ -119,13 +119,8 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
     ///     Builds a new <see cref="InfiniFrameBlazorApp" /> using a service provider created from <see cref="Services" />.
     /// </summary>
     /// <returns>A newly created <see cref="InfiniFrameBlazorApp" />.</returns>
-    public InfiniFrameBlazorApp Build() {
-        var snapshot = new WindowBuildSnapshot();
-        WindowBuilder.EventsStore.CopyTo(snapshot.EventsStore);
-        Services.AddSingleton(snapshot);
-
-        return Build(Services.BuildServiceProvider());
-    }
+    public InfiniFrameBlazorApp Build()
+        => Build(Services.BuildServiceProvider());
 
     /// <summary>
     ///     Builds a new <see cref="InfiniFrameBlazorApp" /> using an externally supplied <see cref="IServiceProvider" />.
@@ -151,19 +146,11 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         string startupUrl = BuildStartupUrl(appConfig);
         var staticAssets = serviceProvider.GetRequiredService<IInfiniFrameStaticAssets>();
 
-        var snapshot = serviceProvider.GetService<WindowBuildSnapshot>();
-
-        if (snapshot is not null) {
-            snapshot.EventsStore.CustomScheme.Add(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest);
-        }
-        else {
-            WindowBuilder
-                .RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest)
-                .SetStartPageUrl(startupUrl);
-        }
-
         WindowBuilder.StaticAssets = staticAssets.DeepCopy();
-        WindowBuilder.SetStartPageUrl(startupUrl);
+
+        WindowBuilder
+            .RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest)
+            .SetStartPageUrl(startupUrl);
 
         bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
             .Value.EnableGlobalUnhandledExceptionHandler ?? true;

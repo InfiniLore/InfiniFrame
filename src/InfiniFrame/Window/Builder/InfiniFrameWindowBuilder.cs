@@ -42,15 +42,13 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
         var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>();
 
-        IInfiniFrameEventsStore sourceStore = actualProvider.GetService<WindowBuildSnapshot>()?.EventsStore ?? EventsStore;
-
         InfiniFrameNativeParameters nativeParameters = CollectNativeParameters();
 
         var window = actualProvider.GetRequiredService<InfiniFrameWindow>();
 
         window.AssignFeatures(featureFactory.Create(window, this));
 
-        window.Events.PopulateFromBuilderEventStore(sourceStore);
+        window.Events.PopulateFromBuilderEventStore(EventsStore);
         window.Events.AssignToNativeParameters(ref nativeParameters);
         window.Events.AssignDefaultEventCallbacks();
         window.Events.AssignToWindow(window);
