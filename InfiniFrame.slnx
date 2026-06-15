@@ -140,65 +140,6 @@
     <Project Path="tests/InfiniAutomationTests.WebApp.React/InfiniAutomationTests.WebApp.React.csproj" />
     <Project Path="tests/InfiniAutomationTests.WebApp.Vue/InfiniAutomationTests.WebApp.Vue.csproj" />
   </Folder>
-  <Folder Name="/tests/OLD/">
-    <File Path="WebMessageReceivedHandlerTests.cs" />
-  </Folder>
-  <Folder Name="/tests/OLD/EVENTS/">
-    <File Path="WindowClosedEventTests.cs" />
-    <File Path="WindowClosingRequestedEventTests.cs" />
-    <File Path="WindowCreatedEventTests.cs" />
-    <File Path="WindowCreatingEventTests.cs" />
-    <File Path="WindowFocusInEventTests.cs" />
-    <File Path="WindowFocusOutEventTests.cs" />
-    <File Path="WindowLocationChangedEventTests.cs" />
-    <File Path="WindowMaximizedEventTests.cs" />
-    <File Path="WindowMinimizedEventTests.cs" />
-    <File Path="WindowRestoredEventTests.cs" />
-    <File Path="WindowSizeChangedEventTests.cs" />
-  </Folder>
-  <Folder Name="/tests/OLD/FUNCTIONS/">
-    <File Path="BrowserControlInitParametersTests.cs" />
-    <File Path="CenterOnCurrentMonitorTests.cs" />
-    <File Path="CenterOnMonitorTests.cs" />
-    <File Path="CenterTests.cs" />
-    <File Path="ContextMenuTests.cs" />
-    <File Path="DebugToolingTests.cs" />
-    <File Path="DevToolsTests.cs" />
-    <File Path="FocusedTests.cs" />
-    <File Path="FullscreenTests.cs" />
-    <File Path="HeightTests.cs" />
-    <File Path="IconFilePathTests.cs" />
-    <File Path="LeftTests.cs" />
-    <File Path="LoadTests.cs" />
-    <File Path="LocationTests.cs" />
-    <File Path="MaxHeightTests.cs" />
-    <File Path="MaximizeTests.cs" />
-    <File Path="MaxSizeTests.cs" />
-    <File Path="MaxWidthTests.cs" />
-    <File Path="MinHeightTests.cs" />
-    <File Path="MinimizeTests.cs" />
-    <File Path="MinSizeTests.cs" />
-    <File Path="MinWidthTests.cs" />
-    <File Path="MoveWithinCurrentMonitorAreaTests.cs" />
-    <File Path="OffsetTests.cs" />
-    <File Path="RegisterCustomSchemeHandlerTests.cs" />
-    <File Path="RemoteDebuggingTests.cs" />
-    <File Path="ResizableTests.cs" />
-    <File Path="ResizeTests.cs" />
-    <File Path="SizeTests.cs" />
-    <File Path="TitleTests.cs" />
-    <File Path="TopMostTests.cs" />
-    <File Path="TopTests.cs" />
-    <File Path="TransparentTests.cs" />
-    <File Path="WebInspectorTests.cs" />
-    <File Path="WidthTests.cs" />
-    <File Path="WindowHandleTests.cs" />
-    <File Path="ZoomTests.cs" />
-  </Folder>
-  <Folder Name="/tests/OLD/LIFECYCLE/">
-    <File Path="ParentChildWindowTests.cs" />
-    <File Path="ReOpeningAnotherWindowTests.cs" />
-  </Folder>
   <Folder Name="/tests/tools/">
     <Project Path="tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj" />
   </Folder>
