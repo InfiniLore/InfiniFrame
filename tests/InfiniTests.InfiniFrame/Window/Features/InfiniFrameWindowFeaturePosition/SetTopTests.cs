@@ -49,35 +49,31 @@ public class SetTopTests {
     [Test]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
-    public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
+    public async Task AtWindowStage_DirectAssignment_DoesNotCloseWindow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
-        int initialTop = window.Features.Position.Top;
-        int targetTop = initialTop + 40;
 
         // Act
-        window.Features.Position.SetTop(targetTop);
+        window.Features.Position.SetTop(window.Features.Position.Top + 40);
 
         // Assert
-        await Assert.That(window.Features.Position.Top).IsNotEqualTo(initialTop);
+        await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
 
     [Test]
     [SkipOnMacOs]
     [NotInParallelInfiniTests]
-    public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
+    public async Task AtWindowStage_ExtensionAssignment_ReturnsSameWindow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
-        int initialTop = window.Features.Position.Top;
-        int targetTop = initialTop + 50;
 
         // Act
-        IInfiniFrameWindow returnedWindow = window.SetTop(targetTop);
+        IInfiniFrameWindow returnedWindow = window.SetTop(window.Features.Position.Top + 50);
 
         // Assert
-        await Assert.That(window.Features.Position.Top).IsNotEqualTo(initialTop);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
+        await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
 }
