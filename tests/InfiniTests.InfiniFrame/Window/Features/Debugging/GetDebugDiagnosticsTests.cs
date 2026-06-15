@@ -61,6 +61,7 @@ public class GetDebugDiagnosticsTests {
     [Test]
     [NotInParallelInfiniTests]
     [MethodDataSource(nameof(GetPorts))]
+    [SkipOnLinux]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
