@@ -37,6 +37,7 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
 
         await tcs.Task;
     }
+    
     public static void CaptureMainThread(AssemblyHookContext context) {
         MainThreadId = Environment.CurrentManagedThreadId;
         MainContext = SynchronizationContext.Current;

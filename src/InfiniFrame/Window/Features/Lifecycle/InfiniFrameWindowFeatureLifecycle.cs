@@ -257,10 +257,13 @@ public class InfiniFrameWindowFeatureLifecycle(
         IntPtr handle = window.InstanceHandle;
         window.InstanceHandle = IntPtr.Zero;
         LifecycleState = LifecycleStatus.Closed;
-        // Destructor is intentionally NOT called here — MarkAsClosed runs inside the GTK "destroy" signal handler.
-        // Calling InfiniFrameNative.Destructor from inside a GTK signal handler triggers a SIGABRT in WebKit or a
-        // deadlock when the next WebKitWebView is created. The native object is freed later via CleanupNativeHandle.
-        _cleanupHandle = handle;
+
+        if (OperatingSystem.IsLinux()) {
+            // Destructor is intentionally NOT called here — MarkAsClosed runs inside the GTK "destroy" signal handler.
+            // Calling InfiniFrameNative.Destructor from inside a GTK signal handler triggers a SIGABRT in WebKit or a
+            // deadlock when the next WebKitWebView is created. The native object is freed later via CleanupNativeHandle.
+            _cleanupHandle = handle;
+        }
     }
 
     /// <summary>
