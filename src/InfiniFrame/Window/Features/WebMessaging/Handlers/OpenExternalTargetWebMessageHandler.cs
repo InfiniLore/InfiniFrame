@@ -6,7 +6,6 @@ using InfiniFrame.Security;
 using System.ComponentModel;
 using System.Diagnostics;
 
-// ReSharper disable once CheckNamespace
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
