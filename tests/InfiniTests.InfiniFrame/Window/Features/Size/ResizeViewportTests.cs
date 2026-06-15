@@ -77,8 +77,14 @@ public sealed class ResizeViewportTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         (int Width, int Height) initialViewport = await firstViewport.Task.WaitAsync(TimeSpan.FromSeconds(3), ct);
+        int originalWidth = window.Features.Size.Width;
+        int originalHeight = window.Features.Size.Height;
+        int targetWidth = originalWidth + 180;
+        int targetHeight = originalHeight + 120;
 
-        window.SetSize(window.Features.Size.Width + 180, window.Features.Size.Height + 120);
+        window.SetSize(targetWidth, targetHeight);
+        _ = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        _ = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
 
         (int Width, int Height) newViewport = await resizedViewport.Task.WaitAsync(TimeSpan.FromSeconds(3), ct);
 
