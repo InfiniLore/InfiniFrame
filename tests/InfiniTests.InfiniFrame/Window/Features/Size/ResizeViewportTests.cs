@@ -4,11 +4,11 @@
 using InfiniFrame;
 using System.Text.RegularExpressions;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.Window.Features.Size;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class WindowResizeViewportTests {
+public sealed class ResizeViewportTests {
     private static readonly Regex ViewportPattern = new(@"^(\d+)x(\d+)$", RegexOptions.Compiled);
 
     [Test]

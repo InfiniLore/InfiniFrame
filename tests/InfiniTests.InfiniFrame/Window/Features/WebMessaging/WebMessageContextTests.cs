@@ -7,7 +7,7 @@ using InfiniTests.Substitutes;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.Json;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
