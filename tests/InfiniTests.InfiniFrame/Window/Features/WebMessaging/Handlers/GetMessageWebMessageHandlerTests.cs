@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using System.Text.Json;
 
-namespace InfiniTests.InfiniFrame.MessageHandlers;
+namespace InfiniTests.InfiniFrame.Window.Features.WebMessaging.Handlers;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
