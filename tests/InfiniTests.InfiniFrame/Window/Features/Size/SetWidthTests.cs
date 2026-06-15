@@ -53,12 +53,15 @@ public class SetWidthTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalWidth = window.Features.Size.Width;
+        int targetWidth = value == originalWidth ? value + 20 : value;
 
         // Act
-        window.Features.Size.SetWidth(value);
+        window.Features.Size.SetWidth(targetWidth);
 
         // Assert
-        await Assert.That(window.Features.Size.Width).IsEqualTo(value);
+        int newWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newWidth).IsEqualTo(targetWidth);
     }
 
     [Test]
@@ -68,12 +71,15 @@ public class SetWidthTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalWidth = window.Features.Size.Width;
+        int targetWidth = value == originalWidth ? value + 20 : value;
 
         // Act
-        IInfiniFrameWindow returnedWindow = window.SetWidth(value);
+        IInfiniFrameWindow returnedWindow = window.SetWidth(targetWidth);
 
         // Assert
-        await Assert.That(window.Features.Size.Width).IsEqualTo(value);
+        int newWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newWidth).IsEqualTo(targetWidth);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 }

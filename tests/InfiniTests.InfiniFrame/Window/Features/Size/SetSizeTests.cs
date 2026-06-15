@@ -59,13 +59,19 @@ public class SetSizeTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalWidth = window.Features.Size.Width;
+        int originalHeight = window.Features.Size.Height;
+        int targetWidth = width == originalWidth ? width + 20 : width;
+        int targetHeight = height == originalHeight ? height + 20 : height;
 
         // Act
-        window.Features.Size.SetSize(width, height);
+        window.Features.Size.SetSize(targetWidth, targetHeight);
 
         // Assert
-        await Assert.That(window.Features.Size.Width).IsEqualTo(width);
-        await Assert.That(window.Features.Size.Height).IsEqualTo(height);
+        int updatedWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        int updatedHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(updatedWidth).IsEqualTo(targetWidth);
+        await Assert.That(updatedHeight).IsEqualTo(targetHeight);
     }
 
     [Test]
@@ -76,13 +82,19 @@ public class SetSizeTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalWidth = window.Features.Size.Width;
+        int originalHeight = window.Features.Size.Height;
+        int targetWidth = width == originalWidth ? width + 20 : width;
+        int targetHeight = height == originalHeight ? height + 20 : height;
 
         // Act
-        IInfiniFrameWindow returnedWindow = window.SetSize(width, height);
+        IInfiniFrameWindow returnedWindow = window.SetSize(targetWidth, targetHeight);
 
         // Assert
-        await Assert.That(window.Features.Size.Width).IsEqualTo(width);
-        await Assert.That(window.Features.Size.Height).IsEqualTo(height);
+        int updatedWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
+        int updatedHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(updatedWidth).IsEqualTo(targetWidth);
+        await Assert.That(updatedHeight).IsEqualTo(targetHeight);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 

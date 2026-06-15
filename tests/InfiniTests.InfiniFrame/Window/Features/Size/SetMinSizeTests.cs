@@ -53,12 +53,18 @@ public class SetMinSizeTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalMinWidth = window.Features.Size.MinWidth;
+        int originalMinHeight = window.Features.Size.MinHeight;
+        int targetMinWidth = width == originalMinWidth ? width + 20 : width;
+        int targetMinHeight = height == originalMinHeight ? height + 20 : height;
 
         // Act
-        window.Features.Size.SetMinSize(width, height);
+        window.Features.Size.SetMinSize(targetMinWidth, targetMinHeight);
 
         // Assert
-        await Assert.That(window.Features.Size.MinWidth).IsEqualTo(width);
-        await Assert.That(window.Features.Size.MinHeight).IsEqualTo(height);
+        int newMinWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinWidth, originalMinWidth, TimeSpan.FromSeconds(5), ct);
+        int newMinHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newMinWidth).IsEqualTo(targetMinWidth);
+        await Assert.That(newMinHeight).IsEqualTo(targetMinHeight);
     }
 }

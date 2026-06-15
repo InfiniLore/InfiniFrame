@@ -25,8 +25,10 @@ public class ResizeTests {
         window.Features.Size.Resize(120, 60, ResizeOrigin.BottomRight);
 
         // Assert
-        await Assert.That(window.Features.Size.Width).IsGreaterThan(initialWidth);
-        await Assert.That(window.Features.Size.Height).IsGreaterThan(initialHeight);
+        int newWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, initialWidth, TimeSpan.FromSeconds(5), ct);
+        int newHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, initialHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newWidth).IsGreaterThan(initialWidth);
+        await Assert.That(newHeight).IsGreaterThan(initialHeight);
     }
 
     [Test]
@@ -46,8 +48,10 @@ public class ResizeTests {
         IInfiniFrameWindow returnedWindow = window.Resize(100, 40, ResizeOrigin.BottomRight);
 
         // Assert
-        await Assert.That(window.Features.Size.Width).IsGreaterThan(initialWidth);
-        await Assert.That(window.Features.Size.Height).IsGreaterThan(initialHeight);
+        int newWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, initialWidth, TimeSpan.FromSeconds(5), ct);
+        int newHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, initialHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newWidth).IsGreaterThan(initialWidth);
+        await Assert.That(newHeight).IsGreaterThan(initialHeight);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 }

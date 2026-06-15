@@ -53,12 +53,15 @@ public class SetHeightTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalHeight = window.Features.Size.Height;
+        int targetHeight = value == originalHeight ? value + 20 : value;
 
         // Act
-        window.Features.Size.SetHeight(value);
+        window.Features.Size.SetHeight(targetHeight);
 
         // Assert
-        await Assert.That(window.Features.Size.Height).IsEqualTo(value);
+        int newHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newHeight).IsEqualTo(targetHeight);
     }
 
     [Test]
@@ -68,12 +71,15 @@ public class SetHeightTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalHeight = window.Features.Size.Height;
+        int targetHeight = value == originalHeight ? value + 20 : value;
 
         // Act
-        IInfiniFrameWindow returnedWindow = window.SetHeight(value);
+        IInfiniFrameWindow returnedWindow = window.SetHeight(targetHeight);
 
         // Assert
-        await Assert.That(window.Features.Size.Height).IsEqualTo(value);
+        int newHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newHeight).IsEqualTo(targetHeight);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 }

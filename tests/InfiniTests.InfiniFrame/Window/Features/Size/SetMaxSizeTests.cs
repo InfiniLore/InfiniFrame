@@ -53,12 +53,18 @@ public class SetMaxSizeTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalMaxWidth = window.Features.Size.MaxWidth;
+        int originalMaxHeight = window.Features.Size.MaxHeight;
+        int targetMaxWidth = width == originalMaxWidth ? width + 20 : width;
+        int targetMaxHeight = height == originalMaxHeight ? height + 20 : height;
 
         // Act
-        window.Features.Size.SetMaxSize(width, height);
+        window.Features.Size.SetMaxSize(targetMaxWidth, targetMaxHeight);
 
         // Assert
-        await Assert.That(window.Features.Size.MaxWidth).IsEqualTo(width);
-        await Assert.That(window.Features.Size.MaxHeight).IsEqualTo(height);
+        int newMaxWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MaxWidth, originalMaxWidth, TimeSpan.FromSeconds(5), ct);
+        int newMaxHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MaxHeight, originalMaxHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newMaxWidth).IsEqualTo(targetMaxWidth);
+        await Assert.That(newMaxHeight).IsEqualTo(targetMaxHeight);
     }
 }
