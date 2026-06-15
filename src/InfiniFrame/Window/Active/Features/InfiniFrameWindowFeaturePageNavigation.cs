@@ -18,60 +18,36 @@ public class InfiniFrameWindowFeaturePageNavigation(
     IInfiniFrameStaticAssets? staticAssets
 ) : IInfiniFrameWindowFeaturePageNavigation {
     
-    public void Load(Uri uri) {
-        if (TryLoadUri(uri) || TryLoadPath(uri.ToString())) {}
-    }
+    public void Load(Uri uri)
+        => TryLoadUri(uri);
 
-    public void Load(string path) {
-        TryLoadPath(path);
-    }
+    public void Load(string path)
+        => TryLoadPath(path);
 
-    private bool TryLoadUri(Uri uri) {
-        if (uri.IsFile) return TryLoadPath(uri.AbsolutePath);
+    public bool TryLoadUri(Uri uri) {
+        if (uri.IsFile) return TryNavigate(uri.ToString());
         
         IInfiniFrameUriSecurityPolicy uriSecurityPolicy = InfiniFrameUriSecurityPolicyRegistry.GetForWindow(window);
+        
+        // ReSharper disable once InvertIf
         if (!uriSecurityPolicy.TrustAllOrigins && !uriSecurityPolicy.IsTrustedOrigin(uri)) {
             logger.LogWarning("Uri {Uri} is not trusted", uri);
             return false;
         }
-        
-        logger.LogDebug("Navigating to url: {Uri}", uri);
-        NativeInvoke.InvokeSyncWithValidation(
-            logger,
-            window.InstanceHandle,
-            window.ManagedThreadId,
-            InfiniFrameNative.NavigateToUrl,
-            uri.ToString()
-        );
-        
-        return true;
+
+        return TryNavigate(uri.ToString());
     }
     
-    private bool TryLoadPath(string path) {
-        ReadOnlySpan<string> attempts = [
-            path,
-            Path.GetFullPath(path),
-            $"{AppContext.BaseDirectory}/{path}"
-        ];
-        
-        foreach (string attempt in attempts) {
-            if (Uri.TryCreate(attempt, UriKind.Absolute, out Uri? absoluteUri) && TryLoadUri(absoluteUri)) return true;
-            if (TryResolveStaticAssetUri(attempt, out Uri? staticAssetUri)) return TryLoadUri(staticAssetUri);
+    public bool TryLoadPath(string path) {
+        foreach (string attempt in EnumeratePathAttempts(path)) {
+            if (Uri.TryCreate(attempt, UriKind.Absolute, out Uri? absoluteUri)) {
+                // ReSharper disable once ConvertIfStatementToReturnStatement
+                if (absoluteUri.IsFile) return TryNavigate(absoluteUri.ToString());
+                return TryLoadUri(absoluteUri);
+            }
 
-            try {
-                NativeInvoke.InvokeSyncWithValidation(
-                    logger,
-                    window.InstanceHandle,
-                    window.ManagedThreadId,
-                    InfiniFrameNative.NavigateToUrl,
-                    attempt
-                );
-                return true;
-            }
-            catch (Exception ex) when (!ExceptionsUtility.IsNonFatalException(ex)) {
-                logger.LogWarning(ex, "Failed to load static asset {Path}", attempt);
-                return false;
-            }
+            if (TryResolveStaticAssetUri(attempt, out Uri? staticAssetUri)) return TryLoadUri(staticAssetUri);
+            if (TryNavigate(attempt)) return true;
         }
         
         return false;
@@ -104,5 +80,46 @@ public class InfiniFrameWindowFeaturePageNavigation(
             staticAssets.DefaultDocument,
             out uri
         );
+    }
+
+    private bool TryNavigate(string target) {
+        logger.LogDebug("Navigating to url: {Target}", target);
+        try {
+            NativeInvoke.InvokeSyncWithValidation(
+                logger,
+                window.InstanceHandle,
+                window.ManagedThreadId,
+                InfiniFrameNative.NavigateToUrl,
+                target
+            );
+            return true;
+        }
+        catch (Exception ex) when (!ExceptionsUtility.IsNonFatalException(ex)) {
+            logger.LogWarning(ex, "Failed to navigate to {Target}", target);
+            return false;
+        }
+    }
+
+    private static IEnumerable<string> EnumeratePathAttempts(string path) {
+        yield return path;
+
+        string? absolutePath = null;
+        try {
+            absolutePath = Path.GetFullPath(path);
+        }
+        catch (Exception) {
+            // ignored intentionally; invalid paths still get other attempts
+        }
+
+        if (!string.IsNullOrWhiteSpace(absolutePath) 
+            && !string.Equals(absolutePath, path, StringComparison.OrdinalIgnoreCase)) {
+            yield return absolutePath;
+        }
+
+        string baseDirectoryPath = Path.Combine(AppContext.BaseDirectory, path);
+        if (!string.Equals(baseDirectoryPath, path, StringComparison.OrdinalIgnoreCase) 
+            && !string.Equals(baseDirectoryPath, absolutePath, StringComparison.OrdinalIgnoreCase)) {
+            yield return baseDirectoryPath;
+        }
     }
 }

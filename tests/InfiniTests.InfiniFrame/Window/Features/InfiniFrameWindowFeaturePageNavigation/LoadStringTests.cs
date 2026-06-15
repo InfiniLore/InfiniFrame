@@ -41,4 +41,39 @@ public class LoadStringTests {
         // Assert
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    public async Task AtWindowStage_DirectAssignment_DisallowedAbsoluteUriString_DoesNotThrow(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        const string disallowedAbsoluteUri = "ftp://example.com/not-allowed";
+
+        // Act
+        window.Features.PageNavigation.Load(disallowedAbsoluteUri);
+
+        // Assert
+        await Assert.That(window.IsClosedOrClosing()).IsFalse();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    public async Task AtWindowStage_ExtensionAssignment_DisallowedAbsoluteUriString_DoesNotThrow(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        const string disallowedAbsoluteUri = "ftp://example.com/not-allowed-extension";
+
+        // Act
+        IInfiniFrameWindow returnedWindow = window.Load(disallowedAbsoluteUri);
+
+        // Assert
+        await Assert.That(returnedWindow).IsSameReferenceAs(window);
+        await Assert.That(window.IsClosedOrClosing()).IsFalse();
+    }
 }

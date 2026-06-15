@@ -8,5 +8,7 @@ namespace InfiniFrame;
 public interface IInfiniFrameWindowFeaturePageNavigation {
     void Load(Uri uri);
     void Load(string path);
+    bool TryLoadUri(Uri uri);
+    bool TryLoadPath(string path);
     void LoadRawString(string content);
 }
