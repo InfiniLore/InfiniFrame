@@ -15,6 +15,7 @@ public sealed class ResizeViewportTests {
     [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
+    [SkipOnWindowsArm("Test is flaky on ARM")]
     [DefaultInfiniTestsTimeout(8_000)]
     public async Task NativeResize_ShouldUpdateBrowserViewport(CancellationToken ct = default) {
         var firstViewport = new TaskCompletionSource<(int Width, int Height)>(TaskCreationOptions.RunContinuationsAsynchronously);
