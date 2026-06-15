@@ -5,7 +5,7 @@ using InfiniFrame;
 using InfiniFrame.Security;
 using InfiniTests.Substitutes;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.Security;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
