@@ -14,8 +14,6 @@
     "@docusaurus/preset-classic": "^3.10.1",
     "clsx": "^2.1.1",
     "prism-react-renderer": "^2.4.1",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
     "serialize-javascript": "^7.0.5"
   },
   "devDependencies": {
@@ -23,12 +21,15 @@
     "@docusaurus/types": "^3.10.1",
     "typescript": "^6.0.3"
   },
-  "overrides": {
-    "webpack": "5.105.4",
-    "serialize-javascript": "^7.0.5", 
-    "uuid": "^14.0.0"
-  },
-  "engines": {
-    "node": ">=20.0"
+    "overrides": {
+        "webpack": "5.105.4",
+        "serialize-javascript": "^7.0.5",
+        "uuid": "^14.0.0"
+    },
+    "engines": {
+        "node": ">=20.0"
+    },
+  "allowScripts": {
+    "core-js@3.49.0": true
   }
 }
