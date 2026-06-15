@@ -49,12 +49,15 @@ public class SetMinHeightTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalMinHeight = window.Features.Size.MinHeight;
+        int targetMinHeight = value == originalMinHeight ? value + 20 : value;
 
         // Act
-        window.Features.Size.SetMinHeight(value);
+        window.Features.Size.SetMinHeight(targetMinHeight);
 
         // Assert
-        await Assert.That(window.Features.Size.MinHeight).IsEqualTo(value);
+        int newMinHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newMinHeight).IsEqualTo(targetMinHeight);
     }
 
     [Test]
@@ -64,12 +67,15 @@ public class SetMinHeightTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalMinHeight = window.Features.Size.MinHeight;
+        int targetMinHeight = value == originalMinHeight ? value + 20 : value;
 
         // Act
-        IInfiniFrameWindow returnedWindow = window.SetMinHeight(value);
+        IInfiniFrameWindow returnedWindow = window.SetMinHeight(targetMinHeight);
 
         // Assert
-        await Assert.That(window.Features.Size.MinHeight).IsEqualTo(value);
+        int newMinHeight = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MinHeight, originalMinHeight, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newMinHeight).IsEqualTo(targetMinHeight);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 }

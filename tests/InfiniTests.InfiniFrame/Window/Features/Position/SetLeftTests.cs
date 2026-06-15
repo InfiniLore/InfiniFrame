@@ -54,12 +54,19 @@ public class SetLeftTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalLocation = window.Features.Position.Left;
 
         // Act
         window.Features.Position.SetLeft(value);
 
         // Assert
-        await Assert.That(window.Features.Position.Left).IsEqualTo(value);
+        int newValue = await PollUtility.WaitForChangeAsync(
+            () => window.Features.Position.Left, 
+            originalLocation, 
+            TimeSpan.FromSeconds(5),
+            ct
+        );
+        await Assert.That(newValue).IsEqualTo(value);
     }
 
     [Test]
@@ -70,12 +77,19 @@ public class SetLeftTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalLocation = window.Features.Position.Left;
 
         // Act
         IInfiniFrameWindow returnedWindow = window.SetLeft(value);
 
         // Assert
-        await Assert.That(window.Features.Position.Left).IsEqualTo(value);
+        int newValue = await PollUtility.WaitForChangeAsync(
+            () => window.Features.Position.Left, 
+            originalLocation, 
+            TimeSpan.FromSeconds(5),
+            ct
+        );
+        await Assert.That(newValue).IsEqualTo(value);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 }

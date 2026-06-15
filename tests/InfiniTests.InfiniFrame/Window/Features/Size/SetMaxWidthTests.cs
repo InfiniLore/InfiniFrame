@@ -49,12 +49,15 @@ public class SetMaxWidthTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalMaxWidth = window.Features.Size.MaxWidth;
+        int targetMaxWidth = value == originalMaxWidth ? value + 20 : value;
 
         // Act
-        window.Features.Size.SetMaxWidth(value);
+        window.Features.Size.SetMaxWidth(targetMaxWidth);
 
         // Assert
-        await Assert.That(window.Features.Size.MaxWidth).IsEqualTo(value);
+        int newMaxWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MaxWidth, originalMaxWidth, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newMaxWidth).IsEqualTo(targetMaxWidth);
     }
 
     [Test]
@@ -64,12 +67,15 @@ public class SetMaxWidthTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalMaxWidth = window.Features.Size.MaxWidth;
+        int targetMaxWidth = value == originalMaxWidth ? value + 20 : value;
 
         // Act
-        IInfiniFrameWindow returnedWindow = window.SetMaxWidth(value);
+        IInfiniFrameWindow returnedWindow = window.SetMaxWidth(targetMaxWidth);
 
         // Assert
-        await Assert.That(window.Features.Size.MaxWidth).IsEqualTo(value);
+        int newMaxWidth = await PollUtility.WaitForChangeAsync(() => window.Features.Size.MaxWidth, originalMaxWidth, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(newMaxWidth).IsEqualTo(targetMaxWidth);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 }

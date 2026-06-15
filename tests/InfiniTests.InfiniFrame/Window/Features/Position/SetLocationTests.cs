@@ -60,13 +60,19 @@ public class SetLocationTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalLeft = window.Features.Position.Left;
+        int originalTop = window.Features.Position.Top;
+        int targetLeft = left == originalLeft ? left + 20 : left;
+        int targetTop = top == originalTop ? top + 20 : top;
 
         // Act
-        window.Features.Position.SetLocation(left, top);
+        window.Features.Position.SetLocation(targetLeft, targetTop);
 
         // Assert
-        await Assert.That(window.Features.Position.Left).IsEqualTo(left);
-        await Assert.That(window.Features.Position.Top).IsEqualTo(top);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, originalLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedTop = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Top, originalTop, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(updatedLeft).IsEqualTo(targetLeft);
+        await Assert.That(updatedTop).IsEqualTo(targetTop);
     }
 
     [Test]
@@ -77,13 +83,19 @@ public class SetLocationTests {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int originalLeft = window.Features.Position.Left;
+        int originalTop = window.Features.Position.Top;
+        int targetLeft = left == originalLeft ? left + 20 : left;
+        int targetTop = top == originalTop ? top + 20 : top;
 
         // Act
-        IInfiniFrameWindow returnedWindow = window.SetLocation(left, top);
+        IInfiniFrameWindow returnedWindow = window.SetLocation(targetLeft, targetTop);
 
         // Assert
-        await Assert.That(window.Features.Position.Left).IsEqualTo(left);
-        await Assert.That(window.Features.Position.Top).IsEqualTo(top);
+        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, originalLeft, TimeSpan.FromSeconds(5), ct);
+        int updatedTop = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Top, originalTop, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(updatedLeft).IsEqualTo(targetLeft);
+        await Assert.That(updatedTop).IsEqualTo(targetTop);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
 }

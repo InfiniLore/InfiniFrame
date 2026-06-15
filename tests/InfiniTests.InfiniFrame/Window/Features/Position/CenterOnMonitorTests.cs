@@ -19,11 +19,14 @@ public class CenterOnMonitorTests {
             builder.Features.Position.SetLocation(100, 100);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int initialLeft = window.Features.Position.Left;
 
         // Act
         window.Features.Position.CenterOnMonitor(0);
 
         // Assert
+        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(updatedLeft).IsNotEqualTo(initialLeft);
         await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
 
@@ -38,7 +41,6 @@ public class CenterOnMonitorTests {
             builder.Features.Position.SetLocation(140, 140);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
-
         // Act
         window.Features.Position.CenterOnMonitor(-1);
 
@@ -57,11 +59,14 @@ public class CenterOnMonitorTests {
             builder.Features.Position.SetLocation(160, 160);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
+        int initialLeft = window.Features.Position.Left;
 
         // Act
         IInfiniFrameWindow returnedWindow = window.CenterOnMonitor(0);
 
         // Assert
+        int updatedLeft = await PollUtility.WaitForChangeAsync(() => window.Features.Position.Left, initialLeft, TimeSpan.FromSeconds(5), ct);
+        await Assert.That(updatedLeft).IsNotEqualTo(initialLeft);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
         await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }

@@ -47,6 +47,7 @@ public class MinimizedTests {
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
+    [SkipOnLinux("Test unable to be verified on Linux due to lack of support for minimizing windows")]
     public async Task AtWindowStage_DirectAssignment(bool value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -63,6 +64,7 @@ public class MinimizedTests {
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
+    [SkipOnLinux("Test unable to be verified on Linux due to lack of support for minimizing windows")]
     public async Task AtWindowStage_ExtensionAssignment(bool value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
