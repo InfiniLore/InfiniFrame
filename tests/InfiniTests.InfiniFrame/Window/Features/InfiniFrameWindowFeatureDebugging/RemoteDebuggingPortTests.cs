@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.InfiniFrameWindowFeatureDebugg
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class RemoteDebuggingPortTests {
-    
     public static async IAsyncEnumerable<Func<int>> GetPorts() {
         await foreach(int port in PortUtils.GetOpenPorts(2)) {
             yield return () => port;
