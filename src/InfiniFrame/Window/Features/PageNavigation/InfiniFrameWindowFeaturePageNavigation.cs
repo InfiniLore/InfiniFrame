@@ -116,7 +116,7 @@ public class InfiniFrameWindowFeaturePageNavigation(
             yield return absolutePath;
         }
 
-        string baseDirectoryPath = Path.Combine(AppContext.BaseDirectory, path);
+        string baseDirectoryPath = Path.Join(AppContext.BaseDirectory, path);
         if (!string.Equals(baseDirectoryPath, path, StringComparison.OrdinalIgnoreCase) 
             && !string.Equals(baseDirectoryPath, absolutePath, StringComparison.OrdinalIgnoreCase)) {
             yield return baseDirectoryPath;
