@@ -12,6 +12,9 @@ public class InfiniFrameWindowConfiguration : IInfiniFrameWindowConfiguration {
     public IInfiniFrameWindow? ParentWindow { get; set; }
     public List<IInfiniFrameWindow> ChildWindows { get; } = [];
     
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
     public void AssignNativeParameters(InfiniFrameNativeParameters nativeParameters) {
         StartupParameters = nativeParameters;
     }
