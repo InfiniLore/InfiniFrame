@@ -15,6 +15,7 @@ public interface IInfiniFrameWindowFeatureLifecycle {
     ValueTask CloseAsync(CancellationToken ct = default);
     
     internal void MarkAsClosed();
+    internal void CleanupNativeHandle();
     
     bool IsClosedOrClosing();
 }

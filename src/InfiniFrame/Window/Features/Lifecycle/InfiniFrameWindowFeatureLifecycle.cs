@@ -29,6 +29,18 @@ public class InfiniFrameWindowFeatureLifecycle(
         get => (LifecycleStatus)Volatile.Read(ref _lifecycleState);
         set => Volatile.Write(ref _lifecycleState, (int)value);
     }
+
+    // Holds the native handle after MarkAsClosed zeros InstanceHandle but before Dispose frees it.
+    private IntPtr _cleanupHandle = IntPtr.Zero;
+
+    /// <summary>
+    ///     Frees the native window handle that was saved during MarkAsClosed. Safe to call multiple times.
+    ///     This must be called from outside the GTK "destroy" signal handler to avoid WebKit SIGABRT/deadlock.
+    /// </summary>
+    void IInfiniFrameWindowFeatureLifecycle.CleanupNativeHandle() {
+        IntPtr handle = Interlocked.Exchange(ref _cleanupHandle, IntPtr.Zero);
+        if (handle != IntPtr.Zero) InfiniFrameNative.Destructor(handle);
+    }
     
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -242,8 +254,13 @@ public class InfiniFrameWindowFeatureLifecycle(
     /// state to indicate the closed state.
     /// </remarks>
     void IInfiniFrameWindowFeatureLifecycle.MarkAsClosed() {
+        IntPtr handle = window.InstanceHandle;
         window.InstanceHandle = IntPtr.Zero;
         LifecycleState = LifecycleStatus.Closed;
+        // Destructor is intentionally NOT called here — MarkAsClosed runs inside the GTK "destroy" signal handler.
+        // Calling InfiniFrameNative.Destructor from inside a GTK signal handler triggers a SIGABRT in WebKit or a
+        // deadlock when the next WebKitWebView is created. The native object is freed later via CleanupNativeHandle.
+        _cleanupHandle = handle;
     }
 
     /// <summary>

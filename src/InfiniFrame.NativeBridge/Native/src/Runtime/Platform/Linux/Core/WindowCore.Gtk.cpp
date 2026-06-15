@@ -46,7 +46,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 
 InfiniFrameWindow::~InfiniFrameWindow() {
     notify_uninit();
-    gtk_widget_destroy(m_impl->_window);
 }
 
 InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }

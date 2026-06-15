@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <gio/gio.h>
+#include <unordered_set>
 #include <webkit2/webkit2.h>
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
@@ -36,9 +37,22 @@ void InfiniFrameWindow::Impl::AddCustomSchemeHandlers() {
     if (_customSchemeCallback == nullptr)
         return;
 
-    WebKitWebContext* context = webkit_web_context_get_default();
+    static std::unordered_set<std::string> registeredSchemes;
+
+    // webkit_web_context_get_default() returns a singleton whose lifetime is tied to the last WebKitWebView.
+    // When the last web view is destroyed the context may be finalized, leaving a dangling static pointer inside
+    // WebKit that causes abort() on the next web view creation. Hold an extra reference so the context (and its
+    // web process, network session, and inspector server) survives across window lifetimes.
+    static WebKitWebContext* context = [] {
+        WebKitWebContext* ctx = webkit_web_context_get_default();
+        g_object_ref(ctx);
+        return ctx;
+    }();
     WebKitSecurityManager* securityManager = webkit_web_context_get_security_manager(context);
     for (const auto& value : _customSchemeNames) {
+        if (!registeredSchemes.emplace(value).second)
+            continue;
+
         if (securityManager != nullptr && g_ascii_strcasecmp(value.c_str(), "app") == 0) {
             webkit_security_manager_register_uri_scheme_as_secure(securityManager, value.c_str());
         }

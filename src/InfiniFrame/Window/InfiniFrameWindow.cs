@@ -15,7 +15,7 @@ public sealed class InfiniFrameWindow(
     IInfiniFrameEvents events,
     IInfiniFrameWindowConfiguration configuration,
     IServiceProvider? serviceProvider
-) : IInfiniFrameWindow {
+) : IInfiniFrameWindow, IDisposable {
     private static readonly Lazy<IntPtr> LazyMainProgramHandle = new(NativeLibrary.GetMainProgramHandle);
     public IntPtr MainProgramHandle => LazyMainProgramHandle.Value;
     
@@ -57,5 +57,15 @@ public sealed class InfiniFrameWindow(
     // -----------------------------------------------------------------------------------------------------------------
     internal void AssignFeatures(IInfiniFrameWindowFeatures features) {
         Features = features;
+    }
+
+    public void Dispose() {
+        if (Features.Lifecycle.IsClosedOrClosing()) {
+            Features.Lifecycle.CleanupNativeHandle();
+            return;
+        }
+
+        Features.Lifecycle.Close();
+        Features.Lifecycle.CleanupNativeHandle();
     }
 }
