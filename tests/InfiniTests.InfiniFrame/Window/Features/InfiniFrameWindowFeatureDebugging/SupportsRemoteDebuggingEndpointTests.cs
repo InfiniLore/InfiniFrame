@@ -7,8 +7,8 @@ namespace InfiniTests.InfiniFrame.Window.Features.InfiniFrameWindowFeatureDebugg
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class SupportsWebInspectorAttachTests {
-    private readonly bool _expectedValue = OperatingSystem.IsMacOSVersionAtLeast(13,3);
+public class SupportsRemoteDebuggingEndpointTests {
+    private readonly bool _expectedValue = OperatingSystem.IsLinux() || OperatingSystem.IsWindows();
 
     [Test]
     public async Task AtBuilderStage_DirectAssignment(CancellationToken ct) {
@@ -16,7 +16,7 @@ public class SupportsWebInspectorAttachTests {
         var builder = InfiniFrameWindowBuilder.Create();
         
         // Act
-        bool foundValue = builder.Features.Debugging.SupportsWebInspectorAttach;
+        bool foundValue = builder.Features.Debugging.SupportsRemoteDebuggingEndpoint;
 
         // Assert   
         await Assert.That(foundValue).IsEqualTo(_expectedValue);
@@ -28,7 +28,7 @@ public class SupportsWebInspectorAttachTests {
         var builder = InfiniFrameWindowBuilder.Create();
         
         // Act
-        bool foundValue = builder.SupportsWebInspectorAttach();
+        bool foundValue = builder.SupportsRemoteDebuggingEndpoint();
 
         // Assert   
         await Assert.That(foundValue).IsEqualTo(_expectedValue);
@@ -42,7 +42,7 @@ public class SupportsWebInspectorAttachTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        bool foundValue = window.Features.Debugging.SupportsWebInspectorAttach;
+        bool foundValue = window.Features.Debugging.SupportsRemoteDebuggingEndpoint;
 
         // Assert
         await Assert.That(foundValue).IsEqualTo(_expectedValue);
@@ -56,7 +56,7 @@ public class SupportsWebInspectorAttachTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        bool foundValue = window.SupportsWebInspectorAttach();
+        bool foundValue = window.SupportsRemoteDebuggingEndpoint();
 
         // Assert
         await Assert.That(foundValue).IsEqualTo(_expectedValue);
@@ -68,7 +68,7 @@ public class SupportsWebInspectorAttachTests {
         // Arrange
         bool value = !_expectedValue;
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
-            value = builder.Features.Debugging.SupportsWebInspectorAttach;
+            value = builder.Features.Debugging.SupportsRemoteDebuggingEndpoint;
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
         IInfiniFrameWindowBuilder builder = windowUtility.BuilderSnapshot;
@@ -76,10 +76,10 @@ public class SupportsWebInspectorAttachTests {
         // Act
 
         // Assert
-        await Assert.That(builder.Features.Debugging.SupportsWebInspectorAttach)
+        await Assert.That(builder.Features.Debugging.SupportsRemoteDebuggingEndpoint)
             .IsEqualTo(value)
             .And.IsEqualTo(_expectedValue);
-        await Assert.That(window.Features.Debugging.SupportsWebInspectorAttach)
+        await Assert.That(window.Features.Debugging.SupportsRemoteDebuggingEndpoint)
             .IsEqualTo(value)
             .And.IsEqualTo(_expectedValue);
     }

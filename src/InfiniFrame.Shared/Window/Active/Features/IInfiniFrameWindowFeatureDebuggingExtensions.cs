@@ -14,12 +14,6 @@ public static class IInfiniFrameWindowFeatureDebuggingExtensions {
         return window;
     }
 
-    [SupportedOSPlatform("macos13.3")]
-    public static IInfiniFrameWindow EnableWebInspector(this IInfiniFrameWindow window, bool enabled = true) {
-        window.Features.Debugging.EnableWebInspector(enabled);
-        return window;
-    }
-
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
     public static bool TryGetRemoteDebuggingEndpoint(this IInfiniFrameWindow window, out Uri? endpoint)
@@ -32,4 +26,12 @@ public static class IInfiniFrameWindowFeatureDebuggingExtensions {
 
     public static InfiniFrameDebugDiagnostics GetDebugDiagnostics(this IInfiniFrameWindow window)
         => window.Features.Debugging.GetDiagnostics();
+    
+    public static bool SupportsWebInspectorAttach(this IInfiniFrameWindow window) {
+        return window.Features.Debugging.SupportsWebInspectorAttach;
+    }
+    
+    public static bool SupportsRemoteDebuggingEndpoint(this IInfiniFrameWindow window) {
+        return window.Features.Debugging.SupportsRemoteDebuggingEndpoint;
+    }
 }

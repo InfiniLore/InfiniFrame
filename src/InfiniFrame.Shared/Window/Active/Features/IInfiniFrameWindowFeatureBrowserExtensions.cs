@@ -30,8 +30,4 @@ public static class IInfiniFrameWindowFeatureBrowserExtensions {
         window.Features.Browser.ClearBrowserAutoFill();
         return window;
     }
-    
-    public static bool SupportsWebInspectorAttach(this IInfiniFrameWindow window) {
-        return window.Features.Debugging.SupportsWebInspectorAttach;
-    }
 }

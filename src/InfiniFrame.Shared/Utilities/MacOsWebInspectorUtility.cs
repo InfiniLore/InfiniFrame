@@ -8,8 +8,7 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 internal static class MacOsWebInspectorUtility {
     public static bool IsSupportedPlatform() 
-        => OperatingSystem.IsMacOS()
-            && OperatingSystem.IsMacOSVersionAtLeast(13, 3);
+        => OperatingSystem.IsMacOSVersionAtLeast(13, 3);
 
     public static void ThrowIfUnsupported() {
         if (IsSupportedPlatform()) return;

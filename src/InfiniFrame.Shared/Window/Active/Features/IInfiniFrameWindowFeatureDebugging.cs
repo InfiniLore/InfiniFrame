@@ -12,14 +12,11 @@ public interface IInfiniFrameWindowFeatureDebugging {
     bool IsDevToolsEnabled { get; }
     bool SupportsWebInspectorAttach { get; }
     bool IsWebInspectorEnabled { get; }
-    bool SupportsRemoteDebugging { get; }
+    bool SupportsRemoteDebuggingEndpoint { get; }
     int? RemoteDebuggingPort { get; }
 
     InfiniFrameDebugCapabilities Capabilities { get; }
     void EnableDevTools(bool enabled);
-
-    [SupportedOSPlatform("macos13.3")]
-    void EnableWebInspector(bool enabled = true);
 
     InfiniFrameDebugDiagnostics GetDiagnostics();
 
