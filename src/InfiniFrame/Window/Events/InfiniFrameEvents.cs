@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging;

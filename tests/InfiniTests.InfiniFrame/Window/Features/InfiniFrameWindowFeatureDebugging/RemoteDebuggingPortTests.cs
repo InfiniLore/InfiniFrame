@@ -88,4 +88,29 @@ public class RemoteDebuggingPortTests {
         await Assert.That(builder.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
         await Assert.That(window.Features.Debugging.RemoteDebuggingPort).IsEqualTo(value);
     }
+
+    [Test]
+    [Arguments(-1)]
+    [Arguments(65536)]
+    [SkipOnMacOs]
+    public async Task AtBuilderStage_DirectAssignment_InvalidPort_ThrowsArgumentOutOfRangeException(int value, CancellationToken ct) {
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {
+            Skip.Test("This test is only run on Windows and Linux");
+            return;
+        }
+
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+            Task.Run(() => {
+                if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) return builder.Features.Debugging;
+                return builder.Features.Debugging.SetRemoteDebuggingPort(value);
+            }, ct));
+
+        // Assert
+        await Assert.That(exception).IsNotNull();
+        await Assert.That(exception!.ParamName).IsEqualTo("port");
+    }
 }

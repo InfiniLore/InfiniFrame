@@ -45,4 +45,5 @@ public class DebuggingStartupParametersTests {
         await Assert.That(initParameters.RemoteDebuggingPort)
             .IsEqualTo(remoteDebuggingPort != 0 && builder.Debugging.SupportsRemoteDebuggingEndpoint ? remoteDebuggingPort : 0);
     }
+
 }
