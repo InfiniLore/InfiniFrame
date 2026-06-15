@@ -26,14 +26,14 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     
     public bool SupportsWebInspectorAttach => MacOsWebInspectorUtility.IsSupportedPlatform();
     public bool IsWebInspectorEnabled => window.Configuration.StartupParameters.WebInspectorEnabled;
-    public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
+    public bool SupportsRemoteDebuggingEndpoint => RemoteDebuggingUtility.IsSupportedPlatform();
     public int? RemoteDebuggingPort => window.Configuration.StartupParameters.RemoteDebuggingPort > 0
         ? window.Configuration.StartupParameters.RemoteDebuggingPort
         : null;
 
     public InfiniFrameDebugCapabilities Capabilities => new() {
         SupportsLocalDevTools = true,
-        SupportsRemoteDebuggingEndpoint = SupportsRemoteDebugging,
+        SupportsRemoteDebuggingEndpoint = SupportsRemoteDebuggingEndpoint,
         SupportsWebInspectorAttach = SupportsWebInspectorAttach,
         SupportsScriptErrorForwarding = true,
         SupportsNavigationDiagnostics = true
@@ -63,16 +63,11 @@ public sealed class InfiniFrameWindowFeatureDebugging(
         );
     }
 
-    [SupportedOSPlatform("macos13.3")]
-    public void EnableWebInspector(bool enabled = true) {
-        throw new InvalidOperationException("WebInspectorEnabled is startup-only. Configure it with builder.SetWebInspectorEnabled(...) before Build().");
-    }
-
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
     public bool TryGetRemoteDebuggingEndpoint(out Uri? endpoint) {
         endpoint = null;
-        if (!SupportsRemoteDebugging) return false;
+        if (!SupportsRemoteDebuggingEndpoint) return false;
 
         int? port = RemoteDebuggingPort;
         if (!port.HasValue || window.IsClosedOrClosing())
