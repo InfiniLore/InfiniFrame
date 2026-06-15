@@ -11,7 +11,15 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides utility methods for retrieving and working with monitor information.
+/// </summary>
 internal static class MonitorsUtility {
+    /// <summary>
+    ///     Retrieves all monitors available to the specified window.
+    /// </summary>
+    /// <param name="window">The window instance used to query monitor information.</param>
+    /// <returns>An immutable array of <see cref="InfiniMonitor" /> structs representing all available monitors.</returns>
     public static ImmutableArray<InfiniMonitor> GetMonitors(IInfiniFrameWindow window) {
         ImmutableArray<InfiniMonitor>.Builder builder = ImmutableArray.CreateBuilder<InfiniMonitor>();
 
@@ -30,6 +38,13 @@ internal static class MonitorsUtility {
         }
     }
     
+    /// <summary>
+    ///     Attempts to determine the monitor that contains or is nearest to the specified window bounds.
+    /// </summary>
+    /// <param name="monitors">The array of available monitors.</param>
+    /// <param name="windowBounds">The bounds of the window.</param>
+    /// <param name="monitor">When this method returns, contains the best matching monitor.</param>
+    /// <returns><c>true</c> if a monitor was found; otherwise, <c>false</c>.</returns>
     public static bool TryGetCurrentMonitor(ImmutableArray<InfiniMonitor> monitors, Rectangle windowBounds, out InfiniMonitor monitor) {
         monitor = default;
         if (monitors.IsDefaultOrEmpty) return false;
@@ -88,6 +103,13 @@ internal static class MonitorsUtility {
         return true;
     }
 
+    /// <summary>
+    ///     Attempts to retrieve the current window bounds and the monitor it is on.
+    /// </summary>
+    /// <param name="window">The window instance.</param>
+    /// <param name="windowRect">When this method returns, contains the window bounds.</param>
+    /// <param name="monitor">When this method returns, contains the monitor the window is on.</param>
+    /// <returns><c>true</c> if the window and monitor information was retrieved; otherwise, <c>false</c>.</returns>
     public static bool TryGetCurrentWindowAndMonitor(IInfiniFrameWindow window, out Rectangle windowRect, out InfiniMonitor monitor) {
         ImmutableArray<InfiniMonitor> monitors = GetMonitors(window);
 

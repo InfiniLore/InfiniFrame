@@ -8,12 +8,20 @@ namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides utility methods for registering web messages that are sent automatically when a window is created and ready.
+/// </summary>
 public static class RegisterWindowCreatedUtility {
     private static readonly ConditionalWeakTable<IInfiniFrameWindowBuilder, WindowReadyRegistrationState> RegistrationStates = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Registers a web message to be sent to a new window when it signals readiness.
+    /// </summary>
+    /// <param name="builder">The window builder associated with the registration.</param>
+    /// <param name="messageId">The identifier of the message to send to the window on ready.</param>
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
         WindowReadyRegistrationState registrationState = RegistrationStates.GetOrCreateValue(builder);
 

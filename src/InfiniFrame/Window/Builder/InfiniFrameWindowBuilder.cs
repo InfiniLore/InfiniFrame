@@ -11,11 +11,16 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Configuration"/>
     public IInfiniFrameWindowBuilderConfiguration Configuration { get; } = new InfiniFrameWindowBuilderConfiguration();
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Features"/>
     public IInfiniFrameWindowBuilderFeatures Features { get; } = new InfiniFrameWindowBuilderFeatures();
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Debugging"/>
     public IInfiniFrameWindowBuilderFeatureDebugging Debugging => Features.Debugging;
+    /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
     public IInfiniFrameEventsStore EventsStore { get; private init; } = new InfiniFrameEventsStore();
 
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.StaticAssets"/>
     public IInfiniFrameStaticAssets? StaticAssets { get; set; }
 
     private IServiceCollection Services { get; init; } = new ServiceCollection().AddInfiniFrame();
@@ -37,6 +42,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <inheritdoc cref="IInfiniFrameWindowBuilder.Build"/>
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         IServiceProvider actualProvider = provider ?? Services.BuildServiceProvider();
         var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();

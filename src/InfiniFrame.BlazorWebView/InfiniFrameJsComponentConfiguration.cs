@@ -19,12 +19,7 @@ public sealed class InfiniFrameJsComponentConfiguration(
 ) : IInfiniFrameJsComponentConfiguration {
     public JSComponentConfigurationStore JSComponents { get; } = jsComponents;
 
-    /// <summary>
-    ///     Adds a root component to the window.
-    /// </summary>
-    /// <param name="typeComponent">The component type.</param>
-    /// <param name="selector">A CSS selector describing where the component should be added in the host page.</param>
-    /// <param name="parameters">An optional dictionary of parameters to pass to the component.</param>
+    /// <inheritdoc cref="IInfiniFrameJsComponentConfiguration.Add"/>
     public void Add(Type typeComponent, string selector, IDictionary<string, object?>? parameters = null) {
         ParameterView parameterView = parameters is not null
             ? ParameterView.FromDictionary(parameters)

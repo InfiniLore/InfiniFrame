@@ -23,17 +23,30 @@ namespace InfiniFrame.BlazorWebView;
 // It might be that a simpler variant of this would work, for example, purely using InfiniFrame's "Invoke" and
 // relying on that for single-threadedness. Maybe also in the future InfiniFrame could consider having its own
 // built-in SyncContext/Dispatcher like other UI platforms.
+/// <summary>
+///     Provides a <see cref="SynchronizationContext" /> for Blazor components running inside an InfiniFrame WebView.
+///     It ensures work items are dispatched on the native window thread via <see cref="IInfiniFrameWindow.Invoke" />,
+///     enabling safe interaction with unmanaged WebView resources.
+/// </summary>
+/// <param name="provider">The service provider used to resolve the <see cref="IInfiniFrameWindow" />.</param>
+/// <param name="state">An optional shared synchronization state; if omitted a new instance is created.</param>
 public class InfiniFrameSynchronizationContext(IServiceProvider provider, InfiniFrameSynchronizationState? state = null) : SynchronizationContext {
     // ReSharper disable once ConvertClosureToMethodGroup
     private Lazy<IInfiniFrameWindow> LazyWindow { get; } = new(() => provider.GetRequiredService<IInfiniFrameWindow>());
 
     private readonly InfiniFrameSynchronizationState _state = state ?? new InfiniFrameSynchronizationState();
     
+    /// <summary>Raised when an unhandled exception occurs during work item execution.</summary>
     public event UnhandledExceptionEventHandler? UnhandledException;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Invokes the specified action on the synchronization context, executing synchronously if possible.
+    /// </summary>
+    /// <param name="action">The action to execute.</param>
+    /// <returns>A task that completes when the action has been executed.</returns>
     public Task InvokeAsync(Action action) {
         var completion = new CallbackTaskCompletionSource<Action, object>(action);
         
@@ -55,6 +68,11 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         return completion.Task;
     }
 
+    /// <summary>
+    ///     Invokes the specified asynchronous function on the synchronization context.
+    /// </summary>
+    /// <param name="asyncAction">The asynchronous function to execute.</param>
+    /// <returns>A task that completes when the function has been executed.</returns>
     public Task InvokeAsync(Func<Task> asyncAction) {
         var completion = new CallbackTaskCompletionSource<Func<Task>, object>(asyncAction);
         
@@ -77,6 +95,12 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         return completion.Task;
     }
 
+    /// <summary>
+    ///     Invokes the specified function on the synchronization context and returns its result.
+    /// </summary>
+    /// <param name="function">The function to execute.</param>
+    /// <typeparam name="TResult">The return type of the function.</typeparam>
+    /// <returns>A task that yields the function result.</returns>
     public Task<TResult> InvokeAsync<TResult>(Func<TResult> function) {
         var completion = new CallbackTaskCompletionSource<Func<TResult>, TResult>(function);
         
@@ -98,6 +122,12 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
         return completion.Task;
     }
 
+    /// <summary>
+    ///     Invokes the specified asynchronous function on the synchronization context and returns its result.
+    /// </summary>
+    /// <param name="asyncFunction">The asynchronous function to execute.</param>
+    /// <typeparam name="TResult">The return type of the function.</typeparam>
+    /// <returns>A task that yields the function result.</returns>
     public Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> asyncFunction) {
         var completion = new CallbackTaskCompletionSource<Func<Task<TResult>>, TResult>(asyncFunction);
         
@@ -123,6 +153,9 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     // asynchronously runs the callback
     //
     // NOTE: this must always run async. It's not legal here to execute the work item synchronously.
+    /// <summary>Dispatches an asynchronous message to the synchronization context.</summary>
+    /// <param name="d">The callback to invoke.</param>
+    /// <param name="state">The state object passed to the callback.</param>
     public override void Post(SendOrPostCallback d, object? state) {
         lock (_state.Lock) {
             _state.Task = Enqueue(_state.Task, d, state, true);
@@ -130,6 +163,9 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     }
 
     // synchronously runs the callback
+    /// <summary>Dispatches a synchronous message to the synchronization context, blocking until complete.</summary>
+    /// <param name="d">The callback to invoke.</param>
+    /// <param name="state">The state object passed to the callback.</param>
     public override void Send(SendOrPostCallback d, object? state) {
         Task antecedent;
         var completion = new TaskCompletionSource<object>();
@@ -149,6 +185,8 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     }
 
     // shallow copy
+    /// <summary>Creates a shallow copy of this synchronization context sharing the same state.</summary>
+    /// <returns>A new <see cref="InfiniFrameSynchronizationContext" /> instance sharing the synchronization state.</returns>
     public override SynchronizationContext CreateCopy() {
         lock (_state.Lock) {
             return new InfiniFrameSynchronizationContext(provider, _state);

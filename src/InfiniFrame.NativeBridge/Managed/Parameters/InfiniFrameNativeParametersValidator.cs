@@ -9,12 +9,19 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Validates <see cref="InfiniFrameNativeParameters"/> instances using FluentValidation rules.
+/// </summary>
 public sealed class InfiniFrameNativeParametersValidator
     : AbstractValidator<InfiniFrameNativeParameters> {
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Initializes a new instance of <see cref="InfiniFrameNativeParametersValidator"/>
+    ///     and configures all validation rules.
+    /// </summary>
     public InfiniFrameNativeParametersValidator() {
         RuleFor(p => p.Size)
             .Equal(Marshal.SizeOf<InfiniFrameNativeParameters>());
@@ -55,6 +62,11 @@ public sealed class InfiniFrameNativeParametersValidator
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Checks whether the given path is writable by creating and deleting a temporary probe file.
+    /// </summary>
+    /// <param name="path">The directory path to check.</param>
+    /// <returns><c>true</c> if the path is writable; otherwise, <c>false</c>.</returns>
     private static bool CanAccessTemporaryFilesPath(string? path) {
         if (string.IsNullOrWhiteSpace(path)) return true;
 

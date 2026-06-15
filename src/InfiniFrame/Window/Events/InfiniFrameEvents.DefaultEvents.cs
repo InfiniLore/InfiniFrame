@@ -11,6 +11,9 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents {
 
+    /// <summary>
+    ///     Registers default event callbacks, such as closing child windows when the parent window closing is requested.
+    /// </summary>
     public void AssignDefaultEventCallbacks() {
         EventsStore.WindowClosingRequested.Add(CloseChildWindows);
     }

@@ -10,8 +10,17 @@ namespace InfiniFrame.Utilities;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides utility methods for remote debugging configuration and validation.
+/// </summary>
 internal static partial class RemoteDebuggingUtility {
+    /// <summary>
+    ///     The minimum valid port number.
+    /// </summary>
     public const int MinPort = 1;
+    /// <summary>
+    ///     The maximum valid port number.
+    /// </summary>
     public const int MaxPort = 65535;
 
     private const string LoopbackAddress = "127.0.0.1";
@@ -19,6 +28,12 @@ internal static partial class RemoteDebuggingUtility {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Normalizes a port value, throwing if it is outside the valid range.
+    /// </summary>
+    /// <param name="port">The port value to normalize.</param>
+    /// <param name="parameterName">The name of the parameter for error reporting.</param>
+    /// <returns>The normalized port value, or 0 if the input is 0.</returns>
     public static int NormalizePort(int port, string parameterName = "port") {
         return port switch {
             0 => 0,
@@ -28,8 +43,16 @@ internal static partial class RemoteDebuggingUtility {
 
     }
 
+    /// <summary>
+    ///     Determines whether remote debugging is supported on the current platform.
+    /// </summary>
+    /// <returns><c>true</c> if the platform is Windows or Linux; otherwise, <c>false</c>.</returns>
     public static bool IsSupportedPlatform() => OperatingSystem.IsWindows() || OperatingSystem.IsLinux();
 
+    /// <summary>
+    ///     Ensures the current platform supports remote debugging for the given port.
+    /// </summary>
+    /// <param name="normalizedPort">The normalized port value.</param>
     public static void EnsureSupportedPlatform(int normalizedPort) {
         switch (normalizedPort) {
             case 0:
@@ -43,6 +66,12 @@ internal static partial class RemoteDebuggingUtility {
         }
     }
 
+    /// <summary>
+    ///     Composes browser control initialization parameters with remote debugging switches appended.
+    /// </summary>
+    /// <param name="rawParameters">The raw initialization parameters.</param>
+    /// <param name="normalizedPort">The normalized remote debugging port.</param>
+    /// <returns>The composed parameters with remote debugging switches, or the sanitized raw parameters if the port is 0.</returns>
     public static string? ComposeBrowserControlInitParameters(string? rawParameters, int normalizedPort) {
         string? sanitized = StripRemoteDebuggingSwitches(rawParameters);
         if (normalizedPort == 0 || !OperatingSystem.IsWindows()) return sanitized;
@@ -53,11 +82,22 @@ internal static partial class RemoteDebuggingUtility {
             : $"{sanitized} {explicitArguments}";
     }
 
+    /// <summary>
+    ///     Creates a URI for the remote debugging endpoint.
+    /// </summary>
+    /// <param name="port">The remote debugging port.</param>
+    /// <returns>The endpoint URI.</returns>
     public static Uri CreateEndpointUri(int port) {
         string scheme = OperatingSystem.IsLinux() ? "http" : "https";
         return new Uri($"{scheme}://{LoopbackAddress}:{port}", UriKind.Absolute);
     }
 
+    /// <summary>
+    ///     Attempts to probe a remote debugging endpoint to check if it is reachable.
+    /// </summary>
+    /// <param name="endpoint">The endpoint URI to probe.</param>
+    /// <param name="reason">When this method returns, contains the reason if the probe failed.</param>
+    /// <returns><c>true</c> if the endpoint is reachable; otherwise, <c>false</c>.</returns>
     public static bool TryProbeEndpoint(Uri endpoint, out string? reason) {
         ArgumentNullException.ThrowIfNull(endpoint);
         reason = null;
@@ -84,6 +124,11 @@ internal static partial class RemoteDebuggingUtility {
         }
     }
 
+    /// <summary>
+    ///     Validates that the specified port is available on the loopback interface.
+    /// </summary>
+    /// <param name="normalizedPort">The normalized port to validate.</param>
+    /// <param name="logger">The logger for diagnostic output.</param>
     public static void ValidatePortAvailabilityOrThrow(int normalizedPort, ILogger logger) {
         if (normalizedPort == 0) return;
 

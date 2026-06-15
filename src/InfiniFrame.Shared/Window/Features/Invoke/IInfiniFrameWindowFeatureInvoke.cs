@@ -6,5 +6,9 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowFeatureInvoke {
+    /// <summary>
+    ///     Invokes the specified callback on the native window thread.
+    /// </summary>
+    /// <param name="callback">The callback to execute.</param>
     void Invoke(Action callback);
 }

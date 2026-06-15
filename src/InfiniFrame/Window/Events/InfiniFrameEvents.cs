@@ -11,6 +11,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
+    /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
     public IInfiniFrameEventsStore EventsStore { get; }
     private ILogger<InfiniFrameEvents> Logger { get; }
     private IInfiniFrameWindow? Sender { get; set; }
@@ -77,11 +78,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         ApplyCustomSchemeNames(ref parameters);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window's location changes.
-    /// </summary>
-    /// <param name="left">Position from left in pixels</param>
-    /// <param name="top">Position from top in pixels</param>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnLocationChanged"/>
     public void OnLocationChanged(int left, int top) {
         ArgumentNullException.ThrowIfNull(Sender);
 
@@ -89,9 +86,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         EventsStore.WindowLocationChanged.Invoke(Sender, location);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window's size changes.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnSizeChanged"/>
     public void OnSizeChanged(int width, int height) {
         ArgumentNullException.ThrowIfNull(Sender);
 
@@ -99,46 +94,37 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         EventsStore.WindowSizeChanged.Invoke(Sender, size);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window focuses in.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnFocusIn"/>
     public void OnFocusIn() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowFocusIn.Invoke(Sender);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window is maximized.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnMaximized"/>
     public void OnMaximized() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowMaximized.Invoke(Sender);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window is restored.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnRestored"/>
     public void OnRestored() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowRestored.Invoke(Sender);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window focuses out.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnFocusOut"/>
     public void OnFocusOut() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowFocusOut.Invoke(Sender);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window is minimized.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnMinimized"/>
     public void OnMinimized() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowMinimized.Invoke(Sender);
     }
 
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosed"/>
     public void OnWindowClosed() {
         ArgumentNullException.ThrowIfNull(Sender);
 
@@ -146,14 +132,13 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         EventsStore.WindowClosed.Invoke(Sender);
     }
 
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosingRequested"/>
     public void OnWindowClosingRequested() {
         ArgumentNullException.ThrowIfNull(Sender);
         EventsStore.WindowClosingRequested.Invoke(Sender);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods when the native window is about to close.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowClosing"/>
     public byte OnWindowClosing() {
         ArgumentNullException.ThrowIfNull(Sender);
 
@@ -165,18 +150,14 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         return cancel;
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods before the native window is created.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowCreating"/>
     public void OnWindowCreating() {
         ArgumentNullException.ThrowIfNull(Sender);
 
         EventsStore.WindowCreating.Invoke(Sender);
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods after the native window is created.
-    /// </summary>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnWindowCreated"/>
     public void OnWindowCreated() {
         ArgumentNullException.ThrowIfNull(Sender);
 

@@ -7,27 +7,49 @@ namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Represents an InfiniFrame application that integrates an ASP.NET Core <see cref="WebApplication" /> with an
+///     <see cref="IInfiniFrameWindow" />, providing lifecycle management for both the web server and the native window.
+/// </summary>
 public class InfiniFrameWebApplication {
     private int _shutdownStarted;
     
+    /// <summary>Gets or sets the logger for the application.</summary>
     public required ILogger<InfiniFrameWebApplication> Logger { get; init; }
+    /// <summary>Gets or sets the underlying ASP.NET Core <see cref="WebApplication" />.</summary>
     public required WebApplication WebApp { get; init; }
+    /// <summary>Gets or sets the lazy factory for the associated window.</summary>
     public required Lazy<IInfiniFrameWindow> LazyWindow { private get; init; }
+    /// <summary>Gets the associated InfiniFrame window instance.</summary>
     public IInfiniFrameWindow Window => LazyWindow.Value;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    ///     Creates a new <see cref="InfiniFrameWebApplicationBuilder" /> with default ASP.NET Core and InfiniFrame
+    ///     window builder services.
+    /// </summary>
+    /// <param name="args">Command-line arguments passed to the ASP.NET Core host builder.</param>
+    /// <returns>An <see cref="InfiniFrameWebApplicationBuilder" /> for further configuration.</returns>
     public static InfiniFrameWebApplicationBuilder CreateBuilder(params string[] args)
         => new InfiniFrameWebApplicationBuilder {
             WebApp = WebApplication.CreateBuilder(args),
             WindowBuilder = InfiniFrameWindowBuilder.Create()
         }.Initialize();
 
+    /// <summary>
+    ///     Runs the web application and window, blocking until the window is closed.
+    /// </summary>
     public void Run() {
         RunAsync().GetAwaiter().GetResult();
     }
 
+    /// <summary>
+    ///     Runs the web application and window asynchronously, waiting for the window to close before stopping the server.
+    /// </summary>
+    /// <param name="ct">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A task that completes when the window has been closed and the web app has stopped.</returns>
     public async Task RunAsync(CancellationToken ct = default) {
         Task runTask = WebApp.RunAsync(ct);
         try {
@@ -77,6 +99,11 @@ public class InfiniFrameWebApplication {
         StopAsync().GetAwaiter().GetResult();
     }
 
+    /// <summary>
+    ///     Stops the web application and closes the associated window asynchronously.
+    /// </summary>
+    /// <param name="ct">A cancellation token that can be used to cancel the stop operation.</param>
+    /// <returns>A task that completes when both the web app and window have been stopped.</returns>
     public async Task StopAsync(CancellationToken ct = default) {
         await StopWebAppAsync(ct);
         Window.Close();

@@ -17,6 +17,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     ILogger<InfiniFrameWindowFeatureDebugging> logger
 ) : IInfiniFrameWindowFeatureDebugging {
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.IsDevToolsEnabled"/>
     public bool IsDevToolsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
         window.InstanceHandle,
@@ -24,13 +25,21 @@ public sealed class InfiniFrameWindowFeatureDebugging(
         InfiniFrameNative.GetDevToolsEnabled
     );
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.SupportsWebInspectorAttach"/>
     public bool SupportsWebInspectorAttach => MacOsWebInspectorUtility.IsSupportedPlatform();
+
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.IsWebInspectorEnabled"/>
     public bool IsWebInspectorEnabled => window.Configuration.StartupParameters.WebInspectorEnabled;
+
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.SupportsRemoteDebuggingEndpoint"/>
     public bool SupportsRemoteDebuggingEndpoint => RemoteDebuggingUtility.IsSupportedPlatform();
+
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.RemoteDebuggingPort"/>
     public int? RemoteDebuggingPort => window.Configuration.StartupParameters.RemoteDebuggingPort > 0
         ? window.Configuration.StartupParameters.RemoteDebuggingPort
         : null;
 
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.Capabilities"/>
     public InfiniFrameDebugCapabilities Capabilities => new() {
         SupportsLocalDevTools = true,
         SupportsRemoteDebuggingEndpoint = SupportsRemoteDebuggingEndpoint,
@@ -42,6 +51,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.EnableDevTools"/>
     public void EnableDevTools(bool enabled) {
         logger.LogDebug(".Debug.SetDevToolsEnabled({Enabled})", enabled);
 
@@ -63,6 +73,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
         );
     }
 
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.TryGetRemoteDebuggingEndpoint"/>
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
     public bool TryGetRemoteDebuggingEndpoint(out Uri? endpoint) {
@@ -77,6 +88,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
         return true;
     }
 
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.TryProbeEndpoint"/>
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
     public bool TryProbeEndpoint(out Uri? endpoint, out string? reason) {
@@ -107,6 +119,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
         return false;
     }
 
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDebugging.GetDiagnostics"/>
     public InfiniFrameDebugDiagnostics GetDiagnostics() {
         Uri? endpoint = null;
         string? endpointReason = null;

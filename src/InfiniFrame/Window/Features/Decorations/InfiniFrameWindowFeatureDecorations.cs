@@ -16,9 +16,13 @@ public class InfiniFrameWindowFeatureDecorations(
     ILogger<InfiniFrameWindowFeatureDecorations> logger
 ) : IInfiniFrameWindowFeatureDecorations {
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.IsChromeless"/>
     public bool IsChromeless => window.Configuration.StartupParameters.Chromeless;
+
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.LimitLinuxWindowTitleLength"/>
     public bool LimitLinuxWindowTitleLength { get; set; } = originalBuilder.Features.Decorations.LimitLinuxWindowTitleLength;
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.IsTransparent"/>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public bool IsTransparent {
         get {
@@ -37,6 +41,7 @@ public class InfiniFrameWindowFeatureDecorations(
         }
     }
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.Title"/>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? Title => NativeInvoke.InvokeSyncWithValidation<string?>(
         logger, 
@@ -45,6 +50,7 @@ public class InfiniFrameWindowFeatureDecorations(
         InfiniFrameNative.GetTitle
     );
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.IconFilePath"/>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? IconFilePath => NativeInvoke.InvokeSyncWithValidation<string?>(
         logger,
@@ -57,6 +63,7 @@ public class InfiniFrameWindowFeatureDecorations(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.SetTransparent"/>
     public void SetTransparent(bool enabled) {
         if (OperatingSystem.IsWindows()) {
             logger.LogWarning("Transparent can only be set on Windows before the native window is instantiated.");
@@ -73,6 +80,7 @@ public class InfiniFrameWindowFeatureDecorations(
         );
     }
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.SetTitle"/>
     public void SetTitle(string? title) {
         if (window.Features.Lifecycle.IsClosedOrClosing()) return;
         
@@ -98,6 +106,7 @@ public class InfiniFrameWindowFeatureDecorations(
 
     }
 
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.SetIconFile"/>
     public void SetIconFile(string iconFilePath) {
         logger.LogDebug(".SetIconFile({IconFile})", iconFilePath);
 
@@ -121,6 +130,7 @@ public class InfiniFrameWindowFeatureDecorations(
 
     }
 
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureDecorations.SetLimitLinuxWindowTitleLength"/>
     public void SetLimitLinuxWindowTitleLength(bool enabled = true) {
         LimitLinuxWindowTitleLength = enabled;
     } 

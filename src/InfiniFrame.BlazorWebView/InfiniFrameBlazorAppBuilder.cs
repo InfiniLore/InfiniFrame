@@ -14,8 +14,11 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
+    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.RootComponents"/>
     public IInfiniFrameRootComponentList RootComponents { get; } = new InfiniFrameRootComponentList();
+    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services"/>
     public IServiceCollection Services { get; } = new ServiceCollection();
+    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder"/>
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
     // -----------------------------------------------------------------------------------------------------------------

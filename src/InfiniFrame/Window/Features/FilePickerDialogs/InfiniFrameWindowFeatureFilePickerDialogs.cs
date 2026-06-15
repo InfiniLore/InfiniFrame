@@ -20,18 +20,23 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowOpenFile"/>
     public string?[] ShowOpenFile(string title = DefaultFilePickerTitle, string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
         => ShowOpenDialog(false, title, defaultPath, multiSelect, filters);
-    
+
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowOpenFileAsync"/>
     public Task<string?[]> ShowOpenFileAsync(string title = DefaultFilePickerTitle, string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
         => ShowOpenDialogAsync(workItem: () => ShowOpenFile(title, defaultPath, multiSelect, filters), ct);
-    
+
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowOpenFolder"/>
     public string?[] ShowOpenFolder(string title = DefaultFolderPickerTitle, string? defaultPath = null, bool multiSelect = false)
         => ShowOpenDialog(true, title, defaultPath, multiSelect, null);
-    
+
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowOpenFolderAsync"/>
     public Task<string?[]> ShowOpenFolderAsync(string title = DefaultFolderPickerTitle, string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default)
         => ShowOpenDialogAsync(workItem: () => ShowOpenFolder(title, defaultPath, multiSelect), ct);
-    
+
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowSaveFile"/>
     public string? ShowSaveFile(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null) {
         if (window.IsClosedOrClosing()) return null;
         
@@ -55,6 +60,7 @@ public class InfiniFrameWindowFeatureFilePickerDialogs(
         return result;
     }
     
+    /// <inheritdoc cref="IInfiniFrameWindowFeatureFilePickerDialogs.ShowSaveFileAsync"/>
     public Task<string?> ShowSaveFileAsync(string title = DefaultSaveFilePickerTitle, string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
         => ShowOpenDialogAsync(workItem: () => ShowSaveFile(title, defaultPath, filters), ct);
 

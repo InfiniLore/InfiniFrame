@@ -80,6 +80,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // -----------------------------------------------------------------------------------------------------------------
     // Web Requests
     // -----------------------------------------------------------------------------------------------------------------
+    /// <inheritdoc cref="IInfiniFrameWebViewManager.HandleWebRequest"/>
     public (Stream? Data, string? ContentType) HandleWebRequest(IInfiniFrameWindow? infiniFrameWindow, string? url) {
         if (string.IsNullOrWhiteSpace(url)) {
             LazyLogger.Value?.LogWarning(

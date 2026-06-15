@@ -10,6 +10,10 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // These are the parameter names that are passed to InfiniFrame.Native.
 // DO NOT CHANGE THEM.
+/// <summary>
+///     Represents the parameters used to configure and initialize a native InfiniFrame window.
+///     Passed to the native layer as a sequentially laid-out struct.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct InfiniFrameNativeParameters() {
     /// <summary>

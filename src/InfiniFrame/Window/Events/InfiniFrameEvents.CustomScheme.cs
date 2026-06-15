@@ -22,23 +22,7 @@ public partial class InfiniFrameEvents {
         startupParameters.CustomSchemeNames = customSchemeNameArray;
     }
 
-    /// <summary>
-    ///     Invokes registered user-defined handler methods for user-defined custom schemes (other than 'http','https', and
-    ///     'file')
-    ///     when the native browser control encounters them.
-    /// </summary>
-    /// <param name="url">URL of the Scheme</param>
-    /// <param name="numBytes">Number of bytes of the response</param>
-    /// <param name="contentType">Content type of the response</param>
-    /// <returns>
-    ///     <see cref="IntPtr" />
-    /// </returns>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when the URL does not contain a colon.
-    /// </exception>
-    /// <exception cref="ApplicationException">
-    ///     Thrown when no handler is registered.
-    /// </exception>
+    /// <inheritdoc cref="IInfiniFrameEvents.OnCustomScheme"/>
     public IntPtr OnCustomScheme(string url, out int numBytes, out string? contentType) {
         ArgumentNullException.ThrowIfNull(Sender);
         ArgumentNullException.ThrowIfNull(url);
