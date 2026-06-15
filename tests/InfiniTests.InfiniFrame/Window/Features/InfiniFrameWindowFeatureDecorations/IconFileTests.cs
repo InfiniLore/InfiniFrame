@@ -41,4 +41,45 @@ public class IconFileTests {
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
         await Assert.That(initParameters.WindowIconFile).IsEqualTo(value);
     }
+
+    [Test]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_DirectAssignment_InvalidPath_DoesNotReplaceCurrentIcon(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        string? originalIcon = window.Features.Decorations.IconFilePath;
+        const string invalidIconPath = "invalid.ico";
+
+        // Act
+        window.Features.Decorations.SetIconFile(invalidIconPath);
+        string? iconAfterInvalidAssignment = window.Features.Decorations.IconFilePath;
+
+        // Assert
+        await Assert.That(iconAfterInvalidAssignment).IsEqualTo(originalIcon);
+        await Assert.That(iconAfterInvalidAssignment).IsNotEqualTo(invalidIconPath);
+    }
+
+    [Test]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_ExtensionAssignment_InvalidPath_ReturnsSameWindow(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        string? originalIcon = window.Features.Decorations.IconFilePath;
+        const string invalidIconPath = "invalid.ico";
+
+        // Act
+        IInfiniFrameWindow returnedWindow = window.SetIconFile(invalidIconPath);
+        string? iconAfterInvalidAssignment = window.Features.Decorations.IconFilePath;
+
+        // Assert
+        await Assert.That(returnedWindow).IsSameReferenceAs(window);
+        await Assert.That(iconAfterInvalidAssignment).IsEqualTo(originalIcon);
+        await Assert.That(iconAfterInvalidAssignment).IsNotEqualTo(invalidIconPath);
+    }
 }
