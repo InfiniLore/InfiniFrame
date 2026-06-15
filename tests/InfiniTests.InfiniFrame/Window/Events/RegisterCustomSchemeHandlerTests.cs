@@ -2,6 +2,8 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
+using InfiniFrame.NativeBridge.Parameters;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Runtime.InteropServices;
 
 namespace InfiniTests.InfiniFrame.Window.Events;
@@ -18,11 +20,13 @@ public class RegisterCustomSchemeHandlerTests {
 
         // Act
         builder.RegisterCustomSchemeHandler("app", EmptyHandler);
-        var initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeParameters nativeParameters = builder.CollectNativeParameters();
+        var events = new InfiniFrameEvents(builder.EventsStore, NullLogger<InfiniFrameEvents>.Instance);
+        events.AssignToNativeParameters(ref nativeParameters);
 
         // Assert
         await Assert.That(builder.EventsStore.CustomScheme.ContainsKey("app")).IsTrue();
-        bool foundInNativeParameters = initParameters.CustomSchemeNames
+        bool foundInNativeParameters = nativeParameters.CustomSchemeNames
             .Where(ptr => ptr != IntPtr.Zero)
             .Any(ptr => string.Equals(Marshal.PtrToStringAnsi(ptr), "app", StringComparison.Ordinal));
         await Assert.That(foundInNativeParameters).IsTrue();
@@ -38,10 +42,12 @@ public class RegisterCustomSchemeHandlerTests {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
 
-        var initParameters = builder.CollectNativeParameters();
+        var nativeParameters = builder.CollectNativeParameters();
+        var events = new InfiniFrameEvents(builder.EventsStore, NullLogger<InfiniFrameEvents>.Instance);
+        events.AssignToNativeParameters(ref nativeParameters);
 
         // Assert
-        int appEntries = initParameters.CustomSchemeNames
+        int appEntries = nativeParameters.CustomSchemeNames
             .Where(ptr => ptr != IntPtr.Zero)
             .Count(ptr => string.Equals(Marshal.PtrToStringAnsi(ptr), "app", StringComparison.Ordinal));
         await Assert.That(appEntries).IsEqualTo(1);
