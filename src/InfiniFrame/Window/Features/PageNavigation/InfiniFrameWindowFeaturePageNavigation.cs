@@ -107,7 +107,13 @@ public class InfiniFrameWindowFeaturePageNavigation(
         try {
             absolutePath = Path.GetFullPath(path);
         }
-        catch (Exception) {
+        catch (ArgumentException) {
+            // ignored intentionally; invalid paths still get other attempts
+        }
+        catch (NotSupportedException) {
+            // ignored intentionally; invalid paths still get other attempts
+        }
+        catch (PathTooLongException) {
             // ignored intentionally; invalid paths still get other attempts
         }
 
