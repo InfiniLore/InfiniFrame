@@ -24,6 +24,6 @@ public interface IInfiniFrameWindowFeatureState {
     void SetFullScreen(bool fullScreen = true);
     void SetFocused();
     void SetZoomFactor(int zoom);
-    void SetZoomEnabled(bool zoomEnabled = true);
+    void EnableZoom(bool zoomEnabled = true);
     void SetTopMost(bool topMost = true);
 }

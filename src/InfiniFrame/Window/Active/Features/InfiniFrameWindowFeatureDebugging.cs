@@ -16,7 +16,8 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeatureDebugging> logger
 ) : IInfiniFrameWindowFeatureDebugging {
-    public bool DevToolsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
+    
+    public bool IsDevToolsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(
         logger,
         window.InstanceHandle,
         window.ManagedThreadId,
@@ -24,7 +25,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     );
     
     public bool SupportsWebInspector => MacOsWebInspectorUtility.IsSupportedPlatform();
-    public bool WebInspectorEnabled => window.Configuration.StartupParameters.WebInspectorEnabled;
+    public bool IsWebInspectorEnabled => window.Configuration.StartupParameters.WebInspectorEnabled;
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
     public int? RemoteDebuggingPort => window.Configuration.StartupParameters.RemoteDebuggingPort > 0
         ? window.Configuration.StartupParameters.RemoteDebuggingPort
@@ -41,7 +42,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void SetDevToolsEnabled(bool enabled) {
+    public void EnableDevTools(bool enabled) {
         logger.LogDebug(".Debug.SetDevToolsEnabled({Enabled})", enabled);
 
         bool originalValue = NativeInvoke.InvokeSyncWithValidation<bool>(
@@ -63,7 +64,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     }
 
     [SupportedOSPlatform("macos13.3")]
-    public void SetWebInspectorEnabled(bool enabled = true) {
+    public void EnableWebInspector(bool enabled = true) {
         throw new InvalidOperationException("WebInspectorEnabled is startup-only. Configure it with builder.SetWebInspectorEnabled(...) before Build().");
     }
 
@@ -141,9 +142,9 @@ public sealed class InfiniFrameWindowFeatureDebugging(
             Runtime = RuntimeInformation.FrameworkDescription,
             BrowserRuntime = GetBrowserRuntimeIdentity(),
             Capabilities = Capabilities,
-            DevToolsEnabled = DevToolsEnabled,
+            DevToolsEnabled = IsDevToolsEnabled,
             RemoteDebuggingPort = RemoteDebuggingPort,
-            WebInspectorEnabled = WebInspectorEnabled,
+            WebInspectorEnabled = IsWebInspectorEnabled,
             EndpointStatus = endpointStatus,
             Endpoint = endpoint,
             EndpointReason = endpointReason,

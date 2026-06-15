@@ -12,14 +12,14 @@ public interface IInfiniFrameWindowBuilderFeatureDebugging {
     bool SupportsRemoteDebuggingEndpoint { get; }
     bool SupportsWebInspectorAttach { get; }
 
-    bool DevToolsEnabled { get; }
-    bool WebInspectorEnabled { get; }
+    bool IsDevToolsEnabled { get; }
+    bool IsWebInspectorEnabled { get; }
     int RemoteDebuggingPort { get; }
 
-    IInfiniFrameWindowBuilderFeatureDebugging SetDevToolsEnabled(bool enabled);
+    IInfiniFrameWindowBuilderFeatureDebugging EnableDevTools(bool enabled);
 
     [SupportedOSPlatform("macos13.3")]
-    IInfiniFrameWindowBuilderFeatureDebugging SetWebInspectorEnabled(bool enabled = true);
+    IInfiniFrameWindowBuilderFeatureDebugging EnableWebInspector(bool enabled = true);
 
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]

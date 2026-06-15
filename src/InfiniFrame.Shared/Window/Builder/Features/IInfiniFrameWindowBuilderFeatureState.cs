@@ -18,5 +18,5 @@ public interface IInfiniFrameWindowBuilderFeatureState : IInfiniFrameWindowBuild
     void SetMinimized(bool minimized);
     void SetTopMost(bool topMost);
     void SetZoomFactor(int zoom);
-    void SetZoomEnabled(bool zoomEnabled);
+    void EnableZoom(bool zoomEnabled);
 }

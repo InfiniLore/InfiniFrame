@@ -7,5 +7,5 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowBuilderFeatureNotifications : IInfiniFrameWindowBuilderFeature {
     bool IsNotificationsEnabled { get; }
-    void SetNotificationsEnabled(bool enable);
+    void EnableNotifications(bool enable);
 }

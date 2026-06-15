@@ -9,14 +9,14 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class IInfiniFrameWindowFeatureDebuggingExtensions {
-    public static IInfiniFrameWindow SetDevToolsEnabled(this IInfiniFrameWindow window, bool enabled = true) {
-        window.Features.Debugging.SetDevToolsEnabled(enabled);
+    public static IInfiniFrameWindow EnableDevTools(this IInfiniFrameWindow window, bool enabled = true) {
+        window.Features.Debugging.EnableDevTools(enabled);
         return window;
     }
 
     [SupportedOSPlatform("macos13.3")]
-    public static IInfiniFrameWindow SetWebInspectorEnabled(this IInfiniFrameWindow window, bool enabled = true) {
-        window.Features.Debugging.SetWebInspectorEnabled(enabled);
+    public static IInfiniFrameWindow EnableWebInspector(this IInfiniFrameWindow window, bool enabled = true) {
+        window.Features.Debugging.EnableWebInspector(enabled);
         return window;
     }
 

@@ -13,23 +13,23 @@ public sealed class InfiniFrameWindowBuilderFeatureDebugging : IInfiniFrameWindo
     public bool SupportsRemoteDebuggingEndpoint => RemoteDebuggingUtility.IsSupportedPlatform();
     public bool SupportsWebInspectorAttach => MacOsWebInspectorUtility.IsSupportedPlatform();
 
-    public bool DevToolsEnabled { get; private set; } = true;
-    public bool WebInspectorEnabled { get; private set; }
+    public bool IsDevToolsEnabled { get; private set; } = true;
+    public bool IsWebInspectorEnabled { get; private set; }
     public int RemoteDebuggingPort { get; private set; }
     
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IInfiniFrameWindowBuilderFeatureDebugging SetDevToolsEnabled(bool enabled) {
-        DevToolsEnabled = enabled;
+    public IInfiniFrameWindowBuilderFeatureDebugging EnableDevTools(bool enabled) {
+        IsDevToolsEnabled = enabled;
         return this;
     }
 
     [SupportedOSPlatform("macos13.3")]
-    public IInfiniFrameWindowBuilderFeatureDebugging SetWebInspectorEnabled(bool enabled = true) {
+    public IInfiniFrameWindowBuilderFeatureDebugging EnableWebInspector(bool enabled = true) {
         MacOsWebInspectorUtility.ThrowIfUnsupported();
 
-        WebInspectorEnabled = enabled;
+        IsWebInspectorEnabled = enabled;
         return this;
     }
 
@@ -43,8 +43,8 @@ public sealed class InfiniFrameWindowBuilderFeatureDebugging : IInfiniFrameWindo
     }
 
     public void ApplyToNativeParameters(ref InfiniFrameNativeParameters parameters) {
-        parameters.DevToolsEnabled = DevToolsEnabled;
-        parameters.WebInspectorEnabled = WebInspectorEnabled;
+        parameters.DevToolsEnabled = IsDevToolsEnabled;
+        parameters.WebInspectorEnabled = IsWebInspectorEnabled;
         parameters.RemoteDebuggingPort = RemoteDebuggingPort;
     }
 }

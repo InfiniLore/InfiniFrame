@@ -39,7 +39,7 @@ public class InfiniFrameWindowBuilderFeatureState : IInfiniFrameWindowBuilderFea
     public void SetZoomFactor(int zoom) {
         ZoomFactor = zoom;
     }
-    public void SetZoomEnabled(bool zoomEnabled) {
+    public void EnableZoom(bool zoomEnabled) {
         IsZoomEnabled = zoomEnabled;
     }
     

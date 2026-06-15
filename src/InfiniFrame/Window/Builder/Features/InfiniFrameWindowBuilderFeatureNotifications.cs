@@ -13,7 +13,7 @@ public class InfiniFrameWindowBuilderFeatureNotifications : IInfiniFrameWindowBu
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public void SetNotificationsEnabled(bool enable) {
+    public void EnableNotifications(bool enable) {
         IsNotificationsEnabled = enable;
     }
     

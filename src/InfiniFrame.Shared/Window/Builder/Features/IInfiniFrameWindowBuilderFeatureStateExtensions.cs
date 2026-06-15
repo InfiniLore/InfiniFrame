@@ -31,8 +31,8 @@ public static class IInfiniFrameWindowBuilderFeatureStateExtensions {
         return builder;
     }
     
-    public static IInfiniFrameWindowBuilder SetZoomEnabled(this IInfiniFrameWindowBuilder builder, bool zoomEnabled) {
-        builder.Features.State.SetZoomEnabled(zoomEnabled);
+    public static IInfiniFrameWindowBuilder EnableZoom(this IInfiniFrameWindowBuilder builder, bool zoomEnabled) {
+        builder.Features.State.EnableZoom(zoomEnabled);
         return builder;
     }
 }
