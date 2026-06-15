@@ -4,11 +4,11 @@
 using InfiniFrame;
 using InfiniFrame.NativeBridge.Parameters;
 
-namespace InfiniTests.InfiniFrame.Window.Features.InfiniFrameWindowFeatureState;
+namespace InfiniTests.InfiniFrame.Window.Features.InfiniFrameWindowFeatureDebugging;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public class ZoomTests {
+public class DevToolsTests {
 
     [Test]
     [Arguments(true)]
@@ -18,12 +18,12 @@ public class ZoomTests {
         var builder = InfiniFrameWindowBuilder.Create();
         
         // Act
-        builder.Features.State.EnableZoom(value);
+        builder.Features.Debugging.EnableDevTools(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
-        await Assert.That(builder.Features.State.IsZoomEnabled).IsEqualTo(value);
-        await Assert.That(initParameters.ZoomEnabled).IsEqualTo(value);
+        await Assert.That(builder.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
+        await Assert.That(initParameters.MediaAutoplayEnabled).IsEqualTo(value);
     }
     
     [Test]
@@ -34,13 +34,13 @@ public class ZoomTests {
         var builder = InfiniFrameWindowBuilder.Create();
         
         // Act
-        IInfiniFrameWindowBuilder returnedBuilder = builder.EnableZoom(value);
+        IInfiniFrameWindowBuilder returnedBuilder = builder.EnableDevTools(value);
         InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
 
         // Assert   
-        await Assert.That(builder.Features.State.IsZoomEnabled).IsEqualTo(value);
+        await Assert.That(builder.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
-        await Assert.That(initParameters.ZoomEnabled).IsEqualTo(value);
+        await Assert.That(initParameters.MediaAutoplayEnabled).IsEqualTo(value);
     }
     
     [Test]
@@ -53,10 +53,10 @@ public class ZoomTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        window.Features.State.EnableZoom(value);
+        window.Features.Debugging.EnableDevTools(value);
 
         // Assert
-        await Assert.That(window.Features.State.IsZoomEnabled).IsEqualTo(value);
+        await Assert.That(window.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
     }
     
     [Test]
@@ -69,10 +69,10 @@ public class ZoomTests {
         IInfiniFrameWindow window = windowUtility.Window;
 
         // Act
-        IInfiniFrameWindow returnedWindow = window.EnableZoom(value);
+        IInfiniFrameWindow returnedWindow = window.EnableDevTools(value);
 
         // Assert
-        await Assert.That(window.Features.State.IsZoomEnabled).IsEqualTo(value);
+        await Assert.That(window.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
     
@@ -83,7 +83,7 @@ public class ZoomTests {
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
-            builder.Features.State.EnableZoom(value);
+            builder.Features.Debugging.EnableDevTools(value);
         }, ct);
         IInfiniFrameWindow window = windowUtility.Window;
         IInfiniFrameWindowBuilder builder = windowUtility.BuilderSnapshot;
@@ -91,7 +91,7 @@ public class ZoomTests {
         // Act
 
         // Assert
-        await Assert.That(builder.Features.State.IsZoomEnabled).IsEqualTo(value);
-        await Assert.That(window.Features.State.IsZoomEnabled).IsEqualTo(value);
+        await Assert.That(builder.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
+        await Assert.That(window.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
     }
 }

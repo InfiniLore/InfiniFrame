@@ -31,7 +31,7 @@ public class DebuggingStartupParametersTests {
         var builder = InfiniFrameWindowBuilder.Create();
 
         // Act
-        builder.Debugging.SetDevToolsEnabled(devToolsEnabled);
+        builder.Debugging.EnableDevTools(devToolsEnabled);
         if (remoteDebuggingPort != 0
             && (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
             && builder.Debugging.SupportsRemoteDebuggingEndpoint) {

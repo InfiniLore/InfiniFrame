@@ -9,17 +9,17 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowFeatureDebugging {
-    bool DevToolsEnabled { get; }
+    bool IsDevToolsEnabled { get; }
     bool SupportsWebInspector { get; }
-    bool WebInspectorEnabled { get; }
+    bool IsWebInspectorEnabled { get; }
     bool SupportsRemoteDebugging { get; }
     int? RemoteDebuggingPort { get; }
 
     InfiniFrameDebugCapabilities Capabilities { get; }
-    void SetDevToolsEnabled(bool enabled);
+    void EnableDevTools(bool enabled);
 
     [SupportedOSPlatform("macos13.3")]
-    void SetWebInspectorEnabled(bool enabled = true);
+    void EnableWebInspector(bool enabled = true);
 
     InfiniFrameDebugDiagnostics GetDiagnostics();
 

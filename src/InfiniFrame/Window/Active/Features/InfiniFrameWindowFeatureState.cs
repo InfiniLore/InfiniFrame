@@ -338,7 +338,7 @@ public class InfiniFrameWindowFeatureState(
 
     }
 
-    public void SetZoomEnabled(bool zoomEnabled = true) {
+    public void EnableZoom(bool zoomEnabled = true) {
         if (window.Features.Lifecycle.IsClosedOrClosing()) return;
 
         NativeInvoke.InvokeSyncWithValidation(
