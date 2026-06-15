@@ -87,4 +87,31 @@ public class LoadUriTests {
         // Assert
         await Assert.That(window.IsClosedOrClosing()).IsFalse();
     }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    [SkipOnMacOs]
+    [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
+    public async Task AtWindowStage_AfterClose_DoesNotThrowAndNoOps(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        Uri uri = new("https://example.com/after-close-no-op", UriKind.Absolute);
+
+        // Act
+        window.Close();
+        await EnsureWindowClosed(window, ct);
+        window.Features.PageNavigation.Load(uri);
+        window.Load(uri);
+
+        // Assert
+        await Assert.That(window.IsClosedOrClosing()).IsTrue();
+    }
+
+    private static async Task EnsureWindowClosed(IInfiniFrameWindow window, CancellationToken ct) {
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (!window.IsClosedOrClosing() && DateTime.UtcNow < timeoutAt && !ct.IsCancellationRequested) {
+            await Task.Delay(50, ct);
+        }
+    }
 }

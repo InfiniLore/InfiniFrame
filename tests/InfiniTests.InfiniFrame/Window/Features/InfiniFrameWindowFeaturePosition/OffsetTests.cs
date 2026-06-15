@@ -50,4 +50,27 @@ public class OffsetTests {
         await Assert.That(window.Features.Position.Top).IsEqualTo(initialTop + offset.Y);
         await Assert.That(returnedWindow).IsSameReferenceAs(window);
     }
+
+    [Test]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_ExtensionAssignment_DoubleOverload(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        window.Features.Position.SetLocation(160, 160);
+        int initialLeft = window.Features.Position.Left;
+        int initialTop = window.Features.Position.Top;
+        const double leftOffset = 21.9;
+        const double topOffset = 33.4;
+
+        // Act
+        IInfiniFrameWindow returnedWindow = window.Offset(leftOffset, topOffset);
+
+        // Assert
+        await Assert.That(window.Features.Position.Left).IsEqualTo(initialLeft + (int)leftOffset);
+        await Assert.That(window.Features.Position.Top).IsEqualTo(initialTop + (int)topOffset);
+        await Assert.That(returnedWindow).IsSameReferenceAs(window);
+    }
 }

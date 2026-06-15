@@ -46,4 +46,38 @@ public class SetTopTests {
         await Assert.That(initParameters.UseOsDefaultLocation).IsFalse();
     }
 
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        int initialTop = window.Features.Position.Top;
+        int targetTop = initialTop + 40;
+
+        // Act
+        window.Features.Position.SetTop(targetTop);
+
+        // Assert
+        await Assert.That(window.Features.Position.Top).IsNotEqualTo(initialTop);
+    }
+
+    [Test]
+    [SkipOnMacOs]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+        int initialTop = window.Features.Position.Top;
+        int targetTop = initialTop + 50;
+
+        // Act
+        IInfiniFrameWindow returnedWindow = window.SetTop(targetTop);
+
+        // Assert
+        await Assert.That(window.Features.Position.Top).IsNotEqualTo(initialTop);
+        await Assert.That(returnedWindow).IsSameReferenceAs(window);
+    }
 }
