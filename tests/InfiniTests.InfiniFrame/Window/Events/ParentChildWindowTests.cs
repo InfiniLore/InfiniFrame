@@ -1,0 +1,95 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
+using System.Runtime.InteropServices;
+
+namespace InfiniTests.InfiniFrame.Window.Events;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class ParentChildWindowTests {
+    private const uint GwOwner = 4;
+
+    [DllImport("user32.dll", EntryPoint = "GetWindow", SetLastError = true)]
+    private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
+
+    [Test]
+    [SkipOnMacOs]
+    [SkipOnWindowsArm]
+    [NotInParallelInfiniTests]
+    public async Task AtBuilderStage_AssignsParentWindowAndNativeParentHandle(CancellationToken ct = default) {
+        // Arrange
+        using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
+
+        // Act
+        using var childWindowUtility = InfiniFrameTestWindow.Create(builder => {
+            var configuration = (InfiniFrameWindowBuilderConfiguration)builder.Configuration;
+            configuration.ParentWindow = parentWindow;
+        }, ct);
+        IInfiniFrameWindow childWindow = childWindowUtility.Window;
+
+        // Assert
+        await Assert.That(childWindow.Configuration.ParentWindow).IsEqualTo(parentWindow);
+        await Assert.That(childWindow.Configuration.StartupParameters.NativeParent).IsEqualTo(parentWindow.InstanceHandle);
+    }
+
+    [Test]
+    [SkipOnMacOs]
+    [SkipOnWindowsArm]
+    [DefaultInfiniTestsTimeout(6_000)]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_ClosingParent_ClosesChildWindow(CancellationToken ct = default) {
+        // Arrange
+        using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
+        using var childWindowUtility = InfiniFrameTestWindow.Create(builder => {
+            var configuration = (InfiniFrameWindowBuilderConfiguration)builder.Configuration;
+            configuration.ParentWindow = parentWindow;
+        }, ct);
+        IInfiniFrameWindow childWindow = childWindowUtility.Window;
+        lock (parentWindow.Configuration.ChildWindows) {
+            parentWindow.Configuration.ChildWindows.Add(childWindow);
+        }
+
+        // Act
+        parentWindow.Close();
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (!childWindow.IsClosedOrClosing() && DateTime.UtcNow < timeoutAt) {
+            await Task.Delay(50, ct);
+        }
+
+        // Assert
+        await Assert.That(childWindow.IsClosedOrClosing()).IsTrue();
+    }
+
+    [Test]
+    [OnlyRunOnWindowsX64]
+    [NotInParallelInfiniTests]
+    public async Task AtWindowStage_OnWindows_ChildWindowOwnerMatchesParentWindowHandle(CancellationToken ct = default) {
+        // Arrange
+        using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow parentWindow = parentWindowUtility.Window;
+        using var childWindowUtility = InfiniFrameTestWindow.Create(builder => {
+            var configuration = (InfiniFrameWindowBuilderConfiguration)builder.Configuration;
+            configuration.ParentWindow = parentWindow;
+        }, ct);
+        IInfiniFrameWindow childWindow = childWindowUtility.Window;
+
+        // Act
+        IntPtr ownerWindow = IntPtr.Zero;
+        DateTime timeoutAt = DateTime.UtcNow.AddSeconds(5);
+        while (DateTime.UtcNow < timeoutAt) {
+            ownerWindow = GetWindow(childWindow.WindowHandle, GwOwner);
+            if (ownerWindow == parentWindow.WindowHandle) {
+                break;
+            }
+
+            await Task.Delay(50, ct);
+        }
+
+        // Assert
+        await Assert.That(ownerWindow).IsEqualTo(parentWindow.WindowHandle);
+    }
+}
