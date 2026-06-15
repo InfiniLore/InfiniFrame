@@ -313,5 +313,5 @@ public struct InfiniFrameNativeParameters() {
     ///     struct matches what C++ is expecting.
     /// </summary>
     [MarshalAs(UnmanagedType.I4)]
-    internal int Size = Marshal.SizeOf<InfiniFrameNativeParameters>();
+    internal readonly int Size = Marshal.SizeOf<InfiniFrameNativeParameters>();
 }
