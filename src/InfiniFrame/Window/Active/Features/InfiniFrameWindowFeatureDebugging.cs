@@ -24,7 +24,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
         InfiniFrameNative.GetDevToolsEnabled
     );
     
-    public bool SupportsWebInspector => MacOsWebInspectorUtility.IsSupportedPlatform();
+    public bool SupportsWebInspectorAttach => MacOsWebInspectorUtility.IsSupportedPlatform();
     public bool IsWebInspectorEnabled => window.Configuration.StartupParameters.WebInspectorEnabled;
     public bool SupportsRemoteDebugging => RemoteDebuggingUtility.IsSupportedPlatform();
     public int? RemoteDebuggingPort => window.Configuration.StartupParameters.RemoteDebuggingPort > 0
@@ -34,7 +34,7 @@ public sealed class InfiniFrameWindowFeatureDebugging(
     public InfiniFrameDebugCapabilities Capabilities => new() {
         SupportsLocalDevTools = true,
         SupportsRemoteDebuggingEndpoint = SupportsRemoteDebugging,
-        SupportsWebInspectorAttach = SupportsWebInspector,
+        SupportsWebInspectorAttach = SupportsWebInspectorAttach,
         SupportsScriptErrorForwarding = true,
         SupportsNavigationDiagnostics = true
     };

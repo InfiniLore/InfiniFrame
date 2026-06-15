@@ -10,7 +10,7 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public interface IInfiniFrameWindowFeatureDebugging {
     bool IsDevToolsEnabled { get; }
-    bool SupportsWebInspector { get; }
+    bool SupportsWebInspectorAttach { get; }
     bool IsWebInspectorEnabled { get; }
     bool SupportsRemoteDebugging { get; }
     int? RemoteDebuggingPort { get; }

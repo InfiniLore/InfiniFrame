@@ -25,4 +25,8 @@ public static class IInfiniFrameWindowBuilderFeatureDebuggingExtensions {
         builder.Features.Debugging.SetRemoteDebuggingPort(port);
         return builder;
     }
+    
+    public static bool SupportsWebInspectorAttach(this IInfiniFrameWindowBuilder builder) {
+        return builder.Features.Debugging.SupportsWebInspectorAttach;
+    }
 }
