@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 #include <simdjson.h>
+#include <stdexcept>
 
 #include "../Delegates/AppDelegate.h"
 #include "Runtime/Shared/Window/InfiniFrameDialog.h"
@@ -15,9 +16,20 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 
+/// Safely runs a block on the main GCD queue.
+/// If already on the main thread, runs synchronously; otherwise dispatches synchronously.
+static void DispatchToMainSync(void (^block)()) {
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+}
+
 void InfiniFrameWindow::Register()
 {
-    [NSAutoreleasePool new];
+    DispatchToMainSync(^{
+        [NSAutoreleasePool new];
 
     AppDelegate *appDelegate = [[[AppDelegate alloc] init] autorelease];
 
@@ -75,219 +87,223 @@ void InfiniFrameWindow::Register()
     [mainSubMenu addItem: quitMenuItem];
 
     [NSApp setMainMenu: mainMenu];
+    });
 }
 
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl(std::make_unique<Impl>())
 {
-    m_impl->_windowTitle = initParams->Title ? initParams->Title : "";
+    auto* params = initParams;
+    DispatchToMainSync(^{
+        this->m_impl->_windowTitle = params->Title ? params->Title : "";
 
-    if (initParams->StartUrl != nullptr)
-        m_impl->_startUrl = initParams->StartUrl;
+        if (params->StartUrl != nullptr)
+            this->m_impl->_startUrl = params->StartUrl;
 
-    if (initParams->StartString != nullptr)
-        m_impl->_startString = initParams->StartString;
+        if (params->StartString != nullptr)
+            this->m_impl->_startString = params->StartString;
 
-    if (initParams->TemporaryFilesPath != nullptr)
-        m_impl->_temporaryFilesPath = initParams->TemporaryFilesPath;
+        if (params->TemporaryFilesPath != nullptr)
+            this->m_impl->_temporaryFilesPath = params->TemporaryFilesPath;
 
-    m_impl->_ignoreCertificateErrorsEnabled = initParams->IgnoreCertificateErrorsEnabled;
-    m_impl->_contextMenuEnabled = initParams->ContextMenuEnabled;
-    m_impl->_zoomEnabled = initParams->ZoomEnabled;
-    m_impl->_webInspectorEnabled = initParams->WebInspectorEnabled;
-    m_impl->_grantBrowserPermissions = initParams->GrantBrowserPermissions;
-    m_impl->_mediaAutoplayEnabled = initParams->MediaAutoplayEnabled;
+        this->m_impl->_ignoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
+        this->m_impl->_contextMenuEnabled = params->ContextMenuEnabled;
+        this->m_impl->_zoomEnabled = params->ZoomEnabled;
+        this->m_impl->_webInspectorEnabled = params->WebInspectorEnabled;
+        this->m_impl->_grantBrowserPermissions = params->GrantBrowserPermissions;
+        this->m_impl->_mediaAutoplayEnabled = params->MediaAutoplayEnabled;
 
-    m_impl->_webMessageReceivedCallback = initParams->WebMessageReceivedHandler;
-    m_impl->_resizedCallback = initParams->ResizedHandler;
-    m_impl->_movedCallback = initParams->MovedHandler;
-    m_impl->_closingCallback = initParams->ClosingHandler;
-    m_impl->_closedCallback  = initParams->ClosedHandler;
-    m_impl->_focusInCallback = initParams->FocusInHandler;
-    m_impl->_focusOutCallback = initParams->FocusOutHandler;
-    m_impl->_maximizedCallback = initParams->MaximizedHandler;
-    m_impl->_minimizedCallback = initParams->MinimizedHandler;
-    m_impl->_restoredCallback = initParams->RestoredHandler;
-    m_impl->_debugEventCallback = initParams->DebugEventHandler;
-    m_impl->_customSchemeCallback = initParams->CustomSchemeHandler;
+        this->m_impl->_webMessageReceivedCallback = params->WebMessageReceivedHandler;
+        this->m_impl->_resizedCallback = params->ResizedHandler;
+        this->m_impl->_movedCallback = params->MovedHandler;
+        this->m_impl->_closingCallback = params->ClosingHandler;
+        this->m_impl->_closedCallback  = params->ClosedHandler;
+        this->m_impl->_focusInCallback = params->FocusInHandler;
+        this->m_impl->_focusOutCallback = params->FocusOutHandler;
+        this->m_impl->_maximizedCallback = params->MaximizedHandler;
+        this->m_impl->_minimizedCallback = params->MinimizedHandler;
+        this->m_impl->_restoredCallback = params->RestoredHandler;
+        this->m_impl->_debugEventCallback = params->DebugEventHandler;
+        this->m_impl->_customSchemeCallback = params->CustomSchemeHandler;
 
-    for (int i = 0; i < 16; ++i)
-    {
-        if (initParams->CustomSchemeNames[i] != nullptr)
-            m_impl->_customSchemeNames.emplace_back(initParams->CustomSchemeNames[i]);
-    }
-
-    m_impl->_parent = initParams->ParentInstance;
-
-    if (initParams->UseOsDefaultSize)
-    {
-        initParams->Width = 800;
-        initParams->Height = 600;
-    }
-    else
-    {
-        if (initParams->Width < 0) initParams->Width = 800;
-        if (initParams->Height < 0) initParams->Height = 600;
-    }
-
-    if (initParams->UseOsDefaultLocation)
-    {
-        initParams->Left = 0;
-        initParams->Top = 0;
-    }
-
-    NSRect frame = NSMakeRect(0, 0, 0, 0);
-
-    m_impl->_chromeless = initParams->Chromeless;
-    if (initParams->Chromeless)
-    {
-        m_impl->_window = [[NSWindowBorderless alloc]
-            initWithContentRect: frame
-            styleMask: NSWindowStyleMaskBorderless
-                | NSWindowStyleMaskClosable
-                | NSWindowStyleMaskResizable
-                | NSWindowStyleMaskMiniaturizable
-            backing: NSBackingStoreBuffered
-            defer: true];
-    }
-    else
-    {
-        m_impl->_window = [[NSWindow alloc]
-            initWithContentRect: frame
-            styleMask: NSWindowStyleMaskTitled
-                | NSWindowStyleMaskClosable
-                | NSWindowStyleMaskResizable
-                | NSWindowStyleMaskMiniaturizable
-            backing: NSBackingStoreBuffered
-            defer: true];
-    }
-
-    m_impl->_transparentEnabled = initParams->Transparent;
-
-    if (m_impl->_parent != nullptr && m_impl->_parent->m_impl != nullptr)
-    {
-        auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(m_impl->_parent->m_impl.get());
-        m_impl->_nativeParentWindow = parentImpl->_window;
-        if (m_impl->_nativeParentWindow != nil && m_impl->_nativeParentWindow != m_impl->_window)
+        for (int i = 0; i < 16; ++i)
         {
-            [m_impl->_nativeParentWindow addChildWindow:m_impl->_window ordered:NSWindowAbove];
-
-            NSWindow* childWindow = m_impl->_window;
-            m_impl->_parentWillCloseObserver = [[NSNotificationCenter defaultCenter]
-                addObserverForName:NSWindowWillCloseNotification
-                object:m_impl->_nativeParentWindow
-                queue:nil
-                usingBlock:^(NSNotification*) {
-                    [childWindow close];
-                }];
+            if (params->CustomSchemeNames[i] != nullptr)
+                this->m_impl->_customSchemeNames.emplace_back(params->CustomSchemeNames[i]);
         }
-    }
 
-    [m_impl->_window setCollectionBehavior:
-        [m_impl->_window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+        this->m_impl->_parent = params->ParentInstance;
 
-    WindowDelegate *windowDelegate = [WindowDelegate new];
-    windowDelegate->infiniFrame = this;
-    m_impl->_window.delegate = windowDelegate;
+        if (params->UseOsDefaultSize)
+        {
+            params->Width = 800;
+            params->Height = 600;
+        }
+        else
+        {
+            if (params->Width < 0) params->Width = 800;
+            if (params->Height < 0) params->Height = 600;
+        }
 
-    SetTitle(const_cast<AutoString>(m_impl->_windowTitle.c_str()));
+        if (params->UseOsDefaultLocation)
+        {
+            params->Left = 0;
+            params->Top = 0;
+        }
 
-    if (initParams->WindowIconFile != nullptr && initParams->WindowIconFile[0] != '\0')
-        SetIconFile(initParams->WindowIconFile);
+        NSRect frame = NSMakeRect(0, 0, 0, 0);
 
-    SetTopmost(initParams->Topmost);
-    SetPosition(initParams->Left, initParams->Top);
+        this->m_impl->_chromeless = params->Chromeless;
+        if (params->Chromeless)
+        {
+            this->m_impl->_window = [[NSWindowBorderless alloc]
+                initWithContentRect: frame
+                styleMask: NSWindowStyleMaskBorderless
+                    | NSWindowStyleMaskClosable
+                    | NSWindowStyleMaskResizable
+                    | NSWindowStyleMaskMiniaturizable
+                backing: NSBackingStoreBuffered
+                defer: true];
+        }
+        else
+        {
+            this->m_impl->_window = [[NSWindow alloc]
+                initWithContentRect: frame
+                styleMask: NSWindowStyleMaskTitled
+                    | NSWindowStyleMaskClosable
+                    | NSWindowStyleMaskResizable
+                    | NSWindowStyleMaskMiniaturizable
+                backing: NSBackingStoreBuffered
+                defer: true];
+        }
 
-    SetMinSize(initParams->MinWidth, initParams->MinHeight);
-    SetMaxSize(initParams->MaxWidth, initParams->MaxHeight);
-    SetSize(initParams->Width, initParams->Height);
+        this->m_impl->_transparentEnabled = params->Transparent;
 
-    SetMinimized(initParams->Minimized);
-    SetMaximized(initParams->Maximized);
-    SetResizable(initParams->Resizable);
+        if (this->m_impl->_parent != nullptr && this->m_impl->_parent->m_impl != nullptr)
+        {
+            auto* parentImpl = static_cast<InfiniFrameWindow::Impl*>(this->m_impl->_parent->m_impl.get());
+            this->m_impl->_nativeParentWindow = parentImpl->_window;
+            if (this->m_impl->_nativeParentWindow != nil && this->m_impl->_nativeParentWindow != this->m_impl->_window)
+            {
+                [this->m_impl->_nativeParentWindow addChildWindow:this->m_impl->_window ordered:NSWindowAbove];
 
-    if (initParams->CenterOnInitialize)
-        Center();
-
-    m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
-    SetMediaAutoplayEnabled(m_impl->_mediaAutoplayEnabled);
-
-    for (const auto & scheme : m_impl->_customSchemeNames)
-    {
-        m_impl->AddCustomScheme(scheme.c_str(), m_impl->_customSchemeCallback);
-    }
-
-    AttachWebView();
-
-    m_impl->SetUserAgent(initParams->UserAgent);
-
-    m_impl->SetPreference(@"developerExtrasEnabled", initParams->DevToolsEnabled ? @YES : @NO);
-    m_impl->SetPreference(@"allowFileAccessFromFileURLs", initParams->FileSystemAccessEnabled ? @YES : @NO);
-    m_impl->SetPreference(@"webSecurityEnabled", initParams->WebSecurityEnabled ? @YES : @NO);
-    m_impl->SetPreference(@"javaScriptCanAccessClipboard", initParams->JavascriptClipboardAccessEnabled ? @YES : @NO);
-    m_impl->SetPreference(@"mediaStreamEnabled", initParams->MediaStreamEnabled ? @YES : @NO);
-
-    m_impl->SetPreference(@"mediaDevicesEnabled", @YES);
-    m_impl->SetPreference(@"mediaCaptureRequiresSecureConnection", @NO);
-
-    if ([NSProcessInfo.processInfo isOperatingSystemAtLeastVersion: NSOperatingSystemVersion({13, 3, 0})])
-    {
-        m_impl->SetPreference(@"notificationEventEnabled", @YES);
-    }
-
-    m_impl->SetPreference(@"notificationsEnabled", @YES);
-    m_impl->SetPreference(@"screenCaptureEnabled", @YES);
-
-    if (initParams->BrowserControlInitParameters != nullptr)
-    {
-        simdjson::ondemand::parser parser;
-        auto doc = parser.iterate(initParams->BrowserControlInitParameters);
-
-        for (auto field : doc.get_object()) {
-            std::string_view key = field.unescaped_key().value();
-            auto value = field.value();
-
-            NSString *preferenceKey = [[NSString alloc] initWithBytes:key.data() length:key.length() encoding:NSUTF8StringEncoding];
-
-            switch (value.type()) {
-                case simdjson::ondemand::json_type::number: {
-                    int64_t intVal;
-                    if (value.get(intVal) == simdjson::SUCCESS) {
-                        m_impl->SetPreference(preferenceKey, [NSNumber numberWithInt: (int)intVal]);
-                    } else {
-                        double doubleVal;
-                        if (value.get(doubleVal) == simdjson::SUCCESS) {
-                            m_impl->SetPreference(preferenceKey, [NSNumber numberWithDouble: doubleVal]);
-                        }
-                    }
-                    break;
-                }
-                case simdjson::ondemand::json_type::boolean: {
-                    bool boolVal;
-                    if (value.get(boolVal) == simdjson::SUCCESS) {
-                        m_impl->SetPreference(preferenceKey, [NSNumber numberWithBool: boolVal]);
-                    }
-                    break;
-                }
-                case simdjson::ondemand::json_type::string: {
-                    std::string_view strVal;
-                    if (value.get(strVal) == simdjson::SUCCESS) {
-                        NSString *preferenceValue = [[NSString alloc] initWithBytes:strVal.data()
-                                                                             length:strVal.length()
-                                                                           encoding:NSUTF8StringEncoding];
-                        m_impl->SetPreference(preferenceKey, preferenceValue);
-                    }
-                    break;
-                }
-                default:
-                    break;
+                NSWindow* childWindow = this->m_impl->_window;
+                this->m_impl->_parentWillCloseObserver = [[NSNotificationCenter defaultCenter]
+                    addObserverForName:NSWindowWillCloseNotification
+                    object:this->m_impl->_nativeParentWindow
+                    queue:nil
+                    usingBlock:^(NSNotification*) {
+                        [childWindow close];
+                    }];
             }
         }
-    }
 
-    m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
+        [this->m_impl->_window setCollectionBehavior:
+            [this->m_impl->_window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
 
-    Show(false);
-    SetFullScreen(initParams->FullScreen);
+        WindowDelegate *windowDelegate = [WindowDelegate new];
+        windowDelegate->infiniFrame = this;
+        this->m_impl->_window.delegate = windowDelegate;
+
+        this->SetTitle(const_cast<AutoString>(this->m_impl->_windowTitle.c_str()));
+
+        if (params->WindowIconFile != nullptr && params->WindowIconFile[0] != '\0')
+            this->SetIconFile(params->WindowIconFile);
+
+        this->SetTopmost(params->Topmost);
+        this->SetPosition(params->Left, params->Top);
+
+        this->SetMinSize(params->MinWidth, params->MinHeight);
+        this->SetMaxSize(params->MaxWidth, params->MaxHeight);
+        this->SetSize(params->Width, params->Height);
+
+        this->SetMinimized(params->Minimized);
+        this->SetMaximized(params->Maximized);
+        this->SetResizable(params->Resizable);
+
+        if (params->CenterOnInitialize)
+            this->Center();
+
+        this->m_impl->_webviewConfiguration = [[WKWebViewConfiguration alloc] init];
+        this->SetMediaAutoplayEnabled(this->m_impl->_mediaAutoplayEnabled);
+
+        for (const auto & scheme : this->m_impl->_customSchemeNames)
+        {
+            this->m_impl->AddCustomScheme(scheme.c_str(), this->m_impl->_customSchemeCallback);
+        }
+
+        this->AttachWebView();
+
+        this->m_impl->SetUserAgent(params->UserAgent);
+
+        this->m_impl->SetPreference(@"developerExtrasEnabled", params->DevToolsEnabled ? @YES : @NO);
+        this->m_impl->SetPreference(@"allowFileAccessFromFileURLs", params->FileSystemAccessEnabled ? @YES : @NO);
+        this->m_impl->SetPreference(@"webSecurityEnabled", params->WebSecurityEnabled ? @YES : @NO);
+        this->m_impl->SetPreference(@"javaScriptCanAccessClipboard", params->JavascriptClipboardAccessEnabled ? @YES : @NO);
+        this->m_impl->SetPreference(@"mediaStreamEnabled", params->MediaStreamEnabled ? @YES : @NO);
+
+        this->m_impl->SetPreference(@"mediaDevicesEnabled", @YES);
+        this->m_impl->SetPreference(@"mediaCaptureRequiresSecureConnection", @NO);
+
+        if ([NSProcessInfo.processInfo isOperatingSystemAtLeastVersion: NSOperatingSystemVersion({13, 3, 0})])
+        {
+            this->m_impl->SetPreference(@"notificationEventEnabled", @YES);
+        }
+
+        this->m_impl->SetPreference(@"notificationsEnabled", @YES);
+        this->m_impl->SetPreference(@"screenCaptureEnabled", @YES);
+
+        if (params->BrowserControlInitParameters != nullptr)
+        {
+            simdjson::ondemand::parser parser;
+            auto doc = parser.iterate(params->BrowserControlInitParameters);
+
+            for (auto field : doc.get_object()) {
+                std::string_view key = field.unescaped_key().value();
+                auto value = field.value();
+
+                NSString *preferenceKey = [[NSString alloc] initWithBytes:key.data() length:key.length() encoding:NSUTF8StringEncoding];
+
+                switch (value.type()) {
+                    case simdjson::ondemand::json_type::number: {
+                        int64_t intVal;
+                        if (value.get(intVal) == simdjson::SUCCESS) {
+                            this->m_impl->SetPreference(preferenceKey, [NSNumber numberWithInt: (int)intVal]);
+                        } else {
+                            double doubleVal;
+                            if (value.get(doubleVal) == simdjson::SUCCESS) {
+                                this->m_impl->SetPreference(preferenceKey, [NSNumber numberWithDouble: doubleVal]);
+                            }
+                        }
+                        break;
+                    }
+                    case simdjson::ondemand::json_type::boolean: {
+                        bool boolVal;
+                        if (value.get(boolVal) == simdjson::SUCCESS) {
+                            this->m_impl->SetPreference(preferenceKey, [NSNumber numberWithBool: boolVal]);
+                        }
+                        break;
+                    }
+                    case simdjson::ondemand::json_type::string: {
+                        std::string_view strVal;
+                        if (value.get(strVal) == simdjson::SUCCESS) {
+                            NSString *preferenceValue = [[NSString alloc] initWithBytes:strVal.data()
+                                                                                 length:strVal.length()
+                                                                               encoding:NSUTF8StringEncoding];
+                            this->m_impl->SetPreference(preferenceKey, preferenceValue);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        }
+
+        this->m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
+
+        this->Show(false);
+        this->SetFullScreen(params->FullScreen);
+    });
 }
 
 InfiniFrameWindow::~InfiniFrameWindow()

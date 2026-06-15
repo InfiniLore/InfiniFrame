@@ -53,10 +53,24 @@ void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
 
 void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSNumber *value)
 {
-    [_webviewConfiguration.preferences setValue: value forKey: key];
+    @try {
+        [_webviewConfiguration.preferences setValue: value forKey: key];
+    }
+    @catch (NSException *exception) {
+        throw std::runtime_error(
+            [[NSString stringWithFormat: @"SetPreference(%@) failed: %@: %@", key, exception.name, exception.reason] UTF8String]
+        );
+    }
 }
 
 void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSString *value)
 {
-    [_webviewConfiguration.preferences setValue: value forKey: key];
+    @try {
+        [_webviewConfiguration.preferences setValue: value forKey: key];
+    }
+    @catch (NSException *exception) {
+        throw std::runtime_error(
+            [[NSString stringWithFormat: @"SetPreference(%@) failed: %@: %@", key, exception.name, exception.reason] UTF8String]
+        );
+    }
 }
