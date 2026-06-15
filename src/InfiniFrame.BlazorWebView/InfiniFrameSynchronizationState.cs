@@ -14,5 +14,6 @@ public class InfiniFrameSynchronizationState {
 
     public Task Task { get; set; } = Task.CompletedTask;
 
-    public override string ToString() => $"{{ Busy: {!Task.IsCompleted}, Pending Task: {Task.Id} }}";
+    public override string ToString() 
+        => $"{{ Busy: {!Task.IsCompleted}, Pending Task: {Task.Id} }}";
 }

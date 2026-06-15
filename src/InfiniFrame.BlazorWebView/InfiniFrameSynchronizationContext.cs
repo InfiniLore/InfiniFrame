@@ -36,6 +36,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
     // -----------------------------------------------------------------------------------------------------------------
     public Task InvokeAsync(Action action) {
         var completion = new CallbackTaskCompletionSource<Action, object>(action);
+        
         ExecuteSynchronouslyIfPossible(d: static state => {
             if (state is not CallbackTaskCompletionSource<Action, object> completion) return;
 
@@ -56,6 +57,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
 
     public Task InvokeAsync(Func<Task> asyncAction) {
         var completion = new CallbackTaskCompletionSource<Func<Task>, object>(asyncAction);
+        
         // ReSharper disable once AsyncVoidMethod
         ExecuteSynchronouslyIfPossible(d: static async void (state) => {
             if (state is not CallbackTaskCompletionSource<Func<Task>, object> completion) return;
@@ -77,6 +79,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
 
     public Task<TResult> InvokeAsync<TResult>(Func<TResult> function) {
         var completion = new CallbackTaskCompletionSource<Func<TResult>, TResult>(function);
+        
         ExecuteSynchronouslyIfPossible(d: static state => {
             if (state is not CallbackTaskCompletionSource<Func<TResult>, TResult> completion) return;
 
@@ -97,6 +100,7 @@ public class InfiniFrameSynchronizationContext(IServiceProvider provider, Infini
 
     public Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> asyncFunction) {
         var completion = new CallbackTaskCompletionSource<Func<Task<TResult>>, TResult>(asyncFunction);
+        
         // ReSharper disable once AsyncVoidMethod
         ExecuteSynchronouslyIfPossible(d: static async void (state) => {
             if (state is not CallbackTaskCompletionSource<Func<Task<TResult>>, TResult> completion) return;

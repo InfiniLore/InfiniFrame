@@ -104,10 +104,12 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
             : null;
         if (physicalWwwrootProvider is not null) providers.Add(physicalWwwrootProvider);
 
-        if (providers.Count == 0) return new NullFileProvider();
-        if (providers.Count == 1) return providers[0];
+        return providers.Count switch {
+            0 => new NullFileProvider(),
+            1 => providers[0],
+            _ => new CompositeFileProvider(providers)
+        };
 
-        return new CompositeFileProvider(providers);
     }
 
     public InfiniFrameBlazorAppBuilder WithInfiniFrameWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {
@@ -148,16 +150,13 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
 
         WindowBuilder.StaticAssets = staticAssets.DeepCopy();
 
-        WindowBuilder
-            .RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest)
-            .SetStartPageUrl(startupUrl);
+        if (!WindowBuilder.EventsStore.CustomScheme.ContainsKey(InfiniFrameWebViewManager.BlazorAppScheme)) {
+            WindowBuilder.RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest);
+        }
 
-        bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
-            .Value.EnableGlobalUnhandledExceptionHandler ?? true;
+        WindowBuilder.SetStartPageUrl(startupUrl);
 
-        IDisposable? unhandledExceptionRegistration = enableGlobalUnhandledExceptionHandler
-            ? RegisterUnhandledExceptionHandler(serviceProvider)
-            : null;
+        IDisposable? unhandledExceptionRegistration = TryRegisterUnhandledExceptionHandler(serviceProvider);
 
         return new InfiniFrameBlazorApp(
             serviceProvider,
@@ -167,23 +166,26 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         );
     }
 
-    internal static string BuildStartupUrl(InfiniFrameBlazorAppConfiguration configuration) {
+    private static string BuildStartupUrl(InfiniFrameBlazorAppConfiguration configuration) {
         Uri appBaseUri = configuration.AppBaseUri;
         string hostPage = NormalizeHostPage(configuration.HostPage);
 
-        if (string.Equals(hostPage, "index.html", StringComparison.OrdinalIgnoreCase)) {
-            return appBaseUri.ToString();
-        }
-
-        return new Uri(appBaseUri, hostPage).ToString();
+        return string.Equals(hostPage, "index.html", StringComparison.OrdinalIgnoreCase) 
+            ? appBaseUri.ToString() 
+            : new Uri(appBaseUri, hostPage).ToString();
     }
 
-    private static string NormalizeHostPage(string? hostPage) {
-        if (string.IsNullOrWhiteSpace(hostPage)) return "index.html";
-        return hostPage.TrimStart('/');
-    }
+    private static string NormalizeHostPage(string? hostPage) 
+        => !string.IsNullOrWhiteSpace(hostPage) 
+            ? hostPage.TrimStart('/')
+            : "index.html";
 
-    private static IDisposable RegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
+    private static IDisposable? TryRegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
+        bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
+            .Value.EnableGlobalUnhandledExceptionHandler ?? true;
+        
+        if (!enableGlobalUnhandledExceptionHandler) return null;
+        
         var exceptionSource = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
 
         return exceptionSource.Register((_, error) => {

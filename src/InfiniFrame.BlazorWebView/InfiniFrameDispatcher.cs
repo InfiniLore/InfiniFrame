@@ -18,7 +18,8 @@ internal class InfiniFrameDispatcher : Dispatcher {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public override bool CheckAccess() => SynchronizationContext.Current == _context;
+    public override bool CheckAccess()
+        => SynchronizationContext.Current == _context;
 
     public override Task InvokeAsync(Action workItem) {
         if (!CheckAccess()) return _context.InvokeAsync(workItem);
@@ -27,9 +28,18 @@ internal class InfiniFrameDispatcher : Dispatcher {
         return Task.CompletedTask;
     }
 
-    public override Task InvokeAsync(Func<Task> workItem) => CheckAccess() ? workItem() : _context.InvokeAsync(workItem);
+    public override Task InvokeAsync(Func<Task> workItem)
+        => CheckAccess()
+            ? workItem()
+            : _context.InvokeAsync(workItem);
 
-    public override Task<TResult> InvokeAsync<TResult>(Func<TResult> workItem) => CheckAccess() ? Task.FromResult(workItem()) : _context.InvokeAsync(workItem);
+    public override Task<TResult> InvokeAsync<TResult>(Func<TResult> workItem)
+        => CheckAccess()
+            ? Task.FromResult(workItem())
+            : _context.InvokeAsync(workItem);
 
-    public override Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> workItem) => CheckAccess() ? workItem() : _context.InvokeAsync(workItem);
+    public override Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> workItem)
+        => CheckAccess() 
+            ? workItem()
+            : _context.InvokeAsync(workItem);
 }
