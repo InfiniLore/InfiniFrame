@@ -23,7 +23,7 @@ public class DevToolsTests {
 
         // Assert   
         await Assert.That(builder.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
-        await Assert.That(initParameters.MediaAutoplayEnabled).IsEqualTo(value);
+        await Assert.That(initParameters.DevToolsEnabled).IsEqualTo(value);
     }
     
     [Test]
@@ -40,7 +40,7 @@ public class DevToolsTests {
         // Assert   
         await Assert.That(builder.Features.Debugging.IsDevToolsEnabled).IsEqualTo(value);
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
-        await Assert.That(initParameters.MediaAutoplayEnabled).IsEqualTo(value);
+        await Assert.That(initParameters.DevToolsEnabled).IsEqualTo(value);
     }
     
     [Test]
