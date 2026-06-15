@@ -4,11 +4,11 @@
 using InfiniFrame;
 using System.Runtime.InteropServices;
 
-namespace InfiniTests.InfiniFrame;
+namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class WindowIconTaskbarTests {
+public sealed class IconFileTaskbarTests {
     private const int WmGetIcon = 0x007F;
     private const int IconSmall = 0;
     private const int IconBig = 1;
