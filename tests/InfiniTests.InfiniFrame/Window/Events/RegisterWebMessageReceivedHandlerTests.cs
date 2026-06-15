@@ -15,7 +15,7 @@ public class RegisterWebMessageReceivedHandlerTests {
         var eventsStore = new InfiniFrameEventsStore();
         var builder = InfiniFrameWindowBuilder.Create(events: eventsStore);
         var service = new TestService();
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
         window.ServiceProvider.Returns(new TestServiceProvider(service));
 
         var tcs = new TaskCompletionSource<(string ServiceId, string Message)>();
@@ -37,7 +37,7 @@ public class RegisterWebMessageReceivedHandlerTests {
         // Arrange
         var eventsStore = new InfiniFrameEventsStore();
         var builder = InfiniFrameWindowBuilder.Create(events: eventsStore);
-        IInfiniFrameWindow window = Substitute.For<IInfiniFrameWindow>();
+        var window = Substitute.For<IInfiniFrameWindow>();
 
         var tcs = new TaskCompletionSource<string?>();
         builder.RegisterWebMessageReceivedHandler((_, _, origin) => tcs.TrySetResult(origin));
