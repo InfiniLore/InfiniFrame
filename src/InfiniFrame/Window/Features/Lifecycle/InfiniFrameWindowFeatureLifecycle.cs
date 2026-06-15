@@ -76,8 +76,18 @@ public class InfiniFrameWindowFeatureLifecycle(
             window.Events.OnWindowCreating();
 
             try {
-                if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
-                else if (OperatingSystem.IsMacOS()) InfiniFrameNative.RegisterMac();
+                if (OperatingSystem.IsWindows()) {
+                    InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
+                }
+                else if (OperatingSystem.IsMacOS()) {
+                    InfiniFrameNativeInteropStatus registerStatus = InfiniFrameNative.RegisterMac();
+                    if (registerStatus != InfiniFrameNativeInteropStatus.Success) {
+                        int lastError = Marshal.GetLastPInvokeError();
+                        string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
+                        throw new ApplicationException(
+                            $"Native registration failed with status {registerStatus}. Error #{lastError}. {nativeMessage}");
+                    }
+                }
                 else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
                 else throw new PlatformNotSupportedException();
 

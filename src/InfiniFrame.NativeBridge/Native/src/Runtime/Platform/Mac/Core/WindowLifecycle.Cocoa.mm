@@ -2,11 +2,23 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
+#include <stdexcept>
+
 #include "../Window.Cocoa.Internal.h"
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+
+/// Safely runs a block on the main GCD queue.
+/// If already on the main thread, runs synchronously; otherwise dispatches synchronously.
+static void DispatchToMainSync(void (^block)()) {
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+}
 
 void InfiniFrameWindow::Center()
 {
@@ -21,26 +33,30 @@ void InfiniFrameWindow::ClearBrowserAutoFill()
 
 void InfiniFrameWindow::Close()
 {
-    m_impl->_isClosingOrClosed = true;
+    DispatchToMainSync(^{
+        this->m_impl->_isClosingOrClosed = true;
 
-    if (m_impl->_parentWillCloseObserver != nil) {
-        [[NSNotificationCenter defaultCenter] removeObserver:m_impl->_parentWillCloseObserver];
-        m_impl->_parentWillCloseObserver = nil;
-    }
+        if (this->m_impl->_parentWillCloseObserver != nil) {
+            [[NSNotificationCenter defaultCenter] removeObserver:this->m_impl->_parentWillCloseObserver];
+            this->m_impl->_parentWillCloseObserver = nil;
+        }
 
-    if (m_impl->_nativeParentWindow != nil && m_impl->_window != nil) {
-        [m_impl->_nativeParentWindow removeChildWindow:m_impl->_window];
-        m_impl->_nativeParentWindow = nil;
-    }
+        if (this->m_impl->_nativeParentWindow != nil && this->m_impl->_window != nil) {
+            [this->m_impl->_nativeParentWindow removeChildWindow:this->m_impl->_window];
+            this->m_impl->_nativeParentWindow = nil;
+        }
 
-    if (m_impl->_chromeless)
-        [m_impl->_window close];
-    else
-        [m_impl->_window performClose: m_impl->_window];
+        if (this->m_impl->_chromeless)
+            [this->m_impl->_window close];
+        else
+            [this->m_impl->_window performClose: this->m_impl->_window];
+    });
 }
 
 void InfiniFrameWindow::WaitForExit()
 {
+    // NOTE: [NSApp run] must be called from the main thread. If the caller
+    // is not on the main thread, the caller must arrange for dispatch.
     if (![NSApp isRunning]) {
         [NSApp run];
         return;
