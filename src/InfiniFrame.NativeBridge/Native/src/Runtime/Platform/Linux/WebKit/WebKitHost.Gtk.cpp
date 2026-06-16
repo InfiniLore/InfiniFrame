@@ -20,6 +20,7 @@ extern void on_webview_process_terminated(
 extern void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data);
 
 void InfiniFrameWindow::Show(bool isAlreadyShown) {
+    (void)isAlreadyShown;
     if (m_impl->_webview) {
         return;
     }
@@ -30,11 +31,12 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     m_impl->_webContext = webkit_web_context_new();
     m_impl->configure_webkit_remote_debugging();
 
-    WebKitUserContentManager* contentManager = webkit_user_content_manager_new();
-    m_impl->_webview = webkit_web_view_new_with_context(m_impl->_webContext, contentManager);
+    m_impl->_webview = webkit_web_view_new_with_context(m_impl->_webContext);
 
     m_impl->set_webkit_settings();
     m_impl->AddCustomSchemeHandlers();
+
+    WebKitUserContentManager* contentManager = webkit_web_view_get_user_content_manager(WEBKIT_WEB_VIEW(m_impl->_webview));
 
     gtk_container_add(GTK_CONTAINER(m_impl->_window), m_impl->_webview);
     gtk_widget_set_hexpand(m_impl->_webview, TRUE);
@@ -55,10 +57,6 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         reinterpret_cast<void*>(m_impl->_webMessageReceivedCallback)
     );
     webkit_user_content_manager_register_script_message_handler(contentManager, "infiniFrameInterop");
-
-    // webkit_web_view_new_with_context keeps its own reference; drop ours so the content manager doesn't
-    // leak past the webview's lifetime.
-    g_object_unref(contentManager);
 
     g_signal_connect(G_OBJECT(m_impl->_webview), "load-changed", G_CALLBACK(on_webview_load_changed), this);
     g_signal_connect(G_OBJECT(m_impl->_webview), "load-failed", G_CALLBACK(on_webview_load_failed), this);
