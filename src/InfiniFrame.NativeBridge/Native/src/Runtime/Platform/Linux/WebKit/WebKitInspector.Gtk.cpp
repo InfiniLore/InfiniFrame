@@ -1,50 +1,21 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include <cerrno>
-#include <cstring>
-#include <stdexcept>
 #include <string>
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-namespace {
-    constexpr const char* LoopbackAddress = "127.0.0.1";
-    constexpr const char* InspectorServerEnvVar = "WEBKIT_INSPECTOR_SERVER";
-    constexpr const char* InspectorHttpServerEnvVar = "WEBKIT_INSPECTOR_HTTP_SERVER";
-
-    std::string BuildInspectorBinding(const int port) {
-        return std::string{LoopbackAddress} + ":" + std::to_string(port);
-    }
-
-    [[noreturn]] void ThrowEnvMutationFailure(const char* operation, const char* variableName) {
-        throw std::runtime_error(
-            std::string{"Failed to "} + operation + " " + variableName + " for Linux remote debugging: " + std::strerror(errno)
-        );
-    }
-}
-
 void InfiniFrameWindow::Impl::configure_webkit_remote_debugging() const {
-    if (_remoteDebuggingPort <= 0) {
-        g_unsetenv(InspectorServerEnvVar);
-        g_unsetenv(InspectorHttpServerEnvVar);
-
-        g_message("[InfiniFrame/Linux] Remote debugging disabled.");
-        return;
+    if (_webContext) {
+        webkit_web_context_set_remote_debugging_enabled(_webContext, _remoteDebuggingPort > 0);
+        if (_remoteDebuggingPort > 0) {
+            g_message("[InfiniFrame/Linux] Remote debugging enabled on port %d (per-context).", _remoteDebuggingPort);
+        } else {
+            g_message("[InfiniFrame/Linux] Remote debugging disabled.");
+        }
     }
-
-    std::string binding = BuildInspectorBinding(_remoteDebuggingPort);
-    if (!g_setenv(InspectorServerEnvVar, binding.c_str(), TRUE))
-        ThrowEnvMutationFailure("set", InspectorServerEnvVar);
-    if (!g_setenv(InspectorHttpServerEnvVar, binding.c_str(), TRUE))
-        ThrowEnvMutationFailure("set", InspectorHttpServerEnvVar);
-
-    g_message(
-        "[InfiniFrame/Linux] Remote debugging enabled on loopback %s (env: %s, %s).",
-        binding.c_str(),
-        InspectorServerEnvVar,
-        InspectorHttpServerEnvVar
-    );
+    // If _webContext is not yet created, the port is stored in _remoteDebuggingPort
+    // and will be applied when the context is created in Show().
 }

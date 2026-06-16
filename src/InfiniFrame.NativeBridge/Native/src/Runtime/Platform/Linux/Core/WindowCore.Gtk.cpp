@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include <mutex>
 #include <stdexcept>
 #include <string>
 
@@ -13,8 +14,11 @@
 // ---------------------------------------------------------------------------------------------------------------------
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
     : m_impl(std::make_unique<Impl>()) {
-    XInitThreads();
-    gtk_init(nullptr, nullptr);
+    static std::once_flag once;
+    std::call_once(once, [] {
+        XInitThreads();
+        gtk_init(nullptr, nullptr);
+    });
     notify_init(initParams->Title);
 
     if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
@@ -29,9 +33,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
     m_impl->ApplyInitialWindowState(this, initParams);
     m_impl->ConnectWindowSignals(this);
     m_impl->configure_webkit_remote_debugging();
-
-    // Register custom schemes before first navigation to avoid first-load races.
-    m_impl->AddCustomSchemeHandlers();
 
     Show(false);
 

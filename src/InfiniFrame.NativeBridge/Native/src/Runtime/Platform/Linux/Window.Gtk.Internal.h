@@ -16,6 +16,8 @@
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     GtkWidget* _window = nullptr;
     GtkWidget* _webview = nullptr;
+    WebKitWebContext* _webContext = nullptr;
+    int _remoteDebuggingPort = 0;
 
     std::string _temporaryFilesPath;
 
