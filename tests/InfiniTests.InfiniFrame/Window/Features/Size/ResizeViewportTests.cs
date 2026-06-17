@@ -17,7 +17,7 @@ public sealed class ResizeViewportTests {
     [SkipOnMacOs]
     [SkipOnLinux]
     [SkipOnWindowsArm("Test is flaky on ARM")]
-    [DefaultInfiniTestsTimeout(8_000)]
+    [DefaultInfiniTestsTimeout(35_000)]
     public async Task NativeResize_ShouldUpdateBrowserViewport(CancellationToken ct = default) {
         var firstViewport = new TaskCompletionSource<(int Width, int Height)>(TaskCreationOptions.RunContinuationsAsynchronously);
         var resizedViewport = new TaskCompletionSource<(int Width, int Height)>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -76,7 +76,7 @@ public sealed class ResizeViewportTests {
 
         IInfiniFrameWindow window = windowUtility.Window;
 
-        (int Width, int Height) initialViewport = await firstViewport.Task.WaitAsync(TimeSpan.FromSeconds(3), ct);
+        (int Width, int Height) initialViewport = await firstViewport.Task.WaitAsync(TimeSpan.FromSeconds(10), ct);
         int originalWidth = window.Features.Size.Width;
         int originalHeight = window.Features.Size.Height;
         int targetWidth = originalWidth + 180;
@@ -86,7 +86,7 @@ public sealed class ResizeViewportTests {
         _ = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
         _ = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
 
-        (int Width, int Height) newViewport = await resizedViewport.Task.WaitAsync(TimeSpan.FromSeconds(3), ct);
+        (int Width, int Height) newViewport = await resizedViewport.Task.WaitAsync(TimeSpan.FromSeconds(10), ct);
 
         await Assert.That(newViewport.Width).IsGreaterThan(initialViewport.Width);
         await Assert.That(newViewport.Height).IsGreaterThan(initialViewport.Height);

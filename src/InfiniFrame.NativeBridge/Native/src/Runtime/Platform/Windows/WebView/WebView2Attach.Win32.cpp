@@ -236,7 +236,11 @@ void InfiniFrameWindow::AttachWebView() {
                                             m_impl->_webviewWindow != nullptr) {
                                             m_impl->_webviewWindow->get_Source(&source);
                                         }
-                                        m_impl->_webMessageReceivedCallback(message.get(), source.get());
+
+                                        // Guard: skip empty/null messages to avoid invoking managed delegate with invalid data
+                                        if (message.get() != nullptr && message.get()[0] != L'\0') {
+                                            m_impl->_webMessageReceivedCallback(message.get(), source.get());
+                                        }
                                         return S_OK;
                                     }
                                 ).Get(),
