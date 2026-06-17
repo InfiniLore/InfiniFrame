@@ -1,6 +1,7 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Threading;
 using TUnit.Core.Interfaces;
 
 namespace InfiniTests;
@@ -8,8 +9,9 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class MacOsWindowExecutor : ITestExecutor {
-    private static int MainThreadId { get; set; }
+    private static int MainThreadId { get; set; } = -1;
     private static SynchronizationContext? MainContext { get; set; }
+    private static readonly object SyncLock = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -18,7 +20,14 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
         TestContext context,
         Func<ValueTask> action
     ) {
-        if (!OperatingSystem.IsMacOS() || MainContext is null || Environment.CurrentManagedThreadId == MainThreadId) {
+        if (!OperatingSystem.IsMacOS()) {
+            await action();
+            return;
+        }
+
+        EnsureMainContextCaptured();
+
+        if (MainContext is null || Environment.CurrentManagedThreadId == MainThreadId) {
             await action();
             return;
         }
@@ -41,5 +50,20 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
     public static void CaptureMainThread(AssemblyHookContext context) {
         MainThreadId = Environment.CurrentManagedThreadId;
         MainContext = SynchronizationContext.Current;
+    }
+
+    private static void EnsureMainContextCaptured() {
+        if (MainThreadId != -1) return;
+
+        lock (SyncLock) {
+            if (MainThreadId != -1) return;
+
+            MainThreadId = Environment.CurrentManagedThreadId;
+            var ctx = SynchronizationContext.Current;
+            
+            if (ctx != null && ctx.GetType() != typeof(SynchronizationContext)) {
+                MainContext = ctx;
+            }
+        }
     }
 }
