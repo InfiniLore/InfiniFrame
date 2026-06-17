@@ -1,6 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include <atomic>
+#include <cstdlib>
 #include <signal.h>
 #include <webkit2/webkit2.h>
 
@@ -10,6 +12,24 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+namespace {
+    // WebKitGTK registers an atexit() handler when its globals are initialized (first webkit_web_context_new()
+    // or webkit_web_context_get_default() call). That handler walks WebKit's internal context list and can
+    // abort with SIGABRT on Ubuntu 22.04/24.04. We register a competing atexit handler AFTER WebKit has
+    // initialized its own. atexit() runs handlers in LIFO order, so ours fires first and _Exit()s the process,
+    // skipping WebKit's crashing cleanup. _Exit() bypasses remaining atexit handlers and stdio flushing.
+    void webkit_atexit_bypass() noexcept {
+        std::_Exit(0);
+    }
+
+    void register_webkit_atexit_bypass_once() noexcept {
+        static std::atomic<bool> registered{false};
+        bool expected = false;
+        if (registered.compare_exchange_strong(expected, true, std::memory_order_acq_rel))
+            std::atexit(webkit_atexit_bypass);
+    }
+}
+
 extern void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data);
 extern gboolean on_webview_load_failed(
     WebKitWebView* web_view, WebKitLoadEvent load_event, gchar* failing_uri, GError* error, gpointer user_data
@@ -29,6 +49,8 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     sigaction(SIGCHLD, nullptr, &oldAction);
 
     m_impl->_webContext = webkit_web_context_new();
+    // WebKit globals are now initialized; register bypass so it runs before WebKit's atexit handler.
+    register_webkit_atexit_bypass_once();
     m_impl->configure_webkit_remote_debugging();
 
     m_impl->_webview = webkit_web_view_new_with_context(m_impl->_webContext);
