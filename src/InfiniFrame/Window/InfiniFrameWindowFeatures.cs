@@ -5,6 +5,8 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+// ReSharper disable InvalidXmlDocComment
+
 /// <summary>
 ///     Aggregates all feature instances available for an <see cref="IInfiniFrameWindow" />.
 /// </summary>

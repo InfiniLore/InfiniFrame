@@ -136,6 +136,7 @@ public class InfiniFrameWindowFeatureSize(
         );
     }
 
+    // ReSharper disable once InvalidXmlDocComment
     /// <inheritdoc cref="IInfiniFrameWindowFeatureSize.SetSize(Size)"/>
     public void SetSize(Size size)
         => SetSize(size.Width, size.Height);

@@ -23,6 +23,9 @@ namespace InfiniFrame.BlazorWebView;
 // It might be that a simpler variant of this would work, for example, purely using InfiniFrame's "Invoke" and
 // relying on that for single-threadedness. Maybe also in the future InfiniFrame could consider having its own
 // built-in SyncContext/Dispatcher like other UI platforms.
+
+// ReSharper disable once InvalidXmlDocComment
+
 /// <summary>
 ///     Provides a <see cref="SynchronizationContext" /> for Blazor components running inside an InfiniFrame WebView.
 ///     It ensures work items are dispatched on the native window thread via <see cref="IInfiniFrameWindow.Invoke" />,

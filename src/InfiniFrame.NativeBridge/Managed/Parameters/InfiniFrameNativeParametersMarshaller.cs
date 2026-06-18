@@ -9,15 +9,15 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Custom marshaller for converting <see cref="InfiniFrameNativeParameters"/>
+///     to an unmanaged representation for native interop calls.
+/// </summary>
 [CustomMarshaller(
     typeof(InfiniFrameNativeParameters), 
     MarshalMode.ManagedToUnmanagedIn,
     typeof(ManagedToUnmanagedIn)
 )]
-/// <summary>
-///     Custom marshaller for converting <see cref="InfiniFrameNativeParameters"/>
-///     to an unmanaged representation for native interop calls.
-/// </summary>
 internal static class InfiniFrameNativeParametersMarshaller {
     /// <summary>
     ///     Unmanaged layout of <see cref="InfiniFrameNativeParameters"/> used for native interop.
