@@ -25,6 +25,7 @@ jobs:
     macos:
         name: CI Testing - macOS (${{ matrix.arch }})
         runs-on: ${{ matrix.os }}
+        timeout-minutes: 120
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
             WORKFLOW_URL: ${{ inputs.workflow_url }}
