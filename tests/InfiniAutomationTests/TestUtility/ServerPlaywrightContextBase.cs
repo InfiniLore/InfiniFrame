@@ -21,7 +21,6 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
     public WebApplication WebApplication => _utility!.WebApplication;// kept for future reference
 
     private string ServerUrl => $"http://127.0.0.1:{_serverPort}";
-    private string PlaywrightConnectionString => $"http://127.0.0.1:{_playwrightDevtoolsPort}";
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -40,7 +39,7 @@ public abstract class ServerPlaywrightContextBase(string documentTitle) : Playwr
     }
 
     protected override Uri CreatePlaywrightConnectionUri(string relativeUrl)
-        => new(new Uri(PlaywrightConnectionString), relativeUrl);
+        => new(PlaywrightConnectionUtility.CreateCdpConnectionUrl(_playwrightDevtoolsPort), relativeUrl);
 
     private void StartUtilityWithFreshPorts() {
         _serverPort = PlaywrightConnectionUtility.GetAvailablePort();

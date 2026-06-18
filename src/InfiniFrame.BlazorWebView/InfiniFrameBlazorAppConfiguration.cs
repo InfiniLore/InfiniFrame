@@ -7,11 +7,11 @@ namespace InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 /// <summary>
 ///     Configuration for the Blazor application hosted inside an InfiniFrame WebView, including the base URI, host page,
 ///     and global exception handler settings.
 /// </summary>
+[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 public class InfiniFrameBlazorAppConfiguration {
     /// <summary>Gets or sets the base URI for the Blazor application.</summary>
     public Uri AppBaseUri { get; set; } = new(InfiniFrameWebViewManager.AppBaseUri);
