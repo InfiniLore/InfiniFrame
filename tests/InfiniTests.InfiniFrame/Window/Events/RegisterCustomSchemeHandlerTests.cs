@@ -42,7 +42,7 @@ public class RegisterCustomSchemeHandlerTests {
             builder.RegisterCustomSchemeHandler("app", EmptyHandler);
         }
 
-        var nativeParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeParameters nativeParameters = builder.CollectNativeParameters();
         var events = new InfiniFrameEvents(builder.EventsStore, NullLogger<InfiniFrameEvents>.Instance);
         events.AssignToNativeParameters(ref nativeParameters);
 

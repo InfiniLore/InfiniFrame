@@ -104,46 +104,38 @@ jobs:
             -   name: Run Tests
                 run: |
                     echo "Setting up macOS test environment..."
-
+    
                     echo "=== Environment Status ==="
                     echo "System: $(sw_vers -productName) $(sw_vers -productVersion)"
                     echo "Architecture: $(uname -m)"
                     echo "Running in native macOS mode"
-
+    
                     export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
                     export NSUnbufferedIO=YES
-
+    
                     echo "=== Running Tests ==="
-
+    
                     exit_code=0
-
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore \
-                      --framework net8.0 \
-                      -p:NativeArch=${{ matrix.arch }} \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} || exit_code=$?
-
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore \
-                      --framework net9.0 \
-                      -p:NativeArch=${{ matrix.arch }} \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} || exit_code=$?
-
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-build \
-                      --no-restore \
-                      --framework net10.0 \
-                      -p:NativeArch=${{ matrix.arch }} \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} || exit_code=$?
-
+    
+                    for framework in net8.0 net9.0 net10.0; do
+                        echo "=== Testing $framework ==="
+                        dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
+                          --configuration Release \
+                          --no-build \
+                          --no-restore \
+                          --framework "$framework" \
+                          -p:NativeArch=${{ matrix.arch }} \
+                          -p:InfiniFrameSkipNativeBuild=true \
+                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
+                          --logger "console;verbosity=detailed" \
+                          --diag "test-diag-$framework.log" || exit_code=$?
+                        
+                        if [ $exit_code -ne 0 ]; then
+                            echo "=== Test diagnostics for $framework ==="
+                            cat "test-diag-$framework.log" || true
+                        fi
+                    done
+    
                     exit $exit_code
 
             -   name: Pack Tool E2E

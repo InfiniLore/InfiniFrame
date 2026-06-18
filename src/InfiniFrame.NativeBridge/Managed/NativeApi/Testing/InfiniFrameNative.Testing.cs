@@ -44,7 +44,7 @@ public partial class InfiniFrameNativeTesting {
     /// <param name="newParametersPtr">The native pointer to the cloned parameters.</param>
     /// <returns>A status code indicating success or failure.</returns>
     internal static InfiniFrameNativeInteropStatus NativeParametersReturnAsIsPtr(ref InfiniFrameNativeParameters parameters, out IntPtr newParametersPtr) {
-        var status = NativeParametersReturnAsIsNative(in parameters, out newParametersPtr);
+        InfiniFrameNativeInteropStatus status = NativeParametersReturnAsIsNative(in parameters, out newParametersPtr);
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (newParametersPtr == IntPtr.Zero) throw new InvalidOperationException("Native function returned null pointer");
