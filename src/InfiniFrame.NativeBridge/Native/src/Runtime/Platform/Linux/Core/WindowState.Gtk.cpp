@@ -263,8 +263,22 @@ void InfiniFrameWindow::SetMaximized(const bool maximized) {
 }
 
 void InfiniFrameWindow::SetPosition(const int x, const int y) {
-    gtk_window_set_position(GTK_WINDOW(m_impl->_window), GTK_WIN_POS_NONE);
-    gtk_window_move(GTK_WINDOW(m_impl->_window), x, y);
+    GtkWindow* window = GTK_WINDOW(m_impl->_window);
+    
+    if (gtk_window_get_maximized(window)) {
+        gtk_window_unmaximize(window);
+    }
+    if (m_impl->_isFullScreen) {
+        gtk_window_unfullscreen(window);
+    }
+    
+    GdkWindow* gdkWindow = gtk_widget_get_window(GTK_WIDGET(window));
+    
+    if (gdkWindow) {
+        gdk_window_move(gdkWindow, x, y);
+    } else {
+        gtk_window_move(window, x, y);
+    }
 }
 
 void InfiniFrameWindow::SetResizable(const bool resizable) {
