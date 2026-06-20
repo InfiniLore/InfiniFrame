@@ -265,7 +265,7 @@ void InfiniFrameWindow::SetMaximized(const bool maximized) {
 void InfiniFrameWindow::SetPosition(const int x, const int y) {
     GtkWindow* window = GTK_WINDOW(m_impl->_window);
     
-    if (gtk_window_get_maximized(window)) {
+    if (gtk_window_is_maximized(window)) {
         gtk_window_unmaximize(window);
     }
     if (m_impl->_isFullScreen) {
