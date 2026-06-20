@@ -1,6 +1,7 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using System.Runtime.InteropServices;
 using TUnit.Core.Interfaces;
 
 namespace InfiniTests;
@@ -8,10 +9,22 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class MacOsWindowExecutor : ITestExecutor {
-    private static int MainThreadId { get; set; } = -1;
-    private static SynchronizationContext? MainContext { get; set; }
-    private static bool HasValidContext { get; set; }
-    private static readonly object SyncLock = new();
+    private static readonly Lazy<IntPtr> MainQueue = new(dispatch_get_main_queue);
+    private static readonly DispatchWorkCallback DispatchWork = InvokeDispatchWork;
+    private static readonly IntPtr DispatchWorkPointer = Marshal.GetFunctionPointerForDelegate(DispatchWork);
+    private static readonly TimeSpan MainQueueTimeout = TimeSpan.FromSeconds(30);
+
+    [DllImport("/usr/lib/libSystem.dylib")]
+    private static extern IntPtr dispatch_get_main_queue();
+
+    [DllImport("/usr/lib/libSystem.dylib")]
+    private static extern void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
+
+    [DllImport("/usr/lib/libSystem.dylib")]
+    private static extern int pthread_main_np();
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void DispatchWorkCallback(IntPtr context);
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -25,74 +38,158 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
             return;
         }
 
-        EnsureMainContextCaptured();
-
-        if (!HasValidContext || Environment.CurrentManagedThreadId == MainThreadId) {
+        if (pthread_main_np() == 1) {
             await action();
             return;
         }
 
-        var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        bool posted = false;
-
-        MainContext!.Post(d: _ => {
-            posted = true;
-            try {
-                action().GetAwaiter().GetResult();
-                tcs.SetResult();
-            }
-            catch (Exception ex) {
-                tcs.SetException(ex);
-            }
-        }, null);
-
-        if (!posted) {
-            await action();
-            return;
-        }
-
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-        Task completedTask = await Task.WhenAny(tcs.Task, Task.Delay(Timeout.Infinite, cts.Token));
-
-        if (completedTask == tcs.Task) {
-            await tcs.Task;
-        }
-        else {
-            await action();
-        }
+        await DispatchToMainQueueAsync(action);
     }
 
     public static void CaptureMainThread(AssemblyHookContext context) {
-        MainThreadId = Environment.CurrentManagedThreadId;
-        SynchronizationContext? ctx = SynchronizationContext.Current;
+    }
 
-        if (ctx != null && ctx.GetType() != typeof(SynchronizationContext)) {
-            MainContext = ctx;
-            HasValidContext = true;
+    private static async ValueTask DispatchToMainQueueAsync(Func<ValueTask> action) {
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var state = new MainQueueTestWork(action, completion);
+        GCHandle handle = GCHandle.Alloc(state);
+
+        dispatch_async_f(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
+
+        Task completedTask = await Task.WhenAny(completion.Task, Task.Delay(MainQueueTimeout));
+        if (completedTask != completion.Task) {
+            throw new TimeoutException(
+                "Timed out while waiting for the macOS main queue to execute a window test. " +
+                "The AppKit main thread is not pumping dispatch work in this test host.");
         }
-        else {
-            MainContext = null;
-            HasValidContext = false;
+
+        await completion.Task;
+    }
+
+    private static void InvokeDispatchWork(IntPtr context) {
+        GCHandle handle = GCHandle.FromIntPtr(context);
+        object target = handle.Target!;
+        handle.Free();
+
+        switch (target) {
+            case MainQueueTestWork work:
+                work.Start();
+                break;
+            case MainQueueCallback callback:
+                callback.Invoke();
+                break;
+            default:
+                throw new InvalidOperationException($"Unexpected macOS main queue work item type '{target.GetType()}'.");
         }
     }
 
-    private static void EnsureMainContextCaptured() {
-        if (MainThreadId != -1) return;
+    private sealed class MainQueueTestWork(
+        Func<ValueTask> action,
+        TaskCompletionSource completion
+    ) {
+        public void Start() {
+            SynchronizationContext? previousContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(MacOsMainQueueSynchronizationContext.Instance);
 
-        lock (SyncLock) {
-            if (MainThreadId != -1) return;
+            try {
+                ValueTask actionTask = action();
+                if (actionTask.IsCompletedSuccessfully) {
+                    completion.SetResult();
+                    return;
+                }
 
-            MainThreadId = Environment.CurrentManagedThreadId;
-            SynchronizationContext? ctx = SynchronizationContext.Current;
-
-            if (ctx != null && ctx.GetType() != typeof(SynchronizationContext)) {
-                MainContext = ctx;
-                HasValidContext = true;
+                _ = CompleteAsync(actionTask);
             }
-            else {
-                MainContext = null;
-                HasValidContext = false;
+            catch (Exception ex) {
+                completion.SetException(ex);
+            }
+            finally {
+                SynchronizationContext.SetSynchronizationContext(previousContext);
             }
         }
+
+        private async Task CompleteAsync(ValueTask actionTask) {
+            try {
+                await actionTask;
+                completion.SetResult();
+            }
+            catch (Exception ex) {
+                completion.SetException(ex);
+            }
+        }
+    }
+
+    private sealed class MacOsMainQueueSynchronizationContext : SynchronizationContext {
+        public static readonly MacOsMainQueueSynchronizationContext Instance = new();
+
+        public override void Post(SendOrPostCallback d, object? state) {
+            ArgumentNullException.ThrowIfNull(d);
+
+            var callbackState = new MainQueueCallback(d, state);
+            GCHandle handle = GCHandle.Alloc(callbackState);
+            dispatch_async_f(MainQueue.Value, GCHandle.ToIntPtr(handle), DispatchWorkPointer);
+        }
+
+        public override void Send(SendOrPostCallback d, object? state) {
+            ArgumentNullException.ThrowIfNull(d);
+
+            if (pthread_main_np() == 1) {
+                d(state);
+                return;
+            }
+
+            using var completed = new ManualResetEventSlim();
+            var sendState = new MainQueueSendState(d, state, completed);
+
+            Post(
+                static callbackState => {
+                    var sendState = (MainQueueSendState)callbackState!;
+                    try {
+                        sendState.Callback(sendState.State);
+                    }
+                    catch (Exception ex) {
+                        sendState.Exception = ex;
+                    }
+                    finally {
+                        sendState.Completed.Set();
+                    }
+                },
+                sendState);
+
+            if (!completed.Wait(MainQueueTimeout)) {
+                throw new TimeoutException(
+                    "Timed out while waiting for the macOS main queue to execute a synchronous callback.");
+            }
+
+            if (sendState.Exception is not null) throw sendState.Exception;
+        }
+    }
+
+    private sealed class MainQueueCallback(
+        SendOrPostCallback callback,
+        object? state
+    ) {
+        public void Invoke() {
+            SynchronizationContext? previousContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(MacOsMainQueueSynchronizationContext.Instance);
+
+            try {
+                callback(state);
+            }
+            finally {
+                SynchronizationContext.SetSynchronizationContext(previousContext);
+            }
+        }
+    }
+
+    private sealed class MainQueueSendState(
+        SendOrPostCallback callback,
+        object? state,
+        ManualResetEventSlim completed
+    ) {
+        public SendOrPostCallback Callback { get; } = callback;
+        public object? State { get; } = state;
+        public ManualResetEventSlim Completed { get; } = completed;
+        public Exception? Exception { get; set; }
     }
 }
