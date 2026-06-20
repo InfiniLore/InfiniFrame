@@ -263,6 +263,7 @@ void InfiniFrameWindow::SetMaximized(const bool maximized) {
 }
 
 void InfiniFrameWindow::SetPosition(const int x, const int y) {
+    gtk_window_set_position(GTK_WINDOW(m_impl->_window), GTK_WIN_POS_NONE);
     gtk_window_move(GTK_WINDOW(m_impl->_window), x, y);
 }
 
