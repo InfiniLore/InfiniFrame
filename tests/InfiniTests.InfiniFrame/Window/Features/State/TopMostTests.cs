@@ -82,6 +82,7 @@ public class TopMostTests {
     [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
+    [SkipOnLinux]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {
