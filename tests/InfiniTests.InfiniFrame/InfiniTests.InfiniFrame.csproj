@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-        <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
-        <NoWarn>$(NoWarn);TUnit0034</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,10 +25,6 @@
             <Link>Interop/interop-envelope-golden-vectors.json</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Include="../TestHost/MacOsTestingPlatformEntryPoint.cs" Link="TestHost/MacOsTestingPlatformEntryPoint.cs"/>
     </ItemGroup>
 
 </Project>

@@ -2,8 +2,6 @@
 
     <PropertyGroup>
         <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
-        <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
-        <NoWarn>$(NoWarn);TUnit0034</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,10 +20,6 @@
             <Link>Assets/favicon.ico</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Include="../TestHost/MacOsTestingPlatformEntryPoint.cs" Link="TestHost/MacOsTestingPlatformEntryPoint.cs"/>
     </ItemGroup>
 
 </Project>
