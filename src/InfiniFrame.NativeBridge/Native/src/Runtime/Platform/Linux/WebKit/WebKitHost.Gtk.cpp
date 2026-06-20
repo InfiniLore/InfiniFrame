@@ -49,11 +49,12 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     sigaction(SIGCHLD, nullptr, &oldAction);
 
     m_impl->_webContext = webkit_web_context_new();
-    // WebKit globals are now initialized; register bypass so it runs before WebKit's atexit handler.
-    register_webkit_atexit_bypass_once();
     m_impl->configure_webkit_remote_debugging();
 
     m_impl->_webview = webkit_web_view_new_with_context(m_impl->_webContext);
+    // Register after WebKit has created the WebView so this handler is later in the atexit stack than WebKit's
+    // own cleanup handler. atexit() runs handlers in LIFO order.
+    register_webkit_atexit_bypass_once();
 
     m_impl->set_webkit_settings();
     m_impl->AddCustomSchemeHandlers();
