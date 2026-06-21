@@ -12,13 +12,10 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
     private const string LibDispatch = "/usr/lib/system/libdispatch.dylib";
     private const string LibSystem = "/usr/lib/libSystem.dylib";
 
-    private static readonly Lazy<IntPtr> MainQueue = new(dispatch_get_main_queue);
+    private static readonly Lazy<IntPtr> MainQueue = new(ResolveMainQueue);
     private static readonly DispatchWorkCallback DispatchWork = InvokeDispatchWork;
     private static readonly IntPtr DispatchWorkPointer = Marshal.GetFunctionPointerForDelegate(DispatchWork);
     private static readonly TimeSpan MainQueueTimeout = TimeSpan.FromSeconds(30);
-
-    [DllImport(LibDispatch)]
-    private static extern IntPtr dispatch_get_main_queue();
 
     [DllImport(LibDispatch)]
     private static extern void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
@@ -28,6 +25,9 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void DispatchWorkCallback(IntPtr context);
+    
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate IntPtr DispatchGetMainQueueCallback();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -42,6 +42,26 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
         }
 
         await DispatchToMainQueueAsync(action);
+    }
+
+    private static IntPtr ResolveMainQueue() {
+        if (!NativeLibrary.TryLoad(LibDispatch, out IntPtr libDispatchHandle)) {
+            throw new DllNotFoundException($"Unable to load '{LibDispatch}'.");
+        }
+
+        if (NativeLibrary.TryGetExport(libDispatchHandle, "dispatch_get_main_queue", out IntPtr queueGetterPtr)) {
+            var queueGetter = Marshal.GetDelegateForFunctionPointer<DispatchGetMainQueueCallback>(queueGetterPtr);
+            return queueGetter();
+        }
+
+        foreach (string queueSymbol in new[] { "_dispatch_main_q", "__dispatch_main_q" }) {
+            if (NativeLibrary.TryGetExport(libDispatchHandle, queueSymbol, out IntPtr queuePtr)) {
+                return queuePtr;
+            }
+        }
+
+        throw new EntryPointNotFoundException(
+            "Unable to resolve the macOS main dispatch queue symbol in libdispatch.");
     }
 
     private static async ValueTask DispatchToMainQueueAsync(Func<ValueTask> action) {
