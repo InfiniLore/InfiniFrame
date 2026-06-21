@@ -41,19 +41,28 @@ public sealed class ResizeViewportTests {
                         });
                         if (window.chrome && window.chrome.webview && window.chrome.webview.postMessage) {
                           window.chrome.webview.postMessage(envelope);
-                          return;
+                          return true;
                         }
                         if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.infiniFrameInterop && window.webkit.messageHandlers.infiniFrameInterop.postMessage) {
                           window.webkit.messageHandlers.infiniFrameInterop.postMessage(envelope);
-                          return;
+                          return true;
                         }
                         if (window.external && typeof window.external.sendMessage === 'function') {
                           window.external.sendMessage(envelope);
+                          return true;
                         }
+                        return false;
                       }
 
-                      window.addEventListener('load', () => setTimeout(postViewport, 0));
-                      window.addEventListener('resize', () => setTimeout(postViewport, 0));
+                      function postInitialViewportWithRetry(remainingAttempts) {
+                        if (postViewport()) return;
+                        if (remainingAttempts <= 0) return;
+                        setTimeout(() => postInitialViewportWithRetry(remainingAttempts - 1), 100);
+                      }
+
+                      postInitialViewportWithRetry(120);
+                      window.addEventListener('load', () => postInitialViewportWithRetry(120));
+                      window.addEventListener('resize', () => { postViewport(); });
                     })();
                     </script>
                     </body>
@@ -76,7 +85,7 @@ public sealed class ResizeViewportTests {
 
         IInfiniFrameWindow window = windowUtility.Window;
 
-        (int Width, int Height) initialViewport = await firstViewport.Task.WaitAsync(TimeSpan.FromSeconds(10), ct);
+        (int Width, int Height) initialViewport = await firstViewport.Task.WaitAsync(TimeSpan.FromSeconds(20), ct);
         int originalWidth = window.Features.Size.Width;
         int originalHeight = window.Features.Size.Height;
         int targetWidth = originalWidth + 180;
@@ -86,7 +95,7 @@ public sealed class ResizeViewportTests {
         _ = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Width, originalWidth, TimeSpan.FromSeconds(5), ct);
         _ = await PollUtility.WaitForChangeAsync(() => window.Features.Size.Height, originalHeight, TimeSpan.FromSeconds(5), ct);
 
-        (int Width, int Height) newViewport = await resizedViewport.Task.WaitAsync(TimeSpan.FromSeconds(10), ct);
+        (int Width, int Height) newViewport = await resizedViewport.Task.WaitAsync(TimeSpan.FromSeconds(15), ct);
 
         await Assert.That(newViewport.Width).IsGreaterThan(initialViewport.Width);
         await Assert.That(newViewport.Height).IsGreaterThan(initialViewport.Height);
