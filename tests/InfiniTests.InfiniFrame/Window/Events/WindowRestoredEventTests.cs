@@ -15,20 +15,26 @@ public class WindowRestoredEventTests {
     public async Task AtWindowStage_RestoreFromMaximized_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int restoredEventCount = 0;
+        int baseline = int.MaxValue;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterRestoredHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
-            Interlocked.Increment(ref restoredEventCount);
+            int current = Interlocked.Increment(ref restoredEventCount);
+            // ReSharper disable once AccessToModifiedClosure
+            if (current > Volatile.Read(ref baseline)) {
+                eventRaised.TrySetResult(true);
+            }
         }), ct);
 
         windowUtility.Window.SetMaximized();
         await Task.Delay(100, ct);
-        int baseline = Volatile.Read(ref restoredEventCount);
+        baseline = Volatile.Read(ref restoredEventCount);
 
         // Act
         windowUtility.Window.SetMaximized(false);
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref restoredEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         await Assert.That(restoredEventCount).IsEqualTo(baseline + 1);
     }
 
@@ -40,20 +46,26 @@ public class WindowRestoredEventTests {
     public async Task AtWindowStage_RestoreFromMinimized_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int restoredEventCount = 0;
+        int baseline = int.MaxValue;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterRestoredHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
-            Interlocked.Increment(ref restoredEventCount);
+            int current = Interlocked.Increment(ref restoredEventCount);
+            // ReSharper disable once AccessToModifiedClosure
+            if (current > Volatile.Read(ref baseline)) {
+                eventRaised.TrySetResult(true);
+            }
         }), ct);
 
         windowUtility.Window.SetMinimized();
         await Task.Delay(100, ct);
-        int baseline = Volatile.Read(ref restoredEventCount);
+        baseline = Volatile.Read(ref restoredEventCount);
 
         // Act
         windowUtility.Window.SetMinimized(false);
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref restoredEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         await Assert.That(restoredEventCount).IsEqualTo(baseline + 1);
     }
 }

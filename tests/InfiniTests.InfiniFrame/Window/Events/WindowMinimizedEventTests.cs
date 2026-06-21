@@ -16,17 +16,23 @@ public class WindowMinimizedEventTests {
     public async Task AtWindowStage_SetMinimized_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int minimizedEventCount = 0;
+        int baseline = int.MaxValue;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterMinimizedHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
-            Interlocked.Increment(ref minimizedEventCount);
+            int current = Interlocked.Increment(ref minimizedEventCount);
+            // ReSharper disable once AccessToModifiedClosure
+            if (current > Volatile.Read(ref baseline)) {
+                eventRaised.TrySetResult(true);
+            }
         }), ct);
-        int baseline = Volatile.Read(ref minimizedEventCount);
+        baseline = Volatile.Read(ref minimizedEventCount);
 
         // Act
         windowUtility.Window.SetMinimized();
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref minimizedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         await Assert.That(minimizedEventCount).IsEqualTo(baseline + 1);
     }
 }

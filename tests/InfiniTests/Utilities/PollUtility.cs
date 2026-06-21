@@ -6,6 +6,15 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class PollUtility {
+    public static TaskCompletionSource<bool> CreateSignal()
+        => new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    public static Task WaitForSignalAsync(
+        TaskCompletionSource<bool> signal,
+        TimeSpan timeout,
+        CancellationToken ct = default
+    ) => signal.Task.WaitAsync(timeout, ct);
+
     /// <summary>
     ///     Polls <paramref name="getValue" /> every 50 ms until the returned value differs from
     ///     <paramref name="fromValue" />, then returns the new value.

@@ -15,17 +15,23 @@ public class WindowClosingRequestedEventTests {
     public async Task AtWindowStage_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int closingRequestedEventCount = 0;
+        int baseline = int.MaxValue;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterWindowClosingRequestedHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
-            Interlocked.Increment(ref closingRequestedEventCount);
+            int current = Interlocked.Increment(ref closingRequestedEventCount);
+            // ReSharper disable once AccessToModifiedClosure
+            if (current > Volatile.Read(ref baseline)) {
+                eventRaised.TrySetResult(true);
+            }
         }), ct);
-        int baseline = Volatile.Read(ref closingRequestedEventCount);
+        baseline = Volatile.Read(ref closingRequestedEventCount);
 
         // Act
         windowUtility.Window.Close();
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref closingRequestedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         await Assert.That(closingRequestedEventCount).IsEqualTo(baseline + 1);
     }
 }

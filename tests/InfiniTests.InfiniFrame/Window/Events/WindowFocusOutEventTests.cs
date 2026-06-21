@@ -18,26 +18,27 @@ public class WindowFocusOutEventTests {
     public async Task AtWindowStage_SetMinimized_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int focusOutEventCount = 0;
+        int baseline = int.MaxValue;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterFocusOutHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
-            Interlocked.Increment(ref focusOutEventCount);
+            int current = Interlocked.Increment(ref focusOutEventCount);
+            // ReSharper disable once AccessToModifiedClosure
+            if (current > Volatile.Read(ref baseline)) {
+                eventRaised.TrySetResult(true);
+            }
         }), ct);
 
         windowUtility.Window.SetFocused();
         await Task.Delay(100, ct);
-        int baseline = Volatile.Read(ref focusOutEventCount);
+        baseline = Volatile.Read(ref focusOutEventCount);
 
         // Act
         windowUtility.Window.SetMinimized();
 
         // Assert
         try {
-            await PollUtility.WaitForChangeAsync(
-                () => Volatile.Read(ref focusOutEventCount),
-                baseline,
-                TimeSpan.FromSeconds(5),
-                ct
-            );
+            await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         }
         catch (TimeoutException) {
             Skip.Test("FocusOut did not fire in this desktop state.");

@@ -13,9 +13,11 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
 
-    // Native callbacks can outlive normal managed scopes during teardown/recreation bursts.
-    // This registry is intentionally write/remove only and acts as a GC root for callback targets.
+    // Active callback roots keyed by window id (used while the window is alive).
     private static readonly ConcurrentDictionary<Guid, InfiniFrameEvents> NativeCallbackRoots = new();
+    // Retired callback roots are kept briefly to tolerate late reverse P/Invoke calls during teardown.
+    private static readonly ConcurrentQueue<RetiredCallbackRoot> RetiredCallbackRoots = new();
+    private static readonly TimeSpan RetiredCallbackRootLifetime = TimeSpan.FromSeconds(30);
 
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
     public IInfiniFrameEventsStore EventsStore { get; }
@@ -36,6 +38,9 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     private CppRestoredDelegate RestoredHandler { get; }
     private CppWebMessageReceivedDelegate WebMessageReceivedHandler { get; }
     private CppWebResourceRequestedDelegate CustomSchemeHandler { get; }
+
+    // ReSharper disable once NotAccessedPositionalProperty.Local
+    private readonly record struct RetiredCallbackRoot(DateTime ExpiresAtUtc, InfiniFrameEvents Events);
     
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -63,6 +68,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     public void AssignToWindow(IInfiniFrameWindow window) {
         ArgumentNullException.ThrowIfNull(window);
+        CleanupExpiredRetiredCallbackRoots();
 
         if (CallbackRootId != Guid.Empty) {
             NativeCallbackRoots.TryRemove(CallbackRootId, out _);
@@ -184,9 +190,17 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     void IInfiniFrameEvents.ReleaseNativeCallbackRoot() {
         if (CallbackRootId == Guid.Empty) return;
 
-        // Keep callback roots for process lifetime.
-        // Native platforms can still raise late focus/lifecycle callbacks during teardown/recreation windows,
-        // and releasing the managed target here can trigger reverse-P/Invoke calls on collected delegates.
+        NativeCallbackRoots.TryRemove(CallbackRootId, out _);
+        RetiredCallbackRoots.Enqueue(new RetiredCallbackRoot(DateTime.UtcNow + RetiredCallbackRootLifetime, this));
         CallbackRootId = Guid.Empty;
+
+        CleanupExpiredRetiredCallbackRoots();
+    }
+
+    private static void CleanupExpiredRetiredCallbackRoots() {
+        DateTime now = DateTime.UtcNow;
+        while (RetiredCallbackRoots.TryPeek(out RetiredCallbackRoot entry) && entry.ExpiresAtUtc <= now) {
+            RetiredCallbackRoots.TryDequeue(out _);
+        }
     }
 }

@@ -15,12 +15,14 @@ public class WindowCreatingEventTests {
     public async Task AtBuilderStage_EventFiresOnce(CancellationToken ct = default) {
         // Arrange
         int creatingEventCount = 0;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var _ = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterWindowCreatingHandler(_ => {
             Interlocked.Increment(ref creatingEventCount);
+            eventRaised.TrySetResult(true);
         }), ct);
 
         // Assert: event fires during window creation.
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref creatingEventCount), 0, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         await Assert.That(creatingEventCount).IsEqualTo(1);
     }
 }

@@ -15,17 +15,24 @@ public class WindowClosedEventTests {
     public async Task AtWindowStage_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int closedEventCount = 0;
+        int baseline = int.MaxValue;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterWindowClosedHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
-            Interlocked.Increment(ref closedEventCount);
+            int current = Interlocked.Increment(ref closedEventCount);
+            
+            // ReSharper disable once AccessToModifiedClosure
+            if (current > Volatile.Read(ref baseline)) {
+                eventRaised.TrySetResult(true);
+            }
         }), ct);
-        int baseline = Volatile.Read(ref closedEventCount);
+        baseline = Volatile.Read(ref closedEventCount);
 
         // Act
         windowUtility.Window.Close();
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref closedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         await Assert.That(closedEventCount).IsEqualTo(baseline + 1);
     }
 
@@ -36,19 +43,26 @@ public class WindowClosedEventTests {
     public async Task AtWindowStage_DirectAssignment_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int closedEventCount = 0;
+        int baseline = int.MaxValue;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
         IInfiniFrameWindow window = windowUtility.Window;
         window.RegisterWindowClosedHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
-            Interlocked.Increment(ref closedEventCount);
+            int current = Interlocked.Increment(ref closedEventCount);
+            
+            // ReSharper disable once AccessToModifiedClosure
+            if (current > Volatile.Read(ref baseline)) {
+                eventRaised.TrySetResult(true);
+            }
         });
-        int baseline = Volatile.Read(ref closedEventCount);
+        baseline = Volatile.Read(ref closedEventCount);
 
         // Act
         window.Close();
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref closedEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         await Assert.That(closedEventCount).IsEqualTo(baseline + 1);
     }
 }

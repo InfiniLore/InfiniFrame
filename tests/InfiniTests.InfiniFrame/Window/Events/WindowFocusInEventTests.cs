@@ -16,20 +16,26 @@ public class WindowFocusInEventTests {
     public async Task AtWindowStage_SetFocused_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int focusInEventCount = 0;
+        int baseline = int.MaxValue;
+        TaskCompletionSource<bool> eventRaised = PollUtility.CreateSignal();
         using var windowUtility = InfiniFrameTestWindow.Create(builder: builder => builder.RegisterFocusInHandler(_ => {
             // ReSharper disable once AccessToModifiedClosure
-            Interlocked.Increment(ref focusInEventCount);
+            int current = Interlocked.Increment(ref focusInEventCount);
+            // ReSharper disable once AccessToModifiedClosure
+            if (current > Volatile.Read(ref baseline)) {
+                eventRaised.TrySetResult(true);
+            }
         }), ct);
 
         windowUtility.Window.SetMinimized();
         await Task.Delay(100, ct);
-        int baseline = Volatile.Read(ref focusInEventCount);
+        baseline = Volatile.Read(ref focusInEventCount);
 
         // Act
         windowUtility.Window.SetFocused();
 
         // Assert
-        await PollUtility.WaitForChangeAsync(() => Volatile.Read(ref focusInEventCount), baseline, TimeSpan.FromSeconds(5), ct);
+        await PollUtility.WaitForSignalAsync(eventRaised, TimeSpan.FromSeconds(5), ct);
         await Assert.That(focusInEventCount).IsGreaterThanOrEqualTo(baseline + 1);
     }
 }
