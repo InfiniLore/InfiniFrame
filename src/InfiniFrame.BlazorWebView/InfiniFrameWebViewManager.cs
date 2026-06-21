@@ -31,6 +31,9 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             SingleWriter = false,
             AllowSynchronousContinuations = false
         });
+    private readonly CancellationTokenSource _messagePumpShutdown = new();
+    private int _disposeStarted;
+    private int _disposed;
 
     private readonly Task _messagePumpTask;
     private readonly SynchronousTaskScheduler _syncScheduler = new();
@@ -58,13 +61,22 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         LazyLogger = new Lazy<ILogger<InfiniFrameWebViewManager>?>(() => provider.GetService<ILogger<InfiniFrameWebViewManager>>());
 
         builder.RegisterWebMessageReceivedHandler((_, message, origin) => {
+            if (IsDisposingOrDisposed) return;
+
             LazyLogger.Value?.LogDebug(
                 "Web message callback from native. Origin: {Origin}, Message: {Message}",
                 origin,
                 message);
 
             Task.Factory.StartNew(
-                state => HandleWebMessage(((string Message, string? Origin))state!),
+                state => {
+                    try {
+                        HandleWebMessage(((string Message, string? Origin))state!);
+                    }
+                    catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                        LazyLogger.Value?.LogWarning(ex, "Unhandled exception while handling native web message callback.");
+                    }
+                },
                 (Message: message, Origin: origin),
                 CancellationToken.None,
                 TaskCreationOptions.DenyChildAttach,
@@ -76,6 +88,7 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
 
     private Lazy<IInfiniFrameWindow> LazyWindow { get; }
     private Lazy<ILogger<InfiniFrameWebViewManager>?> LazyLogger { get; }
+    private bool IsDisposingOrDisposed => Volatile.Read(ref _disposeStarted) != 0 || Volatile.Read(ref _disposed) != 0;
 
     // -----------------------------------------------------------------------------------------------------------------
     // Web Requests
@@ -169,6 +182,8 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     // Web message handling
     // -----------------------------------------------------------------------------------------------------------------
     private void HandleWebMessage((string Message, string? Origin) state) {
+        if (IsDisposingOrDisposed) return;
+
         Uri? messageOriginUrl;
 
         if (!string.IsNullOrWhiteSpace(state.Origin)) {
@@ -211,15 +226,21 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     protected override void SendMessage(string message) {
+        if (IsDisposingOrDisposed || _messagePumpShutdown.IsCancellationRequested) return;
         if (_channel.Writer.TryWrite(message)) return;
         LazyLogger.Value?.LogDebug("Skipping WebView message because the message channel is closed.");
     }
 
     private async Task MessagePump() {
         try {
-            while (await _channel.Reader.ReadAsync() is { } message) {
-                await LazyWindow.Value.SendWebMessageAsync(message);
+            while (await _channel.Reader.WaitToReadAsync(_messagePumpShutdown.Token)) {
+                while (_channel.Reader.TryRead(out string? message)) {
+                    await LazyWindow.Value.SendWebMessageAsync(message, _messagePumpShutdown.Token);
+                }
             }
+        }
+        catch (ObjectDisposedException ex) {
+            LazyLogger.Value?.LogDebug(ex, "WebView message pump observed disposed dependencies; stopping.");
         }
         catch (ChannelClosedException ex) {
             LazyLogger.Value?.LogDebug(ex, "WebView message channel closed; stopping message pump.");
@@ -233,23 +254,27 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     }
 
     protected override async ValueTask DisposeAsyncCore() {
+        if (Interlocked.Exchange(ref _disposeStarted, 1) != 0) return;
+
+        _messagePumpShutdown.Cancel();
+        _channel.Writer.TryComplete();
+
         try {
             await base.DisposeAsyncCore();
         }
         finally {
-            try { _channel.Writer.Complete(); }
-            catch (ChannelClosedException ex) {
-                LazyLogger.Value?.LogDebug(ex, "Channel was already closed during dispose.");
-            }
-
             try {
-                await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
+                await _messagePumpTask.WaitAsync(TimeSpan.FromMilliseconds(250));
             }
             catch (TimeoutException ex) {
-                LazyLogger.Value?.LogWarning(ex, "Timed out while waiting for WebView message pump shutdown.");
+                LazyLogger.Value?.LogDebug(ex, "Timed out while waiting for WebView message pump shutdown.");
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 LazyLogger.Value?.LogWarning(ex, "Message pump faulted during WebView manager shutdown." );
+            }
+            finally {
+                _messagePumpShutdown.Dispose();
+                Volatile.Write(ref _disposed, 1);
             }
         }
     }
