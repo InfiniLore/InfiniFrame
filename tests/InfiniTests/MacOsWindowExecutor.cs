@@ -9,18 +9,21 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public sealed class MacOsWindowExecutor : ITestExecutor {
+    private const string LibDispatch = "/usr/lib/system/libdispatch.dylib";
+    private const string LibSystem = "/usr/lib/libSystem.dylib";
+
     private static readonly Lazy<IntPtr> MainQueue = new(dispatch_get_main_queue);
     private static readonly DispatchWorkCallback DispatchWork = InvokeDispatchWork;
     private static readonly IntPtr DispatchWorkPointer = Marshal.GetFunctionPointerForDelegate(DispatchWork);
     private static readonly TimeSpan MainQueueTimeout = TimeSpan.FromSeconds(30);
 
-    [DllImport("/usr/lib/libSystem.dylib")]
+    [DllImport(LibDispatch)]
     private static extern IntPtr dispatch_get_main_queue();
 
-    [DllImport("/usr/lib/libSystem.dylib")]
+    [DllImport(LibDispatch)]
     private static extern void dispatch_async_f(IntPtr queue, IntPtr context, IntPtr work);
 
-    [DllImport("/usr/lib/libSystem.dylib")]
+    [DllImport(LibSystem)]
     private static extern int pthread_main_np();
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -33,20 +36,12 @@ public sealed class MacOsWindowExecutor : ITestExecutor {
         TestContext context,
         Func<ValueTask> action
     ) {
-        if (!OperatingSystem.IsMacOS()) {
-            await action();
-            return;
-        }
-
-        if (pthread_main_np() == 1) {
+        if (!OperatingSystem.IsMacOS() || pthread_main_np() == 1) {
             await action();
             return;
         }
 
         await DispatchToMainQueueAsync(action);
-    }
-
-    public static void CaptureMainThread(AssemblyHookContext context) {
     }
 
     private static async ValueTask DispatchToMainQueueAsync(Func<ValueTask> action) {
