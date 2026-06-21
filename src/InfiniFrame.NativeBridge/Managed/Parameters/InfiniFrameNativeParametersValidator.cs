@@ -33,6 +33,36 @@ public sealed class InfiniFrameNativeParametersValidator
             )
             .WithMessage("No initial URL or HTML string was supplied in StartUrl or StartString for the browser control to navigate to.");
 
+        RuleFor(p => p.Width)
+            .GreaterThan(0)
+            .When(p => !p.UseOsDefaultSize)
+            .WithMessage("Width must be greater than zero when UseOsDefaultSize is false.");
+
+        RuleFor(p => p.Height)
+            .GreaterThan(0)
+            .When(p => !p.UseOsDefaultSize)
+            .WithMessage("Height must be greater than zero when UseOsDefaultSize is false.");
+
+        RuleFor(p => p.Width)
+            .LessThan(int.MaxValue)
+            .When(p => !p.UseOsDefaultSize)
+            .WithMessage("Width must be less than Int32.MaxValue.");
+
+        RuleFor(p => p.Height)
+            .LessThan(int.MaxValue)
+            .When(p => !p.UseOsDefaultSize)
+            .WithMessage("Height must be less than Int32.MaxValue.");
+
+        RuleFor(p => p.Left)
+            .Must(value => value is not int.MinValue and not int.MaxValue)
+            .When(p => !p.UseOsDefaultLocation)
+            .WithMessage("Left must be a finite coordinate value.");
+
+        RuleFor(p => p.Top)
+            .Must(value => value is not int.MinValue and not int.MaxValue)
+            .When(p => !p.UseOsDefaultLocation)
+            .WithMessage("Top must be a finite coordinate value.");
+
         RuleFor(p => p)
             .Must(p => p is not { Maximized: true, Minimized: true })
             .WithMessage("Maximized and Minimized cannot be set to true at the same time.");

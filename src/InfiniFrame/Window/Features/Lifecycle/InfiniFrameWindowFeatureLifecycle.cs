@@ -16,7 +16,7 @@ public class InfiniFrameWindowFeatureLifecycle(
     IInfiniFrameWindow window,
     ILogger<InfiniFrameWindowFeatureLifecycle> logger,
     IValidator<InfiniFrameNativeParameters> validator
-) : IInfiniFrameWindowFeatureLifecycle {
+) : IInfiniFrameWindowFeatureLifecycle, IDisposable {
     private enum LifecycleStatus {
         Undefined = 0,
         Closing = 1,
@@ -24,6 +24,8 @@ public class InfiniFrameWindowFeatureLifecycle(
     }
     
     private int _lifecycleState = (int)LifecycleStatus.Undefined;
+    private int _disposed;
+    private int _nativeCallbackRootReleased;
 
     private LifecycleStatus LifecycleState {
         get => (LifecycleStatus)Volatile.Read(ref _lifecycleState);
@@ -33,15 +35,33 @@ public class InfiniFrameWindowFeatureLifecycle(
     // Holds the native handle after MarkAsClosed zeros InstanceHandle but before Dispose frees it.
     private IntPtr _cleanupHandle = IntPtr.Zero;
 
+    ~InfiniFrameWindowFeatureLifecycle() {
+        Dispose(false);
+    }
+
     /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.CleanupNativeHandle"/>
     void IInfiniFrameWindowFeatureLifecycle.CleanupNativeHandle() {
+        Dispose();
+    }
+
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing) {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+
         IntPtr handle = Interlocked.Exchange(ref _cleanupHandle, IntPtr.Zero);
 
         try {
             if (handle != IntPtr.Zero) InfiniFrameNative.Destructor(handle);
         }
+        catch (Exception ex) when (!disposing && ExceptionsUtility.IsNonFatalException(ex)) {
+            logger.LogTrace(ex, "Ignoring non-fatal exception while finalizing lifecycle cleanup.");
+        }
         finally {
-            window.Events.ReleaseNativeCallbackRoot();
+            ReleaseNativeCallbackRootOnce();
         }
     }
     
@@ -166,7 +186,10 @@ public class InfiniFrameWindowFeatureLifecycle(
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.Close"/>
     public void Close() {
-        if (Interlocked.Exchange(ref _lifecycleState, 1) != 0) {
+        if (Interlocked.CompareExchange(
+                ref _lifecycleState,
+                (int)LifecycleStatus.Closing,
+                (int)LifecycleStatus.Undefined) != (int)LifecycleStatus.Undefined) {
             logger.LogDebug("Skipping Close during shutdown");
             return;
         }
@@ -177,15 +200,11 @@ public class InfiniFrameWindowFeatureLifecycle(
         IntPtr handle = window.InstanceHandle;
         if (handle == IntPtr.Zero) {
             logger.LogDebug("Skipping Close because window is not initialized");
+            LifecycleState = LifecycleStatus.Closed;
             return;
         }
 
-        NativeInvoke.InvokeSyncWithValidation(
-            logger,
-            window.InstanceHandle, 
-            window.ManagedThreadId,
-            InfiniFrameNative.Close
-        );
+        NativeInvoke.InvokeSyncWithValidation(logger, handle, window.ManagedThreadId, InfiniFrameNative.Close);
         MarkAsClosed();
     }
 
@@ -203,15 +222,18 @@ public class InfiniFrameWindowFeatureLifecycle(
 
     /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.MarkAsClosed"/>
     void IInfiniFrameWindowFeatureLifecycle.MarkAsClosed() {
+        if (Interlocked.Exchange(ref _lifecycleState, (int)LifecycleStatus.Closed) == (int)LifecycleStatus.Closed) {
+            return;
+        }
+
         IntPtr handle = window.InstanceHandle;
         window.InstanceHandle = IntPtr.Zero;
-        LifecycleState = LifecycleStatus.Closed;
 
-        if (OperatingSystem.IsLinux()) {
+        if (OperatingSystem.IsLinux() && handle != IntPtr.Zero) {
             // Destructor is intentionally NOT called here — MarkAsClosed runs inside the GTK "destroy" signal handler.
             // Calling InfiniFrameNative.Destructor from inside a GTK signal handler triggers a SIGABRT in WebKit or a
             // deadlock when the next WebKitWebView is created. The native object is freed later via CleanupNativeHandle.
-            _cleanupHandle = handle;
+            _ = Interlocked.CompareExchange(ref _cleanupHandle, handle, IntPtr.Zero);
         }
     }
 
@@ -219,5 +241,16 @@ public class InfiniFrameWindowFeatureLifecycle(
     public bool IsClosedOrClosing() {
         if (LifecycleState is LifecycleStatus.Closed or LifecycleStatus.Closing) return true;
         return window.InstanceHandle == IntPtr.Zero;
+    }
+
+    private void ReleaseNativeCallbackRootOnce() {
+        if (Interlocked.Exchange(ref _nativeCallbackRootReleased, 1) != 0) return;
+
+        try {
+            window.Events.ReleaseNativeCallbackRoot();
+        }
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+            logger.LogTrace(ex, "Ignoring non-fatal exception while releasing native callback root.");
+        }
     }
 }

@@ -4,6 +4,7 @@
 using Microsoft.Extensions.Logging;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace InfiniFrame.NativeBridge;
 // ---------------------------------------------------------------------------------------------------------------------
@@ -13,8 +14,13 @@ namespace InfiniFrame.NativeBridge;
 ///     Provides helper methods for invoking native interop calls synchronously on the correct thread,
 ///     with optional argument validation and error handling.
 /// </summary>
-internal static class NativeInvoke {
+internal static partial class NativeInvoke {
     private const string NoNativeMessage = "No native error message provided.";
+    private static readonly Regex MemoryAddressRegex = GeneratedMemoryAddressRegex();
+    private static readonly Regex WindowsPathRegex = GeneratedWindowsPathRegex();
+    private static readonly Regex UnixPathRegex = GeneratedUnixPathRegex();
+    private static readonly Regex UserHomeRegex = GeneratedUserHomeRegex();
+    private static readonly Regex SecretPairRegex = GeneratedSecretPairRegex();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -816,7 +822,7 @@ internal static class NativeInvoke {
         // If the callback is being executed on the same thread, we can execute it synchronously.
         if (Environment.CurrentManagedThreadId == managedThreadId) {
             try {
-                logger.LogDebug("Executing callback on same thread");
+                logger.LogTrace("Executing callback on same thread");
                 result = callback();
             }
             catch (Exception ex) {
@@ -829,7 +835,7 @@ internal static class NativeInvoke {
 
         // Otherwise, we need to execute it on the window thread.
         else {
-            logger.LogDebug("Executing callback on window thread. Marshalling to C++ native cobebase.");
+            logger.LogTrace("Executing callback on window thread. Marshalling to C++ native cobebase.");
             InfiniFrameNative.Invoke(windowInstanceHandle, callback: () => {
                 try {
                     result = callback();
@@ -859,20 +865,21 @@ internal static class NativeInvoke {
         int fallbackLastError = Marshal.GetLastPInvokeError();
 
         if (status is InfiniFrameNativeInteropStatus.Success && fallbackLastError is 0) {
-            logger.LogDebug("Native interop call succeeded with no error.");
+            logger.LogTrace("Native interop call succeeded with no error.");
             return;
         }
 
-        logger.LogCritical("Native interop call failed with unknown status state. Fallback last error {FallbackLastError} whilst the received status is {FallbackStatus}", fallbackLastError, status);
+        string sanitizedStatus = Sanitize(status.ToString());
+        logger.LogCritical("Native interop call failed with unknown status state. Fallback last error {FallbackLastError} whilst the received status is {FallbackStatus}", fallbackLastError, sanitizedStatus);
 
         string message;
         string? foundMessage = InfiniFrameNative.GetLastErrorMessage();
         if (foundMessage is not null) {
-            logger.LogDebug("Native interop call failed with error: {FoundMessage}", foundMessage);
+            logger.LogTrace("Native interop call failed with error: {FoundMessage}", foundMessage);
             message = foundMessage;
         }
         else {
-            logger.LogDebug("Native interop call failed with no error message.");
+            logger.LogTrace("Native interop call failed with no error message.");
             message = NoNativeMessage;
         }
 
@@ -880,11 +887,26 @@ internal static class NativeInvoke {
         InfiniFrameNativeInteropStatus actualStatus = status;
         if (foundMessage is not null) {
             actualStatus = InfiniFrameNativeInteropStatus.OperationFailed;
-            logger.LogDebug("Overwriting original status of {InfiniFrameNativeInteropStatus} with {ActualStatus}", status, actualStatus);
+            logger.LogTrace("Overwriting original status of {InfiniFrameNativeInteropStatus} with {ActualStatus}", status, actualStatus);
         }
 
-        logger.LogCritical("Native interop call failed with unknown status state. Fallback last error {FallbackLastError}. {FallbackMessage} {FallbackStatus}", fallbackLastError, message, actualStatus);
-        throw new ApplicationException($"Native interop call failed with unknown status state. Fallback last error {fallbackLastError}. {message} {actualStatus}");
+        string sanitizedMessage = Sanitize(message);
+        string sanitizedActualStatus = Sanitize(actualStatus.ToString());
+
+        logger.LogCritical("Native interop call failed with unknown status state. Fallback last error {FallbackLastError}. {FallbackMessage} {FallbackStatus}", fallbackLastError, sanitizedMessage, sanitizedActualStatus);
+        throw new ApplicationException($"Native interop call failed with unknown status state. Fallback last error {fallbackLastError}. {sanitizedMessage} {sanitizedActualStatus}");
+    }
+
+    private static string Sanitize(string message) {
+        if (string.IsNullOrWhiteSpace(message)) return NoNativeMessage;
+
+        string sanitized = MemoryAddressRegex.Replace(message, "<address>");
+        sanitized = WindowsPathRegex.Replace(sanitized, "<path>");
+        sanitized = UnixPathRegex.Replace(sanitized, "<path>");
+        sanitized = UserHomeRegex.Replace(sanitized, "/<user>");
+        sanitized = SecretPairRegex.Replace(sanitized, "$1=<redacted>");
+
+        return sanitized;
     }
 
     /// <summary>
@@ -964,4 +986,15 @@ internal static class NativeInvoke {
     ///     Represents a native interop callback with eight arguments.
     /// </summary>
     internal delegate InfiniFrameNativeInteropStatus FuncWithArgs<in T1, in T2, in T3, in T4, in T5, in T6, in T7, in T8>(IntPtr handle, T1 arg, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8);
+
+    [GeneratedRegex(@"0x[0-9A-Fa-f]+", RegexOptions.Compiled)]
+    private static partial Regex GeneratedMemoryAddressRegex();
+    [GeneratedRegex(@"[A-Za-z]:\\[^\s""']+", RegexOptions.Compiled)]
+    private static partial Regex GeneratedWindowsPathRegex();
+    [GeneratedRegex(@"(?<![A-Za-z0-9+.-]:)(?:/[^/\s""']+){2,}", RegexOptions.Compiled)]
+    private static partial Regex GeneratedUnixPathRegex();
+    [GeneratedRegex(@"(?i)(?:^|[\\/])(users|home)[\\/][^\\/:\s""']+", RegexOptions.Compiled, "en-US")]
+    private static partial Regex GeneratedUserHomeRegex();
+    [GeneratedRegex(@"(?i)\b(token|api[_-]?key|secret|password|passwd|pwd|bearer)\b\s*[:=]\s*[^\s,;""']+", RegexOptions.Compiled, "en-US")]
+    private static partial Regex GeneratedSecretPairRegex();
 }
