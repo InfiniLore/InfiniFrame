@@ -107,7 +107,7 @@ public static class PlaywrightConnectionUtility {
     ///     Creates the CDP connection URL for the given port.
     /// </summary>
     public static Uri CreateCdpConnectionUrl(int port)
-        => new($"https://{LoopbackAddress}:{port}");
+        => new($"http://{LoopbackAddress}:{port}");
 
     public static async Task<IPlaywright> CreatePlaywrightAsync(TimeSpan timeout = default) {
         if (timeout == TimeSpan.Zero)

@@ -79,10 +79,7 @@ public class TryGetRemoteDebuggingEndpointTests {
             return;
         }
 
-        Uri expectedEndpoint = new(
-            $"{(OperatingSystem.IsLinux() ? "http" : "https")}://127.0.0.1:{value}",
-            UriKind.Absolute
-        );
+        Uri expectedEndpoint = new($"http://127.0.0.1:{value}", UriKind.Absolute);
         await Assert.That(endpoint).IsNotNull();
         await Assert.That(endpoint).IsEqualTo(expectedEndpoint);
     }

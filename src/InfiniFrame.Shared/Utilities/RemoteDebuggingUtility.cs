@@ -87,10 +87,8 @@ internal static partial class RemoteDebuggingUtility {
     /// </summary>
     /// <param name="port">The remote debugging port.</param>
     /// <returns>The endpoint URI.</returns>
-    public static Uri CreateEndpointUri(int port) {
-        string scheme = OperatingSystem.IsLinux() ? "http" : "https";
-        return new Uri($"{scheme}://{LoopbackAddress}:{port}", UriKind.Absolute);
-    }
+    public static Uri CreateEndpointUri(int port)
+        => new($"http://{LoopbackAddress}:{port}", UriKind.Absolute);
 
     /// <summary>
     ///     Attempts to probe a remote debugging endpoint to check if it is reachable.
