@@ -4,19 +4,20 @@
 using Microsoft.Testing.Platform.Builder;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Assembly = System.Reflection.Assembly;
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-internal static class MacOsTestingPlatformEntryPoint {
-    [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
-    private static extern IntPtr CFRunLoopGetMain();
+internal static partial class MacOsTestingPlatformEntryPoint {
+    [LibraryImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
+    private static partial IntPtr CFRunLoopGetMain();
 
-    [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
-    private static extern void CFRunLoopRun();
+    [LibraryImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
+    private static partial void CFRunLoopRun();
 
-    [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
-    private static extern void CFRunLoopStop(IntPtr runLoop);
+    [LibraryImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
+    private static partial void CFRunLoopStop(IntPtr runLoop);
 
     public static async Task<int> Main(string[] args) {
         if (!OperatingSystem.IsMacOS())
@@ -48,14 +49,13 @@ internal static class MacOsTestingPlatformEntryPoint {
     }
 
     private static void AddSelfRegisteredExtensions(ITestApplicationBuilder builder, string[] args) {
-        System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-        Type? selfRegisteredExtensions = assembly
+        MethodInfo? addExtensions = Assembly.GetExecutingAssembly()
             .GetTypes()
-            .FirstOrDefault(type => type.Name == "SelfRegisteredExtensions");
-
-        MethodInfo? addExtensions = selfRegisteredExtensions?.GetMethod(
-            "AddSelfRegisteredExtensions",
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+            .FirstOrDefault(type => type.Name == "SelfRegisteredExtensions")?
+            .GetMethod(
+                "AddSelfRegisteredExtensions",
+             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static
+            );
 
         if (addExtensions is null)
             throw new InvalidOperationException("Could not find the generated MTP SelfRegisteredExtensions hook.");

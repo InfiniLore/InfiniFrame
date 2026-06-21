@@ -141,6 +141,9 @@
     <Project Path="tests/InfiniAutomationTests.WebApp.React/InfiniAutomationTests.WebApp.React.csproj" />
     <Project Path="tests/InfiniAutomationTests.WebApp.Vue/InfiniAutomationTests.WebApp.Vue.csproj" />
   </Folder>
+  <Folder Name="/tests/testHosts/">
+    <File Path="tests/TestHost/MacOsTestingPlatformEntryPoint.cs" />
+  </Folder>
   <Folder Name="/tests/tools/">
     <Project Path="tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj" />
   </Folder>
