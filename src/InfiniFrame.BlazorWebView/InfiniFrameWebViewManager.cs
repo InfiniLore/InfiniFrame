@@ -229,7 +229,6 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             LazyLogger.Value?.LogError(ex, "Unhandled exception in WebView message pump.");
-            throw;
         }
     }
 
@@ -246,9 +245,11 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
             try {
                 await _messagePumpTask.WaitAsync(TimeSpan.FromSeconds(5));
             }
-            catch (TimeoutException) {
-                LazyLogger.Value?.LogWarning(
-                    "Timed out while waiting for WebView message pump shutdown.");
+            catch (TimeoutException ex) {
+                LazyLogger.Value?.LogWarning(ex, "Timed out while waiting for WebView message pump shutdown.");
+            }
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                LazyLogger.Value?.LogWarning(ex, "Message pump faulted during WebView manager shutdown." );
             }
         }
     }

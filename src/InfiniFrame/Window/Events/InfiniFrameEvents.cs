@@ -4,6 +4,7 @@
 using InfiniFrame.NativeBridge.Delegates;
 using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Drawing;
 
 namespace InfiniFrame;
@@ -11,6 +12,13 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
+    
+    // ReSharper disable once CollectionNeverQueried.Local
+    // Native callbacks can outlive normal managed scopes during teardown/recreation bursts.
+    // Keep event instances rooted for process lifetime to prevent GC of delegate targets that
+    // native code may still invoke.
+    private static readonly ConcurrentDictionary<Guid, InfiniFrameEvents> NativeCallbackRoots = new();
+
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
     public IInfiniFrameEventsStore EventsStore { get; }
     private ILogger<InfiniFrameEvents> Logger { get; }
@@ -54,6 +62,7 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     public void AssignToWindow(IInfiniFrameWindow window) {
         ArgumentNullException.ThrowIfNull(window);
         Sender = window;
+        NativeCallbackRoots.TryAdd(window.Id, this);
     }
 
     public void PopulateFromBuilderEventStore(IInfiniFrameEventsStore eventStore) {
