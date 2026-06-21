@@ -256,11 +256,17 @@ public class InfiniFrameWebViewManager : WebViewManager, IInfiniFrameWebViewMana
     protected override async ValueTask DisposeAsyncCore() {
         if (Interlocked.Exchange(ref _disposeStarted, 1) != 0) return;
 
-        _messagePumpShutdown.Cancel();
+        await _messagePumpShutdown.CancelAsync();
         _channel.Writer.TryComplete();
 
         try {
-            await base.DisposeAsyncCore();
+            // Some tests build and dispose of the app without ever creating a native window.
+            // In that case, disposing the base WebView manager can flow through dispatch paths
+            // that resolve IInfiniFrameWindow and initialize native resources during teardown.
+            // Avoid creating a window while disposing of an app that never ran.
+            if (LazyWindow.IsValueCreated) {
+                await base.DisposeAsyncCore();
+            }
         }
         finally {
             try {
