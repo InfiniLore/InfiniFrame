@@ -184,7 +184,9 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     void IInfiniFrameEvents.ReleaseNativeCallbackRoot() {
         if (CallbackRootId == Guid.Empty) return;
 
-        NativeCallbackRoots.TryRemove(CallbackRootId, out _);
+        // Keep callback roots for process lifetime.
+        // Native platforms can still raise late focus/lifecycle callbacks during teardown/recreation windows,
+        // and releasing the managed target here can trigger reverse-P/Invoke calls on collected delegates.
         CallbackRootId = Guid.Empty;
     }
 }

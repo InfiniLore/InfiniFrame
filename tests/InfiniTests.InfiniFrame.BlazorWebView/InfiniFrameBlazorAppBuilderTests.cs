@@ -15,6 +15,7 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[NotInParallelInfiniTests]
 public class InfiniFrameBlazorAppBuilderTests {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -279,6 +280,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         await Assert.That(window.Configuration.StartupParameters.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
+        await app.DisposeAsync();
     }
 
     [Test]
@@ -310,6 +312,7 @@ public class InfiniFrameBlazorAppBuilderTests {
         await Assert.That(window.Configuration.StartupParameters.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
+        await app.DisposeAsync();
     }
 
     [Test]

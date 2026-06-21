@@ -71,11 +71,9 @@ public class InfiniFrameBlazorApp(
         _disposed = true;
 
         ILogger<InfiniFrameBlazorApp>? logger = null;
-        IInfiniFrameWindow? window = null;
 
         try {
             logger = ServiceProvider.GetService<ILogger<InfiniFrameBlazorApp>>();
-            window = ServiceProvider.GetService<IInfiniFrameWindow>();
 
             UnhandledExceptionRegistration?.Dispose();
 
@@ -91,16 +89,6 @@ public class InfiniFrameBlazorApp(
         }
         catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
             logger?.LogError(e, "Error disposing of InfiniFrameBlazorApp");
-        }
-        finally {
-            try {
-                if (window is InfiniFrameWindow concreteWindow) {
-                    concreteWindow.Dispose();
-                }
-            }
-            catch (Exception e) when (ExceptionsUtility.IsNonFatalException(e)) {
-                logger?.LogWarning(e, "Error while performing fallback window cleanup during app disposal.");
-            }
         }
 
         GC.SuppressFinalize(this);
