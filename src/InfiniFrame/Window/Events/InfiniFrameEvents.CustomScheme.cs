@@ -11,11 +11,11 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents {
     private void ApplyCustomSchemeNames(ref InfiniFrameNativeParameters startupParameters) {
-        var availableHandlers = new HashSet<string>(EventsStore.CustomScheme.Handlers.Select(static item => item.Key), StringComparer.Ordinal);
+        var availableHandlers = new HashSet<string>(EventsStore.CustomScheme.Snapshot.Select(static item => item.Key), StringComparer.Ordinal);
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
         IntPtr[] customSchemeNameArray = CustomSchemeNameMemory.Allocate(
-            EventsStore.CustomScheme.Handlers.Keys.Where(key => seen.Add(key) && availableHandlers.Contains(key))
+            EventsStore.CustomScheme.Snapshot.Keys.Where(key => seen.Add(key) && availableHandlers.Contains(key))
         );
 
         CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);

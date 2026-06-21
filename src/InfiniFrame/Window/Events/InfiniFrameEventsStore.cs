@@ -49,8 +49,8 @@ public record InfiniFrameEventsStore : IInfiniFrameEventsStore {
         CopyHandlers(WebMessageReceived.Snapshot, target.WebMessageReceived.Add);
         CopyHandlers(DebuggingEvent.Snapshot, target.DebuggingEvent.Add);
         CopyHandlers(WebMessagePostData.Snapshot, static (t, item) => t.WebMessagePostData.Add(item.Key, item.Value), target);
-        CopyHandlers(WebMessageGetData.Handlers, static (t, item) => t.WebMessageGetData.Add(item.Key, item.Value), target);
-        CopyHandlers(CustomScheme.Handlers, static (t, item) => t.CustomScheme.Add(item.Key, item.Value), target);
+        CopyHandlers(WebMessageGetData.Snapshot, static (t, item) => t.WebMessageGetData.Add(item.Key, item.Value), target);
+        CopyHandlers(CustomScheme.Snapshot, static (t, item) => t.CustomScheme.Add(item.Key, item.Value), target);
         
         CopyHandlers(WindowClosed.Snapshot, target.WindowClosed.Add);
         CopyHandlers(Closing.Snapshot, target.Closing.Add);
