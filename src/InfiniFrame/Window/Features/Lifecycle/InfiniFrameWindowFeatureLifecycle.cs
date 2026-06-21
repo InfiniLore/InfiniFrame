@@ -36,7 +36,13 @@ public class InfiniFrameWindowFeatureLifecycle(
     /// <inheritdoc cref="IInfiniFrameWindowFeatureLifecycle.CleanupNativeHandle"/>
     void IInfiniFrameWindowFeatureLifecycle.CleanupNativeHandle() {
         IntPtr handle = Interlocked.Exchange(ref _cleanupHandle, IntPtr.Zero);
-        if (handle != IntPtr.Zero) InfiniFrameNative.Destructor(handle);
+
+        try {
+            if (handle != IntPtr.Zero) InfiniFrameNative.Destructor(handle);
+        }
+        finally {
+            window.Events.ReleaseNativeCallbackRoot();
+        }
     }
     
     // -----------------------------------------------------------------------------------------------------------------

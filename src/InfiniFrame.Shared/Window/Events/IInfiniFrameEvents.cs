@@ -114,4 +114,9 @@ public interface IInfiniFrameEvents : IHasInfiniFrameEventsStore {
     ///     Assigns default event callbacks that handle basic window lifecycle.
     /// </summary>
     internal void AssignDefaultEventCallbacks();
+
+    /// <summary>
+    ///     Releases managed callback roots that are kept alive for native interop callback lifetime.
+    /// </summary>
+    internal void ReleaseNativeCallbackRoot();
 }

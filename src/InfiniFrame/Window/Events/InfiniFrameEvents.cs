@@ -12,17 +12,16 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public partial class InfiniFrameEvents : IInfiniFrameEvents {
-    
-    // ReSharper disable once CollectionNeverQueried.Local
+
     // Native callbacks can outlive normal managed scopes during teardown/recreation bursts.
-    // Keep event instances rooted for process lifetime to prevent GC of delegate targets that
-    // native code may still invoke.
+    // This registry is intentionally write/remove only and acts as a GC root for callback targets.
     private static readonly ConcurrentDictionary<Guid, InfiniFrameEvents> NativeCallbackRoots = new();
 
     /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
     public IInfiniFrameEventsStore EventsStore { get; }
     private ILogger<InfiniFrameEvents> Logger { get; }
     private IInfiniFrameWindow? Sender { get; set; }
+    private Guid CallbackRootId { get; set; } = Guid.Empty;
 
     // Keep callback delegates rooted for the native callback lifetime.
     private CppClosedDelegate ClosedHandler { get; }
@@ -37,7 +36,10 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     private CppRestoredDelegate RestoredHandler { get; }
     private CppWebMessageReceivedDelegate WebMessageReceivedHandler { get; }
     private CppWebResourceRequestedDelegate CustomSchemeHandler { get; }
-
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
     public InfiniFrameEvents(IInfiniFrameEventsStore eventsStore, ILogger<InfiniFrameEvents> logger) {
         EventsStore = eventsStore;
         Logger = logger;
@@ -61,8 +63,14 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
     // -----------------------------------------------------------------------------------------------------------------
     public void AssignToWindow(IInfiniFrameWindow window) {
         ArgumentNullException.ThrowIfNull(window);
+
+        if (CallbackRootId != Guid.Empty) {
+            NativeCallbackRoots.TryRemove(CallbackRootId, out _);
+        }
+
         Sender = window;
-        NativeCallbackRoots.TryAdd(window.Id, this);
+        CallbackRootId = window.Id;
+        NativeCallbackRoots[CallbackRootId] = this;
     }
 
     public void PopulateFromBuilderEventStore(IInfiniFrameEventsStore eventStore) {
@@ -171,5 +179,12 @@ public partial class InfiniFrameEvents : IInfiniFrameEvents {
         ArgumentNullException.ThrowIfNull(Sender);
 
         EventsStore.WindowCreated.Invoke(Sender);
+    }
+
+    void IInfiniFrameEvents.ReleaseNativeCallbackRoot() {
+        if (CallbackRootId == Guid.Empty) return;
+
+        NativeCallbackRoots.TryRemove(CallbackRootId, out _);
+        CallbackRootId = Guid.Empty;
     }
 }
