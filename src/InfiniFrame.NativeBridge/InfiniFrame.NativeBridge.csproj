@@ -13,23 +13,25 @@
         <NativeArch Condition="'$(NativeArch)'=='' and '$(PlatformTarget)'=='arm64'">arm64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(PlatformTarget)'=='X64'">x64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(PlatformTarget)'=='x64'">x64</NativeArch>
-        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU'">x64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='X64'">x64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='x64'">x64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='ARM64'">arm64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='arm64'">arm64</NativeArch>
+        <NativeHostArchitecture>$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture)</NativeHostArchitecture>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU' and '$(NativeHostArchitecture)'=='Arm64'">arm64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU' and '$(NativeHostArchitecture)'=='X64'">x64</NativeArch>
+        <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU'">x64</NativeArch>
         
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</NativePlatform>
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</NativePlatform>
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</NativePlatform>
 
-        <NativeStamp>
-            $(MSBuildThisFileDirectory)artifacts/native/$(NativePlatform)/$(NativeArch)/$(Configuration)/.build.stamp
-        </NativeStamp>
         <NativeOutputRoot>$(MSBuildThisFileDirectory)artifacts/native</NativeOutputRoot>
         <InfiniFrameSkipNativeBuild Condition="'$(InfiniFrameSkipNativeBuild)'==''">false</InfiniFrameSkipNativeBuild>
         <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'=='' and '$(Configuration)'=='Debug'">true</InfiniFrameEnableTestExports>
         <InfiniFrameEnableTestExports Condition="'$(InfiniFrameEnableTestExports)'==''">false</InfiniFrameEnableTestExports>
+        <NativeStamp>$(NativeOutputRoot)/$(NativePlatform)/$(NativeArch)/$(Configuration)/.build.$(InfiniFrameEnableTestExports).stamp</NativeStamp>
+        <BeforePack>IncludeNativeArtifactsForPack;IncludeCurrentNativeArtifactsForCopyAndPack;$(BeforePack)</BeforePack>
 
         <WindowsX64>$(NativeOutputRoot)/windows/x64/$(Configuration)</WindowsX64>
         <WindowsArm64>$(NativeOutputRoot)/windows/arm64/$(Configuration)</WindowsArm64>
@@ -83,104 +85,61 @@
         <Content Remove="build/**/*" />
         <None Remove="build/**/*" />
 
-        <NativeSource Include="Native/**/*.cpp" />
-        <NativeSource Include="Native/**/*.h" />
-        <NativeSource Include="Native/**/*.mm" />
+        <NativeSource Include="Native/**/*.cpp"
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+        <NativeSource Include="Native/**/*.h"
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+        <NativeSource Include="Native/**/*.mm"
+                      Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+        <NativeBuildInput Include="@(NativeSource)" />
+        <NativeBuildInput Include="Native/**/CMakeLists.txt"
+                          Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+        <NativeBuildInput Include="Native/**/*.cmake"
+                          Exclude="Native/build/**/*;Native/packages/**/*;Native/cmake-build-*/**/*" />
+        <NativeBuildInput Include="native-build.ps1" />
     </ItemGroup>
 
-    <!-- WINDOWS x64 -->
-    <ItemGroup Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')">
-        <Content Include="$(WindowsX64)/InfiniFrame.Native.dll">
-            <Visible>false</Visible>
-            <Link Condition="'$(NativeArch)'=='x64' and '$(NativePlatform)'=='windows'">InfiniFrame.Native.dll</Link>
-            <PackagePath>runtimes/win-x64/native/</PackagePath>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup Condition="Exists('$(WindowsX64)/WebView2Loader.dll')">
-        <Content Include="$(WindowsX64)/WebView2Loader.dll"
-        >
-            <Visible>false</Visible>
-            <Link Condition="'$(NativeArch)'=='x64' and '$(NativePlatform)'=='windows'">WebView2Loader.dll</Link>
-            <PackagePath>runtimes/win-x64/native/</PackagePath>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-        </Content>
-    </ItemGroup>
-
-    <!-- WINDOWS arm64 -->
-    <ItemGroup Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')">
-        <Content Include="$(WindowsArm64)/InfiniFrame.Native.dll">
-            <Visible>false</Visible>
-            <Link Condition="'$(NativeArch)'=='arm64' and '$(NativePlatform)'=='windows'">InfiniFrame.Native.dll</Link>
-            <PackagePath>runtimes/win-arm64/native/</PackagePath>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')">
-        <Content Include="$(WindowsArm64)/WebView2Loader.dll">
-            <Visible>false</Visible>
-            <Link Condition="'$(NativeArch)'=='arm64' and '$(NativePlatform)'=='windows'">WebView2Loader.dll</Link>
-            <PackagePath>runtimes/win-arm64/native/</PackagePath>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-        </Content>
-    </ItemGroup>
-
-    <!-- LINUX x64 -->
-    <ItemGroup Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')">
-        <Content Include="$(LinuxX64)/InfiniFrame.Native.so">
-            <Visible>false</Visible>
-            <Link Condition="'$(NativeArch)'=='x64' and '$(NativePlatform)'=='linux'">InfiniFrame.Native.so</Link>
-            <PackagePath>runtimes/linux-x64/native/</PackagePath>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-        </Content>
-    </ItemGroup>
-
-    <!-- LINUX arm64 -->
-    <ItemGroup Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')">
-        <Content Include="$(LinuxArm64)/InfiniFrame.Native.so">
-            <Visible>false</Visible>
-            <Link Condition="'$(NativeArch)'=='arm64' and '$(NativePlatform)'=='linux'">InfiniFrame.Native.so</Link>
-            <PackagePath>runtimes/linux-arm64/native/</PackagePath>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-        </Content>
-    </ItemGroup>
-
-    <!-- macOS x64 -->
-    <ItemGroup Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')">
-        <Content Include="$(MacOsX64)/InfiniFrame.Native.dylib">
-            <Visible>false</Visible>
-            <Link Condition="'$(NativeArch)'=='x64' and '$(NativePlatform)'=='osx'">InfiniFrame.Native.dylib</Link>
-            <PackagePath>runtimes/osx-x64/native/</PackagePath>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-        </Content>
-    </ItemGroup>
-
-    <!-- macOS arm64 -->
-    <ItemGroup Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')">
-        <Content Include="$(MacOsArm64)/InfiniFrame.Native.dylib">
-            <Visible>false</Visible>
-            <Link Condition="'$(NativeArch)'=='arm64' and '$(NativePlatform)'=='osx'">InfiniFrame.Native.dylib</Link>
-            <PackagePath>runtimes/osx-arm64/native/</PackagePath>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Pack>true</Pack>
-        </Content>
+    <ItemGroup>
+        <_NativeArtifactForPack Include="$(WindowsX64)/InfiniFrame.Native.dll"
+                                Condition="Exists('$(WindowsX64)/InfiniFrame.Native.dll')">
+            <RuntimeRid>win-x64</RuntimeRid>
+            <LinkName>InfiniFrame.Native.dll</LinkName>
+        </_NativeArtifactForPack>
+        <_NativeArtifactForPack Include="$(WindowsX64)/WebView2Loader.dll"
+                                Condition="Exists('$(WindowsX64)/WebView2Loader.dll')">
+            <RuntimeRid>win-x64</RuntimeRid>
+            <LinkName>WebView2Loader.dll</LinkName>
+        </_NativeArtifactForPack>
+        <_NativeArtifactForPack Include="$(WindowsArm64)/InfiniFrame.Native.dll"
+                                Condition="Exists('$(WindowsArm64)/InfiniFrame.Native.dll')">
+            <RuntimeRid>win-arm64</RuntimeRid>
+            <LinkName>InfiniFrame.Native.dll</LinkName>
+        </_NativeArtifactForPack>
+        <_NativeArtifactForPack Include="$(WindowsArm64)/WebView2Loader.dll"
+                                Condition="Exists('$(WindowsArm64)/WebView2Loader.dll')">
+            <RuntimeRid>win-arm64</RuntimeRid>
+            <LinkName>WebView2Loader.dll</LinkName>
+        </_NativeArtifactForPack>
+        <_NativeArtifactForPack Include="$(LinuxX64)/InfiniFrame.Native.so"
+                                Condition="Exists('$(LinuxX64)/InfiniFrame.Native.so')">
+            <RuntimeRid>linux-x64</RuntimeRid>
+            <LinkName>InfiniFrame.Native.so</LinkName>
+        </_NativeArtifactForPack>
+        <_NativeArtifactForPack Include="$(LinuxArm64)/InfiniFrame.Native.so"
+                                Condition="Exists('$(LinuxArm64)/InfiniFrame.Native.so')">
+            <RuntimeRid>linux-arm64</RuntimeRid>
+            <LinkName>InfiniFrame.Native.so</LinkName>
+        </_NativeArtifactForPack>
+        <_NativeArtifactForPack Include="$(MacOsX64)/InfiniFrame.Native.dylib"
+                                Condition="Exists('$(MacOsX64)/InfiniFrame.Native.dylib')">
+            <RuntimeRid>osx-x64</RuntimeRid>
+            <LinkName>InfiniFrame.Native.dylib</LinkName>
+        </_NativeArtifactForPack>
+        <_NativeArtifactForPack Include="$(MacOsArm64)/InfiniFrame.Native.dylib"
+                                Condition="Exists('$(MacOsArm64)/InfiniFrame.Native.dylib')">
+            <RuntimeRid>osx-arm64</RuntimeRid>
+            <LinkName>InfiniFrame.Native.dylib</LinkName>
+        </_NativeArtifactForPack>
     </ItemGroup>
 
     <!-- ========================================================= -->
@@ -190,7 +149,7 @@
     <Target Name="BuildNative"
             BeforeTargets="DispatchToInnerBuilds;PrepareForBuild"
             Condition="'$(InfiniFrameSkipNativeBuild)' != 'true' and ('$(IsCrossTargetingBuild)' == 'true' or '$(TargetFramework)' != '')"
-            Inputs="@(NativeSource)"
+            Inputs="@(NativeBuildInput)"
             Outputs="$(NativeStamp)">
 
         <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)" />
@@ -198,9 +157,20 @@
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
     </Target>
 
+    <Target Name="IncludeNativeArtifactsForPack"
+            BeforeTargets="_GetPackageFiles"
+            Condition="'@(_NativeArtifactForPack)'!=''">
+        <ItemGroup>
+            <_PackageFiles Include="@(_NativeArtifactForPack)">
+                <PackagePath>runtimes/%(RuntimeRid)/native/%(LinkName)</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
+        </ItemGroup>
+    </Target>
+
     <Target Name="IncludeCurrentNativeArtifactsForCopyAndPack"
             DependsOnTargets="BuildNative"
-            BeforeTargets="GetCopyToOutputDirectoryItems;PrepareForBuild;GenerateNuspec"
+            BeforeTargets="GetCopyToOutputDirectoryItems;PrepareForBuild;_GetPackageFiles"
             Condition="'$(CurrentNativeRuntimeRid)'!=''">
         <ItemGroup>
             <_CurrentNativeArtifact Include="$(CurrentNativeArtifact)"
@@ -214,17 +184,25 @@
                 <RuntimeRid>$(CurrentNativeRuntimeRid)</RuntimeRid>
                 <LinkName>WebView2Loader.dll</LinkName>
             </_CurrentNativeArtifact>
+
+            <_CurrentNativeArtifactAlreadyPackaged Include="@(_NativeArtifactForPack)"
+                                                   Condition="'%(_NativeArtifactForPack.Identity)'=='$(CurrentNativeArtifact)'" />
         </ItemGroup>
 
         <ItemGroup>
-            <Content Include="@(_CurrentNativeArtifact)">
+            <None Include="@(_CurrentNativeArtifact)">
                 <Visible>false</Visible>
                 <Link>%(_CurrentNativeArtifact.LinkName)</Link>
-                <PackagePath>runtimes/%(_CurrentNativeArtifact.RuntimeRid)/native/</PackagePath>
+                <PackagePath>runtimes/%(_CurrentNativeArtifact.RuntimeRid)/native/%(_CurrentNativeArtifact.LinkName)</PackagePath>
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                <Pack>true</Pack>
-            </Content>
+                <Pack>false</Pack>
+            </None>
+            <_PackageFiles Include="@(_CurrentNativeArtifact)"
+                           Condition="'@(_CurrentNativeArtifactAlreadyPackaged)'==''">
+                <PackagePath>runtimes/%(RuntimeRid)/native/%(LinkName)</PackagePath>
+                <BuildAction>Content</BuildAction>
+            </_PackageFiles>
         </ItemGroup>
     </Target>
 
