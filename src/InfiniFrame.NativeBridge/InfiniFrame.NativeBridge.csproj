@@ -21,7 +21,7 @@
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU' and '$(NativeHostArchitecture)'=='Arm64'">arm64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU' and '$(NativeHostArchitecture)'=='X64'">x64</NativeArch>
         <NativeArch Condition="'$(NativeArch)'=='' and '$(Platform)'=='AnyCPU'">x64</NativeArch>
-        
+
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</NativePlatform>
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</NativePlatform>
         <NativePlatform Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</NativePlatform>
