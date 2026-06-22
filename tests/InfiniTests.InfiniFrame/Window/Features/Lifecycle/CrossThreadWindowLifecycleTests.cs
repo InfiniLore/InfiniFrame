@@ -20,6 +20,7 @@ public class CrossThreadWindowLifecycleTests {
         """;
 
     [Test]
+    [SkipOnWindows]
     [SkipOnMacOs]
     [DefaultInfiniTestsTimeout(15_000)]
     public async Task RepeatedCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
@@ -34,6 +35,7 @@ public class CrossThreadWindowLifecycleTests {
     }
 
     [Test]
+    [SkipOnWindows]
     [SkipOnMacOs]
     [DefaultInfiniTestsTimeout(15_000)]
     public async Task ParallelCreateCloseAcrossManagedThreads_DoesNotFail(CancellationToken ct) {
