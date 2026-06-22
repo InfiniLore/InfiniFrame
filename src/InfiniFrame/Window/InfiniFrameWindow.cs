@@ -18,6 +18,7 @@ public sealed class InfiniFrameWindow(
 ) : IInfiniFrameWindow, IDisposable {
     private static readonly Lazy<IntPtr> LazyMainProgramHandle = new(NativeLibrary.GetMainProgramHandle);
     private bool _disposed;
+    private int _managedThreadId = Environment.CurrentManagedThreadId;
     #if NET9_0_OR_GREATER
     private readonly Lock _disposeLock = new();
     #else
@@ -54,7 +55,12 @@ public sealed class InfiniFrameWindow(
     }
     
     /// <inheritdoc cref="IInfiniFrameWindow.ManagedThreadId"/>
-    public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
+    public int ManagedThreadId => Volatile.Read(ref _managedThreadId);
+    /// <inheritdoc cref="IInfiniFrameWindow.SetManagedThreadId"/>
+    void IInfiniFrameWindow.SetManagedThreadId(int managedThreadId) {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(managedThreadId);
+        Volatile.Write(ref _managedThreadId, managedThreadId);
+    }
     
     /// <inheritdoc cref="IInfiniFrameWindow.Id"/>
     public Guid Id { get; } = Guid.NewGuid();

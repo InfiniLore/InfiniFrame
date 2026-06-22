@@ -819,8 +819,10 @@ internal static partial class NativeInvoke {
 
         Marshal.SetLastPInvokeError(0);
 
-        // If the callback is being executed on the same thread, we can execute it synchronously.
-        if (Environment.CurrentManagedThreadId == managedThreadId) {
+        // Linux runtime owns GTK/WebKit on a dedicated native UI thread. Managed thread IDs are not a reliable proxy
+        // for native UI-thread affinity there, so Linux must always marshal through InfiniFrameNative.Invoke.
+        // On Windows/macOS, same-thread execution is still valid and avoids extra dispatch overhead.
+        if (!OperatingSystem.IsLinux() && Environment.CurrentManagedThreadId == managedThreadId) {
             try {
                 logger.LogTrace("Executing callback on same thread");
                 result = callback();

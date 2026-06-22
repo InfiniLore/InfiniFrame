@@ -50,9 +50,14 @@ public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore {
     IntPtr WindowHandle { get; }
     
     /// <summary>
-    ///     Gets the managed thread ID on which this window was created.
+    ///     Gets the managed thread ID that owns window invoke dispatching.
     /// </summary>
     int ManagedThreadId { get; }
+
+    /// <summary>
+    ///     Updates the managed thread ID used for invoke dispatching.
+    /// </summary>
+    internal void SetManagedThreadId(int managedThreadId);
     
     /// <summary>
     ///     Gets the unique identifier for this window instance.

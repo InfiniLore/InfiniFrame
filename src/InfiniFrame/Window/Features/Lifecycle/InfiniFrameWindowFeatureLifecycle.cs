@@ -129,6 +129,12 @@ public class InfiniFrameWindowFeatureLifecycle(
                 
                 ArgumentOutOfRangeException.ThrowIfZero(handle);
                 window.InstanceHandle = handle;
+
+                if (OperatingSystem.IsLinux()) {
+                    NativeInvoke.InvokeSyncWithValidation(logger, handle, window.ManagedThreadId, () => {
+                        window.SetManagedThreadId(Environment.CurrentManagedThreadId);
+                    });
+                }
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
                 int lastError = Marshal.GetLastPInvokeError();
