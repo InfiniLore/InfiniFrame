@@ -56,7 +56,9 @@ public class InfiniFrameWindowBuilderFeatureDecorations : IInfiniFrameWindowBuil
         parameters.Chromeless = IsChromeless;
         parameters.Transparent = IsTransparent;
         parameters.Title = Title;
-        parameters.WindowIconFile = IconFilePath;
+        parameters.WindowIconFile = IconFileUtility.TryResolveIconFilePath(IconFilePath, out string? resolvedIconFilePath)
+            ? resolvedIconFilePath
+            : null;
         // parameters.LimitLinuxWindowTitleLength = LimitLinuxWindowTitleLength; // Not a C++ parameter.
     }
 }

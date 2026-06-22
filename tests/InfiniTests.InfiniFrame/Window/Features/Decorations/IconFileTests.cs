@@ -10,15 +10,21 @@ namespace InfiniTests.InfiniFrame.Window.Features.Decorations;
 // ---------------------------------------------------------------------------------------------------------------------
 public class IconFileTests {
     [Test]
-    [Arguments("C:/temp/infiniframe-icon-a.ico")]
-    [Arguments("C:/temp/infiniframe-icon-b.ico")]
-    public async Task AtBuilderStage_DirectAssignment(string value, CancellationToken ct) {
+    public async Task AtBuilderStage_DirectAssignment_ResolvesIconForNativeParameters(CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
+        string value = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.ico");
 
         // Act
-        builder.Features.Decorations.SetIconFile(value);
-        InfiniFrameNativeParameters initParameters = builder.CollectNativeParameters();
+        InfiniFrameNativeParameters initParameters;
+        try {
+            await File.WriteAllTextAsync(value, "icon", ct);
+            builder.Features.Decorations.SetIconFile(value);
+            initParameters = builder.CollectNativeParameters();
+        }
+        finally {
+            File.Delete(value);
+        }
 
         // Assert
         await Assert.That(builder.Features.Decorations.IconFilePath).IsEqualTo(value);
@@ -26,11 +32,10 @@ public class IconFileTests {
     }
 
     [Test]
-    [Arguments("C:/temp/infiniframe-icon-c.ico")]
-    [Arguments("C:/temp/infiniframe-icon-d.ico")]
-    public async Task AtBuilderStage_ExtensionAssignment(string value, CancellationToken ct) {
+    public async Task AtBuilderStage_ExtensionAssignment_InvalidPath_DoesNotPassIconToNativeParameters(CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
+        const string value = "missing.ico";
 
         // Act
         IInfiniFrameWindowBuilder returnedBuilder = builder.SetIconFile(value);
@@ -39,7 +44,7 @@ public class IconFileTests {
         // Assert
         await Assert.That(builder.Features.Decorations.IconFilePath).IsEqualTo(value);
         await Assert.That(returnedBuilder).IsSameReferenceAs(builder);
-        await Assert.That(initParameters.WindowIconFile).IsEqualTo(value);
+        await Assert.That(initParameters.WindowIconFile).IsNull();
     }
 
     [Test]
