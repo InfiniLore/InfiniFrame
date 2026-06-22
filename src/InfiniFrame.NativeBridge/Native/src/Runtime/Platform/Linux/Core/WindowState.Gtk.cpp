@@ -4,6 +4,7 @@
 #include <format>
 #include <string_view>
 
+#include "Runtime/Platform/Linux/Core/GtkCallbackGuard.h"
 #include "Runtime/Shared/Utilities/StringCopy.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
@@ -156,17 +157,22 @@ static std::string escapeJsonString(std::string_view input) {
 }
 
 static void webview_eval_finished(GObject* object, GAsyncResult* result, gpointer) {
-    GError* error = nullptr;
-    webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
-    if (error) {
-        g_warning("JavaScript evaluation failed: %s", error->message);
-        g_error_free(error);
-    }
+    infiniframe::linux_gtk::RunGtkCallbackNoThrow("evaluate-javascript-finished", [&] {
+        if (object == nullptr || result == nullptr)
+            return;
+
+        GError* error = nullptr;
+        webkit_web_view_evaluate_javascript_finish(WEBKIT_WEB_VIEW(object), result, &error);
+        if (error) {
+            g_warning("JavaScript evaluation failed: %s", error->message);
+            g_error_free(error);
+        }
+    });
 }
 
 void InfiniFrameWindow::FlushPendingWebMessages() {
     m_impl->_webviewReady = true;
-    if (m_impl->_pendingWebMessages.empty())
+    if (m_impl->_pendingWebMessages.empty() || m_impl->_webviewClosed || m_impl->_webview == nullptr)
         return;
 
     for (const auto& js : m_impl->_pendingWebMessages) {
@@ -178,6 +184,9 @@ void InfiniFrameWindow::FlushPendingWebMessages() {
 }
 
 void InfiniFrameWindow::SendWebMessage(const AutoString message) {
+    if (m_impl->_webviewClosed || m_impl->_webview == nullptr)
+        return;
+
     std::string escaped = escapeJsonString(message ? message : "");
 
     std::string js;
