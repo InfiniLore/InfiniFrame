@@ -70,9 +70,9 @@ public class NativeInvokeTests {
             window.ManagedThreadId,
             (h, out v) => {
                 received = h;
-            v = 0;
-            return InfiniFrameNativeInteropStatus.Success;
-        });
+                v = 0;
+                return InfiniFrameNativeInteropStatus.Success;
+            });
 
         // Assert
         await Assert.That(received).IsEqualTo(expectedHandle);

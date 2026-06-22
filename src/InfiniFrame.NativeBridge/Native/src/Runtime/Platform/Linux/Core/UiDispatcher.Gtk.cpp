@@ -10,9 +10,6 @@ void InfiniFrameWindow::Invoke(const ACTION callback) {
     if (callback == nullptr) {
         return;
     }
-    if (IsDestroyed()) {
-        return;
-    }
 
     infiniframe::linux_gtk::ui_thread::InvokeSync([callback] { callback(); });
 }
