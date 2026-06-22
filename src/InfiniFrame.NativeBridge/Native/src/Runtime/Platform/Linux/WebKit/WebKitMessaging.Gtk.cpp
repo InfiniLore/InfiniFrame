@@ -14,6 +14,8 @@ namespace gtk_webkit {
     void HandleWebMessage(
         WebKitUserContentManager* contentManager, WebKitJavascriptResult* jsResult, const gpointer userData
     ) {
+        (void)contentManager;
+
         JSCValue* jsValue = webkit_javascript_result_get_js_value(jsResult);
         if (jsc_value_is_string(jsValue)) {
             AutoString str_value = jsc_value_to_string(jsValue);
@@ -44,6 +46,5 @@ namespace gtk_webkit {
 
             g_free(str_value);
         }
-        webkit_javascript_result_unref(jsResult);
     }
 } 
