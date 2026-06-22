@@ -84,4 +84,13 @@ void InfiniFrameWindow::CloseWebView()
     m_impl->_isClosingOrClosed = true;
     m_impl->_webviewReady = false;
     m_impl->_pendingWebMessages.clear();
+
+    if (m_impl->_webviewConfiguration != nil) {
+        [m_impl->_webviewConfiguration.userContentController removeScriptMessageHandlerForName:@"infiniFrameInterop"];
+    }
+
+    if (m_impl->_webview != nil) {
+        m_impl->_webview.UIDelegate = nil;
+        m_impl->_webview.navigationDelegate = nil;
+    }
 }

@@ -260,7 +260,7 @@ void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
 
 void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 {
-    (void)enabled;
+    m_impl->_contextMenuEnabled = enabled;
 }
 
 void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
@@ -282,7 +282,7 @@ void InfiniFrameWindow::SetUserAgent(AutoString userAgent)
 
 void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 {
-    (void)enabled;
+    m_impl->_zoomEnabled = enabled;
 }
 
 void InfiniFrameWindow::SetIconFile(AutoString filename)
@@ -310,6 +310,12 @@ void InfiniFrameWindow::SetMinimized(bool minimized)
         [m_impl->_window miniaturize: nullptr];
     else
         [m_impl->_window deminiaturize: nullptr];
+
+    NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:0.2];
+    while (m_impl->_window.isMiniaturized != minimized && [deadline timeIntervalSinceNow] > 0.0) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+    }
 }
 
 void InfiniFrameWindow::SetMaximized(bool maximized)

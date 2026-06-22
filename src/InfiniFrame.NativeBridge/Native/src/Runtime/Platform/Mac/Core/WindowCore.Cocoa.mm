@@ -111,9 +111,16 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
         this->m_impl->_ignoreCertificateErrorsEnabled = params->IgnoreCertificateErrorsEnabled;
         this->m_impl->_contextMenuEnabled = params->ContextMenuEnabled;
         this->m_impl->_zoomEnabled = params->ZoomEnabled;
+        this->m_impl->_devToolsEnabled = params->DevToolsEnabled;
         this->m_impl->_webInspectorEnabled = params->WebInspectorEnabled;
         this->m_impl->_grantBrowserPermissions = params->GrantBrowserPermissions;
         this->m_impl->_mediaAutoplayEnabled = params->MediaAutoplayEnabled;
+        this->m_impl->_fileSystemAccessEnabled = params->FileSystemAccessEnabled;
+        this->m_impl->_webSecurityEnabled = params->WebSecurityEnabled;
+        this->m_impl->_javascriptClipboardAccessEnabled = params->JavascriptClipboardAccessEnabled;
+        this->m_impl->_mediaStreamEnabled = params->MediaStreamEnabled;
+        this->m_impl->_smoothScrollingEnabled = params->SmoothScrollingEnabled;
+        this->m_impl->_remoteDebuggingPort = params->RemoteDebuggingPort;
 
         this->m_impl->_webMessageReceivedCallback = params->WebMessageReceivedHandler;
         this->m_impl->_resizedCallback = params->ResizedHandler;
@@ -304,7 +311,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) : m_impl
 
         this->m_impl->_dialog = std::make_unique<InfiniFrameDialog>();
 
-        this->Show(false);
+        bool isAlreadyShown = params->Minimized || params->Maximized;
+        this->Show(isAlreadyShown);
         this->SetFullScreen(params->FullScreen);
     });
 }
@@ -320,6 +328,20 @@ InfiniFrameWindow::~InfiniFrameWindow()
         [m_impl->_nativeParentWindow removeChildWindow:m_impl->_window];
         m_impl->_nativeParentWindow = nil;
     }
+
+    if (m_impl->_webviewConfiguration != nil) {
+        [m_impl->_webviewConfiguration.userContentController removeScriptMessageHandlerForName:@"infiniFrameInterop"];
+    }
+
+    if (m_impl->_webview != nil) {
+        m_impl->_webview.UIDelegate = nil;
+        m_impl->_webview.navigationDelegate = nil;
+    }
+
+    [m_impl->_uiDelegate release];
+    m_impl->_uiDelegate = nil;
+    [m_impl->_navigationDelegate release];
+    m_impl->_navigationDelegate = nil;
 
     [m_impl->_webviewConfiguration release];
     [m_impl->_webview release];
