@@ -185,8 +185,8 @@
                 <LinkName>WebView2Loader.dll</LinkName>
             </_CurrentNativeArtifact>
 
-            <_CurrentNativeArtifactAlreadyPackaged Include="@(_NativeArtifactForPack)"
-                                                   Condition="'%(_NativeArtifactForPack.Identity)'=='$(CurrentNativeArtifact)'" />
+            <_CurrentNativeArtifactToPack Include="@(_CurrentNativeArtifact)" />
+            <_CurrentNativeArtifactToPack Remove="@(_NativeArtifactForPack)" />
         </ItemGroup>
 
         <ItemGroup>
@@ -198,8 +198,7 @@
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
                 <Pack>false</Pack>
             </None>
-            <_PackageFiles Include="@(_CurrentNativeArtifact)"
-                           Condition="'@(_CurrentNativeArtifactAlreadyPackaged)'==''">
+            <_PackageFiles Include="@(_CurrentNativeArtifactToPack)">
                 <PackagePath>runtimes/%(RuntimeRid)/native/%(LinkName)</PackagePath>
                 <BuildAction>Content</BuildAction>
             </_PackageFiles>
