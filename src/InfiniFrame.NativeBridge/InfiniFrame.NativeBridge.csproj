@@ -37,6 +37,19 @@
         <LinuxArm64>$(NativeOutputRoot)/linux/arm64/$(Configuration)</LinuxArm64>
         <MacOsX64>$(NativeOutputRoot)/osx/x64/$(Configuration)</MacOsX64>
         <MacOsArm64>$(NativeOutputRoot)/osx/arm64/$(Configuration)</MacOsArm64>
+
+        <CurrentNativeRuntimeRid Condition="'$(NativePlatform)'=='windows' and '$(NativeArch)'=='x64'">win-x64</CurrentNativeRuntimeRid>
+        <CurrentNativeRuntimeRid Condition="'$(NativePlatform)'=='windows' and '$(NativeArch)'=='arm64'">win-arm64</CurrentNativeRuntimeRid>
+        <CurrentNativeRuntimeRid Condition="'$(NativePlatform)'=='linux' and '$(NativeArch)'=='x64'">linux-x64</CurrentNativeRuntimeRid>
+        <CurrentNativeRuntimeRid Condition="'$(NativePlatform)'=='linux' and '$(NativeArch)'=='arm64'">linux-arm64</CurrentNativeRuntimeRid>
+        <CurrentNativeRuntimeRid Condition="'$(NativePlatform)'=='osx' and '$(NativeArch)'=='x64'">osx-x64</CurrentNativeRuntimeRid>
+        <CurrentNativeRuntimeRid Condition="'$(NativePlatform)'=='osx' and '$(NativeArch)'=='arm64'">osx-arm64</CurrentNativeRuntimeRid>
+
+        <CurrentNativeLibraryName Condition="'$(NativePlatform)'=='windows'">InfiniFrame.Native.dll</CurrentNativeLibraryName>
+        <CurrentNativeLibraryName Condition="'$(NativePlatform)'=='linux'">InfiniFrame.Native.so</CurrentNativeLibraryName>
+        <CurrentNativeLibraryName Condition="'$(NativePlatform)'=='osx'">InfiniFrame.Native.dylib</CurrentNativeLibraryName>
+
+        <CurrentNativeArtifact Condition="'$(CurrentNativeRuntimeRid)'!='' and '$(CurrentNativeLibraryName)'!=''">$(NativeOutputRoot)/$(NativePlatform)/$(NativeArch)/$(Configuration)/$(CurrentNativeLibraryName)</CurrentNativeArtifact>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(InfiniFrameEnableTestExports)' == 'true'">
@@ -183,6 +196,22 @@
         <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)native-build.ps1&quot; $(Configuration) $(NativeArch) $(InfiniFrameEnableTestExports)" />
 
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
+    </Target>
+
+    <Target Name="IncludeCurrentNativeArtifact"
+            AfterTargets="BuildNative"
+            BeforeTargets="PrepareForBuild"
+            Condition="'$(CurrentNativeArtifact)'!='' and Exists('$(CurrentNativeArtifact)')">
+        <ItemGroup>
+            <Content Include="$(CurrentNativeArtifact)">
+                <Visible>false</Visible>
+                <Link>$(CurrentNativeLibraryName)</Link>
+                <PackagePath>runtimes/$(CurrentNativeRuntimeRid)/native/</PackagePath>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                <Pack>true</Pack>
+            </Content>
+        </ItemGroup>
     </Target>
 
     <Target Name="CleanNative" AfterTargets="Clean">
