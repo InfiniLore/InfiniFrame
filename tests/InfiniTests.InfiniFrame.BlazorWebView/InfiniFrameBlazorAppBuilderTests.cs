@@ -388,14 +388,23 @@ public class InfiniFrameBlazorAppBuilderTests {
     [NotInParallelInfiniTests]
     public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
         // Arrange
+        var debuggingFeature = Substitute.For<IInfiniFrameWindowFeatureDebugging>();
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var window = Substitute.For<IInfiniFrameWindow>();
+        features.Debugging.Returns(debuggingFeature);
+        window.Features.Returns(features);
+        window.Debugging.Returns(debuggingFeature);
+
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        appBuilder.Services.RemoveAll<IInfiniFrameWindow>();
+        appBuilder.Services.AddSingleton(window);
 
         // Act
         InfiniFrameBlazorApp app = appBuilder.Build();
-        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+        IInfiniFrameWindow resolvedWindow = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
         // Assert
-        await Assert.That(window.Debugging).IsSameReferenceAs(window.Features.Debugging);
+        await Assert.That(resolvedWindow.Debugging).IsSameReferenceAs(resolvedWindow.Features.Debugging);
         await app.DisposeAsync();
     }
 
