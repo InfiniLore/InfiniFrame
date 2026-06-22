@@ -153,14 +153,25 @@ public class InfiniFrameWindowFeatureLifecycle(
 
         try {
             logger.LogDebug("Starting message loop for window.");
-            window.Features.Invoke.Invoke(() => {
-                if (IsClosedOrClosing()) {
-                    logger.LogDebug("Lifecycle already started whilst dispatching to window thread. Skipping WaitForExit call.");
-                    return;
+            if (OperatingSystem.IsLinux()) {
+                InfiniFrameNativeInteropStatus status = InfiniFrameNative.WaitForExit(window.InstanceHandle);
+                if (status != InfiniFrameNativeInteropStatus.Success) {
+                    int linuxLastError = Marshal.GetLastPInvokeError();
+                    string linuxMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
+                    throw new ApplicationException(
+                        $"Native WaitForExit failed with status {status}. Error #{linuxLastError}. {linuxMessage}");
                 }
-                
-                InfiniFrameNative.WaitForExit(window.InstanceHandle);
-            });
+            }
+            else {
+                window.Features.Invoke.Invoke(() => {
+                    if (IsClosedOrClosing()) {
+                        logger.LogDebug("Lifecycle already started whilst dispatching to window thread. Skipping WaitForExit call.");
+                        return;
+                    }
+                    
+                    InfiniFrameNative.WaitForExit(window.InstanceHandle);
+                });
+            }
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             int lastError = Marshal.GetLastPInvokeError();

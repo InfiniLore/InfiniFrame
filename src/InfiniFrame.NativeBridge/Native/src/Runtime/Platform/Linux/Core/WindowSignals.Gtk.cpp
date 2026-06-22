@@ -125,6 +125,7 @@ gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer se
 
 void on_widget_destroyed(GtkWidget* widget, const gpointer self) {
     auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    instance->MarkDestroyed();
     instance->InvokeClosed();
 }
 

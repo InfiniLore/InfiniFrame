@@ -5,6 +5,26 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+void InfiniFrameWindow::MarkDestroyed() {
+    {
+        std::lock_guard lock(m_impl->_lifecycleMutex);
+        m_impl->_destroyed = true;
+    }
+    m_impl->_window = nullptr;
+    m_impl->_webview = nullptr;
+    m_impl->_lifecycleClosed.notify_all();
+}
+
+bool InfiniFrameWindow::IsDestroyed() const {
+    std::lock_guard lock(m_impl->_lifecycleMutex);
+    return m_impl->_destroyed;
+}
+
+void InfiniFrameWindow::WaitUntilDestroyed() {
+    std::unique_lock lock(m_impl->_lifecycleMutex);
+    m_impl->_lifecycleClosed.wait(lock, [&] { return m_impl->_destroyed; });
+}
+
 void InfiniFrameWindow::Center() {
     gint windowWidth, windowHeight;
     gtk_window_get_size(GTK_WINDOW(m_impl->_window), &windowWidth, &windowHeight);
@@ -50,10 +70,7 @@ void InfiniFrameWindow::Close() {
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    g_signal_connect(
-        G_OBJECT(m_impl->_window), "destroy", G_CALLBACK(+[](GtkWidget*, gpointer) { gtk_main_quit(); }), nullptr
-    );
-    gtk_main();
+    WaitUntilDestroyed();
 }
 
 void InfiniFrameWindow::CloseWebView() {

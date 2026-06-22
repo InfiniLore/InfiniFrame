@@ -1,15 +1,14 @@
+#pragma once
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
-#include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
+#include <functional>
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-void InfiniFrameWindow::Invoke(const ACTION callback) {
-    if (callback == nullptr) {
-        return;
-    }
-
-    infiniframe::linux_gtk::ui_thread::InvokeSync([callback] { callback(); });
+namespace infiniframe::linux_gtk::ui_thread {
+    void EnsureInitialized();
+    bool IsCurrentThread();
+    void InvokeSync(std::function<void()> callback);
 }

@@ -555,6 +555,9 @@ class InfiniFrameWindow {
     void OnConfigureEvent(int x, int y, int width, int height);
     void OnWindowStateEvent(GdkWindowState newState);
     void FlushPendingWebMessages();
+    void MarkDestroyed();
+    bool IsDestroyed() const;
+    void WaitUntilDestroyed();
 
     /**
          * @brief Get the native GTK toplevel window widget
