@@ -198,15 +198,29 @@
         <Touch Files="$(NativeStamp)" AlwaysCreate="true" />
     </Target>
 
-    <Target Name="IncludeCurrentNativeArtifact"
-            AfterTargets="BuildNative"
-            BeforeTargets="PrepareForBuild"
-            Condition="'$(CurrentNativeArtifact)'!='' and Exists('$(CurrentNativeArtifact)')">
+    <Target Name="IncludeCurrentNativeArtifactsForCopyAndPack"
+            DependsOnTargets="BuildNative"
+            BeforeTargets="GetCopyToOutputDirectoryItems;PrepareForBuild;GenerateNuspec"
+            Condition="'$(CurrentNativeRuntimeRid)'!=''">
         <ItemGroup>
-            <Content Include="$(CurrentNativeArtifact)">
+            <_CurrentNativeArtifact Include="$(CurrentNativeArtifact)"
+                                    Condition="Exists('$(CurrentNativeArtifact)')">
+                <RuntimeRid>$(CurrentNativeRuntimeRid)</RuntimeRid>
+                <LinkName>$(CurrentNativeLibraryName)</LinkName>
+            </_CurrentNativeArtifact>
+
+            <_CurrentNativeArtifact Include="$(NativeOutputRoot)/$(NativePlatform)/$(NativeArch)/$(Configuration)/WebView2Loader.dll"
+                                    Condition="'$(NativePlatform)'=='windows' and Exists('$(NativeOutputRoot)/$(NativePlatform)/$(NativeArch)/$(Configuration)/WebView2Loader.dll')">
+                <RuntimeRid>$(CurrentNativeRuntimeRid)</RuntimeRid>
+                <LinkName>WebView2Loader.dll</LinkName>
+            </_CurrentNativeArtifact>
+        </ItemGroup>
+
+        <ItemGroup>
+            <Content Include="@(_CurrentNativeArtifact)">
                 <Visible>false</Visible>
-                <Link>$(CurrentNativeLibraryName)</Link>
-                <PackagePath>runtimes/$(CurrentNativeRuntimeRid)/native/</PackagePath>
+                <Link>%(_CurrentNativeArtifact.LinkName)</Link>
+                <PackagePath>runtimes/%(_CurrentNativeArtifact.RuntimeRid)/native/</PackagePath>
                 <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
                 <Pack>true</Pack>
