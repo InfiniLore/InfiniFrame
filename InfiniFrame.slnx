@@ -125,6 +125,7 @@
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
+    <File Path="tests/Directory.Build.targets" />
     <Project Path="tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj" />
     <Project Path="tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj" />
@@ -139,6 +140,9 @@
     <Project Path="tests/InfiniAutomationTests/InfiniAutomationTests.csproj" />
     <Project Path="tests/InfiniAutomationTests.WebApp.React/InfiniAutomationTests.WebApp.React.csproj" />
     <Project Path="tests/InfiniAutomationTests.WebApp.Vue/InfiniAutomationTests.WebApp.Vue.csproj" />
+  </Folder>
+  <Folder Name="/tests/testHosts/">
+    <File Path="tests/TestHost/MacOsTestingPlatformEntryPoint.cs" />
   </Folder>
   <Folder Name="/tests/tools/">
     <Project Path="tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj" />

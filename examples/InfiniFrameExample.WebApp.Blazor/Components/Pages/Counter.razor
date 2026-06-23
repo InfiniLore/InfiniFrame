@@ -16,7 +16,7 @@
     private void IncrementCount() {
         _currentCount++;
 
-        Window.CenterOnCurrentMonitor();
-        Logger.LogWarning("{a}", Window.ZoomEnabled);
+        Window.Features.Position.CenterOnCurrentMonitor();
+        Logger.LogWarning("{a}", Window.Features.State.IsZoomEnabled);
     }
 }

@@ -1,61 +1,66 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-using InfiniFrame.Debugging;
-using InfiniFrame.NativeBridge.Dialogs;
-using Microsoft.Extensions.Logging;
-using System.Collections.Immutable;
-using System.Drawing;
-
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public interface IInfiniFrameWindow : IHasInfiniFrameProperties, IHasInfiniFrameEventsStore {
-    ILogger<IInfiniFrameWindow> Logger { get; }
-    IServiceProvider? ServiceProvider { get; }
+/// <summary>
+///     Represents the main InfiniFrame window and provides access to its configuration, features, and events.
+/// </summary>
+public interface IInfiniFrameWindow : IHasInfiniFrameEventsStore {
+    /// <summary>
+    ///     Gets the service provider associated with this window.
+    /// </summary>
+    internal IServiceProvider? ServiceProvider { get; }
+    
+    /// <summary>
+    ///     Gets the events manager for handling window lifecycle and user interaction events.
+    /// </summary>
     IInfiniFrameEvents Events { get; }
-    IInfiniFrameWindowDebugging Debugging { get; }
     
-    IInfiniFrameOptions Configuration { get; }
+    /// <summary>
+    ///     Gets the debugging feature for the window.
+    /// </summary>
+    IInfiniFrameWindowFeatureDebugging Debugging { get; }
     
-    IntPtr InstanceHandle { get; }
-    bool IsClosed { get; }
+    /// <summary>
+    ///     Gets the configuration for the window.
+    /// </summary>
+    IInfiniFrameWindowConfiguration Configuration { get; }
+    
+    /// <summary>
+    ///     Gets the collection of features available on this window.
+    /// </summary>
+    IInfiniFrameWindowFeatures Features { get; }
+    
+    /// <summary>
+    ///     Gets the main program handle for the application.
+    /// </summary>
+    IntPtr MainProgramHandle { get; }
+    
+    /// <summary>
+    ///     Gets or sets the native instance handle for the window.
+    /// </summary>
+    IntPtr InstanceHandle { get; internal set; }
+    
+    /// <summary>
+    ///     Gets the native window handle.
+    /// </summary>
     IntPtr WindowHandle { get; }
-    IntPtr NativeType { get; }
-    ImmutableArray<InfiniMonitor> Monitors { get; }
-    InfiniMonitor MainMonitor { get; }
-    uint ScreenDpi { get; }
-    Guid Id { get; }
-    Point Location { get; }
-    Size MaxSize { get; }
-    Size MinSize { get; }
-    Size Size { get; }
+    
+    /// <summary>
+    ///     Gets the managed thread ID that owns window invoke dispatching.
+    /// </summary>
     int ManagedThreadId { get; }
-    Rectangle CachedPreFullScreenBounds { get; internal set; }
-    Rectangle CachedPreMaximizedBounds { get; internal set; }
-    bool Focused { get; }
-    bool IsClosedOrClosing { get; }
 
-    void Invoke(Action workItem);
+    /// <summary>
+    ///     Updates the managed thread ID used for invoke dispatching.
+    /// </summary>
+    internal void SetManagedThreadId(int managedThreadId);
     
-    void WaitForClose();
-    ValueTask WaitForCloseAsync(CancellationToken ct = default);
-    
-    void Close();
-    ValueTask CloseAsync(CancellationToken ct = default);
-    
-    void SendWebMessage(string message);
-    Task SendWebMessageAsync(string message, CancellationToken ct = default);
-    void SendNotification(string title, string body);
-    string?[] ShowOpenFile(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null);
-    Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default);
-    string?[] ShowOpenFolder(string title = "Select folder", string? defaultPath = null, bool multiSelect = false);
-    Task<string?[]> ShowOpenFolderAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default);
-    string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null);
-    Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default);
-    InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info);
-   
-    bool TryResolveStaticAssetUri(string path, out Uri uri);
-    internal void MarkClosedFromNativeCallback();
+    /// <summary>
+    ///     Gets the unique identifier for this window instance.
+    /// </summary>
+    Guid Id { get; }
 }

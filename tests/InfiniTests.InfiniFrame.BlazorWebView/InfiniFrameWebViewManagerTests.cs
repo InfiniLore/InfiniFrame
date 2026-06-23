@@ -14,6 +14,7 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[NotInParallelInfiniTests]
 public class InfiniFrameWebViewManagerTests {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -23,8 +24,12 @@ public class InfiniFrameWebViewManagerTests {
     public async Task SendMessage_AfterDispose_ShouldReturnPromptly(CancellationToken ct = default) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
-        window.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.CompletedTask);
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var webMessaging = Substitute.For<IInfiniFrameWindowFeatureWebMessaging>();
+        window.Features.Returns(features);
+        features.WebMessaging.Returns(webMessaging);
+        webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(ValueTask.CompletedTask);
 
         await using ServiceProvider provider = new ServiceCollection()
             .AddLogging()
@@ -47,7 +52,61 @@ public class InfiniFrameWebViewManagerTests {
 
         // Assert
         await sendTask.WaitAsync(TimeSpan.FromSeconds(1), ct);
-        await window.DidNotReceive().SendWebMessageAsync("late-dispose-message", Arg.Any<CancellationToken>());
+        await webMessaging.DidNotReceive().SendWebMessageAsync("late-dispose-message", Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task SendMessage_ShouldSerializeOutgoingMessages(CancellationToken ct = default) {
+        // Arrange
+        var firstStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        int invocation = 0;
+        var window = Substitute.For<IInfiniFrameWindow>();
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var webMessaging = Substitute.For<IInfiniFrameWindowFeatureWebMessaging>();
+        window.Features.Returns(features);
+        features.WebMessaging.Returns(webMessaging);
+        webMessaging.SendWebMessageAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(_ => {
+                int current = Interlocked.Increment(ref invocation);
+                if (current == 1) {
+                    firstStarted.TrySetResult(true);
+                    return new ValueTask(firstRelease.Task);
+                }
+
+                secondStarted.TrySetResult(true);
+                return ValueTask.CompletedTask;
+            });
+
+        await using ServiceProvider provider = new ServiceCollection()
+            .AddLogging()
+            .AddSingleton(window)
+            .BuildServiceProvider();
+
+        var manager = new TestableInfiniFrameWebViewManager(
+            InfiniFrameWindowBuilder.Create(),
+            provider,
+            Substitute.For<Dispatcher>(),
+            new NullFileProvider(),
+            new JSComponentConfigurationStore(),
+            Options.Create(new InfiniFrameBlazorAppConfiguration())
+        );
+
+        // Act
+        manager.SendMessageForTest("batch-1");
+        manager.SendMessageForTest("batch-2");
+
+        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
+
+        // Assert
+        await Assert.That(secondStarted.Task.IsCompleted).IsFalse();
+
+        firstRelease.TrySetResult(true);
+        await secondStarted.Task.WaitAsync(TimeSpan.FromSeconds(1), ct);
+
+        await manager.DisposeAsync();
     }
 
     private sealed class TestableInfiniFrameWebViewManager(

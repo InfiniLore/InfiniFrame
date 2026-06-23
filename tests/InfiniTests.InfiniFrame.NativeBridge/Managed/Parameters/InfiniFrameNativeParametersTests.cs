@@ -45,8 +45,7 @@ public class InfiniFrameNativeParametersTests {
         try {
             var parameters = new InfiniFrameNativeParameters {
                 StartUrl = "https://example.org",
-                CustomSchemeNames = customSchemeNames,
-                Size = Marshal.SizeOf<InfiniFrameNativeParameters>()
+                CustomSchemeNames = customSchemeNames
             };
 
             InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr newParameters);
@@ -138,12 +137,11 @@ public class InfiniFrameNativeParametersTests {
                 SmoothScrollingEnabled = true,
                 IgnoreCertificateErrorsEnabled = true,
                 NotificationsEnabled = true,
-                Size = Marshal.SizeOf<InfiniFrameNativeParameters>(),
                 ZoomEnabled = true
             };
 
             // Act
-            var status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr tempPtr );
+            InfiniFrameNativeInteropStatus status = InfiniFrameNativeTesting.NativeParametersReturnAsIsPtr(ref parameters, out IntPtr tempPtr );
             await Assert.That(status).IsEqualTo(InfiniFrameNativeInteropStatus.Success);
 
             newParametersPtr = tempPtr;
@@ -151,12 +149,12 @@ public class InfiniFrameNativeParametersTests {
 
             // Assert
             for (int i = 0; i < parameters.CustomSchemeNames.Length; i++) {
-                string? expected = parameters.CustomSchemeNames[i] == IntPtr.Zero
-                    ? null
-                    : Marshal.PtrToStringAnsi(parameters.CustomSchemeNames[i]);
-                string? actual = newParameters.CustomSchemeNames[i] == IntPtr.Zero
-                    ? null
-                    : Marshal.PtrToStringAnsi(newParameters.CustomSchemeNames[i]);
+                string? expected = parameters.CustomSchemeNames[i] != IntPtr.Zero
+                    ? Marshal.PtrToStringAnsi(parameters.CustomSchemeNames[i])
+                    : null;
+                string? actual = newParameters.CustomSchemeNames[i] != IntPtr.Zero
+                    ? Marshal.PtrToStringAnsi(newParameters.CustomSchemeNames[i])
+                    : null;
                 await Assert.That(actual).IsEqualTo(expected);
             }
 

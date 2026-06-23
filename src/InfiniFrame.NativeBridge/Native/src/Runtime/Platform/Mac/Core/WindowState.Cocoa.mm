@@ -12,6 +12,25 @@
 
 static const int MAX_WINDOW_DIMENSION = 10000;
 
+void InfiniFrameWindow::ApplyMediaAutoplayConfiguration()
+{
+    if (m_impl == nullptr || m_impl->_webviewConfiguration == nil)
+        return;
+
+    SEL selector = NSSelectorFromString(@"setMediaTypesRequiringUserActionForPlayback:");
+    if (![m_impl->_webviewConfiguration respondsToSelector: selector])
+        return;
+
+    using SetMediaTypesFn = void (*)(id, SEL, NSUInteger);
+    auto setter = reinterpret_cast<SetMediaTypesFn>(
+        [m_impl->_webviewConfiguration methodForSelector: selector]);
+
+    const NSUInteger mediaTypesMask =
+        m_impl->_mediaAutoplayEnabled ? 0u : NSUIntegerMax;
+
+    setter(m_impl->_webviewConfiguration, selector, mediaTypesMask);
+}
+
 void InfiniFrameWindow::GetTransparentEnabled(bool* enabled) const
 {
     *enabled = false;
@@ -241,12 +260,29 @@ void InfiniFrameWindow::SetTransparentEnabled(bool enabled)
 
 void InfiniFrameWindow::SetContextMenuEnabled(bool enabled)
 {
-    (void)enabled;
+    m_impl->_contextMenuEnabled = enabled;
+}
+
+void InfiniFrameWindow::SetMediaAutoplayEnabled(bool enabled)
+{
+    m_impl->_mediaAutoplayEnabled = enabled;
+    ApplyMediaAutoplayConfiguration();
+
+    if (m_impl->_webview != nil)
+        [m_impl->_webview reload];
+}
+
+void InfiniFrameWindow::SetUserAgent(AutoString userAgent)
+{
+    m_impl->SetUserAgent(userAgent);
+
+    if (m_impl->_webview != nil)
+        [m_impl->_webview reload];
 }
 
 void InfiniFrameWindow::SetZoomEnabled(bool enabled)
 {
-    (void)enabled;
+    m_impl->_zoomEnabled = enabled;
 }
 
 void InfiniFrameWindow::SetIconFile(AutoString filename)
@@ -274,6 +310,12 @@ void InfiniFrameWindow::SetMinimized(bool minimized)
         [m_impl->_window miniaturize: nullptr];
     else
         [m_impl->_window deminiaturize: nullptr];
+
+    NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:0.2];
+    while (m_impl->_window.isMiniaturized != minimized && [deadline timeIntervalSinceNow] > 0.0) {
+        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+    }
 }
 
 void InfiniFrameWindow::SetMaximized(bool maximized)

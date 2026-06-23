@@ -25,12 +25,14 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
     private int _disposed;
 
     private Thread? _windowThread;
+    
+    public required IInfiniFrameWindow Window { get; init; }
+    public required IInfiniFrameWindowBuilder BuilderSnapshot { get; init; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
     // -----------------------------------------------------------------------------------------------------------------
     private InfiniFrameTestWindow() {}
-    public required IInfiniFrameWindow Window { get; init; }
 
     public void Dispose() {
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
@@ -84,7 +86,9 @@ public sealed partial class InfiniFrameTestWindow : IDisposable {
         ct.ThrowIfCancellationRequested();
 
         var windowBuilder = InfiniFrameWindowBuilder.Create();
-        windowBuilder.SetStartString(StartString);
+        windowBuilder
+            .SetIconFile("favicon.ico")
+            .SetStartPageContent(StartString);
 
         builder?.Invoke(windowBuilder);
 
