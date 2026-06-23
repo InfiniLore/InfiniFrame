@@ -188,6 +188,8 @@ jobs:
                       tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj
                       tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj
                       tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
+                    )
+                    net10_test_projects=(
                       tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj
                     )
 
@@ -209,6 +211,23 @@ jobs:
                           --no-ansi \
                           --maximum-parallel-tests 1 || exit_code=$?
                       done
+
+                      if [ "$framework" = "net10.0" ]; then
+                        for project in "${net10_test_projects[@]}"; do
+                          echo "--- ${project} (${framework}) ---"
+                          dotnet test "$project" \
+                            --configuration Release \
+                            --no-build \
+                            --no-restore \
+                            --framework "$framework" \
+                            -p:NativeArch=${{ matrix.arch }} \
+                            -p:InfiniFrameSkipNativeBuild=true \
+                            -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
+                            -- \
+                            --no-ansi \
+                            --maximum-parallel-tests 1 || exit_code=$?
+                        done
+                      fi
                     }
 
                     run_test net8.0
