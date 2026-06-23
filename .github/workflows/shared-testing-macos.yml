@@ -23,7 +23,7 @@ on:
 
 jobs:
     macos:
-        name: CI Testing - macOS (${{ matrix.arch }})
+        name: CI Testing - macOS (${{ matrix.arch }}, ${{ matrix.framework }})
         runs-on: ${{ matrix.os }}
         timeout-minutes: 120
         env:
@@ -37,10 +37,32 @@ jobs:
                         arch: x64
                         libName: osx
                         rid: osx-x64
+                        framework: net8.0
+                    -   os: macos-15-intel
+                        arch: x64
+                        libName: osx
+                        rid: osx-x64
+                        framework: net9.0
+                    -   os: macos-15-intel
+                        arch: x64
+                        libName: osx
+                        rid: osx-x64
+                        framework: net10.0
                     -   os: macos-latest
                         arch: arm64
                         libName: osx
                         rid: osx-arm64
+                        framework: net8.0
+                    -   os: macos-latest
+                        arch: arm64
+                        libName: osx
+                        rid: osx-arm64
+                        framework: net9.0
+                    -   os: macos-latest
+                        arch: arm64
+                        libName: osx
+                        rid: osx-arm64
+                        framework: net10.0
         permissions:
             contents: read
             statuses: write
@@ -71,7 +93,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/${{ matrix.arch }}
+                    context: CI Testing - macOS/${{ matrix.arch }}/${{ matrix.framework }}
                     state: pending
                     status-description: macOS tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -120,44 +142,38 @@ jobs:
                     mkdir -p artifacts/testdiag
                     mkdir -p artifacts/testresults
     
-                    for framework in net8.0 net9.0 net10.0; do
-                        echo "=== Testing $framework ==="
-                        echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
+                    framework="${{ matrix.framework }}"
+                    echo "=== Testing $framework ==="
+                    echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
 
-                        framework_exit_code=0
+                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
+                      --configuration Release \
+                      --no-build \
+                      --no-restore \
+                      --framework "$framework" \
+                      -p:NativeArch=${{ matrix.arch }} \
+                      -p:InfiniFrameSkipNativeBuild=true \
+                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
+                      --results-directory "artifacts/testresults/$framework" \
+                      --diagnostic \
+                      --diagnostic-output-directory "artifacts/testdiag/$framework" \
+                      --diagnostic-file-prefix "mtp-$framework" \
+                      --diagnostic-verbosity Information \
+                      --output Detailed \
+                      --github-reporter-style full \
+                      --no-ansi || exit_code=$?
 
-                        dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
-                          --configuration Release \
-                          --no-build \
-                          --no-restore \
-                          --framework "$framework" \
-                          -p:NativeArch=${{ matrix.arch }} \
-                          -p:InfiniFrameSkipNativeBuild=true \
-                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                          --results-directory "artifacts/testresults/$framework" \
-                          --diagnostic \
-                          --diagnostic-output-directory "artifacts/testdiag/$framework" \
-                          --diagnostic-file-prefix "mtp-$framework" \
-                          --diagnostic-verbosity Information \
-                          --output Detailed \
-                          --github-reporter-style full \
-                          --no-ansi || framework_exit_code=$?
-
-                        echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
-                        
-                        if [ $framework_exit_code -ne 0 ]; then
-                            echo "=== Test diagnostics for $framework ==="
-                            find "artifacts/testdiag/$framework" -type f -name '*.diag' -print -exec cat {} \; || true
-                        fi
-
-                        if [ $framework_exit_code -ne 0 ]; then
-                            exit_code=$framework_exit_code
-                        fi
-                    done
+                    echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $exit_code"
+                    
+                    if [ $exit_code -ne 0 ]; then
+                        echo "=== Test diagnostics for $framework ==="
+                        find "artifacts/testdiag/$framework" -type f -name '*.diag' -print -exec cat {} \; || true
+                    fi
     
                     exit $exit_code
 
             -   name: Pack Tool E2E
+                if: matrix.framework == 'net10.0'
                 uses: ./.github/actions/packtool-e2e
                 with:
                     project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
@@ -179,7 +195,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/${{ matrix.arch }}
+                    context: CI Testing - macOS/${{ matrix.arch }}/${{ matrix.framework }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: macOS tests passed

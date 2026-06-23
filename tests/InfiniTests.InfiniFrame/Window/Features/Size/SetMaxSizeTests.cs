@@ -47,7 +47,6 @@ public class SetMaxSizeTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(1800, 1000)]
     public async Task AtWindowStage_DirectAssignment(int width, int height, CancellationToken ct) {
         // Arrange

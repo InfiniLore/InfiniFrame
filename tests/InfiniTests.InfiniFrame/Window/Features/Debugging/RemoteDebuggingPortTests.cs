@@ -64,7 +64,6 @@ public class RemoteDebuggingPortTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [MethodDataSource(nameof(GetPorts))]
     [SkipOnMacOs]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {

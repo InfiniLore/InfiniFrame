@@ -11,7 +11,6 @@ public class WindowSizeChangedEventTests {
     [Test]
     [Retry(5)]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_SetSize_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int sizeChangedCount = 0;

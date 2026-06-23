@@ -12,7 +12,6 @@ public class WindowLocationChangedEventTests {
     [Retry(5)]
     [SkipOnMacOs]
     [SkipOnLinux("Location transitions are desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_SetLocation_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int locationChangedCount = 0;

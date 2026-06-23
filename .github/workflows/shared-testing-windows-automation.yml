@@ -54,7 +54,7 @@ jobs:
                     allow-status-422: 'true'
     
     windows-playwright:
-        name: CI Testing - Windows Playwright ${{ matrix.project.name }}
+        name: CI Testing - Windows Playwright ${{ matrix.project.name }} (${{ matrix.framework }})
         runs-on: windows-latest
         timeout-minutes: 75
         
@@ -63,6 +63,10 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
+                framework:
+                    - net8.0
+                    - net9.0
+                    - net10.0
                 project:
                     -   name: WebApp Vue
                         path: InfiniAutomationTests.WebApp.Vue
@@ -105,7 +109,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}
+                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}/${{ matrix.framework }}
                     state: pending
                     status-description: Windows Playwright tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -153,7 +157,7 @@ jobs:
             -   name: Install Playwright Browsers
                 shell: pwsh
                 run: |
-                    $script = "tests/${{ matrix.project.path }}/bin/Release/net10.0/playwright.ps1"
+                    $script = "tests/${{ matrix.project.path }}/bin/Release/${{ matrix.framework }}/playwright.ps1"
                     
                     if (-not (Test-Path $script)) {
                       throw "Playwright script not found: $script"
@@ -163,7 +167,7 @@ jobs:
             -   name: Verify Native Binaries
                 shell: pwsh
                 run: |
-                    $binPath = "tests/${{ matrix.project.path }}/bin/Release/net10.0"
+                    $binPath = "tests/${{ matrix.project.path }}/bin/Release/${{ matrix.framework }}"
                     $dlls = @("InfiniFrame.Native.dll", "WebView2Loader.dll")
 
                     foreach ($dll in $dlls) {
@@ -180,7 +184,7 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run Playwright tests NET 8.0
+            -   name: Run Playwright tests
                 shell: pwsh
                 run: |
                     dotnet test `
@@ -188,31 +192,7 @@ jobs:
                       --configuration Release `
                       --no-build `
                       --no-restore `
-                      --framework net8.0 `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Run Playwright tests NET 9.0
-                shell: pwsh
-                run: |
-                    dotnet test `
-                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net9.0 `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Run Playwright tests NET 10.0
-                shell: pwsh
-                run: |
-                    dotnet test `
-                      --project tests/${{ matrix.project.path }}/${{ matrix.project.path }}.csproj `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net10.0 `
+                      --framework ${{ matrix.framework }} `
                       /p:InfiniFrameSkipNativeBuild=true `
                       /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
@@ -224,7 +204,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}
+                    context: CI Testing - Windows Playwright ${{ matrix.project.name }}/${{ matrix.framework }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Windows Playwright tests passed

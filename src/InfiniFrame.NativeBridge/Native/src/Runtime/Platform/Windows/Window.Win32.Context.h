@@ -20,6 +20,8 @@ extern std::atomic<HINSTANCE> _hInstance;
 extern thread_local HWND messageLoopRootWindowHandle;
 extern wchar_t _webview2RuntimePath[MAX_PATH];
 extern std::mutex webview2RuntimePathMutex;
+extern std::mutex winToastMutex;
+extern std::mutex nativeWindowConstructionMutex;
 extern const wchar_t* CLASS_NAME;
 
 struct InvokeWaitInfo {
@@ -38,6 +40,8 @@ InfiniFrameWindow* LookupWindowInstance(HWND hwnd);
 HWND ResolveParentWindowHandle(InfiniFrameWindow* parent);
 HBRUSH GetDarkBrush();
 HBRUSH GetLightBrush();
+void AcquireWebView2InitializationSlot();
+void ReleaseWebView2InitializationSlot() noexcept;
 
 template <typename TImpl> void ApplyPendingOwnerWindow(TImpl* impl, const wchar_t* phase) {
     if (impl == nullptr)

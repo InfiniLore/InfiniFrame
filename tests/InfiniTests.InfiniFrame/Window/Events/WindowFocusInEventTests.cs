@@ -12,7 +12,6 @@ public class WindowFocusInEventTests {
     [Retry(5)]
     [SkipOnMacOs]
     [SkipOnLinux("Focus transitions are desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_SetFocused_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int focusInEventCount = 0;

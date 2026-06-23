@@ -55,7 +55,6 @@ public class RegisterCustomSchemeHandlerTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_RegistersSchemeInEventsStore(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -70,7 +69,6 @@ public class RegisterCustomSchemeHandlerTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ThroughBuilderAssignment_RegistersSchemeInEventsStore(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {

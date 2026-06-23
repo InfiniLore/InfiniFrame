@@ -15,7 +15,6 @@ public class TryGetRemoteDebuggingEndpointTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     public async Task AtWindowStage_DirectAssignment_DefaultConfiguration(CancellationToken ct) {
         // Arrange
@@ -33,7 +32,6 @@ public class TryGetRemoteDebuggingEndpointTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     public async Task AtWindowStage_ExtensionAssignment_DefaultConfiguration(CancellationToken ct) {
         // Arrange
@@ -51,7 +49,6 @@ public class TryGetRemoteDebuggingEndpointTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [MethodDataSource(nameof(GetPorts))]
     [SkipOnMacOs]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
@@ -85,7 +82,6 @@ public class TryGetRemoteDebuggingEndpointTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [MethodDataSource(nameof(GetPorts))]
     [SkipOnMacOs]
     public async Task AtWindowStage_ThroughBuilderAssignment_WhenClosed_ReturnsFalseAndNullEndpoint(int value, CancellationToken ct) {

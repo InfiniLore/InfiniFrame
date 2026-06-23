@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[NotInParallelInfiniTests]
 public class StaticWebAssetsRuntimeFileProviderTests {
     // ReSharper disable SimilarAnonymousTypeNearby
     [Test]

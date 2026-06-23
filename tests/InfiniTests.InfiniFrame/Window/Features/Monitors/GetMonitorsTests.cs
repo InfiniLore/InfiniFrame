@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Monitors;
 public class GetMonitorsTests {
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -25,7 +24,6 @@ public class GetMonitorsTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -44,7 +44,6 @@ public class FullScreenTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_DirectAssignment(bool value, CancellationToken ct) {
@@ -60,7 +59,6 @@ public class FullScreenTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ExtensionAssignment(bool value, CancellationToken ct) {
@@ -77,7 +75,6 @@ public class FullScreenTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {

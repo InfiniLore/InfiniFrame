@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <format>
+#include <memory>
 #include <stdexcept>
 
 #include "Embedded/Embedded.h"
@@ -22,6 +23,29 @@ namespace {
                )
             .count();
     }
+
+    class WebView2InitializationLease {
+        public:
+        WebView2InitializationLease() {
+            AcquireWebView2InitializationSlot();
+        }
+
+        WebView2InitializationLease(const WebView2InitializationLease&) = delete;
+        WebView2InitializationLease& operator=(const WebView2InitializationLease&) = delete;
+
+        ~WebView2InitializationLease() {
+            Release();
+        }
+
+        void Release() noexcept {
+            bool expected = false;
+            if (m_released.compare_exchange_strong(expected, true, std::memory_order_acq_rel))
+                ReleaseWebView2InitializationSlot();
+        }
+
+        private:
+        std::atomic<bool> m_released = false;
+    };
 }
 
 void InfiniFrameWindow::Show(const bool isAlreadyShown) {
@@ -40,6 +64,29 @@ void InfiniFrameWindow::Show(const bool isAlreadyShown) {
             AttachWebView();
         else
             throw std::runtime_error("WebView2 Runtime is not installed and automatic installation failed.");
+    }
+
+    WaitForWebView2Initialization();
+}
+
+void InfiniFrameWindow::WaitForWebView2Initialization() {
+    const auto timeoutAt = std::chrono::steady_clock::now() + std::chrono::seconds(30);
+
+    while (m_impl->_isWebView2Initializing &&
+           !m_impl->_isInitialized &&
+           !m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
+        MSG msg = {};
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        if (std::chrono::steady_clock::now() >= timeoutAt) {
+            m_impl->_isWebView2Initializing = false;
+            throw std::runtime_error("Timed out while initializing WebView2.");
+        }
+
+        MsgWaitForMultipleObjectsEx(0, nullptr, 10, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
     }
 }
 
@@ -71,6 +118,7 @@ void InfiniFrameWindow::AttachWebView() {
     if (m_impl->_isWebView2Initializing || m_impl->_isInitialized)
         return;
     m_impl->_isWebView2Initializing = true;
+    auto initializationLease = std::make_shared<WebView2InitializationLease>();
 
     // Snapshot runtime path under lock so subsequent async setup uses a stable value.
     std::wstring configuredRuntimePath;
@@ -113,6 +161,7 @@ void InfiniFrameWindow::AttachWebView() {
 
     if (!RegisterCustomSchemesOnOptions(options.Get())) {
         m_impl->_isWebView2Initializing = false;
+        initializationLease->Release();
         return;
     }
 
@@ -130,32 +179,36 @@ void InfiniFrameWindow::AttachWebView() {
     HRESULT envResult = CreateCoreWebView2EnvironmentWithOptions(
         runtimePath, userDataPath, options.Get(),
         Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-            [this](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
+            [this, initializationLease](const HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
                 if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
                     m_impl->_isWebView2Initializing = false;
                     m_impl->_webviewEnvironment = nullptr;
                     TraceTeardown(L"CreateEnvironment callback while closing; ignoring");
+                    initializationLease->Release();
                     return S_OK;
                 }
                 if (result != S_OK) {
                     m_impl->_isWebView2Initializing = false;
                     TraceTeardown(L"CreateEnvironment callback failed hr=0x%08X", static_cast<unsigned>(result));
+                    initializationLease->Release();
                     return result;
                 }
                 if (env == nullptr) {
                     m_impl->_isWebView2Initializing = false;
+                    initializationLease->Release();
                     return E_POINTER;
                 }
                 HRESULT envResult = env->QueryInterface(&m_impl->_webviewEnvironment);
                 if (envResult != S_OK) {
                     m_impl->_isWebView2Initializing = false;
+                    initializationLease->Release();
                     return envResult;
                 }
 
                 const HRESULT createControllerHr = env->CreateCoreWebView2Controller(
                     m_impl->_hWnd,
                     Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                        [this](const HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+                        [this, initializationLease](const HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
                             if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire)) {
                                 if (controller != nullptr)
                                     controller->Close();
@@ -164,6 +217,7 @@ void InfiniFrameWindow::AttachWebView() {
                                 m_impl->_webviewEnvironment = nullptr;
                                 m_impl->_isWebView2Initializing = false;
                                 TraceTeardown(L"CreateController callback while closing; ignoring");
+                                initializationLease->Release();
                                 return S_OK;
                             }
                             if (result != S_OK) {
@@ -171,21 +225,25 @@ void InfiniFrameWindow::AttachWebView() {
                                 TraceTeardown(
                                     L"CreateController callback failed hr=0x%08X", static_cast<unsigned>(result)
                                 );
+                                initializationLease->Release();
                                 return result;
                             }
                             if (controller == nullptr) {
                                 m_impl->_isWebView2Initializing = false;
+                                initializationLease->Release();
                                 return E_POINTER;
                             }
 
                             HRESULT envResult = controller->QueryInterface(&m_impl->_webviewController);
                             if (envResult != S_OK) {
                                 m_impl->_isWebView2Initializing = false;
+                                initializationLease->Release();
                                 return envResult;
                             }
                             m_impl->_webviewController->get_CoreWebView2(&m_impl->_webviewWindow);
                             if (!m_impl->_webviewWindow) {
                                 m_impl->_isWebView2Initializing = false;
+                                initializationLease->Release();
                                 return E_FAIL;
                             }
 
@@ -196,6 +254,7 @@ void InfiniFrameWindow::AttachWebView() {
 
                             struct NavigateOnce {
                                 InfiniFrameWindow* self;
+                                std::shared_ptr<WebView2InitializationLease> initializationLease;
                                 bool fired = false;
                                 void navigate() {
                                     if (fired)
@@ -212,14 +271,17 @@ void InfiniFrameWindow::AttachWebView() {
                                             L"[InfiniFrame] ERROR: Neither StartUrl nor StartString was specified\n"
                                         );
                                         self->m_impl->_isWebView2Initializing = false;
+                                        initializationLease->Release();
                                     }
                                 }
                             };
-                            auto nav = std::make_shared<NavigateOnce>(NavigateOnce{this});
+                            auto nav = std::make_shared<NavigateOnce>(NavigateOnce{this, initializationLease});
 
                             HRESULT settingsResult = ApplyInitialWebViewSettings();
-                            if (FAILED(settingsResult))
+                            if (FAILED(settingsResult)) {
+                                initializationLease->Release();
                                 return settingsResult;
+                            }
 
                             EventRegistrationToken webMessageToken;
                             m_impl->_webviewWindow->add_WebMessageReceived(
@@ -420,12 +482,15 @@ void InfiniFrameWindow::AttachWebView() {
 
                             m_impl->_isInitialized = true;
                             m_impl->_isWebView2Initializing = false;
+                            initializationLease->Release();
                             return S_OK;
                         }
                     ).Get()
                 );
-                if (FAILED(createControllerHr))
+                if (FAILED(createControllerHr)) {
                     m_impl->_isWebView2Initializing = false;
+                    initializationLease->Release();
+                }
 
                 return createControllerHr;
             }
@@ -434,6 +499,7 @@ void InfiniFrameWindow::AttachWebView() {
 
     if (envResult != S_OK) {
         m_impl->_isWebView2Initializing = false;
+        initializationLease->Release();
         _com_error err(envResult);
         LPCTSTR errMsg = err.ErrorMessage();
         MessageBox(m_impl->_hWnd, errMsg, L"Error instantiating webview", MB_OK);

@@ -47,7 +47,6 @@ public class SetMinSizeTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(450, 280)]
     public async Task AtWindowStage_DirectAssignment(int width, int height, CancellationToken ct) {
         // Arrange

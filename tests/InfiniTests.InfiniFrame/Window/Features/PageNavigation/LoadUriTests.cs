@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.PageNavigation;
 // ---------------------------------------------------------------------------------------------------------------------
 public class LoadUriTests {
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
@@ -26,7 +25,6 @@ public class LoadUriTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
@@ -43,7 +41,6 @@ public class LoadUriTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment_FileUri(CancellationToken ct) {
@@ -72,7 +69,6 @@ public class LoadUriTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DirectAssignment_DisallowedSchemeUri_DoesNotThrow(CancellationToken ct) {
@@ -89,7 +85,6 @@ public class LoadUriTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [DefaultInfiniTestsTimeout(DefaultInfiniTestsTimeoutAttribute.TimeoutValue + 5_000)]
     public async Task AtWindowStage_AfterClose_DoesNotThrowAndNoOps(CancellationToken ct) {

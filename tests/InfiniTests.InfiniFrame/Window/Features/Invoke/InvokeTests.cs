@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Invoke;
 public class InvokeTests {
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -28,7 +27,6 @@ public class InvokeTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

@@ -18,7 +18,6 @@ public class TryProbeRemoteDebuggingEndpointTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_DefaultConfiguration(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -37,7 +36,6 @@ public class TryProbeRemoteDebuggingEndpointTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_DefaultConfiguration(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -56,7 +54,6 @@ public class TryProbeRemoteDebuggingEndpointTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [MethodDataSource(nameof(GetPorts))]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange

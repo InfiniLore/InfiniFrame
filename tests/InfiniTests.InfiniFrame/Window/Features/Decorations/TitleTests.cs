@@ -43,7 +43,6 @@ public class TitleTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments("InfiniFrame Title Through Builder")]
     public async Task AtWindowStage_ThroughBuilderAssignment(string value, CancellationToken ct) {
         // Arrange

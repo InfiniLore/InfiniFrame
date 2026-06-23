@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <format>
+#include <condition_variable>
 #include <stdexcept>
 #include <string>
 
@@ -17,12 +18,19 @@ std::atomic<HINSTANCE> _hInstance{nullptr};
 thread_local HWND messageLoopRootWindowHandle = nullptr;
 wchar_t _webview2RuntimePath[MAX_PATH];
 std::mutex webview2RuntimePathMutex;
+std::mutex winToastMutex;
+std::mutex nativeWindowConstructionMutex;
 
 using namespace WinToastLib;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 namespace {
+    std::mutex webview2InitializationMutex;
+    std::condition_variable webview2InitializationSlotsAvailable;
+    int webview2InitializationSlotsInUse = 0;
+    constexpr int MaxConcurrentWebView2Initializations = 2;
+
     class BrushManager {
         public:
         static BrushManager& instance() noexcept {
@@ -64,6 +72,27 @@ HBRUSH GetDarkBrush() {
 
 HBRUSH GetLightBrush() {
     return BrushManager::instance().light();
+}
+
+void AcquireWebView2InitializationSlot() {
+    std::unique_lock<std::mutex> lock(webview2InitializationMutex);
+    webview2InitializationSlotsAvailable.wait(lock, [] {
+        return webview2InitializationSlotsInUse < MaxConcurrentWebView2Initializations;
+    });
+
+    ++webview2InitializationSlotsInUse;
+}
+
+void ReleaseWebView2InitializationSlot() noexcept {
+    {
+        std::lock_guard<std::mutex> lock(webview2InitializationMutex);
+        if (webview2InitializationSlotsInUse <= 0)
+            return;
+
+        --webview2InitializationSlotsInUse;
+    }
+
+    webview2InitializationSlotsAvailable.notify_one();
 }
 
 void InfiniFrameWindow::Register(const HINSTANCE hInstance) {
@@ -108,14 +137,11 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         );
     }
 
+    std::unique_lock<std::mutex> constructionLock(nativeWindowConstructionMutex);
+
     // Initialize window title and optional toast notification identity.
     if (initParams->Title != nullptr) {
         m_impl->_windowTitle = ToUTF16String(initParams->Title);
-        if (initParams->NotificationsEnabled) {
-            WinToast::instance()->setAppName(m_impl->_windowTitle.c_str());
-            if (m_impl->_notificationRegistrationId.empty())
-                WinToast::instance()->setAppUserModelId(m_impl->_windowTitle.c_str());
-        }
     }
 
     // Capture startup URL (if provided) for initial navigation/bootstrap.
@@ -261,16 +287,25 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
         SetTopmost(true);
 
     if (initParams->NotificationsEnabled) {
-        if (!m_impl->_notificationRegistrationId.empty())
-            WinToast::instance()->setAppUserModelId(m_impl->_notificationRegistrationId.c_str());
+        std::lock_guard<std::mutex> lock(winToastMutex);
+        WinToast* toast = WinToast::instance();
+        if (!toast->isInitialized()) {
+            toast->setAppName(m_impl->_windowTitle.c_str());
+            toast->setAppUserModelId(
+                m_impl->_notificationRegistrationId.empty()
+                    ? m_impl->_windowTitle.c_str()
+                    : m_impl->_notificationRegistrationId.c_str()
+            );
+            toast->initialize();
+        }
 
         m_impl->_toastHandler = std::make_unique<WinToastHandler>(this);
-        WinToast::instance()->initialize();
     }
 
     m_impl->_dialog = std::make_unique<InfiniFrameDialog>(this);
 
     bool isAlreadyShown = initParams->Minimized || initParams->Maximized;
+    constructionLock.unlock();
     Show(isAlreadyShown);
 }
 

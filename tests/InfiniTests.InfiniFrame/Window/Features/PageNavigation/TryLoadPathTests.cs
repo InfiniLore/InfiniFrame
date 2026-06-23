@@ -9,7 +9,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.PageNavigation;
 // ---------------------------------------------------------------------------------------------------------------------
 public class TryLoadPathTests {
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_ExistingFilePath_ReturnsTrue(CancellationToken ct) {
@@ -37,7 +36,6 @@ public class TryLoadPathTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
     public async Task AtWindowStage_DisallowedAbsoluteUriString_ReturnsFalse(CancellationToken ct) {

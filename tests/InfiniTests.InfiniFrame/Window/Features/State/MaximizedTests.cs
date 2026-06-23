@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -44,7 +44,6 @@ public class MaximizedTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     [SkipOnLinux("Test unable to be verified on Linux due to lack of support for maximizing windows")]
@@ -61,7 +60,6 @@ public class MaximizedTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     [SkipOnLinux("Test unable to be verified on Linux due to lack of support for maximizing windows")]
@@ -79,7 +77,6 @@ public class MaximizedTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {

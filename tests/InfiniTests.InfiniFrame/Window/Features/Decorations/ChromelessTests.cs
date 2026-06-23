@@ -43,7 +43,6 @@ public class ChromelessTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ThroughBuilderAssignment(bool value, CancellationToken ct) {

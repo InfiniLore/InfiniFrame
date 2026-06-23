@@ -49,7 +49,6 @@ public class SetLeftTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     [Arguments(360)]
     public async Task AtWindowStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
@@ -73,7 +72,6 @@ public class SetLeftTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     [Arguments(380)]
     public async Task AtWindowStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange

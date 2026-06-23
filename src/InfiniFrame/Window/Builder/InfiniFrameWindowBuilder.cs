@@ -4,6 +4,7 @@
 using FluentValidation;
 using InfiniFrame.NativeBridge.Parameters;
 using InfiniFrame.Security;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InfiniFrame;
@@ -48,9 +49,12 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
         var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>();
 
-        InfiniFrameNativeParameters nativeParameters = CollectNativeParameters();
-
         var window = actualProvider.GetRequiredService<InfiniFrameWindow>();
+
+        InfiniFrameNativeParameters nativeParameters = CollectNativeParameters(window.Id);
+        if (Features.Browser is InfiniFrameWindowBuilderFeatureBrowser { TemporaryFilesPathExplicitlyAssigned: false }) {
+            BrowserProfileUtility.RegisterAutoProfilePath(window.Id, nativeParameters.TemporaryFilesPath);
+        }
 
         window.AssignFeatures(featureFactory.Create(window, this));
 
@@ -75,11 +79,17 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
 
     }
 
-    internal InfiniFrameNativeParameters CollectNativeParameters() {
+    internal InfiniFrameNativeParameters CollectNativeParameters()
+        => CollectNativeParameters(null);
+
+    internal InfiniFrameNativeParameters CollectNativeParameters(Guid? windowId) {
         var parameters = new InfiniFrameNativeParameters();
         
         Configuration.ApplyToNativeParameters(ref parameters);
         Features.ApplyToNativeParameters(ref parameters);
+        if (windowId is { } id && Features.Browser is InfiniFrameWindowBuilderFeatureBrowser browser) {
+            parameters.TemporaryFilesPath = browser.ResolveTemporaryFilesPath(id);
+        }
 
         return parameters;
     }

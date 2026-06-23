@@ -13,7 +13,6 @@ public sealed class ResizeViewportTests {
 
     [Test]
     [Retry(3)]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
     [SkipOnWindowsArm("Test is flaky on ARM")]

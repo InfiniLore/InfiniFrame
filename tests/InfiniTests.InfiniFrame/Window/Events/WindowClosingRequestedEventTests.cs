@@ -11,7 +11,6 @@ public class WindowClosingRequestedEventTests {
     [Test]
     [Retry(5)]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int closingRequestedEventCount = 0;

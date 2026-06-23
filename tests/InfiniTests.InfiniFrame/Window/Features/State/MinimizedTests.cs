@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -44,7 +44,6 @@ public class MinimizedTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     [SkipOnLinux("Test unable to be verified on Linux due to lack of support for minimizing windows")]
@@ -61,7 +60,6 @@ public class MinimizedTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     [SkipOnLinux("Test unable to be verified on Linux due to lack of support for minimizing windows")]
@@ -79,7 +77,6 @@ public class MinimizedTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     [SkipOnLinux("Test unable to be verified on Linux due to lack of support for minimizing windows")]

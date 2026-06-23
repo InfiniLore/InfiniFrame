@@ -43,7 +43,6 @@ public class StartPageContentTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments("<html><body>Through Builder</body></html>")]
     public async Task AtWindowStage_ThroughBuilderAssignment(string value, CancellationToken ct) {
         // Arrange

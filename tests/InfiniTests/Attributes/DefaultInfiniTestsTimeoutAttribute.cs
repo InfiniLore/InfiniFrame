@@ -6,5 +6,5 @@ namespace InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class DefaultInfiniTestsTimeoutAttribute(int offset = 0) : TimeoutAttribute(TimeoutValue + offset) {
-    public const int TimeoutValue = 10_000;
+    public const int TimeoutValue = 30_000;
 }

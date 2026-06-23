@@ -6,6 +6,8 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 void InfiniFrameWindow::MarkDestroyed() {
+    m_impl->release_webkit_remote_debugging();
+
     {
         std::lock_guard lock(m_impl->_lifecycleMutex);
         m_impl->_destroyed = true;
@@ -90,4 +92,5 @@ void InfiniFrameWindow::CloseWebView() {
     // context from this re-entrant teardown path can trigger the same WebKitGTK abort.
     g_signal_handlers_disconnect_by_data(webview, this);
     webkit_web_view_stop_loading(WEBKIT_WEB_VIEW(webview));
+    m_impl->release_webkit_remote_debugging();
 }

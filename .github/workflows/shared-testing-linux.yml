@@ -23,7 +23,7 @@ on:
 
 jobs:
     linux:
-        name: CI Testing - Linux (${{ matrix.arch }})
+        name: CI Testing - Linux (${{ matrix.arch }}, ${{ matrix.framework }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -36,10 +36,32 @@ jobs:
                         arch: x64
                         libName: linux
                         rid: linux-x64
+                        framework: net8.0
+                    -   os: ubuntu-latest
+                        arch: x64
+                        libName: linux
+                        rid: linux-x64
+                        framework: net9.0
+                    -   os: ubuntu-latest
+                        arch: x64
+                        libName: linux
+                        rid: linux-x64
+                        framework: net10.0
                     -   os: ubuntu-24.04-arm
                         arch: arm64
                         libName: linux
                         rid: linux-arm64
+                        framework: net8.0
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        libName: linux
+                        rid: linux-arm64
+                        framework: net9.0
+                    -   os: ubuntu-24.04-arm
+                        arch: arm64
+                        libName: linux
+                        rid: linux-arm64
+                        framework: net10.0
         permissions:
             contents: read
             statuses: write
@@ -65,7 +87,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Linux/${{ matrix.arch }}
+                    context: CI Testing - Linux/${{ matrix.arch }}/${{ matrix.framework }}
                     state: pending
                     status-description: Linux tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -193,11 +215,24 @@ jobs:
                       tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj
                     )
 
-                    run_test() {
-                      local framework="$1"
-                      echo "=== Running ${framework} ==="
-                      local project
-                      for project in "${test_projects[@]}"; do
+                    framework="${{ matrix.framework }}"
+                    echo "=== Running ${framework} ==="
+                    for project in "${test_projects[@]}"; do
+                      echo "--- ${project} (${framework}) ---"
+                      dotnet test "$project" \
+                        --configuration Release \
+                        --no-build \
+                        --no-restore \
+                        --framework "$framework" \
+                        -p:NativeArch=${{ matrix.arch }} \
+                        -p:InfiniFrameSkipNativeBuild=true \
+                        -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
+                        -- \
+                        --no-ansi || exit_code=$?
+                    done
+
+                    if [ "$framework" = "net10.0" ]; then
+                      for project in "${net10_test_projects[@]}"; do
                         echo "--- ${project} (${framework}) ---"
                         dotnet test "$project" \
                           --configuration Release \
@@ -208,31 +243,9 @@ jobs:
                           -p:InfiniFrameSkipNativeBuild=true \
                           -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
                           -- \
-                          --no-ansi \
-                          --maximum-parallel-tests 1 || exit_code=$?
+                          --no-ansi || exit_code=$?
                       done
-
-                      if [ "$framework" = "net10.0" ]; then
-                        for project in "${net10_test_projects[@]}"; do
-                          echo "--- ${project} (${framework}) ---"
-                          dotnet test "$project" \
-                            --configuration Release \
-                            --no-build \
-                            --no-restore \
-                            --framework "$framework" \
-                            -p:NativeArch=${{ matrix.arch }} \
-                            -p:InfiniFrameSkipNativeBuild=true \
-                            -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                            -- \
-                            --no-ansi \
-                            --maximum-parallel-tests 1 || exit_code=$?
-                        done
-                      fi
-                    }
-
-                    run_test net8.0
-                    run_test net9.0
-                    run_test net10.0
+                    fi
 
                     shopt -s nullglob
                     for core_file in artifacts/native-crash/core.*; do
@@ -281,6 +294,7 @@ jobs:
                     if-no-files-found: ignore
 
             -   name: Pack Tool E2E
+                if: matrix.framework == 'net10.0'
                 uses: ./.github/actions/packtool-e2e
                 with:
                     project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
@@ -302,7 +316,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Linux/${{ matrix.arch }}
+                    context: CI Testing - Linux/${{ matrix.arch }}/${{ matrix.framework }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Linux tests passed

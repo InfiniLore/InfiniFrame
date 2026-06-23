@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -44,7 +44,6 @@ public class TopMostTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     [SkipOnLinux]
@@ -61,7 +60,6 @@ public class TopMostTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     [SkipOnLinux]
@@ -79,7 +77,6 @@ public class TopMostTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     [SkipOnLinux]

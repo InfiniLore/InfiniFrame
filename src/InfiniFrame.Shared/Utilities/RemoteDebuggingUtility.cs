@@ -2,6 +2,7 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
@@ -24,6 +25,7 @@ internal static partial class RemoteDebuggingUtility {
     public const int MaxPort = 65535;
 
     private const string LoopbackAddress = "127.0.0.1";
+    private static readonly ConcurrentDictionary<int, PortReservationState> PortReservations = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -142,6 +144,64 @@ internal static partial class RemoteDebuggingUtility {
                 ex);
         }
     }
+
+    public static PortReservation? ReservePortOrThrow(int normalizedPort, Guid windowId, ILogger logger) {
+        if (normalizedPort == 0) return null;
+
+        EnsureSupportedPlatform(normalizedPort);
+
+        var state = new PortReservationState(windowId);
+        if (!PortReservations.TryAdd(normalizedPort, state)) {
+            PortReservationState existing = PortReservations[normalizedPort];
+            string message =
+                $"Remote debugging port {normalizedPort} is already reserved by window {existing.WindowId}. " +
+                $"Window {windowId} must use a different port or disable remote debugging.";
+            logger.LogError(
+                "Remote debugging port {RemoteDebuggingPort} reservation failed for window {WindowId}; already reserved by window {ExistingWindowId}.",
+                normalizedPort,
+                windowId,
+                existing.WindowId);
+            throw new InvalidOperationException(message);
+        }
+
+        bool success = false;
+        try {
+            ValidatePortAvailabilityOrThrow(normalizedPort, logger);
+            logger.LogDebug(
+                "Remote debugging port {RemoteDebuggingPort} reserved for window {WindowId}.",
+                normalizedPort,
+                windowId);
+            success = true;
+            return new PortReservation(normalizedPort, windowId);
+        }
+        finally {
+            if (!success) {
+                PortReservations.TryRemove(new KeyValuePair<int, PortReservationState>(normalizedPort, state));
+            }
+        }
+    }
+
+    public sealed class PortReservation : IDisposable {
+        private readonly int _port;
+        private readonly Guid _windowId;
+        private int _disposed;
+
+        internal PortReservation(int port, Guid windowId) {
+            _port = port;
+            _windowId = windowId;
+        }
+
+        public void Dispose() {
+            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+
+            PortReservations.TryRemove(new KeyValuePair<int, PortReservationState>(
+                _port,
+                new PortReservationState(_windowId)
+            ));
+        }
+    }
+
+    private readonly record struct PortReservationState(Guid WindowId);
 
     private static string? StripRemoteDebuggingSwitches(string? rawParameters) {
         if (string.IsNullOrWhiteSpace(rawParameters))

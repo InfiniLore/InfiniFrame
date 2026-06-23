@@ -43,7 +43,6 @@ public class SetResizableTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_DirectAssignment(bool value, CancellationToken ct) {
@@ -65,7 +64,6 @@ public class SetResizableTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(true)]
     [Arguments(false)]
     public async Task AtWindowStage_ExtensionAssignment(bool value, CancellationToken ct) {

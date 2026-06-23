@@ -26,6 +26,7 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     bool _isFullScreen = false;
     bool _webviewReady = false;
     bool _webviewClosed = false;
+    bool _webkitRemoteDebuggingRegistered = false;
     bool _maximized = false;
     bool _minimized = false;
     double _zoom = 100.0;
@@ -50,7 +51,8 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     std::vector<std::string> _pendingWebMessages;
 
     void set_webkit_settings();
-    void configure_webkit_remote_debugging() const;
+    void configure_webkit_remote_debugging();
+    void release_webkit_remote_debugging() noexcept;
     void set_webkit_customsettings(WebKitSettings* settings);
     void AddCustomSchemeHandlers();
     void InitializeFromParams(const InfiniFrameInitParams* initParams);

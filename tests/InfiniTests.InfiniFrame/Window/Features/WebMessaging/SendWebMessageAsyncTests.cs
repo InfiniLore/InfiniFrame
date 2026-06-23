@@ -42,7 +42,6 @@ public class SendWebMessageAsyncTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_CanceledToken_ReturnsCanceled(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

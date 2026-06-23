@@ -43,7 +43,6 @@ public class SetMinHeightTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(260)]
     public async Task AtWindowStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
@@ -61,7 +60,6 @@ public class SetMinHeightTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(280)]
     public async Task AtWindowStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange

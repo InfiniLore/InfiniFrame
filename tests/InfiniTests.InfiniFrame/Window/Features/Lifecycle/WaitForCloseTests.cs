@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 public class WaitForCloseTests {
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(6_000)]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
@@ -29,7 +28,6 @@ public class WaitForCloseTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(6_000)]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange

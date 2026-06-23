@@ -55,7 +55,6 @@ public class SetLocationTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     [Arguments(140, 260)]
     public async Task AtWindowStage_DirectAssignment(int left, int top, CancellationToken ct) {
         // Arrange
@@ -79,7 +78,6 @@ public class SetLocationTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     [Arguments(160, 280)]
     public async Task AtWindowStage_ExtensionAssignment(int left, int top, CancellationToken ct) {
         // Arrange

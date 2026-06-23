@@ -52,7 +52,6 @@ public class SetSizeTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(760, 420)]
     [Arguments(840, 460)]
     public async Task AtWindowStage_DirectAssignment(int width, int height, CancellationToken ct) {
@@ -75,7 +74,6 @@ public class SetSizeTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(780, 430)]
     [Arguments(860, 470)]
     public async Task AtWindowStage_ExtensionAssignment(int width, int height, CancellationToken ct) {
@@ -99,7 +97,6 @@ public class SetSizeTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(720, 410)]
     public async Task AtWindowStage_ThroughBuilderAssignment(int width, int height, CancellationToken ct) {
         // Arrange

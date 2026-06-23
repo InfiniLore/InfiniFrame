@@ -48,7 +48,6 @@ public class SetTopTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_DoesNotCloseWindow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -63,7 +62,6 @@ public class SetTopTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_ReturnsSameWindow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

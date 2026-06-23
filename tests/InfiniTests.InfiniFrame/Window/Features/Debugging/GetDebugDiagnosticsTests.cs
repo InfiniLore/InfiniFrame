@@ -16,7 +16,6 @@ public class GetDebugDiagnosticsTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_DefaultConfiguration(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -41,7 +40,6 @@ public class GetDebugDiagnosticsTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_DefaultConfiguration(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -59,7 +57,6 @@ public class GetDebugDiagnosticsTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [MethodDataSource(nameof(GetPorts))]
     [SkipOnLinux]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {

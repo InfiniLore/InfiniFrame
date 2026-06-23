@@ -23,7 +23,7 @@ on:
 
 jobs:
     windows:
-        name: CI Testing - Windows (${{ matrix.arch }})
+        name: CI Testing - Windows (${{ matrix.arch }}, ${{ matrix.framework }})
         runs-on: ${{ matrix.os }}
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
@@ -36,10 +36,32 @@ jobs:
                         arch: x64
                         libName: windows
                         rid: win-x64
+                        framework: net8.0
+                    -   os: windows-latest
+                        arch: x64
+                        libName: windows
+                        rid: win-x64
+                        framework: net9.0
+                    -   os: windows-latest
+                        arch: x64
+                        libName: windows
+                        rid: win-x64
+                        framework: net10.0
                     -   os: windows-11-arm
                         arch: arm64
                         libName: windows
                         rid: win-arm64
+                        framework: net8.0
+                    -   os: windows-11-arm
+                        arch: arm64
+                        libName: windows
+                        rid: win-arm64
+                        framework: net9.0
+                    -   os: windows-11-arm
+                        arch: arm64
+                        libName: windows
+                        rid: win-arm64
+                        framework: net10.0
         permissions:
             contents: read
             statuses: write
@@ -67,7 +89,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows/${{ matrix.arch }}
+                    context: CI Testing - Windows/${{ matrix.arch }}/${{ matrix.framework }}
                     state: pending
                     status-description: Windows tests in progress
                     target-url: ${{ inputs.workflow_url }}
@@ -159,44 +181,21 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run Tests (x64)
+            -   name: Run Tests
                 run: |
-                    echo "Running tests on Windows..."
-                    $exitCode = 0
+                    echo "Running ${{ matrix.framework }} tests on Windows..."
 
                     dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
                       --configuration Release `
                       --no-build `
                       --no-restore `
-                      --framework net8.0 `
+                      --framework ${{ matrix.framework }} `
                       /p:NativeArch=${{ matrix.arch }} `
                       /p:InfiniFrameSkipNativeBuild=true `
                       /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                    if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
-
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net9.0 `
-                      /p:NativeArch=${{ matrix.arch }} `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                    if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
-
-                    dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf `
-                      --configuration Release `
-                      --no-build `
-                      --no-restore `
-                      --framework net10.0 `
-                      /p:NativeArch=${{ matrix.arch }} `
-                      /p:InfiniFrameSkipNativeBuild=true `
-                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-                    if ($LASTEXITCODE -ne 0) { $exitCode = $LASTEXITCODE }
-
-                    exit $exitCode
 
             -   name: Pack Tool E2E
+                if: matrix.framework == 'net10.0'
                 uses: ./.github/actions/packtool-e2e
                 with:
                     project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
@@ -218,7 +217,7 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - Windows/${{ matrix.arch }}
+                    context: CI Testing - Windows/${{ matrix.arch }}/${{ matrix.framework }}
                     target-url: ${{ inputs.workflow_url }}
                     job-status: ${{ job.status }}
                     success-description: Windows tests passed

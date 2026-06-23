@@ -643,6 +643,7 @@ class InfiniFrameWindow {
     bool RegisterCustomSchemesOnOptions(ICoreWebView2EnvironmentOptions* options);
     void AttachCustomSchemeHandler();
     HRESULT ApplyInitialWebViewSettings();
+    void WaitForWebView2Initialization();
 #endif
 
 #ifdef _WIN32

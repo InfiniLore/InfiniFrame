@@ -11,7 +11,6 @@ namespace InfiniTests.InfiniFrame.Window.Events;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[NotInParallelInfiniTests]
 public class InfiniFrameEventsCallbackLifetimeTests {
     [Test]
     public async Task AssignToWindow_AddsNativeCallbackRoot_ReleaseRemovesIt(CancellationToken ct = default) {

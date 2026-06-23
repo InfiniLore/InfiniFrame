@@ -13,7 +13,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Lifecycle;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[NotInParallelInfiniTests]
 public class CleanupNativeHandleTests {
     [Test]
     public async Task CleanupNativeHandle_ReleasesEventNativeCallbackRoot(CancellationToken ct = default) {

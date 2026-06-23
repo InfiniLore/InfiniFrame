@@ -12,6 +12,10 @@ namespace InfiniFrame;
 ///     media autoplay, user agent, security, permissions, and other WebView options.
 /// </summary>
 public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderFeatureBrowser {
+    private readonly Guid _defaultTemporaryFilesPathId = Guid.NewGuid();
+    private bool _temporaryFilesPathExplicitlyAssigned;
+
+    internal bool TemporaryFilesPathExplicitlyAssigned => _temporaryFilesPathExplicitlyAssigned;
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.IsContextMenuEnabled"/>
     public bool IsContextMenuEnabled { get; private set; } = true;
 
@@ -46,11 +50,14 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
     public string? BrowserControlInitParameters { get; private set; }
 
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.TemporaryFilesPath"/>
-    public string TemporaryFilesPath { get; private set; } = Path.Join(
-        Path.GetTempPath(),
-        "infiniframe",
-        Environment.ProcessId.ToString()
-    );
+    public string TemporaryFilesPath { get; private set; }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Constructors
+    // -----------------------------------------------------------------------------------------------------------------
+    public InfiniFrameWindowBuilderFeatureBrowser() {
+        TemporaryFilesPath = CreateDefaultTemporaryFilesPath(_defaultTemporaryFilesPathId);
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
@@ -114,6 +121,7 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.SetTemporaryFilesPath"/>
     public void SetTemporaryFilesPath(string path) {
         TemporaryFilesPath = path;
+        _temporaryFilesPathExplicitlyAssigned = true;
     }
 
     /// <summary>
@@ -132,6 +140,26 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
         parameters.GrantBrowserPermissions = GrantBrowserPermissions;
         parameters.SmoothScrollingEnabled = IsSmoothScrollingEnabled;
         parameters.BrowserControlInitParameters = BrowserControlInitParameters;
-        parameters.TemporaryFilesPath = TemporaryFilesPath;
+        parameters.TemporaryFilesPath = ResolveTemporaryFilesPath();
     }
+
+    internal string ResolveTemporaryFilesPath(Guid windowId) {
+        if (_temporaryFilesPathExplicitlyAssigned) return TemporaryFilesPath;
+
+        return CreateDefaultTemporaryFilesPath(windowId);
+    }
+
+    private string ResolveTemporaryFilesPath() {
+        if (_temporaryFilesPathExplicitlyAssigned) return TemporaryFilesPath;
+
+        return CreateDefaultTemporaryFilesPath(_defaultTemporaryFilesPathId);
+    }
+
+    private static string CreateDefaultTemporaryFilesPath(Guid id)
+        => Path.Join(
+            Path.GetTempPath(),
+            "infiniframe",
+            Environment.ProcessId.ToString(),
+            id.ToString("N")
+        );
 }

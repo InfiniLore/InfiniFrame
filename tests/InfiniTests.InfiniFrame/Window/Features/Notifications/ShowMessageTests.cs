@@ -10,7 +10,6 @@ namespace InfiniTests.InfiniFrame.Window.Features.Notifications;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ShowMessageTests {
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     public async Task AtWindowStage_DirectAssignment_WhenClosed_ReturnsCancel(CancellationToken ct) {
         // Arrange
@@ -26,7 +25,6 @@ public class ShowMessageTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     public async Task AtWindowStage_ExtensionAssignment_WhenClosed_ReturnsCancel(CancellationToken ct) {
         // Arrange

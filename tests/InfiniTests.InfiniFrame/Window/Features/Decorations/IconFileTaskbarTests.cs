@@ -24,7 +24,6 @@ public sealed class IconFileTaskbarTests {
 
     [Test]
     [OnlyRunOnWindowsX64]
-    [NotInParallelInfiniTests]
     public async Task SetIconFile_ShouldUpdateWindowAndClassIcons(CancellationToken ct = default) {
         string iconPath = ResolveRepoAsset("assets", "favicon.ico");
         await Assert.That(File.Exists(iconPath)).IsTrue();

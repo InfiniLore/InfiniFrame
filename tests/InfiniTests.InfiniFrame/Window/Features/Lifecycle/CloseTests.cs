@@ -12,7 +12,6 @@ public class CloseTests {
     [Test]
     [Retry(5)]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(1_000)]
     [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
     // Sometimes fails on CI due to timing issues
@@ -39,7 +38,6 @@ public class CloseTests {
     [Test]
     [Retry(5)]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     [DefaultInfiniTestsTimeout(2_000)]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange

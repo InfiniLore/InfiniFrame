@@ -40,6 +40,8 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
 
 InfiniFrameWindow::~InfiniFrameWindow() {
     infiniframe::linux_gtk::ui_thread::InvokeSync([this] {
+        m_impl->release_webkit_remote_debugging();
+
         if (m_impl->_window != nullptr) {
             g_signal_handlers_disconnect_by_data(m_impl->_window, this);
             gtk_widget_destroy(m_impl->_window);

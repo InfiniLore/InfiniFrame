@@ -11,7 +11,6 @@ public class WindowCreatingEventTests {
     [Test]
     [Retry(5)]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtBuilderStage_EventFiresOnce(CancellationToken ct = default) {
         // Arrange
         int creatingEventCount = 0;

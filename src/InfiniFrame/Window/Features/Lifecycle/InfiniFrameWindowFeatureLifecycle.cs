@@ -17,6 +17,12 @@ public class InfiniFrameWindowFeatureLifecycle(
     ILogger<InfiniFrameWindowFeatureLifecycle> logger,
     IValidator<InfiniFrameNativeParameters> validator
 ) : IInfiniFrameWindowFeatureLifecycle, IDisposable {
+    #if NET9_0_OR_GREATER
+    private static readonly Lock NativePlatformRegistrationLock = new();
+    #else
+    private static readonly object NativePlatformRegistrationLock = new();
+    #endif
+
     private enum LifecycleStatus {
         Undefined = 0,
         Closing = 1,
@@ -55,13 +61,18 @@ public class InfiniFrameWindowFeatureLifecycle(
         IntPtr handle = Interlocked.Exchange(ref _cleanupHandle, IntPtr.Zero);
 
         try {
-            if (handle != IntPtr.Zero) InfiniFrameNative.Destructor(handle);
+            if (handle != IntPtr.Zero) {
+                lock (NativePlatformRegistrationLock) {
+                    InfiniFrameNative.Destructor(handle);
+                }
+            }
         }
         catch (Exception ex) when (!disposing && ExceptionsUtility.IsNonFatalException(ex)) {
             logger.LogTrace(ex, "Ignoring non-fatal exception while finalizing lifecycle cleanup.");
         }
         finally {
             ReleaseNativeCallbackRootOnce();
+            BrowserProfileUtility.CleanupAutoProfilePath(window.Id);
         }
     }
     
@@ -93,7 +104,8 @@ public class InfiniFrameWindowFeatureLifecycle(
             }
 
             RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
-            RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(startupParameters.RemoteDebuggingPort, logger);
+            using RemoteDebuggingUtility.PortReservation? remoteDebuggingReservation =
+                RemoteDebuggingUtility.ReservePortOrThrow(startupParameters.RemoteDebuggingPort, window.Id, logger);
             if (webInspectorEnabled) {
                 MacOsWebInspectorUtility.ThrowIfUnsupported();
             }
@@ -103,22 +115,25 @@ public class InfiniFrameWindowFeatureLifecycle(
             window.Events.OnWindowCreating();
 
             try {
-                if (OperatingSystem.IsWindows()) {
-                    InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
-                }
-                else if (OperatingSystem.IsMacOS()) {
-                    InfiniFrameNativeInteropStatus registerStatus = InfiniFrameNative.RegisterMac();
-                    if (registerStatus != InfiniFrameNativeInteropStatus.Success) {
-                        int lastError = Marshal.GetLastPInvokeError();
-                        string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
-                        throw new ApplicationException(
-                            $"Native registration failed with status {registerStatus}. Error #{lastError}. {nativeMessage}");
+                IntPtr nativeHandle;
+                lock (NativePlatformRegistrationLock) {
+                    if (OperatingSystem.IsWindows()) {
+                        InfiniFrameNative.RegisterWin32(window.MainProgramHandle);
                     }
+                    else if (OperatingSystem.IsMacOS()) {
+                        InfiniFrameNativeInteropStatus registerStatus = InfiniFrameNative.RegisterMac();
+                        if (registerStatus != InfiniFrameNativeInteropStatus.Success) {
+                            int lastError = Marshal.GetLastPInvokeError();
+                            string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
+                            throw new ApplicationException(
+                                $"Native registration failed with status {registerStatus}. Error #{lastError}. {nativeMessage}");
+                        }
+                    }
+                    else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
+                    else throw new PlatformNotSupportedException();
                 }
-                else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
-                else throw new PlatformNotSupportedException();
 
-                InfiniFrameNativeInteropStatus status = InfiniFrameNative.Constructor(in startupParameters, out IntPtr handle);
+                InfiniFrameNativeInteropStatus status = InfiniFrameNative.Constructor(in startupParameters, out nativeHandle);
                 if (status != InfiniFrameNativeInteropStatus.Success) {
                     int lastError = Marshal.GetLastPInvokeError();
                     string nativeMessage = InfiniFrameNative.GetLastErrorMessage() ?? "No native error message provided.";
@@ -127,11 +142,11 @@ public class InfiniFrameWindowFeatureLifecycle(
                         $"Native constructor failed with status {status}. Error #{lastError}. {nativeMessage}");
                 }
                 
-                ArgumentOutOfRangeException.ThrowIfZero(handle);
-                window.InstanceHandle = handle;
+                ArgumentOutOfRangeException.ThrowIfZero(nativeHandle);
+                window.InstanceHandle = nativeHandle;
 
                 if (OperatingSystem.IsLinux()) {
-                    NativeInvoke.InvokeSyncWithValidation(logger, handle, window.ManagedThreadId, () => {
+                    NativeInvoke.InvokeSyncWithValidation(logger, nativeHandle, window.ManagedThreadId, () => {
                         window.SetManagedThreadId(Environment.CurrentManagedThreadId);
                     });
                 }
@@ -221,7 +236,9 @@ public class InfiniFrameWindowFeatureLifecycle(
             return;
         }
 
-        NativeInvoke.InvokeSyncWithValidation(logger, handle, window.ManagedThreadId, InfiniFrameNative.Close);
+        lock (NativePlatformRegistrationLock) {
+            NativeInvoke.InvokeSyncWithValidation(logger, handle, window.ManagedThreadId, InfiniFrameNative.Close);
+        }
         MarkAsClosed();
     }
 

@@ -12,7 +12,6 @@ public class OffsetTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_IntOverload(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -36,7 +35,6 @@ public class OffsetTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_PointOverload(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -62,7 +60,6 @@ public class OffsetTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_DoubleOverload(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

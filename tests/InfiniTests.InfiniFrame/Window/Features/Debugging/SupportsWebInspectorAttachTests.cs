@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -35,7 +35,6 @@ public class SupportsWebInspectorAttachTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -49,7 +48,6 @@ public class SupportsWebInspectorAttachTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -63,7 +61,6 @@ public class SupportsWebInspectorAttachTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ThroughBuilderAssignment(CancellationToken ct) {
         // Arrange
         bool value = !_expectedValue;

@@ -12,7 +12,6 @@ public class IsClosedOrClosingTests {
     [Retry(5)]
     [SkipOnMacOs]
     [DefaultInfiniTestsTimeout(6_000)]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -35,7 +34,6 @@ public class IsClosedOrClosingTests {
     [Retry(5)]
     [SkipOnMacOs]
     [DefaultInfiniTestsTimeout(6_000)]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -42,7 +42,6 @@ public class ZoomFactorTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(100)]
     public async Task AtWindowStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
@@ -57,7 +56,6 @@ public class ZoomFactorTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(100)]
     public async Task AtWindowStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange
@@ -73,7 +71,6 @@ public class ZoomFactorTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(100)]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange

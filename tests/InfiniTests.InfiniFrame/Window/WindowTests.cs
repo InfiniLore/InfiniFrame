@@ -13,7 +13,6 @@ public class WindowTests {
     // -----------------------------------------------------------------------------------------------------------------
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task InstanceHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -27,7 +26,6 @@ public class WindowTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task MainProgramHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -41,7 +39,6 @@ public class WindowTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task WindowHandle_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -56,7 +53,6 @@ public class WindowTests {
 
     [Test]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task WindowHandle_WhenClosed_IsZero(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -74,7 +70,6 @@ public class WindowTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task ManagedThreadId_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -87,7 +82,6 @@ public class WindowTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task Id_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -100,7 +94,6 @@ public class WindowTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task EventsStore_UsesEventsStoreFromEvents(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -114,7 +107,6 @@ public class WindowTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task Features_AreAssigned(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -140,7 +132,6 @@ public class WindowTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task DebuggingProperty_UsesDebuggingFeatureInstance(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -153,7 +144,6 @@ public class WindowTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task Configuration_IsDefined(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -167,7 +157,6 @@ public class WindowTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task ConcreteWindow_ServiceProvider_IsAssigned(CancellationToken ct = default) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

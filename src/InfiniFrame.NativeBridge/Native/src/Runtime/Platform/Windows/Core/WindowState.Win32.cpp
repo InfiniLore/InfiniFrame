@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <windows.h>
 
-#include "Runtime/Platform/Windows/Window.Win32.Internal.h"
+#include "Runtime/Platform/Windows/Window.Win32.Context.h"
 #include "Runtime/Shared/Utilities/StringCopy.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -271,9 +271,16 @@ void InfiniFrameWindow::SetTitle(AutoString title) {
     m_impl->_windowTitle = wideTitle;
     SetWindowText(m_impl->_hWnd, wideTitle.c_str());
     if (m_impl->_notificationsEnabled) {
-        WinToastLib::WinToast::instance()->setAppName(wideTitle.c_str());
-        if (m_impl->_notificationRegistrationId.empty())
-            WinToastLib::WinToast::instance()->setAppUserModelId(wideTitle.c_str());
+        std::lock_guard<std::mutex> lock(winToastMutex);
+        WinToastLib::WinToast* toast = WinToastLib::WinToast::instance();
+        if (!toast->isInitialized()) {
+            toast->setAppName(wideTitle.c_str());
+            toast->setAppUserModelId(
+                m_impl->_notificationRegistrationId.empty()
+                    ? wideTitle.c_str()
+                    : m_impl->_notificationRegistrationId.c_str()
+            );
+        }
     }
 }
 

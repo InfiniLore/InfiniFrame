@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -49,7 +49,6 @@ public class UserAgentTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments("userAgentName", "userAgentName")]
     [Arguments(null, "")]
     [Arguments("", "")]
@@ -67,7 +66,6 @@ public class UserAgentTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments("userAgentName", "userAgentName")]
     [Arguments(null, "")]
     [Arguments("", "")]
@@ -87,7 +85,6 @@ public class UserAgentTests {
     }
     
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments("userAgentName", "userAgentName")]
     [Arguments(null, "")]
     [Arguments("", "")]

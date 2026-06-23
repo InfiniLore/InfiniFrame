@@ -50,7 +50,6 @@ public class IconFileTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_DirectAssignment_InvalidPath_DoesNotReplaceCurrentIcon(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);
@@ -70,7 +69,6 @@ public class IconFileTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnLinux]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ExtensionAssignment_InvalidPath_ReturnsSameWindow(CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(ct);

@@ -47,7 +47,6 @@ public class SetWidthTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(700)]
     public async Task AtWindowStage_DirectAssignment(int value, CancellationToken ct) {
         // Arrange
@@ -65,7 +64,6 @@ public class SetWidthTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [Arguments(740)]
     public async Task AtWindowStage_ExtensionAssignment(int value, CancellationToken ct) {
         // Arrange

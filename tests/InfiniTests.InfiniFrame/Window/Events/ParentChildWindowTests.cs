@@ -17,7 +17,6 @@ public class ParentChildWindowTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnWindowsArm]
-    [NotInParallelInfiniTests]
     public async Task AtBuilderStage_AssignsParentWindowAndNativeParentHandle(CancellationToken ct = default) {
         // Arrange
         using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
@@ -39,7 +38,6 @@ public class ParentChildWindowTests {
     [SkipOnMacOs]
     [SkipOnWindowsArm]
     [DefaultInfiniTestsTimeout(6_000)]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_ClosingParent_ClosesChildWindow(CancellationToken ct = default) {
         // Arrange
         using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);
@@ -66,7 +64,6 @@ public class ParentChildWindowTests {
 
     [Test]
     [OnlyRunOnWindowsX64]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_OnWindows_ChildWindowOwnerMatchesParentWindowHandle(CancellationToken ct = default) {
         // Arrange
         using var parentWindowUtility = InfiniFrameTestWindow.Create(ct);

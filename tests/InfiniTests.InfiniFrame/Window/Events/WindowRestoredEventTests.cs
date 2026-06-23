@@ -11,7 +11,6 @@ public class WindowRestoredEventTests {
     [Test]
     [Retry(5)]
     [SkipOnMacOs]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_RestoreFromMaximized_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int restoredEventCount = 0;
@@ -42,7 +41,6 @@ public class WindowRestoredEventTests {
     [Retry(5)]
     [SkipOnMacOs]
     [SkipOnLinux("desktop-state dependent under WSLg/local Linux runs")]
-    [NotInParallelInfiniTests]
     public async Task AtWindowStage_RestoreFromMinimized_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int restoredEventCount = 0;

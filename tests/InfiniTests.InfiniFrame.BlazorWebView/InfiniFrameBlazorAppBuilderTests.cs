@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
@@ -15,7 +15,6 @@ namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-[NotInParallelInfiniTests]
 public class InfiniFrameBlazorAppBuilderTests {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -167,7 +166,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs]
     [SkipOnLinux]
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
@@ -200,7 +198,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWork(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
@@ -226,7 +223,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWork(CancellationToken ct = default) {
         // Arrange
         string[] args = Array.Empty<string>();
@@ -252,7 +248,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs("Given init parameters are not supported on macOS")]
     [SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughCreateDefault_ShouldWorkOnWindow(CancellationToken ct = default) {
@@ -284,7 +279,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     [SkipOnMacOs("Given init parameters are not supported on macOS")]
     [SkipOnLinux("Given init parameters are not supported on Linux")]
     public async Task SetBrowserControlInitParameters_ThroughAppBuilder_ShouldWorkOnWindow(CancellationToken ct = default) {
@@ -316,7 +310,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task Build_SetsStartupUrlToAppBaseForDefaultHostPage(CancellationToken ct = default) {
         // Arrange
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
@@ -331,7 +324,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task Build_SetsStartupUrlToConfiguredNonDefaultHostPage(CancellationToken ct = default) {
         // Arrange
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
@@ -349,7 +341,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task Build_SetsWindowBuilderStaticAssets(CancellationToken ct = default) {
         // Arrange
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
@@ -365,7 +356,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task Build_PopulatesNativeStartupCustomSchemeCallback(CancellationToken ct = default) {
         // Arrange
         var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
@@ -385,7 +375,6 @@ public class InfiniFrameBlazorAppBuilderTests {
     }
 
     [Test]
-    [NotInParallelInfiniTests]
     public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
         // Arrange
         var debuggingFeature = Substitute.For<IInfiniFrameWindowFeatureDebugging>();
