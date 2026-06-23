@@ -42,6 +42,7 @@ EXPORTED InteropStatus InfiniFrameNativeTests_NativeParametersReturnAsIs(
         (*new_params)->BrowserControlInitParameters = DuplicateString(params->BrowserControlInitParameters);
         (*new_params)->NotificationRegistrationId = DuplicateString(params->NotificationRegistrationId);
         (*new_params)->RemoteDebuggingPort = params->RemoteDebuggingPort;
+        (*new_params)->WebView2WindowMode = params->WebView2WindowMode;
 
         (*new_params)->ParentInstance = params->ParentInstance;
         (*new_params)->ClosingHandler = params->ClosingHandler;

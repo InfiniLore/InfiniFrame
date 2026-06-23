@@ -19,7 +19,7 @@ public class CleanupNativeHandleTests {
         // Arrange
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
         var window = Substitute.For<IInfiniFrameWindow>();
-        Guid windowId = Guid.NewGuid();
+        var windowId = Guid.NewGuid();
         window.Id.Returns(windowId);
         window.Events.Returns(events);
 

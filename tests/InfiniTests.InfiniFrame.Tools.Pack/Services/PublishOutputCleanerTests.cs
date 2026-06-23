@@ -32,12 +32,12 @@ public class PublishOutputCleanerTests {
     public async Task Cleanup_RemovesWwwrootAndNativeRuntimeFiles_WhenTheyExist() {
         // Arrange
         string output = TemporaryDirectory.Path;
-        string wwwroot = Path.Join(output, "wwwroot");
+        string wwwroot = Path.Combine(output, "wwwroot");
 
         Directory.CreateDirectory(wwwroot);
-        await File.WriteAllTextAsync(Path.Join(wwwroot, "index.html"), "<html></html>");
+        await File.WriteAllTextAsync(Path.Combine(wwwroot, "index.html"), "<html></html>");
         foreach (string file in PublishOutputCleaner.NativeRuntimeFiles) {
-            await File.WriteAllTextAsync(Path.Join(output, file), string.Empty);
+            await File.WriteAllTextAsync(Path.Combine(output, file), string.Empty);
         }
 
         // Act
@@ -47,7 +47,7 @@ public class PublishOutputCleanerTests {
         await Assert.That(warnings.Length).IsEqualTo(0);
         await Assert.That(Directory.Exists(wwwroot)).IsFalse();
         foreach (string file in PublishOutputCleaner.NativeRuntimeFiles) {
-            await Assert.That(File.Exists(Path.Join(output, file))).IsFalse();
+            await Assert.That(File.Exists(Path.Combine(output, file))).IsFalse();
         }
     }
 
@@ -68,7 +68,7 @@ public class PublishOutputCleanerTests {
     public async Task Cleanup_ReturnsWarning_WhenNativeArtifactDeletionFails() {
         // Arrange
         string output = TemporaryDirectory.Path;
-        string nativeArtifactPath = Path.Join(output, PublishOutputCleaner.NativeRuntimeFiles[0]);
+        string nativeArtifactPath = Path.Combine(output, PublishOutputCleaner.NativeRuntimeFiles[0]);
         await File.WriteAllTextAsync(nativeArtifactPath, "locked");
         File.SetAttributes(nativeArtifactPath, File.GetAttributes(nativeArtifactPath) | FileAttributes.ReadOnly);
 

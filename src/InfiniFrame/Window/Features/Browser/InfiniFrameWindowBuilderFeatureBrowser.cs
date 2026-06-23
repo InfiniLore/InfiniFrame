@@ -14,8 +14,12 @@ namespace InfiniFrame;
 public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderFeatureBrowser {
     private readonly Guid _defaultTemporaryFilesPathId = Guid.NewGuid();
     private bool _temporaryFilesPathExplicitlyAssigned;
+    private bool _webView2ModeExplicitlyAssigned;
+    private bool _webView2SharedEnvironmentProfileRootExplicitlyAssigned;
 
     internal bool TemporaryFilesPathExplicitlyAssigned => _temporaryFilesPathExplicitlyAssigned;
+    internal bool WebView2ModeExplicitlyAssigned => _webView2ModeExplicitlyAssigned;
+    internal bool WebView2SharedEnvironmentProfileRootExplicitlyAssigned => _webView2SharedEnvironmentProfileRootExplicitlyAssigned;
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.IsContextMenuEnabled"/>
     public bool IsContextMenuEnabled { get; private set; } = true;
 
@@ -51,6 +55,12 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
 
     /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.TemporaryFilesPath"/>
     public string TemporaryFilesPath { get; private set; }
+
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.WebView2Mode"/>
+    public WebView2WindowMode? WebView2Mode { get; private set; }
+
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.WebView2SharedEnvironmentProfileRoot"/>
+    public string? WebView2SharedEnvironmentProfileRoot { get; private set; }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Constructors
@@ -124,6 +134,19 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
         _temporaryFilesPathExplicitlyAssigned = true;
     }
 
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.SetWebView2Mode"/>
+    public void SetWebView2Mode(WebView2WindowMode mode) {
+        WebView2Mode = mode;
+        _webView2ModeExplicitlyAssigned = true;
+    }
+
+    /// <inheritdoc cref="IInfiniFrameWindowBuilderFeatureBrowser.SetWebView2SharedEnvironmentProfileRoot"/>
+    public void SetWebView2SharedEnvironmentProfileRoot(string profileRoot) {
+        ArgumentException.ThrowIfNullOrWhiteSpace(profileRoot);
+        WebView2SharedEnvironmentProfileRoot = profileRoot;
+        _webView2SharedEnvironmentProfileRootExplicitlyAssigned = true;
+    }
+
     /// <summary>
     ///     Applies all browser feature settings to the native parameters.
     /// </summary>
@@ -156,7 +179,7 @@ public class InfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBuilderF
     }
 
     private static string CreateDefaultTemporaryFilesPath(Guid id)
-        => Path.Join(
+        => Path.Combine(
             Path.GetTempPath(),
             "infiniframe",
             Environment.ProcessId.ToString(),

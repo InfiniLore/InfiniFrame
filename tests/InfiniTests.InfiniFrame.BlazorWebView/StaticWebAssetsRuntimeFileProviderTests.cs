@@ -16,13 +16,13 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     public async Task TryCreate_WithEqualScores_ShouldUseDeterministicManifestTieBreaker(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
-        string alphaRoot = Path.Join(fixture.BaseDirectory, "alpha-root");
-        string zetaRoot = Path.Join(fixture.BaseDirectory, "zeta-root");
+        string alphaRoot = Path.Combine(fixture.BaseDirectory, "alpha-root");
+        string zetaRoot = Path.Combine(fixture.BaseDirectory, "zeta-root");
         Directory.CreateDirectory(alphaRoot);
         Directory.CreateDirectory(zetaRoot);
 
-        await File.WriteAllTextAsync(Path.Join(alphaRoot, "asset.js"), "alpha", ct);
-        await File.WriteAllTextAsync(Path.Join(zetaRoot, "asset.js"), "zeta", ct);
+        await File.WriteAllTextAsync(Path.Combine(alphaRoot, "asset.js"), "alpha", ct);
+        await File.WriteAllTextAsync(Path.Combine(zetaRoot, "asset.js"), "zeta", ct);
 
         await fixture.WriteManifestAsync(new {
             ContentRoots = new[] { $"{zetaRoot}{Path.DirectorySeparatorChar}" },
@@ -71,7 +71,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     public async Task TryCreate_WhenManifestContainsExplicitAsset_ShouldResolveFile(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
-        string jsPath = Path.Join(fixture.ContentRoot, "js", "editor-bridge.js");
+        string jsPath = Path.Combine(fixture.ContentRoot, "js", "editor-bridge.js");
         Directory.CreateDirectory(Path.GetDirectoryName(jsPath)!);
         await File.WriteAllTextAsync(jsPath, "console.log('ok');", ct);
 
@@ -113,7 +113,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     public async Task TryCreate_WhenManifestContainsFrameworkScript_ShouldResolveBlazorWebViewFrameworkScript(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
-        string frameworkScriptPath = Path.Join(fixture.ContentRoot, "_framework", "blazor.webview.js");
+        string frameworkScriptPath = Path.Combine(fixture.ContentRoot, "_framework", "blazor.webview.js");
         Directory.CreateDirectory(Path.GetDirectoryName(frameworkScriptPath)!);
         await File.WriteAllTextAsync(frameworkScriptPath, "window.__bwv = true;", ct);
 
@@ -154,7 +154,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     public async Task TryCreate_WhenManifestContainsWildcardPattern_ShouldResolveFileFromPattern(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
-        string targetPath = Path.Join(fixture.ContentRoot, "_content", "My.Package", "nested", "module.js");
+        string targetPath = Path.Combine(fixture.ContentRoot, "_content", "My.Package", "nested", "module.js");
         Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
         await File.WriteAllTextAsync(targetPath, "export const x = 1;", ct);
 
@@ -197,9 +197,9 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     public async Task TryCreate_WithMultipleManifests_ShouldPreferAppManifest(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
-        string appIndexPath = Path.Join(fixture.ContentRoot, "index.html");
-        string appJsPath = Path.Join(fixture.ContentRoot, "js", "editor-bridge.js");
-        string frameworkOnlyPath = Path.Join(fixture.FrameworkContentRoot, "_content", "InfiniLore.InfiniFrame.Js", "InfiniFrame.js");
+        string appIndexPath = Path.Combine(fixture.ContentRoot, "index.html");
+        string appJsPath = Path.Combine(fixture.ContentRoot, "js", "editor-bridge.js");
+        string frameworkOnlyPath = Path.Combine(fixture.FrameworkContentRoot, "_content", "InfiniLore.InfiniFrame.Js", "InfiniFrame.js");
 
         Directory.CreateDirectory(Path.GetDirectoryName(appJsPath)!);
         Directory.CreateDirectory(Path.GetDirectoryName(frameworkOnlyPath)!);
@@ -311,11 +311,11 @@ public class StaticWebAssetsRuntimeFileProviderTests {
     public async Task GetFileInfo_WhenCalledConcurrently_ShouldRemainStable(CancellationToken ct = default) {
         // Arrange
         using var fixture = new TempStaticWebAssetsFixture();
-        string packageRoot = Path.Join(fixture.ContentRoot, "_content", "My.Package", "nested");
+        string packageRoot = Path.Combine(fixture.ContentRoot, "_content", "My.Package", "nested");
         Directory.CreateDirectory(packageRoot);
 
         for (int i = 0; i < 32; i++) {
-            await File.WriteAllTextAsync(Path.Join(packageRoot, $"module-{i}.js"), $"export const v{i} = {i};", ct);
+            await File.WriteAllTextAsync(Path.Combine(packageRoot, $"module-{i}.js"), $"export const v{i} = {i};", ct);
         }
 
         await fixture.WriteManifestAsync(new {
@@ -369,13 +369,13 @@ public class StaticWebAssetsRuntimeFileProviderTests {
             Directory.CreateDirectory(FrameworkContentRoot);
         }
         public string BaseDirectory { get; } =
-            Path.Join(Path.GetTempPath(),
+            Path.Combine(Path.GetTempPath(),
                 "InfiniTests.InfiniFrame",
                 $"pid-{Environment.ProcessId}",
                 Guid.NewGuid().ToString("N"));
 
-        public string ContentRoot => Path.Join(BaseDirectory, "content-root");
-        public string FrameworkContentRoot => Path.Join(BaseDirectory, "framework-content-root");
+        public string ContentRoot => Path.Combine(BaseDirectory, "content-root");
+        public string FrameworkContentRoot => Path.Combine(BaseDirectory, "framework-content-root");
 
         public void Dispose() {
             // Do NOT block teardown on Windows IO
@@ -386,7 +386,7 @@ public class StaticWebAssetsRuntimeFileProviderTests {
         }
 
         public async Task WriteManifestAsync(object manifest, string? fileName = null, CancellationToken ct = default) {
-            string manifestPath = Path.Join(BaseDirectory,
+            string manifestPath = Path.Combine(BaseDirectory,
                 fileName ?? $"{Guid.NewGuid():N}.staticwebassets.runtime.json");
 
             string json = JsonSerializer.Serialize(manifest);

@@ -13,7 +13,7 @@ public class IconFileTests {
     public async Task AtBuilderStage_DirectAssignment_ResolvesIconForNativeParameters(CancellationToken ct) {
         // Arrange
         var builder = InfiniFrameWindowBuilder.Create();
-        string value = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.ico");
+        string value = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.ico");
 
         // Act
         InfiniFrameNativeParameters initParameters;

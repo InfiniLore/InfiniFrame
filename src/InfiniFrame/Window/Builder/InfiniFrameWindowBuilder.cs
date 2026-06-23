@@ -46,20 +46,42 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
     /// <inheritdoc cref="IInfiniFrameWindowBuilder.Build"/>
     public IInfiniFrameWindow Build(IServiceProvider? provider = null) {
         IServiceProvider actualProvider = provider ?? Services.BuildServiceProvider();
+        if (OperatingSystem.IsWindows()) {
+            return WebView2WindowManager.Build(this, actualProvider);
+        }
+
+        return BuildCore(actualProvider, null);
+    }
+
+    internal IInfiniFrameWindow BuildCore(
+        IServiceProvider actualProvider,
+        WebView2WindowBuildPlan? webView2BuildPlan
+    ) {
         var featureFactory = actualProvider.GetRequiredService<InfiniFrameWindowFeaturesFactory>();
         var validator = actualProvider.GetRequiredService<IValidator<InfiniFrameNativeParameters>>();
 
         var window = actualProvider.GetRequiredService<InfiniFrameWindow>();
 
         InfiniFrameNativeParameters nativeParameters = CollectNativeParameters(window.Id);
-        if (Features.Browser is InfiniFrameWindowBuilderFeatureBrowser { TemporaryFilesPathExplicitlyAssigned: false }) {
-            BrowserProfileUtility.RegisterAutoProfilePath(window.Id, nativeParameters.TemporaryFilesPath);
-        }
 
         window.AssignFeatures(featureFactory.Create(window, this));
 
         window.Events.PopulateFromBuilderEventStore(EventsStore);
         window.Events.AssignToNativeParameters(ref nativeParameters);
+        webView2BuildPlan?.Apply(
+            window,
+            this,
+            ref nativeParameters,
+            actualProvider.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>()
+                .CreateLogger("InfiniFrame.WebView2WindowManager")
+        );
+        bool shouldRegisterAutoProfile = webView2BuildPlan?.ShouldRegisterAutoProfile(this)
+            ?? Features.Browser is InfiniFrameWindowBuilderFeatureBrowser {
+                TemporaryFilesPathExplicitlyAssigned: false
+            };
+        if (shouldRegisterAutoProfile) {
+            BrowserProfileUtility.RegisterAutoProfilePath(window.Id, nativeParameters.TemporaryFilesPath);
+        }
         window.Events.AssignDefaultEventCallbacks();
         window.Events.AssignToWindow(window);
 
@@ -73,7 +95,16 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
         
         validator.ValidateAndThrow(nativeParameters);
 
-        window.Features.Lifecycle.Initialize();
+        try {
+            window.Features.Lifecycle.Initialize();
+        }
+        catch {
+            WebView2WindowManager.ReleaseWindow(window);
+            throw;
+        }
+        finally {
+            webView2BuildPlan?.Release();
+        }
 
         return window;
 

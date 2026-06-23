@@ -31,7 +31,7 @@ public class MsBuildPropertyResolverTests {
     [Test]
     public async Task TryGetProperty_ReturnsPropertyValue_WhenPropertyExists() {
         // Arrange
-        string projectPath = Path.Join(TemporaryDirectory.Path, "App.csproj");
+        string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
         await File.WriteAllTextAsync(projectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
@@ -50,7 +50,7 @@ public class MsBuildPropertyResolverTests {
     [Test]
     public async Task TryGetProperty_ReturnsNull_WhenPropertyDoesNotExist() {
         // Arrange
-        string projectPath = Path.Join(TemporaryDirectory.Path, "App.csproj");
+        string projectPath = Path.Combine(TemporaryDirectory.Path, "App.csproj");
         await File.WriteAllTextAsync(projectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
@@ -69,7 +69,7 @@ public class MsBuildPropertyResolverTests {
     [Test]
     public async Task TryGetProperty_ReturnsNull_WhenProjectCannotBeEvaluated() {
         // Arrange
-        string missingProjectPath = Path.Join(TemporaryDirectory.Path, "missing.csproj");
+        string missingProjectPath = Path.Combine(TemporaryDirectory.Path, "missing.csproj");
 
         // Act
         string? value = await MsBuildPropertyResolver.TryGetPropertyAsync(missingProjectPath, "TargetFramework");

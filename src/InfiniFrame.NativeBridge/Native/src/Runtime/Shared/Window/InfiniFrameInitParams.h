@@ -27,6 +27,7 @@ struct InfiniFrameInitParams {
     AutoString BrowserControlInitParameters;
     AutoString NotificationRegistrationId;
     int RemoteDebuggingPort;
+    int WebView2WindowMode;
 
     // Parent window
     InfiniFrameWindow* ParentInstance;

@@ -67,6 +67,16 @@ public interface IInfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBui
     string TemporaryFilesPath { get; }
 
     /// <summary>
+    ///     Gets the explicit Windows WebView2 window mode override, if one was assigned.
+    /// </summary>
+    WebView2WindowMode? WebView2Mode { get; }
+
+    /// <summary>
+    ///     Gets the explicit shared WebView2 environment profile root, if one was assigned.
+    /// </summary>
+    string? WebView2SharedEnvironmentProfileRoot { get; }
+
+    /// <summary>
     ///     Enables or disables the context menu.
     /// </summary>
     /// <param name="enabled">Whether the context menu should be enabled.</param>
@@ -137,4 +147,14 @@ public interface IInfiniFrameWindowBuilderFeatureBrowser : IInfiniFrameWindowBui
     /// </summary>
     /// <param name="parameters">The temporary files path.</param>
     void SetTemporaryFilesPath(string parameters);
+
+    /// <summary>
+    ///     Sets the Windows WebView2 window creation mode.
+    /// </summary>
+    void SetWebView2Mode(WebView2WindowMode mode);
+
+    /// <summary>
+    ///     Sets the shared WebView2 user-data root used by <see cref="WebView2WindowMode.ManagedShared"/>.
+    /// </summary>
+    void SetWebView2SharedEnvironmentProfileRoot(string profileRoot);
 }

@@ -17,7 +17,7 @@ public class InfiniFrameEventsCallbackLifetimeTests {
         // Arrange
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
         var window = Substitute.For<IInfiniFrameWindow>();
-        Guid windowId = Guid.NewGuid();
+        var windowId = Guid.NewGuid();
         window.Id.Returns(windowId);
 
         ConcurrentDictionary<Guid, InfiniFrameEvents> roots = GetNativeCallbackRoots();
@@ -41,8 +41,8 @@ public class InfiniFrameEventsCallbackLifetimeTests {
         var events = new InfiniFrameEvents(new InfiniFrameEventsStore(), NullLogger<InfiniFrameEvents>.Instance);
         var firstWindow = Substitute.For<IInfiniFrameWindow>();
         var secondWindow = Substitute.For<IInfiniFrameWindow>();
-        Guid firstId = Guid.NewGuid();
-        Guid secondId = Guid.NewGuid();
+        var firstId = Guid.NewGuid();
+        var secondId = Guid.NewGuid();
         firstWindow.Id.Returns(firstId);
         secondWindow.Id.Returns(secondId);
 

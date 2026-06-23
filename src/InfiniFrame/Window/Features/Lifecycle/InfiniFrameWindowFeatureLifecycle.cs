@@ -72,6 +72,7 @@ public class InfiniFrameWindowFeatureLifecycle(
         }
         finally {
             ReleaseNativeCallbackRootOnce();
+            WebView2WindowManager.ReleaseWindow(window);
             BrowserProfileUtility.CleanupAutoProfilePath(window.Id);
         }
     }
@@ -105,7 +106,9 @@ public class InfiniFrameWindowFeatureLifecycle(
 
             RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
             using RemoteDebuggingUtility.PortReservation? remoteDebuggingReservation =
-                RemoteDebuggingUtility.ReservePortOrThrow(startupParameters.RemoteDebuggingPort, window.Id, logger);
+                OperatingSystem.IsWindows() && WebView2WindowManager.IsManagedShared(startupParameters)
+                    ? null
+                    : RemoteDebuggingUtility.ReservePortOrThrow(startupParameters.RemoteDebuggingPort, window.Id, logger);
             if (webInspectorEnabled) {
                 MacOsWebInspectorUtility.ThrowIfUnsupported();
             }
@@ -262,6 +265,7 @@ public class InfiniFrameWindowFeatureLifecycle(
 
         IntPtr handle = window.InstanceHandle;
         window.InstanceHandle = IntPtr.Zero;
+        WebView2WindowManager.ReleaseWindow(window);
 
         if (OperatingSystem.IsLinux() && handle != IntPtr.Zero) {
             // Destructor is intentionally NOT called here — MarkAsClosed runs inside the GTK "destroy" signal handler.

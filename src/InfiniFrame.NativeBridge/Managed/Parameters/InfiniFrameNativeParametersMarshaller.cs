@@ -33,6 +33,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal IntPtr BrowserControlInitParameters;
         internal IntPtr NotificationRegistrationId;
         internal int RemoteDebuggingPort;
+        internal int WebView2WindowMode;
         internal IntPtr NativeParent;
         internal IntPtr ClosingHandler;
         internal IntPtr ClosedHandler;
@@ -118,6 +119,7 @@ internal static class InfiniFrameNativeParametersMarshaller {
                 BrowserControlInitParameters = ToUtf8Ptr(managed.BrowserControlInitParameters),
                 NotificationRegistrationId = ToUtf8Ptr(managed.NotificationRegistrationId),
                 RemoteDebuggingPort = managed.RemoteDebuggingPort,
+                WebView2WindowMode = managed.WebView2WindowMode,
                 NativeParent = managed.NativeParent,
                 ClosingHandler = ToFunctionPtr(managed.ClosingHandler),
                 ClosedHandler = ToFunctionPtr(managed.ClosedHandler),

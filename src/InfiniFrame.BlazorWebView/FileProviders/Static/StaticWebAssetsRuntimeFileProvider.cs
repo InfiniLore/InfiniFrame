@@ -145,7 +145,7 @@ internal sealed class StaticWebAssetsRuntimeFileProvider(string[] contentRoots, 
             string[] contentRoots = bestCandidate.Manifest.ContentRoots!
                 .Select(contentRoot => Path.IsPathRooted(contentRoot)
                     ? contentRoot
-                    : Path.GetFullPath(Path.Join(baseDirectory, contentRoot)))
+                    : Path.GetFullPath(Path.Combine(baseDirectory, contentRoot)))
                 .ToArray();
 
             return new StaticWebAssetsRuntimeFileProvider(contentRoots, bestCandidate.Manifest.Root!);

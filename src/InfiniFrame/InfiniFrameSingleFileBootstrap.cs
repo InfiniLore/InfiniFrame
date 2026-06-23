@@ -46,7 +46,7 @@ public static class InfiniFrameSingleFileBootstrap {
 
             string version = entryAssembly.GetName().Version?.ToString() ?? "0.0.0";
             string uniqueId = $"{Environment.ProcessId}_{Guid.NewGuid()}";
-            _nativeDir = Path.Join(Path.GetTempPath(), "InfiniFrame", "native",
+            _nativeDir = Path.Combine(Path.GetTempPath(), "InfiniFrame", "native",
                 entryAssembly.GetName().Name ?? "app", rid, version, uniqueId);
 
             bool initialized = false;
@@ -76,7 +76,7 @@ public static class InfiniFrameSingleFileBootstrap {
 
         if (string.IsNullOrWhiteSpace(fileName)) return IntPtr.Zero;
 
-        string fullPath = Path.Join(_nativeDir, fileName);
+        string fullPath = Path.Combine(_nativeDir, fileName);
         if (!File.Exists(fullPath)) return IntPtr.Zero;
 
         if (libraryName == ArtifactManifest.NativeLibraryName && OperatingSystem.IsWindows()) {
@@ -89,7 +89,7 @@ public static class InfiniFrameSingleFileBootstrap {
     private static void TryPreloadDependency(string fileName) {
         if (_nativeDir is null) return;
 
-        string dependencyPath = Path.Join(_nativeDir, fileName);
+        string dependencyPath = Path.Combine(_nativeDir, fileName);
         if (!File.Exists(dependencyPath)) return;
 
         try {
@@ -117,7 +117,7 @@ public static class InfiniFrameSingleFileBootstrap {
                 continue;
             }
 
-            string destinationPath = Path.Join(_nativeDir!, fileName);
+            string destinationPath = Path.Combine(_nativeDir!, fileName);
 
             // Avoid overwriting existing files
             if (File.Exists(destinationPath)) continue;

@@ -30,7 +30,7 @@ public static class PlaywrightConnectionUtility {
         }
 
         try {
-            string reservationFile = Path.Join(Path.GetTempPath(), "infiniframe-playwright", "reserved-ports.txt");
+            string reservationFile = Path.Combine(Path.GetTempPath(), "infiniframe-playwright", "reserved-ports.txt");
             Directory.CreateDirectory(Path.GetDirectoryName(reservationFile)!);
             DateTimeOffset now = DateTimeOffset.UtcNow;
             DateTimeOffset oldestValidReservation = now.AddHours(-6);
@@ -79,7 +79,7 @@ public static class PlaywrightConnectionUtility {
 
     public static string CreateUniqueWebViewUserDataPath(string name) {
         string safeName = string.Concat(name.Select(static c => Path.GetInvalidFileNameChars().Contains(c) ? '-' : c));
-        string path = Path.Join(
+        string path = Path.Combine(
             Path.GetTempPath(),
             "infiniframe-playwright",
             $"{safeName}-{Environment.ProcessId}-{Guid.NewGuid():N}");

@@ -11,6 +11,241 @@ namespace InfiniTests.InfiniFrame.Window;
 // ---------------------------------------------------------------------------------------------------------------------
 public class ParallelWindowExecutionTests {
     [Test]
+    [SkipOnLinux]
+    [SkipOnMacOs]
+    public async Task WebView2Mode_Default_RemainsIsolatedPerWindow(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only run on Windows");
+            return;
+        }
+
+        // Arrange / Act
+        using var first = InfiniFrameTestWindow.Create(ct);
+        using var second = InfiniFrameTestWindow.Create(ct);
+
+        // Assert
+        await Assert.That(first.Window.Configuration.StartupParameters.WebView2WindowMode)
+            .IsEqualTo((int)WebView2WindowMode.IsolatedPerWindow);
+        await Assert.That<string?>(first.Window.Configuration.StartupParameters.TemporaryFilesPath)
+            .IsNotEqualTo(second.Window.Configuration.StartupParameters.TemporaryFilesPath);
+    }
+
+    [Test]
+    [SkipOnLinux]
+    [SkipOnMacOs]
+    public async Task WebView2Mode_ExplicitIsolatedPerWindow_CreatesIsolatedProfilePaths(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only run on Windows");
+            return;
+        }
+
+        // Arrange / Act
+        using var first = InfiniFrameTestWindow.Create(
+            builder => builder.UseWebView2Mode(WebView2WindowMode.IsolatedPerWindow),
+            ct);
+        using var second = InfiniFrameTestWindow.Create(
+            builder => builder.UseWebView2Mode(WebView2WindowMode.IsolatedPerWindow),
+            ct);
+
+        // Assert
+        await Assert.That(first.Window.Configuration.StartupParameters.WebView2WindowMode)
+            .IsEqualTo((int)WebView2WindowMode.IsolatedPerWindow);
+        await Assert.That<string?>(first.Window.Configuration.StartupParameters.TemporaryFilesPath)
+            .IsNotEqualTo(second.Window.Configuration.StartupParameters.TemporaryFilesPath);
+    }
+
+    [Test]
+    [SkipOnLinux]
+    [SkipOnMacOs]
+    public async Task WebView2Mode_ManagedShared_ConcurrentWindowCreation_Succeeds(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only run on Windows");
+            return;
+        }
+
+        // Arrange
+        string profileRoot = Path.Combine(Path.GetTempPath(), "infiniframe-managed-shared-tests", Guid.NewGuid().ToString("N"));
+        var paths = new ConcurrentBag<string>();
+
+        try {
+            // Act
+            await Task.WhenAll(Enumerable.Range(0, 2).Select(_ => Task.Run(() => {
+                using var testWindow = InfiniFrameTestWindow.Create(builder => {
+                    builder.UseWebView2Mode(WebView2WindowMode.ManagedShared);
+                    builder.UseWebView2SharedEnvironmentProfileRoot(profileRoot);
+                }, ct);
+
+                paths.Add(testWindow.Window.Configuration.StartupParameters.TemporaryFilesPath!);
+            }, ct)));
+
+            // Assert
+            await Assert.That(paths).Count().IsEqualTo(2);
+            await Assert.That(paths.Distinct(StringComparer.OrdinalIgnoreCase)).Count().IsEqualTo(1);
+        }
+        finally {
+            TryDeleteDirectory(profileRoot);
+        }
+    }
+
+    [Test]
+    [SkipOnLinux]
+    [SkipOnMacOs]
+    public async Task WebView2Mode_ManagedShared_IncompatibleConfig_FailsDeterministically(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only run on Windows");
+            return;
+        }
+
+        // Arrange
+        string profileRoot = Path.Combine(Path.GetTempPath(), "infiniframe-managed-shared-tests", Guid.NewGuid().ToString("N"));
+
+        try {
+            using var first = InfiniFrameTestWindow.Create(builder => {
+                builder.UseWebView2Mode(WebView2WindowMode.ManagedShared);
+                builder.UseWebView2SharedEnvironmentProfileRoot(profileRoot);
+                builder.SetUserAgent("InfiniFrame Managed Shared A");
+            }, ct);
+
+            // Act
+            Exception? exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => {
+                using var second = InfiniFrameTestWindow.Create(builder => {
+                    builder.UseWebView2Mode(WebView2WindowMode.ManagedShared);
+                    builder.UseWebView2SharedEnvironmentProfileRoot(profileRoot);
+                    builder.SetUserAgent("InfiniFrame Managed Shared B");
+                }, ct);
+            }, ct));
+
+            // Assert
+            await Assert.That(exception).IsNotNull();
+            await Assert.That(exception!.Message).Contains("incompatible active environment settings");
+        }
+        finally {
+            TryDeleteDirectory(profileRoot);
+        }
+    }
+
+    [Test]
+    [SkipOnLinux]
+    [SkipOnMacOs]
+    public async Task WebView2Mode_ManagedShared_RemoteDebuggingSamePortSharedEnvironment_Succeeds(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only run on Windows");
+            return;
+        }
+
+        // Arrange
+        int port = await PortUtils.GetOpenPort(ct);
+        string profileRoot = Path.Combine(Path.GetTempPath(), "infiniframe-managed-shared-tests", Guid.NewGuid().ToString("N"));
+        var observedPorts = new ConcurrentBag<int?>();
+
+        try {
+            // Act
+            await Task.WhenAll(Enumerable.Range(0, 2).Select(_ => Task.Run(() => {
+                using var testWindow = InfiniFrameTestWindow.Create(builder => {
+                    builder.UseWebView2Mode(WebView2WindowMode.ManagedShared);
+                    builder.UseWebView2SharedEnvironmentProfileRoot(profileRoot);
+                    #pragma warning disable CA1416
+                    builder.SetRemoteDebuggingPort(port);
+                    #pragma warning restore CA1416
+                }, ct);
+
+                observedPorts.Add(testWindow.Window.Features.Debugging.RemoteDebuggingPort);
+            }, ct)));
+
+            // Assert
+            await Assert.That(observedPorts).Count().IsEqualTo(2);
+            foreach (int? observedPort in observedPorts) {
+                await Assert.That(observedPort).IsEqualTo(port);
+            }
+        }
+        finally {
+            TryDeleteDirectory(profileRoot);
+        }
+    }
+
+    [Test]
+    [SkipOnLinux]
+    [SkipOnMacOs]
+    public async Task WebView2Mode_ManagedShared_RemoteDebuggingDifferentPorts_FailsDeterministically(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only run on Windows");
+            return;
+        }
+
+        // Arrange
+        var portList = new List<int>();
+        await foreach (int port in PortUtils.GetOpenPorts(2, ct)) {
+            portList.Add(port);
+        }
+
+        string profileRoot = Path.Combine(Path.GetTempPath(), "infiniframe-managed-shared-tests", Guid.NewGuid().ToString("N"));
+
+        try {
+            using var first = InfiniFrameTestWindow.Create(builder => {
+                builder.UseWebView2Mode(WebView2WindowMode.ManagedShared);
+                builder.UseWebView2SharedEnvironmentProfileRoot(profileRoot);
+                #pragma warning disable CA1416
+                builder.SetRemoteDebuggingPort(portList[0]);
+                #pragma warning restore CA1416
+            }, ct);
+
+            // Act
+            Exception? exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => {
+                using var second = InfiniFrameTestWindow.Create(builder => {
+                    builder.UseWebView2Mode(WebView2WindowMode.ManagedShared);
+                    builder.UseWebView2SharedEnvironmentProfileRoot(profileRoot);
+                    #pragma warning disable CA1416
+                    builder.SetRemoteDebuggingPort(portList[1]);
+                    #pragma warning restore CA1416
+                }, ct);
+            }, ct));
+
+            // Assert
+            await Assert.That(exception).IsNotNull();
+            await Assert.That(exception!.Message).Contains("incompatible active environment settings");
+        }
+        finally {
+            TryDeleteDirectory(profileRoot);
+        }
+    }
+
+    [Test]
+    [SkipOnLinux]
+    [SkipOnMacOs]
+    public async Task WebView2Mode_ManagedShared_CleanupReleasesActiveGroup(CancellationToken ct = default) {
+        if (!OperatingSystem.IsWindows()) {
+            Skip.Test("This test is only run on Windows");
+            return;
+        }
+
+        // Arrange
+        string profileRoot = Path.Combine(Path.GetTempPath(), "infiniframe-managed-shared-tests", Guid.NewGuid().ToString("N"));
+
+        try {
+            using (InfiniFrameTestWindow unused = InfiniFrameTestWindow.Create(builder => {
+                    builder.UseWebView2Mode(WebView2WindowMode.ManagedShared);
+                    builder.UseWebView2SharedEnvironmentProfileRoot(profileRoot);
+                    builder.SetUserAgent("InfiniFrame Managed Shared A");
+                }, ct)) {
+            }
+
+            // Act
+            using var second = InfiniFrameTestWindow.Create(builder => {
+                builder.UseWebView2Mode(WebView2WindowMode.ManagedShared);
+                builder.UseWebView2SharedEnvironmentProfileRoot(profileRoot);
+                builder.SetUserAgent("InfiniFrame Managed Shared B");
+            }, ct);
+
+            // Assert
+            await Assert.That(second.Window.Configuration.StartupParameters.WebView2WindowMode)
+                .IsEqualTo((int)WebView2WindowMode.ManagedShared);
+        }
+        finally {
+            TryDeleteDirectory(profileRoot);
+        }
+    }
+
+    [Test]
     public async Task ConcurrentWindowCreation_UsesIsolatedTemporaryProfiles(CancellationToken ct = default) {
         // Arrange
         const int windowCount = 4;
@@ -18,7 +253,7 @@ public class ParallelWindowExecutionTests {
 
         // Act
         await Task.WhenAll(Enumerable.Range(0, windowCount).Select(_ => Task.Run(() => {
-            using InfiniFrameTestWindow testWindow = InfiniFrameTestWindow.Create(ct);
+            using var testWindow = InfiniFrameTestWindow.Create(ct);
             paths.Add(testWindow.Window.Configuration.StartupParameters.TemporaryFilesPath!);
         }, ct)));
 
@@ -46,7 +281,7 @@ public class ParallelWindowExecutionTests {
 
         // Act
         await Task.WhenAll(ports.Select(port => Task.Run(() => {
-            using InfiniFrameTestWindow testWindow = InfiniFrameTestWindow.Create(builder => {
+            using var testWindow = InfiniFrameTestWindow.Create(builder => {
                 #pragma warning disable CA1416
                 builder.SetRemoteDebuggingPort(port);
                 #pragma warning restore CA1416
@@ -81,7 +316,7 @@ public class ParallelWindowExecutionTests {
             release.Wait(ct);
 
             try {
-                using InfiniFrameTestWindow testWindow = InfiniFrameTestWindow.Create(builder => {
+                using var testWindow = InfiniFrameTestWindow.Create(builder => {
                     #pragma warning disable CA1416
                     builder.SetRemoteDebuggingPort(port);
                     #pragma warning restore CA1416
@@ -107,12 +342,12 @@ public class ParallelWindowExecutionTests {
     public async Task ConcurrentCleanup_GeneratedProfilePaths_DoesNotThrow(CancellationToken ct = default) {
         // Arrange
         Guid[] windowIds = Enumerable.Range(0, 16).Select(_ => Guid.NewGuid()).ToArray();
-        string root = Path.Join(Path.GetTempPath(), "infiniframe-cleanup-tests", Guid.NewGuid().ToString("N"));
+        string root = Path.Combine(Path.GetTempPath(), "infiniframe-cleanup-tests", Guid.NewGuid().ToString("N"));
 
         foreach (Guid windowId in windowIds) {
-            string path = Path.Join(root, windowId.ToString("N"));
+            string path = Path.Combine(root, windowId.ToString("N"));
             Directory.CreateDirectory(path);
-            await File.WriteAllTextAsync(Path.Join(path, "marker.txt"), windowId.ToString("N"), ct);
+            await File.WriteAllTextAsync(Path.Combine(path, "marker.txt"), windowId.ToString("N"), ct);
             BrowserProfileUtility.RegisterAutoProfilePath(windowId, path);
         }
 
@@ -124,7 +359,7 @@ public class ParallelWindowExecutionTests {
 
             // Assert
             foreach (Guid windowId in windowIds) {
-                await Assert.That(Directory.Exists(Path.Join(root, windowId.ToString("N")))).IsFalse();
+                await Assert.That(Directory.Exists(Path.Combine(root, windowId.ToString("N")))).IsFalse();
             }
         }
         finally {
@@ -133,6 +368,14 @@ public class ParallelWindowExecutionTests {
             }
             catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             }
+        }
+    }
+
+    private static void TryDeleteDirectory(string path) {
+        try {
+            if (Directory.Exists(path)) Directory.Delete(path, recursive: true);
+        }
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
         }
     }
 }

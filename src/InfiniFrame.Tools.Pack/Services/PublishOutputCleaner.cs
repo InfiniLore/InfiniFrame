@@ -26,14 +26,14 @@ internal static class PublishOutputCleaner {
     public static string[] Cleanup(string output) {
         List<string> warnings = [];
 
-        string wwwroot = Path.Join(output, "wwwroot");
+        string wwwroot = Path.Combine(output, "wwwroot");
         if (Directory.Exists(wwwroot)) {
             string? warning = TryDeleteDirectoryWithRetries(wwwroot);
             if (!string.IsNullOrWhiteSpace(warning)) warnings.Add(warning);
         }
 
         IEnumerable<string?> enumerable = NativeRuntimeFiles
-            .Select(file => Path.IsPathRooted(file) ? file : Path.Join(output, file))
+            .Select(file => Path.IsPathRooted(file) ? file : Path.Combine(output, file))
             .Where(File.Exists)
             .Select(TryDeleteFileWithRetries)
             .Where(warning => !string.IsNullOrWhiteSpace(warning));

@@ -49,7 +49,7 @@ internal static class PublishValidator {
             throw new InvalidOperationException($"Refusing to delete root directory '{fullPath}'.");
         }
 
-        string projectBinDirectory = Path.GetFullPath(Path.Join(projectDirectory, "bin"));
+        string projectBinDirectory = Path.GetFullPath(Path.Combine(projectDirectory, "bin"));
         if (IsUnderDirectory(fullPath, projectBinDirectory)) return true;
 
         // Only gate non-default output paths when we would actually delete an existing directory.
@@ -83,7 +83,7 @@ internal static class PublishValidator {
         if (!Directory.Exists(nativeArtifactsDir)) throw new InvalidOperationException($"Native artifacts directory was not found: {nativeArtifactsDir}");
 
         string[] requiredPaths = InfiniFramePackNativeArtifactManifest.RequiredFileNamesForRid(rid)
-            .Select(file => Path.IsPathRooted(file) ? file : Path.Join(nativeArtifactsDir, file))
+            .Select(file => Path.IsPathRooted(file) ? file : Path.Combine(nativeArtifactsDir, file))
             .ToArray();
 
         string? missingPath = requiredPaths.FirstOrDefault(path => !File.Exists(path));

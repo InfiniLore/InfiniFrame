@@ -15,7 +15,7 @@ public class EmbeddedResourceTests {
         Assembly assembly = Assembly.Load("InfiniFrame.Js");
         string? assemblyDirectory = Path.GetDirectoryName(assembly.Location);
         await Assert.That(assemblyDirectory).IsNotNull();
-        string runtimeManifestPath = Path.Join(assemblyDirectory, "InfiniFrame.Js.staticwebassets.runtime.json");
+        string runtimeManifestPath = Path.Combine(assemblyDirectory, "InfiniFrame.Js.staticwebassets.runtime.json");
         string runtimeManifestJson = await File.ReadAllTextAsync(runtimeManifestPath, ct);
         using JsonDocument runtimeManifest = JsonDocument.Parse(runtimeManifestJson);
 
@@ -38,7 +38,7 @@ public class EmbeddedResourceTests {
             .GetProperty("ContentRoots")[contentRootIndex]
             .GetString()!;
 
-        string assetPath = Path.Join(contentRoot, subPath);
+        string assetPath = Path.Combine(contentRoot, subPath);
 
         // Act
         await using FileStream stream = File.OpenRead(assetPath);

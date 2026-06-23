@@ -390,7 +390,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         // Act
         InfiniFrameBlazorApp app = appBuilder.Build();
-        IInfiniFrameWindow resolvedWindow = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+        var resolvedWindow = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
         // Assert
         await Assert.That(resolvedWindow.Debugging).IsSameReferenceAs(resolvedWindow.Features.Debugging);

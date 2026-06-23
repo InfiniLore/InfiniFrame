@@ -105,12 +105,12 @@ internal static class PublishService {
 
     private static string ResolveOutputPath(PublishOptions options, string projectDirectory, string framework, string rid) =>
         string.IsNullOrWhiteSpace(options.Output)
-            ? Path.Join(projectDirectory, "bin", options.Configuration, framework, rid, "publish")
+            ? Path.Combine(projectDirectory, "bin", options.Configuration, framework, rid, "publish")
             : Path.GetFullPath(options.Output!);
 
     private static string ResolveExpectedMainOutputPath(string output, string assemblyName, string rid) {
         string extension = rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? ".exe" : "";
-        return Path.Join(output, $"{assemblyName}{extension}");
+        return Path.Combine(output, $"{assemblyName}{extension}");
     }
 
     private static void PrintPublishSummary(string projectPath, string framework, string rid, bool selfContained, string output, string nativeArtifacts) {
@@ -174,7 +174,7 @@ internal static class PublishService {
         string rid,
         CancellationToken cancellationToken
     ) {
-        string preflightDirectory = Path.Join(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
+        string preflightDirectory = Path.Combine(Path.GetTempPath(), $"infiniframe-pack-native-{Guid.NewGuid():N}");
         Directory.CreateDirectory(preflightDirectory);
 
         bool preflightValidated = false;
@@ -239,7 +239,7 @@ internal static class PublishService {
         };
         if (string.IsNullOrWhiteSpace(platform) || string.IsNullOrWhiteSpace(architecture)) return null;
 
-        string candidateDirectory = Path.Join(publishDirectory, "artifacts", "native", platform, architecture, configuration);
+        string candidateDirectory = Path.Combine(publishDirectory, "artifacts", "native", platform, architecture, configuration);
         return Directory.Exists(candidateDirectory) ? candidateDirectory : null;
     }
 

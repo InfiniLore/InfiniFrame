@@ -57,7 +57,7 @@ public class PublishValidatorTests {
     [Test]
     public async Task ValidateNativeArtifacts_Throws_WhenArtifactsDirectoryIsMissing() {
         // Arrange
-        string missingDirectory = Path.Join(Path.GetTempPath(), $"missing-artifacts-{Guid.NewGuid():N}");
+        string missingDirectory = Path.Combine(Path.GetTempPath(), $"missing-artifacts-{Guid.NewGuid():N}");
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
@@ -72,12 +72,12 @@ public class PublishValidatorTests {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
         WriteMinimalPeBinary(
-            Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName),
+            Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName),
             ImageFileMachineAmd64
         );
 
         // Act & Assert
-        string expectedMissingFile = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
+        string expectedMissingFile = Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
         await Assert.ThrowsAsync<InvalidOperationException>(() => {
                 PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "win-x64");
                 return Task.CompletedTask;
@@ -90,11 +90,11 @@ public class PublishValidatorTests {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
         WriteMinimalPeBinary(
-            Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName),
+            Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName),
             ImageFileMachineAmd64
         );
         WriteMinimalPeBinary(
-            Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName),
+            Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName),
             ImageFileMachineAmd64
         );
 
@@ -102,16 +102,16 @@ public class PublishValidatorTests {
         PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "win-x64");
 
         // Assert
-        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName))).IsTrue();
-        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName))).IsTrue();
+        await Assert.That(File.Exists(Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName))).IsTrue();
+        await Assert.That(File.Exists(Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName))).IsTrue();
     }
 
     [Test]
     public async Task ValidateNativeArtifacts_Throws_WhenWindowsArtifactArchitectureMismatchesRid() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
-        string nativeDll = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName);
-        string loaderDll = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
+        string nativeDll = Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName);
+        string loaderDll = Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
         WriteMinimalPeBinary(nativeDll, ImageFileMachineArm64);
         WriteMinimalPeBinary(loaderDll, ImageFileMachineArm64);
 
@@ -130,8 +130,8 @@ public class PublishValidatorTests {
     public async Task ValidateNativeArtifacts_Throws_WhenSecondWindowsArtifactArchitectureMismatchesRid() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
-        string nativeDll = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName);
-        string loaderDll = Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
+        string nativeDll = Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsNativeFileName);
+        string loaderDll = Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.WindowsLoaderFileName);
         WriteMinimalPeBinary(nativeDll, ImageFileMachineAmd64);
         WriteMinimalPeBinary(loaderDll, ImageFileMachineArm64);
 
@@ -150,26 +150,26 @@ public class PublishValidatorTests {
     public async Task ValidateNativeArtifacts_DoesNotThrow_ForLinuxWhenRequiredArtifactExists() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
-        await File.WriteAllTextAsync(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.LinuxNativeFileName), string.Empty);
+        await File.WriteAllTextAsync(Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.LinuxNativeFileName), string.Empty);
 
         // Act
         PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "linux-x64");
 
         // Assert
-        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.LinuxNativeFileName))).IsTrue();
+        await Assert.That(File.Exists(Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.LinuxNativeFileName))).IsTrue();
     }
 
     [Test]
     public async Task ValidateNativeArtifacts_DoesNotThrow_ForOsxWhenRequiredArtifactExists() {
         // Arrange
         string artifactsDirectory = TemporaryDirectory.Path;
-        await File.WriteAllTextAsync(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.OsxNativeFileName), string.Empty);
+        await File.WriteAllTextAsync(Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.OsxNativeFileName), string.Empty);
 
         // Act
         PublishValidator.ValidateNativeArtifacts(artifactsDirectory, "osx-arm64");
 
         // Assert
-        await Assert.That(File.Exists(Path.Join(artifactsDirectory, InfiniFramePackNativeArtifactManifest.OsxNativeFileName))).IsTrue();
+        await Assert.That(File.Exists(Path.Combine(artifactsDirectory, InfiniFramePackNativeArtifactManifest.OsxNativeFileName))).IsTrue();
     }
 
     [Test]
@@ -220,8 +220,8 @@ public class PublishValidatorTests {
 
     [Test]
     public async Task ValidateOutputPath_AllowsProjectBinPath() {
-        string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
-        string outputPath = Path.Join(projectDirectory, "bin", "Release", "net10.0", "win-x64", "publish");
+        string projectDirectory = Path.Combine(TemporaryDirectory.Path, "app");
+        string outputPath = Path.Combine(projectDirectory, "bin", "Release", "net10.0", "win-x64", "publish");
 
         bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
         await Assert.That(output).IsTrue();
@@ -229,8 +229,8 @@ public class PublishValidatorTests {
 
     [Test]
     public async Task ValidateOutputPath_ThrowsForNonDefaultPath_WhenNotForced() {
-        string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
-        string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
+        string projectDirectory = Path.Combine(TemporaryDirectory.Path, "app");
+        string outputPath = Path.Combine(TemporaryDirectory.Path, "publish-output");
         Directory.CreateDirectory(outputPath);
 
         InvalidOperationException ex = await Assert.ThrowsAsync<InvalidOperationException>(() => {
@@ -243,8 +243,8 @@ public class PublishValidatorTests {
 
     [Test]
     public async Task ValidateOutputPath_AllowsNonDefaultPath_WhenForced() {
-        string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
-        string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
+        string projectDirectory = Path.Combine(TemporaryDirectory.Path, "app");
+        string outputPath = Path.Combine(TemporaryDirectory.Path, "publish-output");
         Directory.CreateDirectory(outputPath);
 
         bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, true);
@@ -253,8 +253,8 @@ public class PublishValidatorTests {
 
     [Test]
     public async Task ValidateOutputPath_AllowsNonDefaultPath_WhenDirectoryDoesNotExist() {
-        string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
-        string outputPath = Path.Join(TemporaryDirectory.Path, "publish-output");
+        string projectDirectory = Path.Combine(TemporaryDirectory.Path, "app");
+        string outputPath = Path.Combine(TemporaryDirectory.Path, "publish-output");
 
         bool output = PublishValidator.ValidateOutputPath(projectDirectory, outputPath, false);
         await Assert.That(output).IsTrue();
@@ -262,8 +262,8 @@ public class PublishValidatorTests {
 
     [Test]
     public async Task ValidateOutputPath_RejectsCaseMismatchForBinDirectory_OnCaseSensitivePlatforms() {
-        string projectDirectory = Path.Join(TemporaryDirectory.Path, "app");
-        string outputPath = Path.Join(projectDirectory, "BIN", "Release", "net10.0", "win-x64", "publish");
+        string projectDirectory = Path.Combine(TemporaryDirectory.Path, "app");
+        string outputPath = Path.Combine(projectDirectory, "BIN", "Release", "net10.0", "win-x64", "publish");
         Directory.CreateDirectory(outputPath);
 
         if (OperatingSystem.IsWindows()) {

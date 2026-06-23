@@ -137,4 +137,26 @@ public static class IInfiniFrameWindowBuilderFeatureBrowserExtensions {
         builder.Features.Browser.SetTemporaryFilesPath(parameters);
         return builder;
     }
+
+    /// <summary>
+    ///     Selects the Windows WebView2 window creation mode for this builder.
+    /// </summary>
+    public static IInfiniFrameWindowBuilder UseWebView2Mode(
+        this IInfiniFrameWindowBuilder builder,
+        WebView2WindowMode mode
+    ) {
+        builder.Features.Browser.SetWebView2Mode(mode);
+        return builder;
+    }
+
+    /// <summary>
+    ///     Sets the shared WebView2 user-data root used when <see cref="WebView2WindowMode.ManagedShared"/> is selected.
+    /// </summary>
+    public static IInfiniFrameWindowBuilder UseWebView2SharedEnvironmentProfileRoot(
+        this IInfiniFrameWindowBuilder builder,
+        string profileRoot
+    ) {
+        builder.Features.Browser.SetWebView2SharedEnvironmentProfileRoot(profileRoot);
+        return builder;
+    }
 }

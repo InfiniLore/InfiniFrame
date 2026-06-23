@@ -49,6 +49,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         if (x.BrowserControlInitParameters != y.BrowserControlInitParameters) return false;
         if (x.NotificationRegistrationId != y.NotificationRegistrationId) return false;
         if (x.RemoteDebuggingPort != y.RemoteDebuggingPort) return false;
+        if (x.WebView2WindowMode != y.WebView2WindowMode) return false;
         if (x.NativeParent != y.NativeParent) return false;
         if (x.Left != y.Left) return false;
         if (x.Top != y.Top) return false;
@@ -104,6 +105,7 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         hashCode.Add(obj.BrowserControlInitParameters);
         hashCode.Add(obj.NotificationRegistrationId);
         hashCode.Add(obj.RemoteDebuggingPort);
+        hashCode.Add(obj.WebView2WindowMode);
         hashCode.Add(obj.NativeParent);
 
         foreach (IntPtr ptr in obj.CustomSchemeNames) {

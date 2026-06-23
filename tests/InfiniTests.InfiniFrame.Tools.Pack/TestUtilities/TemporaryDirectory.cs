@@ -26,7 +26,7 @@ internal sealed class TemporaryDirectory : IDisposable {
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
     public static TemporaryDirectory Create() {
-        string path = System.IO.Path.Join(System.IO.Path.GetTempPath(), $"infiniframe-tools-pack-tests-{Guid.NewGuid():N}");
+        string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"infiniframe-tools-pack-tests-{Guid.NewGuid():N}");
         Directory.CreateDirectory(path);
         return new TemporaryDirectory { Path = path };
     }

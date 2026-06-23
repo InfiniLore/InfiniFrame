@@ -11,7 +11,7 @@ public class IconFileUtilityTests {
     [Test]
     public async Task TryResolveIconFilePath_UsesBaseDirectoryForRelativePath(CancellationToken ct = default) {
         // Arrange
-        string baseDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        string baseDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
 
         Directory.CreateDirectory(baseDirectory);
 
@@ -38,7 +38,7 @@ public class IconFileUtilityTests {
     [Test]
     public async Task TryResolveIconFilePath_ReturnsNullForMissingPath(CancellationToken ct = default) {
         // Arrange
-        string baseDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        string baseDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(baseDirectory);
 
         // Act

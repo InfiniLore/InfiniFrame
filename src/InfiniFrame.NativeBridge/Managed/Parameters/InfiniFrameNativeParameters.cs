@@ -73,6 +73,10 @@ public struct InfiniFrameNativeParameters() {
     [MarshalAs(UnmanagedType.I4)]
     internal int RemoteDebuggingPort;
 
+    ///<summary>WINDOWS: WebView2 window mode. 0 is isolated per window, 1 is managed shared.</summary>
+    [MarshalAs(UnmanagedType.I4)]
+    internal int WebView2WindowMode;
+
     /// <summary>
     ///     OPTIONAL: If native window is created from another native window, this is the pointer to the parent window.
     /// </summary>

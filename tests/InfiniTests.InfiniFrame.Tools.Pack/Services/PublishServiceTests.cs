@@ -50,7 +50,7 @@ public class PublishServiceTests {
     public async Task PublishAsync_Throws_WhenProjectFileDoesNotExist() {
         // Arrange
         var options = new PublishOptions {
-            ProjectPath = Path.Join(Path.GetTempPath(), $"missing-project-{Guid.NewGuid():N}.csproj"),
+            ProjectPath = Path.Combine(Path.GetTempPath(), $"missing-project-{Guid.NewGuid():N}.csproj"),
             Rid = "auto",
             Configuration = Configuration,
             Framework = "net10.0",
@@ -68,13 +68,13 @@ public class PublishServiceTests {
         // Arrange
         string repoRoot = TemporaryDirectory.Path;
 
-        string nativeProjectPath = Path.Join(repoRoot, "src", "InfiniFrame.NativeBridge", "InfiniFrame.NativeBridge.csproj");
+        string nativeProjectPath = Path.Combine(repoRoot, "src", "InfiniFrame.NativeBridge", "InfiniFrame.NativeBridge.csproj");
         Directory.CreateDirectory(Path.GetDirectoryName(nativeProjectPath)!);
         await File.WriteAllTextAsync(nativeProjectPath, "<Project></Project>");
 
-        string appDirectory = Path.Join(repoRoot, "samples", "app");
+        string appDirectory = Path.Combine(repoRoot, "samples", "app");
         Directory.CreateDirectory(appDirectory);
-        string appProjectPath = Path.Join(appDirectory, "SampleApp.csproj");
+        string appProjectPath = Path.Combine(appDirectory, "SampleApp.csproj");
         await File.WriteAllTextAsync(appProjectPath, """
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
@@ -83,7 +83,7 @@ public class PublishServiceTests {
         </Project>
         """);
 
-        string outputPath = Path.Join(repoRoot, "publish-output");
+        string outputPath = Path.Combine(repoRoot, "publish-output");
         string rid = RuntimeResolver.ResolveRid("auto");
 
         var options = new PublishOptions {
@@ -148,10 +148,10 @@ public class PublishServiceTests {
     public async Task ValidateOutputShape_ReturnsUnexpectedEntries_WhenExtraPayloadFilesRemain() {
         // Arrange
         string output = TemporaryDirectory.Path;
-        string expectedMainOutput = Path.Join(output, "SampleApp.exe");
+        string expectedMainOutput = Path.Combine(output, "SampleApp.exe");
         await File.WriteAllTextAsync(expectedMainOutput, "main");
-        await File.WriteAllTextAsync(Path.Join(output, "leftover.payload"), "extra");
-        Directory.CreateDirectory(Path.Join(output, "nested-assets"));
+        await File.WriteAllTextAsync(Path.Combine(output, "leftover.payload"), "extra");
+        Directory.CreateDirectory(Path.Combine(output, "nested-assets"));
 
         // Act
         PublishService.OutputShapeValidation validation = PublishService.ValidateOutputShape(output, expectedMainOutput);
@@ -166,8 +166,8 @@ public class PublishServiceTests {
     public async Task ValidateOutputShape_UsesPlatformPathCasingRules() {
         // Arrange
         string output = TemporaryDirectory.Path;
-        string actualMainOutput = Path.Join(output, "SampleApp.exe");
-        string expectedMainOutput = Path.Join(output, "sampleapp.exe");
+        string actualMainOutput = Path.Combine(output, "SampleApp.exe");
+        string expectedMainOutput = Path.Combine(output, "sampleapp.exe");
         await File.WriteAllTextAsync(actualMainOutput, "main");
 
         // Act
@@ -187,7 +187,7 @@ public class PublishServiceTests {
     private static string FindRepoRoot() {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
         while (current is not null) {
-            if (File.Exists(Path.Join(current.FullName, "InfiniFrame.slnx"))) return current.FullName;
+            if (File.Exists(Path.Combine(current.FullName, "InfiniFrame.slnx"))) return current.FullName;
 
             current = current.Parent;
         }
@@ -253,12 +253,12 @@ public class PublishServiceTests {
 
     private static async Task<SharedPublishFixture> CreateSharedPublishFixtureAsync() {
         string repoRoot = FindRepoRoot();
-        string root = Path.Join(Path.GetTempPath(), $"infiniframe-pack-shared-{Guid.NewGuid():N}");
-        string appDirectory = Path.Join(root, "app");
+        string root = Path.Combine(Path.GetTempPath(), $"infiniframe-pack-shared-{Guid.NewGuid():N}");
+        string appDirectory = Path.Combine(root, "app");
         Directory.CreateDirectory(appDirectory);
 
-        string appProjectPath = Path.Join(appDirectory, "SharedSmokeApp.csproj");
-        string infiniFrameProjectPath = Path.Join(repoRoot, "src", "InfiniFrame", "InfiniFrame.csproj");
+        string appProjectPath = Path.Combine(appDirectory, "SharedSmokeApp.csproj");
+        string infiniFrameProjectPath = Path.Combine(repoRoot, "src", "InfiniFrame", "InfiniFrame.csproj");
         const string startupMarker = "BOOTSTRAP_SMOKE_OK";
 
         await File.WriteAllTextAsync(appProjectPath, $$"""
@@ -275,7 +275,7 @@ public class PublishServiceTests {
             </Project>
             """);
 
-        await File.WriteAllTextAsync(Path.Join(appDirectory, "Program.cs"), $$"""
+        await File.WriteAllTextAsync(Path.Combine(appDirectory, "Program.cs"), $$"""
             using InfiniFrame;
 
             InfiniFrameSingleFileBootstrap.Initialize();
@@ -283,9 +283,9 @@ public class PublishServiceTests {
             return 0;
             """);
 
-        string outputPath = Path.Join(root, "publish-output");
+        string outputPath = Path.Combine(root, "publish-output");
         string rid = RuntimeResolver.ResolveRid("auto");
-        string publishedExecutable = Path.Join(outputPath, rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? "SharedSmokeApp.exe" : "SharedSmokeApp");
+        string publishedExecutable = Path.Combine(outputPath, rid.StartsWith("win-", StringComparison.OrdinalIgnoreCase) ? "SharedSmokeApp.exe" : "SharedSmokeApp");
 
         var options = new PublishOptions {
             ProjectPath = appProjectPath,

@@ -100,7 +100,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory);
         if (staticWebAssetsProvider is not null) providers.Add(staticWebAssetsProvider);
 
-        string defaultWwwrootPath = Path.Join(baseDirectory, "wwwroot");
+        string defaultWwwrootPath = Path.Combine(baseDirectory, "wwwroot");
         bool hasPhysicalWwwroot = Directory.Exists(defaultWwwrootPath);
         PhysicalFileProvider? physicalWwwrootProvider = hasPhysicalWwwroot
             ? new PhysicalFileProvider(defaultWwwrootPath)
