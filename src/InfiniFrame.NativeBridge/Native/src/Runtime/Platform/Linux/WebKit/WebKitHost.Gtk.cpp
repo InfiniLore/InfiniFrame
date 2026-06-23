@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include <signal.h>
 #include <webkit2/webkit2.h>
 
 #include "Embedded/Embedded.h"
@@ -26,9 +25,6 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     }
 
     m_impl->configure_webkit_remote_debugging();
-
-    struct sigaction oldAction{};
-    sigaction(SIGCHLD, nullptr, &oldAction);
 
     m_impl->_webContext = webkit_web_context_new();
 
@@ -80,10 +76,8 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         );
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
-        sigaction(SIGCHLD, &oldAction, nullptr);
         return;
     }
-    sigaction(SIGCHLD, &oldAction, nullptr);
 
     gtk_widget_show_all(m_impl->_window);
 }
