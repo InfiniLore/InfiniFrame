@@ -22,11 +22,6 @@ public static class WebView2WindowManager {
     private static readonly object SharedGroupsLock = new();
     #endif
     
-    internal static readonly SemaphoreSlim IsolatedInitializationGate = new(1, 1);
-    internal static readonly Mutex IsolatedInitializationProcessGate = new(
-        initiallyOwned: false,
-        name: @"Local\InfiniFrame.WebView2.IsolatedInitialization"
-    );
     private static readonly string DefaultSharedProfileRoot = Path.Combine(
         Path.GetTempPath(),
         "infiniframe",

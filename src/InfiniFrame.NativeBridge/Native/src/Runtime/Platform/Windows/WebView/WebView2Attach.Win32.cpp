@@ -118,9 +118,7 @@ void InfiniFrameWindow::AttachWebView() {
     if (m_impl->_isWebView2Initializing || m_impl->_isInitialized)
         return;
     m_impl->_isWebView2Initializing = true;
-    auto initializationLease = m_impl->_webView2WindowMode == 1
-        ? std::shared_ptr<WebView2InitializationLease>{}
-        : std::make_shared<WebView2InitializationLease>();
+    auto initializationLease = std::make_shared<WebView2InitializationLease>();
 
     // Snapshot runtime path under lock so subsequent async setup uses a stable value.
     std::wstring configuredRuntimePath;

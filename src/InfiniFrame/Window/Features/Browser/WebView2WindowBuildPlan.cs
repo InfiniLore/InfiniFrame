@@ -9,10 +9,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class WebView2WindowBuildPlan(WebView2WindowMode mode, string sharedProfileRoot) {
-    #pragma warning disable CA1859
-    private IDisposable? _isolatedInitializationLease;
-    #pragma warning restore CA1859
-
+    private WebView2EnvironmentGroupStartupLease? _managedStartupLease;
     private WebView2WindowMode Mode { get; } = mode;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -34,7 +31,6 @@ internal sealed class WebView2WindowBuildPlan(WebView2WindowMode mode, string sh
 
         parameters.WebView2WindowMode = (int)Mode;
         if (Mode == WebView2WindowMode.IsolatedPerWindow) {
-            _isolatedInitializationLease = WebView2IsolatedInitializationLease.Acquire();
             return;
         }
 
@@ -53,6 +49,7 @@ internal sealed class WebView2WindowBuildPlan(WebView2WindowMode mode, string sh
         try {
             group.ReserveRemoteDebugging(parameters.RemoteDebuggingPort, window.Id, logger);
             group.InitializeOrThrow(window.Id);
+            _managedStartupLease = group.AcquireStartupLease(window.Id);
         }
         catch {
             WebView2WindowManager.ReleaseWindow(window);
@@ -61,7 +58,7 @@ internal sealed class WebView2WindowBuildPlan(WebView2WindowMode mode, string sh
     }
 
     public void Release() {
-        _isolatedInitializationLease?.Dispose();
-        _isolatedInitializationLease = null;
+        _managedStartupLease?.Dispose();
+        _managedStartupLease = null;
     }
 }

@@ -14,6 +14,7 @@ internal sealed class WebView2EnvironmentGroup(WebView2EnvironmentKey key) : IDi
     #else
     private readonly object _lock = new();
     #endif
+    private readonly SemaphoreSlim _startupGate = new(1, 1);
     
     private int _referenceCount;
     private Exception? _initializationFailure;
@@ -58,6 +59,11 @@ internal sealed class WebView2EnvironmentGroup(WebView2EnvironmentKey key) : IDi
         }
     }
 
+    public WebView2EnvironmentGroupStartupLease AcquireStartupLease(Guid windowId) {
+        _startupGate.Wait();
+        return new WebView2EnvironmentGroupStartupLease(this, windowId);
+    }
+
     public void ReserveRemoteDebugging(int port, Guid windowId, ILogger logger) {
         if (port == 0) return;
 
@@ -94,12 +100,24 @@ internal sealed class WebView2EnvironmentGroup(WebView2EnvironmentKey key) : IDi
     public void Dispose() {
         _remoteDebuggingReservation?.Dispose();
         _remoteDebuggingReservation = null;
+        _startupGate.Dispose();
 
         try {
             if (Directory.Exists(Key.ProfilePath)) Directory.Delete(Key.ProfilePath, recursive: true);
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
             // Browser processes may release files shortly after the final controller is closed.
+        }
+    }
+
+    internal void ReleaseStartupLease(Guid windowId) {
+        try {
+            _startupGate.Release();
+        }
+        catch (ObjectDisposedException ex) {
+            throw new InvalidOperationException(
+                $"ManagedShared WebView2 startup gate was disposed while releasing window {windowId}.",
+                ex);
         }
     }
 }

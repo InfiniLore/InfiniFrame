@@ -99,6 +99,7 @@ public class InfiniFrameWindowBuilder : IInfiniFrameWindowBuilder {
             window.Features.Lifecycle.Initialize();
         }
         catch {
+            webView2BuildPlan?.Release();
             WebView2WindowManager.ReleaseWindow(window);
             throw;
         }
