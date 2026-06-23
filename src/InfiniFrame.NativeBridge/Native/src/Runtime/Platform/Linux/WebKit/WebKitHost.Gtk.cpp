@@ -25,11 +25,12 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
         return;
     }
 
+    m_impl->configure_webkit_remote_debugging();
+
     struct sigaction oldAction{};
     sigaction(SIGCHLD, nullptr, &oldAction);
 
     m_impl->_webContext = webkit_web_context_new();
-    m_impl->configure_webkit_remote_debugging();
 
     m_impl->_webview = webkit_web_view_new_with_context(m_impl->_webContext);
 

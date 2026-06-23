@@ -25,7 +25,6 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
         m_impl->ConfigureInitialWindow(this, initParams);
         m_impl->ApplyInitialWindowState(this, initParams);
         m_impl->ConnectWindowSignals(this);
-        m_impl->configure_webkit_remote_debugging();
 
         Show(false);
 
