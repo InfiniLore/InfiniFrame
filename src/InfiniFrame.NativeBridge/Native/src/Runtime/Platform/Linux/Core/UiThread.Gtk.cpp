@@ -12,6 +12,7 @@
 #include <gtk/gtk.h>
 
 #include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
+#include "Runtime/Platform/Linux/Core/LinuxGraphicsEnvironment.Gtk.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -56,6 +57,7 @@ namespace infiniframe::linux_gtk::ui_thread {
     void EnsureInitialized() {
         std::call_once(initializeOnce, [] {
             std::thread worker([] {
+                infiniframe::linux_gtk::ConfigureGraphicsEnvironment();
                 XInitThreads();
                 gtk_init(nullptr, nullptr);
                 notify_init(NotifyAppName);

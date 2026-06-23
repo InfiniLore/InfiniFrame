@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
-#include <JavaScriptCore/JavaScript.h>
 #include <webkit2/webkit2.h>
 
 #include "Runtime/Platform/Linux/Core/GtkCallbackGuard.h"
@@ -25,6 +24,19 @@ namespace gtk_webkit {
         GFreeGuard& operator=(const GFreeGuard&) = delete;
     };
 
+    struct GObjectGuard {
+        gpointer value = nullptr;
+
+        explicit GObjectGuard(gpointer initialValue = nullptr) : value(initialValue) {}
+        ~GObjectGuard() {
+            if (value != nullptr)
+                g_object_unref(value);
+        }
+
+        GObjectGuard(const GObjectGuard&) = delete;
+        GObjectGuard& operator=(const GObjectGuard&) = delete;
+    };
+
     void HandleWebMessage(
         WebKitUserContentManager* contentManager, WebKitJavascriptResult* jsResult, const gpointer userData
     ) {
@@ -40,19 +52,11 @@ namespace gtk_webkit {
             GFreeGuard strValue(jsc_value_to_string(jsValue));
             GFreeGuard originValue;
 
-            JSGlobalContextRef context = webkit_javascript_result_get_global_context(jsResult);
-            JSStringRef script = JSStringCreateWithUTF8CString("window.location.href");
-            JSValueRef locationValue = JSEvaluateScript(context, script, nullptr, nullptr, 0, nullptr);
-            JSStringRelease(script);
-
-            if (locationValue != nullptr) {
-                JSStringRef locationString = JSValueToStringCopy(context, locationValue, nullptr);
-                if (locationString != nullptr) {
-                    size_t maxBytes = JSStringGetMaximumUTF8CStringSize(locationString);
-                    originValue.value = static_cast<AutoString>(g_malloc(maxBytes));
-                    if (originValue.value != nullptr)
-                        JSStringGetUTF8CString(locationString, originValue.value, maxBytes);
-                    JSStringRelease(locationString);
+            JSCContext* context = jsc_value_get_context(jsValue);
+            if (context != nullptr) {
+                GObjectGuard locationValue(jsc_context_evaluate(context, "window.location.href", -1));
+                if (locationValue.value != nullptr && jsc_value_is_string(JSC_VALUE(locationValue.value))) {
+                    originValue.value = jsc_value_to_string(JSC_VALUE(locationValue.value));
                 }
             }
 

@@ -159,17 +159,20 @@ jobs:
                     echo "Desktop: $XDG_CURRENT_DESKTOP"
                     echo "D-Bus: $DBUS_SESSION_BUS_ADDRESS"
                     
+                    export LIBGL_ALWAYS_SOFTWARE=1
+                    export GALLIUM_DRIVER=llvmpipe
+                    export MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
+                    export MESA_GL_VERSION_OVERRIDE=3.3
+                    export WEBKIT_DISABLE_COMPOSITING_MODE=1
+                    export WEBKIT_DISABLE_DMABUF_RENDERER=1
+                    export INFINIFRAME_LINUX_FORCE_SOFTWARE_RENDERING=1
+
                     xdpyinfo | head -3 || true
                     
                     echo "=== OpenGL Info ==="
                     glxinfo | grep -E "OpenGL renderer|OpenGL vendor|OpenGL version" || true
                     
                     echo "=== Running Tests ==="
-                    
-                    export LIBGL_ALWAYS_SOFTWARE=1
-                    export GALLIUM_DRIVER=llvmpipe
-                    export MESA_GL_VERSION_OVERRIDE=3.3
-                    export WEBKIT_DISABLE_COMPOSITING_MODE=1
                     
                     mkdir -p artifacts/native-crash
                     ulimit -c unlimited

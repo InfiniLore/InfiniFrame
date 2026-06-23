@@ -4,6 +4,7 @@
 #include <webkit2/webkit2.h>
 
 #include "Embedded/Embedded.h"
+#include "Runtime/Platform/Linux/Core/LinuxGraphicsEnvironment.Gtk.h"
 #include "Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
@@ -25,6 +26,7 @@ void InfiniFrameWindow::Show(bool isAlreadyShown) {
     }
 
     m_impl->configure_webkit_remote_debugging();
+    infiniframe::linux_gtk::ConfigureGraphicsEnvironment();
 
     m_impl->_webContext = webkit_web_context_new();
 
