@@ -62,6 +62,9 @@ public class InfiniFrameWindowFeatureLifecycle(
 
         try {
             if (handle != IntPtr.Zero) {
+                using WebView2ProcessInitializationLease? webView2Lease = OperatingSystem.IsWindows()
+                    ? WebView2ProcessInitializationLease.Acquire()
+                    : null;
                 lock (NativePlatformRegistrationLock) {
                     InfiniFrameNative.Destructor(handle);
                 }

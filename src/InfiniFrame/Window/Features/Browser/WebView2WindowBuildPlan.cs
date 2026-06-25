@@ -9,6 +9,7 @@ namespace InfiniFrame;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class WebView2WindowBuildPlan(WebView2WindowMode mode, string sharedProfileRoot) {
+    private WebView2ProcessInitializationLease? _processInitializationLease;
     private WebView2EnvironmentGroupStartupLease? _managedStartupLease;
     private WebView2WindowMode Mode { get; } = mode;
 
@@ -30,6 +31,7 @@ internal sealed class WebView2WindowBuildPlan(WebView2WindowMode mode, string sh
         if (!OperatingSystem.IsWindows()) return;
 
         parameters.WebView2WindowMode = (int)Mode;
+        _processInitializationLease = WebView2ProcessInitializationLease.Acquire();
         if (Mode == WebView2WindowMode.IsolatedPerWindow) {
             return;
         }
@@ -60,5 +62,7 @@ internal sealed class WebView2WindowBuildPlan(WebView2WindowMode mode, string sh
     public void Release() {
         _managedStartupLease?.Dispose();
         _managedStartupLease = null;
+        _processInitializationLease?.Dispose();
+        _processInitializationLease = null;
     }
 }

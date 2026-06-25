@@ -11,6 +11,7 @@ public class ReOpeningAnotherWindowTests {
     [Test]
     [SkipOnMacOs]
     [SkipOnWindowsArm]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task AtWindowStage_CloseMultipleWindows_DoesNotPreventSubsequentWindowCreation(CancellationToken ct = default) {
         // Arrange
         var window1Utility = InfiniFrameTestWindow.Create(ct);

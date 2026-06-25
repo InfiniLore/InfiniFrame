@@ -11,6 +11,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 public class RemoteDebuggingPortCollisionTests {
     [Test]
     [SkipOnMacOs]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task AtWindowStage_ThroughBuilderAssignment_PortCollision_ThrowsActionableError(CancellationToken ct = default) {
         if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) {
             Skip.Test("This test is only run on Windows and Linux");

@@ -11,6 +11,7 @@ public class WindowClosedEventTests {
     [Test]
     [Retry(5)]
     [SkipOnMacOs]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task AtWindowStage_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int closedEventCount = 0;
@@ -38,6 +39,7 @@ public class WindowClosedEventTests {
     [Test]
     [Retry(5)]
     [SkipOnMacOs]
+    [DefaultInfiniTestsTimeout(30_000)]
     public async Task AtWindowStage_DirectAssignment_Close_RaisesEvent(CancellationToken ct = default) {
         // Arrange
         int closedEventCount = 0;

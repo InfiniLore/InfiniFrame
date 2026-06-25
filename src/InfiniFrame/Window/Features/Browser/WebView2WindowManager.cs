@@ -21,6 +21,11 @@ public static class WebView2WindowManager {
     #else
     private static readonly object SharedGroupsLock = new();
     #endif
+
+    internal static readonly Mutex InitializationProcessGate = new(
+        initiallyOwned: false,
+        name: @"Local\InfiniFrame.WebView2.Initialization"
+    );
     
     private static readonly string DefaultSharedProfileRoot = Path.Combine(
         Path.GetTempPath(),
