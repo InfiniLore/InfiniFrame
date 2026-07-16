@@ -16,18 +16,13 @@ public class InfiniFrameRootComponentList : IInfiniFrameRootComponentList {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    public IEnumerator<(Type, string)> GetEnumerator() 
-        => _components.GetEnumerator();
+    public IEnumerator<(Type, string)> GetEnumerator() => _components.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => _components.GetEnumerator();
     
-    IEnumerator IEnumerable.GetEnumerator()
-        => _components.GetEnumerator();
-    
-    /// <inheritdoc cref="IInfiniFrameRootComponentList.Add{TComponent}"/>
     public void Add<TComponent>(string selector) where TComponent : IComponent {
         _components.Add((typeof(TComponent), selector));
     }
 
-    /// <inheritdoc cref="IInfiniFrameRootComponentList.Add"/>
     public void Add(Type componentType, string selector) {
         if (!componentType.IsAssignableTo(typeof(IComponent))) {
             throw new ArgumentException("The component type must implement IComponent interface.");

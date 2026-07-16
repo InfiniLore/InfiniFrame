@@ -299,18 +299,6 @@ class InfiniFrameWindow {
     void SetZoomEnabled(bool enabled);
 
     /**
-         * @brief Enable or disable media autoplay
-         * @param enabled true to allow audio/video autoplay without user interaction
-         */
-    void SetMediaAutoplayEnabled(bool enabled);
-
-    /**
-         * @brief Set the browser user-agent string
-         * @param userAgent UTF-8 user-agent string; empty/null clears custom override
-         */
-    void SetUserAgent(AutoString userAgent);
-
-    /**
          * @brief Enable or disable the browser DevTools panel
          * @param enabled true to make DevTools accessible
          */
@@ -555,9 +543,6 @@ class InfiniFrameWindow {
     void OnConfigureEvent(int x, int y, int width, int height);
     void OnWindowStateEvent(GdkWindowState newState);
     void FlushPendingWebMessages();
-    void MarkDestroyed();
-    bool IsDestroyed() const;
-    void WaitUntilDestroyed();
 
     /**
          * @brief Get the native GTK toplevel window widget
@@ -620,7 +605,6 @@ class InfiniFrameWindow {
     static void Register();
 
     void FlushPendingWebMessages();
-    void ApplyMediaAutoplayConfiguration();
 
     /**
          * @brief Get the native NSWindow pointer for this window

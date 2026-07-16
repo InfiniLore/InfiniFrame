@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
+
     <PropertyGroup>
-        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,12 +13,5 @@
         <ProjectReference Include="../../src/InfiniFrame.BlazorWebView/InfiniFrame.BlazorWebView.csproj"/>
         <ProjectReference Include="../InfiniAutomationTests/InfiniAutomationTests.csproj"/>
         <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="../../assets/favicon.ico">
-            <Link>Assets/favicon.ico</Link>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
     </ItemGroup>
 </Project>

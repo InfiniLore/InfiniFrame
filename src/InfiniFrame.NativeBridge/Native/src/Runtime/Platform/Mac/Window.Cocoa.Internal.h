@@ -12,9 +12,6 @@
 #include "Runtime/Shared/Window/InfiniFrameWindow.h"
 #include "Runtime/Shared/Window/InfiniFrameWindowImpl.h"
 
-@class UiDelegate;
-@class NavigationDelegate;
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
@@ -23,8 +20,6 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     NSWindow* _window = nil;
     WKWebView* _webview = nil;
     WKWebViewConfiguration* _webviewConfiguration = nil;
-    UiDelegate* _uiDelegate = nil;
-    NavigationDelegate* _navigationDelegate = nil;
     NSWindow* _nativeParentWindow = nil;
     id _parentWillCloseObserver = nil;
 

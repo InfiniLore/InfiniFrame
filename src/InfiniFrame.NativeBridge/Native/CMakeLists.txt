@@ -87,12 +87,8 @@ set(WINDOWS_SOURCES
 set(LINUX_SOURCES
         src/Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h
         src/Runtime/Platform/Linux/Window.Gtk.Internal.h
-        src/Runtime/Platform/Linux/Core/GtkCallbackGuard.h
-        src/Runtime/Platform/Linux/Core/LinuxGraphicsEnvironment.Gtk.h
         
-        src/Runtime/Platform/Linux/Core/LinuxGraphicsEnvironment.Gtk.cpp
         src/Runtime/Platform/Linux/Core/UiDispatcher.Gtk.cpp
-        src/Runtime/Platform/Linux/Core/UiThread.Gtk.cpp
         src/Runtime/Platform/Linux/Core/WindowCore.Gtk.cpp
         src/Runtime/Platform/Linux/Core/WindowEvents.Gtk.cpp
         src/Runtime/Platform/Linux/Core/WindowInitialization.Gtk.cpp

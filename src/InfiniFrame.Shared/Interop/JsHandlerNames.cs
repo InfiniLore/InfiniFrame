@@ -5,9 +5,6 @@ namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Contains constants for JavaScript handler names used in interop communication.
-/// </summary>
 public static class JsHandlerNames {
     private const string InfiniFramePrefix = "__infiniframe";
 

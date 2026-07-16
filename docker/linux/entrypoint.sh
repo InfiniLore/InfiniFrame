@@ -314,11 +314,8 @@ eval "$(dbus-launch --sh-syntax)"
 echo "[stage] display ready"
 export LIBGL_ALWAYS_SOFTWARE=1
 export GALLIUM_DRIVER=llvmpipe
-export MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
 export MESA_GL_VERSION_OVERRIDE=3.3
 export WEBKIT_DISABLE_COMPOSITING_MODE=1
-export WEBKIT_DISABLE_DMABUF_RENDERER=1
-export INFINIFRAME_LINUX_FORCE_SOFTWARE_RENDERING=1
 ulimit -c unlimited
 ensure_native_debug_tools
 configure_core_dumping

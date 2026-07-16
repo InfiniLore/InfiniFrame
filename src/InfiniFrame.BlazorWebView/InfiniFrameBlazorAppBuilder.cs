@@ -2,7 +2,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.BlazorWebView.FileProviders.Static;
-using InfiniFrame.StaticAssets;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -14,11 +13,8 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
-    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.RootComponents"/>
     public IInfiniFrameRootComponentList RootComponents { get; } = new InfiniFrameRootComponentList();
-    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.Services"/>
     public IServiceCollection Services { get; } = new ServiceCollection();
-    /// <inheritdoc cref="IInfiniFrameBlazorAppBuilder.WindowBuilder"/>
     public IInfiniFrameWindowBuilder WindowBuilder { get; } = InfiniFrameWindowBuilder.Create();
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -36,12 +32,10 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         // We don't use the args for anything right now, but we want to accept them
         // here so that it shows up this way in the project templates.
         var appBuilder = new InfiniFrameBlazorAppBuilder();
-        IFileProvider resolvedFileProvider = ConfigureFileProvider(fileProvider);
 
         appBuilder.Services.AddOptions<InfiniFrameBlazorAppConfiguration>();
 
         appBuilder.Services
-            .AddInfiniFrame()
             .AddScoped(static sp => {
                 var handler = sp.GetRequiredService<InfiniFrameHttpHandler>();
                 return new HttpClient(handler) { BaseAddress = new Uri(InfiniFrameWebViewManager.AppBaseUri) };
@@ -54,17 +48,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
             .AddSingleton<InfiniFrameSynchronizationContext>()
             .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider))
             .AddBlazorWebView()
-            .AddSingleton(resolvedFileProvider)
-            .AddSingleton<IInfiniFrameStaticAssets>(static provider => {
-                InfiniFrameBlazorAppConfiguration config = provider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
-                    ?? new InfiniFrameBlazorAppConfiguration();
-
-                return new InfiniFrameStaticAssets {
-                    FileProvider = provider.GetRequiredService<IFileProvider>(),
-                    BaseUri = config.AppBaseUri.ToString(),
-                    DefaultDocument = NormalizeHostPage(config.HostPage)
-                };
-            })
+            .AddSingleton(ConfigureFileProvider(fileProvider))
             .AddSingleton(appBuilder.WindowBuilder)
             .AddSingleton(appBuilder.RootComponents)
             .AddSingleton(appBuilder.RootComponents.JSComponents);
@@ -95,24 +79,22 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         if (fileProvider is not null) return fileProvider;
 
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        var providers = new List<IFileProvider>();
-
         IFileProvider? staticWebAssetsProvider = StaticWebAssetsRuntimeFileProvider.TryCreate(baseDirectory);
-        if (staticWebAssetsProvider is not null) providers.Add(staticWebAssetsProvider);
 
         string defaultWwwrootPath = Path.Join(baseDirectory, "wwwroot");
         bool hasPhysicalWwwroot = Directory.Exists(defaultWwwrootPath);
         PhysicalFileProvider? physicalWwwrootProvider = hasPhysicalWwwroot
             ? new PhysicalFileProvider(defaultWwwrootPath)
             : null;
-        if (physicalWwwrootProvider is not null) providers.Add(physicalWwwrootProvider);
 
-        return providers.Count switch {
-            0 => new NullFileProvider(),
-            1 => providers[0],
-            _ => new CompositeFileProvider(providers)
-        };
+        if (staticWebAssetsProvider is not null && physicalWwwrootProvider is not null) {
+            return new CompositeFileProvider(staticWebAssetsProvider, physicalWwwrootProvider);
+        }
 
+        if (staticWebAssetsProvider is not null) return staticWebAssetsProvider;
+        if (physicalWwwrootProvider is not null) return physicalWwwrootProvider;
+
+        return new NullFileProvider();
     }
 
     public InfiniFrameBlazorAppBuilder WithInfiniFrameWindowBuilder(Action<IInfiniFrameWindowBuilder> windowBuilder) {
@@ -146,20 +128,17 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
         var manager = serviceProvider.GetRequiredService<IInfiniFrameWebViewManager>();
-        InfiniFrameBlazorAppConfiguration appConfig = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?.Value
-            ?? new InfiniFrameBlazorAppConfiguration();
-        string startupUrl = BuildStartupUrl(appConfig);
-        var staticAssets = serviceProvider.GetRequiredService<IInfiniFrameStaticAssets>();
 
-        WindowBuilder.StaticAssets = staticAssets.DeepCopy();
+        WindowBuilder
+            .RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest)
+            .SetStartUrl(InfiniFrameWebViewManager.AppBaseUri);
 
-        if (!WindowBuilder.EventsStore.CustomScheme.ContainsKey(InfiniFrameWebViewManager.BlazorAppScheme)) {
-            WindowBuilder.RegisterCustomSchemeHandler(InfiniFrameWebViewManager.BlazorAppScheme, manager.HandleWebRequest);
-        }
+        bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
+            .Value.EnableGlobalUnhandledExceptionHandler ?? true;
 
-        WindowBuilder.SetStartPageUrl(startupUrl);
-
-        IDisposable? unhandledExceptionRegistration = TryRegisterUnhandledExceptionHandler(serviceProvider);
+        IDisposable? unhandledExceptionRegistration = enableGlobalUnhandledExceptionHandler
+            ? RegisterUnhandledExceptionHandler(serviceProvider)
+            : null;
 
         return new InfiniFrameBlazorApp(
             serviceProvider,
@@ -169,26 +148,7 @@ public class InfiniFrameBlazorAppBuilder : IInfiniFrameBlazorAppBuilder {
         );
     }
 
-    private static string BuildStartupUrl(InfiniFrameBlazorAppConfiguration configuration) {
-        Uri appBaseUri = configuration.AppBaseUri;
-        string hostPage = NormalizeHostPage(configuration.HostPage);
-
-        return string.Equals(hostPage, "index.html", StringComparison.OrdinalIgnoreCase) 
-            ? appBaseUri.ToString() 
-            : new Uri(appBaseUri, hostPage).ToString();
-    }
-
-    private static string NormalizeHostPage(string? hostPage) 
-        => !string.IsNullOrWhiteSpace(hostPage) 
-            ? hostPage.TrimStart('/')
-            : "index.html";
-
-    private static IDisposable? TryRegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
-        bool enableGlobalUnhandledExceptionHandler = serviceProvider.GetService<IOptions<InfiniFrameBlazorAppConfiguration>>()?
-            .Value.EnableGlobalUnhandledExceptionHandler ?? true;
-        
-        if (!enableGlobalUnhandledExceptionHandler) return null;
-        
+    private static IDisposable RegisterUnhandledExceptionHandler(IServiceProvider serviceProvider) {
         var exceptionSource = serviceProvider.GetRequiredService<IInfiniFrameUnhandledExceptionSource>();
 
         return exceptionSource.Register((_, error) => {

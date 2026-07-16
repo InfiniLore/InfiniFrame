@@ -9,19 +9,12 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Custom marshaller for converting <see cref="InfiniFrameNativeParameters"/>
-///     to an unmanaged representation for native interop calls.
-/// </summary>
 [CustomMarshaller(
     typeof(InfiniFrameNativeParameters), 
     MarshalMode.ManagedToUnmanagedIn,
     typeof(ManagedToUnmanagedIn)
 )]
 internal static class InfiniFrameNativeParametersMarshaller {
-    /// <summary>
-    ///     Unmanaged layout of <see cref="InfiniFrameNativeParameters"/> used for native interop.
-    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct Unmanaged {
         internal IntPtr StartString;
@@ -97,16 +90,9 @@ internal static class InfiniFrameNativeParametersMarshaller {
         internal int Size;
     }
 
-    /// <summary>
-    ///     Marshals managed <see cref="InfiniFrameNativeParameters"/> to the native <see cref="Unmanaged"/> layout.
-    /// </summary>
     internal ref struct ManagedToUnmanagedIn {
         private Unmanaged _unmanaged;
 
-        /// <summary>
-        ///     Copies all values from the managed source into the unmanaged representation.
-        /// </summary>
-        /// <param name="managed">The managed parameters source.</param>
         public void FromManaged(InfiniFrameNativeParameters managed) {
             _unmanaged = new Unmanaged {
                 StartString = ToUtf8Ptr(managed.StartString),
@@ -183,15 +169,8 @@ internal static class InfiniFrameNativeParametersMarshaller {
             };
         }
 
-        /// <summary>
-        ///     Returns the populated unmanaged representation.
-        /// </summary>
-        /// <returns>The <see cref="Unmanaged"/> instance.</returns>
         public Unmanaged ToUnmanaged() => _unmanaged;
 
-        /// <summary>
-        ///     Frees CoTaskMem-allocated string pointers that were marshalled to the unmanaged struct.
-        /// </summary>
         public void Free() {
             // CustomSchemeNames are unmanaged HGlobal pointers allocated by managed builders.
             // Their lifetime is owned by the managed window initialization flow, not by this marshaller.
@@ -209,25 +188,13 @@ internal static class InfiniFrameNativeParametersMarshaller {
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <summary>
-    ///     Converts a <see cref="bool"/> to a <see cref="byte"/> (1 for <c>true</c>, 0 for <c>false</c>).
-    /// </summary>
     private static byte ToByte(bool value) 
         => value ? (byte)1 : (byte)0;
 
-    /// <summary>
-    ///     Marshals a managed string to a CoTaskMem-allocated UTF-8 pointer, or <see cref="IntPtr.Zero"/> if null.
-    /// </summary>
     private static IntPtr ToUtf8Ptr(string? value) => value is null
         ? IntPtr.Zero
         : Marshal.StringToCoTaskMemUTF8(value);
 
-    /// <summary>
-    ///     Converts a managed delegate to a function pointer suitable for native callbacks.
-    /// </summary>
-    /// <param name="callback">The managed delegate.</param>
-    /// <returns>A native function pointer, or <see cref="IntPtr.Zero"/> if null.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when the delegate type is not recognized.</exception>
     private static IntPtr ToFunctionPtr(Delegate? callback) => callback is null
         ? IntPtr.Zero
         : callback switch {
@@ -246,9 +213,6 @@ internal static class InfiniFrameNativeParametersMarshaller {
             _ => throw new ArgumentOutOfRangeException(nameof(callback), callback.GetType(), "Unsupported callback delegate type.")
         };
 
-    /// <summary>
-    ///     Gets a custom scheme name pointer from the array at the specified index, or <see cref="IntPtr.Zero"/> if unavailable.
-    /// </summary>
     private static IntPtr GetCustomSchemeName(IntPtr[]? values, int index) 
         => values is not null && values.Length > index ? values[index] : IntPtr.Zero;
 }

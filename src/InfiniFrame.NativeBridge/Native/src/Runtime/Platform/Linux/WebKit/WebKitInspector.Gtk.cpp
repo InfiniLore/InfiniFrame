@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 #include <cerrno>
 #include <cstring>
+#include <stdexcept>
 #include <string>
 
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"

@@ -236,11 +236,7 @@ void InfiniFrameWindow::AttachWebView() {
                                             m_impl->_webviewWindow != nullptr) {
                                             m_impl->_webviewWindow->get_Source(&source);
                                         }
-
-                                        // Guard: skip empty/null messages to avoid invoking managed delegate with invalid data
-                                        if (message.get() != nullptr && message.get()[0] != L'\0') {
-                                            m_impl->_webMessageReceivedCallback(message.get(), source.get());
-                                        }
+                                        m_impl->_webMessageReceivedCallback(message.get(), source.get());
                                         return S_OK;
                                     }
                                 ).Get(),
@@ -257,21 +253,6 @@ void InfiniFrameWindow::AttachWebView() {
                                     [this](ICoreWebView2*, ICoreWebView2PermissionRequestedEventArgs* args) -> HRESULT {
                                         if (m_impl->_isClosingOrClosed.load(std::memory_order_acquire))
                                             return S_OK;
-
-#ifdef COREWEBVIEW2_PERMISSION_KIND_AUTOPLAY
-                                        COREWEBVIEW2_PERMISSION_KIND permissionKind =
-                                            COREWEBVIEW2_PERMISSION_KIND_UNKNOWN_PERMISSION;
-                                        if (args != nullptr)
-                                            args->get_PermissionKind(&permissionKind);
-                                        if (permissionKind == COREWEBVIEW2_PERMISSION_KIND_AUTOPLAY) {
-                                            args->put_State(
-                                                m_impl->_mediaAutoplayEnabled
-                                                    ? COREWEBVIEW2_PERMISSION_STATE_ALLOW
-                                                    : COREWEBVIEW2_PERMISSION_STATE_DENY
-                                            );
-                                            return S_OK;
-                                        }
-#endif
 
                                         if (m_impl->_grantBrowserPermissions)
                                             args->put_State(COREWEBVIEW2_PERMISSION_STATE_ALLOW);

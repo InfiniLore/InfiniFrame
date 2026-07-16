@@ -47,30 +47,15 @@ void InfiniFrameWindow::Impl::SetUserAgent(AutoString userAgent)
     else
     {
         _userAgent.clear();
-        [_webview setCustomUserAgent: nil];
     }
 }
 
 void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSNumber *value)
 {
-    @try {
-        [_webviewConfiguration.preferences setValue: value forKey: key];
-    }
-    @catch (NSException *exception) {
-        throw std::runtime_error(
-            [[NSString stringWithFormat: @"SetPreference(%@) failed: %@: %@", key, exception.name, exception.reason] UTF8String]
-        );
-    }
+    [_webviewConfiguration.preferences setValue: value forKey: key];
 }
 
 void InfiniFrameWindow::Impl::SetPreference(NSString *key, NSString *value)
 {
-    @try {
-        [_webviewConfiguration.preferences setValue: value forKey: key];
-    }
-    @catch (NSException *exception) {
-        throw std::runtime_error(
-            [[NSString stringWithFormat: @"SetPreference(%@) failed: %@: %@", key, exception.name, exception.reason] UTF8String]
-        );
-    }
+    [_webviewConfiguration.preferences setValue: value forKey: key];
 }

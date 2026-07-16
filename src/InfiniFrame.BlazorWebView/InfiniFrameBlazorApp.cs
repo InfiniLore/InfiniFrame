@@ -25,7 +25,6 @@ public class InfiniFrameBlazorApp(
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <inheritdoc cref="IInfiniFrameBlazorApp.RunAsync"/>
     public async Task RunAsync(CancellationToken ct = default) {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
@@ -45,7 +44,6 @@ public class InfiniFrameBlazorApp(
         }
     }
 
-    /// <inheritdoc cref="IInfiniFrameBlazorApp.Run"/>
     public void Run() {
         ObjectDisposedException.ThrowIf(_disposed, this);
 

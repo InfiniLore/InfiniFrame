@@ -109,33 +109,6 @@ void InfiniFrameWindow::SetContextMenuEnabled(const bool enabled) {
     }
 }
 
-void InfiniFrameWindow::SetMediaAutoplayEnabled(const bool enabled) {
-    m_impl->_mediaAutoplayEnabled = enabled;
-    if (!m_impl->_webviewWindow)
-        return;
-
-    // WebView2 autoplay policy is decided during permission flow and startup arguments.
-    // Reload to force a new page lifecycle under the updated policy.
-    m_impl->_webviewWindow->Reload();
-}
-
-void InfiniFrameWindow::SetUserAgent(const AutoString userAgent) {
-    m_impl->_userAgent = userAgent != nullptr ? ToUTF16String(userAgent) : L"";
-    if (!m_impl->_webviewWindow)
-        return;
-
-    wil::com_ptr<ICoreWebView2Settings> settings;
-    if (FAILED(m_impl->_webviewWindow->get_Settings(&settings)) || !settings)
-        return;
-
-    wil::com_ptr<ICoreWebView2Settings2> settings2;
-    if (FAILED(settings->QueryInterface(&settings2)) || !settings2)
-        return;
-
-    settings2->put_UserAgent(m_impl->_userAgent.empty() ? nullptr : m_impl->_userAgent.c_str());
-    m_impl->_webviewWindow->Reload();
-}
-
 void InfiniFrameWindow::SetZoomEnabled(const bool enabled) {
     m_impl->_zoomEnabled = enabled;
     if (!m_impl->_webviewWindow)

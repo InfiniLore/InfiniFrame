@@ -5,21 +5,20 @@
   </PropertyGroup>
   <!-- .NET 8 -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="8.0.28" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="8.0.27" />
   </ItemGroup>
   <!-- .NET 9 -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="9.0.17" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="9.0.16" />
   </ItemGroup>
   <!-- .NET 10 -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.8" />
   </ItemGroup>
   <!-- Common packages for all frameworks -->
   <ItemGroup>
     <PackageVersion Include="CodeOfChaos.Extensions.DependencyInjection" Version="0.85.0" />
-    <PackageVersion Include="FluentValidation" Version="12.1.1" />
-    <PackageVersion Include="JetBrains.Annotations" Version="2026.2.0" />
+    <PackageVersion Include="JetBrains.Annotations" Version="2025.2.4" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Abstractions" Version="10.0.9" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="10.0.9" />
     <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.9" />
@@ -27,7 +26,7 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.4022.49" />
+    <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.3967.48" />
     <PackageVersion Include="Microsoft.Windows.ImplementationLibrary" Version="1.0.260126.7" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.60.0" />
     <PackageVersion Include="NSubstitute" Version="5.3.0" />
@@ -36,9 +35,9 @@
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageVersion Include="TUnit" Version="1.56.25" />
-    <PackageVersion Include="TUnit.Assertions" Version="1.56.25" />
-    <PackageVersion Include="TUnit.Core" Version="1.56.25" />
-    <PackageVersion Include="TUnit.Playwright" Version="1.56.25" />
+    <PackageVersion Include="TUnit" Version="1.53.0" />
+    <PackageVersion Include="TUnit.Assertions" Version="1.53.0" />
+    <PackageVersion Include="TUnit.Core" Version="1.53.0" />
+    <PackageVersion Include="TUnit.Playwright" Version="1.53.0" />
   </ItemGroup>
 </Project>

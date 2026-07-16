@@ -51,21 +51,19 @@ void InfiniFrameWindow::AttachWebView()
     [m_impl->_window.contentView addSubview: m_impl->_webview];
     [m_impl->_window.contentView setAutoresizesSubviews: true];
 
-    [m_impl->_uiDelegate release];
-    m_impl->_uiDelegate = [[UiDelegate alloc] init];
-    m_impl->_uiDelegate->infiniFrame = this;
-    m_impl->_uiDelegate->window = m_impl->_window;
-    m_impl->_uiDelegate->webMessageReceivedCallback = m_impl->_webMessageReceivedCallback;
+    UiDelegate *uiDelegate = [[[UiDelegate alloc] init] autorelease];
+    uiDelegate->infiniFrame = this;
+    uiDelegate->window = m_impl->_window;
+    uiDelegate->webMessageReceivedCallback = m_impl->_webMessageReceivedCallback;
 
-    [m_impl->_navigationDelegate release];
-    m_impl->_navigationDelegate = [[NavigationDelegate alloc] init];
-    m_impl->_navigationDelegate->infiniFrame = this;
-    m_impl->_navigationDelegate->window = m_impl->_window;
+    NavigationDelegate *navDelegate = [[[NavigationDelegate alloc] init] autorelease];
+    navDelegate->infiniFrame = this;
+    navDelegate->window = m_impl->_window;
 
-    [userContentController addScriptMessageHandler: m_impl->_uiDelegate name: @"infiniFrameInterop"];
+    [userContentController addScriptMessageHandler: uiDelegate name: @"infiniFrameInterop"];
 
-    m_impl->_webview.UIDelegate = m_impl->_uiDelegate;
-    m_impl->_webview.navigationDelegate = m_impl->_navigationDelegate;
+    m_impl->_webview.UIDelegate = uiDelegate;
+    m_impl->_webview.navigationDelegate = navDelegate;
 
     if (!m_impl->_startUrl.empty())
         NavigateToUrl(const_cast<AutoString>(m_impl->_startUrl.c_str()));
@@ -81,11 +79,10 @@ void InfiniFrameWindow::AttachWebView()
 
 void InfiniFrameWindow::Show(bool isAlreadyShown)
 {
+    (void)isAlreadyShown;
+
     if (m_impl->_webview == nil)
         AttachWebView();
-
-    if (isAlreadyShown)
-        return;
 
     [m_impl->_window makeKeyAndOrderFront: m_impl->_window];
     [m_impl->_window orderFrontRegardless];

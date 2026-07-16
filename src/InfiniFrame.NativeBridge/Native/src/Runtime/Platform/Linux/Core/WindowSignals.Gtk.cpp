@@ -6,7 +6,6 @@
 
 #include <webkit2/webkit2.h>
 
-#include "Runtime/Platform/Linux/Core/GtkCallbackGuard.h"
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
@@ -94,88 +93,51 @@ void InfiniFrameWindow::OnWindowStateEvent(GdkWindowState newState) {
 }
 
 gboolean on_configure_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {
-    (void)widget;
-    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("configure-event", FALSE, [&] -> gboolean {
-        if (event != nullptr && event->type == GDK_CONFIGURE && self != nullptr) {
-            auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-            instance->OnConfigureEvent(
-                event->configure.x, event->configure.y, event->configure.width, event->configure.height
-            );
-        }
-        return FALSE;
-    });
+    if (event->type == GDK_CONFIGURE) {
+        auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+        instance->OnConfigureEvent(
+            event->configure.x, event->configure.y, event->configure.width, event->configure.height
+        );
+    }
+    return FALSE;
 }
 
 gboolean on_window_state_event(GtkWidget* widget, GdkEventWindowState* event, const gpointer self) {
-    (void)widget;
-    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("window-state-event", FALSE, [&] -> gboolean {
-        if (event == nullptr || self == nullptr)
-            return FALSE;
-
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-        instance->OnWindowStateEvent(event->new_window_state);
-        return TRUE;
-    });
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    instance->OnWindowStateEvent(event->new_window_state);
+    return TRUE;
 }
 
 gboolean on_widget_deleted(GtkWidget* widget, GdkEvent* event, const gpointer self) {
-    (void)widget;
-    (void)event;
-    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("delete-event", FALSE, [&] -> gboolean {
-        if (self == nullptr)
-            return FALSE;
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    const bool cancel = instance->InvokeClose();
+    if (cancel)
+        return TRUE;
 
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-        const bool cancel = instance->InvokeClose();
-        if (cancel)
-            return TRUE;
-
-        // The user (or default handler) accepted the close. Disconnect our webview signal handlers and stop any in-flight
-        // load before the GtkContainer destroy cascade disposes the webview, so none of our callbacks (FlushPendingWebMessages,
-        // load/permission/context-menu handlers) can fire against a half-destroyed window. CloseWebView does NOT destroy the
-        // webview itself. Explicit destruction from inside this signal handler triggers WebKit's web-process teardown
-        // re-entrantly and aborts (SIGABRT); GtkContainer disposes the webview implicitly once we return FALSE.
-        instance->CloseWebView();
-        return FALSE;
-    });
+    // The user (or default handler) accepted the close. Disconnect our webview signal handlers and stop any in-flight
+    // load before the GtkContainer destroy cascade disposes the webview, so none of our callbacks (FlushPendingWebMessages,
+    // load/permission/context-menu handlers) can fire against a half-destroyed window. CloseWebView does NOT destroy the
+    // webview itself. Explicit destruction from inside this signal handler triggers WebKit's web-process teardown
+    // re-entrantly and aborts (SIGABRT); GtkContainer disposes the webview implicitly once we return FALSE.
+    instance->CloseWebView();
+    return FALSE;
 }
 
 void on_widget_destroyed(GtkWidget* widget, const gpointer self) {
-    (void)widget;
-    infiniframe::linux_gtk::RunGtkCallbackNoThrow("destroy", [&] {
-        if (self == nullptr)
-            return;
-
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-        instance->MarkDestroyed();
-        instance->InvokeClosed();
-    });
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    instance->InvokeClosed();
 }
 
 gboolean on_focus_in_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {
-    (void)widget;
-    (void)event;
-    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("focus-in-event", FALSE, [&] -> gboolean {
-        if (self == nullptr)
-            return FALSE;
-
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-        instance->InvokeFocusIn();
-        return FALSE;
-    });
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    instance->InvokeFocusIn();
+    return FALSE;
 }
 
 gboolean on_focus_out_event(GtkWidget* widget, GdkEvent* event, const gpointer self) {
-    (void)widget;
-    (void)event;
-    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("focus-out-event", FALSE, [&] -> gboolean {
-        if (self == nullptr)
-            return FALSE;
-
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-        instance->InvokeFocusOut();
-        return FALSE;
-    });
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    instance->InvokeFocusOut();
+    return FALSE;
 }
 
 gboolean on_webview_context_menu(
@@ -185,141 +147,100 @@ gboolean on_webview_context_menu(
     gboolean triggered_with_keyboard,
     const gpointer self
 ) {
-    (void)web_view;
-    (void)default_menu;
-    (void)hit_test_result;
-    (void)triggered_with_keyboard;
-    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("context-menu", TRUE, [&] -> gboolean {
-        if (self == nullptr)
-            return TRUE;
-
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
-        bool contextMenuEnabled = false;
-        instance->GetContextMenuEnabled(&contextMenuEnabled);
-        return !contextMenuEnabled;
-    });
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(self);
+    bool contextMenuEnabled = false;
+    instance->GetContextMenuEnabled(&contextMenuEnabled);
+    return !contextMenuEnabled;
 }
 
 gboolean on_permission_request(WebKitWebView* web_view, WebKitPermissionRequest* request, gpointer user_data) {
-    (void)web_view;
-    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("permission-request", TRUE, [&] -> gboolean {
-        if (request == nullptr)
-            return TRUE;
-        if (user_data == nullptr) {
-            webkit_permission_request_deny(request);
-            return TRUE;
-        }
-
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
-        bool grant = false;
-        instance->GetGrantBrowserPermissions(&grant);
-        if (grant)
-            webkit_permission_request_allow(request);
-        else
-            webkit_permission_request_deny(request);
-        return TRUE;
-    });
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+    bool grant = false;
+    instance->GetGrantBrowserPermissions(&grant);
+    if (grant)
+        webkit_permission_request_allow(request);
+    else
+        webkit_permission_request_deny(request);
+    return TRUE;
 }
 
 void on_webview_load_changed(WebKitWebView* web_view, WebKitLoadEvent load_event, gpointer user_data) {
-    infiniframe::linux_gtk::RunGtkCallbackNoThrow("load-changed", [&] {
-        if (web_view == nullptr || user_data == nullptr)
-            return;
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+    const char* uri = webkit_web_view_get_uri(web_view);
+    std::string payload = std::string{"{\"loadEvent\":\""} + webkit_load_event_to_string(load_event) + "\"}";
+    instance->InvokeDebugEvent(
+        "Navigation",
+        webkit_load_event_to_string(load_event),
+        "Info",
+        uri,
+        0,
+        unix_timestamp_milliseconds_utc(),
+        payload.c_str()
+    );
 
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
-        const char* uri = webkit_web_view_get_uri(web_view);
-        std::string payload = std::string{"{\"loadEvent\":\""} + webkit_load_event_to_string(load_event) + "\"}";
-        instance->InvokeDebugEvent(
-            "Navigation",
-            webkit_load_event_to_string(load_event),
-            "Info",
-            uri,
-            0,
-            unix_timestamp_milliseconds_utc(),
-            payload.c_str()
+    if (linux_webview_diagnostics_enabled()) {
+        g_message(
+            "[InfiniFrame/Linux] WebKit load-changed: event=%s uri=%s", webkit_load_event_to_string(load_event),
+            uri ? uri : "<null>"
         );
+    }
 
-        if (linux_webview_diagnostics_enabled()) {
-            g_message(
-                "[InfiniFrame/Linux] WebKit load-changed: event=%s uri=%s", webkit_load_event_to_string(load_event),
-                uri ? uri : "<null>"
-            );
-        }
-
-        if (load_event == WEBKIT_LOAD_FINISHED) {
-            instance->FlushPendingWebMessages();
-        }
-    });
+    if (load_event == WEBKIT_LOAD_FINISHED) {
+        instance->FlushPendingWebMessages();
+    }
 }
 
 gboolean on_webview_load_failed(
     WebKitWebView* web_view, WebKitLoadEvent load_event, gchar* failing_uri, GError* error, gpointer user_data
 ) {
-    (void)web_view;
-    return infiniframe::linux_gtk::RunGtkCallbackNoThrow("load-failed", FALSE, [&] -> gboolean {
-        if (user_data == nullptr)
-            return FALSE;
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+    std::string payload = std::string{"{\"loadEvent\":\""} + webkit_load_event_to_string(load_event) + "\"}";
+    instance->InvokeDebugEvent(
+        "ScriptError",
+        error ? error->message : "WebKit load failed",
+        "Error",
+        failing_uri,
+        error ? error->code : 0,
+        unix_timestamp_milliseconds_utc(),
+        payload.c_str()
+    );
 
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
-        std::string payload = std::string{"{\"loadEvent\":\""} + webkit_load_event_to_string(load_event) + "\"}";
-        instance->InvokeDebugEvent(
-            "ScriptError",
-            error ? error->message : "WebKit load failed",
-            "Error",
-            failing_uri,
-            error ? error->code : 0,
-            unix_timestamp_milliseconds_utc(),
-            payload.c_str()
-        );
-
-        if (!linux_webview_diagnostics_enabled())
-            return FALSE;
-
-        g_warning(
-            "[InfiniFrame/Linux] WebKit load-failed: event=%s uri=%s error=%s", webkit_load_event_to_string(load_event),
-            failing_uri ? failing_uri : "<null>", error ? error->message : "<null>"
-        );
+    if (!linux_webview_diagnostics_enabled())
         return FALSE;
-    });
+
+    g_warning(
+        "[InfiniFrame/Linux] WebKit load-failed: event=%s uri=%s error=%s", webkit_load_event_to_string(load_event),
+        failing_uri ? failing_uri : "<null>", error ? error->message : "<null>"
+    );
+    return FALSE;
 }
 
 void on_webview_process_terminated(
     WebKitWebView* web_view, WebKitWebProcessTerminationReason reason, gpointer user_data
 ) {
-    (void)web_view;
-    infiniframe::linux_gtk::RunGtkCallbackNoThrow("web-process-terminated", [&] {
-        if (user_data == nullptr)
-            return;
+    auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
+    std::string payload = std::string{"{\"terminationReason\":\""} + webkit_termination_reason_to_string(reason) + "\"}";
+    instance->InvokeDebugEvent(
+        "Process",
+        "WebKit web process terminated",
+        "Error",
+        nullptr,
+        static_cast<int>(reason),
+        unix_timestamp_milliseconds_utc(),
+        payload.c_str()
+    );
 
-        auto* instance = reinterpret_cast<InfiniFrameWindow*>(user_data);
-        std::string payload =
-            std::string{"{\"terminationReason\":\""} + webkit_termination_reason_to_string(reason) + "\"}";
-        instance->InvokeDebugEvent(
-            "Process",
-            "WebKit web process terminated",
-            "Error",
-            nullptr,
-            static_cast<int>(reason),
-            unix_timestamp_milliseconds_utc(),
-            payload.c_str()
-        );
-
-        g_warning(
-            "[InfiniFrame/Linux] WebKit web process terminated: reason=%s", webkit_termination_reason_to_string(reason)
-        );
-    });
+    g_warning(
+        "[InfiniFrame/Linux] WebKit web process terminated: reason=%s", webkit_termination_reason_to_string(reason)
+    );
 }
 
 void on_webview_size_allocate(GtkWidget* widget, GtkAllocation* allocation, gpointer user_data) {
-    (void)widget;
-    (void)user_data;
-    infiniframe::linux_gtk::RunGtkCallbackNoThrow("size-allocate", [&] {
-        if (!linux_webview_diagnostics_enabled())
-            return;
+    if (!linux_webview_diagnostics_enabled())
+        return;
 
-        g_message(
-            "[InfiniFrame/Linux] WebView size-allocate: %dx%d", allocation ? allocation->width : -1,
-            allocation ? allocation->height : -1
-        );
-    });
+    g_message(
+        "[InfiniFrame/Linux] WebView size-allocate: %dx%d", allocation ? allocation->width : -1,
+        allocation ? allocation->height : -1
+    );
 }

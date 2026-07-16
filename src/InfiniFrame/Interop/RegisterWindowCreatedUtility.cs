@@ -2,26 +2,19 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame.Utilities;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 namespace InfiniFrame.Interop;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Provides utility methods for registering web messages that are sent automatically when a window is created and ready.
-/// </summary>
 public static class RegisterWindowCreatedUtility {
     private static readonly ConditionalWeakTable<IInfiniFrameWindowBuilder, WindowReadyRegistrationState> RegistrationStates = new();
 
     // -----------------------------------------------------------------------------------------------------------------
     // Methods
     // -----------------------------------------------------------------------------------------------------------------
-    /// <summary>
-    ///     Registers a web message to be sent to a new window when it signals readiness.
-    /// </summary>
-    /// <param name="builder">The window builder associated with the registration.</param>
-    /// <param name="messageId">The identifier of the message to send to the window on ready.</param>
     public static void RegisterWindowCreatedWebMessage(IInfiniFrameWindowBuilder builder, string messageId) {
         WindowReadyRegistrationState registrationState = RegistrationStates.GetOrCreateValue(builder);
 
@@ -64,11 +57,11 @@ public static class RegisterWindowCreatedUtility {
                 registrationMessages = state.RegistrationMessageIds.ToArray();
             }
 
-            // window.Logger.LogDebug(
-            //     "Received '{ReadyMessageId}' handshake. Sending {RegistrationCount} registration messages before acknowledgement.",
-            //     JsHandlerNames.WindowReady,
-            //     registrationMessages.Length
-            // );
+            window.Logger.LogDebug(
+                "Received '{ReadyMessageId}' handshake. Sending {RegistrationCount} registration messages before acknowledgement.",
+                JsHandlerNames.WindowReady,
+                registrationMessages.Length
+            );
 
             _ = SendRegistrationsAndAckAsync(window, state, windowState, registrationMessages);
         });
@@ -85,7 +78,7 @@ public static class RegisterWindowCreatedUtility {
             allMessagesSent = await SendRegistrationsAndAckAsync(window, registrationMessages);
         }
         catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
-            // window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
+            window.Logger.LogError(ex, "Unhandled error while sending window-created registration messages.");
         }
         finally {
             lock (state.Lock) {
@@ -101,7 +94,7 @@ public static class RegisterWindowCreatedUtility {
         }
 
         await window.SendWebMessageAsync(InteropEnvelopeProtocol.CreateEnvelopeMessage(JsHandlerNames.WindowReadyAck));
-        // window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", JsHandlerNames.WindowReadyAck);
+        window.Logger.LogDebug("Sent '{ReadyAckMessageId}' handshake acknowledgement.", JsHandlerNames.WindowReadyAck);
         return true;
     }
 }

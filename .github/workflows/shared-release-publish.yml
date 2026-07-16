@@ -53,19 +53,17 @@ jobs:
             -   name: Setup Native dependencies
                 uses: ./.github/actions/setup-dependencies-native
                 with:
-                    brew-cache-key: ${{ runner.os }}-release-publish-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-publish.yml') }}
-                    brew-restore-key: ${{ runner.os }}-release-publish-brew-native-
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-release-publish.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Download Release Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries
                 with:
                     artifact-type: release
-                    target-root: src/InfiniFrame.NativeBridge/artifacts/native
 
             -   name: Verify Artifacts
                 run: |
                     echo "Checking native build artifacts..."
-                    NATIVE_ROOT="src/InfiniFrame.NativeBridge/artifacts/native"
                     EXPECTED_ARTIFACTS=(
                       "windows/x64/Release/InfiniFrame.Native.dll"
                       "windows/x64/Release/WebView2Loader.dll"
@@ -79,7 +77,7 @@ jobs:
 
                     MISSING=0
                     for file in "${EXPECTED_ARTIFACTS[@]}"; do
-                      if [ ! -f "$NATIVE_ROOT/$file" ]; then
+                      if [ ! -f "./artifacts/native/$file" ]; then
                         echo "❌ Missing artifact: $file"
                         MISSING=$((MISSING+1))
                       else
@@ -99,17 +97,12 @@ jobs:
                     dotnet build InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
                       --no-restore \
-                      /p:SolutionDir=${{ github.workspace }}/ \
-                      /p:InfiniFrameSkipNativeBuild=true \
-                      /p:InfiniFrameEnableTestExports=false
+                      /p:SolutionDir=${{ github.workspace }}/
 
             -   name: Pack
                 run: |
                     dotnet pack InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
-                      --no-build \
-                      /p:InfiniFrameSkipNativeBuild=true \
-                      /p:InfiniFrameEnableTestExports=false \
                       -o ./release
 
             -   name: Upload NuGet Artifacts
@@ -120,10 +113,10 @@ jobs:
 
             -   name: Verify Package Natives
                 run: |
-                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.NativeBridge.*.nupkg 2>/dev/null | grep -v '\.symbols\.nupkg$' | head -n 1 || true)
+                    PACKAGE=$(ls ./release/InfiniLore.InfiniFrame.Shared.*.nupkg | head -n 1)
 
                     if [ -z "$PACKAGE" ]; then
-                        echo "❌ No NativeBridge package found in ./release !"
+                        echo "❌ No Shared package found in ./release !"
                         exit 1
                     fi
 
@@ -149,7 +142,7 @@ jobs:
                     done
 
                     if [ $MISSING -gt 0 ]; then
-                      echo "❌ $MISSING native file(s) missing in NativeBridge package! Aborting."
+                      echo "❌ $MISSING native file(s) missing in Shared package! Aborting."
                       exit 1
                     fi
 

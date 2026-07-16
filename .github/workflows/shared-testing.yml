@@ -76,7 +76,7 @@ jobs:
                     fi
 
                     echo "sha=$SHA" >> $GITHUB_OUTPUT
-
+    
     docs-validation:
         name: Validate Docs
         if: ${{ inputs.run_docs == true }}
@@ -86,7 +86,7 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
         secrets: inherit
-
+    
     js-validation:
         name: Validate JS
         needs: [ prepare ]
@@ -104,7 +104,7 @@ jobs:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
             enable_test_exports: ${{ inputs.enable_test_exports }}
-
+    
     dotnetpack-validation:
         name: Validate Dotnet Pack
         needs: [ prepare, native-build ]
@@ -112,7 +112,6 @@ jobs:
         with:
             checkout_ref: ${{ inputs.checkout_ref }}
             target_sha: ${{ needs.prepare.outputs.sha }}
-            enable_test_exports: ${{ inputs.enable_test_exports }}
 
     linux:
         name: Linux Tests

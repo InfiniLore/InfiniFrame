@@ -22,9 +22,9 @@ public static class Program {
         appBuilder.WebApp.Services.AddSingleton<WebMessageCounter>();
         
         appBuilder.WindowBuilder
-            .UseOsDefaultSize(false)
-            .SetResizable()
-            .CenteredOnMainMonitor()
+            .SetUseOsDefaultSize(false)
+            .SetResizable(true)
+            .Center()
             .SetTitle("InfiniLore InfiniFrame.NET REACT Sample")
             .SetSize(new Size(800, 600))
             .RegisterCustomSchemeHandler("app", handler: (_, _) => (

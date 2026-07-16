@@ -1,0 +1,70 @@
+﻿// ---------------------------------------------------------------------------------------------------------------------
+// Imports
+// ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
+using InfiniFrame.NativeBridge.Parameters;
+
+namespace InfiniTests.InfiniFrame.WindowFunctionalities;
+// ---------------------------------------------------------------------------------------------------------------------
+// Code
+// ---------------------------------------------------------------------------------------------------------------------
+public class TopMostTests {
+
+    [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(Builder)}")]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Builder(bool state, CancellationToken ct = default) {
+        // Arrange
+        var builder = InfiniFrameWindowBuilder.Create();
+
+        // Act
+        builder.SetTopMost(state);
+
+        // Assert
+        await Assert.That(builder.Configuration.TopMost).IsEqualTo(state);
+
+        InfiniFrameNativeParameters configParameters = builder.Configuration.ToNativeParameters();
+        await Assert.That(configParameters.Topmost).IsEqualTo(state);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(Window)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task Window(bool state, CancellationToken ct = default) {
+        // Arrange
+        using var windowUtility = InfiniFrameTestWindow.Create(ct);
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Act
+        window.SetTopMost(state);
+
+        // Assert
+        await Assert.That(window.TopMost).IsEqualTo(state);
+    }
+
+    [Test]
+    [DisplayName($"{nameof(TopMostTests)}.{nameof(FullIntegration)}")]
+    [SkipOnMacOs]
+    [SkipOnLinux]
+    [NotInParallelInfiniTests]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task FullIntegration(bool state, CancellationToken ct = default) {
+        // Arrange
+
+        // Act
+        using var windowUtility = InfiniFrameTestWindow.Create(
+            builder: builder => builder.SetTopMost(state),
+            ct
+        );
+        IInfiniFrameWindow window = windowUtility.Window;
+
+        // Assert
+        await Assert.That(window.TopMost).IsEqualTo(state);
+    }
+}

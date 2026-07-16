@@ -16,7 +16,7 @@ public static class Program {
         IInfiniFrameWindow window = InfiniFrameWindowBuilder.Create()
             .SetTitle("InfiniFrame Embedded wwwroot")
             .SetSize(new Size(960, 640))
-            .CenteredOnMainMonitor()
+            .Center()
             .UseEmbeddedWwwrootAssets(
                 scheme: "app",
                 includePhysicalFallback: true,

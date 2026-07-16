@@ -1,101 +1,850 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame.Debugging;
 using InfiniFrame.NativeBridge;
+using InfiniFrame.NativeBridge.Dialogs;
+using InfiniFrame.NativeBridge.Parameters;
+using InfiniFrame.StaticAssets;
+using InfiniFrame.Utilities;
 using Microsoft.Extensions.Logging;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-public sealed class InfiniFrameWindow(
-    ILogger<InfiniFrameWindow> logger,
-    IInfiniFrameEvents events,
-    IInfiniFrameWindowConfiguration configuration,
-    IServiceProvider? serviceProvider
-) : IInfiniFrameWindow, IDisposable {
-    private static readonly Lazy<IntPtr> LazyMainProgramHandle = new(NativeLibrary.GetMainProgramHandle);
-    private bool _disposed;
-    private int _managedThreadId = Environment.CurrentManagedThreadId;
-    #if NET9_0_OR_GREATER
-    private readonly Lock _disposeLock = new();
-    #else
-    // ReSharper disable once ConvertToAutoPropertyWhenPossible
-    private readonly object _disposeLock = new();
-    #endif
-    /// <inheritdoc cref="IInfiniFrameWindow.MainProgramHandle"/>
-    public IntPtr MainProgramHandle => LazyMainProgramHandle.Value;
+public sealed class InfiniFrameWindow : IInfiniFrameWindow {
+    private static readonly Lazy<IntPtr> WindowType = new(NativeLibrary.GetMainProgramHandle);
+
+    public required ILogger<IInfiniFrameWindow> Logger { get; init; }
+    public required IServiceProvider? ServiceProvider { get; init; }
+    public required IInfiniFrameEvents Events { get; init; }
+    public required IInfiniFrameOptions Configuration { get; init; }
     
-    private IntPtr InstanceHandle { get; set; }
-    /// <inheritdoc cref="IInfiniFrameWindow.InstanceHandle"/>
-    IntPtr IInfiniFrameWindow.InstanceHandle {
-        get => InstanceHandle;
-        set => InstanceHandle = value;
+    public required IInfiniFrameWindowDebugging Debugging { get; init; }
+    public IInfiniFrameStaticAssets? StaticAssets { get; init; }
+
+    public IInfiniFrameEventsStore EventsStore => Events.EventsStore;
+
+    public IntPtr NativeType => WindowType.Value;
+
+    public IntPtr InstanceHandle { get; private set; }
+
+    public Rectangle CachedPreFullScreenBounds { get; set; } = Rectangle.Empty;
+    public Rectangle CachedPreMaximizedBounds { get; set; } = Rectangle.Empty;
+
+    private int _shutdownState;
+
+    private bool IsClosing => Volatile.Read(ref _shutdownState) != 0;
+    public bool IsClosed => Volatile.Read(ref _shutdownState) == 2;
+    public bool IsClosedOrClosing => IsClosing || InstanceHandle == IntPtr.Zero;
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Methods
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    ///     Dispatches an Action to the UI thread if called from another thread.
+    /// </summary>
+    /// <returns>
+    ///     Returns the current <see cref="InfiniFrameWindow" /> instance.
+    /// </returns>
+    /// <param name="workItem"> The delegate encapsulating a method / action to be executed in the UI thread.</param>
+    public void Invoke(Action workItem) {
+        NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId, workItem);
     }
 
-    /// <inheritdoc cref="IInfiniFrameWindow.WindowHandle"/>
+    /// <summary>
+    ///     Responsible for the initialization of the primary native window and remains in operation until the window is
+    ///     closed.
+    ///     This method is also applicable for initializing child windows, but in this case, it does not inhibit operation.
+    /// </summary>
+    /// <remarks>
+    ///     The operation of the message loop is exclusive to the main native window only.
+    /// </remarks>
+    public void WaitForClose() {
+        if (IsClosing || IsClosed) {
+            Logger.LogDebug("Skipping WaitForClose during shutdown");
+            return;
+        }
+
+        try {
+            Logger.LogDebug("Starting message loop for window.");
+
+            IntPtr handle = InstanceHandle;
+            if (handle == IntPtr.Zero)
+                return;
+
+            Invoke(() => InfiniFrameNative.WaitForExit(handle));
+        }
+        catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+            int lastError = OperatingSystem.IsWindows()
+                ? Marshal.GetLastWin32Error()
+                : 0;
+
+            Logger.LogError(ex, "Error #{LastErrorCode} while running message loop", lastError);
+            throw new ApplicationException(
+                $"Native code exception. Error # {lastError}",
+                ex);
+        }
+        finally {
+            InstanceHandle = IntPtr.Zero;
+            Interlocked.Exchange(ref _shutdownState, 2);
+        }
+    }
+
+    public ValueTask WaitForCloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested)
+            return ValueTask.FromCanceled(ct);
+
+        WaitForClose();
+        return ValueTask.CompletedTask;
+    }
+
+    void IInfiniFrameWindow.MarkClosedFromNativeCallback() {
+        InstanceHandle = IntPtr.Zero;
+        Interlocked.Exchange(ref _shutdownState, 2);
+    }
+
+    /// <summary>
+    ///     Closes the native window.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    public void Close() {
+        if (Interlocked.Exchange(ref _shutdownState, 1) != 0) {
+            Logger.LogDebug("Skipping Close during shutdown");
+            return;
+        }
+
+        Logger.LogDebug(".Close()");
+        Events.OnWindowClosingRequested();
+
+        IntPtr handle = InstanceHandle;
+        if (handle == IntPtr.Zero)
+            return;
+
+        Invoke(() => {
+            IntPtr h = InstanceHandle;
+            if (h == IntPtr.Zero)
+                return;
+
+            InfiniFrameNative.Close(h);
+
+            InstanceHandle = IntPtr.Zero;
+            Interlocked.Exchange(ref _shutdownState, 2);
+        });
+    }
+
+    public ValueTask CloseAsync(CancellationToken ct = default) {
+        if (ct.IsCancellationRequested)
+            return ValueTask.FromCanceled(ct);
+
+        Close();
+        return ValueTask.CompletedTask;
+    }
+
+    /// <summary>
+    ///     Send a message to the native window's native browser control's JavaScript context.
+    /// </summary>
+    /// <remarks>
+    ///     In JavaScript, messages can be received via <code>window.infiniframe.host.receiveCallback(callback)</code>.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="message">Message as string</param>
+    public void SendWebMessage(string message) {
+        if (IsClosedOrClosing)
+            return;
+
+        IntPtr handle = InstanceHandle;
+        if (handle == IntPtr.Zero)
+            return;
+
+        Invoke(() => {
+            if (InstanceHandle == IntPtr.Zero)
+                return;
+
+            InfiniFrameNative.SendWebMessage(handle, message);
+        });
+    }
+
+    public Task SendWebMessageAsync(string message, CancellationToken ct = default)
+        => ct.IsCancellationRequested
+            ? Task.FromCanceled(ct)
+            : Task.Run(action: () => SendWebMessage(message), ct);
+
+    /// <summary>
+    ///     Sends a native notification to the OS.
+    ///     Sometimes referred to as Toast notifications.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="title">The title of the notification</param>
+    /// <param name="body">The text of the notification</param>
+    public void SendNotification(string title, string body) {
+        if (IsClosedOrClosing)
+            return;
+
+        IntPtr handle = InstanceHandle;
+        if (handle == IntPtr.Zero)
+            return;
+
+        Invoke(() => {
+            if (InstanceHandle == IntPtr.Zero)
+                return;
+
+            InfiniFrameNative.ShowNotification(handle, title, body);
+        });
+    }
+
+
+    /// <summary>
+    ///     Show an open file dialog native to the OS.
+    /// </summary>
+    /// <remarks>
+    ///     Filter names are not used on macOS. Use async version for InfiniFrame.Blazor as the synchronous version
+    ///     crashes.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="title">Title of the dialog</param>
+    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
+    /// <param name="multiSelect">Whether multiple selections are allowed</param>
+    /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <returns>Array of file paths as strings</returns>
+    public string?[] ShowOpenFile(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null)
+        => ShowOpenDialog(false, title, defaultPath, multiSelect, filters);
+
+    /// <summary>
+    ///     Async version is required for InfiniFrame.Blazor
+    /// </summary>
+    /// <remarks>
+    ///     Filter names are not used on macOS. Use async version for InfiniFrame.Blazor as the synchronous version
+    ///     crashes.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="title">Title of the dialog</param>
+    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
+    /// <param name="multiSelect">Whether multiple selections are allowed</param>
+    /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <param name="ct">Cancellation token for the operation</param>
+    /// <returns>Array of file paths as strings</returns>
+    public Task<string?[]> ShowOpenFileAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
+        => RunDialogAsync(workItem: () => ShowOpenFile(title, defaultPath, multiSelect, filters), ct);
+
+    /// <summary>
+    ///     Show an open folder dialog native to the OS.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="title">Title of the dialog</param>
+    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
+    /// <param name="multiSelect">Whether multiple selections are allowed</param>
+    /// <returns>Array of folder paths as strings</returns>
+    public string?[] ShowOpenFolder(string title = "Select folder", string? defaultPath = null, bool multiSelect = false)
+        => ShowOpenDialog(true, title, defaultPath, multiSelect, null);
+
+    /// <summary>
+    ///     Async version is required for InfiniFrame.Blazor
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="title">Title of the dialog</param>
+    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
+    /// <param name="multiSelect">Whether multiple selections are allowed</param>
+    /// <param name="ct">Cancellation token for the operation</param>
+    /// <returns>Array of folder paths as strings</returns>
+    public Task<string?[]> ShowOpenFolderAsync(string title = "Choose file", string? defaultPath = null, bool multiSelect = false, CancellationToken ct = default)
+        => RunDialogAsync(workItem: () => ShowOpenFolder(title, defaultPath, multiSelect), ct);
+
+    /// <summary>
+    ///     Show a save folder dialog native to the OS.
+    /// </summary>
+    /// <remarks>
+    ///     Filter names are not used on macOS.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="title">Title of the dialog</param>
+    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
+    /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <returns></returns>
+    public string? ShowSaveFile(string title = "Save file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null) {
+        defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        filters ??= [];
+
+        string? result = null;
+        string[] nativeFilters = GetNativeFilters(filters);
+
+        NativeInvoke.InvokeSyncWithValidation(
+            InstanceHandle, 
+            ManagedThreadId,
+            handle => InfiniFrameNative.ShowSaveFile(handle, title, defaultPath, nativeFilters, filters.Length, null, out result)
+        );
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Async version is required for InfiniFrame.Blazor
+    /// </summary>
+    /// <remarks>
+    ///     Filter names are not used on macOS.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="title">Title of the dialog</param>
+    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
+    /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <param name="ct">Cancellation token for the operation</param>
+    /// <returns></returns>
+    public Task<string?> ShowSaveFileAsync(string title = "Choose file", string? defaultPath = null, (string Name, string[] Extensions)[]? filters = null, CancellationToken ct = default)
+        => RunDialogAsync(workItem: () => ShowSaveFile(title, defaultPath, filters), ct);
+
+    /// <summary>
+    ///     Show a message dialog native to the OS.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     Thrown when the window is not initialized.
+    /// </exception>
+    /// <param name="title">Title of the dialog</param>
+    /// <param name="text">Text of the dialog</param>
+    /// <param name="buttons">Available interaction buttons <see cref="InfiniFrameDialogButtons" /></param>
+    /// <param name="icon">Icon of the dialog <see cref="InfiniFrameDialogButtons" /></param>
+    /// <returns>
+    ///     <see cref="InfiniFrameDialogResult" />
+    /// </returns>
+    public InfiniFrameDialogResult ShowMessage(string title, string? text, InfiniFrameDialogButtons buttons = InfiniFrameDialogButtons.Ok, InfiniFrameDialogIcon icon = InfiniFrameDialogIcon.Info) {
+        var result = InfiniFrameDialogResult.Cancel;
+        
+        NativeInvoke.InvokeSyncWithValidation(
+            InstanceHandle, 
+            ManagedThreadId,
+            handle => InfiniFrameNative.ShowMessage(handle, title, text ?? string.Empty, buttons, icon, out result)
+        );
+        
+        return result;
+    }
+
+    public bool TryResolveStaticAssetUri(string path, out Uri uri) {
+        uri = null!;
+        if (StaticAssets is null) return false;
+
+        return StaticAssetSchemeHandler.TryResolveUri(
+            StaticAssets.FileProvider,
+            path,
+            StaticAssets.BaseUri,
+            StaticAssets.DefaultDocument,
+            out uri);
+    }
+
+    private static Task<TResult> RunDialogAsync<TResult>(Func<TResult> workItem, CancellationToken ct = default) =>
+        ct.IsCancellationRequested
+            ? Task.FromCanceled<TResult>(ct)
+            // Dialog calls are intentionally offloaded for Blazor flows where synchronous dialog invocation is unsafe.
+            : Task.Run(workItem, ct);
+
+    public void Initialize() {
+        InfiniFrameNativeParameters startupParameters = Configuration.StartupParameters;
+        bool webInspectorEnabled = startupParameters.WebInspectorEnabled;
+
+        try {
+            if (startupParameters.RemoteDebuggingPort != 0) {
+                Logger.LogInformation(
+                    "Remote debugging requested on loopback port {RemoteDebuggingPort}.",
+                    startupParameters.RemoteDebuggingPort);
+
+                if (OperatingSystem.IsLinux() && !startupParameters.DevToolsEnabled) {
+                    Logger.LogInformation(
+                        "Linux remote debugging keeps WebKit developer extras enabled while active."
+                    );
+                }
+            }
+            else {
+                Logger.LogDebug("Remote debugging is disabled.");
+            }
+
+            RemoteDebuggingUtility.EnsureSupportedPlatform(startupParameters.RemoteDebuggingPort);
+            RemoteDebuggingUtility.ValidatePortAvailabilityOrThrow(startupParameters.RemoteDebuggingPort, Logger);
+            if (webInspectorEnabled) {
+                MacOsWebInspectorUtility.ThrowIfUnsupported();
+            }
+
+            if (!InfiniFrameNativeParametersValidator.Validate(startupParameters, Logger)) {
+                throw new ArgumentException("Startup Parameters Are Not Valid");
+            }
+
+            Events.OnWindowCreating();
+
+            try {
+                if (OperatingSystem.IsWindows()) InfiniFrameNative.RegisterWin32(NativeType);
+                else if (OperatingSystem.IsMacOS()) InfiniFrameNative.RegisterMac();
+                else if (OperatingSystem.IsLinux()) {} // No specific implementation for Linux
+                else throw new PlatformNotSupportedException();
+
+                InfiniFrameNative.Constructor(in startupParameters, out IntPtr handle);
+                InstanceHandle = handle;
+            }
+            catch (Exception ex) when (ExceptionsUtility.IsNonFatalException(ex)) {
+                int lastError = OperatingSystem.IsWindows()
+                    ? Marshal.GetLastWin32Error()
+                    : 0;
+
+                Logger.LogError(ex, "Error #{LastErrorCode} while creating native window", lastError);
+                throw new ApplicationException($"Native code exception. Error #{lastError}", ex);
+            }
+
+            Events.OnWindowCreated();
+        }
+        finally {
+            CustomSchemeNameMemory.FreeAll(startupParameters.CustomSchemeNames);
+        }
+    }
+
+    /// <summary>
+    ///     Show a native open dialog
+    /// </summary>
+    /// <param name="foldersOnly">Whether files are hidden</param>
+    /// <param name="title">Title of the dialog</param>
+    /// <param name="defaultPath">Default path. Defaults to <see cref="Environment.SpecialFolder.MyDocuments" /></param>
+    /// <param name="multiSelect">Whether multiple selections are allowed</param>
+    /// <param name="filters">Array of Extensions for filtering.</param>
+    /// <returns>Array of paths</returns>
+    private string?[] ShowOpenDialog(bool foldersOnly, string title, string? defaultPath, bool multiSelect, (string Name, string[] Extensions)[]? filters) {
+        defaultPath ??= Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        filters ??= Array.Empty<(string, string[])>();
+
+        string?[] results = Array.Empty<string?>();
+        string[] nativeFilters = GetNativeFilters(filters, foldersOnly);
+
+        NativeInvoke.InvokeSyncWithValidation(
+            InstanceHandle, 
+            ManagedThreadId,
+            handle => foldersOnly
+                ? InfiniFrameNative.ShowOpenFolder(handle, title, defaultPath, multiSelect, out results)
+                : InfiniFrameNative.ShowOpenFile(handle, title, defaultPath, multiSelect, nativeFilters, nativeFilters.Length, out results)
+        );
+
+        return results;
+    }
+
+    /// <summary>
+    ///     Returns an array of strings for native filters
+    /// </summary>
+    /// <param name="filters"></param>
+    /// <param name="empty"></param>
+    /// <returns>String array of filters</returns>
+    private static string[] GetNativeFilters((string Name, string[] Extensions)[] filters, bool empty = false) {
+        string[] nativeFilters = Array.Empty<string>();
+        if (!empty && filters is { Length: > 0 }) {
+            nativeFilters = OperatingSystem.IsMacOS()
+                ? filters.SelectMany(t => t.Extensions.Select(s => s == "*" ? s : s.TrimStart('*', '.'))).ToArray()
+                : filters.Select(t => $"{t.Name}|{t.Extensions.Select(s => s.StartsWith('.') ? $"*{s}" : !s.StartsWith("*.") ? $"*.{s}" : s).Aggregate((e1, e2) => $"{e1};{e2}")}").ToArray();
+        }
+
+        return nativeFilters;
+    }
+
+    #region PROPERTIES
+    /// <summary>
+    /// Gets the native window handle for the current platform.
+    /// This property provides a platform-specific handle to the window, such as an HWND on Windows,
+    /// or equivalent platform-specific handles on macOS and Linux.
+    /// </summary>
+    /// <remarks>
+    /// The returned handle allows low-level, platform-specific operations on the native window.
+    /// If the window is already closed or is in the process of closing, the property will return <see cref="IntPtr.Zero"/>.
+    /// Platform-specific behavior is handled internally, and the property is only accessible when the native
+    /// window initialization is complete.
+    /// </remarks>
+    /// <exception cref="PlatformNotSupportedException">
+    /// Thrown when the property is accessed on an unsupported operating system.
+    /// </exception>
+    /// <returns>
+    /// A platform-specific <see cref="IntPtr"/> representing the native window handle.
+    /// If the window is closed or closing, it returns <see cref="IntPtr.Zero"/>.
+    /// </returns>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public IntPtr WindowHandle {
         get {
-            if (_disposed || Features.Lifecycle.IsClosedOrClosing()) return IntPtr.Zero;
-
-            IntPtr instanceHandle = InstanceHandle;
-            if (instanceHandle == IntPtr.Zero) return IntPtr.Zero;
+            if (IsClosedOrClosing) return IntPtr.Zero;
             
             IntPtr handle;
-            if (OperatingSystem.IsWindows()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, instanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleWin32);
-            else if (OperatingSystem.IsMacOS()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, instanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleMac);
-            else if (OperatingSystem.IsLinux()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(logger, instanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleLinux);
+            if (OperatingSystem.IsWindows()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleWin32);
+            else if (OperatingSystem.IsMacOS()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleMac);
+            else if (OperatingSystem.IsLinux()) handle = NativeInvoke.InvokeSyncWithValidation<IntPtr>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWindowHandleLinux);
             else throw new PlatformNotSupportedException();
 
             return handle;
         }
     }
-    
-    /// <inheritdoc cref="IInfiniFrameWindow.ManagedThreadId"/>
-    public int ManagedThreadId => Volatile.Read(ref _managedThreadId);
-    /// <inheritdoc cref="IInfiniFrameWindow.SetManagedThreadId"/>
-    void IInfiniFrameWindow.SetManagedThreadId(int managedThreadId) {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(managedThreadId);
-        Volatile.Write(ref _managedThreadId, managedThreadId);
-    }
-    
-    /// <inheritdoc cref="IInfiniFrameWindow.Id"/>
+
+    /// <summary>
+    ///     Gets a list of information for each monitor from the native window.
+    ///     This property represents a list of Monitor objects associated with each display monitor.
+    /// </summary>
+    /// <remarks>
+    ///     If called when the native instance of the window is not initialized, it will throw an ApplicationException.
+    /// </remarks>
+    /// <exception cref="ApplicationException">Thrown when the native instance of the window is not initialized.</exception>
+    /// <returns>
+    ///     A read-only list of Monitor objects representing information about each display monitor.
+    /// </returns>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public ImmutableArray<InfiniMonitor> Monitors => NativeInvoke.InvokeSyncWithValidation<ImmutableArray<InfiniMonitor>>(InstanceHandle, ManagedThreadId, MonitorsUtility.GetMonitors);
+
+    /// <summary>
+    ///     Retrieves the primary monitor information from the native window instance.
+    /// </summary>
+    /// <exception cref="ApplicationException"> Thrown when the window hasn't been initialized yet. </exception>
+    /// <returns>
+    ///     Returns a Monitor object representing the main monitor. The main monitor is the first monitor in the list of
+    ///     available monitors.
+    /// </returns>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public InfiniMonitor MainMonitor => NativeInvoke.InvokeSyncWithValidation<ImmutableArray<InfiniMonitor>>(InstanceHandle, ManagedThreadId, MonitorsUtility.GetMonitors).FirstOrDefault();
+
+    /// <summary>
+    ///     Gets the dots per inch (DPI) for the primary display from the native window.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     An ApplicationException is thrown if the window hasn't been initialized yet.
+    /// </exception>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public uint ScreenDpi => NativeInvoke.InvokeSyncWithValidation<uint>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetScreenDpi);
+
+    /// <summary>
+    ///     Gets a unique GUID to identify the native window.
+    /// </summary>
+    /// <remarks>
+    ///     This property is not currently used by the InfiniFrame framework.
+    /// </remarks>
     public Guid Id { get; } = Guid.NewGuid();
-    
-    /// <inheritdoc cref="IInfiniFrameWindow.Configuration"/>
-    public IInfiniFrameWindowConfiguration Configuration { get; } = configuration;
-    /// <inheritdoc cref="IInfiniFrameWindow.Debugging"/>
-    public IInfiniFrameWindowFeatureDebugging Debugging => Features.Debugging;
-    /// <inheritdoc/>
-    public IServiceProvider? ServiceProvider { get; } = serviceProvider;
-    /// <inheritdoc cref="IInfiniFrameWindow.Events"/>
-    public IInfiniFrameEvents Events { get; } = events;
-    /// <inheritdoc cref="IInfiniFrameWindow.Features"/>
-    public IInfiniFrameWindowFeatures Features { get; private set; } = null!;
 
-    /// <inheritdoc cref="IHasInfiniFrameEventsStore.EventsStore"/>
-    public IInfiniFrameEventsStore EventsStore => Events.EventsStore;
+    public int ManagedThreadId { get; } = Environment.CurrentManagedThreadId;
 
-    // -----------------------------------------------------------------------------------------------------------------
-    // Methods
-    // -----------------------------------------------------------------------------------------------------------------
-    internal void AssignFeatures(IInfiniFrameWindowFeatures features) {
-        Features = features;
-    }
+    /// <summary>
+    ///     Gets the value indicating whether the native window is chromeless.
+    /// </summary>
+    /// <remarks>
+    ///     The user has to supply titlebar, border, dragging and resizing manually.
+    /// </remarks>
+    public bool Chromeless => Configuration.StartupParameters.Chromeless;
 
-    public void Dispose() {
-        lock (_disposeLock) {
-            if (_disposed) return;
-            _disposed = true;
-        }
+    /// <summary>
+    ///     When true, the native window and browser control can be displayed with a transparent background.
+    ///     HTML document's body background must have alpha-based value.
+    ///     WebView2 on Windows can only be fully transparent or fully opaque.
+    ///     By default, this is set to false.
+    /// </summary>
+    /// <exception cref="ApplicationException">
+    ///     On Windows, thrown if trying to set a value after a native window is initialized.
+    /// </exception>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Transparent => OperatingSystem.IsWindows()
+        ? Configuration.StartupParameters.Transparent // on windows it can only be set at startup
+        : NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetTransparentEnabled);
 
-        if (!Features.Lifecycle.IsClosedOrClosing()) {
-            Features.Lifecycle.Close();
-        }
+    /// <summary>
+    ///     When true, the user can access the browser control's context menu.
+    ///     By default, this is set to true.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool ContextMenuEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetContextMenuEnabled);
 
-        Features.Lifecycle.CleanupNativeHandle();
-    }
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool MediaAutoplayEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMediaAutoplayEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public string? UserAgent => NativeInvoke.InvokeSyncWithValidation<string?>(InstanceHandle, ManagedThreadId,
+        InfiniFrameNative.GetUserAgent);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool FileSystemAccessEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFileSystemAccessEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool WebSecurityEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetWebSecurityEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool JavascriptClipboardAccessEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetJavascriptClipboardAccessEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool MediaStreamEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMediaStreamEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool SmoothScrollingEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetSmoothScrollingEnabled);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool IgnoreCertificateErrorsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetIgnoreCertificateErrorsEnabled);
+
+    [SupportedOSPlatform("windows")]
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool NotificationsEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetNotificationsEnabled);
+
+    /// <summary>
+    ///     This property returns or sets the fullscreen status of the window.
+    ///     When set to true, the native window will cover the entire screen, similar to kiosk mode.
+    ///     By default, this is set to false.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool FullScreen => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFullScreen);
+
+    /// <summary>
+    ///     Gets whether the native browser control grants all requests for access to local resources
+    ///     such as the user's camera and microphone. By default, this is set to true.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool GrantBrowserPermissions => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetGrantBrowserPermissions);
+
+    /// <summary>
+    ///     Gets the Height property of the native window in pixels.
+    ///     The default value is 0.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Height => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out _, out value));
+
+    /// <summary>
+    ///     Gets the icon file for the native window title bar.
+    ///     The file must be located on the local machine and cannot be a URL. The default is none.
+    /// </summary>
+    public string? IconFilePath => NativeInvoke.InvokeSyncWithValidation<string?>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetIconFileName);
+
+    /// <summary>
+    ///     Gets the native window Left (X) and Top coordinates (Y) in pixels.
+    ///     Default is 0,0 that means the window will be aligned to the top-left edge of the screen.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Point Location => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out Point value) => {
+            InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetPosition(handle, out int left, out int top);
+            value = new Point(left, top);
+            return status;
+        });
+
+    /// <summary>
+    ///     Gets the native window Left (X) coordinate in pixels.
+    ///     This represents the horizontal position of the window relative to the screen.
+    ///     The default value is 0, which means the window will be aligned to the left edge of the screen.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Left => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetPosition(handle, out value, out _));
+
+    /// <summary>
+    ///     Gets whether the native window is maximized.
+    ///     Default is false.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Maximized => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMaximized);
+
+    /// <summary>
+    ///     Gets whether the native window is currently within focus
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Focused => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetFocused);
+
+    /// <summary>
+    ///     Gets the maximum size of the native window in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Size MaxSize => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out Size value) => {
+            InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMaxSize(handle, out int width, out int height);
+            value = new Size(width, height);
+            return status;
+        });
+
+    /// <summary>
+    ///     Gets the native window maximum height in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MaxHeight => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out _, out value));
+
+    /// <summary>
+    ///     Gets the native window maximum width in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MaxWidth => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMaxSize(handle, out value, out _));
+
+    /// <summary>
+    ///     Gets whether the native window is minimized (hidden).
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Minimized => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetMinimized);
+
+    /// <summary>
+    ///     Gets the minimum size of the native window in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Size MinSize => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out Size value) => {
+            InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetMinSize(handle, out int width, out int height);
+            value = new Size(width, height);
+            return status;
+        });
+
+    /// <summary>
+    ///     Gets the native window minimum height in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MinHeight => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out _, out value));
+
+    /// <summary>
+    ///     Gets the native window minimum width in pixels.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int MinWidth => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetMinSize(handle, out value, out _));
+
+    /// <summary>
+    ///     Gets whether the user can resize the native window.
+    ///     Default is true.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool Resizable => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetResizable);
+
+    /// <summary>
+    ///     Gets the native window Size. This represents the width and the height of the window in pixels.
+    ///     The default Size is 0,0.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public Size Size => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out Size value) => {
+            InfiniFrameNativeInteropStatus status = InfiniFrameNative.GetSize(handle, out int width, out int height);
+            value = new Size(width, height);
+            return status;
+        });
+
+    /// <summary>
+    ///     Gets platform-specific initialization parameters for the native browser control on startup.
+    ///     Default is none.
+    ///     WINDOWS: WebView2 specific string. Space separated.
+    ///     https://peter.sh/experiments/chromium-command-line-switches/
+    ///     https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments?view=webview2-dotnet-1.0.1938.49
+    ///     viewFallbackFrom=webview2-dotnet-1.0.1901.177view%3Dwebview2-1.0.1901.177
+    ///     https://www.chromium.org/developers/how-tos/run-chromium-with-flags/
+    ///     LINUX: Webkit2Gtk specific string. Enter parameter names and values as JSON string.
+    ///     E.g. { "set_enable_encrypted_media": true }
+    ///     https://webkitgtk.org/reference/webkit2gtk/2.5.1/WebKitSettings.html
+    ///     https://lazka.github.io/pgi-docs/WebKit2-4.0/classes/Settings.html
+    ///     Mac: Webkit specific string. Enter parameter names and values as JSON string.
+    ///     E.g. { "minimumFontSize": 8 }
+    ///     https://developer.apple.com/documentation/webkit/wkwebviewconfiguration?language=objc
+    ///     https://developer.apple.com/documentation/webkit/wkpreferences?language=objc
+    /// </summary>
+    public string? BrowserControlInitParameters => Configuration.StartupParameters.BrowserControlInitParameters;
+
+    /// <summary>
+    ///     Gets an HTML string that the browser control will render when initialized.
+    ///     Default is none.
+    /// </summary>
+    /// <remarks>
+    ///     Either StartString or StartUrl must be specified.
+    /// </remarks>
+    /// <seealso cref="StartUrl" />
+    /// <exception cref="ApplicationException">
+    ///     Thrown if trying to set a value after a native window is initialized.
+    /// </exception>
+    public string? StartString => Configuration.StartupParameters.StartString;
+
+    /// <summary>
+    ///     Gets a URL that the browser control will navigate to when initialized.
+    ///     Default is none.
+    /// </summary>
+    /// <remarks>
+    ///     Either StartString or StartUrl must be specified.
+    /// </remarks>
+    /// <seealso cref="StartString" />
+    /// <exception cref="ApplicationException">
+    ///     Thrown if trying to set a value after a native window is initialized.
+    /// </exception>
+    public string? StartUrl => Configuration.StartupParameters.StartUrl;
+
+    /// <summary>
+    ///     Gets the local path to store temp files for browser control.
+    ///     Default is the user's AppDataLocal folder.
+    /// </summary>
+    /// <remarks>
+    ///     Only available on Windows.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown if a platform is not Windows.
+    /// </exception>
+    public string? TemporaryFilesPath => Configuration.StartupParameters.TemporaryFilesPath;
+
+    /// <summary>
+    ///     Gets the registration id for doing toast notifications.
+    ///     The default is to use the window title.
+    /// </summary>
+    /// <remarks>
+    ///     Only available on Windows.
+    /// </remarks>
+    /// <exception cref="ApplicationException">
+    ///     Thrown if a platform is not Windows.
+    /// </exception>
+    public string? NotificationRegistrationId => Configuration.StartupParameters.NotificationRegistrationId;
+
+    /// <summary>
+    ///     Gets the native window title.
+    ///     The default is "InfiniFrame".
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public string? Title => NativeInvoke.InvokeSyncWithValidation<string?>(InstanceHandle, ManagedThreadId,
+        InfiniFrameNative.GetTitle);
+
+    /// <summary>
+    ///     Gets the native window Top (Y) coordinate in pixels.
+    ///     Default is 0.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Top => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetPosition(handle, out _, out value));
+
+    /// <summary>
+    ///     Gets whether the native window is always at the top of the z-order.
+    ///     Default is false.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool TopMost => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetTopmost);
+
+    /// <summary>
+    ///     Gets the native window width in pixels.
+    ///     Default is 0.
+    /// </summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Width => NativeInvoke.InvokeSyncWithValidation(InstanceHandle, ManagedThreadId,
+        callback: (IntPtr handle, out int value) => InfiniFrameNative.GetSize(handle, out value, out _));
+
+    /// <summary>
+    ///     Gets the native browser control <see cref="InfiniFrameWindow.Zoom" />.
+    ///     Default is 100.
+    /// </summary>
+    /// <example>100 = 100%, 50 = 50%</example>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public int Zoom => NativeInvoke.InvokeSyncWithValidation<int>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetZoom);
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public bool ZoomEnabled => NativeInvoke.InvokeSyncWithValidation<bool>(InstanceHandle, ManagedThreadId, InfiniFrameNative.GetZoomEnabled);
+
+    #endregion
 }

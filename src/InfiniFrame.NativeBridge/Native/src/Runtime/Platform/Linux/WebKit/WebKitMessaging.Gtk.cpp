@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+#include <JavaScriptCore/JavaScript.h>
 #include <webkit2/webkit2.h>
 
-#include "Runtime/Platform/Linux/Core/GtkCallbackGuard.h"
 #include "Runtime/Shared/Types/Basic.h"
 #include "Runtime/Shared/Types/Callbacks.h"
 #include "Runtime/Platform/Linux/WebKit/WebKit.Gtk.Internal.h"
@@ -11,59 +11,39 @@
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 namespace gtk_webkit {
-    struct GFreeGuard {
-        AutoString value = nullptr;
-
-        explicit GFreeGuard(AutoString initialValue = nullptr) : value(initialValue) {}
-        ~GFreeGuard() {
-            if (value != nullptr)
-                g_free(value);
-        }
-
-        GFreeGuard(const GFreeGuard&) = delete;
-        GFreeGuard& operator=(const GFreeGuard&) = delete;
-    };
-
-    struct GObjectGuard {
-        gpointer value = nullptr;
-
-        explicit GObjectGuard(gpointer initialValue = nullptr) : value(initialValue) {}
-        ~GObjectGuard() {
-            if (value != nullptr)
-                g_object_unref(value);
-        }
-
-        GObjectGuard(const GObjectGuard&) = delete;
-        GObjectGuard& operator=(const GObjectGuard&) = delete;
-    };
-
     void HandleWebMessage(
         WebKitUserContentManager* contentManager, WebKitJavascriptResult* jsResult, const gpointer userData
     ) {
-        infiniframe::linux_gtk::RunGtkCallbackNoThrow("script-message-received", [&] {
-            (void)contentManager;
-            if (jsResult == nullptr)
-                return;
+        JSCValue* jsValue = webkit_javascript_result_get_js_value(jsResult);
+        if (jsc_value_is_string(jsValue)) {
+            AutoString str_value = jsc_value_to_string(jsValue);
+            auto callback = reinterpret_cast<WebMessageReceivedCallback>(userData);
+            AutoString originValue = nullptr;
 
-            JSCValue* jsValue = webkit_javascript_result_get_js_value(jsResult);
-            if (jsValue == nullptr || !jsc_value_is_string(jsValue))
-                return;
+            JSGlobalContextRef context = webkit_javascript_result_get_global_context(jsResult);
+            JSStringRef script = JSStringCreateWithUTF8CString("window.location.href");
+            JSValueRef locationValue = JSEvaluateScript(context, script, nullptr, nullptr, 0, nullptr);
+            JSStringRelease(script);
 
-            GFreeGuard strValue(jsc_value_to_string(jsValue));
-            GFreeGuard originValue;
-
-            JSCContext* context = jsc_value_get_context(jsValue);
-            if (context != nullptr) {
-                GObjectGuard locationValue(jsc_context_evaluate(context, "window.location.href", -1));
-                if (locationValue.value != nullptr && jsc_value_is_string(JSC_VALUE(locationValue.value))) {
-                    originValue.value = jsc_value_to_string(JSC_VALUE(locationValue.value));
+            if (locationValue != nullptr) {
+                JSStringRef locationString = JSValueToStringCopy(context, locationValue, nullptr);
+                if (locationString != nullptr) {
+                    size_t maxBytes = JSStringGetMaximumUTF8CStringSize(locationString);
+                    originValue = static_cast<AutoString>(g_malloc(maxBytes));
+                    JSStringGetUTF8CString(locationString, originValue, maxBytes);
+                    JSStringRelease(locationString);
                 }
             }
 
-            auto callback = reinterpret_cast<WebMessageReceivedCallback>(userData);
             if (callback != nullptr) {
-                callback(strValue.value, originValue.value);
+                callback(str_value, originValue);
             }
-        });
+
+            if (originValue != nullptr)
+                g_free(originValue);
+
+            g_free(str_value);
+        }
+        webkit_javascript_result_unref(jsResult);
     }
 } 

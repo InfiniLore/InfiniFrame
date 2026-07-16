@@ -44,7 +44,7 @@ public static class Program {
         Windows.Add(
             InfiniFrameWindowBuilder.Create()
                 .SetTitle(windowCreationArgs.Title)
-                .SetUrl(windowCreationArgs.HtmlPath)
+                .SetStartUrl(windowCreationArgs.HtmlPath)
                 .RegisterWindowCreatedHandler(_ => Task.Run(() => CreateWindows(appBuilder, windowsToCreate)))
                 .RegisterWindowClosingHandler((_, _) => {
                     CloseAllWindows();

@@ -43,7 +43,6 @@ public sealed partial class InfiniFrameTestWindow {
         thread.Start();
 
         return new InfiniFrameTestWindow {
-            BuilderSnapshot = windowBuilder,
             Window = windowSource.Task.GetAwaiter().GetResult(),
             _windowThread = thread
         };

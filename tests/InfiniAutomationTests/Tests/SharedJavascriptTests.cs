@@ -1,6 +1,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using InfiniFrame;
 using InfiniTests;
 using Microsoft.Playwright;
 using System.Text.Json;
@@ -44,7 +45,7 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
     [NotInParallelInfiniAutomationTests]
     public async Task DynamicallyUpdateTitleFromJs(CancellationToken ct = default) {
         IPage page = await GetRootPageAsync();
-        string? originalTitle = RuntimeContext.Window.Features.Decorations.Title;
+        string? originalTitle = RuntimeContext.Window.Title;
 
         await EvaluateWhenPageReadyAsync(
             page,
@@ -53,12 +54,12 @@ public abstract class SharedJavascriptTests : InfiniFramePlaywrightTestBase {
         );
         string? updatedTitle = await WaitForStateChangeAsync(
             originalTitle,
-            stateProvider: () => RuntimeContext.Window.Features.Decorations.Title
+            stateProvider: () => RuntimeContext.Window.Title
         );
 
         await Assert.That(updatedTitle).IsEqualTo(NewTitleFromHostMessage);
 
-        RuntimeContext.Window.Features.Decorations.SetTitle(RuntimeContext.DefaultDocumentTitle);
+        RuntimeContext.Window.SetTitle(RuntimeContext.DefaultDocumentTitle);
     }
 
     [Test]

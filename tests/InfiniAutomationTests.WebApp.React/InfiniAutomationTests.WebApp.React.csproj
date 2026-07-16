@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <ApplicationIcon>../../assets/favicon.ico</ApplicationIcon>
 
         <!-- FIX: normalize repository root WITHOUT trailing slash -->
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../..'))</RepositoryRoot>
@@ -21,13 +20,6 @@
     <ItemGroup>
         <ProjectReference Include="../InfiniAutomationTests/InfiniAutomationTests.csproj"/>
         <ProjectReference Include="../InfiniTests/InfiniTests.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="../../assets/favicon.ico">
-            <Link>Assets/favicon.ico</Link>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
     </ItemGroup>
 
     <!-- Track ALL frontend sources -->

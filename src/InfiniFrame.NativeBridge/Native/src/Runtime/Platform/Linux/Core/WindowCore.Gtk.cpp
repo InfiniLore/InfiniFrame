@@ -4,14 +4,18 @@
 #include <stdexcept>
 #include <string>
 
-#include "Runtime/Platform/Linux/Core/UiThread.Gtk.h"
+#include <X11/Xlib.h>
+#include <libnotify/notify.h>
+
 #include "Runtime/Platform/Linux/Window.Gtk.Internal.h"
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
     : m_impl(std::make_unique<Impl>()) {
-    infiniframe::linux_gtk::ui_thread::EnsureInitialized();
+    XInitThreads();
+    gtk_init(nullptr, nullptr);
+    notify_init(initParams->Title);
 
     if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
         throw std::invalid_argument(
@@ -20,45 +24,29 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams)
         );
     }
 
-    infiniframe::linux_gtk::ui_thread::InvokeSync([this, initParams] {
-        m_impl->InitializeFromParams(initParams);
-        m_impl->ConfigureInitialWindow(this, initParams);
-        m_impl->ApplyInitialWindowState(this, initParams);
-        m_impl->ConnectWindowSignals(this);
+    m_impl->InitializeFromParams(initParams);
+    m_impl->ConfigureInitialWindow(this, initParams);
+    m_impl->ApplyInitialWindowState(this, initParams);
+    m_impl->ConnectWindowSignals(this);
+    m_impl->configure_webkit_remote_debugging();
 
-        Show(false);
+    // Register custom schemes before first navigation to avoid first-load races.
+    m_impl->AddCustomSchemeHandlers();
 
-        m_impl->ConnectWebViewSignals(this);
+    Show(false);
 
-        if (initParams->Transparent)
-            SetTransparentEnabled(true);
+    m_impl->ConnectWebViewSignals(this);
 
-        if (m_impl->_zoom != 100.0)
-            SetZoom(m_impl->_zoom);
-    });
+    if (initParams->Transparent)
+        SetTransparentEnabled(true);
+
+    if (m_impl->_zoom != 100.0)
+        SetZoom(m_impl->_zoom);
 }
 
 InfiniFrameWindow::~InfiniFrameWindow() {
-    infiniframe::linux_gtk::ui_thread::InvokeSync([this] {
-        if (m_impl->_window != nullptr) {
-            g_signal_handlers_disconnect_by_data(m_impl->_window, this);
-            gtk_widget_destroy(m_impl->_window);
-            m_impl->_window = nullptr;
-        }
-
-        if (m_impl->_webview != nullptr) {
-            g_signal_handlers_disconnect_by_data(m_impl->_webview, this);
-            m_impl->_webview = nullptr;
-        }
-
-        m_impl->_webContext = nullptr;
-
-        {
-            std::lock_guard lock(m_impl->_lifecycleMutex);
-            m_impl->_destroyed = true;
-        }
-        m_impl->_lifecycleClosed.notify_all();
-    });
+    notify_uninit();
+    gtk_widget_destroy(m_impl->_window);
 }
 
 InfiniFrameWindowImpl* InfiniFrameWindow::ImplBase() noexcept { return m_impl.get(); }

@@ -7,17 +7,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <IsPackable>false</IsPackable>
 
         <TargetDir Condition="'$(TargetDir)' == ''">$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\</TargetDir>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Content Include="$(MSBuildThisFileDirectory)..\assets\favicon.ico">
-            <Link>favicon.ico</Link>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
 </Project>

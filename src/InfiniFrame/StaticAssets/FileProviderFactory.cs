@@ -8,18 +8,7 @@ namespace InfiniFrame.StaticAssets;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Creates <see cref="IFileProvider" /> instances that combine embedded and physical wwwroot file sources.
-/// </summary>
 public static class FileProviderFactory {
-    /// <summary>
-    ///     Creates a composite file provider that resolves files from embedded assembly resources and an optional physical
-    ///     wwwroot directory.
-    /// </summary>
-    /// <param name="assembly">The assembly that contains embedded wwwroot resources. Defaults to the entry assembly.</param>
-    /// <param name="physicalWwwrootPath">An optional physical wwwroot path. Defaults to <c>wwwroot</c> under the base directory.</param>
-    /// <param name="includePhysicalFallback">Whether to include a physical file provider as a fallback when the directory exists.</param>
-    /// <returns>A composite file provider that aggregates all available sources.</returns>
     public static IFileProvider CreateWwwrootProvider(
         Assembly? assembly = null,
         string? physicalWwwrootPath = null,

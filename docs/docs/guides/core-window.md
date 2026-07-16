@@ -168,17 +168,17 @@ if (window.Debug.TryGetRemoteDebuggingEndpoint(out Uri? endpoint))
 
 ### Platform behavior
 
-| Platform           | `SetDevToolsEnabled` | `SetRemoteDebuggingPort`            |
-|--------------------|----------------------|-------------------------------------|
-| Windows (WebView2) | Supported            | Supported                           |
-| Linux (WebKitGTK)  | Supported            | Supported                           |
-| macOS (WKWebView)  | Supported            | Not supported (throws when enabled) |
+| Platform | `SetDevToolsEnabled` | `SetRemoteDebuggingPort` |
+|---|---|---|
+| Windows (WebView2) | Supported | Supported |
+| Linux (WebKitGTK) | Supported | Supported |
+| macOS (WKWebView) | Supported | Not supported (throws when enabled) |
 
-| Platform           | `SetWebInspectorEnabled`            |
-|--------------------|-------------------------------------|
+| Platform | `SetWebInspectorEnabled` |
+|---|---|
 | Windows (WebView2) | Not supported (throws when enabled) |
-| Linux (WebKitGTK)  | Not supported (throws when enabled) |
-| macOS (WKWebView)  | Supported on macOS 13.3+            |
+| Linux (WebKitGTK) | Not supported (throws when enabled) |
+| macOS (WKWebView) | Supported on macOS 13.3+ |
 
 - Use `window.Debug.SupportsRemoteDebugging` to query support.
 - On unsupported platforms, `window.Debug.TryGetRemoteDebuggingEndpoint(out _)` throws `PlatformNotSupportedException`.
@@ -194,7 +194,7 @@ If `SetBrowserControlInitParameters(...)` contains `--remote-debugging-port=...`
 - It does not intentionally expose externally reachable debug endpoints.
 - Startup validates port availability and throws actionable `InvalidOperationException` when the port is unavailable.
 - Linux uses WebKitGTK inspector server environment variables (`WEBKIT_INSPECTOR_SERVER` and `WEBKIT_INSPECTOR_HTTP_SERVER`) at startup.
-- Windows WebView2 and Linux inspector endpoints are exposed as `http://127.0.0.1:<port>/`.
+- Linux inspector endpoints are exposed as `http://127.0.0.1:<port>/` (Windows remains `https://127.0.0.1:<port>/` in InfiniFrame's endpoint API).
 - On Linux, WebKit requires developer extras for remote inspector; InfiniFrame keeps that capability active while remote debugging is enabled.
 - Linux inspector server configuration is process-scoped (WebKitGTK environment-driven behavior), so all windows in the same process share the same remote-debugging endpoint configuration.
 

@@ -47,7 +47,7 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     }
 
     protected override Uri CreatePlaywrightConnectionUri(string relativeUrl)
-        => new(PlaywrightConnectionUtility.CreateCdpConnectionUrl(_playwrightDevtoolsPort), relativeUrl);
+        => new(new Uri($"http://127.0.0.1:{_playwrightDevtoolsPort}"), relativeUrl);
 
     protected virtual void ConfigureServices(IServiceCollection services) {}
 
@@ -56,7 +56,6 @@ public abstract class BlazorPlaywrightContextBase<TRootComponent>(string documen
     protected virtual void ConfigureWindowBuilder(IInfiniFrameWindowBuilder windowBuilder, int playwrightDevtoolsPort) {
         if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()) windowBuilder.Debugging.SetRemoteDebuggingPort(playwrightDevtoolsPort);
         windowBuilder
-            .SetIconFile("favicon.ico")
             .SetTitle(DefaultDocumentTitle)
             .RegisterWindowManagementWebMessageHandler()
             .RegisterFullScreenWebMessageHandler()

@@ -3,8 +3,6 @@
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
 #include <climits>
-#include <condition_variable>
-#include <mutex>
 #include <string>
 #include <vector>
 #include <gtk/gtk.h>
@@ -18,8 +16,6 @@
 struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     GtkWidget* _window = nullptr;
     GtkWidget* _webview = nullptr;
-    WebKitWebContext* _webContext = nullptr;
-    int _remoteDebuggingPort = 0;
 
     std::string _temporaryFilesPath;
 
@@ -40,10 +36,6 @@ struct InfiniFrameWindow::Impl : InfiniFrameWindowImpl {
     int _lastTop = 0;
     int _lastWidth = 0;
     int _lastHeight = 0;
-
-    std::mutex _lifecycleMutex;
-    std::condition_variable _lifecycleClosed;
-    bool _destroyed = false;
 
     // Messages queued while WebKit is still loading (e.g. sent from WindowCreated handler). 
     // Flushed on the first WEBKIT_LOAD_FINISHED event.

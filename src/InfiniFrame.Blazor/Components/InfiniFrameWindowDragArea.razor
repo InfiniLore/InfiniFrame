@@ -87,9 +87,9 @@
 
         _isGrabbing = true;
 
-        if (Window.Features.State.CachedPreMaximizedBounds != Rectangle.Empty) {
-            Rectangle bounds = Window.Features.State.CachedPreMaximizedBounds;
-            Window.Features.State.CachedPreMaximizedBounds = Rectangle.Empty;
+        if (Window.CachedPreMaximizedBounds != Rectangle.Empty) {
+            Rectangle bounds = Window.CachedPreMaximizedBounds;
+            Window.CachedPreMaximizedBounds = Rectangle.Empty;
 
             Window.Invoke(() => {
                 int targetX = (int)(args.ScreenX - bounds.Width / 2f);
@@ -117,7 +117,7 @@
     private async Task OnDoubleClick(MouseEventArgs args) {
         _suppressRender = true;
         _isGrabbing = false;
-        Window.Features.State.ToggleMaximized();
+        Window.ToggleMaximized();
         if (_lastKnownPointerId == 0) return;
 
         await InfiniWindowJs.ReleasePointerCaptureAsync(_dragArea, _lastKnownPointerId);
@@ -128,6 +128,6 @@
         if (_suppressGrabbing) return;
         if (!_isGrabbing) return;
 
-        Window.Features.Position.Offset(args.MovementX, args.MovementY);
+        Window.Offset(args.MovementX, args.MovementY);
     }
 }

@@ -6,7 +6,6 @@ namespace InfiniFrame.BlazorWebView;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 internal sealed class AppDomainUnhandledExceptionSource : IInfiniFrameUnhandledExceptionSource {
-    /// <inheritdoc cref="IInfiniFrameUnhandledExceptionSource.Register"/>
     public IDisposable Register(UnhandledExceptionEventHandler handler) {
         ArgumentNullException.ThrowIfNull(handler);
         AppDomain.CurrentDomain.UnhandledException += handler;

@@ -259,7 +259,7 @@ public class KeyedResultEventTests {
         evt.Add("y", handler: (_, _) => "ry");
 
         // Act & Assert
-        await Assert.That(evt.Snapshot.ContainsKey("x")).IsTrue();
-        await Assert.That(evt.Snapshot.ContainsKey("y")).IsTrue();
+        await Assert.That(evt.Handlers.ContainsKey("x")).IsTrue();
+        await Assert.That(evt.Handlers.ContainsKey("y")).IsTrue();
     }
 }

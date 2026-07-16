@@ -5,25 +5,12 @@ namespace InfiniFrame.NativeBridge.Parameters;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
-/// <summary>
-///     Compares two <see cref="InfiniFrameNativeParameters"/> instances for value equality,
-///     ignoring callback handler fields.
-/// </summary>
 internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityComparer<InfiniFrameNativeParameters> {
-    /// <summary>
-    ///     Singleton instance of the equality comparer.
-    /// </summary>
     internal static readonly InfiniFrameNativeParametersEqualityComparer Instance = new();
 
     private InfiniFrameNativeParametersEqualityComparer() { }
 
-    /// <summary>
-    ///     Determines whether two <see cref="InfiniFrameNativeParameters"/> instances are equal
-    ///     by comparing all value fields.
-    /// </summary>
-    /// <param name="x">The first instance.</param>
-    /// <param name="y">The second instance.</param>
-    /// <returns><c>true</c> if the instances are equal; otherwise, <c>false</c>.</returns>
+    // ReSharper disable once ConvertIfStatementToReturnStatement
     public bool Equals(InfiniFrameNativeParameters x, InfiniFrameNativeParameters y) {
         // Handlers are not checked because they are set by the constructor and are not user-configurable.
         // x.ClosingHandler == y.ClosingHandler
@@ -87,12 +74,6 @@ internal sealed class InfiniFrameNativeParametersEqualityComparer : IEqualityCom
         return true;
     }
 
-    /// <summary>
-    ///     Returns a hash code for the specified <see cref="InfiniFrameNativeParameters"/> instance
-    ///     based on its value fields.
-    /// </summary>
-    /// <param name="obj">The instance to hash.</param>
-    /// <returns>A hash code value.</returns>
     public int GetHashCode(InfiniFrameNativeParameters obj) {
         var hashCode = new HashCode();
         hashCode.Add(obj.StartString);
