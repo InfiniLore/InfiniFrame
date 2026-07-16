@@ -13,6 +13,11 @@ on:
                 description: 'Commit SHA used for status/check updates'
                 type: string
                 required: true
+            enable_test_exports:
+                description: 'Whether downloaded testing native artifacts include native test exports.'
+                type: boolean
+                required: false
+                default: false
 
 permissions:
     contents: read
@@ -25,7 +30,7 @@ jobs:
         runs-on: ubuntu-latest
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
-        
+
         steps:
             -   name: Checkout
                 uses: actions/checkout@v7
@@ -68,16 +73,16 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       /p:SolutionDir=${{ github.workspace }}/ \
-                      /p:InfiniFrameSkipNativeBuild=false \
-                      /p:InfiniFrameEnableTestExports=false
+                      /p:InfiniFrameSkipNativeBuild=true \
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
             -   name: Pack
                 run: |
                     dotnet pack InfiniFrame.GitHubActions.Release.slnf \
                       --configuration Release \
                       --no-build \
-                      /p:InfiniFrameSkipNativeBuild=false \
-                      /p:InfiniFrameEnableTestExports=false \
+                      /p:InfiniFrameSkipNativeBuild=true \
+                      /p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
                       -o ./release
 
             -   name: Verify NativeBridge Package Natives
@@ -116,8 +121,9 @@ jobs:
                       echo "❌ $MISSING native file(s) missing in NativeBridge package"
                       exit 1
                     fi
-                    
+
             -   name: Verify Lack of NativeBridge Test Exports
+                if: ${{ inputs.enable_test_exports == false }}
                 shell: bash
                 run: |
                     set -euo pipefail

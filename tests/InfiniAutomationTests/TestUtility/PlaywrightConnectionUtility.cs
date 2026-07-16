@@ -10,6 +10,7 @@ namespace InfiniAutomationTests.TestUtility;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public static class PlaywrightConnectionUtility {
+    private const string LoopbackAddress = "127.0.0.1";
     private static readonly TimeSpan DefaultPlaywrightCreateTimeout = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan DefaultPlaywrightConnectTimeout = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan DefaultPlaywrightConnectRetryWindow = TimeSpan.FromSeconds(60);
@@ -102,6 +103,12 @@ public static class PlaywrightConnectionUtility {
         }
     }
 
+    /// <summary>
+    ///     Creates the CDP connection URL for the given port.
+    /// </summary>
+    public static Uri CreateCdpConnectionUrl(int port)
+        => new($"http://{LoopbackAddress}:{port}");
+
     public static async Task<IPlaywright> CreatePlaywrightAsync(TimeSpan timeout = default) {
         if (timeout == TimeSpan.Zero)
             timeout = DefaultPlaywrightCreateTimeout;
@@ -109,6 +116,11 @@ public static class PlaywrightConnectionUtility {
         return await Playwright.CreateAsync().WaitAsync(timeout);
     }
 
+    /// <summary>
+    ///     Connects to an InfiniFrame WebView via CDP with retry logic.
+    ///     On Windows: connects to WebView2's Edge Chromium CDP endpoint.
+    ///     On Linux:   connects to WebKitGTK 2.40+ CDP endpoint (via WEBKIT_INSPECTOR_HTTP_SERVER).
+    /// </summary>
     public static async Task<IBrowser> ConnectOverCdpWithRetryAsync(
         IPlaywright playwright,
         Uri url,
@@ -119,6 +131,12 @@ public static class PlaywrightConnectionUtility {
         if (connectTimeout == TimeSpan.Zero) connectTimeout = DefaultPlaywrightConnectTimeout;
         if (retryWindow == TimeSpan.Zero) retryWindow = DefaultPlaywrightConnectRetryWindow;
         if (retryInterval == TimeSpan.Zero) retryInterval = DefaultPlaywrightConnectRetryInterval;
+
+        string engine = OperatingSystem.IsWindows() ? "WebView2 (Edge Chromium CDP)"
+            : OperatingSystem.IsLinux() ? "WebKitGTK (WEBKIT_INSPECTOR_HTTP_SERVER CDP)"
+            : "unknown";
+
+        Console.WriteLine($"[PlaywrightConnect] Platform: {engine}, endpoint: {url}");
 
         using var retryWindowCancellation = new CancellationTokenSource(retryWindow);
         CancellationToken cancellationToken = retryWindowCancellation.Token;
@@ -153,8 +171,12 @@ public static class PlaywrightConnectionUtility {
             }
         }
 
+        string hint = OperatingSystem.IsLinux()
+            ? " Ensure the container has DISPLAY set and WebKitGTK can initialize. Check WEBKIT_INSPECTOR_HTTP_SERVER is enabling the CDP endpoint."
+            : "";
+
         throw new TimeoutException(
-            $"Timed out connecting Playwright over CDP at '{url}' within {retryWindow.TotalSeconds} seconds.",
+            $"Timed out connecting Playwright over CDP at '{url}' within {retryWindow.TotalSeconds} seconds.{hint}",
             lastException
         );
     }

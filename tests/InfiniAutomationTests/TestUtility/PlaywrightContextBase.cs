@@ -76,7 +76,9 @@ public abstract class PlaywrightContextBase(string documentTitle) : IPlaywrightR
             return browser;
         }
         catch (TimeoutException) {
-            Fail.Test("Could not connect to Playwright.");
+            string os = OperatingSystem.IsWindows() ? "Windows" : OperatingSystem.IsLinux() ? "Linux" : "unknown";
+            Fail.Test($"Could not connect to the CDP endpoint at '{url}' on {os}. " +
+                "Verify the InfiniFrame native window started with remote debugging enabled.");
             return null!;
         }
     }

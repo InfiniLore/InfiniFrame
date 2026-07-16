@@ -7,3 +7,5 @@ using InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [assembly: DefaultInfiniTestsTimeout]
+[assembly: SkipOnLinux]
+[assembly: SkipOnMacOs]

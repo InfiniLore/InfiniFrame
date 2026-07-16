@@ -3,16 +3,19 @@
 // ---------------------------------------------------------------------------------------------------------------------
 using InfiniFrame;
 using InfiniFrame.BlazorWebView;
+using InfiniFrame.NativeBridge.Parameters;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
+using System.Reflection;
 
 namespace InfiniTests.InfiniFrame.BlazorWebView;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+[NotInParallelInfiniTests]
 public class InfiniFrameBlazorAppBuilderTests {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -170,7 +173,11 @@ public class InfiniFrameBlazorAppBuilderTests {
     public async Task Run_WindowAlreadyClosed_DoesNotInvokeWindowAndDisposesServices(CancellationToken ct = default) {
         // Arrange
         var window = Substitute.For<IInfiniFrameWindow>();
-        window.When(x => x.Invoke(Arg.Any<Action>()))
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var invokeFeature = Substitute.For<IInfiniFrameWindowFeatureInvoke>();
+        window.Features.Returns(features);
+        features.Invoke.Returns(invokeFeature);
+        invokeFeature.When(x => x.Invoke(Arg.Any<Action>()))
             .Do(_ => throw new InvalidOperationException("Invoke should not be used during Run() shutdown."));
 
         ServiceProvider services = new ServiceCollection()
@@ -188,7 +195,7 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         // Assert
         window.Received(1).WaitForClose();
-        window.DidNotReceive().Invoke(Arg.Any<Action>());
+        invokeFeature.DidNotReceive().Invoke(Arg.Any<Action>());
         await Assert.That(disposeProbe.IsDisposed).IsTrue();
     }
 
@@ -207,13 +214,13 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetTop(0)
             .SetSize(100, 100)
             .SetResizable(false)
-            .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false)
+            .SetChromeless()
+            .EnableSmoothScrolling(false)
         );
 
         // Assert
         await Assert.That(appbuilder).IsNotNull();
-        await Assert.That(appbuilder.WindowBuilder.Configuration.BrowserControlInitParameters).IsEqualTo(
+        await Assert.That(appbuilder.WindowBuilder.Features.Browser.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }
@@ -234,12 +241,12 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetTop(0)
             .SetSize(100, 100)
             .SetResizable(false)
-            .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false);
+            .SetChromeless()
+            .EnableSmoothScrolling(false);
 
         // Assert
         await Assert.That(appbuilder).IsNotNull();
-        await Assert.That(appbuilder.WindowBuilder.Configuration.BrowserControlInitParameters).IsEqualTo(
+        await Assert.That(appbuilder.WindowBuilder.Features.Browser.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
     }
@@ -261,8 +268,8 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetTop(0)
             .SetSize(100, 100)
             .SetResizable(false)
-            .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false)
+            .SetChromeless()
+            .EnableSmoothScrolling(false)
         );
 
         InfiniFrameBlazorApp app = appbuilder.Build();
@@ -270,9 +277,10 @@ public class InfiniFrameBlazorAppBuilderTests {
 
         // Assert
         await Assert.That(window).IsNotNull();
-        await Assert.That(window.BrowserControlInitParameters).IsEqualTo(
+        await Assert.That(window.Configuration.StartupParameters.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
+        await app.DisposeAsync();
     }
 
     [Test]
@@ -293,17 +301,111 @@ public class InfiniFrameBlazorAppBuilderTests {
             .SetTop(0)
             .SetSize(100, 100)
             .SetResizable(false)
-            .SetChromeless(true)
-            .SetSmoothScrollingEnabled(false);
+            .SetChromeless()
+            .EnableSmoothScrolling(false);
 
         InfiniFrameBlazorApp app = appbuilder.Build();
         var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
 
         // Assert
         await Assert.That(window).IsNotNull();
-        await Assert.That(window.BrowserControlInitParameters).IsEqualTo(
+        await Assert.That(window.Configuration.StartupParameters.BrowserControlInitParameters).IsEqualTo(
             initParameters
         );
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_SetsStartupUrlToAppBaseForDefaultHostPage(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+
+        // Assert
+        await Assert.That(window.Configuration.StartupParameters.StartUrl).IsEqualTo("app://localhost/");
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_SetsStartupUrlToConfiguredNonDefaultHostPage(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        appBuilder.Services.Configure<InfiniFrameBlazorAppConfiguration>(options => {
+            options.HostPage = "shell/host.html";
+        });
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+
+        // Assert
+        await Assert.That(window.Configuration.StartupParameters.StartUrl).IsEqualTo("app://localhost/shell/host.html");
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_SetsWindowBuilderStaticAssets(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+
+        // Assert
+        await Assert.That(appBuilder.WindowBuilder.StaticAssets).IsNotNull();
+        await Assert.That(appBuilder.WindowBuilder.StaticAssets!.BaseUri).IsEqualTo("app://localhost/");
+        await Assert.That(appBuilder.WindowBuilder.StaticAssets.DefaultDocument).IsEqualTo("index.html");
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_PopulatesNativeStartupCustomSchemeCallback(CancellationToken ct = default) {
+        // Arrange
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+        var window = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+        InfiniFrameNativeParameters startupParameters = window.Configuration.StartupParameters;
+
+        FieldInfo? callbackField = typeof(InfiniFrameNativeParameters)
+            .GetField("CustomSchemeHandler", BindingFlags.Instance | BindingFlags.NonPublic);
+        object? callback = callbackField?.GetValue(startupParameters);
+
+        // Assert
+        await Assert.That(callback).IsNotNull();
+        await app.DisposeAsync();
+    }
+
+    [Test]
+    [NotInParallelInfiniTests]
+    public async Task Build_ExposesDebuggingThroughWindowFeatures(CancellationToken ct = default) {
+        // Arrange
+        var debuggingFeature = Substitute.For<IInfiniFrameWindowFeatureDebugging>();
+        var features = Substitute.For<IInfiniFrameWindowFeatures>();
+        var window = Substitute.For<IInfiniFrameWindow>();
+        features.Debugging.Returns(debuggingFeature);
+        window.Features.Returns(features);
+        window.Debugging.Returns(debuggingFeature);
+
+        var appBuilder = InfiniFrameBlazorAppBuilder.CreateDefault();
+        appBuilder.Services.RemoveAll<IInfiniFrameWindow>();
+        appBuilder.Services.AddSingleton(window);
+
+        // Act
+        InfiniFrameBlazorApp app = appBuilder.Build();
+        IInfiniFrameWindow resolvedWindow = app.ServiceProvider.GetRequiredService<IInfiniFrameWindow>();
+
+        // Assert
+        await Assert.That(resolvedWindow.Debugging).IsSameReferenceAs(resolvedWindow.Features.Debugging);
+        await app.DisposeAsync();
     }
 
     private sealed class TestJsComponent : IComponent {

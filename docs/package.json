@@ -14,7 +14,7 @@
     "@docusaurus/preset-classic": "^3.10.1",
     "clsx": "^2.1.1",
     "prism-react-renderer": "^2.4.1",
-    "serialize-javascript": "^7.0.5"
+    "serialize-javascript": "^7.0.6"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.10.1",
@@ -23,7 +23,7 @@
   },
     "overrides": {
         "webpack": "5.105.4",
-        "serialize-javascript": "^7.0.5",
+        "serialize-javascript": "^7.0.6",
         "uuid": "^14.0.0"
     },
     "engines": {

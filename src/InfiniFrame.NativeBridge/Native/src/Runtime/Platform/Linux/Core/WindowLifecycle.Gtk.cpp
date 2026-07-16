@@ -5,6 +5,26 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+void InfiniFrameWindow::MarkDestroyed() {
+    {
+        std::lock_guard lock(m_impl->_lifecycleMutex);
+        m_impl->_destroyed = true;
+    }
+    m_impl->_window = nullptr;
+    m_impl->_webview = nullptr;
+    m_impl->_lifecycleClosed.notify_all();
+}
+
+bool InfiniFrameWindow::IsDestroyed() const {
+    std::lock_guard lock(m_impl->_lifecycleMutex);
+    return m_impl->_destroyed;
+}
+
+void InfiniFrameWindow::WaitUntilDestroyed() {
+    std::unique_lock lock(m_impl->_lifecycleMutex);
+    m_impl->_lifecycleClosed.wait(lock, [&] { return m_impl->_destroyed; });
+}
+
 void InfiniFrameWindow::Center() {
     gint windowWidth, windowHeight;
     gtk_window_get_size(GTK_WINDOW(m_impl->_window), &windowWidth, &windowHeight);
@@ -50,10 +70,7 @@ void InfiniFrameWindow::Close() {
 }
 
 void InfiniFrameWindow::WaitForExit() {
-    g_signal_connect(
-        G_OBJECT(m_impl->_window), "destroy", G_CALLBACK(+[](GtkWidget*, gpointer) { gtk_main_quit(); }), nullptr
-    );
-    gtk_main();
+    WaitUntilDestroyed();
 }
 
 void InfiniFrameWindow::CloseWebView() {
@@ -69,8 +86,8 @@ void InfiniFrameWindow::CloseWebView() {
     // tearing down. The webview itself is destroyed implicitly by GTK when the parent window is destroyed.
     // Explicit destruction here (gtk_widget_destroy, terminate_web_process, pumping events) triggers WebKit's web
     // process cleanup from inside a GTK signal handler, which causes SIGABRT on libwebkit2gtk-4.1.
-    // The process-exit SIGABRT from WebKit's own atexit handler is handled separately by webkit_atexit_bypass()
-    // in WebKitHost.Gtk.cpp.
+    // Do not unref _webContext here either. CloseWebView runs from the GTK delete-event path, and releasing the
+    // context from this re-entrant teardown path can trigger the same WebKitGTK abort.
     g_signal_handlers_disconnect_by_data(webview, this);
     webkit_web_view_stop_loading(WEBKIT_WEB_VIEW(webview));
 }

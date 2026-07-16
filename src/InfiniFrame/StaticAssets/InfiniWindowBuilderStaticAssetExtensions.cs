@@ -10,7 +10,25 @@ namespace InfiniFrame;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
+/// <summary>
+///     Provides extension methods for configuring embedded wwwroot static assets on an <see cref="IInfiniFrameWindowBuilder" />.
+/// </summary>
 public static class InfiniWindowBuilderStaticAssetExtensions {
+    /// <summary>
+    ///     Configures the window builder to serve static assets from embedded wwwroot resources and an optional physical
+    ///     fallback directory.
+    /// </summary>
+    /// <param name="builder">The window builder.</param>
+    /// <param name="assembly">The assembly containing embedded wwwroot resources. Defaults to the entry assembly.</param>
+    /// <param name="scheme">The custom URI scheme to register (e.g., <c>app</c>).</param>
+    /// <param name="host">The host to use in the base URI.</param>
+    /// <param name="defaultDocument">The default document file name (e.g., <c>index.html</c>).</param>
+    /// <param name="physicalWwwrootPath">Optional physical wwwroot path. Defaults to <c>wwwroot</c> under the base directory.</param>
+    /// <param name="includePhysicalFallback">Whether to include a physical file provider fallback.</param>
+    /// <param name="setStartUrl">Whether to set the start page URL to the resolved default document.</param>
+    /// <typeparam name="T">The type of the window builder.</typeparam>
+    /// <returns>The window builder for chaining.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the default document is not found in any configured provider.</exception>
     public static T UseEmbeddedWwwrootAssets<T>(
         this T builder,
         Assembly? assembly = null,
@@ -51,7 +69,7 @@ public static class InfiniWindowBuilderStaticAssetExtensions {
             StaticAssetSchemeHandler.Create(provider, normalizedDefaultDocument));
 
         if (setStartUrl) {
-            builder.SetStartUrl($"{baseUri}{normalizedDefaultDocument}");
+            builder.SetStartPageUrl($"{baseUri}{normalizedDefaultDocument}");
         }
 
         return builder;
