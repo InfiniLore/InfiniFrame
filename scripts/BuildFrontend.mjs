@@ -24,9 +24,43 @@ const lockDirectory = `${stampFile}.lock`;
 const nodeModulesDirectory = path.join(appDirectory, 'node_modules');
 const packageLockFile = path.join(appDirectory, 'package-lock.json');
 const sourceExclusions = new Set(['node_modules', '.git', 'obj', 'bin', 'wwwroot']);
+const defaultLockWaitTimeoutMilliseconds = process.env.CI === 'true' ? 15 * 60 * 1000 : 5 * 60 * 1000;
+const staleLockThresholdMilliseconds = parseDurationMilliseconds(
+    process.env.INFINIFRAME_FRONTEND_LOCK_STALE_TIMEOUT,
+    10 * 60 * 1000);
+const lockWaitTimeoutMilliseconds = Math.max(
+    parseDurationMilliseconds(process.env.INFINIFRAME_FRONTEND_LOCK_WAIT_TIMEOUT, defaultLockWaitTimeoutMilliseconds),
+    staleLockThresholdMilliseconds + 30 * 1000);
 
 function sleep(milliseconds) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+function parseDurationMilliseconds(value, fallbackMilliseconds) {
+    if (!value || typeof value !== 'string') {
+        return fallbackMilliseconds;
+    }
+
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+        return fallbackMilliseconds;
+    }
+
+    const match = trimmed.match(/^(\d+)(ms|s|m|h)?$/i);
+    if (!match) {
+        return fallbackMilliseconds;
+    }
+
+    const amount = Number.parseInt(match[1], 10);
+    const unit = (match[2] ?? 'ms').toLowerCase();
+    const multiplier = unit === 'h'
+        ? 60 * 60 * 1000
+        : unit === 'm'
+            ? 60 * 1000
+            : unit === 's'
+                ? 1000
+                : 1;
+    return amount * multiplier;
 }
 
 function isProcessRunning(processId) {
@@ -44,7 +78,6 @@ function isProcessRunning(processId) {
 
 function shouldRemoveExistingLock() {
     const ownerFile = path.join(lockDirectory, 'owner.txt');
-    const staleLockThresholdMilliseconds = 10 * 60 * 1000;
     const lockAgeMilliseconds = (() => {
         try {
             return Date.now() - statSync(lockDirectory).mtimeMs;
@@ -93,8 +126,9 @@ function acquireLock() {
                 continue;
             }
 
-            if (Date.now() - startedAt > 2 * 60 * 1000) {
-                throw new Error(`Timed out waiting for frontend build lock: ${lockDirectory}`);
+            if (Date.now() - startedAt > lockWaitTimeoutMilliseconds) {
+                throw new Error(
+                    `Timed out waiting for frontend build lock after ${lockWaitTimeoutMilliseconds}ms: ${lockDirectory}`);
             }
 
             sleep(250);

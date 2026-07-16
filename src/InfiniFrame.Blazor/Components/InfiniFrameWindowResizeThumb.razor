@@ -184,6 +184,6 @@
         _suppressRender = true;
         if (!_isGrabbing) return;
 
-        Window.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
+        Window.Features.Size.Resize((int)args.MovementX, (int)args.MovementY, ResizeThumb);
     }
 }

@@ -7,6 +7,7 @@ using InfiniFrame.WebServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
 namespace InfiniTests.InfiniFrame.WebServer;
@@ -19,7 +20,7 @@ public class InfiniFrameWebApplicationTests {
     private static IInfiniFrameWindow CreateMockWindow() {
         var mockWindow = Substitute.For<IInfiniFrameWindow>();
         var eventsStore = new InfiniFrameEventsStore();
-        mockWindow.Events.Returns(new InfiniFrameEvents(eventsStore));
+        mockWindow.Events.Returns(new InfiniFrameEvents(eventsStore, NullLogger<InfiniFrameEvents>.Instance));
         mockWindow.EventsStore.Returns(eventsStore);
         return mockWindow;
     }
@@ -69,6 +70,7 @@ public class InfiniFrameWebApplicationTests {
         var lazyWindow = new Lazy<IInfiniFrameWindow>(CreateMockWindow);
 
         var app = new InfiniFrameWebApplication {
+            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
             LazyWindow = lazyWindow
         };
@@ -95,6 +97,7 @@ public class InfiniFrameWebApplicationTests {
         _ = lazyWindow.Value;
 
         var app = new InfiniFrameWebApplication {
+            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
             LazyWindow = lazyWindow
         };
@@ -120,6 +123,7 @@ public class InfiniFrameWebApplicationTests {
         _ = lazyWindow.Value;
 
         var app = new InfiniFrameWebApplication {
+            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
             LazyWindow = lazyWindow
         };
@@ -147,6 +151,7 @@ public class InfiniFrameWebApplicationTests {
         _ = lazyWindow.Value;
 
         var app = new InfiniFrameWebApplication {
+            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
             LazyWindow = lazyWindow
         };
@@ -185,6 +190,7 @@ public class InfiniFrameWebApplicationTests {
         var lazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow);
 
         var app = new InfiniFrameWebApplication {
+            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
             LazyWindow = lazyWindow
         };
@@ -218,6 +224,7 @@ public class InfiniFrameWebApplicationTests {
         var lazyWindow = new Lazy<IInfiniFrameWindow>(() => mockWindow);
 
         var app = new InfiniFrameWebApplication {
+            Logger = NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
             LazyWindow = lazyWindow
         };

@@ -227,12 +227,12 @@
         switch (WindowAction) {
 
             case WindowAction.Minimize: {
-                Window.SetMinimized(true);
+                Window.Features.State.SetMinimized();
                 break;
             }
 
             case WindowAction.Maximize: {
-                Window.ToggleMaximized();
+                Window.Features.State.ToggleMaximized();
                 break;
             }
 

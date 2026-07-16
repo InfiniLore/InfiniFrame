@@ -13,27 +13,12 @@ public sealed partial class InfiniFrameTestWindow {
     [SupportedOSPlatform("macos")]
     [MustDisposeResource]
     private static partial InfiniFrameTestWindow CreateMacOs(InfiniFrameWindowBuilder windowBuilder) {
-        IInfiniFrameWindow window = windowBuilder.Build();
+        IInfiniFrameWindow built = windowBuilder.Build();
 
-        var utility = new InfiniFrameTestWindow {
-            Window = window
+        return new InfiniFrameTestWindow {
+            BuilderSnapshot = windowBuilder,
+            Window = built,
+            _windowThread = null
         };
-
-        var thread = new Thread(() => {
-            try {
-                window.WaitForClose();
-            }
-            catch (ApplicationException) {
-                // Ignore shutdown exceptions during test cleanup.
-            }
-        }) {
-            IsBackground = true
-        };
-
-        utility._windowThread = thread;
-
-        thread.Start();
-
-        return utility;
     }
 }

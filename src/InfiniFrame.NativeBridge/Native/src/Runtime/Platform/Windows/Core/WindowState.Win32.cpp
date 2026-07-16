@@ -181,16 +181,33 @@ void InfiniFrameWindow::SetIconFile(const AutoString filename) {
     if (wideFilename.empty())
         return;
 
+    const int smallWidth = GetSystemMetrics(SM_CXSMICON);
+    const int smallHeight = GetSystemMetrics(SM_CYSMICON);
+    const int bigWidth = GetSystemMetrics(SM_CXICON);
+    const int bigHeight = GetSystemMetrics(SM_CYICON);
+
     HICON iconSmall = static_cast<HICON>(
-        LoadImageW(nullptr, wideFilename.c_str(), IMAGE_ICON, 16, 16, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED)
+        LoadImageW(
+            nullptr, wideFilename.c_str(), IMAGE_ICON, smallWidth, smallHeight,
+            LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED
+        )
     );
     HICON iconBig = static_cast<HICON>(
-        LoadImageW(nullptr, wideFilename.c_str(), IMAGE_ICON, 32, 32, LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED)
+        LoadImageW(
+            nullptr, wideFilename.c_str(), IMAGE_ICON, bigWidth, bigHeight,
+            LR_LOADFROMFILE | LR_LOADTRANSPARENT | LR_SHARED
+        )
     );
 
-    if (iconSmall && iconBig) {
+    if (iconSmall != nullptr) {
         SendMessageW(m_impl->_hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(iconSmall));
+        SendMessageW(m_impl->_hWnd, WM_SETICON, ICON_SMALL2, reinterpret_cast<LPARAM>(iconSmall));
+        SetClassLongPtrW(m_impl->_hWnd, GCLP_HICONSM, reinterpret_cast<LONG_PTR>(iconSmall));
+    }
+
+    if (iconBig != nullptr) {
         SendMessageW(m_impl->_hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(iconBig));
+        SetClassLongPtrW(m_impl->_hWnd, GCLP_HICON, reinterpret_cast<LONG_PTR>(iconBig));
     }
 }
 

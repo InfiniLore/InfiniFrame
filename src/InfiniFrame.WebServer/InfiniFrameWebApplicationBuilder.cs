@@ -1,14 +1,19 @@
 ﻿// ---------------------------------------------------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------------------------------------------------
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace InfiniFrame.WebServer;
 // ---------------------------------------------------------------------------------------------------------------------
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilder {
+    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WebApp"/>
     public required WebApplicationBuilder WebApp { get; init; }
+    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.WindowBuilder"/>
     public required IInfiniFrameWindowBuilder WindowBuilder { get; init; }
     
+    /// <inheritdoc cref="IInfiniFrameWebApplicationBuilder.Services"/>
     public IServiceCollection Services => WebApp.Services;
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -16,6 +21,7 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
     // -----------------------------------------------------------------------------------------------------------------
     internal InfiniFrameWebApplicationBuilder Initialize() {
         Services
+            .AddInfiniFrame()
             .AddSingleton(WindowBuilder)
             .AddSingleton<IInfiniFrameWindow>(static provider => provider.GetRequiredService<IInfiniFrameWindowBuilder>().Build(provider));
 
@@ -30,7 +36,7 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .FirstOrDefault();
 
-        if (startUrl is not null) WindowBuilder.SetStartUrl(startUrl);
+        if (startUrl is not null) WindowBuilder.SetStartPageUrl(startUrl);
 
         WindowBuilder.RegisterGetWebMessageHandler();
         
@@ -43,6 +49,7 @@ public class InfiniFrameWebApplicationBuilder : IInfiniFrameWebApplicationBuilde
         webApp.UseDefaultFiles();
 
         return new InfiniFrameWebApplication {
+            Logger = webApp.Services.GetService<ILogger<InfiniFrameWebApplication>>() ?? NullLogger<InfiniFrameWebApplication>.Instance,
             WebApp = webApp,
             LazyWindow = new Lazy<IInfiniFrameWindow>(() => webApp.Services.GetRequiredService<IInfiniFrameWindow>())
         };
