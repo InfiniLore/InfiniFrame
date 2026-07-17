@@ -56,14 +56,15 @@ public class RemoteDebuggingEndpointReadinessTests {
         DateTime timeoutAt = DateTime.UtcNow.Add(timeout);
         while (DateTime.UtcNow < timeoutAt && !ct.IsCancellationRequested) {
             using var client = new TcpClient();
+            using var attempt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            attempt.CancelAfter(TimeSpan.FromMilliseconds(300));
             try {
-                Task connectTask = client.ConnectAsync(IPAddress.Loopback, port);
-                Task completed = await Task.WhenAny(connectTask, Task.Delay(300, ct));
-                if (completed == connectTask && client.Connected) {
-                    return true;
-                }
+                await client.ConnectAsync(IPAddress.Loopback, port, attempt.Token);
+                if (client.Connected) return true;
             }
             catch (SocketException) {
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested) {
             }
 
             await Task.Delay(200, ct);
@@ -76,14 +77,15 @@ public class RemoteDebuggingEndpointReadinessTests {
         DateTime timeoutAt = DateTime.UtcNow.Add(timeout);
         while (DateTime.UtcNow < timeoutAt && !ct.IsCancellationRequested) {
             using var client = new TcpClient();
+            using var attempt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            attempt.CancelAfter(TimeSpan.FromMilliseconds(300));
             try {
-                Task connectTask = client.ConnectAsync(IPAddress.Loopback, port, ct).AsTask();
-                Task completed = await Task.WhenAny(connectTask, Task.Delay(300, ct));
-                if (completed != connectTask) {
-                    return true;
-                }
+                await client.ConnectAsync(IPAddress.Loopback, port, attempt.Token);
             }
             catch (SocketException) {
+                return true;
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested) {
                 return true;
             }
 

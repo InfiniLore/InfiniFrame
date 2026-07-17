@@ -7,4 +7,3 @@ using InfiniTests;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [assembly: DefaultInfiniTestsTimeout]
-[assembly: Retry(5)]

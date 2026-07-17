@@ -8,5 +8,4 @@ using TUnit.Core.Executors;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 [assembly: DefaultInfiniTestsTimeout]
-[assembly: Retry(5)]
 [assembly: TestExecutor<MacOsWindowExecutor>]

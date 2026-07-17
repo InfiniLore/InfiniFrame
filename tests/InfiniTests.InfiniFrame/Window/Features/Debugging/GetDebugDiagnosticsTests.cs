@@ -9,11 +9,7 @@ namespace InfiniTests.InfiniFrame.Window.Features.Debugging;
 // Code
 // ---------------------------------------------------------------------------------------------------------------------
 public class GetDebugDiagnosticsTests {
-    public static async IAsyncEnumerable<Func<int>> GetPorts() {
-        await foreach(int port in PortUtils.GetOpenPorts(1)) {
-            yield return () => port;
-        }
-    }
+    public static Func<int> GetPort() => PortUtils.GetOpenPortValue;
 
     [Test]
     [NotInParallelInfiniTests]
@@ -60,7 +56,7 @@ public class GetDebugDiagnosticsTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [MethodDataSource(nameof(GetPorts))]
+    [MethodDataSource(nameof(GetPort))]
     [SkipOnLinux]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange

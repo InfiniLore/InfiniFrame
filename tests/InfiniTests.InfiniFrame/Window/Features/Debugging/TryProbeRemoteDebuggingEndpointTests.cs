@@ -11,11 +11,7 @@ public class TryProbeRemoteDebuggingEndpointTests {
     private const string NotSupportedReason = "Remote debugging endpoint probing is not supported on this platform.";
     private const string DisabledReason = "Remote debugging is disabled.";
 
-    public static async IAsyncEnumerable<Func<int>> GetPorts() {
-        await foreach(int port in PortUtils.GetOpenPorts(1)) {
-            yield return () => port;
-        }
-    }
+    public static Func<int> GetPort() => PortUtils.GetOpenPortValue;
 
     [Test]
     [NotInParallelInfiniTests]
@@ -57,7 +53,7 @@ public class TryProbeRemoteDebuggingEndpointTests {
 
     [Test]
     [NotInParallelInfiniTests]
-    [MethodDataSource(nameof(GetPorts))]
+    [MethodDataSource(nameof(GetPort))]
     public async Task AtWindowStage_ThroughBuilderAssignment(int value, CancellationToken ct) {
         // Arrange
         using var windowUtility = InfiniFrameTestWindow.Create(builder => {

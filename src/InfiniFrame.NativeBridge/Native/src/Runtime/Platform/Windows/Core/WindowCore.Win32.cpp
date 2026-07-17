@@ -100,6 +100,10 @@ InfiniFrameWindow::InfiniFrameWindow(InfiniFrameInitParams* initParams) {
     // Backing implementation object must exist before any field assignment.
     m_impl = std::make_unique<Impl>();
 
+    // WinToast writes verbose diagnostics directly to stdout in Debug builds. Test hosts transport stdout over RPC;
+    // hundreds of window lifecycle tests can otherwise flood and destabilize IDE test-runner connections.
+    WinToastLib::setDebugOutputEnabled(false);
+
     // Fail fast if caller and native side disagree on struct layout/version.
     if (initParams->StructSize != sizeof(InfiniFrameInitParams)) {
         throw std::invalid_argument(
