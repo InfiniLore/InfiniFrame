@@ -22,29 +22,47 @@ on:
                 default: false
 
 jobs:
-    test-x64:
-        name: CI Testing - macOS/x64/${{ matrix.framework }}
-        runs-on: macos-15-intel
+    macos:
+        name: CI Testing - macOS (${{ matrix.arch }})
+        runs-on: ${{ matrix.os }}
         timeout-minutes: 120
         env:
             TARGET_SHA: ${{ inputs.target_sha }}
             WORKFLOW_URL: ${{ inputs.workflow_url }}
-            OBJC_DISABLE_INITIALIZE_FORK_SAFETY: YES
-            NSUnbufferedIO: YES
         strategy:
             fail-fast: false
             matrix:
-                framework: [net8.0, net9.0, net10.0]
+                include:
+                    -   os: macos-15-intel
+                        arch: x64
+                        libName: osx
+                        rid: osx-x64
+                    -   os: macos-latest
+                        arch: arm64
+                        libName: osx
+                        rid: osx-arm64
         permissions:
             contents: read
             statuses: write
             checks: write
+
         steps:
             -   name: Checkout
                 uses: actions/checkout@v7
                 with:
                     ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
                     fetch-depth: 1
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies
+                with:
+                    cache-dotnet: false
+
+            -   name: Setup dependencies
+                uses: ./.github/actions/setup-dependencies-native
+                with:
+                    brew-cache-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
+                    brew-restore-key: ${{ matrix.os }}-${{ matrix.arch }}-brew-native-
 
             -   name: Set macOS Check Pending
                 env:
@@ -53,22 +71,11 @@ jobs:
                 with:
                     repo: ${{ github.repository }}
                     sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/x64/${{ matrix.framework }}
+                    context: CI Testing - macOS/${{ matrix.arch }}
                     state: pending
-                    status-description: macOS x64 ${{ matrix.framework }} tests in progress
+                    status-description: macOS tests in progress
                     target-url: ${{ inputs.workflow_url }}
                     allow-status-422: 'true'
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    cache-dotnet: false
-
-            -   name: Setup native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: macos-15-intel-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: macos-15-intel-x64-brew-native-
 
             -   name: Download Testing Native Build Artifacts
                 uses: ./.github/actions/download-native-binaries
@@ -76,7 +83,7 @@ jobs:
                     artifact-type: testing
 
             -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=x64
+                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=${{ matrix.arch }}
 
             -   name: Build Release
                 run: |
@@ -84,7 +91,7 @@ jobs:
                       --configuration Release \
                       --no-restore \
                       -p:SolutionDir=${{ github.workspace }}/ \
-                      -p:NativeArch=x64 \
+                      -p:NativeArch=${{ matrix.arch }} \
                       -p:InfiniFrameSkipNativeBuild=true \
                       -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
 
@@ -95,443 +102,66 @@ jobs:
                         core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
                         core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
 
-            -   name: Run ${{ matrix.framework }} Tests
-                id: tests
-                shell: bash
+            -   name: Run Tests
                 run: |
                     echo "Setting up macOS test environment..."
-
+                    
                     echo "=== Environment Status ==="
                     echo "System: $(sw_vers -productName) $(sw_vers -productVersion)"
                     echo "Architecture: $(uname -m)"
                     echo "Running in native macOS mode"
-
+                    
+                    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+                    export NSUnbufferedIO=YES
+                    
                     echo "=== Running Tests ==="
-                    echo "=== Testing ${{ matrix.framework }} ==="
-                    echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting ${{ matrix.framework }}"
+                    
+                    exit_code=0
+                    mkdir -p artifacts/testdiag
+                    mkdir -p artifacts/testresults
+                    
+                    for framework in net8.0 net9.0 net10.0; do
+                        echo "=== Testing $framework ==="
+                        echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting $framework"
 
-                    mkdir -p "artifacts/testdiag/${{ matrix.framework }}"
-                    mkdir -p "artifacts/testresults/${{ matrix.framework }}"
-                    test_exit_code=0
+                        framework_exit_code=0
 
-                    test_projects=(
-                      tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj
-                      tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj
-                      tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj
-                      tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj
-                      tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj
-                      tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj
-                      tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
-                    )
-
-                    run_project() {
-                        local project="$1"
-                        local project_name
-                        local project_exit_code=0
-                        project_name="$(basename "$project" .csproj)"
-
-                        echo "--- ${project} (${{ matrix.framework }}) ---"
-                        mkdir -p "artifacts/testdiag/${{ matrix.framework }}/${project_name}"
-                        mkdir -p "artifacts/testresults/${{ matrix.framework }}/${project_name}"
-
-                        dotnet test "$project" \
+                        dotnet test --solution InfiniFrame.GitHubActions.Testing.slnf \
                           --configuration Release \
                           --no-build \
                           --no-restore \
-                          --framework "${{ matrix.framework }}" \
-                          -p:NativeArch=x64 \
+                          --framework "$framework" \
+                          -p:NativeArch=${{ matrix.arch }} \
                           -p:InfiniFrameSkipNativeBuild=true \
                           -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                          --results-directory "artifacts/testresults/${{ matrix.framework }}/${project_name}" \
-                          -- \
-                          --report-trx \
+                          --results-directory "artifacts/testresults/$framework" \
                           --diagnostic \
-                          --diagnostic-output-directory "artifacts/testdiag/${{ matrix.framework }}/${project_name}" \
-                          --diagnostic-file-prefix "mtp-${{ matrix.framework }}-${project_name}" \
+                          --diagnostic-output-directory "artifacts/testdiag/$framework" \
+                          --diagnostic-file-prefix "mtp-$framework" \
                           --diagnostic-verbosity Information \
                           --output Detailed \
                           --github-reporter-style full \
-                          --no-ansi || project_exit_code=$?
+                          --no-ansi || framework_exit_code=$?
 
-                        if [ "$project_exit_code" -ne 0 ]; then
-                            test_exit_code="$project_exit_code"
+                        echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished $framework with exit code $framework_exit_code"
+                    
+                        if [ $framework_exit_code -ne 0 ]; then
+                            echo "=== Test diagnostics for $framework ==="
+                            find "artifacts/testdiag/$framework" -type f -name '*.diag' -print -exec cat {} \; || true
                         fi
-                    }
 
-                    for project in "${test_projects[@]}"; do
-                        run_project "$project"
-                    done
-
-                    if [ "${{ matrix.framework }}" = "net10.0" ]; then
-                        run_project tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj
-                    fi
-
-                    echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished ${{ matrix.framework }} with exit code $test_exit_code"
-
-                    if [ "$test_exit_code" -ne 0 ]; then
-                        echo "=== Test diagnostics for ${{ matrix.framework }} ==="
-                        find "artifacts/testdiag/${{ matrix.framework }}" -type f -name '*.diag' -print -exec cat {} \; || true
-                    fi
-
-                    exit "$test_exit_code"
-
-            -   name: Print TRX Summary
-                if: always()
-                shell: bash
-                env:
-                    FRAMEWORK: ${{ matrix.framework }}
-                run: |
-                    python3 - <<'PY'
-                    import datetime
-                    import os
-                    import pathlib
-                    import xml.etree.ElementTree as ET
-
-                    root = pathlib.Path("artifacts/testresults") / os.environ["FRAMEWORK"]
-                    files = sorted(root.rglob("*.trx"))
-                    passed = failed = skipped = total = 0
-                    starts = []
-                    finishes = []
-                    fallback_duration = datetime.timedelta()
-
-                    def timestamp(value):
-                        return datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
-
-                    for trx in files:
-                        document = ET.parse(trx).getroot()
-                        summary = document.find(".//{*}ResultSummary")
-                        counters = summary.find("./{*}Counters") if summary is not None else None
-                        if counters is not None:
-                            passed += int(counters.get("passed", 0))
-                            failed += sum(int(counters.get(key, 0)) for key in (
-                                "failed", "error", "timeout", "aborted", "inconclusive",
-                                "passedButRunAborted", "disconnected"))
-                            skipped += int(counters.get("notExecuted", 0))
-                            total += int(counters.get("total", 0))
-
-                        times = document.find(".//{*}Times")
-                        if times is not None and times.get("start") and times.get("finish"):
-                            starts.append(timestamp(times.get("start")))
-                            finishes.append(timestamp(times.get("finish")))
-                        elif times is not None and times.get("duration"):
-                            hours, minutes, seconds = times.get("duration").split(":")
-                            fallback_duration += datetime.timedelta(
-                                hours=int(hours), minutes=int(minutes), seconds=float(seconds))
-
-                    duration = max(finishes) - min(starts) if starts and finishes else fallback_duration
-                    seconds = int(duration.total_seconds())
-                    formatted_duration = f"{seconds // 3600:02d}:{seconds % 3600 // 60:02d}:{seconds % 60:02d}"
-                    print("============================")
-                    print(f"Framework: {os.environ['FRAMEWORK']}\n")
-                    print(f"Passed : {passed}")
-                    print(f"Failed : {failed}")
-                    print(f"Skipped: {skipped}")
-                    print(f"Total  : {total}\n")
-                    print(f"Duration: {formatted_duration}")
-                    print("============================")
-                    if not files:
-                        raise SystemExit(f"No TRX files found beneath {root}")
-                    PY
-
-            -   name: Upload Test Diagnostics and Results
-                if: always()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: macos-test-x64-${{ matrix.framework }}
-                    path: |
-                        artifacts/testdiag/${{ matrix.framework }}/**
-                        artifacts/testresults/${{ matrix.framework }}/**
-                    if-no-files-found: warn
-                    retention-days: 7
-
-            -   name: Update macOS Check
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/x64/${{ matrix.framework }}
-                    target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ job.status }}
-                    success-description: macOS x64 ${{ matrix.framework }} tests passed
-                    failure-description: macOS x64 ${{ matrix.framework }} tests failed
-
-    test-arm64:
-        name: CI Testing - macOS/arm64/${{ matrix.framework }}
-        runs-on: macos-latest
-        timeout-minutes: 120
-        env:
-            TARGET_SHA: ${{ inputs.target_sha }}
-            WORKFLOW_URL: ${{ inputs.workflow_url }}
-            OBJC_DISABLE_INITIALIZE_FORK_SAFETY: YES
-            NSUnbufferedIO: YES
-        strategy:
-            fail-fast: false
-            matrix:
-                framework: [net8.0, net9.0, net10.0]
-        permissions:
-            contents: read
-            statuses: write
-            checks: write
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Set macOS Check Pending
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/arm64/${{ matrix.framework }}
-                    state: pending
-                    status-description: macOS arm64 ${{ matrix.framework }} tests in progress
-                    target-url: ${{ inputs.workflow_url }}
-                    allow-status-422: 'true'
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    cache-dotnet: false
-
-            -   name: Setup native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: macos-latest-arm64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: macos-latest-arm64-brew-native-
-
-            -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/download-native-binaries
-                with:
-                    artifact-type: testing
-
-            -   name: Restore
-                run: dotnet restore InfiniFrame.GitHubActions.Testing.slnf /p:NoWarn=NU1503 /p:NativeArch=arm64
-
-            -   name: Build Release
-                run: |
-                    dotnet build InfiniFrame.GitHubActions.Testing.slnf \
-                      --configuration Release \
-                      --no-restore \
-                      -p:SolutionDir=${{ github.workspace }}/ \
-                      -p:NativeArch=arm64 \
-                      -p:InfiniFrameSkipNativeBuild=true \
-                      -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }}
-
-            -   name: Export Actions Runtime
-                uses: actions/github-script@v9
-                with:
-                    script: |
-                        core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN']);
-                        core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL']);
-
-            -   name: Run ${{ matrix.framework }} Tests
-                id: tests
-                shell: bash
-                run: |
-                    echo "Setting up macOS test environment..."
-
-                    echo "=== Environment Status ==="
-                    echo "System: $(sw_vers -productName) $(sw_vers -productVersion)"
-                    echo "Architecture: $(uname -m)"
-                    echo "Running in native macOS mode"
-
-                    echo "=== Running Tests ==="
-                    echo "=== Testing ${{ matrix.framework }} ==="
-                    echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Starting ${{ matrix.framework }}"
-
-                    mkdir -p "artifacts/testdiag/${{ matrix.framework }}"
-                    mkdir -p "artifacts/testresults/${{ matrix.framework }}"
-                    test_exit_code=0
-
-                    test_projects=(
-                      tests/InfiniTests.InfiniFrame.Js/InfiniTests.InfiniFrame.Js.csproj
-                      tests/InfiniTests.InfiniFrame.Blazor/InfiniTests.InfiniFrame.Blazor.csproj
-                      tests/InfiniTests.InfiniFrame.WebServer/InfiniTests.InfiniFrame.WebServer.csproj
-                      tests/InfiniTests.InfiniFrame.Shared/InfiniTests.InfiniFrame.Shared.csproj
-                      tests/InfiniTests.InfiniFrame.NativeBridge/InfiniTests.InfiniFrame.NativeBridge.csproj
-                      tests/InfiniTests.InfiniFrame.BlazorWebView/InfiniTests.InfiniFrame.BlazorWebView.csproj
-                      tests/InfiniTests.InfiniFrame/InfiniTests.InfiniFrame.csproj
-                    )
-
-                    run_project() {
-                        local project="$1"
-                        local project_name
-                        local project_exit_code=0
-                        project_name="$(basename "$project" .csproj)"
-
-                        echo "--- ${project} (${{ matrix.framework }}) ---"
-                        mkdir -p "artifacts/testdiag/${{ matrix.framework }}/${project_name}"
-                        mkdir -p "artifacts/testresults/${{ matrix.framework }}/${project_name}"
-
-                        dotnet test "$project" \
-                          --configuration Release \
-                          --no-build \
-                          --no-restore \
-                          --framework "${{ matrix.framework }}" \
-                          -p:NativeArch=arm64 \
-                          -p:InfiniFrameSkipNativeBuild=true \
-                          -p:InfiniFrameEnableTestExports=${{ inputs.enable_test_exports }} \
-                          --results-directory "artifacts/testresults/${{ matrix.framework }}/${project_name}" \
-                          -- \
-                          --report-trx \
-                          --diagnostic \
-                          --diagnostic-output-directory "artifacts/testdiag/${{ matrix.framework }}/${project_name}" \
-                          --diagnostic-file-prefix "mtp-${{ matrix.framework }}-${project_name}" \
-                          --diagnostic-verbosity Information \
-                          --output Detailed \
-                          --github-reporter-style full \
-                          --no-ansi || project_exit_code=$?
-
-                        if [ "$project_exit_code" -ne 0 ]; then
-                            test_exit_code="$project_exit_code"
+                        if [ $framework_exit_code -ne 0 ]; then
+                            exit_code=$framework_exit_code
                         fi
-                    }
-
-                    for project in "${test_projects[@]}"; do
-                        run_project "$project"
                     done
-
-                    if [ "${{ matrix.framework }}" = "net10.0" ]; then
-                        run_project tests/InfiniTests.InfiniFrame.Tools.Pack/InfiniTests.InfiniFrame.Tools.Pack.csproj
-                    fi
-
-                    echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] Finished ${{ matrix.framework }} with exit code $test_exit_code"
-
-                    if [ "$test_exit_code" -ne 0 ]; then
-                        echo "=== Test diagnostics for ${{ matrix.framework }} ==="
-                        find "artifacts/testdiag/${{ matrix.framework }}" -type f -name '*.diag' -print -exec cat {} \; || true
-                    fi
-
-                    exit "$test_exit_code"
-
-            -   name: Print TRX Summary
-                if: always()
-                shell: bash
-                env:
-                    FRAMEWORK: ${{ matrix.framework }}
-                run: |
-                    python3 - <<'PY'
-                    import datetime
-                    import os
-                    import pathlib
-                    import xml.etree.ElementTree as ET
-
-                    root = pathlib.Path("artifacts/testresults") / os.environ["FRAMEWORK"]
-                    files = sorted(root.rglob("*.trx"))
-                    passed = failed = skipped = total = 0
-                    starts = []
-                    finishes = []
-                    fallback_duration = datetime.timedelta()
-
-                    def timestamp(value):
-                        return datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
-
-                    for trx in files:
-                        document = ET.parse(trx).getroot()
-                        summary = document.find(".//{*}ResultSummary")
-                        counters = summary.find("./{*}Counters") if summary is not None else None
-                        if counters is not None:
-                            passed += int(counters.get("passed", 0))
-                            failed += sum(int(counters.get(key, 0)) for key in (
-                                "failed", "error", "timeout", "aborted", "inconclusive",
-                                "passedButRunAborted", "disconnected"))
-                            skipped += int(counters.get("notExecuted", 0))
-                            total += int(counters.get("total", 0))
-
-                        times = document.find(".//{*}Times")
-                        if times is not None and times.get("start") and times.get("finish"):
-                            starts.append(timestamp(times.get("start")))
-                            finishes.append(timestamp(times.get("finish")))
-                        elif times is not None and times.get("duration"):
-                            hours, minutes, seconds = times.get("duration").split(":")
-                            fallback_duration += datetime.timedelta(
-                                hours=int(hours), minutes=int(minutes), seconds=float(seconds))
-
-                    duration = max(finishes) - min(starts) if starts and finishes else fallback_duration
-                    seconds = int(duration.total_seconds())
-                    formatted_duration = f"{seconds // 3600:02d}:{seconds % 3600 // 60:02d}:{seconds % 60:02d}"
-                    print("============================")
-                    print(f"Framework: {os.environ['FRAMEWORK']}\n")
-                    print(f"Passed : {passed}")
-                    print(f"Failed : {failed}")
-                    print(f"Skipped: {skipped}")
-                    print(f"Total  : {total}\n")
-                    print(f"Duration: {formatted_duration}")
-                    print("============================")
-                    if not files:
-                        raise SystemExit(f"No TRX files found beneath {root}")
-                    PY
-
-            -   name: Upload Test Diagnostics and Results
-                if: always()
-                uses: actions/upload-artifact@v7
-                with:
-                    name: macos-test-arm64-${{ matrix.framework }}
-                    path: |
-                        artifacts/testdiag/${{ matrix.framework }}/**
-                        artifacts/testresults/${{ matrix.framework }}/**
-                    if-no-files-found: warn
-                    retention-days: 7
-
-            -   name: Update macOS Check
-                if: always()
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                uses: ./.github/actions/sync-check-finalize
-                with:
-                    repo: ${{ github.repository }}
-                    sha: ${{ inputs.target_sha }}
-                    context: CI Testing - macOS/arm64/${{ matrix.framework }}
-                    target-url: ${{ inputs.workflow_url }}
-                    job-status: ${{ job.status }}
-                    success-description: macOS arm64 ${{ matrix.framework }} tests passed
-                    failure-description: macOS arm64 ${{ matrix.framework }} tests failed
-
-    pack-tool-e2e-x64:
-        name: Pack Tool E2E - macOS/x64
-        needs: test-x64
-        runs-on: macos-15-intel
-        timeout-minutes: 120
-        permissions:
-            contents: read
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
-                with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    cache-dotnet: false
-
-            -   name: Setup native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: macos-15-intel-x64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: macos-15-intel-x64-brew-native-
-
-            -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/download-native-binaries
-                with:
-                    artifact-type: testing
-
-            -   name: Restore Pack Tool
-                run: dotnet restore src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj /p:NoWarn=NU1503 /p:NativeArch=x64
+                    
+                    exit $exit_code
 
             -   name: Pack Tool E2E
                 uses: ./.github/actions/packtool-e2e
                 with:
                     project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
-                    rid: osx-x64
+                    rid: ${{ matrix.rid }}
                     output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
                     main-output-name: InfiniFrameExample.SingleFileExe
                     forbidden-entries: |
@@ -541,49 +171,16 @@ jobs:
                         InfiniFrame.Native.so
                         InfiniFrame.Native.dylib
 
-    pack-tool-e2e-arm64:
-        name: Pack Tool E2E - macOS/arm64
-        needs: test-arm64
-        runs-on: macos-latest
-        timeout-minutes: 120
-        permissions:
-            contents: read
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v7
+            -   name: Update macOS Check
+                if: always()
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                uses: ./.github/actions/sync-check-finalize
                 with:
-                    ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || (inputs.pr_number != '' && inputs.pr_number != null && format('refs/pull/{0}/merge', inputs.pr_number) || github.ref) }}
-                    fetch-depth: 1
-
-            -   name: Setup dependencies
-                uses: ./.github/actions/setup-dependencies
-                with:
-                    cache-dotnet: false
-
-            -   name: Setup native dependencies
-                uses: ./.github/actions/setup-dependencies-native
-                with:
-                    brew-cache-key: macos-latest-arm64-brew-native-${{ hashFiles('.github/actions/setup-dependencies-native/action.yml', '.github/workflows/shared-testing-macos.yml') }}
-                    brew-restore-key: macos-latest-arm64-brew-native-
-
-            -   name: Download Testing Native Build Artifacts
-                uses: ./.github/actions/download-native-binaries
-                with:
-                    artifact-type: testing
-
-            -   name: Restore Pack Tool
-                run: dotnet restore src/InfiniFrame.Tools.Pack/InfiniFrame.Tools.Pack.csproj /p:NoWarn=NU1503 /p:NativeArch=arm64
-
-            -   name: Pack Tool E2E
-                uses: ./.github/actions/packtool-e2e
-                with:
-                    project: examples/InfiniFrameExample.SingleFileExe/InfiniFrameExample.SingleFileExe.csproj
-                    rid: osx-arm64
-                    output: artifacts/pack-e2e/InfiniFrameExample.SingleFileExe
-                    main-output-name: InfiniFrameExample.SingleFileExe
-                    forbidden-entries: |
-                        wwwroot
-                        InfiniFrame.Native.dll
-                        WebView2Loader.dll
-                        InfiniFrame.Native.so
-                        InfiniFrame.Native.dylib
+                    repo: ${{ github.repository }}
+                    sha: ${{ inputs.target_sha }}
+                    context: CI Testing - macOS/${{ matrix.arch }}
+                    target-url: ${{ inputs.workflow_url }}
+                    job-status: ${{ job.status }}
+                    success-description: macOS tests passed
+                    failure-description: macOS tests failed
