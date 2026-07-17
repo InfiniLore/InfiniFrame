@@ -135,7 +135,7 @@ void InfiniFrameWindow::AttachWebView() {
                     m_impl->_isWebView2Initializing = false;
                     TraceTeardown(L"CreateEnvironment callback while closing; finalizing close");
                     PostMessage(m_impl->_hWnd, WM_CLOSE, 0, 0);
-                    return S_OK;t with
+                    return S_OK;
                 }
                 if (result != S_OK) {
                     m_impl->_isWebView2Initializing = false;
