@@ -139,9 +139,27 @@ LRESULT CALLBACK WindowProc(const HWND hwnd, const UINT uMsg, const WPARAM wPara
             InfiniFrameWindow* instance = LookupWindowInstance(hwnd);
             if (instance) {
                 TraceTeardown(L"WM_CLOSE hwnd=%p instance=%p", hwnd, instance);
-                bool doNotClose = instance->InvokeClose();
+                auto* impl = instance->m_impl.get();
+
+                // A second WM_CLOSE is posted by the WebView2 completion callback after a
+                // previously accepted close was deferred. Do not invoke managed closing
+                // handlers twice; initialization has now unwound and destruction is safe.
+                const bool closeAlreadyAccepted =
+                    impl->_isClosingOrClosed.load(std::memory_order_acquire);
+                bool doNotClose = closeAlreadyAccepted ? false : instance->InvokeClose();
 
                 if (!doNotClose) {
+                    // WebView2 is asynchronously creating a controller for this HWND. Destroying
+                    // the HWND before that operation completes causes an access violation inside
+                    // EmbeddedBrowserWebView.dll, particularly in optimized Release builds.
+                    if (!closeAlreadyAccepted && impl->_isWebView2Initializing && !impl->_webviewController) {
+                        impl->_isClosingOrClosed.store(true, std::memory_order_release);
+                        TraceTeardown(
+                            L"WM_CLOSE deferred for WebView2 initialization hwnd=%p instance=%p", hwnd, instance
+                        );
+                        return 0;
+                    }
+
                     SetLastError(0);
                     const LONG_PTR previousOwner = SetWindowLongPtr(hwnd, GWLP_HWNDPARENT, 0);
                     const DWORD ownerDetachError = GetLastError();
